@@ -31,20 +31,20 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Variable not set}
       - POSTGRES_DB=app
 
-  adminer:
-    image: adminer
-    depends_on:
-      - db
-    environment:
-      - ADMINER_DESIGN=pepa-linha-dark
-    labels:
-      # Enable Traefik for this service
-      - traefik.enable=true
-      # Route HTTP traffic for the Adminer subdomain
-      - traefik.http.routers.adminer-http.rule=Host(`adminer.${DOMAIN:-localhost}`)
-      - traefik.http.routers.adminer-http.entrypoints=http
-      # Define the port inside of the Docker service to use
-      - traefik.http.services.adminer.loadbalancer.server.port=8080
+  # adminer:
+  #   image: adminer
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     - ADMINER_DESIGN=pepa-linha-dark
+  #   labels:
+  #     # Enable Traefik for this service
+  #     - traefik.enable=true
+  #     # Route HTTP traffic for the Adminer subdomain
+  #     - traefik.http.routers.adminer-http.rule=Host(`adminer.${DOMAIN:-localhost}`)
+  #     - traefik.http.routers.adminer-http.entrypoints=http
+  #     # Define the port inside of the Docker service to use
+  #     - traefik.http.services.adminer.loadbalancer.server.port=8080
 
   backend:
     image: backend:latest
