@@ -14,7 +14,6 @@
   - 💃 Using TypeScript, hooks, [Vite](https://vitejs.dev), and other parts of a modern frontend stack.
   - 🎨 [Tailwind CSS](https://tailwindcss.com) and [shadcn/ui](https://ui.shadcn.com) for the frontend components.
   - 🤖 An automatically generated frontend client.
-  - 🧪 [Playwright](https://playwright.dev) for end-to-end testing.
   - 🦇 Dark mode support.
 - ☁️ [FastAPI Cloud](https://fastapicloud.com) for deployment.
 - 🐋 [Docker Compose](https://www.docker.com) for local services and self-hosted deployment.
