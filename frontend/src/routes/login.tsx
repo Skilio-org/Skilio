@@ -1,14 +1,14 @@
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createFileRoute,
-  Link as RouterLink,
   redirect,
-} from "@tanstack/react-router"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+  Link as RouterLink,
+} from "@tanstack/react-router";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import type { Body_login_login_access_token as AccessToken } from "@/client"
-import { AuthLayout } from "@/components/Common/AuthLayout"
+import type { Body_login_login_access_token as AccessToken } from "@/client";
+import { AuthLayout } from "@/components/Common/AuthLayout";
 import {
   Form,
   FormControl,
@@ -16,11 +16,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { LoadingButton } from "@/components/ui/loading-button"
-import { PasswordInput } from "@/components/ui/password-input"
-import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { PasswordInput } from "@/components/ui/password-input";
+import useAuth, { isLoggedIn } from "@/hooks/useAuth";
 
 const formSchema = z.object({
   username: z.email({ message: "Invalid email address" }),
@@ -28,9 +28,9 @@ const formSchema = z.object({
     .string()
     .min(1, { message: "Password is required" })
     .min(8, { message: "Password must be at least 8 characters" }),
-}) satisfies z.ZodType<AccessToken>
+}) satisfies z.ZodType<AccessToken>;
 
-type FormData = z.infer<typeof formSchema>
+type FormData = z.infer<typeof formSchema>;
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -38,7 +38,7 @@ export const Route = createFileRoute("/login")({
     if (isLoggedIn()) {
       throw redirect({
         to: "/",
-      })
+      });
     }
   },
   head: () => ({
@@ -48,10 +48,10 @@ export const Route = createFileRoute("/login")({
       },
     ],
   }),
-})
+});
 
 function Login() {
-  const { loginMutation } = useAuth()
+  const { loginMutation } = useAuth();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: "onBlur",
@@ -60,12 +60,12 @@ function Login() {
       username: "",
       password: "",
     },
-  })
+  });
 
   const onSubmit = (data: FormData) => {
-    if (loginMutation.isPending) return
-    loginMutation.mutate(data)
-  }
+    if (loginMutation.isPending) return;
+    loginMutation.mutate(data);
+  };
 
   return (
     <AuthLayout>
@@ -74,8 +74,8 @@ function Login() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-6"
         >
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Login to your account</h1>
+          <div className="flex flex-col items-center gap-2 text-center font-display">
+            <h1 className="text-3xl font-bold">Login to your account</h1>
           </div>
 
           <div className="grid gap-4">
@@ -138,5 +138,5 @@ function Login() {
         </form>
       </Form>
     </AuthLayout>
-  )
+  );
 }
