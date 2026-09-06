@@ -7,10 +7,8 @@ import {
   ChevronDown,
   CircleUserRound,
   LogOut,
-  Moon,
   Settings,
-  Sun,
-  UserRound
+  UserRound,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -34,7 +32,6 @@ import {
 
 import { Switch } from "@/components/ui/switch";
 
-import { useTheme } from "@/components/theme-provider";
 import useAuth from "@/hooks/useAuth";
 
 import { getInitials } from "@/utils";
@@ -252,8 +249,6 @@ export function User({ user }: { user: any }) {
 
   const { isMobile, setOpenMobile, state } = useSidebar();
 
-  const { resolvedTheme, setTheme } = useTheme();
-
   const [online, setOnline] = useState(true);
 
   if (!user) {
@@ -261,8 +256,6 @@ export function User({ user }: { user: any }) {
   }
 
   const role = user?.role === "client" ? "client" : "freelancer";
-
-  const isDark = resolvedTheme === "dark";
 
   const isCollapsed = !isMobile && state === "collapsed";
 
@@ -278,10 +271,6 @@ export function User({ user }: { user: any }) {
     if (isMobile) {
       setOpenMobile(false);
     }
-  };
-
-  const toggleTheme = () => {
-    setTheme(isDark ? "light" : "dark");
   };
 
   return (
@@ -471,16 +460,6 @@ export function User({ user }: { user: any }) {
                 ================================================= */}
 
             <MenuRow icon={Activity} label="Account health" />
-
-            {/* =================================================
-                THEME
-                ================================================= */}
-
-            <MenuRow
-              icon={isDark ? Moon : Sun}
-              label={isDark ? "Theme: Dark" : "Theme: Light"}
-              onClick={toggleTheme}
-            />
 
             {/* =================================================
                 SETTINGS
