@@ -49,19 +49,6 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-/* =========================================================
-   SOCIAL AUTH
-   ========================================================= */
-
-/*
- * Add these to your frontend .env when the backend
- * OAuth endpoints are ready:
- *
- * VITE_GOOGLE_OAUTH_URL=http://localhost:8000/api/v1/auth/google
- * VITE_APPLE_OAUTH_URL=http://localhost:8000/api/v1/auth/apple
- * VITE_LINKEDIN_OAUTH_URL=http://localhost:8000/api/v1/auth/linkedin
- */
-
 const socialProviders = [
   {
     id: "google",
@@ -82,10 +69,6 @@ const socialProviders = [
     href: import.meta.env.VITE_LINKEDIN_OAUTH_URL as string | undefined,
   },
 ];
-
-/* =========================================================
-   ROUTE
-   ========================================================= */
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -111,10 +94,6 @@ export const Route = createFileRoute("/login")({
   }),
 });
 
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
 function Login() {
   const { loginMutation } = useAuth();
 
@@ -130,19 +109,11 @@ function Login() {
     },
   });
 
-  /* =======================================================
-     PASSWORD LOGIN
-     ======================================================= */
-
   const onSubmit = (data: FormData) => {
     if (loginMutation.isPending) return;
 
     loginMutation.mutate(data);
   };
-
-  /* =======================================================
-     SOCIAL LOGIN
-     ======================================================= */
 
   const handleSocialLogin = (href: string | undefined) => {
     if (!href) return;
@@ -152,11 +123,7 @@ function Login() {
 
   return (
     <AuthLayout>
-      <div className="mx-auto w-full max-w-[460px]">
-        {/* =================================================
-            HEADER
-            ================================================= */}
-
+      <div className="mx-auto w-full max-w-115">
         <div className="mb-8 space-y-3 text-center">
           <h1
             className="
@@ -446,7 +413,7 @@ function Login() {
               >
                 <Icon
                   className={`
-                      size-[18px]
+                      size-4.5
                       shrink-0
 
                       ${id === "linkedin" ? "text-[#0A66C2]" : ""}
