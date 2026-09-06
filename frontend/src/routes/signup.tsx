@@ -32,10 +32,6 @@ import { PasswordInput } from "@/components/ui/password-input";
 
 import useAuth, { isLoggedIn } from "@/hooks/useAuth";
 
-/* =========================================================
-   VALIDATION
-   ========================================================= */
-
 const formSchema = z
   .object({
     role: z.enum(["freelancer", "client"], {
@@ -78,10 +74,6 @@ type FormData = z.infer<typeof formSchema>;
 
 type SignupStep = 1 | 2;
 
-/* =========================================================
-   ROUTE
-   ========================================================= */
-
 export const Route = createFileRoute("/signup")({
   component: SignUp,
 
@@ -107,10 +99,6 @@ export const Route = createFileRoute("/signup")({
   }),
 });
 
-/* =========================================================
-   SIGN UP
-   ========================================================= */
-
 function SignUp() {
   const { signUpMutation } = useAuth();
 
@@ -133,14 +121,10 @@ function SignUp() {
 
   const selectedRole = form.watch("role");
 
-  /* =======================================================
-     STEP NAVIGATION
-     ======================================================= */
-
   const goToDetails = async () => {
-    const isRoleValid = await form.trigger("role");
+    const valid = await form.trigger("role");
 
-    if (!isRoleValid) return;
+    if (!valid) return;
 
     setStep(2);
   };
@@ -148,10 +132,6 @@ function SignUp() {
   const goBackToRole = () => {
     setStep(1);
   };
-
-  /* =======================================================
-     SUBMIT
-     ======================================================= */
 
   const onSubmit = (data: FormData) => {
     if (signUpMutation.isPending) return;
@@ -163,34 +143,30 @@ function SignUp() {
 
   return (
     <AuthLayout>
-      <div className="mx-auto w-full max-w-[400px]">
+      <div className="mx-auto w-full max-w-115">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-            {/* =================================================
-                STEP 1 — ACCOUNT TYPE
-                ================================================= */}
-
             {step === 1 && (
               <div className="animate-in fade-in slide-in-from-left-2 duration-300">
-                {/* Header */}
+                {/* HEADER */}
 
-                <div className="mb-8 text-center">
+                <div className="mb-9 text-center">
                   <div
                     className="
-                      mb-4
+                      mb-5
                       inline-flex
                       items-center
                       rounded-full
                       border
-                      border-brand-200
-                      bg-brand-50
+                      border-primary/25
+                      bg-accent
                       px-3
                       py-1
                       text-[11px]
                       font-semibold
                       uppercase
                       tracking-[0.12em]
-                      text-brand-700
+                      text-accent-foreground
                     "
                   >
                     Get started
@@ -199,11 +175,12 @@ function SignUp() {
                   <h1
                     className="
                       font-display
-                      text-[40px]
+                      text-[42px]
                       font-bold
                       leading-[0.98]
                       tracking-[-0.045em]
                       text-foreground
+                      sm:text-[46px]
                     "
                   >
                     How do you want
@@ -215,7 +192,7 @@ function SignUp() {
                     className="
                       mx-auto
                       mt-4
-                      max-w-[330px]
+                      max-w-95
                       text-sm
                       leading-6
                       text-muted-foreground
@@ -226,7 +203,7 @@ function SignUp() {
                   </p>
                 </div>
 
-                {/* Role Selection */}
+                {/* ROLE SELECTION */}
 
                 <FormField
                   control={form.control}
@@ -234,8 +211,8 @@ function SignUp() {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <div className="space-y-3">
-                          {/* Freelancer */}
+                        <div className="space-y-3.5">
+                          {/* FREELANCER */}
 
                           <button
                             type="button"
@@ -246,37 +223,44 @@ function SignUp() {
                               group
                               relative
                               flex
+                              min-h-28
                               w-full
                               items-center
-                              gap-4
+                              gap-5
                               rounded-2xl
                               border
                               p-5
                               text-left
                               transition-all
                               duration-200
+
                               focus-visible:outline-none
                               focus-visible:ring-[3px]
-                              focus-visible:ring-brand-100
+                              focus-visible:ring-ring/30
+
+                              disabled:pointer-events-none
+                              disabled:opacity-60
 
                               ${
                                 field.value === "freelancer"
                                   ? `
-                                    border-brand-300
-                                    bg-brand-50/80
-                                    shadow-[0_1px_2px_rgb(16_24_40/0.03),0_6px_18px_rgb(70_88_232/0.08)]
+                                    border-primary/40
+                                    bg-accent
+                                    shadow-card
                                   `
                                   : `
                                     border-border
                                     bg-card
                                     hover:-translate-y-px
-                                    hover:border-brand-200
-                                    hover:bg-brand-50/30
-                                    hover:shadow-[0_6px_20px_rgb(16_24_40/0.05)]
+                                    hover:border-primary/25
+                                    hover:bg-accent/40
+                                    hover:shadow-card-hover
                                   `
                               }
                             `}
                           >
+                            {/* ICON */}
+
                             <div
                               className={`
                                 flex
@@ -293,13 +277,13 @@ function SignUp() {
                                     ? `
                                       bg-primary
                                       text-primary-foreground
-                                      shadow-[0_4px_12px_rgb(70_88_232/0.22)]
+                                      shadow-sm
                                     `
                                     : `
                                       bg-muted
                                       text-muted-foreground
-                                      group-hover:bg-brand-50
-                                      group-hover:text-brand-600
+                                      group-hover:bg-accent
+                                      group-hover:text-accent-foreground
                                     `
                                 }
                               `}
@@ -307,31 +291,20 @@ function SignUp() {
                               <UserRound className="size-5" />
                             </div>
 
+                            {/* CONTENT */}
+
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className="
-                                    text-[15px]
-                                    font-semibold
-                                    text-foreground
-                                  "
-                                >
-                                  I want to find work
-                                </span>
+                              <div className="text-[15px] font-semibold text-foreground">
+                                I want to find work
                               </div>
 
-                              <p
-                                className="
-                                  mt-1
-                                  text-[13px]
-                                  leading-5
-                                  text-muted-foreground
-                                "
-                              >
+                              <p className="mt-1.5 text-[13px] leading-5 text-muted-foreground">
                                 Create a freelancer profile, showcase your
-                                skills, and work with clients.
+                                skills, and work with great clients.
                               </p>
                             </div>
+
+                            {/* CHECK */}
 
                             <div
                               className={`
@@ -343,6 +316,7 @@ function SignUp() {
                                 rounded-full
                                 border
                                 transition-all
+                                duration-200
 
                                 ${
                                   field.value === "freelancer"
@@ -353,7 +327,7 @@ function SignUp() {
                                     `
                                     : `
                                       border-border
-                                      bg-card
+                                      bg-background
                                       text-transparent
                                     `
                                 }
@@ -363,7 +337,7 @@ function SignUp() {
                             </div>
                           </button>
 
-                          {/* Client */}
+                          {/* CLIENT */}
 
                           <button
                             type="button"
@@ -374,37 +348,44 @@ function SignUp() {
                               group
                               relative
                               flex
+                              min-h-28
                               w-full
                               items-center
-                              gap-4
+                              gap-5
                               rounded-2xl
                               border
                               p-5
                               text-left
                               transition-all
                               duration-200
+
                               focus-visible:outline-none
                               focus-visible:ring-[3px]
-                              focus-visible:ring-brand-100
+                              focus-visible:ring-ring/30
+
+                              disabled:pointer-events-none
+                              disabled:opacity-60
 
                               ${
                                 field.value === "client"
                                   ? `
-                                    border-brand-300
-                                    bg-brand-50/80
-                                    shadow-[0_1px_2px_rgb(16_24_40/0.03),0_6px_18px_rgb(70_88_232/0.08)]
+                                    border-primary/40
+                                    bg-accent
+                                    shadow-card
                                   `
                                   : `
                                     border-border
                                     bg-card
                                     hover:-translate-y-px
-                                    hover:border-brand-200
-                                    hover:bg-brand-50/30
-                                    hover:shadow-[0_6px_20px_rgb(16_24_40/0.05)]
+                                    hover:border-primary/25
+                                    hover:bg-accent/40
+                                    hover:shadow-card-hover
                                   `
                               }
                             `}
                           >
+                            {/* ICON */}
+
                             <div
                               className={`
                                 flex
@@ -421,13 +402,13 @@ function SignUp() {
                                     ? `
                                       bg-primary
                                       text-primary-foreground
-                                      shadow-[0_4px_12px_rgb(70_88_232/0.22)]
+                                      shadow-sm
                                     `
                                     : `
                                       bg-muted
                                       text-muted-foreground
-                                      group-hover:bg-brand-50
-                                      group-hover:text-brand-600
+                                      group-hover:bg-accent
+                                      group-hover:text-accent-foreground
                                     `
                                 }
                               `}
@@ -435,31 +416,20 @@ function SignUp() {
                               <BriefcaseBusiness className="size-5" />
                             </div>
 
+                            {/* CONTENT */}
+
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className="
-                                    text-[15px]
-                                    font-semibold
-                                    text-foreground
-                                  "
-                                >
-                                  I want to hire talent
-                                </span>
+                              <div className="text-[15px] font-semibold text-foreground">
+                                I want to hire talent
                               </div>
 
-                              <p
-                                className="
-                                  mt-1
-                                  text-[13px]
-                                  leading-5
-                                  text-muted-foreground
-                                "
-                              >
+                              <p className="mt-1.5 text-[13px] leading-5 text-muted-foreground">
                                 Find skilled freelancers, manage projects, and
-                                get great work done.
+                                get high-quality work done.
                               </p>
                             </div>
+
+                            {/* CHECK */}
 
                             <div
                               className={`
@@ -471,6 +441,7 @@ function SignUp() {
                                 rounded-full
                                 border
                                 transition-all
+                                duration-200
 
                                 ${
                                   field.value === "client"
@@ -481,7 +452,7 @@ function SignUp() {
                                     `
                                     : `
                                       border-border
-                                      bg-card
+                                      bg-background
                                       text-transparent
                                     `
                                 }
@@ -498,48 +469,47 @@ function SignUp() {
                   )}
                 />
 
-                {/* Continue */}
+                {/* CONTINUE */}
 
                 <button
                   type="button"
                   onClick={goToDetails}
                   className="
-                    mt-6
+                    mt-7
                     flex
-                    h-11
+                    h-12
                     w-full
                     items-center
                     justify-center
                     gap-2
-                    rounded-lg
+                    rounded-xl
                     bg-primary
                     text-sm
                     font-semibold
                     text-primary-foreground
-                    shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(70_88_232/0.16)]
+                    shadow-sm
                     transition-all
                     duration-200
+
                     hover:-translate-y-px
-                    hover:bg-brand-700
-                    hover:shadow-[0_2px_4px_rgb(16_24_40/0.06),0_8px_20px_rgb(70_88_232/0.20)]
+                    hover:bg-primary/90
+                    hover:shadow-md
+
                     active:translate-y-0
-                    active:bg-brand-800
+                    active:bg-primary/85
+
+                    focus-visible:outline-none
+                    focus-visible:ring-[3px]
+                    focus-visible:ring-ring/30
                   "
                 >
                   Continue
                   <ArrowRight className="size-4" />
                 </button>
 
-                {/* Login */}
+                {/* LOGIN */}
 
-                <div
-                  className="
-                    mt-6
-                    text-center
-                    text-sm
-                    text-muted-foreground
-                  "
-                >
+                <div className="mt-6 text-center text-sm text-muted-foreground">
                   Already have an account?{" "}
                   <RouterLink
                     to="/login"
@@ -550,8 +520,8 @@ function SignUp() {
                       decoration-border
                       underline-offset-4
                       transition-colors
-                      hover:text-brand-600
-                      hover:decoration-brand-300
+                      hover:text-primary
+                      hover:decoration-primary/40
                     "
                   >
                     Log in
@@ -560,13 +530,9 @@ function SignUp() {
               </div>
             )}
 
-            {/* =================================================
-                STEP 2 — ACCOUNT DETAILS
-                ================================================= */}
-
             {step === 2 && (
               <div className="animate-in fade-in slide-in-from-right-2 duration-300">
-                {/* Back */}
+                {/* BACK */}
 
                 <button
                   type="button"
@@ -577,11 +543,14 @@ function SignUp() {
                     inline-flex
                     items-center
                     gap-2
+                    rounded-md
                     text-sm
                     font-medium
                     text-muted-foreground
                     transition-colors
+
                     hover:text-foreground
+
                     disabled:pointer-events-none
                     disabled:opacity-50
                   "
@@ -590,17 +559,18 @@ function SignUp() {
                   Back
                 </button>
 
-                {/* Header */}
+                {/* HEADER */}
 
                 <div className="mb-7">
                   <h1
                     className="
                       font-display
-                      text-[40px]
+                      text-[42px]
                       font-bold
                       leading-[0.98]
                       tracking-[-0.045em]
                       text-foreground
+                      sm:text-[46px]
                     "
                   >
                     Create your
@@ -608,15 +578,7 @@ function SignUp() {
                     account.
                   </h1>
 
-                  <p
-                    className="
-                      mt-3
-                      max-w-sm
-                      text-sm
-                      leading-6
-                      text-muted-foreground
-                    "
-                  >
+                  <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
                     You're joining as{" "}
                     <span className="font-medium text-foreground">
                       {selectedRole === "freelancer"
@@ -627,60 +589,49 @@ function SignUp() {
                   </p>
                 </div>
 
-                {/* Selected Role */}
+                {/* SELECTED ROLE */}
 
                 <div
                   className="
                     mb-6
                     flex
                     items-center
-                    gap-3
+                    gap-3.5
                     rounded-xl
                     border
-                    border-brand-200
-                    bg-brand-50/60
-                    p-3
+                    border-primary/25
+                    bg-accent
+                    p-3.5
                   "
                 >
                   <div
                     className="
                       flex
-                      size-9
+                      size-10
                       shrink-0
                       items-center
                       justify-center
                       rounded-lg
                       bg-primary
                       text-primary-foreground
+                      shadow-sm
                     "
                   >
                     {selectedRole === "freelancer" ? (
-                      <UserRound className="size-4" />
+                      <UserRound className="size-4.5" />
                     ) : (
-                      <BriefcaseBusiness className="size-4" />
+                      <BriefcaseBusiness className="size-4.5" />
                     )}
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <div
-                      className="
-                        text-[13px]
-                        font-semibold
-                        text-foreground
-                      "
-                    >
+                    <div className="text-[13px] font-semibold text-foreground">
                       {selectedRole === "freelancer"
                         ? "Freelancer account"
                         : "Client account"}
                     </div>
 
-                    <div
-                      className="
-                        mt-0.5
-                        text-xs
-                        text-muted-foreground
-                      "
-                    >
+                    <div className="mt-0.5 text-xs text-muted-foreground">
                       {selectedRole === "freelancer"
                         ? "Find work and build your career."
                         : "Hire talent and manage projects."}
@@ -693,13 +644,16 @@ function SignUp() {
                     disabled={signUpMutation.isPending}
                     className="
                       rounded-md
-                      px-2
-                      py-1
+                      px-2.5
+                      py-1.5
                       text-xs
                       font-medium
-                      text-brand-700
+                      text-accent-foreground
                       transition-colors
-                      hover:bg-brand-100
+
+                      hover:bg-primary/10
+                      hover:text-primary
+
                       disabled:pointer-events-none
                       disabled:opacity-50
                     "
@@ -708,23 +662,17 @@ function SignUp() {
                   </button>
                 </div>
 
-                {/* Fields */}
+                {/* FIELDS */}
 
                 <div className="space-y-4">
-                  {/* Full name */}
+                  {/* FULL NAME */}
 
                   <FormField
                     control={form.control}
                     name="full_name"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel
-                          className="
-                            text-[13px]
-                            font-medium
-                            text-foreground
-                          "
-                        >
+                        <FormLabel className="text-[13px] font-medium text-foreground">
                           Full name
                         </FormLabel>
 
@@ -736,18 +684,23 @@ function SignUp() {
                             placeholder="Your full name"
                             disabled={signUpMutation.isPending}
                             className="
-                              h-11
-                              rounded-lg
+                              h-12
+                              rounded-xl
+                              border-input
                               bg-card
-                              px-3.5
+                              px-4
                               text-sm
+                              text-foreground
                               shadow-none
                               transition-[border-color,box-shadow,background-color]
-                              placeholder:text-muted-foreground/70
+
+                              placeholder:text-muted-foreground/65
+
                               hover:border-foreground/20
-                              focus-visible:border-brand-400
+
+                              focus-visible:border-primary/50
                               focus-visible:ring-[3px]
-                              focus-visible:ring-brand-100
+                              focus-visible:ring-ring/25
                             "
                             {...field}
                           />
@@ -758,20 +711,14 @@ function SignUp() {
                     )}
                   />
 
-                  {/* Email */}
+                  {/* EMAIL */}
 
                   <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel
-                          className="
-                            text-[13px]
-                            font-medium
-                            text-foreground
-                          "
-                        >
+                        <FormLabel className="text-[13px] font-medium text-foreground">
                           Email
                         </FormLabel>
 
@@ -783,18 +730,23 @@ function SignUp() {
                             placeholder="you@example.com"
                             disabled={signUpMutation.isPending}
                             className="
-                              h-11
-                              rounded-lg
+                              h-12
+                              rounded-xl
+                              border-input
                               bg-card
-                              px-3.5
+                              px-4
                               text-sm
+                              text-foreground
                               shadow-none
                               transition-[border-color,box-shadow,background-color]
-                              placeholder:text-muted-foreground/70
+
+                              placeholder:text-muted-foreground/65
+
                               hover:border-foreground/20
-                              focus-visible:border-brand-400
+
+                              focus-visible:border-primary/50
                               focus-visible:ring-[3px]
-                              focus-visible:ring-brand-100
+                              focus-visible:ring-ring/25
                             "
                             {...field}
                           />
@@ -805,20 +757,14 @@ function SignUp() {
                     )}
                   />
 
-                  {/* Password */}
+                  {/* PASSWORD */}
 
                   <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel
-                          className="
-                            text-[13px]
-                            font-medium
-                            text-foreground
-                          "
-                        >
+                        <FormLabel className="text-[13px] font-medium text-foreground">
                           Password
                         </FormLabel>
 
@@ -829,18 +775,23 @@ function SignUp() {
                             placeholder="Create a password"
                             disabled={signUpMutation.isPending}
                             className="
-                              h-11
-                              rounded-lg
+                              h-12
+                              rounded-xl
+                              border-input
                               bg-card
-                              px-3.5
+                              px-4
                               text-sm
+                              text-foreground
                               shadow-none
                               transition-[border-color,box-shadow,background-color]
-                              placeholder:text-muted-foreground/70
+
+                              placeholder:text-muted-foreground/65
+
                               hover:border-foreground/20
-                              focus-visible:border-brand-400
+
+                              focus-visible:border-primary/50
                               focus-visible:ring-[3px]
-                              focus-visible:ring-brand-100
+                              focus-visible:ring-ring/25
                             "
                             {...field}
                           />
@@ -851,20 +802,14 @@ function SignUp() {
                     )}
                   />
 
-                  {/* Confirm Password */}
+                  {/* CONFIRM PASSWORD */}
 
                   <FormField
                     control={form.control}
                     name="confirm_password"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel
-                          className="
-                            text-[13px]
-                            font-medium
-                            text-foreground
-                          "
-                        >
+                        <FormLabel className="text-[13px] font-medium text-foreground">
                           Confirm password
                         </FormLabel>
 
@@ -875,18 +820,23 @@ function SignUp() {
                             placeholder="Confirm your password"
                             disabled={signUpMutation.isPending}
                             className="
-                              h-11
-                              rounded-lg
+                              h-12
+                              rounded-xl
+                              border-input
                               bg-card
-                              px-3.5
+                              px-4
                               text-sm
+                              text-foreground
                               shadow-none
                               transition-[border-color,box-shadow,background-color]
-                              placeholder:text-muted-foreground/70
+
+                              placeholder:text-muted-foreground/65
+
                               hover:border-foreground/20
-                              focus-visible:border-brand-400
+
+                              focus-visible:border-primary/50
                               focus-visible:ring-[3px]
-                              focus-visible:ring-brand-100
+                              focus-visible:ring-ring/25
                             "
                             {...field}
                           />
@@ -897,7 +847,7 @@ function SignUp() {
                     )}
                   />
 
-                  {/* Submit */}
+                  {/* SUBMIT */}
 
                   <LoadingButton
                     type="submit"
@@ -905,21 +855,26 @@ function SignUp() {
                     disabled={signUpMutation.isPending}
                     className="
                       mt-2
-                      h-11
+                      h-12
                       w-full
-                      rounded-lg
+                      rounded-xl
                       bg-primary
                       text-sm
                       font-semibold
                       text-primary-foreground
-                      shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(70_88_232/0.16)]
+                      shadow-sm
                       transition-all
                       duration-200
+
                       hover:-translate-y-px
-                      hover:bg-brand-700
-                      hover:shadow-[0_2px_4px_rgb(16_24_40/0.06),0_8px_20px_rgb(70_88_232/0.20)]
+                      hover:bg-primary/90
+                      hover:shadow-md
+
                       active:translate-y-0
-                      active:bg-brand-800
+                      active:bg-primary/85
+
+                      focus-visible:ring-[3px]
+                      focus-visible:ring-ring/30
                     "
                   >
                     {selectedRole === "freelancer"
@@ -928,16 +883,9 @@ function SignUp() {
                   </LoadingButton>
                 </div>
 
-                {/* Login */}
+                {/* LOGIN */}
 
-                <div
-                  className="
-                    mt-5
-                    text-center
-                    text-sm
-                    text-muted-foreground
-                  "
-                >
+                <div className="mt-6 text-center text-sm text-muted-foreground">
                   Already have an account?{" "}
                   <RouterLink
                     to="/login"
@@ -948,8 +896,9 @@ function SignUp() {
                       decoration-border
                       underline-offset-4
                       transition-colors
-                      hover:text-brand-600
-                      hover:decoration-brand-300
+
+                      hover:text-primary
+                      hover:decoration-primary/40
                     "
                   >
                     Log in

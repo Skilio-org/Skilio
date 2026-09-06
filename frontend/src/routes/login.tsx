@@ -101,7 +101,7 @@ function Login() {
 
   return (
     <AuthLayout>
-      <div className="w-full max-w-[400px] mx-auto">
+      <div className="w-full max-w-100 mx-auto">
         <div className="mb-8 space-y-3 text-center">
           <h1
             className="
@@ -139,7 +139,6 @@ function Login() {
             noValidate
           >
             {/* Email */}
-
             <FormField
               control={form.control}
               name="username"
@@ -186,7 +185,6 @@ function Login() {
             />
 
             {/* Password */}
-
             <FormField
               control={form.control}
               name="password"
@@ -247,7 +245,6 @@ function Login() {
             />
 
             {/* Submit */}
-
             <LoadingButton
               type="submit"
               loading={loginMutation.isPending}
