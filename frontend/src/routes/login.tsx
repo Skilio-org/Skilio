@@ -5,9 +5,12 @@ import {
   Link as RouterLink,
 } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
+import { FaApple, FaLinkedinIn } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import { z } from "zod";
 
 import type { Body_login_login_access_token as AccessToken } from "@/client";
+
 import { AuthLayout } from "@/components/Common/AuthLayout";
 
 import {
@@ -45,6 +48,40 @@ const formSchema = z.object({
 }) satisfies z.ZodType<AccessToken>;
 
 type FormData = z.infer<typeof formSchema>;
+
+/* =========================================================
+   SOCIAL AUTH
+   ========================================================= */
+
+/*
+ * Add these to your frontend .env when the backend
+ * OAuth endpoints are ready:
+ *
+ * VITE_GOOGLE_OAUTH_URL=http://localhost:8000/api/v1/auth/google
+ * VITE_APPLE_OAUTH_URL=http://localhost:8000/api/v1/auth/apple
+ * VITE_LINKEDIN_OAUTH_URL=http://localhost:8000/api/v1/auth/linkedin
+ */
+
+const socialProviders = [
+  {
+    id: "google",
+    label: "Continue with Google",
+    icon: FcGoogle,
+    href: import.meta.env.VITE_GOOGLE_OAUTH_URL as string | undefined,
+  },
+  {
+    id: "apple",
+    label: "Continue with Apple",
+    icon: FaApple,
+    href: import.meta.env.VITE_APPLE_OAUTH_URL as string | undefined,
+  },
+  {
+    id: "linkedin",
+    label: "Continue with LinkedIn",
+    icon: FaLinkedinIn,
+    href: import.meta.env.VITE_LINKEDIN_OAUTH_URL as string | undefined,
+  },
+];
 
 /* =========================================================
    ROUTE
@@ -93,25 +130,43 @@ function Login() {
     },
   });
 
+  /* =======================================================
+     PASSWORD LOGIN
+     ======================================================= */
+
   const onSubmit = (data: FormData) => {
     if (loginMutation.isPending) return;
 
     loginMutation.mutate(data);
   };
 
+  /* =======================================================
+     SOCIAL LOGIN
+     ======================================================= */
+
+  const handleSocialLogin = (href: string | undefined) => {
+    if (!href) return;
+
+    window.location.assign(href);
+  };
+
   return (
     <AuthLayout>
-      <div className="w-full max-w-100 mx-auto">
+      <div className="mx-auto w-full max-w-[460px]">
+        {/* =================================================
+            HEADER
+            ================================================= */}
+
         <div className="mb-8 space-y-3 text-center">
           <h1
             className="
               font-display
-              text-4xl
+              text-[42px]
               font-bold
               leading-[0.98]
-              tracking-[-0.04em]
+              tracking-[-0.045em]
               text-foreground
-              sm:text-[42px]
+              sm:text-[46px]
             "
           >
             Login to your
@@ -132,6 +187,10 @@ function Login() {
           </p>
         </div>
 
+        {/* =================================================
+            EMAIL / PASSWORD LOGIN
+            ================================================= */}
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -139,6 +198,7 @@ function Login() {
             noValidate
           >
             {/* Email */}
+
             <FormField
               control={form.control}
               name="username"
@@ -162,18 +222,26 @@ function Login() {
                       placeholder="you@example.com"
                       disabled={loginMutation.isPending}
                       className="
-                        h-11
-                        rounded-lg
+                        h-12
+                        rounded-xl
+                        border-input
                         bg-card
-                        px-3.5
+                        px-4
                         text-sm
+                        text-foreground
                         shadow-none
                         transition-[border-color,box-shadow,background-color]
-                        placeholder:text-muted-foreground/70
+
+                        placeholder:text-muted-foreground/65
+
                         hover:border-foreground/20
-                        focus-visible:border-brand-400
+
+                        focus-visible:border-primary/50
                         focus-visible:ring-[3px]
-                        focus-visible:ring-brand-100
+                        focus-visible:ring-ring/25
+
+                        disabled:cursor-not-allowed
+                        disabled:opacity-60
                       "
                       {...field}
                     />
@@ -185,6 +253,7 @@ function Login() {
             />
 
             {/* Password */}
+
             <FormField
               control={form.control}
               name="password"
@@ -208,7 +277,8 @@ function Login() {
                         font-medium
                         text-muted-foreground
                         transition-colors
-                        hover:text-brand-600
+
+                        hover:text-primary
                       "
                     >
                       Forgot your password?
@@ -222,18 +292,26 @@ function Login() {
                       placeholder="Enter your password"
                       disabled={loginMutation.isPending}
                       className="
-                        h-11
-                        rounded-lg
+                        h-12
+                        rounded-xl
+                        border-input
                         bg-card
-                        px-3.5
+                        px-4
                         text-sm
+                        text-foreground
                         shadow-none
                         transition-[border-color,box-shadow,background-color]
-                        placeholder:text-muted-foreground/70
+
+                        placeholder:text-muted-foreground/65
+
                         hover:border-foreground/20
-                        focus-visible:border-brand-400
+
+                        focus-visible:border-primary/50
                         focus-visible:ring-[3px]
-                        focus-visible:ring-brand-100
+                        focus-visible:ring-ring/25
+
+                        disabled:cursor-not-allowed
+                        disabled:opacity-60
                       "
                       {...field}
                     />
@@ -245,27 +323,36 @@ function Login() {
             />
 
             {/* Submit */}
+
             <LoadingButton
               type="submit"
               loading={loginMutation.isPending}
               disabled={loginMutation.isPending}
               className="
                 mt-1
-                h-11
+                h-12
                 w-full
-                rounded-lg
+                rounded-xl
                 bg-primary
                 text-sm
                 font-semibold
                 text-primary-foreground
-                shadow-[0_1px_2px_rgb(16_24_40/0.06),0_4px_12px_rgb(70_88_232/0.16)]
+                shadow-sm
                 transition-all
                 duration-200
+
                 hover:-translate-y-px
-                hover:bg-brand-700
-                hover:shadow-[0_2px_4px_rgb(16_24_40/0.06),0_8px_20px_rgb(70_88_232/0.20)]
+                hover:bg-primary/90
+                hover:shadow-md
+
                 active:translate-y-0
-                active:bg-brand-800
+                active:bg-primary/85
+
+                focus-visible:ring-[3px]
+                focus-visible:ring-ring/30
+
+                disabled:pointer-events-none
+                disabled:opacity-60
               "
             >
               Log in
@@ -273,7 +360,138 @@ function Login() {
           </form>
         </Form>
 
-        <div className="mt-6 text-center text-sm text-muted-foreground">
+        {/* =================================================
+            DIVIDER
+            ================================================= */}
+
+        <div
+          className="
+            my-7
+            flex
+            items-center
+            gap-4
+          "
+        >
+          <div className="h-px flex-1 bg-border" />
+
+          <span
+            className="
+              shrink-0
+              text-xs
+              font-medium
+              text-muted-foreground
+            "
+          >
+            Or continue with
+          </span>
+
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        {/* =================================================
+            SOCIAL LOGIN
+            ================================================= */}
+
+        <div
+          className="
+            grid
+            grid-cols-1
+            gap-3
+            sm:grid-cols-3
+          "
+        >
+          {socialProviders.map(({ id, label, icon: Icon, href }) => {
+            const isConfigured = Boolean(href);
+
+            return (
+              <button
+                key={id}
+                type="button"
+                disabled={!isConfigured}
+                onClick={() => handleSocialLogin(href)}
+                title={isConfigured ? label : `${label} is not configured yet`}
+                className="
+                    group
+                    flex
+                    h-12
+                    items-center
+                    justify-center
+                    gap-2.5
+                    rounded-xl
+                    border
+                    border-border
+                    bg-card
+                    px-3
+                    text-[13px]
+                    font-medium
+                    text-foreground
+                    shadow-[0_1px_2px_rgb(16_24_40/0.02)]
+                    transition-all
+                    duration-200
+
+                    hover:-translate-y-px
+                    hover:border-primary/20
+                    hover:bg-accent/50
+                    hover:shadow-sm
+
+                    active:translate-y-0
+
+                    focus-visible:outline-none
+                    focus-visible:ring-[3px]
+                    focus-visible:ring-ring/25
+
+                    disabled:pointer-events-none
+                    disabled:opacity-45
+                  "
+              >
+                <Icon
+                  className={`
+                      size-[18px]
+                      shrink-0
+
+                      ${id === "linkedin" ? "text-[#0A66C2]" : ""}
+                    `}
+                />
+
+                <span
+                  className="
+                      hidden
+                      whitespace-nowrap
+                      xl:inline
+                    "
+                >
+                  {id === "google" && "Google"}
+                  {id === "apple" && "Apple"}
+                  {id === "linkedin" && "LinkedIn"}
+                </span>
+
+                <span
+                  className="
+                      whitespace-nowrap
+                      xl:hidden
+                    "
+                >
+                  {id === "google" && "Google"}
+                  {id === "apple" && "Apple"}
+                  {id === "linkedin" && "LinkedIn"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* =================================================
+            SIGNUP
+            ================================================= */}
+
+        <div
+          className="
+            mt-7
+            text-center
+            text-sm
+            text-muted-foreground
+          "
+        >
           Don't have an account yet?{" "}
           <RouterLink
             to="/signup"
@@ -284,8 +502,9 @@ function Login() {
               decoration-border
               underline-offset-4
               transition-colors
-              hover:text-brand-600
-              hover:decoration-brand-300
+
+              hover:text-primary
+              hover:decoration-primary/40
             "
           >
             Sign up

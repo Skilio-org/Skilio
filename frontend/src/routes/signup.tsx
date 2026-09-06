@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { FaApple, FaLinkedinIn } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import { z } from "zod";
 
 import { AuthLayout } from "@/components/Common/AuthLayout";
@@ -31,6 +33,10 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { PasswordInput } from "@/components/ui/password-input";
 
 import useAuth, { isLoggedIn } from "@/hooks/useAuth";
+
+/* =========================================================
+   VALIDATION
+   ========================================================= */
 
 const formSchema = z
   .object({
@@ -74,6 +80,50 @@ type FormData = z.infer<typeof formSchema>;
 
 type SignupStep = 1 | 2;
 
+type AccountRole = "freelancer" | "client";
+
+/* =========================================================
+   SOCIAL AUTH
+   ========================================================= */
+
+/*
+ * Configure these when your backend OAuth endpoints exist:
+ *
+ * VITE_GOOGLE_OAUTH_URL=http://localhost:8000/api/v1/auth/google
+ * VITE_APPLE_OAUTH_URL=http://localhost:8000/api/v1/auth/apple
+ * VITE_LINKEDIN_OAUTH_URL=http://localhost:8000/api/v1/auth/linkedin
+ *
+ * The selected role will be appended:
+ *
+ * ?role=freelancer
+ * ?role=client
+ */
+
+const socialProviders = [
+  {
+    id: "google",
+    label: "Google",
+    icon: FcGoogle,
+    href: import.meta.env.VITE_GOOGLE_OAUTH_URL as string | undefined,
+  },
+  {
+    id: "apple",
+    label: "Apple",
+    icon: FaApple,
+    href: import.meta.env.VITE_APPLE_OAUTH_URL as string | undefined,
+  },
+  {
+    id: "linkedin",
+    label: "LinkedIn",
+    icon: FaLinkedinIn,
+    href: import.meta.env.VITE_LINKEDIN_OAUTH_URL as string | undefined,
+  },
+];
+
+/* =========================================================
+   ROUTE
+   ========================================================= */
+
 export const Route = createFileRoute("/signup")({
   component: SignUp,
 
@@ -99,6 +149,10 @@ export const Route = createFileRoute("/signup")({
   }),
 });
 
+/* =========================================================
+   SIGN UP
+   ========================================================= */
+
 function SignUp() {
   const { signUpMutation } = useAuth();
 
@@ -121,6 +175,10 @@ function SignUp() {
 
   const selectedRole = form.watch("role");
 
+  /* =======================================================
+     STEP NAVIGATION
+     ======================================================= */
+
   const goToDetails = async () => {
     const valid = await form.trigger("role");
 
@@ -133,6 +191,10 @@ function SignUp() {
     setStep(1);
   };
 
+  /* =======================================================
+     EMAIL / PASSWORD SIGNUP
+     ======================================================= */
+
   const onSubmit = (data: FormData) => {
     if (signUpMutation.isPending) return;
 
@@ -141,14 +203,46 @@ function SignUp() {
     signUpMutation.mutate(submitData);
   };
 
+  /* =======================================================
+     SOCIAL SIGNUP
+     ======================================================= */
+
+  const handleSocialSignup = (href: string | undefined, role: AccountRole) => {
+    if (!href) return;
+
+    /*
+     * Handles absolute backend URLs cleanly.
+     *
+     * Example:
+     *
+     * http://localhost:8000/api/v1/auth/google
+     *
+     * becomes:
+     *
+     * http://localhost:8000/api/v1/auth/google?role=freelancer
+     */
+
+    const url = new URL(href);
+
+    url.searchParams.set("role", role);
+
+    window.location.assign(url.toString());
+  };
+
   return (
     <AuthLayout>
-      <div className="mx-auto w-full max-w-115">
+      <div className="mx-auto w-full max-w-[460px]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+            {/* =================================================
+                STEP 1 — CHOOSE ROLE
+                ================================================= */}
+
             {step === 1 && (
               <div className="animate-in fade-in slide-in-from-left-2 duration-300">
-                {/* HEADER */}
+                {/* =============================================
+                    HEADER
+                    ============================================= */}
 
                 <div className="mb-9 text-center">
                   <div
@@ -192,7 +286,7 @@ function SignUp() {
                     className="
                       mx-auto
                       mt-4
-                      max-w-95
+                      max-w-[380px]
                       text-sm
                       leading-6
                       text-muted-foreground
@@ -203,7 +297,9 @@ function SignUp() {
                   </p>
                 </div>
 
-                {/* ROLE SELECTION */}
+                {/* =============================================
+                    ROLE SELECTION
+                    ============================================= */}
 
                 <FormField
                   control={form.control}
@@ -212,7 +308,9 @@ function SignUp() {
                     <FormItem>
                       <FormControl>
                         <div className="space-y-3.5">
-                          {/* FREELANCER */}
+                          {/* ===================================
+                              FREELANCER
+                              =================================== */}
 
                           <button
                             type="button"
@@ -259,8 +357,6 @@ function SignUp() {
                               }
                             `}
                           >
-                            {/* ICON */}
-
                             <div
                               className={`
                                 flex
@@ -291,8 +387,6 @@ function SignUp() {
                               <UserRound className="size-5" />
                             </div>
 
-                            {/* CONTENT */}
-
                             <div className="min-w-0 flex-1">
                               <div className="text-[15px] font-semibold text-foreground">
                                 I want to find work
@@ -303,8 +397,6 @@ function SignUp() {
                                 skills, and work with great clients.
                               </p>
                             </div>
-
-                            {/* CHECK */}
 
                             <div
                               className={`
@@ -337,7 +429,9 @@ function SignUp() {
                             </div>
                           </button>
 
-                          {/* CLIENT */}
+                          {/* ===================================
+                              CLIENT
+                              =================================== */}
 
                           <button
                             type="button"
@@ -384,8 +478,6 @@ function SignUp() {
                               }
                             `}
                           >
-                            {/* ICON */}
-
                             <div
                               className={`
                                 flex
@@ -416,8 +508,6 @@ function SignUp() {
                               <BriefcaseBusiness className="size-5" />
                             </div>
 
-                            {/* CONTENT */}
-
                             <div className="min-w-0 flex-1">
                               <div className="text-[15px] font-semibold text-foreground">
                                 I want to hire talent
@@ -428,8 +518,6 @@ function SignUp() {
                                 get high-quality work done.
                               </p>
                             </div>
-
-                            {/* CHECK */}
 
                             <div
                               className={`
@@ -469,7 +557,9 @@ function SignUp() {
                   )}
                 />
 
-                {/* CONTINUE */}
+                {/* =============================================
+                    CONTINUE
+                    ============================================= */}
 
                 <button
                   type="button"
@@ -507,7 +597,9 @@ function SignUp() {
                   <ArrowRight className="size-4" />
                 </button>
 
-                {/* LOGIN */}
+                {/* =============================================
+                    LOGIN
+                    ============================================= */}
 
                 <div className="mt-6 text-center text-sm text-muted-foreground">
                   Already have an account?{" "}
@@ -520,6 +612,7 @@ function SignUp() {
                       decoration-border
                       underline-offset-4
                       transition-colors
+
                       hover:text-primary
                       hover:decoration-primary/40
                     "
@@ -530,9 +623,15 @@ function SignUp() {
               </div>
             )}
 
+            {/* =================================================
+                STEP 2 — ACCOUNT DETAILS
+                ================================================= */}
+
             {step === 2 && (
               <div className="animate-in fade-in slide-in-from-right-2 duration-300">
-                {/* BACK */}
+                {/* =============================================
+                    BACK
+                    ============================================= */}
 
                 <button
                   type="button"
@@ -559,7 +658,9 @@ function SignUp() {
                   Back
                 </button>
 
-                {/* HEADER */}
+                {/* =============================================
+                    HEADER
+                    ============================================= */}
 
                 <div className="mb-7">
                   <h1
@@ -589,7 +690,9 @@ function SignUp() {
                   </p>
                 </div>
 
-                {/* SELECTED ROLE */}
+                {/* =============================================
+                    SELECTED ROLE
+                    ============================================= */}
 
                 <div
                   className="
@@ -662,7 +765,9 @@ function SignUp() {
                   </button>
                 </div>
 
-                {/* FIELDS */}
+                {/* =============================================
+                    ACCOUNT FIELDS
+                    ============================================= */}
 
                 <div className="space-y-4">
                   {/* FULL NAME */}
@@ -847,7 +952,9 @@ function SignUp() {
                     )}
                   />
 
-                  {/* SUBMIT */}
+                  {/* ===========================================
+                      EMAIL SIGNUP
+                      =========================================== */}
 
                   <LoadingButton
                     type="submit"
@@ -883,9 +990,114 @@ function SignUp() {
                   </LoadingButton>
                 </div>
 
-                {/* LOGIN */}
+                {/* =============================================
+                    SOCIAL DIVIDER
+                    ============================================= */}
 
-                <div className="mt-6 text-center text-sm text-muted-foreground">
+                <div className="my-7 flex items-center gap-4">
+                  <div className="h-px flex-1 bg-border" />
+
+                  <span
+                    className="
+                      shrink-0
+                      text-xs
+                      font-medium
+                      text-muted-foreground
+                    "
+                  >
+                    Or sign up with
+                  </span>
+
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+
+                {/* =============================================
+                    SOCIAL SIGNUP
+                    ============================================= */}
+
+                <div
+                  className="
+                    grid
+                    grid-cols-1
+                    gap-3
+                    sm:grid-cols-3
+                  "
+                >
+                  {socialProviders.map(({ id, label, icon: Icon, href }) => {
+                    const configured = Boolean(href);
+
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        disabled={!configured}
+                        onClick={() => handleSocialSignup(href, selectedRole)}
+                        title={
+                          configured
+                            ? `Continue with ${label}`
+                            : `${label} signup is not configured yet`
+                        }
+                        className="
+                            group
+                            flex
+                            h-12
+                            items-center
+                            justify-center
+                            gap-2.5
+                            rounded-xl
+                            border
+                            border-border
+                            bg-card
+                            px-3
+                            text-[13px]
+                            font-medium
+                            text-foreground
+                            shadow-[0_1px_2px_rgb(16_24_40/0.02)]
+                            transition-all
+                            duration-200
+
+                            hover:-translate-y-px
+                            hover:border-primary/20
+                            hover:bg-accent/50
+                            hover:shadow-sm
+
+                            active:translate-y-0
+
+                            focus-visible:outline-none
+                            focus-visible:ring-[3px]
+                            focus-visible:ring-ring/25
+
+                            disabled:pointer-events-none
+                            disabled:opacity-45
+                          "
+                      >
+                        <Icon
+                          className={`
+                              size-[18px]
+                              shrink-0
+
+                              ${id === "linkedin" ? "text-[#0A66C2]" : ""}
+                            `}
+                        />
+
+                        <span className="whitespace-nowrap">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* =============================================
+                    LOGIN LINK
+                    ============================================= */}
+
+                <div
+                  className="
+                    mt-7
+                    text-center
+                    text-sm
+                    text-muted-foreground
+                  "
+                >
                   Already have an account?{" "}
                   <RouterLink
                     to="/login"
