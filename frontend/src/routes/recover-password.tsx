@@ -162,7 +162,7 @@ function RecoverPassword() {
                 ================================================= */}
 
             <div className="mb-8">
-              <div
+              {/* <div
                 className="
                   mb-5
                   flex
@@ -178,7 +178,7 @@ function RecoverPassword() {
                 "
               >
                 <Mail className="size-5" />
-              </div>
+              </div> */}
 
               <h1
                 className="
