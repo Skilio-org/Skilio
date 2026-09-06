@@ -2,10 +2,12 @@ import { Link } from "@tanstack/react-router";
 
 import { useTheme } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
-import iconLight from "/assets/images/fastapi-icon-light.svg";
-import icon from "/assets/images/fastapi-icon.svg";
-import logoLight from "/assets/images/fastapi-logo-light.svg";
-import logo from "/assets/images/fastapi-logo.svg";
+
+import iconLight from "/assets/images/freelancer-icon-light.png";
+import icon from "/assets/images/freelancer-icon.png";
+
+import logoLight from "/assets/images/freelancer-logo-light.png";
+import logo from "/assets/images/freelancer-logo.png";
 
 interface LogoProps {
   variant?: "full" | "icon" | "responsive";
@@ -19,6 +21,7 @@ export function Logo({
   asLink = true,
 }: LogoProps) {
   const { resolvedTheme } = useTheme();
+
   const isDark = resolvedTheme === "dark";
 
   const fullLogo = isDark ? logoLight : logo;
@@ -27,19 +30,36 @@ export function Logo({
   const content =
     variant === "responsive" ? (
       <>
+        {/* Full logo */}
         <img
           src={fullLogo}
-          alt="FastAPI"
+          alt="Freelancer"
+          draggable={false}
           className={cn(
-            "h-6 w-auto group-data-[collapsible=icon]:hidden",
+            `
+              h-9
+              w-auto
+              object-contain
+              select-none
+              group-data-[collapsible=icon]:hidden
+            `,
             className,
           )}
         />
+
+        {/* Collapsed sidebar icon */}
         <img
           src={iconLogo}
-          alt="FastAPI"
+          alt="Freelancer"
+          draggable={false}
           className={cn(
-            "size-5 hidden group-data-[collapsible=icon]:block",
+            `
+              hidden
+              size-8
+              object-contain
+              select-none
+              group-data-[collapsible=icon]:block
+            `,
             className,
           )}
         />
@@ -47,8 +67,23 @@ export function Logo({
     ) : (
       <img
         src={variant === "full" ? fullLogo : iconLogo}
-        alt="FastAPI"
-        className={cn(variant === "full" ? "h-6 w-auto" : "size-5", className)}
+        alt="Freelancer"
+        draggable={false}
+        className={cn(
+          variant === "full"
+            ? `
+                h-9
+                w-auto
+                object-contain
+                select-none
+              `
+            : `
+                size-8
+                object-contain
+                select-none
+              `,
+          className,
+        )}
       />
     );
 
@@ -56,5 +91,21 @@ export function Logo({
     return content;
   }
 
-  return <Link to="/">{content}</Link>;
+  return (
+    <Link
+      to="/"
+      aria-label="Freelancer home"
+      className="
+        inline-flex
+        shrink-0
+        items-center
+        outline-none
+        focus-visible:ring-2
+        focus-visible:ring-ring
+        focus-visible:ring-offset-2
+      "
+    >
+      {content}
+    </Link>
+  );
 }
