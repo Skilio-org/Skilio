@@ -68,7 +68,7 @@ def recover_password(email: str, session: SessionDep) -> Message:
             email_to=user.email,
             subject=email_data.subject,
             html_content=email_data.html_content,
-        ) 
+        )
     return Message(
         message="If that email is registered, we sent a password recovery link"
     )
