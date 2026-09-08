@@ -1,17 +1,17 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
 import {
   createFileRoute,
-  redirect,
   Link as RouterLink,
-} from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Mail } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+  redirect,
+} from "@tanstack/react-router"
+import { ArrowLeft, ArrowRight, Mail } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 
-import { LoginService } from "@/client";
+import { LoginService } from "@/client"
 
-import { AuthLayout } from "@/components/Common/AuthLayout";
+import { AuthLayout } from "@/components/Common/AuthLayout"
 
 import {
   Form,
@@ -20,15 +20,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/ui/form"
 
-import { Input } from "@/components/ui/input";
-import { LoadingButton } from "@/components/ui/loading-button";
+import { Input } from "@/components/ui/input"
+import { LoadingButton } from "@/components/ui/loading-button"
 
-import { isLoggedIn } from "@/hooks/useAuth";
-import useCustomToast from "@/hooks/useCustomToast";
+import { isLoggedIn } from "@/hooks/useAuth"
+import useCustomToast from "@/hooks/useCustomToast"
 
-import { handleError } from "@/utils";
+import { handleError } from "@/utils"
 
 /* =========================================================
    VALIDATION
@@ -38,9 +38,9 @@ const formSchema = z.object({
   email: z.email({
     message: "Please enter a valid email address.",
   }),
-});
+})
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof formSchema>
 
 /* =========================================================
    ROUTE
@@ -52,8 +52,8 @@ export const Route = createFileRoute("/recover-password")({
   beforeLoad: async () => {
     if (isLoggedIn()) {
       throw redirect({
-        to: "/",
-      });
+        to: "/dashboard",
+      })
     }
   },
 
@@ -69,14 +69,14 @@ export const Route = createFileRoute("/recover-password")({
       },
     ],
   }),
-});
+})
 
 /* =========================================================
    RECOVER PASSWORD
    ========================================================= */
 
 function RecoverPassword() {
-  const { showSuccessToast, showErrorToast } = useCustomToast();
+  const { showSuccessToast, showErrorToast } = useCustomToast()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -86,7 +86,7 @@ function RecoverPassword() {
     defaultValues: {
       email: "",
     },
-  });
+  })
 
   /* =======================================================
      API
@@ -97,30 +97,30 @@ function RecoverPassword() {
       path: {
         email: data.email,
       },
-    });
-  };
+    })
+  }
 
   const mutation = useMutation({
     mutationFn: recoverPassword,
 
     onSuccess: () => {
-      showSuccessToast("Password recovery email sent successfully.");
+      showSuccessToast("Password recovery email sent successfully.")
 
-      form.reset();
+      form.reset()
     },
 
     onError: handleError.bind(showErrorToast),
-  });
+  })
 
   /* =======================================================
      SUBMIT
      ======================================================= */
 
   const onSubmit = (data: FormData) => {
-    if (mutation.isPending) return;
+    if (mutation.isPending) return
 
-    mutation.mutate(data);
-  };
+    mutation.mutate(data)
+  }
 
   return (
     <AuthLayout>
@@ -191,8 +191,7 @@ function RecoverPassword() {
                   sm:text-[46px]
                 "
               >
-                Forgot your
-                <br />
+                Forgot your <br />
                 password?
               </h1>
 
@@ -351,7 +350,5 @@ function RecoverPassword() {
         </Form>
       </div>
     </AuthLayout>
-  );
+  )
 }
-
-export default RecoverPassword;

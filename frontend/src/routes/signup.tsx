@@ -1,23 +1,23 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
   createFileRoute,
-  redirect,
   Link as RouterLink,
-} from "@tanstack/react-router";
+  redirect,
+} from "@tanstack/react-router"
 import {
   ArrowLeft,
   ArrowRight,
   BriefcaseBusiness,
   Check,
   UserRound,
-} from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { FaApple, FaLinkedinIn } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
-import { z } from "zod";
+} from "lucide-react"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { FaApple, FaLinkedinIn } from "react-icons/fa"
+import { FcGoogle } from "react-icons/fc"
+import { z } from "zod"
 
-import { AuthLayout } from "@/components/Common/AuthLayout";
+import { AuthLayout } from "@/components/Common/AuthLayout"
 
 import {
   Form,
@@ -26,13 +26,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/ui/form"
 
-import { Input } from "@/components/ui/input";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { PasswordInput } from "@/components/ui/password-input";
+import { Input } from "@/components/ui/input"
+import { LoadingButton } from "@/components/ui/loading-button"
+import { PasswordInput } from "@/components/ui/password-input"
 
-import useAuth, { isLoggedIn } from "@/hooks/useAuth";
+import useAuth, { isLoggedIn } from "@/hooks/useAuth"
 
 /* =========================================================
    VALIDATION
@@ -74,13 +74,13 @@ const formSchema = z
   .refine((data) => data.password === data.confirm_password, {
     message: "The passwords don't match.",
     path: ["confirm_password"],
-  });
+  })
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof formSchema>
 
-type SignupStep = 1 | 2;
+type SignupStep = 1 | 2
 
-type AccountRole = "freelancer" | "client";
+type AccountRole = "freelancer" | "client"
 
 /* =========================================================
    SOCIAL AUTH
@@ -118,7 +118,7 @@ const socialProviders = [
     icon: FaLinkedinIn,
     href: import.meta.env.VITE_LINKEDIN_OAUTH_URL as string | undefined,
   },
-];
+]
 
 /* =========================================================
    ROUTE
@@ -130,8 +130,8 @@ export const Route = createFileRoute("/signup")({
   beforeLoad: async () => {
     if (isLoggedIn()) {
       throw redirect({
-        to: "/",
-      });
+        to: "/dashboard",
+      })
     }
   },
 
@@ -147,16 +147,16 @@ export const Route = createFileRoute("/signup")({
       },
     ],
   }),
-});
+})
 
 /* =========================================================
    SIGN UP
    ========================================================= */
 
 function SignUp() {
-  const { signUpMutation } = useAuth();
+  const { signUpMutation } = useAuth()
 
-  const [step, setStep] = useState<SignupStep>(1);
+  const [step, setStep] = useState<SignupStep>(1)
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -171,44 +171,44 @@ function SignUp() {
       password: "",
       confirm_password: "",
     },
-  });
+  })
 
-  const selectedRole = form.watch("role");
+  const selectedRole = form.watch("role")
 
   /* =======================================================
      STEP NAVIGATION
      ======================================================= */
 
   const goToDetails = async () => {
-    const valid = await form.trigger("role");
+    const valid = await form.trigger("role")
 
-    if (!valid) return;
+    if (!valid) return
 
-    setStep(2);
-  };
+    setStep(2)
+  }
 
   const goBackToRole = () => {
-    setStep(1);
-  };
+    setStep(1)
+  }
 
   /* =======================================================
      EMAIL / PASSWORD SIGNUP
      ======================================================= */
 
   const onSubmit = (data: FormData) => {
-    if (signUpMutation.isPending) return;
+    if (signUpMutation.isPending) return
 
-    const { confirm_password: _confirmPassword, ...submitData } = data;
+    const { confirm_password: _confirmPassword, ...submitData } = data
 
-    signUpMutation.mutate(submitData);
-  };
+    signUpMutation.mutate(submitData)
+  }
 
   /* =======================================================
      SOCIAL SIGNUP
      ======================================================= */
 
   const handleSocialSignup = (href: string | undefined, role: AccountRole) => {
-    if (!href) return;
+    if (!href) return
 
     /*
      * Handles absolute backend URLs cleanly.
@@ -222,12 +222,12 @@ function SignUp() {
      * http://localhost:8000/api/v1/auth/google?role=freelancer
      */
 
-    const url = new URL(href);
+    const url = new URL(href)
 
-    url.searchParams.set("role", role);
+    url.searchParams.set("role", role)
 
-    window.location.assign(url.toString());
-  };
+    window.location.assign(url.toString())
+  }
 
   return (
     <AuthLayout>
@@ -277,8 +277,7 @@ function SignUp() {
                       sm:text-[46px]
                     "
                   >
-                    How do you want
-                    <br />
+                    How do you want <br />
                     to use Freelancer?
                   </h1>
 
@@ -1024,7 +1023,7 @@ function SignUp() {
                   "
                 >
                   {socialProviders.map(({ id, label, icon: Icon, href }) => {
-                    const configured = Boolean(href);
+                    const configured = Boolean(href)
 
                     return (
                       <button
@@ -1082,7 +1081,7 @@ function SignUp() {
 
                         <span className="whitespace-nowrap">{label}</span>
                       </button>
-                    );
+                    )
                   })}
                 </div>
 
@@ -1122,7 +1121,5 @@ function SignUp() {
         </Form>
       </div>
     </AuthLayout>
-  );
+  )
 }
-
-export default SignUp;

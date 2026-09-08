@@ -1,29 +1,44 @@
 import { Link } from "@tanstack/react-router"
+import { ArrowLeft, Compass } from "lucide-react"
+
+import { Logo } from "@/components/Common/Logo"
 import { Button } from "@/components/ui/button"
 
 const NotFound = () => {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center flex-col p-4"
-      data-testid="not-found"
-    >
-      <div className="flex items-center z-10">
-        <div className="flex flex-col ml-4 items-center justify-center p-4">
-          <span className="text-6xl md:text-8xl font-bold leading-none mb-4">
-            404
-          </span>
-          <span className="text-2xl font-bold mb-2">Oops!</span>
-        </div>
-      </div>
-
-      <p className="text-lg text-muted-foreground mb-4 text-center z-10">
-        The page you are looking for was not found.
-      </p>
-      <div className="z-10">
-        <Link to="/">
-          <Button className="mt-4">Go Back</Button>
-        </Link>
-      </div>
+    <div className="min-h-svh bg-muted/35" data-testid="not-found">
+      <header className="mx-auto flex h-[72px] max-w-[1320px] items-center px-5 sm:px-8">
+        <Logo className="h-8" />
+      </header>
+      <main className="mx-auto grid min-h-[calc(100svh-72px)] max-w-[1320px] place-items-center px-5 pb-20 sm:px-8">
+        <section className="relative w-full max-w-xl overflow-hidden rounded-3xl border border-border bg-card p-7 shadow-floating sm:p-11">
+          <div
+            aria-hidden="true"
+            className="absolute -right-16 -top-16 size-48 rounded-full bg-brand-100 blur-3xl"
+          />
+          <div className="relative">
+            <div className="grid size-12 place-items-center rounded-2xl bg-brand-50 text-brand-700">
+              <Compass className="size-6" />
+            </div>
+            <p className="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-brand-700">
+              Error 404
+            </p>
+            <h1 className="mt-3 font-display text-4xl font-medium tracking-[-0.04em] sm:text-5xl">
+              This page wandered off.
+            </h1>
+            <p className="mt-4 max-w-md leading-7 text-muted-foreground">
+              The link may be outdated, or the page may have moved. Head back
+              home and continue exploring talent.
+            </p>
+            <Button asChild size="lg" className="mt-8 min-h-11">
+              <Link to="/">
+                <ArrowLeft className="size-4" />
+                Back home
+              </Link>
+            </Button>
+          </div>
+        </section>
+      </main>
     </div>
   )
 }

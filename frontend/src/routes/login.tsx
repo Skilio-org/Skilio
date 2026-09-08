@@ -1,17 +1,17 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
   createFileRoute,
-  redirect,
   Link as RouterLink,
-} from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
-import { FaApple, FaLinkedinIn } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
-import { z } from "zod";
+  redirect,
+} from "@tanstack/react-router"
+import { useForm } from "react-hook-form"
+import { FaApple, FaLinkedinIn } from "react-icons/fa"
+import { FcGoogle } from "react-icons/fc"
+import { z } from "zod"
 
-import type { Body_login_login_access_token as AccessToken } from "@/client";
+import type { Body_login_login_access_token as AccessToken } from "@/client"
 
-import { AuthLayout } from "@/components/Common/AuthLayout";
+import { AuthLayout } from "@/components/Common/AuthLayout"
 
 import {
   Form,
@@ -20,13 +20,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/ui/form"
 
-import { Input } from "@/components/ui/input";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { PasswordInput } from "@/components/ui/password-input";
+import { Input } from "@/components/ui/input"
+import { LoadingButton } from "@/components/ui/loading-button"
+import { PasswordInput } from "@/components/ui/password-input"
 
-import useAuth, { isLoggedIn } from "@/hooks/useAuth";
+import useAuth, { isLoggedIn } from "@/hooks/useAuth"
 
 /* =========================================================
    VALIDATION
@@ -45,9 +45,9 @@ const formSchema = z.object({
     .min(8, {
       message: "Password must be at least 8 characters.",
     }),
-}) satisfies z.ZodType<AccessToken>;
+}) satisfies z.ZodType<AccessToken>
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof formSchema>
 
 const socialProviders = [
   {
@@ -68,7 +68,7 @@ const socialProviders = [
     icon: FaLinkedinIn,
     href: import.meta.env.VITE_LINKEDIN_OAUTH_URL as string | undefined,
   },
-];
+]
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -76,8 +76,8 @@ export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
     if (isLoggedIn()) {
       throw redirect({
-        to: "/",
-      });
+        to: "/dashboard",
+      })
     }
   },
 
@@ -92,10 +92,10 @@ export const Route = createFileRoute("/login")({
       },
     ],
   }),
-});
+})
 
 function Login() {
-  const { loginMutation } = useAuth();
+  const { loginMutation } = useAuth()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -107,19 +107,19 @@ function Login() {
       username: "",
       password: "",
     },
-  });
+  })
 
   const onSubmit = (data: FormData) => {
-    if (loginMutation.isPending) return;
+    if (loginMutation.isPending) return
 
-    loginMutation.mutate(data);
-  };
+    loginMutation.mutate(data)
+  }
 
   const handleSocialLogin = (href: string | undefined) => {
-    if (!href) return;
+    if (!href) return
 
-    window.location.assign(href);
-  };
+    window.location.assign(href)
+  }
 
   return (
     <AuthLayout>
@@ -136,8 +136,7 @@ function Login() {
               sm:text-[46px]
             "
           >
-            Login to your
-            <br />
+            Login to your <br />
             account.
           </h1>
 
@@ -368,7 +367,7 @@ function Login() {
           "
         >
           {socialProviders.map(({ id, label, icon: Icon, href }) => {
-            const isConfigured = Boolean(href);
+            const isConfigured = Boolean(href)
 
             return (
               <button
@@ -443,7 +442,7 @@ function Login() {
                   {id === "linkedin" && "LinkedIn"}
                 </span>
               </button>
-            );
+            )
           })}
         </div>
 
@@ -479,7 +478,5 @@ function Login() {
         </div>
       </div>
     </AuthLayout>
-  );
+  )
 }
-
-export default Login;

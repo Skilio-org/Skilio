@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
+import { KeyRound, ShieldCheck } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -66,79 +67,120 @@ const ChangePassword = () => {
   }
 
   return (
-    <div className="max-w-md">
-      <h3 className="text-lg font-semibold py-4">Change Password</h3>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4"
-        >
-          <FormField
-            control={form.control}
-            name="current_password"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>Current Password</FormLabel>
-                <FormControl>
-                  <PasswordInput
-                    data-testid="current-password-input"
-                    placeholder="••••••••"
-                    aria-invalid={fieldState.invalid}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="new_password"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>New Password</FormLabel>
-                <FormControl>
-                  <PasswordInput
-                    data-testid="new-password-input"
-                    placeholder="••••••••"
-                    aria-invalid={fieldState.invalid}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="confirm_password"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <PasswordInput
-                    data-testid="confirm-password-input"
-                    placeholder="••••••••"
-                    aria-invalid={fieldState.invalid}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <LoadingButton
-            type="submit"
-            loading={mutation.isPending}
-            className="self-start"
+    <div className="space-y-5">
+      <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+        <header className="flex items-start gap-4 border-b border-border p-5 sm:p-7">
+          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <KeyRound className="size-5" />
+          </span>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-700">
+              Security
+            </p>
+            <h2 className="mt-2 font-display text-2xl font-semibold">
+              Change password
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Use at least eight characters and avoid passwords you use
+              elsewhere.
+            </p>
+          </div>
+        </header>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex max-w-2xl flex-col gap-5 p-5 sm:p-7"
           >
-            Update Password
-          </LoadingButton>
-        </form>
-      </Form>
+            <FormField
+              control={form.control}
+              name="current_password"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Current password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      data-testid="current-password-input"
+                      placeholder="••••••••"
+                      aria-invalid={fieldState.invalid}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="new_password"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>New password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      data-testid="new-password-input"
+                      placeholder="••••••••"
+                      aria-invalid={fieldState.invalid}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="confirm_password"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Confirm password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      data-testid="confirm-password-input"
+                      placeholder="••••••••"
+                      aria-invalid={fieldState.invalid}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex flex-col gap-4 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                <ShieldCheck className="size-4 text-emerald-700" />
+                Your password is encrypted and never displayed.
+              </p>
+              <LoadingButton
+                type="submit"
+                loading={mutation.isPending}
+                className="self-start sm:self-auto"
+              >
+                Update password
+              </LoadingButton>
+            </div>
+          </form>
+        </Form>
+      </section>
+
+      <section className="flex flex-col justify-between gap-5 rounded-2xl border border-brand-100 bg-brand-50/60 p-5 dark:border-brand-900 dark:bg-brand-950/35 sm:flex-row sm:items-center sm:p-6">
+        <div className="flex items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-card text-brand-700 shadow-sm">
+            <ShieldCheck className="size-5" />
+          </span>
+          <div>
+            <h3 className="font-display font-semibold">Security check</h3>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Your account currently has no unresolved security alerts.
+            </p>
+          </div>
+        </div>
+        <span className="w-fit rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/45">
+          Protected
+        </span>
+      </section>
     </div>
   )
 }

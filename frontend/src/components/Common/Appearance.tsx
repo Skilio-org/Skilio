@@ -1,39 +1,39 @@
 import {
   Check,
   ChevronRight,
+  type LucideIcon,
   Monitor,
   Moon,
   Sun,
-  type LucideIcon,
-} from "lucide-react";
+} from "lucide-react"
 
-import { useTheme, type Theme } from "@/components/theme-provider";
+import { type Theme, useTheme } from "@/components/theme-provider"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 
 import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar"
 
 /* =========================================================
    CONFIG
    ========================================================= */
 
 type ThemeOption = {
-  value: Theme;
-  label: string;
-  description: string;
-  icon: LucideIcon;
-};
+  value: Theme
+  label: string
+  description: string
+  icon: LucideIcon
+}
 
 const THEME_OPTIONS: ThemeOption[] = [
   {
@@ -54,31 +54,31 @@ const THEME_OPTIONS: ThemeOption[] = [
     description: "Match your device",
     icon: Monitor,
   },
-];
+]
 
 const ICON_MAP: Record<Theme, LucideIcon> = {
   light: Sun,
   dark: Moon,
   system: Monitor,
-};
+}
 
 const LABEL_MAP: Record<Theme, string> = {
   light: "Light",
   dark: "Dark",
   system: "System",
-};
+}
 
 /* =========================================================
    THEME OPTION
    ========================================================= */
 
 interface ThemeOptionItemProps {
-  value: Theme;
-  label: string;
-  description: string;
-  icon: LucideIcon;
-  selected: boolean;
-  onSelect: () => void;
+  value: Theme
+  label: string
+  description: string
+  icon: LucideIcon
+  selected: boolean
+  onSelect: () => void
 }
 
 function ThemeOptionItem({
@@ -202,7 +202,7 @@ function ThemeOptionItem({
         </div>
       )}
     </DropdownMenuItem>
-  );
+  )
 }
 
 /* =========================================================
@@ -210,12 +210,12 @@ function ThemeOptionItem({
    ========================================================= */
 
 export function SidebarAppearance() {
-  const { isMobile } = useSidebar();
+  const { isMobile } = useSidebar()
 
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme()
 
-  const ActiveIcon = ICON_MAP[theme];
-  const activeLabel = LABEL_MAP[theme];
+  const ActiveIcon = ICON_MAP[theme]
+  const activeLabel = LABEL_MAP[theme]
 
   return (
     <SidebarMenuItem>
@@ -313,7 +313,7 @@ export function SidebarAppearance() {
         </DropdownMenuContent>
       </DropdownMenu>
     </SidebarMenuItem>
-  );
+  )
 }
 
 /* =========================================================
@@ -322,9 +322,9 @@ export function SidebarAppearance() {
    ========================================================= */
 
 export function Appearance() {
-  const { theme, resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme()
 
-  const isDark = resolvedTheme === "dark";
+  const isDark = resolvedTheme === "dark"
 
   return (
     <DropdownMenu modal={false}>
@@ -402,5 +402,5 @@ export function Appearance() {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

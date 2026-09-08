@@ -9,16 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
-import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutClientProfileRouteImport } from './routes/_layout/client-profile'
+import { Route as LayoutDashboardRouteImport } from './routes/_layout/dashboard'
+import { Route as LayoutHelpRouteImport } from './routes/_layout/help'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
+import { Route as LayoutMessagesRouteImport } from './routes/_layout/messages'
+import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifications'
+import { Route as LayoutSavedRouteImport } from './routes/_layout/saved'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
+import { Route as LayoutTalentRouteImport } from './routes/_layout/talent'
+import { Route as LayoutTalentFreelancerIdRouteImport } from './routes/_layout/talent_.$freelancerId'
 
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
   getParentRoute: () => rootRouteImport,
@@ -43,14 +56,24 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LayoutIndexRoute = LayoutIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => LayoutRoute,
-} as any)
 const LayoutAdminRoute = LayoutAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutClientProfileRoute = LayoutClientProfileRouteImport.update({
+  id: '/client-profile',
+  path: '/client-profile',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutDashboardRoute = LayoutDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutHelpRoute = LayoutHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutItemsRoute = LayoutItemsRouteImport.update({
@@ -58,43 +81,93 @@ const LayoutItemsRoute = LayoutItemsRouteImport.update({
   path: '/items',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutMessagesRoute = LayoutMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutNotificationsRoute = LayoutNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutSavedRoute = LayoutSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutTalentRoute = LayoutTalentRouteImport.update({
+  id: '/talent',
+  path: '/talent',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutTalentFreelancerIdRoute =
+  LayoutTalentFreelancerIdRouteImport.update({
+    id: '/talent_/$freelancerId',
+    path: '/talent/$freelancerId',
+    getParentRoute: () => LayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof LayoutIndexRoute
+  '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/client-profile': typeof LayoutClientProfileRoute
+  '/dashboard': typeof LayoutDashboardRoute
+  '/help': typeof LayoutHelpRoute
   '/items': typeof LayoutItemsRoute
+  '/messages': typeof LayoutMessagesRoute
+  '/notifications': typeof LayoutNotificationsRoute
+  '/saved': typeof LayoutSavedRoute
   '/settings': typeof LayoutSettingsRoute
+  '/talent': typeof LayoutTalentRoute
+  '/talent/$freelancerId': typeof LayoutTalentFreelancerIdRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/client-profile': typeof LayoutClientProfileRoute
+  '/dashboard': typeof LayoutDashboardRoute
+  '/help': typeof LayoutHelpRoute
   '/items': typeof LayoutItemsRoute
+  '/messages': typeof LayoutMessagesRoute
+  '/notifications': typeof LayoutNotificationsRoute
+  '/saved': typeof LayoutSavedRoute
   '/settings': typeof LayoutSettingsRoute
-  '/': typeof LayoutIndexRoute
+  '/talent': typeof LayoutTalentRoute
+  '/talent/$freelancerId': typeof LayoutTalentFreelancerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_layout': typeof LayoutRouteWithChildren
   '/login': typeof LoginRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
+  '/_layout/client-profile': typeof LayoutClientProfileRoute
+  '/_layout/dashboard': typeof LayoutDashboardRoute
+  '/_layout/help': typeof LayoutHelpRoute
   '/_layout/items': typeof LayoutItemsRoute
+  '/_layout/messages': typeof LayoutMessagesRoute
+  '/_layout/notifications': typeof LayoutNotificationsRoute
+  '/_layout/saved': typeof LayoutSavedRoute
   '/_layout/settings': typeof LayoutSettingsRoute
-  '/_layout/': typeof LayoutIndexRoute
+  '/_layout/talent': typeof LayoutTalentRoute
+  '/_layout/talent_/$freelancerId': typeof LayoutTalentFreelancerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,32 +178,57 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/client-profile'
+    | '/dashboard'
+    | '/help'
     | '/items'
+    | '/messages'
+    | '/notifications'
+    | '/saved'
     | '/settings'
+    | '/talent'
+    | '/talent/$freelancerId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/login'
     | '/recover-password'
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/client-profile'
+    | '/dashboard'
+    | '/help'
     | '/items'
+    | '/messages'
+    | '/notifications'
+    | '/saved'
     | '/settings'
-    | '/'
+    | '/talent'
+    | '/talent/$freelancerId'
   id:
     | '__root__'
+    | '/'
     | '/_layout'
     | '/login'
     | '/recover-password'
     | '/reset-password'
     | '/signup'
     | '/_layout/admin'
+    | '/_layout/client-profile'
+    | '/_layout/dashboard'
+    | '/_layout/help'
     | '/_layout/items'
+    | '/_layout/messages'
+    | '/_layout/notifications'
+    | '/_layout/saved'
     | '/_layout/settings'
-    | '/_layout/'
+    | '/_layout/talent'
+    | '/_layout/talent_/$freelancerId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   LayoutRoute: typeof LayoutRouteWithChildren
   LoginRoute: typeof LoginRoute
   RecoverPasswordRoute: typeof RecoverPasswordRoute
@@ -140,6 +238,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_layout': {
       id: '/_layout'
       path: ''
@@ -175,18 +280,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_layout/': {
-      id: '/_layout/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof LayoutIndexRouteImport
-      parentRoute: typeof LayoutRoute
-    }
     '/_layout/admin': {
       id: '/_layout/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof LayoutAdminRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/client-profile': {
+      id: '/_layout/client-profile'
+      path: '/client-profile'
+      fullPath: '/client-profile'
+      preLoaderRoute: typeof LayoutClientProfileRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/dashboard': {
+      id: '/_layout/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof LayoutDashboardRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/help': {
+      id: '/_layout/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof LayoutHelpRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/items': {
@@ -196,6 +315,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutItemsRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/messages': {
+      id: '/_layout/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof LayoutMessagesRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/notifications': {
+      id: '/_layout/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof LayoutNotificationsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/saved': {
+      id: '/_layout/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof LayoutSavedRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/settings': {
       id: '/_layout/settings'
       path: '/settings'
@@ -203,27 +343,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSettingsRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/talent': {
+      id: '/_layout/talent'
+      path: '/talent'
+      fullPath: '/talent'
+      preLoaderRoute: typeof LayoutTalentRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/talent_/$freelancerId': {
+      id: '/_layout/talent_/$freelancerId'
+      path: '/talent/$freelancerId'
+      fullPath: '/talent/$freelancerId'
+      preLoaderRoute: typeof LayoutTalentFreelancerIdRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
+  LayoutClientProfileRoute: typeof LayoutClientProfileRoute
+  LayoutDashboardRoute: typeof LayoutDashboardRoute
+  LayoutHelpRoute: typeof LayoutHelpRoute
   LayoutItemsRoute: typeof LayoutItemsRoute
+  LayoutMessagesRoute: typeof LayoutMessagesRoute
+  LayoutNotificationsRoute: typeof LayoutNotificationsRoute
+  LayoutSavedRoute: typeof LayoutSavedRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
-  LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutTalentRoute: typeof LayoutTalentRoute
+  LayoutTalentFreelancerIdRoute: typeof LayoutTalentFreelancerIdRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
+  LayoutClientProfileRoute: LayoutClientProfileRoute,
+  LayoutDashboardRoute: LayoutDashboardRoute,
+  LayoutHelpRoute: LayoutHelpRoute,
   LayoutItemsRoute: LayoutItemsRoute,
+  LayoutMessagesRoute: LayoutMessagesRoute,
+  LayoutNotificationsRoute: LayoutNotificationsRoute,
+  LayoutSavedRoute: LayoutSavedRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
-  LayoutIndexRoute: LayoutIndexRoute,
+  LayoutTalentRoute: LayoutTalentRoute,
+  LayoutTalentFreelancerIdRoute: LayoutTalentFreelancerIdRoute,
 }
 
 const LayoutRouteWithChildren =
   LayoutRoute._addFileChildren(LayoutRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   LayoutRoute: LayoutRouteWithChildren,
   LoginRoute: LoginRoute,
   RecoverPasswordRoute: RecoverPasswordRoute,

@@ -1,31 +1,31 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
 
-import { useTheme } from "@/components/theme-provider";
-import { cn } from "@/lib/utils";
-
-import iconLight from "/assets/images/freelancer-icon-light.png";
-import icon from "/assets/images/freelancer-icon.png";
-
-import logoLight from "/assets/images/freelancer-logo-light.png";
-import logo from "/assets/images/freelancer-logo.png";
+import { useTheme } from "@/components/theme-provider"
+import { cn } from "@/lib/utils"
+import icon from "/assets/images/freelancer-icon.png"
+import iconLight from "/assets/images/freelancer-icon-light.png"
+import logo from "/assets/images/freelancer-logo.png"
+import logoLight from "/assets/images/freelancer-logo-light.png"
 
 interface LogoProps {
-  variant?: "full" | "icon" | "responsive";
-  className?: string;
-  asLink?: boolean;
+  variant?: "full" | "icon" | "responsive"
+  className?: string
+  asLink?: boolean
+  to?: "/" | "/dashboard"
 }
 
 export function Logo({
   variant = "full",
   className,
   asLink = true,
+  to = "/",
 }: LogoProps) {
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme()
 
-  const isDark = resolvedTheme === "dark";
+  const isDark = resolvedTheme === "dark"
 
-  const fullLogo = isDark ? logoLight : logo;
-  const iconLogo = isDark ? iconLight : icon;
+  const fullLogo = isDark ? logoLight : logo
+  const iconLogo = isDark ? iconLight : icon
 
   const content =
     variant === "responsive" ? (
@@ -85,15 +85,15 @@ export function Logo({
           className,
         )}
       />
-    );
+    )
 
   if (!asLink) {
-    return content;
+    return content
   }
 
   return (
     <Link
-      to="/"
+      to={to}
       aria-label="Freelancer home"
       className="
         inline-flex
@@ -107,5 +107,5 @@ export function Logo({
     >
       {content}
     </Link>
-  );
+  )
 }
