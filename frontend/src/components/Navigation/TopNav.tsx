@@ -12,7 +12,6 @@ import {
   UsersRound,
 } from "lucide-react";
 
-import { Appearance } from "@/components/Common/Appearance";
 import { Logo } from "@/components/Common/Logo";
 import { User } from "@/components/Sidebar/User";
 import {
@@ -122,9 +121,6 @@ export function TopNav() {
               aria-hidden="true"
             />
           </Link>
-          <div className="hidden sm:block">
-            <Appearance />
-          </div>
           <User user={user} />
 
           <DropdownMenu>

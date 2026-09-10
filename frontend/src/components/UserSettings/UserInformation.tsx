@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { BadgeCheck, Building2, Mail, Pencil, UserRound } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -40,10 +40,19 @@ const UserInformation = () => {
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
-      full_name: currentUser?.full_name ?? undefined,
-      email: currentUser?.email,
+      full_name: currentUser?.full_name ?? "",
+      email: currentUser?.email ?? "",
     },
   })
+
+  useEffect(() => {
+    if (!currentUser || editMode) return
+
+    form.reset({
+      full_name: currentUser.full_name ?? "",
+      email: currentUser.email,
+    })
+  }, [currentUser, editMode, form])
 
   const mutation = useMutation({
     mutationFn: (data: UserUpdateMe) =>
@@ -175,7 +184,7 @@ const UserInformation = () => {
                   icon={Mail}
                   label="Email address"
                   value={form.getValues("email") || "Not available"}
-                  badge="Verified"
+                  badge={currentUser?.email ? "Verified" : undefined}
                 />
                 <InformationRow
                   icon={Building2}

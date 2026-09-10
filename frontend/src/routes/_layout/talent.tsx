@@ -11,7 +11,6 @@ import {
   Search,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles,
   X,
 } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -173,49 +172,39 @@ function TalentDirectory() {
   }
 
   return (
-    <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-[28px] border border-border bg-card p-5 shadow-card sm:p-8 lg:p-10">
-        <div className="absolute -right-20 -top-28 size-80 rounded-full border-[42px] border-brand-50 dark:border-brand-950/35" />
-        <div className="absolute right-36 top-10 size-16 rounded-full bg-emerald-50 blur-2xl dark:bg-emerald-950/40" />
-        <div className="relative">
-          <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-            <div className="max-w-2xl">
-              <p className="flex items-center gap-2 text-sm font-semibold text-brand-700">
-                <Sparkles className="size-4" /> Curated independent talent
-              </p>
-              <h1 className="mt-3 font-display text-3xl font-semibold tracking-[-0.045em] sm:text-5xl">
-                Who do you need to move the work forward?
-              </h1>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-                Search reviewed professionals by skill, outcome, or location—and
-                start a conversation directly.
-              </p>
-            </div>
-            <div className="hidden items-center gap-3 rounded-2xl border border-border bg-background/80 p-4 backdrop-blur-sm sm:flex">
-              <span className="grid size-10 place-items-center rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/45">
-                <ShieldCheck className="size-5" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold">Every profile reviewed</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  Quality before quantity
-                </p>
-              </div>
-            </div>
+    <div className="space-y-7">
+      <header className="border-b border-border pb-7 sm:pb-8">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div className="max-w-2xl">
+            <h1 className="font-display text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
+              Find talent
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
+              Search reviewed professionals by role, skill, or location.
+            </p>
           </div>
+          <p className="hidden items-center gap-2 text-sm font-medium text-muted-foreground sm:flex">
+            <ShieldCheck className="size-4 text-emerald-600" />
+            Profiles are identity reviewed
+          </p>
+        </div>
 
+        <search className="block">
           <form
             onSubmit={(event) => event.preventDefault()}
-            className="mt-7 flex gap-2 rounded-2xl border border-border bg-background p-2 shadow-floating"
+            className="mt-6 flex items-stretch gap-3"
           >
-            <label className="flex min-h-13 min-w-0 flex-1 items-center px-3">
-              <Search className="size-5 shrink-0 text-brand-600" />
-              <span className="sr-only">Search professionals</span>
+            <div className="flex min-h-14 min-w-0 flex-1 items-center rounded-xl border border-input bg-card px-4 transition-[border-color,box-shadow] focus-within:border-brand-600 focus-within:ring-4 focus-within:ring-brand-100 dark:focus-within:ring-brand-950">
+              <Search className="size-5 shrink-0 text-muted-foreground" />
+              <label htmlFor="talent-directory-search" className="sr-only">
+                Search professionals
+              </label>
               <input
+                id="talent-directory-search"
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search a role, skill, or location"
+                placeholder="Search by role, skill, or location"
                 className="min-w-0 flex-1 appearance-none bg-transparent px-3 text-base outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden"
               />
               {query && (
@@ -223,18 +212,18 @@ function TalentDirectory() {
                   type="button"
                   onClick={() => setQuery("")}
                   aria-label="Clear search"
-                  className="grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+                  className="grid size-10 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
                   <X className="size-4" />
                 </button>
               )}
-            </label>
+            </div>
             <button
               type="button"
               aria-label="Toggle talent filters"
               onClick={() => setFiltersOpen((value) => !value)}
               aria-expanded={filtersOpen}
-              className={`${workspaceStyles.secondaryAction} min-h-13 shrink-0 px-4 lg:hidden`}
+              className={`${workspaceStyles.secondaryAction} min-h-14 shrink-0 rounded-xl px-4 lg:hidden`}
             >
               <SlidersHorizontal className="size-4" />
               <span className="hidden sm:inline">Filters</span>
@@ -246,21 +235,21 @@ function TalentDirectory() {
             </button>
           </form>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-            <span className="text-muted-foreground">Popular:</span>
+          <div className="mt-2 flex flex-wrap items-center gap-x-1 text-sm">
+            <span className="mr-1 text-muted-foreground">Popular:</span>
             {popularSearches.map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => setQuery(item)}
-                className="min-h-8 rounded-full border border-border bg-card px-3 font-medium text-muted-foreground transition hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700"
+                className="min-h-11 rounded-lg px-2 font-medium text-foreground underline-offset-4 transition-colors hover:text-brand-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
               >
                 {item}
               </button>
             ))}
           </div>
-        </div>
-      </section>
+        </search>
+      </header>
 
       <div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside

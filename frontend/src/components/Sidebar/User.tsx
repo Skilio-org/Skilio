@@ -24,9 +24,8 @@ export function User({ user }: { user: any }) {
     select: (state) => state.location.pathname,
   })
 
-  if (!user) return null
-
-  const displayName = user.full_name || user.email || "Client"
+  const displayName = user?.full_name || user?.email || "Client account"
+  const email = user?.email || "Signed-in client"
 
   return (
     <DropdownMenu>
@@ -38,7 +37,7 @@ export function User({ user }: { user: any }) {
           className="flex min-h-11 items-center gap-2 rounded-full p-1 pr-2 text-left transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           <Avatar className="size-9 border border-border">
-            {user.avatar_url && (
+            {user?.avatar_url && (
               <AvatarImage src={user.avatar_url} alt={displayName} />
             )}
             <AvatarFallback className="bg-brand-100 text-xs font-semibold text-brand-800">
@@ -66,7 +65,7 @@ export function User({ user }: { user: any }) {
           />
           <div className="relative flex items-center gap-3.5">
             <Avatar className="size-12 border border-white/20 ring-4 ring-white/10">
-              {user.avatar_url && (
+              {user?.avatar_url && (
                 <AvatarImage src={user.avatar_url} alt={displayName} />
               )}
               <AvatarFallback className="bg-white text-sm font-bold text-slate-950">
@@ -77,9 +76,7 @@ export function User({ user }: { user: any }) {
               <p className="truncate font-display text-base font-semibold">
                 {displayName}
               </p>
-              <p className="mt-0.5 truncate text-xs text-slate-300">
-                {user.email}
-              </p>
+              <p className="mt-0.5 truncate text-xs text-slate-300">{email}</p>
             </div>
           </div>
           <div className="relative mt-4 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-slate-100">

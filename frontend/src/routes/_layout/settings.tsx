@@ -8,6 +8,7 @@ import {
   Trash2,
   UserRound,
 } from "lucide-react"
+import { z } from "zod"
 
 import { Monogram } from "@/components/Common/WorkspaceUI"
 import ChangePassword from "@/components/UserSettings/ChangePassword"
@@ -20,6 +21,17 @@ import {
 import UserInformation from "@/components/UserSettings/UserInformation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import useAuth from "@/hooks/useAuth"
+
+const settingsSectionSchema = z.enum([
+  "profile",
+  "password",
+  "notifications",
+  "privacy",
+  "appearance",
+  "danger-zone",
+])
+
+type SettingsSection = z.infer<typeof settingsSectionSchema>
 
 const settingsSections = [
   {
@@ -69,6 +81,9 @@ const settingsSections = [
 
 export const Route = createFileRoute("/_layout/settings")({
   component: UserSettings,
+  validateSearch: z.object({
+    section: settingsSectionSchema.optional(),
+  }),
   head: () => ({
     meta: [{ title: "Account settings | Freelancer" }],
   }),
@@ -76,8 +91,8 @@ export const Route = createFileRoute("/_layout/settings")({
 
 function UserSettings() {
   const { user: currentUser } = useAuth()
-
-  if (!currentUser) return null
+  const { section = "profile" } = Route.useSearch()
+  const navigate = Route.useNavigate()
 
   const displayName = currentUser?.full_name || "Client account"
   const initials = displayName
@@ -122,7 +137,13 @@ function UserSettings() {
       </header>
 
       <Tabs
-        defaultValue="profile"
+        value={section}
+        onValueChange={(value) =>
+          navigate({
+            search: { section: value as SettingsSection },
+            replace: true,
+          })
+        }
         orientation="vertical"
         className="gap-6 lg:grid lg:grid-cols-[270px_minmax(0,1fr)]"
       >

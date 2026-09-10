@@ -7,6 +7,8 @@ import { isLoggedIn } from "@/hooks/useAuth"
 export const Route = createFileRoute("/_layout")({
   component: Layout,
   beforeLoad: async () => {
+    if (import.meta.env.MODE === "visual-test") return
+
     if (!isLoggedIn()) {
       throw redirect({
         to: "/login",
