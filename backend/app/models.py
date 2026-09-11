@@ -94,15 +94,20 @@ class ITSkill(StrEnum):
 # User Models
 # ==============================================================================
 
+MediaLink = str
 
 # Shared properties
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     is_active: bool = True
     is_superuser: bool = False
+    avatar_url: str | None = Field(default=None, max_length=500)  # stores the Cloudinary secure_url
     full_name: str | None = Field(default=None, max_length=255)
     role: UserRole = Field(default=UserRole.CLIENT)
 
+
+class AvatarResponse(SQLModel):
+    avatar_url: str
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):

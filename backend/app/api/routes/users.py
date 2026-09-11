@@ -23,11 +23,14 @@ from app.models import (
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
+    MediaLink,
+    AvatarResponse
 )
+from fastapi import UploadFile, File
+from app.claudinary import claudinary_upload_media
 from app.utils import generate_new_account_email, send_email
 
 router = APIRouter(prefix="/users", tags=["users"])
-
 
 @router.get(
     "/",
@@ -77,6 +80,30 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
         )
     return user
 
+@router.post("/users/me/avatar", response_model=AvatarResponse)
+async def upload_avatar(
+    *,
+    session: SessionDep,
+    file: UploadFile = File(...),
+    current_user: CurrentUser
+) -> any:
+    """
+    Updated current authenticated user avatar
+    """
+    contents = await file.read()
+    print(type(contents))
+    url: MediaLink = claudinary_upload_media(
+        current_user.id,
+        contents,
+        media_type="image",
+        folder="avatars",
+    )
+    current_user.avatar_url = url
+    session.add(current_user)
+    session.commit()
+    session.refresh(current_user)
+
+    return {"avatar_url": url}
 
 @router.patch("/me", response_model=UserPublic)
 def update_user_me(
@@ -128,7 +155,6 @@ def read_user_me(current_user: CurrentUser) -> Any:
     """
     return current_user
 
-
 @router.delete("/me", response_model=Message)
 def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     """
@@ -141,7 +167,6 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     session.delete(current_user)
     session.commit()
     return Message(message="User deleted successfully")
-
 
 @router.post("/signup", response_model=UserPublic)
 def register_user(session: SessionDep, user_in: UserRegister) -> Any:
