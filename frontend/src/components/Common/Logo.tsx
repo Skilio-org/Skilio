@@ -11,7 +11,7 @@ interface LogoProps {
   variant?: "full" | "icon" | "responsive"
   className?: string
   asLink?: boolean
-  to?: "/" | "/dashboard"
+  to?: "/" | "/dashboard" | "/freelancer" | "/freelancer-dashboard"
 }
 
 export function Logo({

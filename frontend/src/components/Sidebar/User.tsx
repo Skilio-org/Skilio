@@ -15,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAccountRole } from "@/hooks/useAccountRole"
 import useAuth from "@/hooks/useAuth"
 import { getInitials } from "@/utils"
 
@@ -24,8 +25,14 @@ export function User({ user }: { user: any }) {
     select: (state) => state.location.pathname,
   })
 
-  const displayName = user?.full_name || user?.email || "Client account"
-  const email = user?.email || "Signed-in client"
+  const freelancer = useAccountRole() === "freelancer"
+  const displayName =
+    user?.full_name ||
+    user?.email ||
+    (freelancer ? "Freelancer account" : "Client account")
+  const email =
+    user?.email ||
+    (freelancer ? "Your freelancer workspace" : "Signed-in client")
 
   return (
     <DropdownMenu>
@@ -48,7 +55,9 @@ export function User({ user }: { user: any }) {
             <p className="max-w-28 truncate text-xs font-semibold text-foreground">
               {displayName}
             </p>
-            <p className="text-[11px] text-muted-foreground">Client</p>
+            <p className="text-[11px] text-muted-foreground">
+              {freelancer ? "Freelancer" : "Client"}
+            </p>
           </div>
         </button>
       </DropdownMenuTrigger>
@@ -81,7 +90,7 @@ export function User({ user }: { user: any }) {
           </div>
           <div className="relative mt-4 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-slate-100">
             <BadgeCheck className="size-3.5 text-sky-300" />
-            Client workspace
+            {freelancer ? "Freelancer workspace" : "Client workspace"}
           </div>
         </div>
 
@@ -90,25 +99,42 @@ export function User({ user }: { user: any }) {
             Workspace
           </p>
           <AccountMenuLink
-            to="/dashboard"
+            to={freelancer ? "/freelancer-dashboard" : "/dashboard"}
             title="Overview"
-            description="Your hiring workspace"
+            description={
+              freelancer ? "Your freelance workspace" : "Your hiring workspace"
+            }
             icon={LayoutDashboard}
-            active={pathname === "/dashboard"}
+            active={
+              pathname === (freelancer ? "/freelancer-dashboard" : "/dashboard")
+            }
           />
+          {!freelancer && (
+            <AccountMenuLink
+              to="/client-profile"
+              title="Client profile"
+              description="How talent sees you"
+              icon={UserRound}
+              active={pathname === "/client-profile"}
+            />
+          )}
+          {freelancer && (
+            <AccountMenuLink
+              to="/freelancer"
+              title="Freelancer profile"
+              description="Set up your profile and showcase your work"
+              icon={UserRound}
+              active={pathname === "/freelancer"}
+            />
+          )}
           <AccountMenuLink
-            to="/client-profile"
-            title="Client profile"
-            description="How talent sees you"
-            icon={UserRound}
-            active={pathname === "/client-profile"}
-          />
-          <AccountMenuLink
-            to="/settings"
+            to={freelancer ? "/freelancer-settings" : "/settings"}
             title="Account settings"
             description="Profile, security and access"
             icon={Settings}
-            active={pathname === "/settings"}
+            active={
+              pathname === (freelancer ? "/freelancer-settings" : "/settings")
+            }
           />
         </div>
 
@@ -135,7 +161,13 @@ function AccountMenuLink({
   icon: Icon,
   active,
 }: {
-  to: "/dashboard" | "/settings" | "/client-profile"
+  to:
+    | "/dashboard"
+    | "/settings"
+    | "/client-profile"
+    | "/freelancer"
+    | "/freelancer-dashboard"
+    | "/freelancer-settings"
   title: string
   description: string
   icon: typeof LayoutDashboard

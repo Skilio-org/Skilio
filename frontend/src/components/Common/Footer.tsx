@@ -1,4 +1,7 @@
+import { useAccountRole } from "@/hooks/useAccountRole"
+
 export function Footer() {
+  const freelancer = useAccountRole() === "freelancer"
   const currentYear = new Date().getFullYear()
 
   return (
@@ -18,7 +21,9 @@ export function Footer() {
           </p>
         </div>
 
-        <p className="text-xs text-muted-foreground">Client workspace</p>
+        <p className="text-xs text-muted-foreground">
+          {freelancer ? "Freelancer workspace" : "Client workspace"}
+        </p>
       </div>
     </footer>
   )

@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router"
 import {
   Bell,
   Bookmark,
@@ -10,10 +10,10 @@ import {
   Search,
   Settings,
   UsersRound,
-} from "lucide-react";
+} from "lucide-react"
 
-import { Logo } from "@/components/Common/Logo";
-import { User } from "@/components/Sidebar/User";
+import { Logo } from "@/components/Common/Logo"
+import { User } from "@/components/Sidebar/User"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,22 +21,27 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import useAuth from "@/hooks/useAuth";
+} from "@/components/ui/dropdown-menu"
+import { useAccountRole } from "@/hooks/useAccountRole"
+import useAuth from "@/hooks/useAuth"
+import { FreelancerNav } from "./FreelancerNav"
 
 export function TopNav() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth()
+  const role = useAccountRole()
+  const navigate = useNavigate()
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
-  });
+  })
 
   const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const query = String(data.get("q") ?? "").trim();
-    navigate({ to: "/talent", search: { q: query || undefined } });
-  };
+    event.preventDefault()
+    const data = new FormData(event.currentTarget)
+    const query = String(data.get("q") ?? "").trim()
+    navigate({ to: "/talent", search: { q: query || undefined } })
+  }
+
+  if (role === "freelancer") return <FreelancerNav />
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
@@ -195,7 +200,7 @@ export function TopNav() {
         </div>
       </div>
     </header>
-  );
+  )
 }
 
 function MobileNavLink({
@@ -211,10 +216,10 @@ function MobileNavLink({
     | "/messages"
     | "/notifications"
     | "/settings"
-    | "/help";
-  label: string;
-  icon: LucideIcon;
-  active: boolean;
+    | "/help"
+  label: string
+  icon: LucideIcon
+  active: boolean
 }) {
   return (
     <DropdownMenuItem
@@ -236,5 +241,5 @@ function MobileNavLink({
         <span className="font-semibold">{label}</span>
       </Link>
     </DropdownMenuItem>
-  );
+  )
 }
