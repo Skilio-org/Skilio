@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -23,16 +23,16 @@ import {
   Star,
   Trash2,
   UsersRound,
-} from "lucide-react"
-import { type ReactNode, useMemo, useState } from "react"
+} from "lucide-react";
+import { type ReactNode, useMemo, useState } from "react";
 
 import {
   Monogram,
   SkillTag,
   WorkspacePageHeader,
-  WorkspaceSurface,
   workspaceStyles,
-} from "@/components/Common/WorkspaceUI"
+  WorkspaceSurface,
+} from "@/components/Common/WorkspaceUI";
 import {
   Dialog,
   DialogContent,
@@ -40,7 +40,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,26 +51,26 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { type Freelancer, freelancers } from "@/data/freelancers"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { type Freelancer, freelancers } from "@/data/freelancers";
+import { cn } from "@/lib/utils";
 
 type SavedList = {
-  id: string
-  name: string
-  description: string
-  freelancerIds: string[]
-  updatedLabel: string
-}
+  id: string;
+  name: string;
+  description: string;
+  freelancerIds: string[];
+  updatedLabel: string;
+};
 
-type ListDialogMode = "create" | "rename" | null
+type ListDialogMode = "create" | "rename" | null;
 type Confirmation =
   | { type: "delete-list"; listId: string }
   | { type: "clear-list"; listId: string }
-  | null
+  | null;
 
-const ALL_SAVED = "all-saved"
+const ALL_SAVED = "all-saved";
 
 const initialLists: SavedList[] = [
   {
@@ -94,41 +94,43 @@ const initialLists: SavedList[] = [
     freelancerIds: ["amara-okafor", "sofia-mendes"],
     updatedLabel: "Updated Sep 6",
   },
-]
+];
 
 export const Route = createFileRoute("/_layout/saved")({
   component: SavedTalent,
   head: () => ({ meta: [{ title: "Saved talent | Freelancer" }] }),
-})
+});
 
 function SavedTalent() {
-  const [lists, setLists] = useState(initialLists)
-  const [activeListId, setActiveListId] = useState(initialLists[0].id)
-  const [query, setQuery] = useState("")
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [listDialogMode, setListDialogMode] = useState<ListDialogMode>(null)
-  const [editingListId, setEditingListId] = useState<string | null>(null)
-  const [listName, setListName] = useState("")
-  const [confirmation, setConfirmation] = useState<Confirmation>(null)
-  const [compareOpen, setCompareOpen] = useState(false)
-  const [notice, setNotice] = useState("")
+  const [lists, setLists] = useState(initialLists);
+  const [activeListId, setActiveListId] = useState(initialLists[0].id);
+  const [query, setQuery] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [listDialogMode, setListDialogMode] = useState<ListDialogMode>(null);
+  const [editingListId, setEditingListId] = useState<string | null>(null);
+  const [listName, setListName] = useState("");
+  const [confirmation, setConfirmation] = useState<Confirmation>(null);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [notice, setNotice] = useState("");
 
   const allSavedIds = useMemo(
     () => Array.from(new Set(lists.flatMap((list) => list.freelancerIds))),
     [lists],
-  )
-  const activeList = lists.find((list) => list.id === activeListId)
+  );
+  const activeList = lists.find((list) => list.id === activeListId);
   const visibleIds =
-    activeListId === ALL_SAVED ? allSavedIds : (activeList?.freelancerIds ?? [])
+    activeListId === ALL_SAVED
+      ? allSavedIds
+      : (activeList?.freelancerIds ?? []);
 
   const visibleFreelancers = useMemo(() => {
-    const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean)
+    const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
 
     return visibleIds
       .map((id) => freelancers.find((person) => person.id === id))
       .filter((person): person is Freelancer => Boolean(person))
       .filter((person) => {
-        if (terms.length === 0) return true
+        if (terms.length === 0) return true;
         const haystack = [
           person.name,
           person.title,
@@ -137,48 +139,48 @@ function SavedTalent() {
           ...person.skills,
         ]
           .join(" ")
-          .toLowerCase()
+          .toLowerCase();
 
-        return terms.every((term) => haystack.includes(term))
-      })
-  }, [query, visibleIds])
+        return terms.every((term) => haystack.includes(term));
+      });
+  }, [query, visibleIds]);
 
   const selectedFreelancers = Array.from(selectedIds)
     .map((id) => freelancers.find((person) => person.id === id))
-    .filter((person): person is Freelancer => Boolean(person))
+    .filter((person): person is Freelancer => Boolean(person));
 
   const averageRate = visibleFreelancers.length
     ? Math.round(
         visibleFreelancers.reduce((total, person) => total + person.rate, 0) /
           visibleFreelancers.length,
       )
-    : 0
+    : 0;
   const availableNow = visibleFreelancers.filter(
     (person) => person.availability === "Available now",
-  ).length
+  ).length;
 
   function chooseList(listId: string) {
-    setActiveListId(listId)
-    setSelectedIds(new Set())
-    setQuery("")
-    setNotice("")
+    setActiveListId(listId);
+    setSelectedIds(new Set());
+    setQuery("");
+    setNotice("");
   }
 
   function openCreateDialog() {
-    setListDialogMode("create")
-    setEditingListId(null)
-    setListName("")
+    setListDialogMode("create");
+    setEditingListId(null);
+    setListName("");
   }
 
   function openRenameDialog(list: SavedList) {
-    setListDialogMode("rename")
-    setEditingListId(list.id)
-    setListName(list.name)
+    setListDialogMode("rename");
+    setEditingListId(list.id);
+    setListName(list.name);
   }
 
   function saveList() {
-    const nextName = listName.trim()
-    if (!nextName) return
+    const nextName = listName.trim();
+    if (!nextName) return;
 
     if (listDialogMode === "rename" && editingListId) {
       setLists((current) =>
@@ -187,8 +189,8 @@ function SavedTalent() {
             ? { ...list, name: nextName, updatedLabel: "Updated now" }
             : list,
         ),
-      )
-      setNotice(`Renamed list to “${nextName}”.`)
+      );
+      setNotice(`Renamed list to “${nextName}”.`);
     } else {
       const newList: SavedList = {
         id: `list-${Date.now()}`,
@@ -196,14 +198,14 @@ function SavedTalent() {
         description: "A new shortlist ready for promising profiles.",
         freelancerIds: [],
         updatedLabel: "Created now",
-      }
-      setLists((current) => [...current, newList])
-      setActiveListId(newList.id)
-      setSelectedIds(new Set())
-      setNotice(`“${nextName}” is ready.`)
+      };
+      setLists((current) => [...current, newList]);
+      setActiveListId(newList.id);
+      setSelectedIds(new Set());
+      setNotice(`“${nextName}” is ready.`);
     }
 
-    setListDialogMode(null)
+    setListDialogMode(null);
   }
 
   function duplicateList(list: SavedList) {
@@ -212,22 +214,22 @@ function SavedTalent() {
       id: `list-${Date.now()}`,
       name: `${list.name} copy`,
       updatedLabel: "Created now",
-    }
-    setLists((current) => [...current, duplicate])
-    chooseList(duplicate.id)
-    setNotice(`Duplicated “${list.name}”.`)
+    };
+    setLists((current) => [...current, duplicate]);
+    chooseList(duplicate.id);
+    setNotice(`Duplicated “${list.name}”.`);
   }
 
   function confirmListAction() {
-    if (!confirmation) return
+    if (!confirmation) return;
 
     if (confirmation.type === "delete-list") {
-      const deleted = lists.find((list) => list.id === confirmation.listId)
+      const deleted = lists.find((list) => list.id === confirmation.listId);
       setLists((current) =>
         current.filter((list) => list.id !== confirmation.listId),
-      )
-      if (activeListId === confirmation.listId) chooseList(ALL_SAVED)
-      setNotice(`Deleted “${deleted?.name ?? "list"}”.`)
+      );
+      if (activeListId === confirmation.listId) chooseList(ALL_SAVED);
+      setNotice(`Deleted “${deleted?.name ?? "list"}”.`);
     } else {
       setLists((current) =>
         current.map((list) =>
@@ -235,31 +237,31 @@ function SavedTalent() {
             ? { ...list, freelancerIds: [], updatedLabel: "Updated now" }
             : list,
         ),
-      )
-      setSelectedIds(new Set())
-      setNotice("Removed every profile from this list.")
+      );
+      setSelectedIds(new Set());
+      setNotice("Removed every profile from this list.");
     }
 
-    setConfirmation(null)
+    setConfirmation(null);
   }
 
   function toggleSelected(id: string) {
     setSelectedIds((current) => {
-      const next = new Set(current)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   }
 
   function selectAllVisible() {
-    const visible = visibleFreelancers.map((person) => person.id)
-    const everyVisibleSelected = visible.every((id) => selectedIds.has(id))
-    setSelectedIds(everyVisibleSelected ? new Set() : new Set(visible))
+    const visible = visibleFreelancers.map((person) => person.id);
+    const everyVisibleSelected = visible.every((id) => selectedIds.has(id));
+    setSelectedIds(everyVisibleSelected ? new Set() : new Set(visible));
   }
 
   function moveProfiles(ids: string[], destinationId: string) {
-    const destination = lists.find((list) => list.id === destinationId)
+    const destination = lists.find((list) => list.id === destinationId);
     setLists((current) =>
       current.map((list) => {
         if (list.id === destinationId) {
@@ -267,43 +269,43 @@ function SavedTalent() {
             ...list,
             freelancerIds: Array.from(new Set([...list.freelancerIds, ...ids])),
             updatedLabel: "Updated now",
-          }
+          };
         }
         if (activeListId !== ALL_SAVED && list.id === activeListId) {
           return {
             ...list,
             freelancerIds: list.freelancerIds.filter((id) => !ids.includes(id)),
             updatedLabel: "Updated now",
-          }
+          };
         }
-        return list
+        return list;
       }),
-    )
-    setSelectedIds(new Set())
+    );
+    setSelectedIds(new Set());
     setNotice(
       activeListId === ALL_SAVED
         ? `Added ${ids.length} profile${ids.length === 1 ? "" : "s"} to “${destination?.name}”.`
         : `Moved ${ids.length} profile${ids.length === 1 ? "" : "s"} to “${destination?.name}”.`,
-    )
+    );
   }
 
   function removeProfiles(ids: string[]) {
     setLists((current) =>
       current.map((list) => {
-        if (activeListId !== ALL_SAVED && list.id !== activeListId) return list
+        if (activeListId !== ALL_SAVED && list.id !== activeListId) return list;
         return {
           ...list,
           freelancerIds: list.freelancerIds.filter((id) => !ids.includes(id)),
           updatedLabel: "Updated now",
-        }
+        };
       }),
-    )
-    setSelectedIds(new Set())
+    );
+    setSelectedIds(new Set());
     setNotice(
       activeListId === ALL_SAVED
         ? `Removed ${ids.length} profile${ids.length === 1 ? "" : "s"} from saved talent.`
         : `Removed ${ids.length} profile${ids.length === 1 ? "" : "s"} from this list.`,
-    )
+    );
   }
 
   return (
@@ -381,7 +383,7 @@ function SavedTalent() {
               </div>
 
               {lists.map((list) => {
-                const isActive = list.id === activeListId
+                const isActive = list.id === activeListId;
                 return (
                   <div
                     key={list.id}
@@ -452,7 +454,7 @@ function SavedTalent() {
                       />
                     </DropdownMenu>
                   </div>
-                )
+                );
               })}
             </nav>
           </WorkspaceSurface>
@@ -895,7 +897,7 @@ function SavedTalent() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
 function SavedTalentRow({
@@ -907,13 +909,13 @@ function SavedTalentRow({
   onMove,
   onRemove,
 }: {
-  freelancer: Freelancer
-  lists: SavedList[]
-  activeListId: string
-  selected: boolean
-  onToggleSelected: () => void
-  onMove: (destinationId: string) => void
-  onRemove: () => void
+  freelancer: Freelancer;
+  lists: SavedList[];
+  activeListId: string;
+  selected: boolean;
+  onToggleSelected: () => void;
+  onMove: (destinationId: string) => void;
+  onRemove: () => void;
 }) {
   return (
     <article
@@ -1073,7 +1075,7 @@ function SavedTalentRow({
         </div>
       </div>
     </article>
-  )
+  );
 }
 
 function ProfileMenu({
@@ -1084,14 +1086,14 @@ function ProfileMenu({
   onRemove,
   className,
 }: {
-  freelancer: Freelancer
-  lists: SavedList[]
-  activeListId: string
-  onMove: (destinationId: string) => void
-  onRemove: () => void
-  className?: string
+  freelancer: Freelancer;
+  lists: SavedList[];
+  activeListId: string;
+  onMove: (destinationId: string) => void;
+  onRemove: () => void;
+  className?: string;
 }) {
-  const destinations = lists.filter((list) => list.id !== activeListId)
+  const destinations = lists.filter((list) => list.id !== activeListId);
 
   return (
     <DropdownMenu>
@@ -1133,7 +1135,7 @@ function ProfileMenu({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 function MoveMenu({
@@ -1143,13 +1145,13 @@ function MoveMenu({
   onMove,
   triggerClassName,
 }: {
-  lists: SavedList[]
-  activeListId: string
-  label: string
-  onMove: (destinationId: string) => void
-  triggerClassName?: string
+  lists: SavedList[];
+  activeListId: string;
+  label: string;
+  onMove: (destinationId: string) => void;
+  triggerClassName?: string;
 }) {
-  const destinations = lists.filter((list) => list.id !== activeListId)
+  const destinations = lists.filter((list) => list.id !== activeListId);
 
   return (
     <DropdownMenu>
@@ -1181,7 +1183,7 @@ function MoveMenu({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 function ListMenu({
@@ -1191,11 +1193,11 @@ function ListMenu({
   onClear,
   onDelete,
 }: {
-  list: SavedList
-  onRename: () => void
-  onDuplicate: () => void
-  onClear: () => void
-  onDelete: () => void
+  list: SavedList;
+  onRename: () => void;
+  onDuplicate: () => void;
+  onClear: () => void;
+  onDelete: () => void;
 }) {
   return (
     <DropdownMenuContent align="end" className="w-56">
@@ -1223,7 +1225,7 @@ function ListMenu({
         Delete list
       </DropdownMenuItem>
     </DropdownMenuContent>
-  )
+  );
 }
 
 function ListMetric({
@@ -1231,9 +1233,9 @@ function ListMetric({
   value,
   label,
 }: {
-  icon: typeof UsersRound
-  value: string
-  label: string
+  icon: typeof UsersRound;
+  value: string;
+  label: string;
 }) {
   return (
     <div className="min-w-0 px-3 py-4 text-center sm:px-5 sm:text-left">
@@ -1247,22 +1249,22 @@ function ListMetric({
         {label}
       </p>
     </div>
-  )
+  );
 }
 
 function ProfileSignal({
   icon: Icon,
   value,
 }: {
-  icon: typeof ShieldCheck
-  value: string
+  icon: typeof ShieldCheck;
+  value: string;
 }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
       <Icon className="size-3.5 text-brand-600" />
       {value}
     </span>
-  )
+  );
 }
 
 function CompareLabel({ children }: { children: string }) {
@@ -1270,15 +1272,15 @@ function CompareLabel({ children }: { children: string }) {
     <div className="flex items-center bg-muted/70 p-4 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
       {children}
     </div>
-  )
+  );
 }
 
 function CompareValue({
   children,
   className,
 }: {
-  children: ReactNode
-  className?: string
+  children: ReactNode;
+  className?: string;
 }) {
   return (
     <div
@@ -1289,5 +1291,5 @@ function CompareValue({
     >
       {children}
     </div>
-  )
+  );
 }

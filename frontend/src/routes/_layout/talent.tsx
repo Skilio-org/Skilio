@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowDownWideNarrow,
   Banknote,
@@ -9,22 +9,24 @@ import {
   type LucideIcon,
   MapPin,
   Search,
-  ShieldCheck,
   SlidersHorizontal,
   X,
-} from "lucide-react"
-import { useMemo, useState } from "react"
+} from "lucide-react";
+import { useMemo, useState } from "react";
 
-import { workspaceStyles } from "@/components/Common/WorkspaceUI"
-import { FreelancerCard } from "@/components/Talent/FreelancerCard"
+import {
+  WorkspacePageHeader,
+  workspaceStyles,
+} from "@/components/Common/WorkspaceUI";
+import { FreelancerCard } from "@/components/Talent/FreelancerCard";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { freelancers } from "@/data/freelancers"
+} from "@/components/ui/select";
+import { freelancers } from "@/data/freelancers";
 
 export const Route = createFileRoute("/_layout/talent")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -32,7 +34,7 @@ export const Route = createFileRoute("/_layout/talent")({
   }),
   component: TalentDirectory,
   head: () => ({ meta: [{ title: "Find talent | Freelancer" }] }),
-})
+});
 
 const specialties = [
   "All talent",
@@ -40,30 +42,30 @@ const specialties = [
   "Design",
   "Marketing",
   "AI services",
-] as const
+] as const;
 
-const popularSearches = ["Product designer", "React developer", "AI engineer"]
+const popularSearches = ["Product designer", "React developer", "AI engineer"];
 
 const rateOptions = [
   { value: "any", label: "Any hourly rate" },
   { value: "under-50", label: "Under $50/hr" },
   { value: "50-100", label: "$50–$100/hr" },
   { value: "100-plus", label: "$100+/hr" },
-]
+];
 
 const availabilityOptions = [
   { value: "any", label: "Any availability" },
   { value: "now", label: "Available now" },
   { value: "week", label: "Available this week" },
   { value: "next-week", label: "Available next week" },
-]
+];
 
 const locationOptions = [
   { value: "worldwide", label: "Worldwide" },
   { value: "europe", label: "Europe" },
   { value: "north-america", label: "North America" },
   { value: "asia-pacific", label: "Asia Pacific" },
-]
+];
 
 const specialtyTerms: Record<(typeof specialties)[number], string[]> = {
   "All talent": [],
@@ -71,7 +73,7 @@ const specialtyTerms: Record<(typeof specialties)[number], string[]> = {
   Design: ["designer", "design", "figma", "ux"],
   Marketing: ["marketing", "brand", "growth", "seo", "positioning"],
   "AI services": ["ai", "automation", "llm", "rag", "python"],
-}
+};
 
 const searchAliases: Record<string, string[]> = {
   developer: ["developer", "engineer"],
@@ -79,28 +81,28 @@ const searchAliases: Record<string, string[]> = {
   designer: ["designer", "design"],
   design: ["design", "designer"],
   ai: ["ai", "llm", "automation"],
-}
+};
 
 function TalentDirectory() {
-  const { q } = Route.useSearch()
-  const [query, setQuery] = useState(q ?? "")
+  const { q } = Route.useSearch();
+  const [query, setQuery] = useState(q ?? "");
   const [specialty, setSpecialty] =
-    useState<(typeof specialties)[number]>("All talent")
-  const [filtersOpen, setFiltersOpen] = useState(false)
-  const [rate, setRate] = useState("any")
-  const [availability, setAvailability] = useState("any")
-  const [location, setLocation] = useState("worldwide")
-  const [sort, setSort] = useState("best-match")
+    useState<(typeof specialties)[number]>("All talent");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [rate, setRate] = useState("any");
+  const [availability, setAvailability] = useState("any");
+  const [location, setLocation] = useState("worldwide");
+  const [sort, setSort] = useState("best-match");
 
   const activeFilterCount = [
     rate !== "any",
     availability !== "any",
     location !== "worldwide",
-  ].filter(Boolean).length
+  ].filter(Boolean).length;
 
   const results = useMemo(() => {
-    const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean)
-    const expertiseTerms = specialtyTerms[specialty]
+    const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    const expertiseTerms = specialtyTerms[specialty];
 
     const filtered = freelancers.filter((person) => {
       const haystack = [
@@ -111,7 +113,7 @@ function TalentDirectory() {
         ...person.skills,
       ]
         .join(" ")
-        .toLowerCase()
+        .toLowerCase();
 
       const matchesSearch =
         searchTerms.length === 0 ||
@@ -119,22 +121,22 @@ function TalentDirectory() {
           (searchAliases[term] ?? [term]).some((candidate) =>
             haystack.includes(candidate),
           ),
-        )
+        );
       const matchesSpecialty =
         expertiseTerms.length === 0 ||
-        expertiseTerms.some((term) => haystack.includes(term))
+        expertiseTerms.some((term) => haystack.includes(term));
       const matchesRate =
         rate === "any" ||
         (rate === "under-50" && person.rate < 50) ||
         (rate === "50-100" && person.rate >= 50 && person.rate <= 100) ||
-        (rate === "100-plus" && person.rate >= 100)
+        (rate === "100-plus" && person.rate >= 100);
       const matchesAvailability =
         availability === "any" ||
         (availability === "now" && person.availability === "Available now") ||
         (availability === "week" &&
           person.availability === "Available this week") ||
         (availability === "next-week" &&
-          person.availability === "Available next week")
+          person.availability === "Available next week");
       const matchesLocation =
         location === "worldwide" ||
         (location === "europe" &&
@@ -145,7 +147,7 @@ function TalentDirectory() {
           ["Canada", "United States"].some((country) =>
             person.location.includes(country),
           )) ||
-        (location === "asia-pacific" && person.location === "Singapore")
+        (location === "asia-pacific" && person.location === "Singapore");
 
       return (
         matchesSearch &&
@@ -153,40 +155,36 @@ function TalentDirectory() {
         matchesRate &&
         matchesAvailability &&
         matchesLocation
-      )
-    })
+      );
+    });
 
     return filtered.sort((first, second) => {
-      if (sort === "highest-rated") return second.rating - first.rating
-      if (sort === "lowest-rate") return first.rate - second.rate
+      if (sort === "highest-rated") return second.rating - first.rating;
+      if (sort === "lowest-rate") return first.rate - second.rate;
       return (
         second.successRate - first.successRate || second.rating - first.rating
-      )
-    })
-  }, [availability, location, query, rate, sort, specialty])
+      );
+    });
+  }, [availability, location, query, rate, sort, specialty]);
 
   const resetFilters = () => {
-    setRate("any")
-    setAvailability("any")
-    setLocation("worldwide")
-  }
+    setRate("any");
+    setAvailability("any");
+    setLocation("worldwide");
+  };
 
   return (
     <div className="space-y-7">
       <header className="border-b border-border pb-7 sm:pb-8">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div className="max-w-2xl">
-            <h1 className="font-display text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
-              Find talent
-            </h1>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
-              Search reviewed professionals by role, skill, or location.
-            </p>
+            <WorkspacePageHeader
+              eyebrow="Talent discovery"
+              title="Find the right talent"
+              description="Discover skilled professionals by expertise, role, and location."
+            />
+            <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base"></p>
           </div>
-          <p className="hidden items-center gap-2 text-sm font-medium text-muted-foreground sm:flex">
-            <ShieldCheck className="size-4 text-emerald-600" />
-            Profiles are identity reviewed
-          </p>
         </div>
 
         <search className="block">
@@ -393,9 +391,9 @@ function TalentDirectory() {
                 <button
                   type="button"
                   onClick={() => {
-                    setQuery("")
-                    setSpecialty("All talent")
-                    resetFilters()
+                    setQuery("");
+                    setSpecialty("All talent");
+                    resetFilters();
                   }}
                   className={`${workspaceStyles.primaryAction} mt-5`}
                 >
@@ -407,7 +405,7 @@ function TalentDirectory() {
         </section>
       </div>
     </div>
-  )
+  );
 }
 
 function FilterSelect({
@@ -417,11 +415,11 @@ function FilterSelect({
   onValueChange,
   options,
 }: {
-  label: string
-  icon: LucideIcon
-  value: string
-  onValueChange: (value: string) => void
-  options: { value: string; label: string }[]
+  label: string;
+  icon: LucideIcon;
+  value: string;
+  onValueChange: (value: string) => void;
+  options: { value: string; label: string }[];
 }) {
   return (
     <div>
@@ -441,5 +439,5 @@ function FilterSelect({
         </SelectContent>
       </Select>
     </div>
-  )
+  );
 }
