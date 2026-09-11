@@ -2,7 +2,7 @@ from sqlmodel import Session, create_engine, select
 
 from app import crud
 from app.core.config import settings
-from app.models import User, UserCreate
+from app.models import ITSkill, Skill, User, UserCreate, UserRole
 
 engine = create_engine(str(settings.DATABASE_URL))
 
@@ -10,6 +10,16 @@ engine = create_engine(str(settings.DATABASE_URL))
 # make sure all SQLModel models are imported (app.models) before initializing DB
 # otherwise, SQLModel might fail to initialize relationships properly
 # for more details: https://github.com/fastapi/full-stack-fastapi-template/issues/28
+
+
+def init_skills(session: Session) -> None:
+    existing_skills = set(session.exec(select(Skill.name)).all())
+    new_skills = [
+        Skill(name=skill) for skill in ITSkill if skill not in existing_skills
+    ]
+    if new_skills:
+        session.add_all(new_skills)
+        session.commit()
 
 
 def init_db(session: Session) -> None:
@@ -21,6 +31,8 @@ def init_db(session: Session) -> None:
     # This works because the models are already imported and registered from app.models
     # SQLModel.metadata.create_all(engine)
 
+    init_skills(session)
+
     user = session.exec(
         select(User).where(User.email == settings.FIRST_SUPERUSER)
     ).first()
@@ -29,5 +41,10 @@ def init_db(session: Session) -> None:
             email=settings.FIRST_SUPERUSER,
             password=settings.FIRST_SUPERUSER_PASSWORD,
             is_superuser=True,
+            role=UserRole.ADMIN,
         )
         user = crud.create_user(session=session, user_create=user_in)
+    elif user.is_superuser and user.role != UserRole.ADMIN:
+        user.role = UserRole.ADMIN
+        session.add(user)
+        session.commit()

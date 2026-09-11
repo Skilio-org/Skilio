@@ -6,10 +6,22 @@ from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
+import cloudinary
+import cloudinary.uploader
+from os import environ
+from cloudinary.utils import cloudinary_url
 from app.core.config import settings
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
 
+
+def cloudinary_prepare_media_store():
+    cloudinary.config(
+        cloud_name = settings.CLOUDINARY_CLOUD_NAME, 
+        api_key    = settings.CLOUDINARY_API_KEY,
+        api_secret = settings.CLOUDINARY_API_SECRET, # Click 'View API Keys' above to copy your API secret
+        secure=True
+    )
 
 def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
@@ -26,7 +38,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_HOST],
+    allow_origins=[
+        settings.FRONTEND_HOST,
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,3 +50,4 @@ app.add_middleware(
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.frontend("/", directory=FRONTEND_DIR)
+cloudinary_prepare_media_store()

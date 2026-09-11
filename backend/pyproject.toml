@@ -19,6 +19,7 @@ dependencies = [
     "sentry-sdk[fastapi]>=2.66.1,<3.0.0",
     "pyjwt<3.0.0,>=2.13.0",
     "pwdlib[argon2,bcrypt]>=0.3.0",
+    "cloudinary>=1.46.2",
 ]
 
 [dependency-groups]
@@ -59,6 +60,8 @@ ignore = [
     "B008",  # do not perform function calls in argument defaults
     "W191",  # indentation contains tabs
     "B904",  # Allow raising exceptions without from e, for HTTPException
+    "UP037", # quotes in type annotations needed for SQLModel runtime forward references
+    "UP045", # Optional needed for SQLModel forward reference resolution
 ]
 
 [tool.ruff.lint.pyupgrade]
