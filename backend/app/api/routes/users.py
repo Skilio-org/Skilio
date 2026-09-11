@@ -26,11 +26,16 @@ from app.models import (
     MediaLink,
     AvatarResponse
 )
-from fastapi import UploadFile, File
+from fastapi.concurrency import run_in_threadpool
+import httpx
+from fastapi import UploadFile, File, Request
+from fastapi.responses import StreamingResponse
 from app.claudinary import claudinary_upload_media
 from app.utils import generate_new_account_email, send_email
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+def get_http_client(request: Request) -> httpx.AsyncClient: return request.app.state.http_client
 
 @router.get(
     "/",
@@ -80,52 +85,72 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
         )
     return user
 
-@router.post("/users/me/avatar", response_model=AvatarResponse)
+@router.post("/me/avatar", response_model=AvatarResponse)
 async def upload_avatar(
     *,
     session: SessionDep,
     file: UploadFile = File(...),
-    current_user: CurrentUser
-) -> any:
-    """
-    Updated current authenticated user avatar
-    """
+    current_user: CurrentUser,
+) -> AvatarResponse:
+    """Uploads avatar asynchronously without blocking the event loop."""
     contents = await file.read()
-    print(type(contents))
-    url: MediaLink = claudinary_upload_media(
+    url: str = await run_in_threadpool(
+        claudinary_upload_media,
         current_user.id,
         contents,
         media_type="image",
         folder="avatars",
     )
-    current_user.avatar_url = url
+
+    current_user.avatar_url = str(url)
+
     session.add(current_user)
     session.commit()
     session.refresh(current_user)
 
-    return {"avatar_url": url}
+    return AvatarResponse(status="Ok")
 
-@router.patch("/me", response_model=UserPublic)
-def update_user_me(
-    *, session: SessionDep, user_in: UserUpdateMe, current_user: CurrentUser
-) -> Any:
-    """
-    Update own user.
-    """
+@router.get("/avatar/{uuid}")
+async def proxy_media(
+    *,
+    uuid: uuid.UUID,
+    session: SessionDep,
+    client: httpx.AsyncClient = Depends(get_http_client),
+):
+    """ Gets the user's avatar using his uuid."""
+    user = session.get(User, uuid)
+    print(f"Failed to get user: {uuid}")
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    cloudinary_url = user.avatar_url
+    headers = {}
+    try:
+        req = client.build_request("GET", cloudinary_url, headers=headers)
+        response = await client.send(req, stream=True)
+    except httpx.PoolTimeout:
+        raise HTTPException(
+            status_code=503, detail="Server capacity reached, retry shortly"
+        )
+    except httpx.RequestError:
+        raise HTTPException(status_code=502, detail="Upstream media fetch failed")
 
-    if user_in.email:
-        existing_user = crud.get_user_by_email(session=session, email=user_in.email)
-        if existing_user and existing_user.id != current_user.id:
-            raise HTTPException(
-                status_code=409, detail="User with this email already exists"
-            )
-    user_data = user_in.model_dump(exclude_unset=True)
-    current_user.sqlmodel_update(user_data)
-    session.add(current_user)
-    session.commit()
-    session.refresh(current_user)
-    return current_user
+    if response.status_code not in (200, 206):
+        await response.aclose()
+        raise HTTPException(status_code=response.status_code)
 
+    passthrough_headers = {
+        k: v
+        for k, v in response.headers.items()
+        if k.lower()
+        in ["content-type", "content-length", "accept-ranges", "content-range"]
+    }
+
+    return StreamingResponse(
+        content=response.aiter_bytes(chunk_size=64 * 1024),
+        status_code=response.status_code,
+        headers=passthrough_headers,
+        media_type=response.headers.get("content-type"),
+    )
 
 @router.patch("/me/password", response_model=Message)
 def update_password_me(
@@ -203,7 +228,6 @@ def read_user_by_id(
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-
 @router.patch(
     "/{user_id}",
     dependencies=[Depends(get_current_active_superuser)],
@@ -231,7 +255,6 @@ def update_user(
             raise HTTPException(
                 status_code=409, detail="User with this email already exists"
             )
-
     db_user = crud.update_user(session=session, db_user=db_user, user_in=user_in)
     return db_user
 

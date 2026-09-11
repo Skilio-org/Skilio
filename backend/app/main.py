@@ -4,7 +4,9 @@ import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
-
+from contextlib import asynccontextmanager
+import httpx
+from fastapi import FastAPI
 from app.api.main import api_router
 import cloudinary
 import cloudinary.uploader
@@ -30,12 +32,41 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 if settings.SENTRY_DSN and settings.FASTAPI_ENV != "development":
     sentry_sdk.init(dsn=str(settings.SENTRY_DSN), enable_tracing=True)
 
+
+CLOUDINARY_LIMITS = httpx.Limits(
+    max_connections=1000,
+    max_keepalive_connections=200,
+    keepalive_expiry=30.0,
+)
+
+CLOUDINARY_TIMEOUTS = httpx.Timeout(
+    connect=5.0,
+    read=60.0,
+    write=10.0,
+    pool=10.0,
+)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.http_client = httpx.AsyncClient(
+        limits=CLOUDINARY_LIMITS,
+        timeout=CLOUDINARY_TIMEOUTS,
+        follow_redirects=True,
+        http2=True,
+    )
+    yield await app.state.http_client.aclose()
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
+    lifespan=lifespan
 )
 
+
+
+# Register your router
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
