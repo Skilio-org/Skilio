@@ -1,24 +1,30 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
+
+import { Logo } from "@/components/common/logo"
 
 export function LandingHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
+    <header className="border-border bg-background/95 sticky top-0 z-50 border-b backdrop-blur-md">
       <div className="mx-auto flex h-[72px] max-w-[1440px] items-center px-5 sm:px-8 lg:px-12">
-        <a href="#main-content" aria-label="Freelancer home" className="shrink-0">
-          <img src="/assets/images/freelancer-logo.png" alt="Freelancer" className="h-8 w-auto" />
-        </a>
+        <Logo className="h-8" />
 
         <nav
           aria-label="Main navigation"
-          className="ml-14 hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex"
+          className="text-muted-foreground ml-14 hidden items-center gap-8 text-sm font-medium md:flex"
         >
-          <a className="transition-colors hover:text-slate-950" href="#talent">
+          <a className="hover:text-foreground transition-colors" href="#talent">
             Find talent
           </a>
-          <a className="transition-colors hover:text-slate-950" href="#categories">
+          <a
+            className="hover:text-foreground transition-colors"
+            href="#categories"
+          >
             Categories
           </a>
-          <a className="transition-colors hover:text-slate-950" href="#how-it-works">
+          <a
+            className="hover:text-foreground transition-colors"
+            href="#how-it-works"
+          >
             How it works
           </a>
         </nav>
@@ -26,7 +32,7 @@ export function LandingHeader() {
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <Link
             to="/login"
-            className="hover:text-brand-700 hidden min-h-11 items-center px-4 text-sm font-semibold text-slate-700 transition-colors sm:inline-flex"
+            className="hover:text-brand-700 hidden min-h-11 items-center px-4 text-sm font-semibold transition-colors sm:inline-flex"
           >
             Log in
           </Link>
@@ -39,5 +45,5 @@ export function LandingHeader() {
         </div>
       </div>
     </header>
-  );
+  )
 }
