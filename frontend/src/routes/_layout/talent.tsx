@@ -3,7 +3,6 @@ import {
   ArrowDownWideNarrow,
   Banknote,
   BriefcaseBusiness,
-  CheckCircle2,
   Clock3,
   Filter,
   type LucideIcon,

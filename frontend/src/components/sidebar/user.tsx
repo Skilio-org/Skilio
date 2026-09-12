@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BadgeCheck, ChevronRight, LayoutDashboard, LogOut, Settings, UserRound } from "lucide-react";
+import { ChevronRight, LayoutDashboard, LogOut, Settings, UserRound } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
