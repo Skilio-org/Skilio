@@ -43,19 +43,17 @@ const DeleteConfirmation = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="destructive" className="mt-3">
-          Delete Account
+        <Button variant="destructive" className="self-start sm:self-auto">
+          Delete account
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Confirmation Required</DialogTitle>
+            <DialogTitle>Delete your account?</DialogTitle>
             <DialogDescription>
-              All your account data will be{" "}
-              <strong>permanently deleted.</strong> If you are sure, please
-              click <strong>"Confirm"</strong> to proceed. This action cannot be
-              undone.
+              Your profile, saved talent, conversations, and account data will
+              be permanently deleted. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
@@ -70,7 +68,7 @@ const DeleteConfirmation = () => {
               type="submit"
               loading={mutation.isPending}
             >
-              Delete
+              Delete permanently
             </LoadingButton>
           </DialogFooter>
         </form>

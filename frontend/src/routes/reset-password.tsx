@@ -6,11 +6,20 @@ import {
   redirect,
   useNavigate,
 } from "@tanstack/react-router"
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  KeyRound,
+  LockKeyhole,
+} from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { LoginService } from "@/client"
+
 import { AuthLayout } from "@/components/Common/AuthLayout"
+
 import {
   Form,
   FormControl,
@@ -19,148 +28,538 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+
 import { LoadingButton } from "@/components/ui/loading-button"
 import { PasswordInput } from "@/components/ui/password-input"
+
 import { isLoggedIn } from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
+
 import { handleError } from "@/utils"
+
+/* =========================================================
+   SEARCH PARAMS
+   ========================================================= */
 
 const searchSchema = z.object({
   token: z.string().catch(""),
 })
 
+/* =========================================================
+   VALIDATION
+   ========================================================= */
+
 const formSchema = z
   .object({
     new_password: z
       .string()
-      .min(1, { message: "Password is required" })
-      .min(8, { message: "Password must be at least 8 characters" }),
-    confirm_password: z
-      .string()
-      .min(1, { message: "Password confirmation is required" }),
+      .min(1, {
+        message: "Password is required.",
+      })
+      .min(8, {
+        message: "Password must be at least 8 characters.",
+      }),
+
+    confirm_password: z.string().min(1, {
+      message: "Please confirm your password.",
+    }),
   })
   .refine((data) => data.new_password === data.confirm_password, {
-    message: "The passwords don't match",
+    message: "The passwords don't match.",
     path: ["confirm_password"],
   })
 
 type FormData = z.infer<typeof formSchema>
 
+/* =========================================================
+   ROUTE
+   ========================================================= */
+
 export const Route = createFileRoute("/reset-password")({
   component: ResetPassword,
+
   validateSearch: searchSchema,
+
   beforeLoad: async ({ search }) => {
     if (isLoggedIn()) {
-      throw redirect({ to: "/" })
+      throw redirect({
+        to: "/dashboard",
+      })
     }
+
     if (!search.token) {
-      throw redirect({ to: "/login" })
+      throw redirect({
+        to: "/login",
+      })
     }
   },
+
   head: () => ({
     meta: [
       {
-        title: "Reset Password - FastAPI Template",
+        title: "Reset password | Freelancer",
+      },
+      {
+        name: "description",
+        content: "Choose a new password for your Freelancer account.",
       },
     ],
   }),
 })
 
+/* =========================================================
+   RESET PASSWORD
+   ========================================================= */
+
 function ResetPassword() {
   const { token } = Route.useSearch()
+
   const { showSuccessToast, showErrorToast } = useCustomToast()
+
   const navigate = useNavigate()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
+
     mode: "onBlur",
     criteriaMode: "all",
+
     defaultValues: {
       new_password: "",
       confirm_password: "",
     },
   })
 
+  const newPassword = form.watch("new_password")
+  const confirmPassword = form.watch("confirm_password")
+
+  const hasMinLength = newPassword.length >= 8
+
+  const passwordsMatch =
+    newPassword.length > 0 &&
+    confirmPassword.length > 0 &&
+    newPassword === confirmPassword
+
+  /* =======================================================
+     API
+     ======================================================= */
+
   const mutation = useMutation({
     mutationFn: (data: { new_password: string; token: string }) =>
-      LoginService.resetPassword({ body: data }),
+      LoginService.resetPassword({
+        body: data,
+      }),
+
     onSuccess: () => {
-      showSuccessToast("Password updated successfully")
+      showSuccessToast("Your password has been updated successfully.")
+
       form.reset()
-      navigate({ to: "/login" })
+
+      navigate({
+        to: "/login",
+      })
     },
+
     onError: handleError.bind(showErrorToast),
   })
 
+  /* =======================================================
+     SUBMIT
+     ======================================================= */
+
   const onSubmit = (data: FormData) => {
-    mutation.mutate({ new_password: data.new_password, token })
+    if (mutation.isPending) return
+
+    mutation.mutate({
+      new_password: data.new_password,
+      token,
+    })
   }
 
   return (
     <AuthLayout>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-6"
-        >
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Reset Password</h1>
-          </div>
+      <div className="mx-auto w-full max-w-[460px]">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            noValidate
+            className="w-full"
+          >
+            {/* =================================================
+                BACK
+                ================================================= */}
 
-          <div className="grid gap-4">
-            <FormField
-              control={form.control}
-              name="new_password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>New Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput
-                      data-testid="new-password-input"
-                      placeholder="New Password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="confirm_password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput
-                      data-testid="confirm-password-input"
-                      placeholder="Confirm Password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <LoadingButton
-              type="submit"
-              className="w-full"
-              loading={mutation.isPending}
+            <RouterLink
+              to="/login"
+              className="
+                mb-8
+                inline-flex
+                items-center
+                gap-2
+                rounded-md
+                text-sm
+                font-medium
+                text-muted-foreground
+                transition-colors
+                hover:text-foreground
+                focus-visible:outline-none
+                focus-visible:ring-[3px]
+                focus-visible:ring-ring/30
+              "
             >
-              Reset Password
-            </LoadingButton>
-          </div>
-
-          <div className="text-center text-sm">
-            Remember your password?{" "}
-            <RouterLink to="/login" className="underline underline-offset-4">
-              Log in
+              <ArrowLeft className="size-4" />
+              Back to login
             </RouterLink>
-          </div>
-        </form>
-      </Form>
+
+            {/* =================================================
+                HEADER
+                ================================================= */}
+
+            <div className="mb-8">
+              <div
+                className="
+                  mb-5
+                  flex
+                  size-12
+                  items-center
+                  justify-center
+                  rounded-xl
+                  border
+                  border-primary/20
+                  bg-accent
+                  text-accent-foreground
+                  shadow-sm
+                "
+              >
+                <KeyRound className="size-5" />
+              </div>
+
+              <h1
+                className="
+                  font-display
+                  text-[42px]
+                  font-bold
+                  leading-[0.98]
+                  tracking-[-0.045em]
+                  text-foreground
+                  sm:text-[46px]
+                "
+              >
+                Create a new <br />
+                password.
+              </h1>
+
+              <p
+                className="
+                  mt-4
+                  max-w-[400px]
+                  text-sm
+                  leading-6
+                  text-muted-foreground
+                "
+              >
+                Choose a strong password that you haven't used before. You'll
+                use it to sign in to your account.
+              </p>
+            </div>
+
+            {/* =================================================
+                FORM FIELDS
+                ================================================= */}
+
+            <div className="space-y-5">
+              {/* =================================================
+                  NEW PASSWORD
+                  ================================================= */}
+
+              <FormField
+                control={form.control}
+                name="new_password"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel
+                      className="
+                        text-[13px]
+                        font-medium
+                        text-foreground
+                      "
+                    >
+                      New password
+                    </FormLabel>
+
+                    <FormControl>
+                      <PasswordInput
+                        data-testid="new-password-input"
+                        autoComplete="new-password"
+                        placeholder="Create a new password"
+                        disabled={mutation.isPending}
+                        className="
+                          h-12
+                          rounded-xl
+                          border-input
+                          bg-card
+                          px-4
+                          text-sm
+                          text-foreground
+                          shadow-none
+                          transition-[border-color,box-shadow,background-color]
+                          placeholder:text-muted-foreground/65
+                          hover:border-foreground/20
+                          focus-visible:border-primary/50
+                          focus-visible:ring-[3px]
+                          focus-visible:ring-ring/25
+                          disabled:cursor-not-allowed
+                          disabled:opacity-60
+                        "
+                        {...field}
+                      />
+                    </FormControl>
+
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+
+              {/* =================================================
+                  CONFIRM PASSWORD
+                  ================================================= */}
+
+              <FormField
+                control={form.control}
+                name="confirm_password"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel
+                      className="
+                        text-[13px]
+                        font-medium
+                        text-foreground
+                      "
+                    >
+                      Confirm password
+                    </FormLabel>
+
+                    <FormControl>
+                      <PasswordInput
+                        data-testid="confirm-password-input"
+                        autoComplete="new-password"
+                        placeholder="Confirm your new password"
+                        disabled={mutation.isPending}
+                        className="
+                          h-12
+                          rounded-xl
+                          border-input
+                          bg-card
+                          px-4
+                          text-sm
+                          text-foreground
+                          shadow-none
+                          transition-[border-color,box-shadow,background-color]
+                          placeholder:text-muted-foreground/65
+                          hover:border-foreground/20
+                          focus-visible:border-primary/50
+                          focus-visible:ring-[3px]
+                          focus-visible:ring-ring/25
+                          disabled:cursor-not-allowed
+                          disabled:opacity-60
+                        "
+                        {...field}
+                      />
+                    </FormControl>
+
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+
+              {/* =================================================
+                  PASSWORD REQUIREMENTS
+                  ================================================= */}
+
+              <div
+                className="
+                  rounded-xl
+                  border
+                  border-border
+                  bg-card/60
+                  p-4
+                "
+              >
+                <div
+                  className="
+                    mb-3
+                    flex
+                    items-center
+                    gap-2
+                    text-[12px]
+                    font-semibold
+                    text-foreground
+                  "
+                >
+                  <LockKeyhole className="size-3.5 text-muted-foreground" />
+                  Password requirements
+                </div>
+
+                <div className="space-y-2.5">
+                  <div
+                    className={`
+                      flex
+                      items-center
+                      gap-2
+                      text-xs
+                      transition-colors
+
+                      ${hasMinLength ? "text-success" : "text-muted-foreground"}
+                    `}
+                  >
+                    <div
+                      className={`
+                        flex
+                        size-4
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        transition-colors
+
+                        ${
+                          hasMinLength
+                            ? `
+                              border-success/30
+                              bg-success/10
+                              text-success
+                            `
+                            : `
+                              border-border
+                              bg-muted/40
+                              text-muted-foreground
+                            `
+                        }
+                      `}
+                    >
+                      <Check className="size-2.5" strokeWidth={3} />
+                    </div>
+                    At least 8 characters
+                  </div>
+
+                  <div
+                    className={`
+                      flex
+                      items-center
+                      gap-2
+                      text-xs
+                      transition-colors
+
+                      ${
+                        passwordsMatch
+                          ? "text-success"
+                          : "text-muted-foreground"
+                      }
+                    `}
+                  >
+                    <div
+                      className={`
+                        flex
+                        size-4
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        transition-colors
+
+                        ${
+                          passwordsMatch
+                            ? `
+                              border-success/30
+                              bg-success/10
+                              text-success
+                            `
+                            : `
+                              border-border
+                              bg-muted/40
+                              text-muted-foreground
+                            `
+                        }
+                      `}
+                    >
+                      <Check className="size-2.5" strokeWidth={3} />
+                    </div>
+                    Both passwords match
+                  </div>
+                </div>
+              </div>
+
+              {/* =================================================
+                  SUBMIT
+                  ================================================= */}
+
+              <LoadingButton
+                type="submit"
+                loading={mutation.isPending}
+                disabled={mutation.isPending}
+                className="
+                  h-12
+                  w-full
+                  gap-2
+                  rounded-xl
+                  bg-primary
+                  text-sm
+                  font-semibold
+                  text-primary-foreground
+                  shadow-sm
+                  transition-all
+                  duration-200
+                  hover:-translate-y-px
+                  hover:bg-primary/90
+                  hover:shadow-md
+                  active:translate-y-0
+                  active:bg-primary/85
+                  focus-visible:ring-[3px]
+                  focus-visible:ring-ring/30
+                  disabled:pointer-events-none
+                  disabled:opacity-60
+                "
+              >
+                Reset password
+                {!mutation.isPending && <ArrowRight className="size-4" />}
+              </LoadingButton>
+            </div>
+
+            {/* =================================================
+                FOOTER
+                ================================================= */}
+
+            <div
+              className="
+                mt-7
+                border-t
+                border-border/70
+                pt-6
+                text-center
+                text-sm
+                text-muted-foreground
+              "
+            >
+              Remember your password?{" "}
+              <RouterLink
+                to="/login"
+                className="
+                  font-medium
+                  text-foreground
+                  underline
+                  decoration-border
+                  underline-offset-4
+                  transition-colors
+                  hover:text-primary
+                  hover:decoration-primary/40
+                "
+              >
+                Log in
+              </RouterLink>
+            </div>
+          </form>
+        </Form>
+      </div>
     </AuthLayout>
   )
 }

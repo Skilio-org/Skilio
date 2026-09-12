@@ -12,13 +12,15 @@ dependencies = [
     "emails>=1.1.2,<2.0",
     "jinja2<4.0.0,>=3.1.4",
     "alembic<2.0.0,>=1.12.1",
-    "httpx<1.0.0,>=0.25.1",
+    "httpx>=0.25.1,<1.0.0",
     "psycopg[binary]>=3.3.4,<4.0.0",
     "sqlmodel>=0.0.39,<1.0.0",
     "pydantic-settings<3.0.0,>=2.2.1",
     "sentry-sdk[fastapi]>=2.66.1,<3.0.0",
     "pyjwt<3.0.0,>=2.13.0",
     "pwdlib[argon2,bcrypt]>=0.3.0",
+    "cloudinary>=1.46.2",
+    "h2>=4.4.1",
 ]
 
 [dependency-groups]
@@ -59,6 +61,8 @@ ignore = [
     "B008",  # do not perform function calls in argument defaults
     "W191",  # indentation contains tabs
     "B904",  # Allow raising exceptions without from e, for HTTPException
+    "UP037", # quotes in type annotations needed for SQLModel runtime forward references
+    "UP045", # Optional needed for SQLModel forward reference resolution
 ]
 
 [tool.ruff.lint.pyupgrade]

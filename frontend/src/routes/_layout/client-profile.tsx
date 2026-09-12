@@ -1,0 +1,324 @@
+import { createFileRoute } from "@tanstack/react-router"
+import {
+  BadgeCheck,
+  Building2,
+  Camera,
+  CheckCircle2,
+  ImageUp,
+  MapPin,
+  ShieldCheck,
+} from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
+
+import { Monogram, WorkspacePageHeader } from "@/components/Common/WorkspaceUI"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import useAuth from "@/hooks/useAuth"
+import { getInitials } from "@/utils"
+
+export const Route = createFileRoute("/_layout/client-profile")({
+  component: ClientProfile,
+  head: () => ({ meta: [{ title: "Client profile | Freelancer" }] }),
+})
+
+function ClientProfile() {
+  const { user } = useAuth()
+  const [saved, setSaved] = useState(false)
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false)
+  const [selectedPhotoName, setSelectedPhotoName] = useState("")
+  const [photoUpdated, setPhotoUpdated] = useState(false)
+  const displayName = user?.full_name || "Your name"
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setSaved(true)
+    toast.success("Client profile saved")
+  }
+
+  return (
+    <div className="space-y-8">
+      <WorkspacePageHeader
+        eyebrow="Your presence"
+        title="Client profile"
+        description="Help independent professionals understand who you are and what working with you will feel like."
+        action={
+          <div className="inline-flex min-h-11 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-800">
+            <BadgeCheck className="size-4" />
+            Identity verified
+          </div>
+        }
+      />
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-8 rounded-2xl border border-border bg-card p-5 shadow-card sm:p-8"
+        >
+          <div className="flex flex-col gap-5 border-b border-border pb-8 sm:flex-row sm:items-center">
+            <Monogram className="relative size-24 bg-brand-100 text-2xl text-brand-800">
+              {getInitials(displayName)}
+              <button
+                type="button"
+                aria-label="Change profile photo"
+                onClick={() => setPhotoDialogOpen(true)}
+                className="absolute -bottom-2 -right-2 grid size-10 place-items-center rounded-full border-4 border-card bg-foreground text-background hover:bg-brand-700 hover:text-white"
+              >
+                <Camera className="size-4" />
+              </button>
+            </Monogram>
+            <div>
+              <h2 className="font-display text-xl font-semibold">
+                Profile photo
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                {photoUpdated
+                  ? "Your new profile image is ready across the workspace."
+                  : "A clear photo or company logo makes your messages easier to recognize."}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="font-display text-xl font-semibold">About you</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              The essentials freelancers see when you start a conversation.
+            </p>
+            <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <Field
+                label="Full name"
+                id="full-name"
+                defaultValue={user?.full_name ?? ""}
+                placeholder="Your full name"
+              />
+              <Field
+                label="Company"
+                id="company"
+                placeholder="Company or studio"
+              />
+              <Field label="Role" id="role" placeholder="e.g. Product lead" />
+              <Field
+                label="Company website"
+                id="website"
+                type="url"
+                placeholder="https://company.com"
+              />
+              <Field
+                label="Location"
+                id="location"
+                placeholder="City, country"
+              />
+              <div className="space-y-2">
+                <Label id="company-size-label">Company size</Label>
+                <Select>
+                  <SelectTrigger
+                    aria-labelledby="company-size-label"
+                    className="h-12 w-full"
+                  >
+                    <SelectValue placeholder="Select company size" />
+                  </SelectTrigger>
+                  <SelectContent align="start">
+                    <SelectItem value="solo">Just me</SelectItem>
+                    <SelectItem value="2-10">2–10 people</SelectItem>
+                    <SelectItem value="11-50">11–50 people</SelectItem>
+                    <SelectItem value="51-200">51–200 people</SelectItem>
+                    <SelectItem value="201-plus">201+ people</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-8">
+            <Label
+              htmlFor="about"
+              className="font-display text-xl font-semibold"
+            >
+              What are you building?
+            </Label>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Give professionals useful context about your company and the kind
+              of collaboration you value.
+            </p>
+            <textarea
+              id="about"
+              rows={5}
+              placeholder="Tell freelancers about your team, your product, and how you like to work…"
+              className="mt-4 flex w-full rounded-xl border border-input bg-card px-4 py-3 text-base leading-7 outline-none placeholder:text-muted-foreground hover:border-foreground/20 focus:border-brand-600 focus:ring-4 focus:ring-brand-100 md:text-sm md:leading-6"
+            />
+          </div>
+
+          <div className="flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-end">
+            {saved && (
+              <span className="mr-auto inline-flex items-center gap-2 text-sm text-emerald-700">
+                <CheckCircle2 className="size-4" />
+                Changes saved
+              </span>
+            )}
+            <Button
+              type="reset"
+              onClick={() => setSaved(false)}
+              variant="outline"
+              className="min-h-11 rounded-full px-5"
+            >
+              Cancel
+            </Button>
+            <Button type="submit" className="min-h-11 rounded-full px-6">
+              Save profile
+            </Button>
+          </div>
+        </form>
+
+        <aside className="space-y-5">
+          <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
+            <p className="text-sm font-semibold text-brand-700">
+              Profile strength
+            </p>
+            <div className="mt-3 flex items-end justify-between">
+              <strong className="font-display text-3xl font-medium">80%</strong>
+              <span className="text-xs text-muted-foreground">
+                Strong profile
+              </span>
+            </div>
+            <div className="mt-4 h-1.5 bg-muted">
+              <div className="h-full w-4/5 bg-brand-600" />
+            </div>
+            <ul className="mt-6 space-y-4 text-sm">
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                <span>Contact details added</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                <span>Identity verified</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1 size-3.5 shrink-0 rounded-full border-2 border-muted-foreground" />
+                <span>Add company context</span>
+              </li>
+            </ul>
+          </section>
+          <section className="rounded-2xl bg-slate-950 p-6 text-white shadow-card">
+            <ShieldCheck className="size-5 text-brand-300" />
+            <h2 className="mt-5 font-display text-xl font-semibold">
+              What freelancers see
+            </h2>
+            <div className="mt-5 space-y-4 text-sm text-slate-300">
+              <p className="flex items-center gap-3">
+                <Building2 className="size-4" />
+                Company and role
+              </p>
+              <p className="flex items-center gap-3">
+                <MapPin className="size-4" />
+                General location
+              </p>
+              <p className="flex items-center gap-3">
+                <BadgeCheck className="size-4" />
+                Verification status
+              </p>
+            </div>
+            <p className="mt-5 text-xs leading-5 text-slate-400">
+              Your email and private account details are never shown publicly.
+            </p>
+          </section>
+        </aside>
+      </div>
+
+      <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update profile photo</DialogTitle>
+            <DialogDescription>
+              Choose the image clients and independent professionals see when
+              they review your workspace.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-2xl border border-dashed border-brand-200 bg-brand-50/45 p-7 text-center dark:border-brand-900 dark:bg-brand-950/25">
+            <span className="mx-auto grid size-12 place-items-center rounded-xl bg-card text-brand-700 shadow-sm">
+              <ImageUp className="size-5" />
+            </span>
+            <p className="mt-3 text-sm font-semibold">
+              Choose a clear headshot or company logo
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              JPG or PNG, at least 400px square.
+            </p>
+            <label
+              htmlFor="client-photo-upload"
+              className="mt-5 inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-card px-5 text-sm font-semibold transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+            >
+              <Camera className="size-4" />
+              Choose image
+              <input
+                id="client-photo-upload"
+                type="file"
+                accept="image/png,image/jpeg"
+                onChange={(event) =>
+                  setSelectedPhotoName(event.target.files?.[0]?.name ?? "")
+                }
+                className="sr-only"
+              />
+            </label>
+            {selectedPhotoName && (
+              <p className="mt-3 text-xs font-medium text-emerald-700">
+                Selected: {selectedPhotoName}
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setSelectedPhotoName("")
+                setPhotoDialogOpen(false)
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              disabled={!selectedPhotoName}
+              onClick={() => {
+                setPhotoUpdated(true)
+                setPhotoDialogOpen(false)
+                toast.success("Profile photo updated")
+              }}
+            >
+              Apply photo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+function Field({
+  label,
+  id,
+  ...props
+}: { label: string; id: string } & React.ComponentProps<typeof Input>) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} {...props} />
+    </div>
+  )
+}
