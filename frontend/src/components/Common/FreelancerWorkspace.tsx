@@ -5,7 +5,7 @@ import ChangePassword from "@/components/UserSettings/ChangePassword";
 import { AppearanceSettings } from "@/components/UserSettings/Preferences";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import useAuth from "@/hooks/useAuth";
-import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "./WorkspaceUI";
+import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "../dashboard/dashboard-header";
 
 type Job = {
   id: string;

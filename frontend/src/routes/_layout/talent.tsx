@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { WorkspacePageHeader, workspaceStyles } from "@/components/Common/WorkspaceUI";
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { FreelancerCard } from "@/components/Talent/FreelancerCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { freelancers } from "@/data/freelancers";
@@ -240,14 +240,6 @@ function TalentDirectory() {
                 onValueChange={setLocation}
                 options={locationOptions}
               />
-            </div>
-            <div className="border-border bg-muted/30 border-t p-5">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
-                <p className="text-muted-foreground text-xs leading-5">
-                  All displayed professionals have completed profile and identity review.
-                </p>
-              </div>
             </div>
           </section>
         </aside>

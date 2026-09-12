@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ChevronDown, CircleHelp, Mail, Search, ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { workspaceStyles } from "@/components/Common/WorkspaceUI";
+import { workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_layout/help")({

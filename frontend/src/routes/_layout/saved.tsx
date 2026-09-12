@@ -30,9 +30,9 @@ import {
   Monogram,
   SkillTag,
   WorkspacePageHeader,
-  workspaceStyles,
   WorkspaceSurface,
-} from "@/components/Common/WorkspaceUI";
+  workspaceStyles,
+} from "@/components/dashboard/dashboard-header";
 import {
   Dialog,
   DialogContent,

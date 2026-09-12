@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import { Monogram, SkillTag, workspaceStyles } from "@/components/Common/WorkspaceUI";
+import { Monogram, SkillTag, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { getFreelancer } from "@/data/freelancers";
 
 export const Route = createFileRoute("/_layout/talent_/$freelancerId")({

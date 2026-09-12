@@ -66,10 +66,6 @@ export function User({ user }: { user: any }) {
               <p className="mt-0.5 truncate text-xs text-slate-300">{email}</p>
             </div>
           </div>
-          <div className="relative mt-4 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-slate-100">
-            <BadgeCheck className="size-3.5 text-sky-300" />
-            {freelancer ? "Freelancer workspace" : "Client workspace"}
-          </div>
         </div>
 
         <div className="p-2.5">

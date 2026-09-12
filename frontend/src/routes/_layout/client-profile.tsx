@@ -3,7 +3,7 @@ import { BadgeCheck, Building2, Camera, CheckCircle2, ImageUp, MapPin, ShieldChe
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { Monogram, WorkspacePageHeader } from "@/components/Common/WorkspaceUI";
+import { Monogram, WorkspacePageHeader } from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

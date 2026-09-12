@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bell, Bookmark, Check, ChevronRight, MessageSquare, Sparkles } from "lucide-react";
 import { useState } from "react";
 
-import { WorkspacePageHeader, workspaceStyles } from "@/components/Common/WorkspaceUI";
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
 
 export const Route = createFileRoute("/_layout/notifications")({
   component: Notifications,

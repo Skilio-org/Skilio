@@ -6,7 +6,7 @@ import { type UserPublic, UsersService } from "@/client";
 import AddUser from "@/components/Admin/AddUser";
 import { columns, type UserTableData } from "@/components/Admin/columns";
 import { DataTable } from "@/components/Common/DataTable";
-import { WorkspacePageHeader, WorkspaceSurface } from "@/components/Common/WorkspaceUI";
+import { WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header";
 import PendingUsers from "@/components/Pending/PendingUsers";
 import useAuth from "@/hooks/useAuth";
 

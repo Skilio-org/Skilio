@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Monogram, SkillTag, workspaceStyles } from "@/components/Common/WorkspaceUI";
+import { Monogram, SkillTag, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,

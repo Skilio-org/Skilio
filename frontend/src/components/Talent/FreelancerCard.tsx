@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import { Monogram, SkillTag, workspaceStyles } from "@/components/Common/WorkspaceUI";
+import { Monogram, SkillTag, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import type { Freelancer } from "@/data/freelancers";
 
 export function FreelancerCard({ freelancer, featured = false }: { freelancer: Freelancer; featured?: boolean }) {
@@ -24,13 +24,6 @@ export function FreelancerCard({ freelancer, featured = false }: { freelancer: F
         featured ? "border-brand-300" : "border-border hover:border-brand-200"
       }`}
     >
-      {featured && (
-        <div className="border-brand-100 bg-brand-50 text-brand-800 dark:border-brand-900 dark:bg-brand-950/45 dark:text-brand-200 flex min-h-9 items-center gap-2 border-b px-5 text-xs font-semibold sm:px-6">
-          <Star className="size-3.5 fill-current" />
-          Top match for your search
-        </div>
-      )}
-
       <div className="grid lg:grid-cols-[minmax(0,1fr)_210px]">
         <div className="p-5 sm:p-6">
           <div className="flex items-start gap-4">
@@ -45,9 +38,14 @@ export function FreelancerCard({ freelancer, featured = false }: { freelancer: F
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <h2 className="font-display text-foreground text-xl font-semibold sm:text-2xl">
+                    <Link
+                      to="/talent/$freelancerId"
+                      params={{ freelancerId: freelancer.id }}
+                      search={{ q: undefined }}
+                      className="font-display text-foreground text-xl font-semibold sm:text-2xl"
+                    >
                       {freelancer.name}
-                    </h2>
+                    </Link>
                     <BadgeCheck className="text-brand-600 size-4" aria-label="Verified profile" />
                   </div>
                   <p className="text-muted-foreground mt-1 text-sm font-medium">{freelancer.title}</p>
@@ -59,7 +57,7 @@ export function FreelancerCard({ freelancer, featured = false }: { freelancer: F
                   aria-pressed={saved}
                   className={`${workspaceStyles.iconButton} -mt-1 lg:hidden`}
                 >
-                  <Bookmark className={`size-[18px] ${saved ? "fill-current" : ""}`} />
+                  <Bookmark className={`size-4.5 ${saved ? "fill-current" : ""}`} />
                 </button>
               </div>
 

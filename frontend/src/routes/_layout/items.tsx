@@ -5,7 +5,7 @@ import { Suspense } from "react";
 
 import { ItemsService } from "@/client";
 import { DataTable } from "@/components/Common/DataTable";
-import { WorkspacePageHeader, WorkspaceSurface } from "@/components/Common/WorkspaceUI";
+import { WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header";
 import AddItem from "@/components/Items/AddItem";
 import { columns } from "@/components/Items/columns";
 import PendingItems from "@/components/Pending/PendingItems";

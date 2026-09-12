@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Bell, Eye, KeyRound, Palette, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { z } from "zod";
 
-import { Monogram } from "@/components/Common/WorkspaceUI";
+import { Monogram } from "@/components/dashboard/dashboard-header";
 import ChangePassword from "@/components/UserSettings/ChangePassword";
 import DeleteAccount from "@/components/UserSettings/DeleteAccount";
 import { AppearanceSettings, NotificationSettings, PrivacySettings } from "@/components/UserSettings/Preferences";
