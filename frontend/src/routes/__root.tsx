@@ -1,8 +1,8 @@
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import { createRootRoute, HeadContent, Outlet } from "@tanstack/react-router"
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
-import ErrorComponent from "@/components/Common/ErrorComponent"
-import NotFound from "@/components/Common/NotFound"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { createRootRoute, HeadContent, Outlet } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import ErrorComponent from "@/components/Common/ErrorComponent";
+import NotFound from "@/components/Common/NotFound";
 
 export const Route = createRootRoute({
   component: () => (
@@ -10,7 +10,7 @@ export const Route = createRootRoute({
       <HeadContent />
       <a
         href="#main-content"
-        className="fixed left-4 top-4 z-[100] -translate-y-24 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-floating transition-transform focus:translate-y-0"
+        className="shadow-floating fixed top-4 left-4 z-[100] -translate-y-24 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition-transform focus:translate-y-0"
       >
         Skip to main content
       </a>
@@ -21,4 +21,4 @@ export const Route = createRootRoute({
   ),
   notFoundComponent: () => <NotFound />,
   errorComponent: () => <ErrorComponent />,
-})
+});

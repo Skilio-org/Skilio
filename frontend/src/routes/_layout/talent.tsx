@@ -14,18 +14,9 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import {
-  WorkspacePageHeader,
-  workspaceStyles,
-} from "@/components/Common/WorkspaceUI";
+import { WorkspacePageHeader, workspaceStyles } from "@/components/Common/WorkspaceUI";
 import { FreelancerCard } from "@/components/Talent/FreelancerCard";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { freelancers } from "@/data/freelancers";
 
 export const Route = createFileRoute("/_layout/talent")({
@@ -36,13 +27,7 @@ export const Route = createFileRoute("/_layout/talent")({
   head: () => ({ meta: [{ title: "Find talent | Freelancer" }] }),
 });
 
-const specialties = [
-  "All talent",
-  "Development",
-  "Design",
-  "Marketing",
-  "AI services",
-] as const;
+const specialties = ["All talent", "Development", "Design", "Marketing", "AI services"] as const;
 
 const popularSearches = ["Product designer", "React developer", "AI engineer"];
 
@@ -86,45 +71,28 @@ const searchAliases: Record<string, string[]> = {
 function TalentDirectory() {
   const { q } = Route.useSearch();
   const [query, setQuery] = useState(q ?? "");
-  const [specialty, setSpecialty] =
-    useState<(typeof specialties)[number]>("All talent");
+  const [specialty, setSpecialty] = useState<(typeof specialties)[number]>("All talent");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [rate, setRate] = useState("any");
   const [availability, setAvailability] = useState("any");
   const [location, setLocation] = useState("worldwide");
   const [sort, setSort] = useState("best-match");
 
-  const activeFilterCount = [
-    rate !== "any",
-    availability !== "any",
-    location !== "worldwide",
-  ].filter(Boolean).length;
+  const activeFilterCount = [rate !== "any", availability !== "any", location !== "worldwide"].filter(Boolean).length;
 
   const results = useMemo(() => {
     const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
     const expertiseTerms = specialtyTerms[specialty];
 
     const filtered = freelancers.filter((person) => {
-      const haystack = [
-        person.name,
-        person.title,
-        person.location,
-        person.bio,
-        ...person.skills,
-      ]
+      const haystack = [person.name, person.title, person.location, person.bio, ...person.skills]
         .join(" ")
         .toLowerCase();
 
       const matchesSearch =
         searchTerms.length === 0 ||
-        searchTerms.every((term) =>
-          (searchAliases[term] ?? [term]).some((candidate) =>
-            haystack.includes(candidate),
-          ),
-        );
-      const matchesSpecialty =
-        expertiseTerms.length === 0 ||
-        expertiseTerms.some((term) => haystack.includes(term));
+        searchTerms.every((term) => (searchAliases[term] ?? [term]).some((candidate) => haystack.includes(candidate)));
+      const matchesSpecialty = expertiseTerms.length === 0 || expertiseTerms.some((term) => haystack.includes(term));
       const matchesRate =
         rate === "any" ||
         (rate === "under-50" && person.rate < 50) ||
@@ -133,37 +101,23 @@ function TalentDirectory() {
       const matchesAvailability =
         availability === "any" ||
         (availability === "now" && person.availability === "Available now") ||
-        (availability === "week" &&
-          person.availability === "Available this week") ||
-        (availability === "next-week" &&
-          person.availability === "Available next week");
+        (availability === "week" && person.availability === "Available this week") ||
+        (availability === "next-week" && person.availability === "Available next week");
       const matchesLocation =
         location === "worldwide" ||
         (location === "europe" &&
-          ["France", "Portugal", "United Kingdom"].some((country) =>
-            person.location.includes(country),
-          )) ||
+          ["France", "Portugal", "United Kingdom"].some((country) => person.location.includes(country))) ||
         (location === "north-america" &&
-          ["Canada", "United States"].some((country) =>
-            person.location.includes(country),
-          )) ||
+          ["Canada", "United States"].some((country) => person.location.includes(country))) ||
         (location === "asia-pacific" && person.location === "Singapore");
 
-      return (
-        matchesSearch &&
-        matchesSpecialty &&
-        matchesRate &&
-        matchesAvailability &&
-        matchesLocation
-      );
+      return matchesSearch && matchesSpecialty && matchesRate && matchesAvailability && matchesLocation;
     });
 
     return filtered.sort((first, second) => {
       if (sort === "highest-rated") return second.rating - first.rating;
       if (sort === "lowest-rate") return first.rate - second.rate;
-      return (
-        second.successRate - first.successRate || second.rating - first.rating
-      );
+      return second.successRate - first.successRate || second.rating - first.rating;
     });
   }, [availability, location, query, rate, sort, specialty]);
 
@@ -175,7 +129,7 @@ function TalentDirectory() {
 
   return (
     <div className="space-y-7">
-      <header className="border-b border-border pb-7 sm:pb-8">
+      <header className="border-border border-b pb-7 sm:pb-8">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div className="max-w-2xl">
             <WorkspacePageHeader
@@ -183,17 +137,14 @@ function TalentDirectory() {
               title="Find the right talent"
               description="Discover skilled professionals by expertise, role, and location."
             />
-            <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base"></p>
+            <p className="text-muted-foreground mt-2 text-sm leading-6 sm:text-base"></p>
           </div>
         </div>
 
         <search className="block">
-          <form
-            onSubmit={(event) => event.preventDefault()}
-            className="mt-6 flex items-stretch gap-3"
-          >
-            <div className="flex min-h-14 min-w-0 flex-1 items-center rounded-xl border border-input bg-card px-4 transition-[border-color,box-shadow] focus-within:border-brand-600 focus-within:ring-4 focus-within:ring-brand-100 dark:focus-within:ring-brand-950">
-              <Search className="size-5 shrink-0 text-muted-foreground" />
+          <form onSubmit={(event) => event.preventDefault()} className="mt-6 flex items-stretch gap-3">
+            <div className="border-input bg-card focus-within:border-brand-600 focus-within:ring-brand-100 dark:focus-within:ring-brand-950 flex min-h-14 min-w-0 flex-1 items-center rounded-xl border px-4 transition-[border-color,box-shadow] focus-within:ring-4">
+              <Search className="text-muted-foreground size-5 shrink-0" />
               <label htmlFor="talent-directory-search" className="sr-only">
                 Search professionals
               </label>
@@ -203,14 +154,14 @@ function TalentDirectory() {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search by role, skill, or location"
-                className="min-w-0 flex-1 appearance-none bg-transparent px-3 text-base outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden"
+                className="placeholder:text-muted-foreground min-w-0 flex-1 appearance-none bg-transparent px-3 text-base outline-none [&::-webkit-search-cancel-button]:hidden"
               />
               {query && (
                 <button
                   type="button"
                   onClick={() => setQuery("")}
                   aria-label="Clear search"
-                  className="grid size-10 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  className="text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-ring grid size-10 shrink-0 place-items-center rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                 >
                   <X className="size-4" />
                 </button>
@@ -226,7 +177,7 @@ function TalentDirectory() {
               <SlidersHorizontal className="size-4" />
               <span className="hidden sm:inline">Filters</span>
               {activeFilterCount > 0 && (
-                <span className="grid size-5 place-items-center rounded-full bg-brand-600 text-[10px] text-white">
+                <span className="bg-brand-600 grid size-5 place-items-center rounded-full text-[10px] text-white">
                   {activeFilterCount}
                 </span>
               )}
@@ -234,13 +185,13 @@ function TalentDirectory() {
           </form>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-1 text-sm">
-            <span className="mr-1 text-muted-foreground">Popular:</span>
+            <span className="text-muted-foreground mr-1">Popular:</span>
             {popularSearches.map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => setQuery(item)}
-                className="min-h-11 rounded-lg px-2 font-medium text-foreground underline-offset-4 transition-colors hover:text-brand-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
+                className="text-foreground hover:text-brand-700 focus-visible:outline-ring min-h-11 rounded-lg px-2 font-medium underline-offset-4 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-1"
               >
                 {item}
               </button>
@@ -250,22 +201,18 @@ function TalentDirectory() {
       </header>
 
       <div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside
-          className={`${filtersOpen ? "block" : "hidden"} lg:sticky lg:top-24 lg:block`}
-        >
-          <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-            <header className="flex items-center justify-between border-b border-border p-5">
+        <aside className={`${filtersOpen ? "block" : "hidden"} lg:sticky lg:top-24 lg:block`}>
+          <section className="border-border bg-card shadow-card overflow-hidden rounded-2xl border">
+            <header className="border-border flex items-center justify-between border-b p-5">
               <div>
                 <h2 className="font-display text-lg font-semibold">Filters</h2>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  Refine your shortlist
-                </p>
+                <p className="text-muted-foreground mt-0.5 text-xs">Refine your shortlist</p>
               </div>
               {activeFilterCount > 0 && (
                 <button
                   type="button"
                   onClick={resetFilters}
-                  className="min-h-9 rounded-full px-3 text-xs font-semibold text-brand-700 hover:bg-brand-50"
+                  className="text-brand-700 hover:bg-brand-50 min-h-9 rounded-full px-3 text-xs font-semibold"
                 >
                   Reset
                 </button>
@@ -294,12 +241,11 @@ function TalentDirectory() {
                 options={locationOptions}
               />
             </div>
-            <div className="border-t border-border bg-muted/30 p-5">
+            <div className="border-border bg-muted/30 border-t p-5">
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
-                <p className="text-xs leading-5 text-muted-foreground">
-                  All displayed professionals have completed profile and
-                  identity review.
+                <p className="text-muted-foreground text-xs leading-5">
+                  All displayed professionals have completed profile and identity review.
                 </p>
               </div>
             </div>
@@ -312,14 +258,9 @@ function TalentDirectory() {
               <h2 id="expertise-heading" className="text-sm font-semibold">
                 Browse by expertise
               </h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                Start with a discipline, then refine.
-              </p>
+              <p className="text-muted-foreground mt-0.5 text-xs">Start with a discipline, then refine.</p>
             </div>
-            <nav
-              className="flex gap-2 overflow-x-auto pb-1"
-              aria-label="Talent specialties"
-            >
+            <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Talent specialties">
               {specialties.map((item) => (
                 <button
                   key={item}
@@ -337,23 +278,23 @@ function TalentDirectory() {
             </nav>
           </section>
 
-          <div className="flex flex-col justify-between gap-3 border-b border-border pb-4 sm:flex-row sm:items-end">
+          <div className="border-border flex flex-col justify-between gap-3 border-b pb-4 sm:flex-row sm:items-end">
             <div>
-              <p className="font-display text-2xl font-semibold text-foreground">
+              <p className="font-display text-foreground text-2xl font-semibold">
                 {query ? `Results for “${query}”` : "Recommended for you"}
               </p>
-              <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+              <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm">
                 <BriefcaseBusiness className="size-4" />
                 <strong className="text-foreground">{results.length}</strong>
                 reviewed professionals
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <ArrowDownWideNarrow className="size-4 text-muted-foreground" />
+              <ArrowDownWideNarrow className="text-muted-foreground size-4" />
               <Select value={sort} onValueChange={setSort}>
                 <SelectTrigger
                   aria-label="Sort talent"
-                  className="h-11 min-w-40 rounded-xl border-border bg-card px-3.5 font-semibold shadow-card"
+                  className="border-border bg-card shadow-card h-11 min-w-40 rounded-xl px-3.5 font-semibold"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -369,25 +310,17 @@ function TalentDirectory() {
           {results.length > 0 ? (
             <div className="space-y-4">
               {results.map((freelancer, index) => (
-                <FreelancerCard
-                  key={freelancer.id}
-                  freelancer={freelancer}
-                  featured={index === 0}
-                />
+                <FreelancerCard key={freelancer.id} freelancer={freelancer} featured={index === 0} />
               ))}
             </div>
           ) : (
-            <div className="grid min-h-80 place-items-center rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+            <div className="border-border bg-card grid min-h-80 place-items-center rounded-2xl border border-dashed p-8 text-center">
               <div>
-                <span className="mx-auto grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
+                <span className="bg-muted text-muted-foreground mx-auto grid size-12 place-items-center rounded-full">
                   <Filter className="size-5" />
                 </span>
-                <h2 className="mt-4 font-display text-xl font-semibold">
-                  No matching profiles
-                </h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Try a broader skill or remove a filter.
-                </p>
+                <h2 className="font-display mt-4 text-xl font-semibold">No matching profiles</h2>
+                <p className="text-muted-foreground mt-2 text-sm">Try a broader skill or remove a filter.</p>
                 <button
                   type="button"
                   onClick={() => {
@@ -423,11 +356,11 @@ function FilterSelect({
 }) {
   return (
     <div>
-      <span className="mb-2 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-        <Icon className="size-3.5 text-brand-600" /> {label}
+      <span className="text-muted-foreground mb-2 flex items-center gap-2 text-xs font-semibold">
+        <Icon className="text-brand-600 size-3.5" /> {label}
       </span>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger aria-label={label} className="h-12 w-full bg-background">
+        <SelectTrigger aria-label={label} className="bg-background h-12 w-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

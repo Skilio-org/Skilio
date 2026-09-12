@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   BadgeCheck,
@@ -14,8 +14,8 @@ import {
   Sparkles,
   Star,
   TrendingUp,
-} from "lucide-react"
-import { useState } from "react"
+} from "lucide-react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -24,19 +24,18 @@ export const Route = createFileRoute("/")({
       { title: "Freelancer — Find independent talent" },
       {
         name: "description",
-        content:
-          "Search verified freelance profiles, compare expertise, and find the right independent professional.",
+        content: "Search verified freelance profiles, compare expertise, and find the right independent professional.",
       },
     ],
   }),
-})
+});
 
 const categories = [
   { icon: Code2, name: "Development & IT", count: "3,240 professionals" },
   { icon: Palette, name: "Design & Creative", count: "2,180 professionals" },
   { icon: TrendingUp, name: "Sales & Marketing", count: "1,460 professionals" },
   { icon: Sparkles, name: "AI Services", count: "820 professionals" },
-]
+];
 
 const people = [
   {
@@ -47,8 +46,7 @@ const people = [
     rate: "$75/hr",
     rating: "4.9",
     jobs: "64 projects",
-    description:
-      "I shape complex B2B products into clear, focused experiences that teams can ship with confidence.",
+    description: "I shape complex B2B products into clear, focused experiences that teams can ship with confidence.",
     skills: ["Product design", "Figma", "Design systems"],
     background: "bg-[#dce7ff]",
     color: "text-[#173ea5]",
@@ -61,8 +59,7 @@ const people = [
     rate: "$90/hr",
     rating: "5.0",
     jobs: "91 projects",
-    description:
-      "I build reliable web products for growing teams, from the first architecture decision to launch.",
+    description: "I build reliable web products for growing teams, from the first architecture decision to launch.",
     skills: ["React", "TypeScript", "Node.js"],
     background: "bg-[#d8f0ea]",
     color: "text-[#075f4c]",
@@ -75,53 +72,35 @@ const people = [
     rate: "$65/hr",
     rating: "4.9",
     jobs: "48 projects",
-    description:
-      "I help ambitious companies find a distinct position, voice, and story their customers remember.",
+    description: "I help ambitious companies find a distinct position, voice, and story their customers remember.",
     skills: ["Brand strategy", "Research", "Content"],
     background: "bg-[#f1e6d8]",
     color: "text-[#744217]",
   },
-]
+];
 
 function LandingPage() {
-  const [savedPeople, setSavedPeople] = useState<Set<string>>(new Set())
+  const [savedPeople, setSavedPeople] = useState<Set<string>>(new Set());
 
   return (
     <div className="min-h-screen bg-white text-[#101828]">
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
         <div className="mx-auto flex h-[72px] max-w-[1440px] items-center px-5 sm:px-8 lg:px-12">
-          <a
-            href="#main-content"
-            aria-label="Freelancer home"
-            className="shrink-0"
-          >
-            <img
-              src="/assets/images/freelancer-logo.png"
-              alt="Freelancer"
-              className="h-8 w-auto"
-            />
+          <a href="#main-content" aria-label="Freelancer home" className="shrink-0">
+            <img src="/assets/images/freelancer-logo.png" alt="Freelancer" className="h-8 w-auto" />
           </a>
 
           <nav
             aria-label="Main navigation"
             className="ml-14 hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex"
           >
-            <a
-              className="transition-colors hover:text-slate-950"
-              href="#talent"
-            >
+            <a className="transition-colors hover:text-slate-950" href="#talent">
               Find talent
             </a>
-            <a
-              className="transition-colors hover:text-slate-950"
-              href="#categories"
-            >
+            <a className="transition-colors hover:text-slate-950" href="#categories">
               Categories
             </a>
-            <a
-              className="transition-colors hover:text-slate-950"
-              href="#how-it-works"
-            >
+            <a className="transition-colors hover:text-slate-950" href="#how-it-works">
               How it works
             </a>
           </nav>
@@ -129,13 +108,13 @@ function LandingPage() {
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <Link
               to="/login"
-              className="hidden min-h-11 items-center px-4 text-sm font-semibold text-slate-700 transition-colors hover:text-brand-700 sm:inline-flex"
+              className="hover:text-brand-700 hidden min-h-11 items-center px-4 text-sm font-semibold text-slate-700 transition-colors sm:inline-flex"
             >
               Log in
             </Link>
             <Link
               to="/signup"
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-brand-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 sm:px-5"
+              className="bg-brand-600 hover:bg-brand-700 focus-visible:outline-brand-600 inline-flex min-h-11 items-center justify-center rounded-full px-4 text-sm font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 sm:px-5"
             >
               Create account
             </Link>
@@ -147,24 +126,21 @@ function LandingPage() {
         <section className="border-b border-slate-200">
           <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[1.08fr_.92fr]">
             <div className="flex min-h-[640px] min-w-0 flex-col justify-center px-5 py-20 sm:px-8 lg:min-h-[720px] lg:border-r lg:border-slate-200 lg:px-12 xl:px-20">
-              <p className="mb-6 flex items-center gap-2 text-sm font-semibold text-brand-700">
+              <p className="text-brand-700 mb-6 flex items-center gap-2 text-sm font-semibold">
                 <span className="size-2 bg-emerald-500" />
                 1,800+ professionals available this week
               </p>
-              <h1 className="max-w-[780px] font-display text-[clamp(3.5rem,6.5vw,6.7rem)] font-medium leading-[0.94] tracking-[-0.055em] text-slate-950">
+              <h1 className="font-display max-w-[780px] text-[clamp(3.5rem,6.5vw,6.7rem)] leading-[0.94] font-medium tracking-[-0.055em] text-slate-950">
                 Hire by proof, <br />
                 not promises.
               </h1>
               <p className="mt-7 max-w-xl text-lg leading-8 text-slate-600 sm:text-xl">
-                Browse detailed profiles, see real work, and connect directly
-                with independent professionals who fit your standards.
+                Browse detailed profiles, see real work, and connect directly with independent professionals who fit
+                your standards.
               </p>
 
-              <div className="mt-9 flex max-w-2xl items-center rounded-2xl border border-slate-300 bg-white p-2 shadow-[0_14px_40px_-20px_rgba(15,23,42,.35)] focus-within:border-brand-600 focus-within:ring-4 focus-within:ring-brand-100">
-                <Search
-                  className="ml-3 size-5 shrink-0 text-slate-400"
-                  aria-hidden="true"
-                />
+              <div className="focus-within:border-brand-600 focus-within:ring-brand-100 mt-9 flex max-w-2xl items-center rounded-2xl border border-slate-300 bg-white p-2 shadow-[0_14px_40px_-20px_rgba(15,23,42,.35)] focus-within:ring-4">
+                <Search className="ml-3 size-5 shrink-0 text-slate-400" aria-hidden="true" />
                 <label htmlFor="talent-search" className="sr-only">
                   Search by skill or role
                 </label>
@@ -177,23 +153,16 @@ function LandingPage() {
                 <Link
                   to="/signup"
                   aria-label="Search talent"
-                  className="grid size-12 shrink-0 place-items-center rounded-xl bg-brand-600 text-white transition-colors hover:bg-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+                  className="bg-brand-600 hover:bg-brand-700 focus-visible:outline-brand-600 grid size-12 shrink-0 place-items-center rounded-xl text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                 >
                   <ArrowRight className="size-5" />
                 </Link>
               </div>
 
               <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-500">
-                {[
-                  "Profiles reviewed",
-                  "Portfolio-first",
-                  "Direct messaging",
-                ].map((item) => (
+                {["Profiles reviewed", "Portfolio-first", "Direct messaging"].map((item) => (
                   <span key={item} className="inline-flex items-center gap-2">
-                    <Check
-                      className="size-4 text-emerald-600"
-                      aria-hidden="true"
-                    />
+                    <Check className="size-4 text-emerald-600" aria-hidden="true" />
                     {item}
                   </span>
                 ))}
@@ -204,12 +173,8 @@ function LandingPage() {
               <div className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_70px_-36px_rgba(15,23,42,.35)]">
                 <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
                   <div>
-                    <p className="text-sm font-semibold text-slate-950">
-                      Top matches
-                    </p>
-                    <p className="mt-0.5 text-xs text-slate-500">
-                      Product design · Available now
-                    </p>
+                    <p className="text-sm font-semibold text-slate-950">Top matches</p>
+                    <p className="mt-0.5 text-xs text-slate-500">Product design · Available now</p>
                   </div>
                   <span className="inline-flex min-h-11 items-center rounded-full border border-slate-200 px-4 text-xs font-semibold text-slate-600">
                     Best match
@@ -218,28 +183,21 @@ function LandingPage() {
 
                 <article className="border-b border-slate-200 p-5 sm:p-6">
                   <div className="flex items-start gap-4">
-                    <div className="grid size-14 shrink-0 place-items-center rounded-full bg-[#dce7ff] font-display text-lg font-semibold text-[#173ea5]">
+                    <div className="font-display grid size-14 shrink-0 place-items-center rounded-full bg-[#dce7ff] text-lg font-semibold text-[#173ea5]">
                       ML
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <h2 className="font-display text-lg font-semibold">
-                          Maya Laurent
-                        </h2>
-                        <BadgeCheck
-                          className="size-4 text-brand-600"
-                          aria-label="Verified"
-                        />
+                        <h2 className="font-display text-lg font-semibold">Maya Laurent</h2>
+                        <BadgeCheck className="text-brand-600 size-4" aria-label="Verified" />
                       </div>
-                      <p className="text-sm text-slate-600">
-                        Senior Product Designer
-                      </p>
+                      <p className="text-sm text-slate-600">Senior Product Designer</p>
                     </div>
                     <p className="shrink-0 text-sm font-semibold">$75/hr</p>
                   </div>
                   <p className="mt-5 text-sm leading-6 text-slate-600">
-                    B2B product specialist focused on clear workflows, scalable
-                    systems, and thoughtful interaction design.
+                    B2B product specialist focused on clear workflows, scalable systems, and thoughtful interaction
+                    design.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {["Product design", "Figma", "UX research"].map((skill) => (
@@ -254,15 +212,12 @@ function LandingPage() {
                   <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-4 text-xs text-slate-500">
                     <span className="inline-flex items-center gap-1.5">
                       <Star className="size-3.5 fill-amber-400 text-amber-400" />
-                      <strong className="text-slate-800">4.9</strong> · 86
-                      reviews
+                      <strong className="text-slate-800">4.9</strong> · 86 reviews
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <MapPin className="size-3.5" /> Paris, France
                     </span>
-                    <span className="ml-auto font-semibold text-emerald-700">
-                      Available now
-                    </span>
+                    <span className="ml-auto font-semibold text-emerald-700">Available now</span>
                   </div>
                 </article>
 
@@ -289,14 +244,12 @@ function LandingPage() {
                     className="flex items-center gap-4 border-b border-slate-200 p-5 last:border-b-0 sm:px-6"
                   >
                     <div
-                      className={`grid size-11 shrink-0 place-items-center rounded-full font-display text-sm font-semibold ${style}`}
+                      className={`font-display grid size-11 shrink-0 place-items-center rounded-full text-sm font-semibold ${style}`}
                     >
                       {initials}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-display font-semibold">
-                        {name}
-                      </p>
+                      <p className="font-display truncate font-semibold">{name}</p>
                       <p className="truncate text-xs text-slate-500">
                         {role} · {reviews}
                       </p>
@@ -310,10 +263,7 @@ function LandingPage() {
           </div>
         </section>
 
-        <section
-          aria-label="Platform statistics"
-          className="border-b border-slate-200 bg-slate-950 text-white"
-        >
+        <section aria-label="Platform statistics" className="border-b border-slate-200 bg-slate-950 text-white">
           <div className="mx-auto grid max-w-[1440px] grid-cols-2 divide-x divide-white/15 lg:grid-cols-4">
             {[
               ["12k+", "reviewed profiles"],
@@ -325,26 +275,19 @@ function LandingPage() {
                 key={label}
                 className="border-b border-white/15 px-5 py-8 last:border-b-0 sm:px-8 lg:border-b-0 lg:px-12"
               >
-                <p className="font-display text-3xl font-medium tracking-tight sm:text-4xl">
-                  {value}
-                </p>
+                <p className="font-display text-3xl font-medium tracking-tight sm:text-4xl">{value}</p>
                 <p className="mt-1 text-sm text-slate-400">{label}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section
-          id="categories"
-          className="border-b border-slate-200 px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
-        >
+        <section id="categories" className="border-b border-slate-200 px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
           <div className="mx-auto max-w-[1344px]">
             <div className="grid gap-6 lg:grid-cols-[.7fr_1.3fr] lg:gap-20">
               <div>
-                <p className="text-sm font-semibold text-brand-700">
-                  Explore expertise
-                </p>
-                <h2 className="mt-3 max-w-md font-display text-4xl font-medium leading-tight tracking-[-0.035em] sm:text-5xl">
+                <p className="text-brand-700 text-sm font-semibold">Explore expertise</p>
+                <h2 className="font-display mt-3 max-w-md text-4xl leading-tight font-medium tracking-[-0.035em] sm:text-5xl">
                   Start with the skill. Find the person.
                 </h2>
               </div>
@@ -355,19 +298,12 @@ function LandingPage() {
                     href="#talent"
                     className="group grid min-h-24 grid-cols-[auto_1fr_auto] items-center gap-4 border-b border-slate-300 transition-colors hover:bg-slate-50 sm:gap-6 sm:px-4"
                   >
-                    <category.icon
-                      className="size-5 text-brand-600"
-                      aria-hidden="true"
-                    />
+                    <category.icon className="text-brand-600 size-5" aria-hidden="true" />
                     <div className="sm:flex sm:items-baseline sm:justify-between sm:gap-6">
-                      <h3 className="font-display text-lg font-semibold sm:text-xl">
-                        {category.name}
-                      </h3>
-                      <p className="mt-1 text-sm text-slate-500 sm:mt-0">
-                        {category.count}
-                      </p>
+                      <h3 className="font-display text-lg font-semibold sm:text-xl">{category.name}</h3>
+                      <p className="mt-1 text-sm text-slate-500 sm:mt-0">{category.count}</p>
                     </div>
-                    <ArrowRight className="size-5 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-brand-600" />
+                    <ArrowRight className="group-hover:text-brand-600 size-5 text-slate-400 transition-transform group-hover:translate-x-1" />
                   </a>
                 ))}
               </div>
@@ -375,23 +311,18 @@ function LandingPage() {
           </div>
         </section>
 
-        <section
-          id="talent"
-          className="bg-[#f7f8fa] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
-        >
+        <section id="talent" className="bg-[#f7f8fa] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
           <div className="mx-auto max-w-[1344px]">
             <div className="flex flex-col justify-between gap-5 border-b border-slate-300 pb-7 sm:flex-row sm:items-end">
               <div>
-                <p className="text-sm font-semibold text-brand-700">
-                  Selected talent
-                </p>
-                <h2 className="mt-3 font-display text-4xl font-medium tracking-[-0.035em] sm:text-5xl">
+                <p className="text-brand-700 text-sm font-semibold">Selected talent</p>
+                <h2 className="font-display mt-3 text-4xl font-medium tracking-[-0.035em] sm:text-5xl">
                   People with a track record.
                 </h2>
               </div>
               <Link
                 to="/signup"
-                className="inline-flex min-h-11 items-center gap-2 font-semibold text-brand-700 hover:text-brand-800"
+                className="text-brand-700 hover:text-brand-800 inline-flex min-h-11 items-center gap-2 font-semibold"
               >
                 Browse all profiles <ArrowRight className="size-4" />
               </Link>
@@ -401,7 +332,7 @@ function LandingPage() {
               {people.map((person) => (
                 <article
                   key={person.name}
-                  className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover xl:p-8"
+                  className="shadow-card hover:border-brand-200 hover:shadow-card-hover rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:-translate-y-0.5 xl:p-8"
                 >
                   <div className="flex items-start justify-between">
                     <div
@@ -415,42 +346,31 @@ function LandingPage() {
                       aria-pressed={savedPeople.has(person.name)}
                       onClick={() =>
                         setSavedPeople((current) => {
-                          const next = new Set(current)
+                          const next = new Set(current);
                           if (next.has(person.name)) {
-                            next.delete(person.name)
+                            next.delete(person.name);
                           } else {
-                            next.add(person.name)
+                            next.add(person.name);
                           }
-                          return next
+                          return next;
                         })
                       }
                       className="grid size-11 place-items-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:border-slate-400 hover:text-rose-600"
                     >
-                      <Heart
-                        className={`size-4 ${
-                          savedPeople.has(person.name) ? "fill-current" : ""
-                        }`}
-                      />
+                      <Heart className={`size-4 ${savedPeople.has(person.name) ? "fill-current" : ""}`} />
                     </button>
                   </div>
                   <div className="mt-7 flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="flex items-center gap-1.5 font-display text-xl font-semibold">
+                      <h3 className="font-display flex items-center gap-1.5 text-xl font-semibold">
                         {person.name}
-                        <BadgeCheck
-                          className="size-4 text-brand-600"
-                          aria-label="Verified"
-                        />
+                        <BadgeCheck className="text-brand-600 size-4" aria-label="Verified" />
                       </h3>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {person.role}
-                      </p>
+                      <p className="mt-1 text-sm text-slate-500">{person.role}</p>
                     </div>
                     <p className="shrink-0 font-semibold">{person.rate}</p>
                   </div>
-                  <p className="mt-5 min-h-[72px] text-sm leading-6 text-slate-600">
-                    {person.description}
-                  </p>
+                  <p className="mt-5 min-h-[72px] text-sm leading-6 text-slate-600">{person.description}</p>
                   <div className="mt-5 flex flex-wrap gap-2">
                     {person.skills.map((skill) => (
                       <span
@@ -465,8 +385,7 @@ function LandingPage() {
                     <div>
                       <p className="text-slate-500">Rating</p>
                       <p className="mt-1 flex items-center gap-1.5 font-semibold">
-                        <Star className="size-3.5 fill-amber-400 text-amber-400" />{" "}
-                        {person.rating}
+                        <Star className="size-3.5 fill-amber-400 text-amber-400" /> {person.rating}
                       </p>
                     </div>
                     <div>
@@ -479,7 +398,7 @@ function LandingPage() {
                   </div>
                   <Link
                     to="/signup"
-                    className="mt-6 inline-flex min-h-12 w-full items-center justify-between rounded-full bg-slate-950 px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+                    className="hover:bg-brand-700 mt-6 inline-flex min-h-12 w-full items-center justify-between rounded-full bg-slate-950 px-5 text-sm font-semibold text-white transition-colors"
                   >
                     View full profile <ArrowRight className="size-4" />
                   </Link>
@@ -489,52 +408,30 @@ function LandingPage() {
           </div>
         </section>
 
-        <section
-          id="how-it-works"
-          className="border-y border-slate-200 px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
-        >
+        <section id="how-it-works" className="border-y border-slate-200 px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
           <div className="mx-auto max-w-[1344px]">
             <div className="grid gap-12 lg:grid-cols-[.75fr_1.25fr] lg:gap-24">
               <div>
-                <p className="text-sm font-semibold text-brand-700">
-                  How it works
-                </p>
-                <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-[-0.035em] sm:text-5xl">
+                <p className="text-brand-700 text-sm font-semibold">How it works</p>
+                <h2 className="font-display mt-3 text-4xl leading-tight font-medium tracking-[-0.035em] sm:text-5xl">
                   A clearer way to choose.
                 </h2>
                 <p className="mt-5 max-w-md text-lg leading-8 text-slate-600">
-                  Search, compare, and connect without wading through noisy
-                  feeds or irrelevant listings.
+                  Search, compare, and connect without wading through noisy feeds or irrelevant listings.
                 </p>
               </div>
               <ol className="border-t border-slate-300">
                 {[
-                  [
-                    "01",
-                    "Search with context",
-                    "Filter by expertise, location, rate, and availability.",
-                  ],
-                  [
-                    "02",
-                    "Evaluate real evidence",
-                    "Review portfolios, experience, feedback, and work history.",
-                  ],
-                  [
-                    "03",
-                    "Save and connect",
-                    "Build a shortlist and message the people who stand out.",
-                  ],
+                  ["01", "Search with context", "Filter by expertise, location, rate, and availability."],
+                  ["02", "Evaluate real evidence", "Review portfolios, experience, feedback, and work history."],
+                  ["03", "Save and connect", "Build a shortlist and message the people who stand out."],
                 ].map(([number, title, copy]) => (
                   <li
                     key={number}
                     className="grid gap-3 border-b border-slate-300 py-7 sm:grid-cols-[72px_1fr_1fr] sm:items-start sm:gap-6"
                   >
-                    <span className="font-mono text-sm text-brand-700">
-                      {number}
-                    </span>
-                    <h3 className="font-display text-xl font-semibold">
-                      {title}
-                    </h3>
+                    <span className="text-brand-700 font-mono text-sm">{number}</span>
+                    <h3 className="font-display text-xl font-semibold">{title}</h3>
                     <p className="leading-7 text-slate-600">{copy}</p>
                   </li>
                 ))}
@@ -546,20 +443,17 @@ function LandingPage() {
         <section className="bg-brand-600 px-5 py-20 text-white sm:px-8 lg:px-12 lg:py-24">
           <div className="mx-auto grid max-w-[1344px] gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
-              <ShieldCheck
-                className="size-8 text-brand-200"
-                aria-hidden="true"
-              />
-              <h2 className="mt-7 max-w-4xl font-display text-4xl font-medium leading-[1.05] tracking-[-0.04em] sm:text-6xl">
+              <ShieldCheck className="text-brand-200 size-8" aria-hidden="true" />
+              <h2 className="font-display mt-7 max-w-4xl text-4xl leading-[1.05] font-medium tracking-[-0.04em] sm:text-6xl">
                 The right person changes what’s possible.
               </h2>
-              <p className="mt-5 max-w-xl text-lg leading-8 text-brand-100">
+              <p className="text-brand-100 mt-5 max-w-xl text-lg leading-8">
                 Create a free client account and start building your shortlist.
               </p>
             </div>
             <Link
               to="/signup"
-              className="inline-flex min-h-14 items-center justify-between gap-10 rounded-full bg-white px-6 font-semibold text-brand-800 transition-colors hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              className="text-brand-800 hover:bg-brand-50 inline-flex min-h-14 items-center justify-between gap-10 rounded-full bg-white px-6 font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
               Explore freelancers <ArrowRight className="size-5" />
             </Link>
@@ -570,15 +464,8 @@ function LandingPage() {
       <footer className="bg-slate-950 px-5 py-12 text-white sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1344px]">
           <div className="flex flex-col gap-8 border-b border-white/15 pb-10 sm:flex-row sm:items-center sm:justify-between">
-            <img
-              src="/assets/images/freelancer-logo-light.png"
-              alt="Freelancer"
-              className="h-8 w-auto self-start"
-            />
-            <nav
-              aria-label="Footer navigation"
-              className="flex flex-wrap gap-x-7 gap-y-3 text-sm text-slate-300"
-            >
+            <img src="/assets/images/freelancer-logo-light.png" alt="Freelancer" className="h-8 w-auto self-start" />
+            <nav aria-label="Footer navigation" className="flex flex-wrap gap-x-7 gap-y-3 text-sm text-slate-300">
               <a href="#talent" className="hover:text-white">
                 Find talent
               </a>
@@ -596,12 +483,11 @@ function LandingPage() {
           <div className="flex flex-col gap-3 pt-7 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
             <p>© {new Date().getFullYear()} Freelancer. All rights reserved.</p>
             <p className="inline-flex items-center gap-2">
-              <MessageSquare className="size-3.5" /> Built for better working
-              relationships.
+              <MessageSquare className="size-3.5" /> Built for better working relationships.
             </p>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }

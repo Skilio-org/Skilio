@@ -1,23 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import {
-  Bell,
-  Bookmark,
-  Check,
-  ChevronRight,
-  MessageSquare,
-  Sparkles,
-} from "lucide-react"
-import { useState } from "react"
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Bell, Bookmark, Check, ChevronRight, MessageSquare, Sparkles } from "lucide-react";
+import { useState } from "react";
 
-import {
-  WorkspacePageHeader,
-  workspaceStyles,
-} from "@/components/Common/WorkspaceUI"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/Common/WorkspaceUI";
 
 export const Route = createFileRoute("/_layout/notifications")({
   component: Notifications,
   head: () => ({ meta: [{ title: "Notifications | Freelancer" }] }),
-})
+});
 
 const notifications = [
   {
@@ -52,10 +42,10 @@ const notifications = [
     unread: false,
     href: "/client-profile" as const,
   },
-]
+];
 
 function Notifications() {
-  const [allRead, setAllRead] = useState(false)
+  const [allRead, setAllRead] = useState(false);
 
   return (
     <div className="space-y-7">
@@ -75,12 +65,12 @@ function Notifications() {
           </button>
         }
       />
-      <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+      <section className="border-border bg-card shadow-card overflow-hidden rounded-2xl border">
         {notifications.map((item) => (
           <Link
             key={item.title}
             to={item.href}
-            className="group flex gap-4 border-b border-border p-5 transition-colors last:border-b-0 hover:bg-accent/50 sm:p-6"
+            className="group border-border hover:bg-accent/50 flex gap-4 border-b p-5 transition-colors last:border-b-0 sm:p-6"
           >
             <span
               className={`grid size-11 shrink-0 place-items-center rounded-full ${item.unread && !allRead ? "bg-brand-100 text-brand-700" : "bg-muted text-muted-foreground"}`}
@@ -89,31 +79,22 @@ function Notifications() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-start gap-3">
-                <strong className="text-sm text-foreground sm:text-base">
-                  {item.title}
-                </strong>
+                <strong className="text-foreground text-sm sm:text-base">{item.title}</strong>
                 {item.unread && !allRead && (
-                  <span
-                    className="mt-1.5 size-2 shrink-0 rounded-full bg-brand-600"
-                    aria-hidden="true"
-                  />
+                  <span className="bg-brand-600 mt-1.5 size-2 shrink-0 rounded-full" aria-hidden="true" />
                 )}
               </span>
-              <span className="mt-1 block text-sm leading-6 text-muted-foreground">
-                {item.detail}
-              </span>
-              <span className="mt-2 block text-xs text-muted-foreground">
-                {item.time}
-              </span>
+              <span className="text-muted-foreground mt-1 block text-sm leading-6">{item.detail}</span>
+              <span className="text-muted-foreground mt-2 block text-xs">{item.time}</span>
             </span>
-            <ChevronRight className="mt-3 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+            <ChevronRight className="text-muted-foreground group-hover:text-foreground mt-3 size-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
           </Link>
         ))}
       </section>
-      <div className="flex items-center justify-center gap-2 py-5 text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex items-center justify-center gap-2 py-5 text-sm">
         <Bell className="size-4" />
         You’re all caught up.
       </div>
     </div>
-  )
+  );
 }

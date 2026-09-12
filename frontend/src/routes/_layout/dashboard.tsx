@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   BadgeCheck,
@@ -10,8 +10,8 @@ import {
   Search,
   Star,
   Users,
-} from "lucide-react"
-import { useState } from "react"
+} from "lucide-react";
+import { useState } from "react";
 
 import {
   Monogram,
@@ -19,13 +19,13 @@ import {
   WorkspacePageHeader,
   WorkspaceSurface,
   workspaceStyles,
-} from "@/components/Common/WorkspaceUI"
-import useAuth from "@/hooks/useAuth"
+} from "@/components/Common/WorkspaceUI";
+import useAuth from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/_layout/dashboard")({
   component: Dashboard,
   head: () => ({ meta: [{ title: "Overview | Freelancer" }] }),
-})
+});
 
 const matches = [
   {
@@ -61,49 +61,37 @@ const matches = [
     skills: ["Brand strategy", "Research", "Content"],
     style: "bg-[#f1e6d8] text-[#744217]",
   },
-]
+];
 
 function Dashboard() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
-  const [savedMatchIds, setSavedMatchIds] = useState<Set<string>>(new Set())
-  const firstName = user?.full_name?.trim().split(/\s+/)[0]
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [savedMatchIds, setSavedMatchIds] = useState<Set<string>>(new Set());
+  const firstName = user?.full_name?.trim().split(/\s+/)[0];
 
   const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const query = String(
-      new FormData(event.currentTarget).get("q") ?? "",
-    ).trim()
-    navigate({ to: "/talent", search: { q: query || undefined } })
-  }
+    event.preventDefault();
+    const query = String(new FormData(event.currentTarget).get("q") ?? "").trim();
+    navigate({ to: "/talent", search: { q: query || undefined } });
+  };
 
   return (
     <div className="space-y-8">
       <WorkspacePageHeader
         eyebrow="Overview"
-        title={
-          firstName
-            ? `Good to see you, ${firstName}.`
-            : "Find your next collaborator."
-        }
+        title={firstName ? `Good to see you, ${firstName}.` : "Find your next collaborator."}
         description="Continue your search or review professionals selected for you."
         action={
-          <Link
-            to="/client-profile"
-            className={workspaceStyles.secondaryAction}
-          >
+          <Link to="/client-profile" className={workspaceStyles.secondaryAction}>
             Complete client profile <ArrowRight className="size-4" />
           </Link>
         }
       />
 
-      <form
-        onSubmit={handleSearch}
-        className="rounded-2xl border border-border bg-card p-4 shadow-card sm:p-6"
-      >
+      <form onSubmit={handleSearch} className="border-border bg-card shadow-card rounded-2xl border p-4 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className={`${workspaceStyles.inputShell} min-w-0 flex-1`}>
-            <Search className="size-5 shrink-0 text-muted-foreground" />
+            <Search className="text-muted-foreground size-5 shrink-0" />
             <label htmlFor="dashboard-search" className="sr-only">
               Search talent
             </label>
@@ -112,36 +100,31 @@ function Dashboard() {
               name="q"
               type="search"
               placeholder="Search by role, skill, or expertise"
-              className="min-w-0 flex-1 bg-transparent px-3 py-3 text-base outline-none placeholder:text-muted-foreground md:text-sm"
+              className="placeholder:text-muted-foreground min-w-0 flex-1 bg-transparent px-3 py-3 text-base outline-none md:text-sm"
             />
           </div>
-          <button
-            type="submit"
-            className={`${workspaceStyles.primaryAction} min-h-12 px-6`}
-          >
+          <button type="submit" className={`${workspaceStyles.primaryAction} min-h-12 px-6`}>
             Search talent <ArrowRight className="size-4" />
           </button>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
+        <div className="text-muted-foreground mt-4 flex flex-wrap gap-2 text-xs">
           <span className="mr-1 py-1.5">Popular:</span>
-          {["Product designer", "React developer", "AI engineer"].map(
-            (query) => (
-              <Link
-                key={query}
-                to="/talent"
-                search={{ q: query }}
-                className="rounded-full border border-border bg-muted/60 px-3 py-1.5 transition-colors hover:border-brand-300 hover:text-brand-700"
-              >
-                {query}
-              </Link>
-            ),
-          )}
+          {["Product designer", "React developer", "AI engineer"].map((query) => (
+            <Link
+              key={query}
+              to="/talent"
+              search={{ q: query }}
+              className="border-border bg-muted/60 hover:border-brand-300 hover:text-brand-700 rounded-full border px-3 py-1.5 transition-colors"
+            >
+              {query}
+            </Link>
+          ))}
         </div>
       </form>
 
       <section
         aria-label="Workspace summary"
-        className="grid overflow-hidden rounded-2xl border border-border bg-card shadow-card sm:grid-cols-3"
+        className="border-border bg-card shadow-card grid overflow-hidden rounded-2xl border sm:grid-cols-3"
       >
         {[
           {
@@ -165,50 +148,39 @@ function Dashboard() {
         ].map((item) => (
           <article
             key={item.label}
-            className="border-b border-border p-5 last:border-b-0 sm:border-b-0 sm:border-r sm:p-6 sm:last:border-r-0"
+            className="border-border border-b p-5 last:border-b-0 sm:border-r sm:border-b-0 sm:p-6 sm:last:border-r-0"
           >
             <div className="flex items-start justify-between">
-              <item.icon className="size-5 text-brand-600" />
-              <span className="font-display text-3xl font-medium tracking-tight">
-                {item.value}
-              </span>
+              <item.icon className="text-brand-600 size-5" />
+              <span className="font-display text-3xl font-medium tracking-tight">{item.value}</span>
             </div>
             <p className="mt-7 font-semibold">{item.label}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{item.detail}</p>
+            <p className="text-muted-foreground mt-1 text-sm">{item.detail}</p>
           </article>
         ))}
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_320px]">
-        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-          <div className="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
+        <div className="border-border bg-card shadow-card overflow-hidden rounded-2xl border">
+          <div className="border-border flex flex-col gap-3 border-b p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
             <div>
-              <p className="text-sm font-semibold text-brand-700">
-                Recommended for you
-              </p>
-              <h2 className="mt-1 font-display text-2xl font-medium tracking-tight">
-                Strong matches for your search
-              </h2>
+              <p className="text-brand-700 text-sm font-semibold">Recommended for you</p>
+              <h2 className="font-display mt-1 text-2xl font-medium tracking-tight">Strong matches for your search</h2>
             </div>
             <Link
               to="/talent"
               search={{ q: undefined }}
-              className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand-700 hover:text-brand-800"
+              className="text-brand-700 hover:text-brand-800 inline-flex min-h-11 items-center gap-2 text-sm font-semibold"
             >
               View all <ArrowRight className="size-4" />
             </Link>
           </div>
 
-          <div className="divide-y divide-border">
+          <div className="divide-border divide-y">
             {matches.map((person) => (
-              <article
-                key={person.name}
-                className="p-5 transition-colors hover:bg-muted/35 sm:p-6"
-              >
+              <article key={person.name} className="hover:bg-muted/35 p-5 transition-colors sm:p-6">
                 <div className="flex items-start gap-4">
-                  <Monogram className={`size-14 text-lg ${person.style}`}>
-                    {person.initials}
-                  </Monogram>
+                  <Monogram className={`size-14 text-lg ${person.style}`}>{person.initials}</Monogram>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                       <div>
@@ -216,26 +188,19 @@ function Dashboard() {
                           to="/talent/$freelancerId"
                           params={{ freelancerId: person.id }}
                           search={{ q: undefined }}
-                          className="flex items-center gap-1.5 font-display text-lg font-semibold hover:text-brand-700"
+                          className="font-display hover:text-brand-700 flex items-center gap-1.5 text-lg font-semibold"
                         >
                           {person.name}
-                          <BadgeCheck
-                            className="size-4 text-brand-600"
-                            aria-label="Verified"
-                          />
+                          <BadgeCheck className="text-brand-600 size-4" aria-label="Verified" />
                         </Link>
-                        <p className="mt-0.5 text-sm text-muted-foreground">
-                          {person.role}
-                        </p>
+                        <p className="text-muted-foreground mt-0.5 text-sm">{person.role}</p>
                       </div>
                       <p className="font-semibold">{person.rate}</p>
                     </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
                       <span className="inline-flex items-center gap-1.5">
                         <Star className="size-3.5 fill-amber-400 text-amber-400" />
-                        <strong className="text-foreground">
-                          {person.rating}
-                        </strong>
+                        <strong className="text-foreground">{person.rating}</strong>
                       </span>
                       <span className="inline-flex items-center gap-1.5">
                         <MapPin className="size-3.5" />
@@ -258,22 +223,18 @@ function Dashboard() {
                     aria-pressed={savedMatchIds.has(person.id)}
                     onClick={() =>
                       setSavedMatchIds((current) => {
-                        const next = new Set(current)
+                        const next = new Set(current);
                         if (next.has(person.id)) {
-                          next.delete(person.id)
+                          next.delete(person.id);
                         } else {
-                          next.add(person.id)
+                          next.add(person.id);
                         }
-                        return next
+                        return next;
                       })
                     }
                     className={workspaceStyles.iconButton}
                   >
-                    <Bookmark
-                      className={`size-4 ${
-                        savedMatchIds.has(person.id) ? "fill-current" : ""
-                      }`}
-                    />
+                    <Bookmark className={`size-4 ${savedMatchIds.has(person.id) ? "fill-current" : ""}`} />
                   </button>
                 </div>
               </article>
@@ -284,22 +245,17 @@ function Dashboard() {
         <aside className="space-y-6">
           <WorkspaceSurface className="p-6">
             <div className="flex items-center justify-between">
-              <span className="grid size-10 place-items-center rounded-full bg-brand-50 text-brand-700">
+              <span className="bg-brand-50 text-brand-700 grid size-10 place-items-center rounded-full">
                 <Users className="size-5" />
               </span>
-              <span className="text-sm font-semibold text-brand-700">
-                3 of 5
-              </span>
+              <span className="text-brand-700 text-sm font-semibold">3 of 5</span>
             </div>
-            <h2 className="mt-6 font-display text-xl font-semibold">
-              Build your first shortlist
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Save a few strong profiles, then compare their skills and
-              experience side by side.
+            <h2 className="font-display mt-6 text-xl font-semibold">Build your first shortlist</h2>
+            <p className="text-muted-foreground mt-2 text-sm leading-6">
+              Save a few strong profiles, then compare their skills and experience side by side.
             </p>
-            <div className="mt-5 h-1.5 bg-muted">
-              <div className="h-full w-3/5 bg-brand-600" />
+            <div className="bg-muted mt-5 h-1.5">
+              <div className="bg-brand-600 h-full w-3/5" />
             </div>
             <Link
               to="/talent"
@@ -310,21 +266,15 @@ function Dashboard() {
             </Link>
           </WorkspaceSurface>
 
-          <div className="rounded-2xl bg-slate-950 p-6 text-white shadow-card">
-            <Clock3 className="size-5 text-brand-300" />
-            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-              Saved search
-            </p>
-            <h2 className="mt-2 font-display text-xl font-semibold">
-              Senior product designers
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              18 new matching profiles since your last visit.
-            </p>
+          <div className="shadow-card rounded-2xl bg-slate-950 p-6 text-white">
+            <Clock3 className="text-brand-300 size-5" />
+            <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-slate-400 uppercase">Saved search</p>
+            <h2 className="font-display mt-2 text-xl font-semibold">Senior product designers</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-400">18 new matching profiles since your last visit.</p>
             <Link
               to="/talent"
               search={{ q: undefined }}
-              className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white hover:text-brand-200"
+              className="hover:text-brand-200 mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white"
             >
               Review matches <ArrowRight className="size-4" />
             </Link>
@@ -332,5 +282,5 @@ function Dashboard() {
         </aside>
       </section>
     </div>
-  )
+  );
 }

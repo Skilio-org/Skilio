@@ -1,38 +1,21 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  createFileRoute,
-  Link as RouterLink,
-  redirect,
-} from "@tanstack/react-router"
-import {
-  ArrowLeft,
-  ArrowRight,
-  BriefcaseBusiness,
-  Check,
-  UserRound,
-} from "lucide-react"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { FaApple, FaLinkedinIn } from "react-icons/fa"
-import { FcGoogle } from "react-icons/fc"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createFileRoute, Link as RouterLink, redirect } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, BriefcaseBusiness, Check, UserRound } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { FaApple, FaLinkedinIn } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { z } from "zod";
 
-import { AuthLayout } from "@/components/Common/AuthLayout"
+import { AuthLayout } from "@/components/Common/AuthLayout";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-import { Input } from "@/components/ui/input"
-import { LoadingButton } from "@/components/ui/loading-button"
-import { PasswordInput } from "@/components/ui/password-input"
+import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { PasswordInput } from "@/components/ui/password-input";
 
-import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+import useAuth, { isLoggedIn } from "@/hooks/useAuth";
 
 /* =========================================================
    VALIDATION
@@ -74,13 +57,13 @@ const formSchema = z
   .refine((data) => data.password === data.confirm_password, {
     message: "The passwords don't match.",
     path: ["confirm_password"],
-  })
+  });
 
-type FormData = z.infer<typeof formSchema>
+type FormData = z.infer<typeof formSchema>;
 
-type SignupStep = 1 | 2
+type SignupStep = 1 | 2;
 
-type AccountRole = "freelancer" | "client"
+type AccountRole = "freelancer" | "client";
 
 /* =========================================================
    SOCIAL AUTH
@@ -118,7 +101,7 @@ const socialProviders = [
     icon: FaLinkedinIn,
     href: import.meta.env.VITE_LINKEDIN_OAUTH_URL as string | undefined,
   },
-]
+];
 
 /* =========================================================
    ROUTE
@@ -131,7 +114,7 @@ export const Route = createFileRoute("/signup")({
     if (isLoggedIn()) {
       throw redirect({
         to: "/dashboard",
-      })
+      });
     }
   },
 
@@ -142,21 +125,20 @@ export const Route = createFileRoute("/signup")({
       },
       {
         name: "description",
-        content:
-          "Create your account as a freelancer or client and start working together.",
+        content: "Create your account as a freelancer or client and start working together.",
       },
     ],
   }),
-})
+});
 
 /* =========================================================
    SIGN UP
    ========================================================= */
 
 function SignUp() {
-  const { signUpMutation } = useAuth()
+  const { signUpMutation } = useAuth();
 
-  const [step, setStep] = useState<SignupStep>(1)
+  const [step, setStep] = useState<SignupStep>(1);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -171,44 +153,44 @@ function SignUp() {
       password: "",
       confirm_password: "",
     },
-  })
+  });
 
-  const selectedRole = form.watch("role")
+  const selectedRole = form.watch("role");
 
   /* =======================================================
      STEP NAVIGATION
      ======================================================= */
 
   const goToDetails = async () => {
-    const valid = await form.trigger("role")
+    const valid = await form.trigger("role");
 
-    if (!valid) return
+    if (!valid) return;
 
-    setStep(2)
-  }
+    setStep(2);
+  };
 
   const goBackToRole = () => {
-    setStep(1)
-  }
+    setStep(1);
+  };
 
   /* =======================================================
      EMAIL / PASSWORD SIGNUP
      ======================================================= */
 
   const onSubmit = (data: FormData) => {
-    if (signUpMutation.isPending) return
+    if (signUpMutation.isPending) return;
 
-    const { confirm_password: _confirmPassword, ...submitData } = data
+    const { confirm_password: _confirmPassword, ...submitData } = data;
 
-    signUpMutation.mutate(submitData)
-  }
+    signUpMutation.mutate(submitData);
+  };
 
   /* =======================================================
      SOCIAL SIGNUP
      ======================================================= */
 
   const handleSocialSignup = (href: string | undefined, role: AccountRole) => {
-    if (!href) return
+    if (!href) return;
 
     /*
      * Handles absolute backend URLs cleanly.
@@ -222,12 +204,12 @@ function SignUp() {
      * http://localhost:8000/api/v1/auth/google?role=freelancer
      */
 
-    const url = new URL(href)
+    const url = new URL(href);
 
-    url.searchParams.set("role", role)
+    url.searchParams.set("role", role);
 
-    window.location.assign(url.toString())
-  }
+    window.location.assign(url.toString());
+  };
 
   return (
     <AuthLayout>
@@ -245,54 +227,17 @@ function SignUp() {
                     ============================================= */}
 
                 <div className="mb-9 text-center">
-                  <div
-                    className="
-                      mb-5
-                      inline-flex
-                      items-center
-                      rounded-full
-                      border
-                      border-primary/25
-                      bg-accent
-                      px-3
-                      py-1
-                      text-[11px]
-                      font-semibold
-                      uppercase
-                      tracking-[0.12em]
-                      text-accent-foreground
-                    "
-                  >
+                  <div className="border-primary/25 bg-accent text-accent-foreground mb-5 inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold tracking-[0.12em] uppercase">
                     Get started
                   </div>
 
-                  <h1
-                    className="
-                      font-display
-                      text-[42px]
-                      font-bold
-                      leading-[0.98]
-                      tracking-[-0.045em]
-                      text-foreground
-                      sm:text-[46px]
-                    "
-                  >
+                  <h1 className="font-display text-foreground text-[42px] leading-[0.98] font-bold tracking-[-0.045em] sm:text-[46px]">
                     How do you want <br />
                     to use Freelancer?
                   </h1>
 
-                  <p
-                    className="
-                      mx-auto
-                      mt-4
-                      max-w-[380px]
-                      text-sm
-                      leading-6
-                      text-muted-foreground
-                    "
-                  >
-                    Choose how you'd like to get started. You can manage your
-                    account settings later.
+                  <p className="text-muted-foreground mx-auto mt-4 max-w-[380px] text-sm leading-6">
+                    Choose how you'd like to get started. You can manage your account settings later.
                   </p>
                 </div>
 
@@ -316,113 +261,36 @@ function SignUp() {
                             aria-pressed={field.value === "freelancer"}
                             disabled={signUpMutation.isPending}
                             onClick={() => field.onChange("freelancer")}
-                            className={`
-                              group
-                              relative
-                              flex
-                              min-h-28
-                              w-full
-                              items-center
-                              gap-5
-                              rounded-2xl
-                              border
-                              p-5
-                              text-left
-                              transition-all
-                              duration-200
-
-                              focus-visible:outline-none
-                              focus-visible:ring-[3px]
-                              focus-visible:ring-ring/30
-
-                              disabled:pointer-events-none
-                              disabled:opacity-60
-
-                              ${
-                                field.value === "freelancer"
-                                  ? `
-                                    border-primary/40
-                                    bg-accent
-                                    shadow-card
-                                  `
-                                  : `
-                                    border-border
-                                    bg-card
-                                    hover:-translate-y-px
-                                    hover:border-primary/25
-                                    hover:bg-accent/40
-                                    hover:shadow-card-hover
-                                  `
-                              }
-                            `}
+                            className={`group focus-visible:ring-ring/30 relative flex min-h-28 w-full items-center gap-5 rounded-2xl border p-5 text-left transition-all duration-200 focus-visible:ring-[3px] focus-visible:outline-none disabled:pointer-events-none disabled:opacity-60 ${
+                              field.value === "freelancer"
+                                ? `border-primary/40 bg-accent shadow-card`
+                                : `border-border bg-card hover:border-primary/25 hover:bg-accent/40 hover:shadow-card-hover hover:-translate-y-px`
+                            } `}
                           >
                             <div
-                              className={`
-                                flex
-                                size-12
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-xl
-                                transition-all
-                                duration-200
-
-                                ${
-                                  field.value === "freelancer"
-                                    ? `
-                                      bg-primary
-                                      text-primary-foreground
-                                      shadow-sm
-                                    `
-                                    : `
-                                      bg-muted
-                                      text-muted-foreground
-                                      group-hover:bg-accent
-                                      group-hover:text-accent-foreground
-                                    `
-                                }
-                              `}
+                              className={`flex size-12 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${
+                                field.value === "freelancer"
+                                  ? `bg-primary text-primary-foreground shadow-sm`
+                                  : `bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-accent-foreground`
+                              } `}
                             >
                               <UserRound className="size-5" />
                             </div>
 
                             <div className="min-w-0 flex-1">
-                              <div className="text-[15px] font-semibold text-foreground">
-                                I want to find work
-                              </div>
+                              <div className="text-foreground text-[15px] font-semibold">I want to find work</div>
 
-                              <p className="mt-1.5 text-[13px] leading-5 text-muted-foreground">
-                                Create a freelancer profile, showcase your
-                                skills, and work with great clients.
+                              <p className="text-muted-foreground mt-1.5 text-[13px] leading-5">
+                                Create a freelancer profile, showcase your skills, and work with great clients.
                               </p>
                             </div>
 
                             <div
-                              className={`
-                                flex
-                                size-6
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-full
-                                border
-                                transition-all
-                                duration-200
-
-                                ${
-                                  field.value === "freelancer"
-                                    ? `
-                                      border-primary
-                                      bg-primary
-                                      text-primary-foreground
-                                    `
-                                    : `
-                                      border-border
-                                      bg-background
-                                      text-transparent
-                                    `
-                                }
-                              `}
+                              className={`flex size-6 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
+                                field.value === "freelancer"
+                                  ? `border-primary bg-primary text-primary-foreground`
+                                  : `border-border bg-background text-transparent`
+                              } `}
                             >
                               <Check className="size-3.5" strokeWidth={3} />
                             </div>
@@ -437,113 +305,36 @@ function SignUp() {
                             aria-pressed={field.value === "client"}
                             disabled={signUpMutation.isPending}
                             onClick={() => field.onChange("client")}
-                            className={`
-                              group
-                              relative
-                              flex
-                              min-h-28
-                              w-full
-                              items-center
-                              gap-5
-                              rounded-2xl
-                              border
-                              p-5
-                              text-left
-                              transition-all
-                              duration-200
-
-                              focus-visible:outline-none
-                              focus-visible:ring-[3px]
-                              focus-visible:ring-ring/30
-
-                              disabled:pointer-events-none
-                              disabled:opacity-60
-
-                              ${
-                                field.value === "client"
-                                  ? `
-                                    border-primary/40
-                                    bg-accent
-                                    shadow-card
-                                  `
-                                  : `
-                                    border-border
-                                    bg-card
-                                    hover:-translate-y-px
-                                    hover:border-primary/25
-                                    hover:bg-accent/40
-                                    hover:shadow-card-hover
-                                  `
-                              }
-                            `}
+                            className={`group focus-visible:ring-ring/30 relative flex min-h-28 w-full items-center gap-5 rounded-2xl border p-5 text-left transition-all duration-200 focus-visible:ring-[3px] focus-visible:outline-none disabled:pointer-events-none disabled:opacity-60 ${
+                              field.value === "client"
+                                ? `border-primary/40 bg-accent shadow-card`
+                                : `border-border bg-card hover:border-primary/25 hover:bg-accent/40 hover:shadow-card-hover hover:-translate-y-px`
+                            } `}
                           >
                             <div
-                              className={`
-                                flex
-                                size-12
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-xl
-                                transition-all
-                                duration-200
-
-                                ${
-                                  field.value === "client"
-                                    ? `
-                                      bg-primary
-                                      text-primary-foreground
-                                      shadow-sm
-                                    `
-                                    : `
-                                      bg-muted
-                                      text-muted-foreground
-                                      group-hover:bg-accent
-                                      group-hover:text-accent-foreground
-                                    `
-                                }
-                              `}
+                              className={`flex size-12 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${
+                                field.value === "client"
+                                  ? `bg-primary text-primary-foreground shadow-sm`
+                                  : `bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-accent-foreground`
+                              } `}
                             >
                               <BriefcaseBusiness className="size-5" />
                             </div>
 
                             <div className="min-w-0 flex-1">
-                              <div className="text-[15px] font-semibold text-foreground">
-                                I want to hire talent
-                              </div>
+                              <div className="text-foreground text-[15px] font-semibold">I want to hire talent</div>
 
-                              <p className="mt-1.5 text-[13px] leading-5 text-muted-foreground">
-                                Find skilled freelancers, manage projects, and
-                                get high-quality work done.
+                              <p className="text-muted-foreground mt-1.5 text-[13px] leading-5">
+                                Find skilled freelancers, manage projects, and get high-quality work done.
                               </p>
                             </div>
 
                             <div
-                              className={`
-                                flex
-                                size-6
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-full
-                                border
-                                transition-all
-                                duration-200
-
-                                ${
-                                  field.value === "client"
-                                    ? `
-                                      border-primary
-                                      bg-primary
-                                      text-primary-foreground
-                                    `
-                                    : `
-                                      border-border
-                                      bg-background
-                                      text-transparent
-                                    `
-                                }
-                              `}
+                              className={`flex size-6 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
+                                field.value === "client"
+                                  ? `border-primary bg-primary text-primary-foreground`
+                                  : `border-border bg-background text-transparent`
+                              } `}
                             >
                               <Check className="size-3.5" strokeWidth={3} />
                             </div>
@@ -563,34 +354,7 @@ function SignUp() {
                 <button
                   type="button"
                   onClick={goToDetails}
-                  className="
-                    mt-7
-                    flex
-                    h-12
-                    w-full
-                    items-center
-                    justify-center
-                    gap-2
-                    rounded-xl
-                    bg-primary
-                    text-sm
-                    font-semibold
-                    text-primary-foreground
-                    shadow-sm
-                    transition-all
-                    duration-200
-
-                    hover:-translate-y-px
-                    hover:bg-primary/90
-                    hover:shadow-md
-
-                    active:translate-y-0
-                    active:bg-primary/85
-
-                    focus-visible:outline-none
-                    focus-visible:ring-[3px]
-                    focus-visible:ring-ring/30
-                  "
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/85 focus-visible:ring-ring/30 mt-7 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md focus-visible:ring-[3px] focus-visible:outline-none active:translate-y-0"
                 >
                   Continue
                   <ArrowRight className="size-4" />
@@ -600,21 +364,11 @@ function SignUp() {
                     LOGIN
                     ============================================= */}
 
-                <div className="mt-6 text-center text-sm text-muted-foreground">
+                <div className="text-muted-foreground mt-6 text-center text-sm">
                   Already have an account?{" "}
                   <RouterLink
                     to="/login"
-                    className="
-                      font-medium
-                      text-foreground
-                      underline
-                      decoration-border
-                      underline-offset-4
-                      transition-colors
-
-                      hover:text-primary
-                      hover:decoration-primary/40
-                    "
+                    className="text-foreground decoration-border hover:text-primary hover:decoration-primary/40 font-medium underline underline-offset-4 transition-colors"
                   >
                     Log in
                   </RouterLink>
@@ -636,22 +390,7 @@ function SignUp() {
                   type="button"
                   onClick={goBackToRole}
                   disabled={signUpMutation.isPending}
-                  className="
-                    mb-6
-                    inline-flex
-                    items-center
-                    gap-2
-                    rounded-md
-                    text-sm
-                    font-medium
-                    text-muted-foreground
-                    transition-colors
-
-                    hover:text-foreground
-
-                    disabled:pointer-events-none
-                    disabled:opacity-50
-                  "
+                  className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-2 rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50"
                 >
                   <ArrowLeft className="size-4" />
                   Back
@@ -662,28 +401,16 @@ function SignUp() {
                     ============================================= */}
 
                 <div className="mb-7">
-                  <h1
-                    className="
-                      font-display
-                      text-[42px]
-                      font-bold
-                      leading-[0.98]
-                      tracking-[-0.045em]
-                      text-foreground
-                      sm:text-[46px]
-                    "
-                  >
+                  <h1 className="font-display text-foreground text-[42px] leading-[0.98] font-bold tracking-[-0.045em] sm:text-[46px]">
                     Create your
                     <br />
                     account.
                   </h1>
 
-                  <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
+                  <p className="text-muted-foreground mt-3 max-w-sm text-sm leading-6">
                     You're joining as{" "}
-                    <span className="font-medium text-foreground">
-                      {selectedRole === "freelancer"
-                        ? "a freelancer"
-                        : "a client"}
+                    <span className="text-foreground font-medium">
+                      {selectedRole === "freelancer" ? "a freelancer" : "a client"}
                     </span>
                     .
                   </p>
@@ -693,32 +420,8 @@ function SignUp() {
                     SELECTED ROLE
                     ============================================= */}
 
-                <div
-                  className="
-                    mb-6
-                    flex
-                    items-center
-                    gap-3.5
-                    rounded-xl
-                    border
-                    border-primary/25
-                    bg-accent
-                    p-3.5
-                  "
-                >
-                  <div
-                    className="
-                      flex
-                      size-10
-                      shrink-0
-                      items-center
-                      justify-center
-                      rounded-lg
-                      bg-primary
-                      text-primary-foreground
-                      shadow-sm
-                    "
-                  >
+                <div className="border-primary/25 bg-accent mb-6 flex items-center gap-3.5 rounded-xl border p-3.5">
+                  <div className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-lg shadow-sm">
                     {selectedRole === "freelancer" ? (
                       <UserRound className="size-4.5" />
                     ) : (
@@ -727,13 +430,11 @@ function SignUp() {
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <div className="text-[13px] font-semibold text-foreground">
-                      {selectedRole === "freelancer"
-                        ? "Freelancer account"
-                        : "Client account"}
+                    <div className="text-foreground text-[13px] font-semibold">
+                      {selectedRole === "freelancer" ? "Freelancer account" : "Client account"}
                     </div>
 
-                    <div className="mt-0.5 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground mt-0.5 text-xs">
                       {selectedRole === "freelancer"
                         ? "Find work and build your career."
                         : "Hire talent and manage projects."}
@@ -744,21 +445,7 @@ function SignUp() {
                     type="button"
                     onClick={goBackToRole}
                     disabled={signUpMutation.isPending}
-                    className="
-                      rounded-md
-                      px-2.5
-                      py-1.5
-                      text-xs
-                      font-medium
-                      text-accent-foreground
-                      transition-colors
-
-                      hover:bg-primary/10
-                      hover:text-primary
-
-                      disabled:pointer-events-none
-                      disabled:opacity-50
-                    "
+                    className="text-accent-foreground hover:bg-primary/10 hover:text-primary rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors disabled:pointer-events-none disabled:opacity-50"
                   >
                     Change
                   </button>
@@ -776,9 +463,7 @@ function SignUp() {
                     name="full_name"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className="text-[13px] font-medium text-foreground">
-                          Full name
-                        </FormLabel>
+                        <FormLabel className="text-foreground text-[13px] font-medium">Full name</FormLabel>
 
                         <FormControl>
                           <Input
@@ -787,25 +472,7 @@ function SignUp() {
                             autoComplete="name"
                             placeholder="Your full name"
                             disabled={signUpMutation.isPending}
-                            className="
-                              h-12
-                              rounded-xl
-                              border-input
-                              bg-card
-                              px-4
-                              text-sm
-                              text-foreground
-                              shadow-none
-                              transition-[border-color,box-shadow,background-color]
-
-                              placeholder:text-muted-foreground/65
-
-                              hover:border-foreground/20
-
-                              focus-visible:border-primary/50
-                              focus-visible:ring-[3px]
-                              focus-visible:ring-ring/25
-                            "
+                            className="border-input bg-card text-foreground placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-ring/25 h-12 rounded-xl px-4 text-sm shadow-none transition-[border-color,box-shadow,background-color] focus-visible:ring-[3px]"
                             {...field}
                           />
                         </FormControl>
@@ -822,9 +489,7 @@ function SignUp() {
                     name="email"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className="text-[13px] font-medium text-foreground">
-                          Email
-                        </FormLabel>
+                        <FormLabel className="text-foreground text-[13px] font-medium">Email</FormLabel>
 
                         <FormControl>
                           <Input
@@ -833,25 +498,7 @@ function SignUp() {
                             autoComplete="email"
                             placeholder="you@example.com"
                             disabled={signUpMutation.isPending}
-                            className="
-                              h-12
-                              rounded-xl
-                              border-input
-                              bg-card
-                              px-4
-                              text-sm
-                              text-foreground
-                              shadow-none
-                              transition-[border-color,box-shadow,background-color]
-
-                              placeholder:text-muted-foreground/65
-
-                              hover:border-foreground/20
-
-                              focus-visible:border-primary/50
-                              focus-visible:ring-[3px]
-                              focus-visible:ring-ring/25
-                            "
+                            className="border-input bg-card text-foreground placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-ring/25 h-12 rounded-xl px-4 text-sm shadow-none transition-[border-color,box-shadow,background-color] focus-visible:ring-[3px]"
                             {...field}
                           />
                         </FormControl>
@@ -868,9 +515,7 @@ function SignUp() {
                     name="password"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className="text-[13px] font-medium text-foreground">
-                          Password
-                        </FormLabel>
+                        <FormLabel className="text-foreground text-[13px] font-medium">Password</FormLabel>
 
                         <FormControl>
                           <PasswordInput
@@ -878,25 +523,7 @@ function SignUp() {
                             autoComplete="new-password"
                             placeholder="Create a password"
                             disabled={signUpMutation.isPending}
-                            className="
-                              h-12
-                              rounded-xl
-                              border-input
-                              bg-card
-                              px-4
-                              text-sm
-                              text-foreground
-                              shadow-none
-                              transition-[border-color,box-shadow,background-color]
-
-                              placeholder:text-muted-foreground/65
-
-                              hover:border-foreground/20
-
-                              focus-visible:border-primary/50
-                              focus-visible:ring-[3px]
-                              focus-visible:ring-ring/25
-                            "
+                            className="border-input bg-card text-foreground placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-ring/25 h-12 rounded-xl px-4 text-sm shadow-none transition-[border-color,box-shadow,background-color] focus-visible:ring-[3px]"
                             {...field}
                           />
                         </FormControl>
@@ -913,9 +540,7 @@ function SignUp() {
                     name="confirm_password"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className="text-[13px] font-medium text-foreground">
-                          Confirm password
-                        </FormLabel>
+                        <FormLabel className="text-foreground text-[13px] font-medium">Confirm password</FormLabel>
 
                         <FormControl>
                           <PasswordInput
@@ -923,25 +548,7 @@ function SignUp() {
                             autoComplete="new-password"
                             placeholder="Confirm your password"
                             disabled={signUpMutation.isPending}
-                            className="
-                              h-12
-                              rounded-xl
-                              border-input
-                              bg-card
-                              px-4
-                              text-sm
-                              text-foreground
-                              shadow-none
-                              transition-[border-color,box-shadow,background-color]
-
-                              placeholder:text-muted-foreground/65
-
-                              hover:border-foreground/20
-
-                              focus-visible:border-primary/50
-                              focus-visible:ring-[3px]
-                              focus-visible:ring-ring/25
-                            "
+                            className="border-input bg-card text-foreground placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-ring/25 h-12 rounded-xl px-4 text-sm shadow-none transition-[border-color,box-shadow,background-color] focus-visible:ring-[3px]"
                             {...field}
                           />
                         </FormControl>
@@ -959,33 +566,9 @@ function SignUp() {
                     type="submit"
                     loading={signUpMutation.isPending}
                     disabled={signUpMutation.isPending}
-                    className="
-                      mt-2
-                      h-12
-                      w-full
-                      rounded-xl
-                      bg-primary
-                      text-sm
-                      font-semibold
-                      text-primary-foreground
-                      shadow-sm
-                      transition-all
-                      duration-200
-
-                      hover:-translate-y-px
-                      hover:bg-primary/90
-                      hover:shadow-md
-
-                      active:translate-y-0
-                      active:bg-primary/85
-
-                      focus-visible:ring-[3px]
-                      focus-visible:ring-ring/30
-                    "
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/85 focus-visible:ring-ring/30 mt-2 h-12 w-full rounded-xl text-sm font-semibold shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md focus-visible:ring-[3px] active:translate-y-0"
                   >
-                    {selectedRole === "freelancer"
-                      ? "Create freelancer account"
-                      : "Create client account"}
+                    {selectedRole === "freelancer" ? "Create freelancer account" : "Create client account"}
                   </LoadingButton>
                 </div>
 
@@ -994,36 +577,20 @@ function SignUp() {
                     ============================================= */}
 
                 <div className="my-7 flex items-center gap-4">
-                  <div className="h-px flex-1 bg-border" />
+                  <div className="bg-border h-px flex-1" />
 
-                  <span
-                    className="
-                      shrink-0
-                      text-xs
-                      font-medium
-                      text-muted-foreground
-                    "
-                  >
-                    Or sign up with
-                  </span>
+                  <span className="text-muted-foreground shrink-0 text-xs font-medium">Or sign up with</span>
 
-                  <div className="h-px flex-1 bg-border" />
+                  <div className="bg-border h-px flex-1" />
                 </div>
 
                 {/* =============================================
                     SOCIAL SIGNUP
                     ============================================= */}
 
-                <div
-                  className="
-                    grid
-                    grid-cols-1
-                    gap-3
-                    sm:grid-cols-3
-                  "
-                >
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   {socialProviders.map(({ id, label, icon: Icon, href }) => {
-                    const configured = Boolean(href)
+                    const configured = Boolean(href);
 
                     return (
                       <button
@@ -1031,57 +598,14 @@ function SignUp() {
                         type="button"
                         disabled={!configured}
                         onClick={() => handleSocialSignup(href, selectedRole)}
-                        title={
-                          configured
-                            ? `Continue with ${label}`
-                            : `${label} signup is not configured yet`
-                        }
-                        className="
-                            group
-                            flex
-                            h-12
-                            items-center
-                            justify-center
-                            gap-2.5
-                            rounded-xl
-                            border
-                            border-border
-                            bg-card
-                            px-3
-                            text-[13px]
-                            font-medium
-                            text-foreground
-                            shadow-[0_1px_2px_rgb(16_24_40/0.02)]
-                            transition-all
-                            duration-200
-
-                            hover:-translate-y-px
-                            hover:border-primary/20
-                            hover:bg-accent/50
-                            hover:shadow-sm
-
-                            active:translate-y-0
-
-                            focus-visible:outline-none
-                            focus-visible:ring-[3px]
-                            focus-visible:ring-ring/25
-
-                            disabled:pointer-events-none
-                            disabled:opacity-45
-                          "
+                        title={configured ? `Continue with ${label}` : `${label} signup is not configured yet`}
+                        className="group border-border bg-card text-foreground hover:border-primary/20 hover:bg-accent/50 focus-visible:ring-ring/25 flex h-12 items-center justify-center gap-2.5 rounded-xl border px-3 text-[13px] font-medium shadow-[0_1px_2px_rgb(16_24_40/0.02)] transition-all duration-200 hover:-translate-y-px hover:shadow-sm focus-visible:ring-[3px] focus-visible:outline-none active:translate-y-0 disabled:pointer-events-none disabled:opacity-45"
                       >
-                        <Icon
-                          className={`
-                              size-[18px]
-                              shrink-0
-
-                              ${id === "linkedin" ? "text-[#0A66C2]" : ""}
-                            `}
-                        />
+                        <Icon className={`size-[18px] shrink-0 ${id === "linkedin" ? "text-[#0A66C2]" : ""} `} />
 
                         <span className="whitespace-nowrap">{label}</span>
                       </button>
-                    )
+                    );
                   })}
                 </div>
 
@@ -1089,28 +613,11 @@ function SignUp() {
                     LOGIN LINK
                     ============================================= */}
 
-                <div
-                  className="
-                    mt-7
-                    text-center
-                    text-sm
-                    text-muted-foreground
-                  "
-                >
+                <div className="text-muted-foreground mt-7 text-center text-sm">
                   Already have an account?{" "}
                   <RouterLink
                     to="/login"
-                    className="
-                      font-medium
-                      text-foreground
-                      underline
-                      decoration-border
-                      underline-offset-4
-                      transition-colors
-
-                      hover:text-primary
-                      hover:decoration-primary/40
-                    "
+                    className="text-foreground decoration-border hover:text-primary hover:decoration-primary/40 font-medium underline underline-offset-4 transition-colors"
                   >
                     Log in
                   </RouterLink>
@@ -1121,5 +628,5 @@ function SignUp() {
         </Form>
       </div>
     </AuthLayout>
-  )
+  );
 }

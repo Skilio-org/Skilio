@@ -1,38 +1,26 @@
-import { Link, useRouterState } from "@tanstack/react-router"
-import {
-  BadgeCheck,
-  ChevronRight,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-  UserRound,
-} from "lucide-react"
+import { Link, useRouterState } from "@tanstack/react-router";
+import { BadgeCheck, ChevronRight, LayoutDashboard, LogOut, Settings, UserRound } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useAccountRole } from "@/hooks/useAccountRole"
-import useAuth from "@/hooks/useAuth"
-import { getInitials } from "@/utils"
+} from "@/components/ui/dropdown-menu";
+import { useAccountRole } from "@/hooks/useAccountRole";
+import useAuth from "@/hooks/useAuth";
+import { getInitials } from "@/utils";
 
 export function User({ user }: { user: any }) {
-  const { logout } = useAuth()
+  const { logout } = useAuth();
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
-  })
+  });
 
-  const freelancer = useAccountRole() === "freelancer"
-  const displayName =
-    user?.full_name ||
-    user?.email ||
-    (freelancer ? "Freelancer account" : "Client account")
-  const email =
-    user?.email ||
-    (freelancer ? "Your freelancer workspace" : "Signed-in client")
+  const freelancer = useAccountRole() === "freelancer";
+  const displayName = user?.full_name || user?.email || (freelancer ? "Freelancer account" : "Client account");
+  const email = user?.email || (freelancer ? "Your freelancer workspace" : "Signed-in client");
 
   return (
     <DropdownMenu>
@@ -41,23 +29,17 @@ export function User({ user }: { user: any }) {
           type="button"
           data-testid="user-menu"
           aria-label="Open account menu"
-          className="flex min-h-11 items-center gap-2 rounded-full p-1 pr-2 text-left transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="hover:bg-accent focus-visible:outline-ring flex min-h-11 items-center gap-2 rounded-full p-1 pr-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
         >
-          <Avatar className="size-9 border border-border">
-            {user?.avatar_url && (
-              <AvatarImage src={user.avatar_url} alt={displayName} />
-            )}
-            <AvatarFallback className="bg-brand-100 text-xs font-semibold text-brand-800">
+          <Avatar className="border-border size-9 border">
+            {user?.avatar_url && <AvatarImage src={user.avatar_url} alt={displayName} />}
+            <AvatarFallback className="bg-brand-100 text-brand-800 text-xs font-semibold">
               {getInitials(displayName)}
             </AvatarFallback>
           </Avatar>
           <div className="hidden min-w-0 2xl:block">
-            <p className="max-w-28 truncate text-xs font-semibold text-foreground">
-              {displayName}
-            </p>
-            <p className="text-[11px] text-muted-foreground">
-              {freelancer ? "Freelancer" : "Client"}
-            </p>
+            <p className="text-foreground max-w-28 truncate text-xs font-semibold">{displayName}</p>
+            <p className="text-muted-foreground text-[11px]">{freelancer ? "Freelancer" : "Client"}</p>
           </div>
         </button>
       </DropdownMenuTrigger>
@@ -65,26 +47,22 @@ export function User({ user }: { user: any }) {
       <DropdownMenuContent
         align="end"
         sideOffset={12}
-        className="w-[min(21rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border-border/80 p-0 shadow-floating"
+        className="border-border/80 shadow-floating w-[min(21rem,calc(100vw-2rem))] overflow-hidden rounded-2xl p-0"
       >
-        <div className="relative overflow-hidden bg-slate-950 px-5 pb-5 pt-6 text-white">
+        <div className="relative overflow-hidden bg-slate-950 px-5 pt-6 pb-5 text-white">
           <div
             aria-hidden="true"
-            className="absolute -right-12 -top-16 size-40 rounded-full bg-brand-500/25 blur-3xl"
+            className="bg-brand-500/25 absolute -top-16 -right-12 size-40 rounded-full blur-3xl"
           />
           <div className="relative flex items-center gap-3.5">
             <Avatar className="size-12 border border-white/20 ring-4 ring-white/10">
-              {user?.avatar_url && (
-                <AvatarImage src={user.avatar_url} alt={displayName} />
-              )}
+              {user?.avatar_url && <AvatarImage src={user.avatar_url} alt={displayName} />}
               <AvatarFallback className="bg-white text-sm font-bold text-slate-950">
                 {getInitials(displayName)}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-base font-semibold">
-                {displayName}
-              </p>
+              <p className="font-display truncate text-base font-semibold">{displayName}</p>
               <p className="mt-0.5 truncate text-xs text-slate-300">{email}</p>
             </div>
           </div>
@@ -95,19 +73,15 @@ export function User({ user }: { user: any }) {
         </div>
 
         <div className="p-2.5">
-          <p className="px-2.5 pb-1.5 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="text-muted-foreground px-2.5 pt-1 pb-1.5 text-[10px] font-bold tracking-[0.18em] uppercase">
             Workspace
           </p>
           <AccountMenuLink
             to={freelancer ? "/freelancer-dashboard" : "/dashboard"}
             title="Overview"
-            description={
-              freelancer ? "Your freelance workspace" : "Your hiring workspace"
-            }
+            description={freelancer ? "Your freelance workspace" : "Your hiring workspace"}
             icon={LayoutDashboard}
-            active={
-              pathname === (freelancer ? "/freelancer-dashboard" : "/dashboard")
-            }
+            active={pathname === (freelancer ? "/freelancer-dashboard" : "/dashboard")}
           />
           {!freelancer && (
             <AccountMenuLink
@@ -132,26 +106,24 @@ export function User({ user }: { user: any }) {
             title="Account settings"
             description="Profile, security and access"
             icon={Settings}
-            active={
-              pathname === (freelancer ? "/freelancer-settings" : "/settings")
-            }
+            active={pathname === (freelancer ? "/freelancer-settings" : "/settings")}
           />
         </div>
 
-        <div className="border-t border-border bg-muted/35 p-2.5">
+        <div className="border-border bg-muted/35 border-t p-2.5">
           <DropdownMenuItem
             onClick={logout}
-            className="min-h-11 cursor-pointer rounded-xl px-3 text-destructive focus:bg-destructive/10 focus:text-destructive"
+            className="text-destructive focus:bg-destructive/10 focus:text-destructive min-h-11 cursor-pointer rounded-xl px-3"
           >
-            <span className="grid size-8 place-items-center rounded-lg bg-destructive/10">
-              <LogOut className="size-4 text-destructive" />
+            <span className="bg-destructive/10 grid size-8 place-items-center rounded-lg">
+              <LogOut className="text-destructive size-4" />
             </span>
             <span className="font-semibold">Log out</span>
           </DropdownMenuItem>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 function AccountMenuLink({
@@ -161,22 +133,16 @@ function AccountMenuLink({
   icon: Icon,
   active,
 }: {
-  to:
-    | "/dashboard"
-    | "/settings"
-    | "/client-profile"
-    | "/freelancer"
-    | "/freelancer-dashboard"
-    | "/freelancer-settings"
-  title: string
-  description: string
-  icon: typeof LayoutDashboard
-  active: boolean
+  to: "/dashboard" | "/settings" | "/client-profile" | "/freelancer" | "/freelancer-dashboard" | "/freelancer-settings";
+  title: string;
+  description: string;
+  icon: typeof LayoutDashboard;
+  active: boolean;
 }) {
   return (
     <DropdownMenuItem
       asChild
-      className={`group mb-0.5 min-h-14 cursor-pointer rounded-xl p-0 focus:bg-brand-50 focus:text-brand-950 ${
+      className={`group focus:bg-brand-50 focus:text-brand-950 mb-0.5 min-h-14 cursor-pointer rounded-xl p-0 ${
         active ? "bg-brand-50 text-brand-950" : ""
       }`}
     >
@@ -185,19 +151,17 @@ function AccountMenuLink({
           className={`grid size-9 shrink-0 place-items-center rounded-lg transition-colors ${
             active
               ? "bg-brand-600 text-white"
-              : "bg-muted text-muted-foreground group-focus:bg-white group-focus:text-brand-700"
+              : "bg-muted text-muted-foreground group-focus:text-brand-700 group-focus:bg-white"
           }`}
         >
           <Icon className="size-4 text-current" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold leading-5">{title}</span>
-          <span className="block truncate text-[11px] leading-4 text-muted-foreground">
-            {description}
-          </span>
+          <span className="block text-sm leading-5 font-semibold">{title}</span>
+          <span className="text-muted-foreground block truncate text-[11px] leading-4">{description}</span>
         </span>
-        <ChevronRight className="size-4 text-muted-foreground/70 transition-transform group-focus:translate-x-0.5 group-focus:text-brand-700" />
+        <ChevronRight className="text-muted-foreground/70 group-focus:text-brand-700 size-4 transition-transform group-focus:translate-x-0.5" />
       </Link>
     </DropdownMenuItem>
-  )
+  );
 }
