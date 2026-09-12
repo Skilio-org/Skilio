@@ -412,20 +412,6 @@ function SavedTalent() {
             </nav>
           </WorkspaceSurface>
 
-          <WorkspaceSurface className="hidden p-5 lg:block">
-            <div className="flex items-center gap-3">
-              <span className="bg-brand-50 text-brand-700 grid size-10 place-items-center rounded-xl">
-                <Sparkles className="size-5" />
-              </span>
-              <div>
-                <p className="text-muted-foreground text-xs font-medium">Shortlisting tip</p>
-                <p className="text-sm font-semibold">Compare 2–3 finalists</p>
-              </div>
-            </div>
-            <p className="text-muted-foreground mt-3 text-sm leading-6">
-              Select profiles in one list to review their rates, track record, and response time side by side.
-            </p>
-          </WorkspaceSurface>
         </aside>
 
         <section className="min-w-0 space-y-4" aria-label="Active talent list">
@@ -627,27 +613,6 @@ function SavedTalent() {
           </div>
         </section>
       </div>
-
-      <section className="border-border bg-card flex flex-col gap-5 rounded-2xl border border-dashed p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <div className="flex items-start gap-4">
-          <span className="bg-brand-50 text-brand-700 grid size-11 shrink-0 place-items-center rounded-full">
-            <BookmarkCheck className="size-5" />
-          </span>
-          <div>
-            <h2 className="font-display text-lg font-semibold">Keep exploring</h2>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Save profiles from the talent directory, then organize them here.
-            </p>
-          </div>
-        </div>
-        <Link
-          to="/talent"
-          search={{ q: undefined }}
-          className="text-brand-700 hover:text-brand-800 inline-flex min-h-11 items-center gap-2 self-start font-semibold sm:self-auto"
-        >
-          Find more talent <ArrowRight className="size-4" />
-        </Link>
-      </section>
 
       <Dialog open={listDialogMode !== null} onOpenChange={(open) => !open && setListDialogMode(null)}>
         <DialogContent>

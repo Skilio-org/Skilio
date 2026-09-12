@@ -112,7 +112,7 @@ export function FreelancerCard({ freelancer, featured = false }: { freelancer: F
                 aria-pressed={saved}
                 className={`${workspaceStyles.iconButton} -mt-1 hidden lg:grid`}
               >
-                <Bookmark className={`size-[18px] ${saved ? "fill-current" : ""}`} />
+                <Bookmark className={`size-4.5 ${saved ? "fill-current" : ""}`} />
               </button>
             </div>
             <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-emerald-700">
