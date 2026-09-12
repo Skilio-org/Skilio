@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Logo } from "@/components/Common/Logo";
-import { User } from "@/components/Sidebar/User";
+import { Logo } from "@/components/common/logo";
+import { User } from "@/components/sidebar/user";
 import useAuth from "@/hooks/useAuth";
 
 const links = [

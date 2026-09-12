@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, TriangleAlert } from "lucide-react";
 
-import { Logo } from "@/components/Common/Logo";
+import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 
 const ErrorComponent = () => {

@@ -1,8 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { CircleHelp, Compass, LayoutDashboard, Settings, ShieldCheck } from "lucide-react";
 
-import { SidebarAppearance } from "@/components/Common/Appearance";
-import { Logo } from "@/components/Common/Logo";
+import { SidebarAppearance } from "@/components/common/appearance";
+import { Logo } from "@/components/common/logo";
 import {
   Sidebar,
   SidebarContent,
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 import useAuth from "@/hooks/useAuth";
 
-import { User } from "./User";
+import { User } from "./user";
 
 const navigation = [
   { icon: LayoutDashboard, title: "Overview", path: "/dashboard" as const },

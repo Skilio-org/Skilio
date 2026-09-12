@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Bookmark, BriefcaseBusiness, FileText, MessageSquare, Search, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
-import ChangePassword from "@/components/UserSettings/ChangePassword";
-import { AppearanceSettings } from "@/components/UserSettings/Preferences";
+import ChangePassword from "@/components/user-settings/change-password";
+import { AppearanceSettings } from "@/components/user-settings/preferences";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import useAuth from "@/hooks/useAuth";
 import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "../dashboard/dashboard-header";

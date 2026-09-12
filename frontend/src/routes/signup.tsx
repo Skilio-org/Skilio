@@ -8,7 +8,7 @@ import Divider from "@/components/auth/auth-divider";
 import { AuthInput } from "@/components/auth/auth-input";
 import RoleSelectButton from "@/components/auth/auth-role-select-button";
 import SocialAuth from "@/components/auth/auth-social";
-import { AuthLayout } from "@/components/Common/AuthLayout";
+import { AuthLayout } from "@/components/common/auth-layout";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { LoadingButton } from "@/components/ui/loading-button";
 import useAuth, { isLoggedIn } from "@/hooks/useAuth";

@@ -1,7 +1,7 @@
-import { Appearance } from "@/components/Common/Appearance";
-import { Logo } from "@/components/Common/Logo";
+import { Appearance } from "@/components/common/appearance";
+import { Logo } from "@/components/common/logo";
 import artwork from "/assets/images/bg-image-with-text.png";
-import { Footer } from "./Footer";
+import { Footer } from "./footer";
 
 interface AuthLayoutProps {
   children: React.ReactNode;

@@ -3,10 +3,10 @@ import { Bell, Eye, KeyRound, Palette, ShieldCheck, Trash2, UserRound } from "lu
 import { z } from "zod";
 
 import { Monogram } from "@/components/dashboard/dashboard-header";
-import ChangePassword from "@/components/UserSettings/ChangePassword";
-import DeleteAccount from "@/components/UserSettings/DeleteAccount";
-import { AppearanceSettings, NotificationSettings, PrivacySettings } from "@/components/UserSettings/Preferences";
-import UserInformation from "@/components/UserSettings/UserInformation";
+import ChangePassword from "@/components/user-settings/change-password";
+import DeleteAccount from "@/components/user-settings/delete-account";
+import { AppearanceSettings, NotificationSettings, PrivacySettings } from "@/components/user-settings/preferences";
+import UserInformation from "@/components/user-settings/user-information";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useAuth from "@/hooks/useAuth";
 

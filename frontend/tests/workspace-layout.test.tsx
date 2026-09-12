@@ -19,8 +19,12 @@ mock.module("@/hooks/useAuth", () => ({
   isLoggedIn: () => loggedIn,
 }));
 mock.module("@/hooks/useAccountRole", () => ({ accountRole: () => role }));
-for (const name of ["Footer", "Logo"]) mock.module(`@/components/Common/${name}`, () => ({ [name]: () => null }));
-mock.module("@/components/Navigation/TopNav", () => ({ TopNav: () => null }));
+for (const [name, fileName] of [
+  ["Footer", "footer"],
+  ["Logo", "logo"],
+])
+  mock.module(`@/components/common/${fileName}`, () => ({ [name]: () => null }));
+mock.module("@/components/navigation/top-nav", () => ({ TopNav: () => null }));
 mock.module("@/components/ui/button", () => ({
   Button: ({ children, disabled }: { children: string; disabled?: boolean }) =>
     createElement("button", { type: "button", disabled }, children),
