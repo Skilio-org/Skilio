@@ -1,1 +1,1 @@
-from .claudinary import claudinary_upload_media
+from .claudinary import claudinary_upload_media, claudinary_delete_media
