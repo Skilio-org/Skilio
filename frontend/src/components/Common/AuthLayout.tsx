@@ -1,10 +1,10 @@
-import { Appearance } from "@/components/Common/Appearance"
-import { Logo } from "@/components/Common/Logo"
-import artwork from "/assets/images/bg-image-with-text.png"
-import { Footer } from "./Footer"
+import { Appearance } from "@/components/Common/Appearance";
+import { Logo } from "@/components/Common/Logo";
+import artwork from "/assets/images/bg-image-with-text.png";
+import { Footer } from "./Footer";
 
 interface AuthLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function AuthLayout({ children }: AuthLayoutProps) {
@@ -15,22 +15,18 @@ export function AuthLayout({ children }: AuthLayoutProps) {
           <Logo className="h-8" />
           <Appearance />
         </div>
-        <main
-          id="main-content"
-          tabIndex={-1}
-          className="flex flex-1 items-center justify-center outline-none"
-        >
-          <div className="w-full max-w-[460px]">{children}</div>
+        <main id="main-content" tabIndex={-1} className="flex flex-1 items-center justify-center outline-none">
+          <div className="w-full max-w-115">{children}</div>
         </main>
         <Footer />
       </div>
-      <div className="relative hidden min-h-svh overflow-hidden bg-muted lg:block dark:bg-zinc-900">
+      <div className="bg-muted relative hidden min-h-svh overflow-hidden lg:block dark:bg-zinc-900">
         <img
           src={artwork}
-          alt=""
+          alt="login page artwork"
           className="absolute inset-0 h-full w-full object-cover object-right"
         />
       </div>
     </div>
-  )
+  );
 }

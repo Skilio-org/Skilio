@@ -1,26 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router"
-import {
-  ChevronDown,
-  CircleHelp,
-  Mail,
-  Search,
-  ShieldCheck,
-} from "lucide-react"
-import { useMemo, useState } from "react"
+import { createFileRoute } from "@tanstack/react-router";
+import { ChevronDown, CircleHelp, Mail, Search, ShieldCheck } from "lucide-react";
+import { useMemo, useState } from "react";
 
-import { workspaceStyles } from "@/components/Common/WorkspaceUI"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { workspaceStyles } from "@/components/dashboard/dashboard-header";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_layout/help")({
   component: HelpCenter,
   head: () => ({ meta: [{ title: "Help center | Freelancer" }] }),
-})
+});
 
 const categories = [
   {
@@ -50,7 +38,7 @@ const categories = [
       "Recognize verified professional signals",
     ],
   },
-]
+];
 
 const commonQuestions = [
   {
@@ -73,42 +61,34 @@ const commonQuestions = [
     answer:
       "Open Client profile from your account menu. Add your role, company context, location, and a short description so professionals understand who they would be collaborating with.",
   },
-]
+];
 
 function HelpCenter() {
-  const [selectedCategory, setSelectedCategory] = useState(categories[0].title)
-  const [trustOpen, setTrustOpen] = useState(false)
-  const [query, setQuery] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState(categories[0].title);
+  const [trustOpen, setTrustOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   const selectedArticles = useMemo(
-    () =>
-      categories.find((category) => category.title === selectedCategory)
-        ?.articles ?? [],
+    () => categories.find((category) => category.title === selectedCategory)?.articles ?? [],
     [selectedCategory],
-  )
+  );
   const matchingArticles = useMemo(() => {
-    const search = query.trim().toLowerCase()
-    if (!search) return []
+    const search = query.trim().toLowerCase();
+    if (!search) return [];
 
     return categories.flatMap((category) =>
       category.articles
-        .filter((article) =>
-          `${category.title} ${category.copy} ${article}`
-            .toLowerCase()
-            .includes(search),
-        )
+        .filter((article) => `${category.title} ${category.copy} ${article}`.toLowerCase().includes(search))
         .map((article) => ({ article, category: category.title })),
-    )
-  }, [query])
+    );
+  }, [query]);
 
   return (
     <div className="space-y-10">
-      <section className="rounded-2xl bg-slate-950 px-5 py-14 text-center text-white shadow-card sm:px-10 sm:py-16">
-        <CircleHelp className="mx-auto size-7 text-brand-300" />
-        <p className="mt-5 text-sm font-semibold text-brand-300">Help center</p>
-        <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-5xl">
-          How can we help?
-        </h1>
+      <section className="shadow-card rounded-2xl bg-slate-950 px-5 py-14 text-center text-white sm:px-10 sm:py-16">
+        <CircleHelp className="text-brand-300 mx-auto size-7" />
+        <p className="text-brand-300 mt-5 text-sm font-semibold">Help center</p>
+        <h1 className="font-display mt-2 text-3xl font-medium tracking-tight sm:text-5xl">How can we help?</h1>
         <div className="mx-auto mt-7 flex min-h-13 max-w-xl items-center rounded-xl bg-white px-4 text-slate-950">
           <Search className="size-5 text-slate-400" />
           <input
@@ -125,17 +105,13 @@ function HelpCenter() {
         <section aria-live="polite">
           <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
             <div>
-              <p className="text-sm font-semibold text-brand-700">
-                Search results
-              </p>
-              <h2 className="mt-1 font-display text-2xl font-semibold">
-                Help for “{query.trim()}”
-              </h2>
+              <p className="text-brand-700 text-sm font-semibold">Search results</p>
+              <h2 className="font-display mt-1 text-2xl font-semibold">Help for “{query.trim()}”</h2>
             </div>
             <button
               type="button"
               onClick={() => setQuery("")}
-              className="self-start text-sm font-semibold text-brand-700 hover:text-brand-800"
+              className="text-brand-700 hover:text-brand-800 self-start text-sm font-semibold"
             >
               Clear search
             </button>
@@ -145,23 +121,17 @@ function HelpCenter() {
               {matchingArticles.map(({ article, category }) => (
                 <article
                   key={`${category}-${article}`}
-                  className="rounded-2xl border border-border bg-card p-5 shadow-card"
+                  className="border-border bg-card shadow-card rounded-2xl border p-5"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-700">
-                    {category}
-                  </p>
-                  <h3 className="mt-2 font-display text-base font-semibold">
-                    {article}
-                  </h3>
+                  <p className="text-brand-700 text-xs font-semibold tracking-[0.12em] uppercase">{category}</p>
+                  <h3 className="font-display mt-2 text-base font-semibold">{article}</h3>
                 </article>
               ))}
             </div>
           ) : (
-            <div className="mt-5 rounded-2xl border border-dashed border-border bg-card p-7 text-center">
-              <h3 className="font-display text-lg font-semibold">
-                No matching help articles
-              </h3>
-              <p className="mt-1 text-sm text-muted-foreground">
+            <div className="border-border bg-card mt-5 rounded-2xl border border-dashed p-7 text-center">
+              <h3 className="font-display text-lg font-semibold">No matching help articles</h3>
+              <p className="text-muted-foreground mt-1 text-sm">
                 Try “messages”, “profile”, “privacy”, or “shortlist”.
               </p>
             </div>
@@ -173,78 +143,58 @@ function HelpCenter() {
         {categories.map(({ title, copy }) => (
           <article
             key={title}
-            className={`rounded-2xl border bg-card p-6 shadow-card transition ${
-              selectedCategory === title
-                ? "border-brand-300 ring-4 ring-brand-100"
-                : "border-border"
+            className={`bg-card shadow-card rounded-2xl border p-6 transition ${
+              selectedCategory === title ? "border-brand-300 ring-brand-100 ring-4" : "border-border"
             }`}
           >
             <h2 className="font-display text-lg font-semibold">{title}</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              {copy}
-            </p>
+            <p className="text-muted-foreground mt-2 text-sm leading-6">{copy}</p>
             <button
               type="button"
               onClick={() => setSelectedCategory(title)}
-              className="mt-5 min-h-11 text-sm font-semibold text-brand-700"
+              className="text-brand-700 mt-5 min-h-11 text-sm font-semibold"
             >
-              {selectedCategory === title
-                ? "Showing articles"
-                : "Browse articles"}
+              {selectedCategory === title ? "Showing articles" : "Browse articles"}
             </button>
           </article>
         ))}
       </section>
       <section>
-        <p className="text-sm font-semibold text-brand-700">Common questions</p>
-        <h2 className="mt-2 font-display text-3xl font-medium tracking-tight">
-          Quick answers
-        </h2>
-        <div className="mt-6 border-t border-border">
-          <div className="border-b border-border py-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="text-brand-700 text-sm font-semibold">Common questions</p>
+        <h2 className="font-display mt-2 text-3xl font-medium tracking-tight">Quick answers</h2>
+        <div className="border-border mt-6 border-t">
+          <div className="border-border border-b py-5">
+            <p className="text-muted-foreground text-xs font-semibold tracking-[0.14em] uppercase">
               {selectedCategory}
             </p>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               {selectedArticles.map((article) => (
-                <div
-                  key={article}
-                  className="rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold"
-                >
+                <div key={article} className="border-border bg-card rounded-xl border px-4 py-3 text-sm font-semibold">
                   {article}
                 </div>
               ))}
             </div>
           </div>
           {commonQuestions.map(({ question, answer }) => (
-            <details key={question} className="group border-b border-border">
+            <details key={question} className="group border-border border-b">
               <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold">
                 {question}
                 <ChevronDown className="size-5 transition-transform group-open:rotate-180" />
               </summary>
-              <p className="max-w-3xl pb-5 text-sm leading-7 text-muted-foreground">
-                {answer}
-              </p>
+              <p className="text-muted-foreground max-w-3xl pb-5 text-sm leading-7">{answer}</p>
             </details>
           ))}
         </div>
       </section>
-      <section className="grid gap-5 rounded-2xl border border-border bg-card p-6 shadow-card sm:grid-cols-2 sm:p-8">
+      <section className="border-border bg-card shadow-card grid gap-5 rounded-2xl border p-6 sm:grid-cols-2 sm:p-8">
         <div className="flex gap-4">
-          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700">
+          <span className="bg-brand-50 text-brand-700 grid size-11 shrink-0 place-items-center rounded-full">
             <Mail className="size-5" />
           </span>
           <div>
-            <h2 className="font-display text-lg font-semibold">
-              Contact support
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              Get help from our support team.
-            </p>
-            <a
-              href="mailto:support@freelancer.com"
-              className={`${workspaceStyles.secondaryAction} mt-4`}
-            >
+            <h2 className="font-display text-lg font-semibold">Contact support</h2>
+            <p className="text-muted-foreground mt-1 text-sm leading-6">Get help from our support team.</p>
+            <a href="mailto:support@freelancer.com" className={`${workspaceStyles.secondaryAction} mt-4`}>
               Email support
             </a>
           </div>
@@ -254,10 +204,8 @@ function HelpCenter() {
             <ShieldCheck className="size-5" />
           </span>
           <div>
-            <h2 className="font-display text-lg font-semibold">
-              Trust & safety
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            <h2 className="font-display text-lg font-semibold">Trust & safety</h2>
+            <p className="text-muted-foreground mt-1 text-sm leading-6">
               Report suspicious activity or learn how we protect the platform.
             </p>
             <button
@@ -276,8 +224,7 @@ function HelpCenter() {
           <DialogHeader>
             <DialogTitle>Trust & safety center</DialogTitle>
             <DialogDescription>
-              Review the safety signals clients should expect before starting a
-              conversation with independent talent.
+              Review the safety signals clients should expect before starting a conversation with independent talent.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3">
@@ -286,10 +233,7 @@ function HelpCenter() {
               "Clear profile information before messaging",
               "Shortlist-first workflow for careful comparison",
             ].map((item) => (
-              <div
-                key={item}
-                className="flex items-start gap-3 rounded-xl border border-border bg-background p-4"
-              >
+              <div key={item} className="border-border bg-background flex items-start gap-3 rounded-xl border p-4">
                 <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />
                 <p className="text-sm font-medium">{item}</p>
               </div>
@@ -298,5 +242,5 @@ function HelpCenter() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
