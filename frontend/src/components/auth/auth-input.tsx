@@ -1,4 +1,3 @@
-import { Control } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { PasswordInput } from "../ui/password-input";
@@ -9,23 +8,7 @@ type AuthInputProps = {
   inputPlaceHolder: string;
   inputDataTestId: string;
   inputType: string;
-  control: Control<
-    {
-      role: "freelancer" | "client";
-      full_name: string;
-      email: string;
-      password: string;
-      confirm_password: string;
-    },
-    any,
-    {
-      role: "freelancer" | "client";
-      full_name: string;
-      email: string;
-      password: string;
-      confirm_password: string;
-    }
-  >;
+  control: any;
   disabled: boolean;
 };
 
