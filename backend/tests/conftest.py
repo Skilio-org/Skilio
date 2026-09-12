@@ -10,7 +10,8 @@ from app.main import app
 from app.models import FreelancerProfile, User
 from tests.utils.user import authentication_token_from_email
 from tests.utils.utils import get_superuser_token_headers
-
+from .claudinary import mock_media_store, test_upload_media
+mock_media_store()
 
 @pytest.fixture(scope="session", autouse=True)
 def db() -> Generator[Session]:
@@ -40,3 +41,6 @@ def normal_user_token_headers(client: TestClient, db: Session) -> dict[str, str]
     return authentication_token_from_email(
         client=client, email=settings.EMAIL_TEST_USER, db=db
     )
+
+@pytest.fixture(scope="module")
+def claudinary_tests() -> str: return test_upload_media()

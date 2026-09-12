@@ -20,16 +20,27 @@ const useAuth = () => {
   const queryClient = useQueryClient()
   const { showErrorToast } = useCustomToast()
 
-  const { data: user } = useQuery<UserPublic | null, Error>({
+  const {
+    data: user,
+    isPending,
+    isFetching,
+    error,
+    refetch,
+  } = useQuery<UserPublic | null, Error>({
     queryKey: ["currentUser"],
     queryFn: async () => (await UsersService.readUserMe()).data,
     enabled: isLoggedIn(),
   })
 
   const signUpMutation = useMutation({
-    mutationFn: (data: UserRegister) =>
+    mutationFn: (data: UserRegister & { role?: "freelancer" | "client" }) =>
       UsersService.registerUser({ body: data }),
-    onSuccess: () => {
+    onSuccess: (_result, data) => {
+      if (data.role)
+        localStorage.setItem(
+          `account-role:${data.email.trim().toLowerCase()}`,
+          data.role,
+        )
       navigate({ to: "/login" })
     },
     onError: handleError.bind(showErrorToast),
@@ -43,18 +54,33 @@ const useAuth = () => {
       body: data,
     })
     localStorage.setItem("access_token", response.data.access_token)
+    try {
+      const { data: account } = await UsersService.readUserMe()
+      queryClient.setQueryData(["currentUser"], account)
+      return account
+    } catch (error) {
+      localStorage.removeItem("access_token")
+      queryClient.removeQueries({ queryKey: ["currentUser"] })
+      throw error
+    }
   }
 
   const loginMutation = useMutation({
     mutationFn: login,
-    onSuccess: () => {
-      navigate({ to: "/" })
+    onSuccess: (account) => {
+      const role = localStorage.getItem(
+        `account-role:${account.email.trim().toLowerCase()}`,
+      )
+      navigate({
+        to: role === "freelancer" ? "/freelancer-dashboard" : "/dashboard",
+      })
     },
     onError: handleError.bind(showErrorToast),
   })
 
   const logout = () => {
     localStorage.removeItem("access_token")
+    queryClient.clear()
     navigate({ to: "/login" })
   }
 
@@ -63,6 +89,10 @@ const useAuth = () => {
     loginMutation,
     logout,
     user,
+    isPending,
+    isFetching,
+    error,
+    refetch,
   }
 }
 

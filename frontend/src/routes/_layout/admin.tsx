@@ -6,6 +6,10 @@ import { type UserPublic, UsersService } from "@/client"
 import AddUser from "@/components/Admin/AddUser"
 import { columns, type UserTableData } from "@/components/Admin/columns"
 import { DataTable } from "@/components/Common/DataTable"
+import {
+  WorkspacePageHeader,
+  WorkspaceSurface,
+} from "@/components/Common/WorkspaceUI"
 import PendingUsers from "@/components/Pending/PendingUsers"
 import useAuth from "@/hooks/useAuth"
 
@@ -23,14 +27,14 @@ export const Route = createFileRoute("/_layout/admin")({
     const { data: user } = await UsersService.readUserMe()
     if (!user.is_superuser) {
       throw redirect({
-        to: "/",
+        to: "/dashboard",
       })
     }
   },
   head: () => ({
     meta: [
       {
-        title: "Admin - FastAPI Template",
+        title: "User management | Freelancer",
       },
     ],
   }),
@@ -58,17 +62,16 @@ function UsersTable() {
 
 function Admin() {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Users</h1>
-          <p className="text-muted-foreground">
-            Manage user accounts and permissions
-          </p>
-        </div>
-        <AddUser />
-      </div>
-      <UsersTable />
+    <div className="space-y-7">
+      <WorkspacePageHeader
+        eyebrow="Administration"
+        title="User management"
+        description="Manage user accounts, access, and workspace permissions."
+        action={<AddUser />}
+      />
+      <WorkspaceSurface className="overflow-hidden p-4 sm:p-6">
+        <UsersTable />
+      </WorkspaceSurface>
     </div>
   )
 }

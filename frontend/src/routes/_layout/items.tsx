@@ -5,6 +5,10 @@ import { Suspense } from "react"
 
 import { ItemsService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
+import {
+  WorkspacePageHeader,
+  WorkspaceSurface,
+} from "@/components/Common/WorkspaceUI"
 import AddItem from "@/components/Items/AddItem"
 import { columns } from "@/components/Items/columns"
 import PendingItems from "@/components/Pending/PendingItems"
@@ -22,7 +26,7 @@ export const Route = createFileRoute("/_layout/items")({
   head: () => ({
     meta: [
       {
-        title: "Items - FastAPI Template",
+        title: "Items | Freelancer",
       },
     ],
   }),
@@ -56,15 +60,16 @@ function ItemsTable() {
 
 function Items() {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Items</h1>
-          <p className="text-muted-foreground">Create and manage your items</p>
-        </div>
-        <AddItem />
-      </div>
-      <ItemsTable />
+    <div className="space-y-7">
+      <WorkspacePageHeader
+        eyebrow="Workspace records"
+        title="Items"
+        description="Create, review, and manage your workspace items."
+        action={<AddItem />}
+      />
+      <WorkspaceSurface className="overflow-hidden p-4 sm:p-6">
+        <ItemsTable />
+      </WorkspaceSurface>
     </div>
   )
 }

@@ -1,0 +1,778 @@
+@import "@fontsource-variable/geist";
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   NOHEMI
+   Brand / Marketing / Display Typeface
+   ========================================================= */
+
+@font-face {
+  font-family: "Nohemi";
+  src: url("/fonts/Nohemi-Thin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nohemi";
+  src: url("/fonts/Nohemi-ExtraLight.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nohemi";
+  src: url("/fonts/Nohemi-Light.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nohemi";
+  src: url("/fonts/Nohemi-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nohemi";
+  src: url("/fonts/Nohemi-Medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nohemi";
+  src: url("/fonts/Nohemi-SemiBold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nohemi";
+  src: url("/fonts/Nohemi-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nohemi";
+  src: url("/fonts/Nohemi-ExtraBold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nohemi";
+  src: url("/fonts/Nohemi-Black.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+/* =========================================================
+   TAILWIND V4 THEME
+   ========================================================= */
+
+@theme inline {
+  /* =======================================================
+     TYPOGRAPHY
+     ======================================================= */
+
+  /*
+   * Product UI:
+   * dashboards, forms, cards, filters, tables, nav...
+   */
+  --font-sans:
+    "Geist Variable", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /*
+   * Brand / marketing:
+   * hero headlines, landing page headings, large CTAs
+   */
+  --font-display:
+    "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* =======================================================
+     RADIUS
+     ======================================================= */
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  /* =======================================================
+     CORE COLORS
+     ======================================================= */
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* =======================================================
+     PREMIUM BRAND SCALE
+     ======================================================= */
+
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+  --color-brand-950: var(--brand-950);
+
+  /* =======================================================
+     STATUS
+     ======================================================= */
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+
+  --color-danger-soft: var(--danger-soft);
+
+  /* =======================================================
+     CHARTS
+     ======================================================= */
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* =======================================================
+     SIDEBAR
+     ======================================================= */
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* =======================================================
+     SHADOWS
+     ======================================================= */
+
+  --shadow-card: var(--elevation-card);
+  --shadow-card-hover: var(--elevation-card-hover);
+  --shadow-floating: var(--elevation-floating);
+}
+
+/* =========================================================
+   LIGHT THEME
+   ========================================================= */
+
+:root {
+  /*
+   * Radius system
+   *
+   * sm   8px
+   * md  10px
+   * lg  12px
+   * xl  16px
+   * 2xl 20px
+   */
+  --radius: 0.75rem;
+
+  /* =======================================================
+     BRAND — PREMIUM COBALT / INDIGO
+     ======================================================= */
+
+  --brand-50: #f4f6ff;
+  --brand-100: #e9edff;
+  --brand-200: #d1d9ff;
+  --brand-300: #adbaff;
+  --brand-400: #8094ff;
+  --brand-500: #5d70f7;
+
+  /* Main brand */
+  --brand-600: #4658e8;
+
+  --brand-700: #3846c8;
+  --brand-800: #303ba2;
+  --brand-900: #2c357f;
+  --brand-950: #1a1e4c;
+
+  /* =======================================================
+     APP CANVAS
+     ======================================================= */
+
+  --background: #f7f8fb;
+  --foreground: #0b1220;
+
+  /* =======================================================
+     SURFACES
+     ======================================================= */
+
+  --card: #ffffff;
+  --card-foreground: #0b1220;
+
+  --popover: #ffffff;
+  --popover-foreground: #0b1220;
+
+  /* =======================================================
+     PRIMARY
+     ======================================================= */
+
+  --primary: #4658e8;
+  --primary-foreground: #ffffff;
+
+  /* =======================================================
+     SECONDARY
+     ======================================================= */
+
+  --secondary: #f1f3f7;
+  --secondary-foreground: #344054;
+
+  /* =======================================================
+     MUTED
+     ======================================================= */
+
+  --muted: #f2f4f7;
+  --muted-foreground: #667085;
+
+  /* =======================================================
+     ACCENT
+     ======================================================= */
+
+  --accent: #eef1ff;
+  --accent-foreground: #3544c5;
+
+  /* =======================================================
+     STATUS
+     ======================================================= */
+
+  --destructive: #e5484d;
+  --danger-soft: #fff1f2;
+
+  --success: #15966d;
+  --success-foreground: #ffffff;
+  --success-soft: #ecfdf5;
+
+  --warning: #d98324;
+  --warning-foreground: #ffffff;
+  --warning-soft: #fff8eb;
+
+  /* =======================================================
+     BORDERS / FORMS
+     ======================================================= */
+
+  --border: #e6e9ef;
+  --input: #dfe3ea;
+  --ring: #9aa9ff;
+
+  /* =======================================================
+     SIDEBAR
+     ======================================================= */
+
+  --sidebar: #fbfcfe;
+  --sidebar-foreground: #475467;
+
+  --sidebar-primary: #4658e8;
+  --sidebar-primary-foreground: #ffffff;
+
+  --sidebar-accent: #eef1ff;
+  --sidebar-accent-foreground: #3544c5;
+
+  --sidebar-border: #eaecf0;
+  --sidebar-ring: #9aa9ff;
+
+  /* =======================================================
+     CHARTS
+     ======================================================= */
+
+  --chart-1: #4658e8;
+  --chart-2: #15966d;
+  --chart-3: #805ad5;
+  --chart-4: #e09f3e;
+  --chart-5: #e5484d;
+
+  /* =======================================================
+     ELEVATION
+     ======================================================= */
+
+  --elevation-card:
+    0 1px 2px rgb(16 24 40 / 0.025), 0 1px 4px rgb(16 24 40 / 0.02);
+
+  --elevation-card-hover:
+    0 2px 4px rgb(16 24 40 / 0.03), 0 8px 24px rgb(16 24 40 / 0.055);
+
+  --elevation-floating:
+    0 8px 16px rgb(16 24 40 / 0.055), 0 20px 48px rgb(16 24 40 / 0.08);
+}
+
+/* =========================================================
+   DARK THEME
+   ========================================================= */
+
+.dark {
+  --background: #080b12;
+  --foreground: #f5f7fa;
+
+  --card: #0f131c;
+  --card-foreground: #f5f7fa;
+
+  --popover: #111620;
+  --popover-foreground: #f5f7fa;
+
+  --primary: #7080ff;
+  --primary-foreground: #ffffff;
+
+  --secondary: #171c27;
+  --secondary-foreground: #e4e7ec;
+
+  --muted: #171c27;
+  --muted-foreground: #98a2b3;
+
+  --accent: #1c2347;
+  --accent-foreground: #cbd3ff;
+
+  --destructive: #f05d61;
+  --danger-soft: #2b1216;
+
+  --success: #32b889;
+  --success-foreground: #051b13;
+  --success-soft: #0b211a;
+
+  --warning: #f2a94b;
+  --warning-foreground: #221404;
+  --warning-soft: #271b0c;
+
+  --border: #242a35;
+  --input: #303744;
+  --ring: #7182ff;
+
+  --sidebar: #0c1017;
+  --sidebar-foreground: #cdd2dc;
+
+  --sidebar-primary: #7080ff;
+  --sidebar-primary-foreground: #ffffff;
+
+  --sidebar-accent: #1c2347;
+  --sidebar-accent-foreground: #d2d8ff;
+
+  --sidebar-border: #202631;
+  --sidebar-ring: #7182ff;
+
+  --chart-1: #7080ff;
+  --chart-2: #32b889;
+  --chart-3: #a78bfa;
+  --chart-4: #f2a94b;
+  --chart-5: #f05d61;
+
+  --elevation-card: 0 1px 2px rgb(0 0 0 / 0.14), 0 2px 8px rgb(0 0 0 / 0.08);
+
+  --elevation-card-hover:
+    0 4px 12px rgb(0 0 0 / 0.15), 0 12px 36px rgb(0 0 0 / 0.12);
+
+  --elevation-floating: 0 16px 48px rgb(0 0 0 / 0.28);
+}
+
+/* =========================================================
+   BASE
+   ========================================================= */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+
+  html {
+    @apply bg-background;
+
+    color-scheme: light;
+
+    /*
+     * Prevent font-size inflation on mobile Safari.
+     */
+    -webkit-text-size-adjust: 100%;
+
+    /*
+     * Smooth navigation to anchors.
+     */
+    scroll-behavior: smooth;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+
+    margin: 0;
+
+    min-width: 320px;
+    min-height: 100vh;
+
+    /*
+     * Geist OpenType features
+     */
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    text-rendering: optimizeLegibility;
+  }
+
+  /*
+   * Forms inherit Geist rather than using the browser font.
+   */
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  /*
+   * Remove default blue tap flash on mobile.
+   */
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  img,
+  svg,
+  video,
+  canvas {
+    display: block;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+  }
+
+  ::selection {
+    background: var(--brand-200);
+    color: var(--brand-950);
+  }
+}
+
+/* =========================================================
+   PREMIUM TYPOGRAPHY
+   ========================================================= */
+
+@layer utilities {
+  /*
+   * Marketing / brand display font.
+   *
+   * Example:
+   * <h1 className="font-display text-6xl font-bold">
+   */
+  .font-display {
+    font-family:
+      "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /*
+   * Premium tighter headline tracking.
+   */
+  .heading-display {
+    font-family:
+      "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+
+    letter-spacing: -0.035em;
+  }
+
+  /*
+   * Geist UI titles.
+   */
+  .heading-ui {
+    font-family: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+
+    letter-spacing: -0.02em;
+  }
+
+  /*
+   * Numbers such as:
+   * ratings, hourly rates, dashboard statistics.
+   */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* =========================================================
+   PREMIUM SURFACES
+   ========================================================= */
+
+@layer utilities {
+  /*
+   * Standard app card
+   */
+  .surface-card {
+    @apply rounded-2xl border bg-card shadow-card;
+  }
+
+  /*
+   * Freelancer cards / clickable marketplace items.
+   */
+  .surface-interactive {
+    @apply rounded-2xl border bg-card shadow-card;
+
+    transition:
+      transform 180ms cubic-bezier(0.2, 0, 0, 1),
+      border-color 180ms cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 180ms cubic-bezier(0.2, 0, 0, 1),
+      background-color 180ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .surface-interactive:hover {
+    border-color: #d6dbe5;
+    box-shadow: var(--elevation-card-hover);
+    transform: translateY(-1px);
+  }
+
+  .dark .surface-interactive:hover {
+    border-color: #353d4b;
+  }
+
+  /*
+   * Dropdown / dialog / floating surface.
+   */
+  .surface-floating {
+    @apply rounded-2xl border bg-popover shadow-floating;
+  }
+}
+
+/* =========================================================
+   BRAND UTILITIES
+   ========================================================= */
+
+@layer utilities {
+  /*
+   * Use for very important marketing areas only.
+   */
+  .brand-gradient {
+    background: linear-gradient(135deg, #4658e8 0%, #596cf5 48%, #7b82f6 100%);
+  }
+
+  .brand-gradient-hover {
+    background: linear-gradient(135deg, #3846c8 0%, #4c5ce5 48%, #696ee5 100%);
+  }
+
+  /*
+   * Premium gradient headline.
+   */
+  .brand-gradient-text {
+    background: linear-gradient(120deg, #3342c3 0%, #5266ef 50%, #786df2 100%);
+
+    background-clip: text;
+    -webkit-background-clip: text;
+
+    color: transparent;
+  }
+
+  /*
+   * Very subtle background for marketing hero areas.
+   */
+  .brand-glow {
+    background:
+      radial-gradient(
+        circle at 80% 20%,
+        rgb(93 112 247 / 0.11),
+        transparent 30%
+      ),
+      radial-gradient(
+        circle at 20% 80%,
+        rgb(173 186 255 / 0.09),
+        transparent 30%
+      );
+  }
+
+  /*
+   * Soft blue surface for selected / highlighted sections.
+   */
+  .brand-surface {
+    background: var(--brand-50);
+    border-color: var(--brand-200);
+    color: var(--brand-800);
+  }
+
+  .dark .text-brand-600 {
+    color: #91a0ff;
+  }
+
+  .dark .text-brand-700 {
+    color: #aeb9ff;
+  }
+
+  .dark .text-brand-800,
+  .dark .text-brand-900,
+  .dark .text-brand-950 {
+    color: #d6dcff;
+  }
+
+  .dark .bg-brand-50 {
+    background-color: #151a31;
+  }
+
+  .dark .bg-brand-100 {
+    background-color: #1b2345;
+  }
+
+  .dark .border-brand-200,
+  .dark .border-brand-300,
+  .dark .border-brand-400 {
+    border-color: #394571;
+  }
+
+  .dark .text-emerald-700,
+  .dark .text-emerald-800 {
+    color: #6ee7b7;
+  }
+
+  .dark .bg-emerald-50 {
+    background-color: #0b211a;
+  }
+
+  .dark .border-emerald-200 {
+    border-color: #23654f;
+  }
+
+  .dark .bg-amber-50 {
+    background-color: #271b0c;
+  }
+
+  .dark .text-amber-700 {
+    color: #f2b96b;
+  }
+}
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd0da transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #cbd0da;
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #aeb5c2;
+  }
+
+  .dark * {
+    scrollbar-color: #3a4250 transparent;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: #3a4250;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #4c5565;
+  }
+}
