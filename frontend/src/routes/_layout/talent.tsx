@@ -15,7 +15,7 @@ import {
 import { useMemo, useState } from "react";
 
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
-import { FreelancerCard } from "@/components/Talent/FreelancerCard";
+import { FreelancerCard } from "@/components/talent/freelancer-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { freelancers } from "@/data/freelancers";
 

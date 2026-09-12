@@ -12,8 +12,8 @@ import {
   UsersRound,
 } from "lucide-react";
 
-import { Logo } from "@/components/Common/Logo";
-import { User } from "@/components/Sidebar/User";
+import { Logo } from "@/components/common/logo";
+import { User } from "@/components/sidebar/user";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAccountRole } from "@/hooks/useAccountRole";
 import useAuth from "@/hooks/useAuth";
-import { FreelancerNav } from "./FreelancerNav";
+import { FreelancerNav } from "./freelancer-nav";
 
 export function TopNav() {
   const { user } = useAuth();

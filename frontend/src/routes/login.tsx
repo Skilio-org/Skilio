@@ -2,7 +2,7 @@ import { createFileRoute, Link as RouterLink, redirect } from "@tanstack/react-r
 import Divider from "@/components/auth/auth-divider";
 import LoginForm from "@/components/auth/auth-login-form";
 import SocialAuth from "@/components/auth/auth-social";
-import { AuthLayout } from "@/components/Common/AuthLayout";
+import { AuthLayout } from "@/components/common/auth-layout";
 import { isLoggedIn } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/login")({

@@ -1,7 +1,7 @@
 import { createFileRoute, Navigate, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { Footer } from "@/components/Common/Footer";
-import { Logo } from "@/components/Common/Logo";
-import { TopNav } from "@/components/Navigation/TopNav";
+import { Footer } from "@/components/common/footer";
+import { Logo } from "@/components/common/logo";
+import { TopNav } from "@/components/navigation/top-nav";
 import { Button } from "@/components/ui/button";
 import { accountRole } from "@/hooks/useAccountRole";
 import useAuth, { isLoggedIn } from "@/hooks/useAuth";

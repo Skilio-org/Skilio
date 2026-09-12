@@ -1,0 +1,43 @@
+import { Link } from "@tanstack/react-router";
+
+export function LandingHeader() {
+  return (
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
+      <div className="mx-auto flex h-[72px] max-w-[1440px] items-center px-5 sm:px-8 lg:px-12">
+        <a href="#main-content" aria-label="Freelancer home" className="shrink-0">
+          <img src="/assets/images/freelancer-logo.png" alt="Freelancer" className="h-8 w-auto" />
+        </a>
+
+        <nav
+          aria-label="Main navigation"
+          className="ml-14 hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex"
+        >
+          <a className="transition-colors hover:text-slate-950" href="#talent">
+            Find talent
+          </a>
+          <a className="transition-colors hover:text-slate-950" href="#categories">
+            Categories
+          </a>
+          <a className="transition-colors hover:text-slate-950" href="#how-it-works">
+            How it works
+          </a>
+        </nav>
+
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          <Link
+            to="/login"
+            className="hover:text-brand-700 hidden min-h-11 items-center px-4 text-sm font-semibold text-slate-700 transition-colors sm:inline-flex"
+          >
+            Log in
+          </Link>
+          <Link
+            to="/signup"
+            className="bg-brand-600 hover:bg-brand-700 focus-visible:outline-brand-600 inline-flex min-h-11 items-center justify-center rounded-full px-4 text-sm font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 sm:px-5"
+          >
+            Create account
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}

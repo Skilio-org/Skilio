@@ -5,7 +5,7 @@ import type { ItemPublic } from "@/client";
 import { Button } from "@/components/ui/button";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { cn } from "@/lib/utils";
-import { ItemActionsMenu } from "./ItemActionsMenu";
+import { ItemActionsMenu } from "./item-actions-menu";
 
 function CopyId({ id }: { id: string }) {
   const [copiedText, copy] = useCopyToClipboard();

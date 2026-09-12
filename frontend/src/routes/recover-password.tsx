@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { LoginService } from "@/client";
 
-import { AuthLayout } from "@/components/Common/AuthLayout";
+import { AuthLayout } from "@/components/common/auth-layout";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 

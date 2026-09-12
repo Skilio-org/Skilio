@@ -1,6 +1,6 @@
 import { TriangleAlert } from "lucide-react";
 
-import DeleteConfirmation from "./DeleteConfirmation";
+import DeleteConfirmation from "./delete-confirmation";
 
 const DeleteAccount = () => {
   return (

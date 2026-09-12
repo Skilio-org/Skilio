@@ -3,11 +3,11 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 import { type UserPublic, UsersService } from "@/client";
-import AddUser from "@/components/Admin/AddUser";
-import { columns, type UserTableData } from "@/components/Admin/columns";
-import { DataTable } from "@/components/Common/DataTable";
+import AddUser from "@/components/admin/add-user";
+import { columns, type UserTableData } from "@/components/admin/columns";
+import { DataTable } from "@/components/common/data-table";
 import { WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header";
-import PendingUsers from "@/components/Pending/PendingUsers";
+import PendingUsers from "@/components/pending/pending-users";
 import useAuth from "@/hooks/useAuth";
 
 function getUsersQueryOptions() {
