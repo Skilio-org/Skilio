@@ -180,7 +180,6 @@ class User(UserBase, table=True):
         sa_relationship_kwargs={"foreign_keys": "[ChatMessage.sender_id]"},
     )
 
-
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
     id: uuid.UUID
@@ -336,7 +335,7 @@ class FreelancerProfileUpdate(SQLModel):
     resume_id: uuid.UUID | None = None
     skills: list[ITSkill] | None = None
 
-
+# note: avatar id is thew same as user id, freelancer card is getted by users, dependency circle problem
 class FreelancerProfile(FreelancerProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(
@@ -372,12 +371,8 @@ class FreelancerProfile(FreelancerProfileBase, table=True):
     skills: list[Skill] = Relationship(
         back_populates="freelancer_profiles", link_model=FreelancerSkillLink
     )
-    reviews: list["Review"] = Relationship(
-        back_populates="freelancer", cascade_delete=True
-    )
-    liked_by: list["LikedFreelancer"] = Relationship(
-        back_populates="freelancer", cascade_delete=True
-    )
+    reviews: list["Review"] = Relationship(back_populates="freelancer", cascade_delete=True)
+    liked_by: list["LikedFreelancer"] = Relationship(back_populates="freelancer", cascade_delete=True)
 
 
 class FreelancerProfilePublic(FreelancerProfileBase):
