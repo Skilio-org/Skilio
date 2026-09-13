@@ -49,13 +49,14 @@ CLOUDINARY_TIMEOUTS = httpx.Timeout(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.http_client = httpx.AsyncClient(
+    async with httpx.AsyncClient(
         limits=CLOUDINARY_LIMITS,
         timeout=CLOUDINARY_TIMEOUTS,
         follow_redirects=True,
         http2=True,
-    )
-    yield await app.state.http_client.aclose()
+    ) as client:
+        app.state.http_client = client
+        yield
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
