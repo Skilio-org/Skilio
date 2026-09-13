@@ -1,17 +1,15 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
+import cloudinary
+import cloudinary.uploader
+import httpx
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-import httpx
-from fastapi import FastAPI
+
 from app.api.main import api_router
-import cloudinary
-import cloudinary.uploader
-from os import environ
-from cloudinary.utils import cloudinary_url
 from app.core.config import settings
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
@@ -19,11 +17,12 @@ FRONTEND_DIR = Path(__file__).parent / "frontend"
 
 def cloudinary_prepare_media_store():
     cloudinary.config(
-        cloud_name = settings.CLOUDINARY_CLOUD_NAME, 
-        api_key    = settings.CLOUDINARY_API_KEY,
-        api_secret = settings.CLOUDINARY_API_SECRET, # Click 'View API Keys' above to copy your API secret
-        secure=True
+        cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+        api_key=settings.CLOUDINARY_API_KEY,
+        api_secret=settings.CLOUDINARY_API_SECRET,  # Click 'View API Keys' above to copy your API secret
+        secure=True,
     )
+
 
 def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
@@ -58,11 +57,12 @@ async def lifespan(app: FastAPI):
         app.state.http_client = client
         yield
 
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 app.add_middleware(

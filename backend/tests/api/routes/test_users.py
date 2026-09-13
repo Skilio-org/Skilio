@@ -278,6 +278,7 @@ def test_update_password_me_incorrect_password(
     updated_user = r.json()
     assert updated_user["detail"] == "Incorrect password"
 
+
 # Needs to be added `/users/me` PATCH
 # def test_update_user_me_email_exists(
 #     client: TestClient, normal_user_token_headers: dict[str, str], db: Session

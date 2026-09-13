@@ -2,10 +2,10 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import col, func, select
 
-from app.api.deps import CurrentUser, SessionDep
+from app.api.deps import CurrentUser, CurrentUserOptional, SessionDep
 from app.models import (
     FreelancerProfile,
     FreelancerProfileCreate,
@@ -15,6 +15,7 @@ from app.models import (
     FreelancerProfileUpdate,
     FreelancerSkillLink,
     ITSkill,
+    LikedFreelancer,
     MediaPublic,
     Message,
     Review,
@@ -31,17 +32,20 @@ router = APIRouter(prefix="/profiles", tags=["profiles"])
 @router.get("/", response_model=FreelancerProfilesPublic)
 def read_profiles(
     session: SessionDep,
+    current_user: CurrentUserOptional = None,
     skip: int = 0,
     limit: int = 100,
     q: str | None = None,
-    skill: list[ITSkill] | None = None,
+    skill: list[ITSkill] | None = Query(default=None),
     min_rate: float | None = None,
     max_rate: float | None = None,
     is_available: bool | None = None,
+    sort_by: str | None = None,
 ) -> Any:
     """
-    Search and list freelancer profiles. Public endpoint (no auth required).
-    Supports filtering by text query, skills, hourly rate range, and availability.
+    Search and list freelancer cards. Public endpoint (optional auth).
+    Supports filtering by text query (title, bio, location, name), skills, hourly rate range, and availability.
+    Populates is_saved if called by an authenticated user.
     """
     statement = select(FreelancerProfile).join(
         User, FreelancerProfile.user_id == User.id
@@ -51,6 +55,7 @@ def read_profiles(
         statement = statement.where(
             col(FreelancerProfile.title).ilike(f"%{q}%")
             | col(FreelancerProfile.bio).ilike(f"%{q}%")
+            | col(FreelancerProfile.location).ilike(f"%{q}%")
             | col(User.full_name).ilike(f"%{q}%")
         )
 
@@ -65,29 +70,42 @@ def read_profiles(
             )
 
     if min_rate is not None:
-        statement = statement.where(
-            col(FreelancerProfile.hourly_rate) >= min_rate
-        )
+        statement = statement.where(col(FreelancerProfile.hourly_rate) >= min_rate)
 
     if max_rate is not None:
-        statement = statement.where(
-            col(FreelancerProfile.hourly_rate) <= max_rate
-        )
+        statement = statement.where(col(FreelancerProfile.hourly_rate) <= max_rate)
 
     if is_available is not None:
-        statement = statement.where(
-            FreelancerProfile.is_available == is_available
-        )
+        statement = statement.where(FreelancerProfile.is_available == is_available)
 
     count_statement = select(func.count()).select_from(statement.subquery())
     count = session.exec(count_statement).one()
 
-    statement = (
-        statement.order_by(col(FreelancerProfile.updated_at).desc())
-        .offset(skip)
-        .limit(limit)
-    )
+    if sort_by == "rate_asc":
+        statement = statement.order_by(
+            col(FreelancerProfile.hourly_rate).asc().nulls_last()
+        )
+    elif sort_by == "rate_desc":
+        statement = statement.order_by(
+            col(FreelancerProfile.hourly_rate).desc().nulls_last()
+        )
+    elif sort_by == "newest":
+        statement = statement.order_by(col(FreelancerProfile.created_at).desc())
+    else:
+        statement = statement.order_by(col(FreelancerProfile.updated_at).desc())
+
+    statement = statement.offset(skip).limit(limit)
     profiles = session.exec(statement).all()
+
+    # Pre-fetch saved profile IDs for current user to avoid N+1 queries
+    saved_profile_ids: set[uuid.UUID] = set()
+    if current_user:
+        saved_rows = session.exec(
+            select(LikedFreelancer.freelancer_id).where(
+                LikedFreelancer.client_id == current_user.id
+            )
+        ).all()
+        saved_profile_ids = set(saved_rows)
 
     profiles_public = []
     for profile in profiles:
@@ -100,12 +118,18 @@ def read_profiles(
         avg_rating = session.exec(avg_rating_stmt).one()
         reviews_count = session.exec(reviews_count_stmt).one()
 
+        effective_avatar = profile.avatar_url or (
+            profile.user.avatar_url if profile.user else None
+        )
+
         profile_data = FreelancerProfilePublic.model_validate(
             profile,
             update={
                 "full_name": profile.user.full_name if profile.user else None,
+                "avatar_url": effective_avatar,
                 "average_rating": float(avg_rating) if avg_rating else None,
                 "reviews_count": reviews_count,
+                "is_saved": profile.id in saved_profile_ids,
             },
         )
         profiles_public.append(profile_data)
@@ -113,11 +137,65 @@ def read_profiles(
     return FreelancerProfilesPublic(data=profiles_public, count=count)
 
 
+@router.get("/me", response_model=FreelancerProfileDetailPublic)
+def read_profile_me(session: SessionDep, current_user: CurrentUser) -> Any:
+    """
+    Get current user's freelancer profile with full detail.
+    """
+    profile = session.exec(
+        select(FreelancerProfile).where(FreelancerProfile.user_id == current_user.id)
+    ).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Freelancer profile not found")
+
+    avg_rating_stmt = select(func.avg(Review.rating)).where(
+        Review.freelancer_id == profile.id
+    )
+    reviews_count_stmt = select(func.count()).where(Review.freelancer_id == profile.id)
+    avg_rating = session.exec(avg_rating_stmt).one()
+    reviews_count = session.exec(reviews_count_stmt).one()
+
+    reviews_public = [
+        ReviewPublic.model_validate(
+            review,
+            update={
+                "client_name": review.client.full_name if review.client else None,
+            },
+        )
+        for review in profile.reviews
+    ]
+    portfolio_public = [
+        MediaPublic.model_validate(media) for media in profile.portfolio_media
+    ]
+    user_public = UserPublic.model_validate(profile.user) if profile.user else None
+    effective_avatar = profile.avatar_url or (
+        profile.user.avatar_url if profile.user else None
+    )
+
+    return FreelancerProfileDetailPublic.model_validate(
+        profile,
+        update={
+            "full_name": current_user.full_name,
+            "avatar_url": effective_avatar,
+            "average_rating": float(avg_rating) if avg_rating else None,
+            "reviews_count": reviews_count,
+            "portfolio_media": portfolio_public,
+            "reviews": reviews_public,
+            "user": user_public,
+            "is_saved": False,
+        },
+    )
+
+
 @router.get("/{id}", response_model=FreelancerProfileDetailPublic)
-def read_profile(session: SessionDep, id: uuid.UUID) -> Any:
+def read_profile(
+    session: SessionDep,
+    id: uuid.UUID,
+    current_user: CurrentUserOptional = None,
+) -> Any:
     """
     Get a single freelancer profile with full detail (portfolio, reviews, user info).
-    Public endpoint (no auth required).
+    Public endpoint (optional auth for is_saved status).
     """
     profile = session.get(FreelancerProfile, id)
     if not profile:
@@ -126,11 +204,19 @@ def read_profile(session: SessionDep, id: uuid.UUID) -> Any:
     avg_rating_stmt = select(func.avg(Review.rating)).where(
         Review.freelancer_id == profile.id
     )
-    reviews_count_stmt = select(func.count()).where(
-        Review.freelancer_id == profile.id
-    )
+    reviews_count_stmt = select(func.count()).where(Review.freelancer_id == profile.id)
     avg_rating = session.exec(avg_rating_stmt).one()
     reviews_count = session.exec(reviews_count_stmt).one()
+
+    is_saved = False
+    if current_user:
+        existing_like = session.exec(
+            select(LikedFreelancer).where(
+                LikedFreelancer.client_id == current_user.id,
+                LikedFreelancer.freelancer_id == profile.id,
+            )
+        ).first()
+        is_saved = existing_like is not None
 
     reviews_public = []
     for review in profile.reviews:
@@ -147,23 +233,80 @@ def read_profile(session: SessionDep, id: uuid.UUID) -> Any:
     ]
 
     user_public = UserPublic.model_validate(profile.user) if profile.user else None
+    effective_avatar = profile.avatar_url or (
+        profile.user.avatar_url if profile.user else None
+    )
 
     return FreelancerProfileDetailPublic.model_validate(
         profile,
         update={
             "full_name": profile.user.full_name if profile.user else None,
+            "avatar_url": effective_avatar,
             "average_rating": float(avg_rating) if avg_rating else None,
             "reviews_count": reviews_count,
             "portfolio_media": portfolio_public,
             "reviews": reviews_public,
             "user": user_public,
+            "is_saved": is_saved,
         },
     )
 
 
+@router.post("/{id}/save", response_model=Message)
+def save_profile(
+    *, session: SessionDep, current_user: CurrentUser, id: uuid.UUID
+) -> Message:
+    """
+    Bookmark / save a freelancer profile for the current authenticated user.
+    """
+    profile = session.get(FreelancerProfile, id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    existing = session.exec(
+        select(LikedFreelancer).where(
+            LikedFreelancer.client_id == current_user.id,
+            LikedFreelancer.freelancer_id == profile.id,
+        )
+    ).first()
+    if not existing:
+        like = LikedFreelancer(client_id=current_user.id, freelancer_id=profile.id)
+        session.add(like)
+        session.commit()
+
+    return Message(message="Profile saved successfully")
+
+
+@router.delete("/{id}/save", response_model=Message)
+def unsave_profile(
+    *, session: SessionDep, current_user: CurrentUser, id: uuid.UUID
+) -> Message:
+    """
+    Remove a freelancer profile from bookmarks / saved list.
+    """
+    profile = session.get(FreelancerProfile, id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    existing = session.exec(
+        select(LikedFreelancer).where(
+            LikedFreelancer.client_id == current_user.id,
+            LikedFreelancer.freelancer_id == profile.id,
+        )
+    ).first()
+    if existing:
+        session.delete(existing)
+        session.commit()
+
+    return Message(message="Profile removed from saved")
+
+
 @router.post("/", response_model=FreelancerProfilePublic)
 def create_profile(
-    *, session: SessionDep, current_user: CurrentUser, profile_in: FreelancerProfileCreate
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    profile_in: FreelancerProfileCreate,
 ) -> Any:
     """
     Create a freelancer profile for the current user.
@@ -176,9 +319,7 @@ def create_profile(
         )
 
     existing = session.exec(
-        select(FreelancerProfile).where(
-            FreelancerProfile.user_id == current_user.id
-        )
+        select(FreelancerProfile).where(FreelancerProfile.user_id == current_user.id)
     ).first()
     if existing:
         raise HTTPException(
@@ -189,9 +330,7 @@ def create_profile(
     # Resolve skills
     skill_objects = []
     for skill_name in profile_in.skills:
-        skill = session.exec(
-            select(Skill).where(Skill.name == skill_name)
-        ).first()
+        skill = session.exec(select(Skill).where(Skill.name == skill_name)).first()
         if not skill:
             raise HTTPException(
                 status_code=404,
@@ -207,19 +346,21 @@ def create_profile(
 
     # Link skills
     for skill in skill_objects:
-        link = FreelancerSkillLink(
-            freelancer_profile_id=profile.id, skill_id=skill.id
-        )
+        link = FreelancerSkillLink(freelancer_profile_id=profile.id, skill_id=skill.id)
         session.add(link)
     session.commit()
     session.refresh(profile)
+
+    effective_avatar = profile.avatar_url or current_user.avatar_url
 
     return FreelancerProfilePublic.model_validate(
         profile,
         update={
             "full_name": current_user.full_name,
+            "avatar_url": effective_avatar,
             "average_rating": None,
             "reviews_count": 0,
+            "is_saved": False,
         },
     )
 
@@ -261,9 +402,7 @@ def update_profile(
 
         # Add new links
         for skill_name in profile_in.skills:
-            skill = session.exec(
-                select(Skill).where(Skill.name == skill_name)
-            ).first()
+            skill = session.exec(select(Skill).where(Skill.name == skill_name)).first()
             if not skill:
                 raise HTTPException(
                     status_code=404,
@@ -280,18 +419,22 @@ def update_profile(
     avg_rating_stmt = select(func.avg(Review.rating)).where(
         Review.freelancer_id == profile.id
     )
-    reviews_count_stmt = select(func.count()).where(
-        Review.freelancer_id == profile.id
-    )
+    reviews_count_stmt = select(func.count()).where(Review.freelancer_id == profile.id)
     avg_rating = session.exec(avg_rating_stmt).one()
     reviews_count = session.exec(reviews_count_stmt).one()
+
+    effective_avatar = profile.avatar_url or (
+        profile.user.avatar_url if profile.user else None
+    )
 
     return FreelancerProfilePublic.model_validate(
         profile,
         update={
             "full_name": profile.user.full_name if profile.user else None,
+            "avatar_url": effective_avatar,
             "average_rating": float(avg_rating) if avg_rating else None,
             "reviews_count": reviews_count,
+            "is_saved": False,
         },
     )
 

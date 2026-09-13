@@ -1,10 +1,7 @@
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from app.models import (
     FreelancerProfile,
-    FreelancerProfileCreate,
-    ITSkill,
-    Skill,
     UserRole,
 )
 from tests.utils.user import create_random_user

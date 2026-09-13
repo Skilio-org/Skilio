@@ -1,7 +1,10 @@
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+import httpx
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import StreamingResponse
 from sqlmodel import col, func, select
 
 from app import crud
@@ -10,9 +13,11 @@ from app.api.deps import (
     SessionDep,
     get_current_active_superuser,
 )
+from app.claudinary import claudinary_upload_media
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import (
+    AvatarResponse,
     Message,
     UpdatePassword,
     User,
@@ -22,19 +27,15 @@ from app.models import (
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
-    MediaLink,
-    AvatarResponse
 )
-from fastapi.concurrency import run_in_threadpool
-import httpx
-from fastapi import UploadFile, File, Request
-from fastapi.responses import StreamingResponse
-from app.claudinary import claudinary_upload_media
 from app.utils import generate_new_account_email, send_email
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-def get_http_client(request: Request) -> httpx.AsyncClient: return request.app.state.http_client
+
+def get_http_client(request: Request) -> httpx.AsyncClient:
+    return request.app.state.http_client
+
 
 @router.get(
     "/",
@@ -84,6 +85,7 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
         )
     return user
 
+
 @router.post("/me/avatar", response_model=AvatarResponse)
 async def upload_avatar(
     *,
@@ -94,10 +96,7 @@ async def upload_avatar(
     """Uploads avatar asynchronously without blocking the event loop."""
     contents = await file.read()
     url: str = await run_in_threadpool(
-        claudinary_upload_media,
-        current_user.id,
-        contents,
-        media_type="image"
+        claudinary_upload_media, current_user.id, contents, media_type="image"
     )
 
     current_user.avatar_url = str(url)
@@ -108,6 +107,7 @@ async def upload_avatar(
 
     return AvatarResponse(status="Ok")
 
+
 @router.get("/avatar/{uuid}")
 async def proxy_media(
     *,
@@ -115,9 +115,8 @@ async def proxy_media(
     session: SessionDep,
     client: httpx.AsyncClient = Depends(get_http_client),
 ):
-    """ Gets the user's avatar using his uuid."""
+    """Gets the user's avatar using his uuid."""
     user = session.get(User, uuid)
-    print(f"Failed to get user: {uuid}")
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     cloudinary_url = user.avatar_url
@@ -150,6 +149,7 @@ async def proxy_media(
         media_type=response.headers.get("content-type"),
     )
 
+
 @router.patch("/me/password", response_model=Message)
 def update_password_me(
     *, session: SessionDep, body: UpdatePassword, current_user: CurrentUser
@@ -178,6 +178,7 @@ def read_user_me(current_user: CurrentUser) -> Any:
     """
     return current_user
 
+
 @router.delete("/me", response_model=Message)
 def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     """
@@ -190,6 +191,7 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     session.delete(current_user)
     session.commit()
     return Message(message="User deleted successfully")
+
 
 @router.patch("/me", response_model=UserPublic)
 def update_user_me(
@@ -246,6 +248,7 @@ def read_user_by_id(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
 
 @router.patch(
     "/{user_id}",

@@ -96,6 +96,7 @@ class ITSkill(StrEnum):
 
 MediaLink = str
 
+
 # Shared properties
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
@@ -104,8 +105,10 @@ class UserBase(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     role: UserRole = Field(default=UserRole.CLIENT)
 
+
 class AvatarResponse(SQLModel):
     status: str
+
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
@@ -118,6 +121,7 @@ class UserRegister(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     role: UserRole = Field(default=UserRole.CLIENT)
 
+
 # Properties to receive via API on update, all are optional
 class UserUpdate(SQLModel):
     email: EmailStr | None = Field(default=None, max_length=255)
@@ -127,14 +131,17 @@ class UserUpdate(SQLModel):
     role: UserRole | None = None
     password: str | None = Field(default=None, min_length=8, max_length=128)
 
+
 class UserUpdateMe(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr | None = Field(default=None, max_length=255)
     role: UserRole | None = None
 
+
 class UpdatePassword(SQLModel):
     current_password: str = Field(min_length=8, max_length=128)
     new_password: str = Field(min_length=8, max_length=128)
+
 
 # Database model, database table inferred from class name
 class User(UserBase, table=True):
@@ -144,7 +151,9 @@ class User(UserBase, table=True):
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
     )
-    avatar_url: str | None = Field(default=None, max_length=500)  # stores the Cloudinary url
+    avatar_url: str | None = Field(
+        default=None, max_length=500
+    )  # stores the Cloudinary url
     # items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True) No items anymore
 
     freelancer_profile: Optional["FreelancerProfile"] = Relationship(
@@ -180,6 +189,7 @@ class User(UserBase, table=True):
         sa_relationship_kwargs={"foreign_keys": "[ChatMessage.sender_id]"},
     )
 
+
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
     id: uuid.UUID
@@ -189,7 +199,6 @@ class UserPublic(UserBase):
 class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
-
 
 
 # ==============================================================================
@@ -313,13 +322,14 @@ class FreelancerProfileBase(SQLModel):
     hourly_rate: float | None = Field(default=None, ge=0)
     years_of_experience: int | None = Field(default=None, ge=0)
     is_available: bool = True
+    location: str | None = Field(default=None, max_length=255)
+    timezone: str | None = Field(default=None, max_length=100)
+    languages: str | None = Field(default=None, max_length=500)
     avatar_url: str | None = Field(default=None, max_length=2048)
     resume_url: str | None = Field(default=None, max_length=2048)
 
 
 class FreelancerProfileCreate(FreelancerProfileBase):
-    avatar_id: uuid.UUID | None = None
-    resume_id: uuid.UUID | None = None
     skills: list[ITSkill] = Field(default_factory=list)
 
 
@@ -329,23 +339,18 @@ class FreelancerProfileUpdate(SQLModel):
     hourly_rate: float | None = Field(default=None, ge=0)
     years_of_experience: int | None = Field(default=None, ge=0)
     is_available: bool | None = None
+    location: str | None = Field(default=None, max_length=255)
+    timezone: str | None = Field(default=None, max_length=100)
+    languages: str | None = Field(default=None, max_length=500)
     avatar_url: str | None = Field(default=None, max_length=2048)
     resume_url: str | None = Field(default=None, max_length=2048)
-    avatar_id: uuid.UUID | None = None
-    resume_id: uuid.UUID | None = None
     skills: list[ITSkill] | None = None
 
-# note: avatar id is thew same as user id, freelancer card is getted by users, dependency circle problem
+
 class FreelancerProfile(FreelancerProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(
         foreign_key="user.id", unique=True, nullable=False, ondelete="CASCADE"
-    )
-    avatar_id: uuid.UUID | None = Field(
-        default=None, foreign_key="media.id", ondelete="SET NULL"
-    )
-    resume_id: uuid.UUID | None = Field(
-        default=None, foreign_key="media.id", ondelete="SET NULL"
     )
     created_at: datetime | None = Field(
         default_factory=get_datetime_utc,
@@ -357,12 +362,6 @@ class FreelancerProfile(FreelancerProfileBase, table=True):
     )
 
     user: User | None = Relationship(back_populates="freelancer_profile")
-    avatar: Media | None = Relationship(
-        sa_relationship_kwargs={"foreign_keys": "[FreelancerProfile.avatar_id]"}
-    )
-    resume: Media | None = Relationship(
-        sa_relationship_kwargs={"foreign_keys": "[FreelancerProfile.resume_id]"}
-    )
     portfolio_media: list[Media] = Relationship(
         back_populates="freelancer_profile",
         cascade_delete=True,
@@ -371,21 +370,24 @@ class FreelancerProfile(FreelancerProfileBase, table=True):
     skills: list[Skill] = Relationship(
         back_populates="freelancer_profiles", link_model=FreelancerSkillLink
     )
-    reviews: list["Review"] = Relationship(back_populates="freelancer", cascade_delete=True)
-    liked_by: list["LikedFreelancer"] = Relationship(back_populates="freelancer", cascade_delete=True)
+    reviews: list["Review"] = Relationship(
+        back_populates="freelancer", cascade_delete=True
+    )
+    liked_by: list["LikedFreelancer"] = Relationship(
+        back_populates="freelancer", cascade_delete=True
+    )
 
 
 class FreelancerProfilePublic(FreelancerProfileBase):
     id: uuid.UUID
     user_id: uuid.UUID
     full_name: str | None = None
-    avatar_id: uuid.UUID | None = None
-    resume_id: uuid.UUID | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
     skills: list[SkillPublic] = Field(default_factory=list)
     average_rating: float | None = None
     reviews_count: int = 0
+    is_saved: bool = False
 
 
 class FreelancerProfileDetailPublic(FreelancerProfilePublic):

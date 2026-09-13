@@ -1,15 +1,17 @@
 import uuid
+from typing import IO
+
 import cloudinary
 import cloudinary.uploader
-from typing import IO, Union
 
-MediaInput = Union[bytes, IO[bytes], str]
+MediaInput = bytes | IO[bytes] | str
 
 RESOURCE_TYPE_MAP = {
     "image": "image",
     "video": "video",
-    "audio": "video",   # Cloudinary uses "video" for audio
+    "audio": "video",  # Cloudinary uses "video" for audio
 }
+
 
 def claudinary_upload_media(
     media_uuid: uuid.UUID,
@@ -34,8 +36,10 @@ def claudinary_upload_media(
         fetch_format="auto",
         quality="auto",
     )
-    if not result or not "secure_url" in result: return None
+    if not result or "secure_url" not in result:
+        return None
     return result["secure_url"]
+
 
 def claudinary_delete_media(url: str) -> dict:
     public_id = url.split("/")[-1].split(".")[0]

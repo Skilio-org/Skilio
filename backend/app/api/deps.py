@@ -48,6 +48,33 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
+reusable_oauth2_optional = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}/login/access-token",
+    auto_error=False,
+)
+TokenDepOptional = Annotated[str | None, Depends(reusable_oauth2_optional)]
+
+
+def get_current_user_optional(
+    session: SessionDep, token: TokenDepOptional
+) -> User | None:
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+        )
+        token_data = TokenPayload(**payload)
+    except InvalidTokenError, ValidationError:
+        return None
+    user = session.get(User, ident=token_data.sub)
+    if not user or not user.is_active:
+        return None
+    return user
+
+
+CurrentUserOptional = Annotated[User | None, Depends(get_current_user_optional)]
+
 
 def get_current_active_superuser(current_user: CurrentUser) -> User:
     if not current_user.is_superuser:
