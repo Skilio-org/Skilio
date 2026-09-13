@@ -42,11 +42,11 @@ const matches = [
 export const RecommendedFreelancers = () => {
   const [savedMatchIds, setSavedMatchIds] = useState<Set<string>>(new Set());
   return (
-    <div className="border-border bg-card shadow-card overflow-hidden rounded-2xl border">
+    <div className="border-border bg-card overflow-hidden rounded-xl border">
       <div className="border-border flex flex-col gap-3 border-b p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
         <div>
-          <p className="text-brand-700 text-sm font-semibold">Recommended for you</p>
-          <h2 className="font-display mt-1 text-2xl font-medium tracking-tight">Strong matches for your search</h2>
+          <p className="text-muted-foreground text-xs font-medium">Recommended for you</p>
+          <h2 className="font-display mt-2 text-2xl font-medium tracking-tight">People worth getting to know</h2>
         </div>
         <Link
           to="/talent"
@@ -100,7 +100,7 @@ export const RecommendedFreelancers = () => {
               </div>
               <button
                 type="button"
-                aria-label={`Save ${person.name}`}
+                aria-label={`${savedMatchIds.has(person.id) ? "Unsave" : "Save"} ${person.name}`}
                 aria-pressed={savedMatchIds.has(person.id)}
                 onClick={() =>
                   setSavedMatchIds((current) => {

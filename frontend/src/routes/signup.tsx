@@ -57,6 +57,9 @@ type SignupStep = 1 | 2;
 
 export const Route = createFileRoute("/signup")({
   component: SignUp,
+  validateSearch: (search: Record<string, unknown>): { role?: "client" | "freelancer" } => ({
+    role: search.role === "client" || search.role === "freelancer" ? search.role : undefined,
+  }),
 
   beforeLoad: async () => {
     if (isLoggedIn()) {
@@ -81,6 +84,7 @@ export const Route = createFileRoute("/signup")({
 
 function SignUp() {
   const { signUpMutation } = useAuth();
+  const { role } = Route.useSearch();
 
   const [step, setStep] = useState<SignupStep>(1);
 
@@ -91,7 +95,7 @@ function SignUp() {
     criteriaMode: "all",
 
     defaultValues: {
-      role: "freelancer",
+      role: role ?? "freelancer",
       full_name: "",
       email: "",
       password: "",

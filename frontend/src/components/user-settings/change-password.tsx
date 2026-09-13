@@ -142,23 +142,6 @@ const ChangePassword = () => {
           </form>
         </Form>
       </section>
-
-      <section className="border-brand-100 bg-brand-50/60 dark:border-brand-900 dark:bg-brand-950/35 flex flex-col justify-between gap-5 rounded-2xl border p-5 sm:flex-row sm:items-center sm:p-6">
-        <div className="flex items-start gap-3">
-          <span className="bg-card text-brand-700 grid size-10 shrink-0 place-items-center rounded-xl shadow-sm">
-            <ShieldCheck className="size-5" />
-          </span>
-          <div>
-            <h3 className="font-display font-semibold">Security check</h3>
-            <p className="text-muted-foreground mt-1 text-sm leading-6">
-              Your account currently has no unresolved security alerts.
-            </p>
-          </div>
-        </div>
-        <span className="w-fit rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/45">
-          Protected
-        </span>
-      </section>
     </div>
   );
 };

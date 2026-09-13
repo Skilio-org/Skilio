@@ -18,36 +18,22 @@ function Dashboard() {
   return (
     <div className="space-y-8">
       <WorkspacePageHeader
-        eyebrow="Overview"
+        eyebrow="Client workspace / Overview"
         title={firstName ? `Good to see you, ${firstName}.` : "Find your next collaborator."}
         description="Continue your search or review professionals selected for you."
         action={
           <Link to="/client-profile" className={workspaceStyles.secondaryAction}>
-            Complete client profile <ArrowRight className="size-4" />
+            My client profile <ArrowRight className="size-4" />
           </Link>
         }
       />
-      <TalentSearch />
       <Stats />
+      <TalentSearch />
       <section className="grid gap-6 xl:grid-cols-[1fr_320px]">
         <RecommendedFreelancers />
 
         <aside className="space-y-6">
           <ProfileProgress />
-
-          {/* <div className="shadow-card rounded-2xl bg-slate-950 p-6 text-white">
-            <Clock3 className="text-brand-300 size-5" />
-            <p className="mt-5 text-xs font-semibold tracking-[0.14em] text-slate-400 uppercase">Saved search</p>
-            <h2 className="font-display mt-2 text-xl font-semibold">Senior product designers</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-400">18 new matching profiles since your last visit.</p>
-            <Link
-              to="/talent"
-              search={{ q: undefined }}
-              className="hover:text-brand-200 mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white"
-            >
-              Review matches <ArrowRight className="size-4" />
-            </Link>
-          </div> */}
         </aside>
       </section>
     </div>

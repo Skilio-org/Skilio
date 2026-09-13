@@ -1,39 +1,42 @@
-import { ArrowRight, Code2, Palette, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowUpRight, Code2, Palette, ScanLine, TrendingUp } from "lucide-react";
 
 const categories = [
-  { icon: Code2, name: "Development & IT", count: "3,240 professionals" },
-  { icon: Palette, name: "Design & Creative", count: "2,180 professionals" },
-  { icon: TrendingUp, name: "Sales & Marketing", count: "1,460 professionals" },
-  { icon: Sparkles, name: "AI Services", count: "820 professionals" },
+  { icon: Code2, name: "Development & IT", detail: "Build something that works.", value: "Development" },
+  { icon: Palette, name: "Design & Creative", detail: "Make your vision tangible.", value: "Design" },
+  { icon: TrendingUp, name: "Sales & Marketing", detail: "Reach the right people.", value: "Marketing" },
+  { icon: ScanLine, name: "AI Services", detail: "Put new possibilities to work.", value: "AI" },
 ];
 
-export function LandingCategories() {
+export function LandingCategories({ onSelect }: { onSelect: (value: string) => void }) {
+  const selectCategory = (value: string) => {
+    onSelect(value);
+    document.getElementById("talent")?.scrollIntoView({ block: "start" });
+  };
   return (
-    <section id="categories" className="border-b border-slate-200 px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-      <div className="mx-auto max-w-[1344px]">
-        <div className="grid gap-6 lg:grid-cols-[.7fr_1.3fr] lg:gap-20">
-          <div>
-            <p className="text-brand-700 text-sm font-semibold">Explore expertise</p>
-            <h2 className="font-display mt-3 max-w-md text-4xl leading-tight font-medium tracking-[-0.035em] sm:text-5xl">
-              Start with the skill. Find the person.
-            </h2>
-          </div>
-          <div className="border-t border-slate-300">
-            {categories.map((category) => (
-              <a
-                key={category.name}
-                href="#talent"
-                className="group grid min-h-24 grid-cols-[auto_1fr_auto] items-center gap-4 border-b border-slate-300 transition-colors hover:bg-slate-50 sm:gap-6 sm:px-4"
-              >
-                <category.icon className="text-brand-600 size-5" aria-hidden="true" />
-                <div className="sm:flex sm:items-baseline sm:justify-between sm:gap-6">
-                  <h3 className="font-display text-lg font-semibold sm:text-xl">{category.name}</h3>
-                  <p className="mt-1 text-sm text-slate-500 sm:mt-0">{category.count}</p>
-                </div>
-                <ArrowRight className="group-hover:text-brand-600 size-5 text-slate-400 transition-transform group-hover:translate-x-1" />
-              </a>
-            ))}
-          </div>
+    <section id="categories" className="border-border bg-muted/40 scroll-mt-24 border-y py-12 sm:py-16">
+      <div className="landing-container">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">What are you working on?</h2>
+          <button type="button" onClick={() => selectCategory("All talent")} className="landing-text-link text-sm">
+            Explore all talent <ArrowUpRight className="size-4" />
+          </button>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {categories.map(({ icon: Icon, name, detail, value }) => (
+            <button
+              key={name}
+              type="button"
+              onClick={() => selectCategory(value)}
+              className="category-link group border-border bg-card hover:border-primary/40 hover:bg-accent rounded-xl border p-6 text-left transition-colors"
+            >
+              <span className="mb-8 flex justify-between">
+                <Icon className="text-primary size-6" strokeWidth={1.5} />
+                <ArrowUpRight className="text-muted-foreground size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
+              <span className="block font-medium tracking-tight">{name}</span>
+              <span className="text-muted-foreground mt-2 block text-sm">{detail}</span>
+            </button>
+          ))}
         </div>
       </div>
     </section>

@@ -44,7 +44,7 @@ export function TopNav() {
   if (role === "freelancer") return <FreelancerNav />;
 
   return (
-    <header className="border-border bg-background/95 sticky top-0 z-50 border-b backdrop-blur-md">
+    <header className="border-border bg-card/95 sticky top-0 z-50 border-b backdrop-blur-md">
       <div className="mx-auto flex h-[72px] max-w-[1320px] items-center gap-4 px-4 sm:px-6 lg:px-8">
         <Logo to="/dashboard" className="h-8" />
 
@@ -83,7 +83,7 @@ export function TopNav() {
 
         <form
           onSubmit={handleSearch}
-          className="border-input bg-background focus-within:border-brand-600 focus-within:ring-brand-100 ml-auto hidden min-h-11 w-full max-w-[300px] items-center rounded-full border px-3 focus-within:ring-2 xl:flex 2xl:max-w-sm"
+          className="border-input bg-background focus-within:border-brand-600 focus-within:ring-brand-100 ml-auto hidden min-h-11 w-full max-w-[240px] items-center rounded-lg border px-3 focus-within:ring-2 xl:flex 2xl:max-w-sm"
         >
           <Search className="text-muted-foreground size-[18px] shrink-0" aria-hidden="true" />
           <label htmlFor="global-talent-search" className="sr-only">
@@ -99,7 +99,7 @@ export function TopNav() {
           <span className="border-border text-muted-foreground border-l pl-3 text-xs font-medium">Talent</span>
         </form>
 
-        <div className="ml-auto flex items-center gap-1 md:ml-0">
+        <div className="ml-auto flex items-center gap-1 xl:ml-0">
           <Link
             to="/help"
             aria-label="Help"
@@ -113,10 +113,6 @@ export function TopNav() {
             className="text-muted-foreground hover:bg-accent hover:text-foreground relative hidden size-11 items-center justify-center rounded-full transition-colors sm:flex"
           >
             <Bell className="size-5" />
-            <span
-              className="border-background bg-brand-600 absolute top-2.5 right-2.5 size-2 rounded-full border-2"
-              aria-hidden="true"
-            />
           </Link>
           <User user={user} />
 
