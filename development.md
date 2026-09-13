@@ -136,3 +136,5 @@ You can also run `prek` manually on all files from the project root:
 ```bash
 uv run prek run --all-files
 ```
+
+bye
