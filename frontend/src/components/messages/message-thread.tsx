@@ -1,3 +1,14 @@
+import { Monogram } from "@/components/dashboard/dashboard-header";
+import { MessageBubble } from "@/components/messages/message-bubble";
+import type { ThreadMessage } from "@/components/messages/message-types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import type { Freelancer } from "@/data/freelancers";
+import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import {
   Archive,
@@ -13,18 +24,6 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Monogram } from "@/components/dashboard/dashboard-header";
-import { MessageBubble } from "@/components/messages/message-bubble";
-import type { ThreadMessage } from "@/components/messages/message-types";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import type { Freelancer } from "@/data/freelancers";
-import { cn } from "@/lib/utils";
 
 const iconButton =
   "grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
@@ -187,11 +186,6 @@ export function MessageThread({
             <DropdownMenuItem onSelect={onArchive} className="min-h-11">
               <Archive className="size-4" />
               {archived ? "Move to inbox" : "Archive conversation"}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={onDetails} className="min-h-11">
-              <Info className="size-4" />
-              Conversation details
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
