@@ -5,3 +5,7 @@ backend/app/frontend/
 ./.env
 .env
 .venv
+loaddotenv.fish
+/loaddotenv.fish
+./loaddotenv.fish
+

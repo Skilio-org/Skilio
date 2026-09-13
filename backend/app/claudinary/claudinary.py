@@ -15,9 +15,8 @@ def claudinary_upload_media(
     media_uuid: uuid.UUID,
     media: MediaInput,
     *,
-    media_type: str = "image",   # "image" | "video" | "audio"
-    folder: str = "uploads",
-) -> str:
+    media_type: str = "image",
+) -> str | None:
     resource_type = RESOURCE_TYPE_MAP.get(media_type, "auto")
 
     upload_fn = (
@@ -28,11 +27,16 @@ def claudinary_upload_media(
 
     result = upload_fn(
         media,
-        public_id=f"{folder}/{media_uuid}",
+        public_id=media_uuid,
         resource_type=resource_type,
         overwrite=True,
         invalidate=True,
         fetch_format="auto",
         quality="auto",
     )
+    if not result or not "secure_url" in result: return None
     return result["secure_url"]
+
+def claudinary_delete_media(url: str) -> dict:
+    public_id = url.split("/")[-1].split(".")[0]
+    return cloudinary.uploader.destroy(public_id, invalidate=True)
