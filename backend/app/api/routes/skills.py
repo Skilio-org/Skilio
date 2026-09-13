@@ -2,6 +2,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
+from sqlalchemy import String
 from sqlmodel import col, func, select
 
 from app.api.deps import SessionDep
@@ -22,7 +23,7 @@ def read_skills(
     """
     statement = select(Skill)
     if q:
-        statement = statement.where(col(Skill.name).ilike(f"%{q}%"))
+        statement = statement.where(col(Skill.name).cast(String).ilike(f"%{q}%"))
 
     count_statement = select(func.count()).select_from(statement.subquery())
     count = session.exec(count_statement).one()
