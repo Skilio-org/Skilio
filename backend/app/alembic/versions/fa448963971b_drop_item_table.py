@@ -1,7 +1,7 @@
 """drop item table
 
 Revision ID: fa448963971b
-Revises: e71f8cf95870
+Revises: 743a7669819e
 Create Date: 2026-09-11 23:53:28.846782
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'fa448963971b'
-down_revision = 'e71f8cf95870'
+down_revision = '743a7669819e'
 branch_labels = None
 depends_on = None
 

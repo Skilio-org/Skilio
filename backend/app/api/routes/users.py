@@ -97,8 +97,7 @@ async def upload_avatar(
         claudinary_upload_media,
         current_user.id,
         contents,
-        media_type="image",
-        folder="avatars",
+        media_type="image"
     )
 
     current_user.avatar_url = str(url)
