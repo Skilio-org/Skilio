@@ -18,7 +18,7 @@ mock.module("@/hooks/useAuth", () => ({
   default: () => account,
   isLoggedIn: () => loggedIn,
 }));
-mock.module("@/hooks/useAccountRole", () => ({ accountRole: () => role }));
+mock.module("@/hooks/useAccountRole", () => ({ useAccountRole: () => role }));
 for (const [name, fileName] of [
   ["Footer", "footer"],
   ["Logo", "logo"],

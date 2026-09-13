@@ -1,122 +1,139 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronRight, LayoutDashboard, LogOut, Settings, UserRound } from "lucide-react";
-
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  ArrowLeftRight,
+  BriefcaseBusiness,
+  Check,
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  UserRound,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import type { UserPublic } from "@/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAccountRole } from "@/hooks/useAccountRole";
+import { setAccountRole, useAccountRole } from "@/hooks/useAccountRole";
 import useAuth from "@/hooks/useAuth";
 import { getInitials } from "@/utils";
 
-export function User({ user }: { user: any }) {
+export function User({ user }: { user?: (UserPublic & { avatar_url?: string }) | null }) {
   const { logout } = useAuth();
-  const pathname = useRouterState({
-    select: (state) => state.location.pathname,
-  });
-
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const freelancer = useAccountRole() === "freelancer";
-  const displayName = user?.full_name || user?.email || (freelancer ? "Freelancer account" : "Client account");
-  const email = user?.email || (freelancer ? "Your freelancer workspace" : "Signed-in client");
+  const [switching, setSwitching] = useState(false);
+  const [open, setOpen] = useState(false);
+  const displayName = user?.full_name || user?.email || "Your account";
+  const role = freelancer ? "Freelancer" : "Client";
+  const nextRole = freelancer ? "client" : "freelancer";
+
+  const switchWorkspace = async () => {
+    if (switching) return;
+    if (!user && import.meta.env.MODE !== "visual-test") return;
+    setSwitching(true);
+    try {
+      if (user) setAccountRole(user.email, nextRole);
+      setOpen(false);
+      await navigate({ to: freelancer ? "/dashboard" : "/freelancer-dashboard" });
+      toast.success(`Switched to ${nextRole} workspace`);
+    } catch {
+      toast.error("We couldn't switch workspaces. Please try again.");
+    } finally {
+      setSwitching(false);
+    }
+  };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
           data-testid="user-menu"
-          aria-label="Open account menu"
-          className="hover:bg-accent focus-visible:outline-ring flex min-h-11 items-center gap-2 rounded-full p-1 pr-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+          aria-label={`Open account menu, ${role} workspace`}
+          className="account-trigger hover:bg-muted flex min-h-11 items-center gap-2 rounded-xl p-1.5 text-left transition-colors sm:gap-3 sm:pr-3"
         >
-          <Avatar className="border-border size-9 border">
+          <Avatar className="size-8 rounded-lg">
             {user?.avatar_url && <AvatarImage src={user.avatar_url} alt={displayName} />}
-            <AvatarFallback className="bg-brand-100 text-brand-800 text-xs font-semibold">
+            <AvatarFallback className="bg-brand-100 text-brand-800 rounded-lg text-xs font-semibold">
               {getInitials(displayName)}
             </AvatarFallback>
           </Avatar>
-          <div className="hidden min-w-0 2xl:block">
-            <p className="text-foreground max-w-28 truncate text-xs font-semibold">{displayName}</p>
-            <p className="text-muted-foreground text-[11px]">{freelancer ? "Freelancer" : "Client"}</p>
+          <div className="hidden min-w-0 sm:block">
+            <p className="max-w-28 truncate text-xs font-semibold">{user?.full_name || "My account"}</p>
+            <p className="text-muted-foreground mt-0.5 text-xs">{role}</p>
           </div>
+          <ChevronDown className="text-muted-foreground size-3.5" />
         </button>
       </DropdownMenuTrigger>
-
       <DropdownMenuContent
         align="end"
         sideOffset={12}
-        className="border-border/80 shadow-floating w-[min(21rem,calc(100vw-2rem))] overflow-hidden rounded-2xl p-0"
+        className="shadow-floating w-[min(20rem,calc(100vw-2rem))] rounded-2xl p-2"
       >
-        <div className="relative overflow-hidden bg-slate-950 px-5 pt-6 pb-5 text-white">
-          <div
-            aria-hidden="true"
-            className="bg-brand-500/25 absolute -top-16 -right-12 size-40 rounded-full blur-3xl"
-          />
-          <div className="relative flex items-center gap-3.5">
-            <Avatar className="size-12 border border-white/20 ring-4 ring-white/10">
-              {user?.avatar_url && <AvatarImage src={user.avatar_url} alt={displayName} />}
-              <AvatarFallback className="bg-white text-sm font-bold text-slate-950">
-                {getInitials(displayName)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <p className="font-display truncate text-base font-semibold">{displayName}</p>
-              <p className="mt-0.5 truncate text-xs text-slate-300">{email}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-2.5">
-          <p className="text-muted-foreground px-2.5 pt-1 pb-1.5 text-[10px] font-bold tracking-[0.18em] uppercase">
-            Workspace
+        <div className="px-3 py-3">
+          <p className="truncate text-sm font-semibold">{displayName}</p>
+          <p className="text-muted-foreground mt-1 truncate text-xs">
+            {user?.email || "Manage your account and workspace"}
           </p>
-          <AccountMenuLink
-            to={freelancer ? "/freelancer-dashboard" : "/dashboard"}
-            title="Overview"
-            description={freelancer ? "Your freelance workspace" : "Your hiring workspace"}
-            icon={LayoutDashboard}
-            active={pathname === (freelancer ? "/freelancer-dashboard" : "/dashboard")}
-          />
-          {!freelancer && (
-            <AccountMenuLink
-              to="/client-profile"
-              title="Client profile"
-              description="How talent sees you"
-              icon={UserRound}
-              active={pathname === "/client-profile"}
-            />
-          )}
-          {freelancer && (
-            <AccountMenuLink
-              to="/freelancer"
-              title="Freelancer profile"
-              description="Set up your profile and showcase your work"
-              icon={UserRound}
-              active={pathname === "/freelancer"}
-            />
-          )}
-          <AccountMenuLink
-            to={freelancer ? "/freelancer-settings" : "/settings"}
-            title="Account settings"
-            description="Profile, security and access"
-            icon={Settings}
-            active={pathname === (freelancer ? "/freelancer-settings" : "/settings")}
-          />
         </div>
-
-        <div className="border-border bg-muted/35 border-t p-2.5">
-          <DropdownMenuItem
-            onClick={logout}
-            className="text-destructive focus:bg-destructive/10 focus:text-destructive min-h-11 cursor-pointer rounded-xl px-3"
-          >
-            <span className="bg-destructive/10 grid size-8 place-items-center rounded-lg">
-              <LogOut className="text-destructive size-4" />
+        <div className="border-border bg-muted/50 mx-1 mb-2 rounded-xl border p-3">
+          <div className="text-muted-foreground flex items-center gap-2 text-xs">
+            <BriefcaseBusiness className="size-3.5" />
+            <span>Current workspace</span>
+            <Check className="text-primary ml-auto size-3.5" />
+          </div>
+          <p className="mt-2 text-sm font-semibold">
+            {role}
+            <span className="text-muted-foreground ml-2 font-normal">
+              {freelancer ? "Find work & grow" : "Hire & collaborate"}
             </span>
-            <span className="font-semibold">Log out</span>
+          </p>
+          <DropdownMenuItem
+            disabled={switching}
+            onSelect={(event) => {
+              event.preventDefault();
+              void switchWorkspace();
+            }}
+            className="border-brand-200 bg-brand-50 text-brand-800 focus:bg-brand-100 focus:text-brand-950 mt-3 min-h-11 cursor-pointer justify-between rounded-lg border px-3"
+          >
+            <span className="text-sm font-medium">{switching ? "Switching…" : `Switch to ${nextRole}`}</span>
+            <ArrowLeftRight className="size-4 text-current" />
           </DropdownMenuItem>
         </div>
+        <AccountMenuLink
+          to={freelancer ? "/freelancer-dashboard" : "/dashboard"}
+          title="Overview"
+          icon={LayoutDashboard}
+          active={pathname === (freelancer ? "/freelancer-dashboard" : "/dashboard")}
+        />
+        <AccountMenuLink
+          to={freelancer ? "/freelancer" : "/client-profile"}
+          title={freelancer ? "Freelancer profile" : "Client profile"}
+          icon={UserRound}
+          active={pathname === (freelancer ? "/freelancer" : "/client-profile")}
+        />
+        <AccountMenuLink
+          to={freelancer ? "/freelancer-settings" : "/settings"}
+          title="Account settings"
+          icon={Settings}
+          active={pathname === (freelancer ? "/freelancer-settings" : "/settings")}
+        />
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={logout}
+          className="text-destructive focus:bg-destructive/10 focus:text-destructive min-h-11 cursor-pointer rounded-lg px-3"
+        >
+          <LogOut className="size-4 text-current" />
+          <span>Log out</span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -125,38 +142,19 @@ export function User({ user }: { user: any }) {
 function AccountMenuLink({
   to,
   title,
-  description,
   icon: Icon,
   active,
 }: {
   to: "/dashboard" | "/settings" | "/client-profile" | "/freelancer" | "/freelancer-dashboard" | "/freelancer-settings";
   title: string;
-  description: string;
   icon: typeof LayoutDashboard;
   active: boolean;
 }) {
   return (
-    <DropdownMenuItem
-      asChild
-      className={`group focus:bg-brand-50 focus:text-brand-950 mb-0.5 min-h-14 cursor-pointer rounded-xl p-0 ${
-        active ? "bg-brand-50 text-brand-950" : ""
-      }`}
-    >
-      <Link to={to} className="flex w-full items-center gap-3 px-2.5 py-2">
-        <span
-          className={`grid size-9 shrink-0 place-items-center rounded-lg transition-colors ${
-            active
-              ? "bg-brand-600 text-white"
-              : "bg-muted text-muted-foreground group-focus:text-brand-700 group-focus:bg-white"
-          }`}
-        >
-          <Icon className="size-4 text-current" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm leading-5 font-semibold">{title}</span>
-          <span className="text-muted-foreground block truncate text-[11px] leading-4">{description}</span>
-        </span>
-        <ChevronRight className="text-muted-foreground/70 group-focus:text-brand-700 size-4 transition-transform group-focus:translate-x-0.5" />
+    <DropdownMenuItem asChild className={`min-h-11 cursor-pointer rounded-lg px-3 ${active ? "bg-muted" : ""}`}>
+      <Link to={to}>
+        <Icon className="text-muted-foreground size-4" />
+        <span>{title}</span>
       </Link>
     </DropdownMenuItem>
   );

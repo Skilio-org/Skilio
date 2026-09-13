@@ -1,0 +1,62 @@
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
+const assert = require("node:assert/strict");
+const path = require("node:path");
+(async () => {
+  const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: "light" });
+  await context.route("**/api/v1/users/me", route => route.fulfill({ json: { id: "talent-test", email: "talent-test@example.com", full_name: "Alex Morgan", is_active: true, is_superuser: false, is_verified: true } }));
+  await context.addInitScript(() => localStorage.setItem("access_token", "talent-test"));
+  const page = await context.newPage();
+  page.setDefaultTimeout(10000);
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  const base = process.env.BASE_URL || "http://127.0.0.1:5180";
+  const shots = async name => { await page.evaluate(() => document.fonts.ready); await page.screenshot({ path: path.join(__dirname, "artifacts", name), fullPage: true, animations: "disabled" }); };
+  await page.goto(base + "/talent");
+  await page.getByRole("heading", { name: "Good people for your next project." }).waitFor();
+  assert.equal(await page.getByRole("article").count(), 5);
+  await shots("talent-refined-desktop.png");
+  await page.getByRole("button", { name: "Save Maya Laurent", exact: true }).click();
+  await page.getByRole("button", { name: "Design", exact: true }).click();
+  assert.equal(await page.getByRole("article").count(), 1);
+  assert.equal(await page.getByRole("button", { name: "Remove Maya Laurent", exact: true }).getAttribute("aria-pressed"), "true");
+  await page.getByRole("button", { name: "All talent", exact: true }).click();
+  await page.getByRole("button", { name: "Shortlist (1)", exact: true }).click();
+  assert.equal(await page.getByRole("article").count(), 1);
+  await page.getByRole("button", { name: "Clear all", exact: true }).click();
+  await page.getByRole("searchbox", { name: "Search professionals" }).fill("React");
+  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await page.waitForURL("**/talent?q=React");
+  assert.equal(await page.getByRole("article").count(), 1);
+  await page.reload();
+  assert.equal(await page.getByRole("searchbox", { name: "Search professionals" }).inputValue(), "React");
+  await page.getByRole("button", { name: "Clear search" }).click();
+  await page.getByRole("radio", { name: "Under $50/hr", exact: true }).check();
+  await page.getByRole("heading", { name: "No matching profiles" }).waitFor();
+  await page.getByRole("button", { name: "Remove Under $50/hr filter" }).click();
+  assert.equal(await page.getByRole("article").count(), 5);
+  await page.getByRole("combobox", { name: "Sort talent" }).click();
+  await page.getByRole("option", { name: "Lowest rate" }).click();
+  assert.equal(await page.getByRole("article").first().getAttribute("aria-label"), "Amara Okafor");
+  for (const width of [375, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 850 });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Overflow at " + width);
+    if (width === 375) {
+      await shots("talent-refined-mobile.png");
+      await page.getByRole("button", { name: "Open talent filters" }).click();
+      await page.getByRole("radio", { name: "$100+/hr", exact: true }).check();
+      await shots("talent-refined-filters-mobile.png");
+      await page.getByRole("button", { name: "Show 1 professional", exact: true }).click();
+      assert.equal(await page.getByRole("article").count(), 1);
+      await page.getByRole("button", { name: "Clear all", exact: true }).click();
+    }
+  }
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.waitForFunction(() => document.documentElement.classList.contains("dark"));
+  await shots("talent-refined-dark.png");
+  await page.getByRole("article").first().getByRole("link", { name: "View profile" }).click();
+  await page.waitForURL("**/talent/amara-okafor");
+  assert.deepEqual(errors, []);
+  await browser.close();
+  console.log("PASS: directory search and reload, specialty/rate filters, clear filters, shortlist, sorting, profile navigation, mobile filter drawer, 4 viewport widths, dark mode, no page errors.");
+})().catch(error => { console.error(error); process.exit(1); });

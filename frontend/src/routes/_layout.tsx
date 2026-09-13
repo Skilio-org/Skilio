@@ -3,7 +3,7 @@ import { Footer } from "@/components/common/footer";
 import { Logo } from "@/components/common/logo";
 import { TopNav } from "@/components/navigation/top-nav";
 import { Button } from "@/components/ui/button";
-import { accountRole } from "@/hooks/useAccountRole";
+import { useAccountRole } from "@/hooks/useAccountRole";
 import useAuth, { isLoggedIn } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/_layout")({
@@ -21,7 +21,9 @@ export const Route = createFileRoute("/_layout")({
 
 function Layout() {
   const { user, isPending, isFetching, error, refetch, logout } = useAuth();
+  const role = useAccountRole();
   const path = useRouterState({ select: (state) => state.location.pathname });
+  const isMessages = path === "/messages" || path === "/freelancer-messages";
 
   // Use the shared account query so expired sessions reach the existing
   // authentication handler, and transient failures remain recoverable.
@@ -61,7 +63,7 @@ function Layout() {
         </div>
       );
     }
-    if (accountRole(user.email) === "freelancer") {
+    if (role === "freelancer") {
       if (
         [
           "/dashboard",
@@ -92,14 +94,20 @@ function Layout() {
     }
   }
   return (
-    <div className="bg-background flex min-h-svh flex-col">
+    <div className="workspace-shell bg-background flex min-h-svh flex-col">
       <TopNav />
       <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
-        <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div
+          className={
+            isMessages
+              ? "mx-auto max-w-[1480px] px-3 py-3 sm:px-6 sm:py-6"
+              : "mx-auto max-w-[1320px] px-4 py-7 sm:px-6 sm:py-10 lg:px-8"
+          }
+        >
           <Outlet />
         </div>
       </main>
-      <Footer />
+      {!isMessages && <Footer />}
     </div>
   );
 }

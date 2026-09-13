@@ -1,88 +1,130 @@
-import { Link } from "@tanstack/react-router"
-import { ArrowRight, MapPin } from "lucide-react"
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight, MapPin, Search, Star } from "lucide-react";
+import { freelancers } from "@/data/freelancers";
 
-import { freelancers } from "@/data/freelancers"
+const filters = ["All talent", "Design", "Development", "Marketing", "AI"];
+const terms: Record<string, string[]> = {
+  Design: ["design"],
+  Development: ["engineer", "developer"],
+  Marketing: ["brand", "marketing"],
+  AI: ["ai", "machine learning"],
+};
 
-const people = freelancers.slice(0, 3)
-
-export function LandingTalent() {
+export function LandingTalent({ filter, onFilter }: { filter: string; onFilter: (value: string) => void }) {
+  const people = freelancers
+    .filter(
+      (person) =>
+        filter === "All talent" ||
+        terms[filter]?.some(
+          (term) =>
+            `${person.title} ${person.skills.join(" ")}`
+              .toLowerCase()
+              .split(/[^a-z]+/)
+              .includes(term) || person.title.toLowerCase().includes(term),
+        ),
+    )
+    .slice(0, 3);
   return (
-    <section
-      id="talent"
-      className="bg-muted px-5 py-20 sm:px-8 lg:px-12 lg:py-28"
-    >
-      <div className="mx-auto max-w-[1344px]">
-        <div className="max-w-2xl">
-          <h2 className="font-display text-4xl font-medium tracking-[-0.035em] text-balance sm:text-5xl">
-            Work worth looking through.
-          </h2>
-          <p className="text-muted-foreground mt-5 max-w-xl text-lg leading-8">
-            Compare specialties, working styles, and recent experience before
-            you start a conversation.
-          </p>
-        </div>
-
-        <div className="border-border mt-10 grid border-y lg:grid-cols-[1.15fr_.85fr]">
-          {people.map((person, index) => (
-            <article
-              key={person.id}
-              className={
-                index === 0
-                  ? "border-border px-0 py-9 sm:p-9 lg:row-span-2 lg:border-r lg:p-12"
-                  : `border-border px-0 py-9 sm:p-9 lg:p-10 ${index === 2 ? "border-t" : ""}`
-              }
+    <section id="talent" className="scroll-mt-24 py-16 sm:py-24">
+      <div className="landing-container">
+        <h2 className="landing-heading max-w-2xl">
+          A little expertise.
+          <br />A lot of possibility.
+        </h2>
+        <p className="text-muted-foreground mt-5 max-w-xl text-base leading-7">
+          Explore the people behind the work. Compare their craft, experience, and approach before you say hello.
+        </p>
+        <fieldset className="mt-8 flex flex-wrap gap-2">
+          <legend className="sr-only">Filter talent by expertise</legend>
+          {filters.map((item) => (
+            <button
+              key={item}
+              type="button"
+              aria-pressed={filter === item}
+              onClick={() => onFilter(item)}
+              className={`min-h-11 rounded-full border px-5 text-sm font-medium transition-colors ${filter === item ? "border-foreground bg-foreground text-background" : "border-border hover:border-foreground/30 hover:bg-muted"}`}
             >
-              {index === 0 && (
-                <img
-                  src="/assets/images/featured-product-designer.png"
-                  alt="Product designer reviewing sketches in her studio"
-                  width={1448}
-                  height={1086}
-                  loading="lazy"
-                  className="mb-10 aspect-4/3 w-full rounded-xl object-cover"
-                />
-              )}
-              <div className="flex items-start justify-between gap-6">
-                <div>
-                  <h3
-                    className={`font-display font-semibold tracking-[-0.025em] ${index === 0 ? "text-3xl sm:text-4xl" : "text-2xl"}`}
-                  >
-                    {person.name}
-                  </h3>
-                  <p className="text-muted-foreground mt-2">{person.title}</p>
-                </div>
-                <p className="shrink-0 font-semibold tabular-nums">
-                  ${person.rate}/hr
-                </p>
-              </div>
-
-              <p
-                className={`text-muted-foreground leading-7 ${index === 0 ? "mt-10 max-w-2xl text-lg sm:text-xl sm:leading-8" : "mt-7"}`}
-              >
-                {person.bio}
-              </p>
-
-              <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium">
-                {person.skills.slice(0, index === 0 ? 4 : 3).map((skill) => (
-                  <span key={skill}>{skill}</span>
-                ))}
-              </div>
-
-              <p className="text-muted-foreground mt-8 flex items-center gap-2 text-sm">
-                <MapPin className="size-4" aria-hidden="true" />
-                {person.location}
-              </p>
-            </article>
+              {item}
+            </button>
           ))}
-        </div>
-
-        <Link
-          to="/signup"
-          className="text-brand-700 hover:text-brand-800 mt-8 inline-flex min-h-11 items-center gap-2 font-semibold"
+        </fieldset>
+        <div
+          className={`mt-8 grid gap-5 ${people.length > 1 ? "md:grid-cols-[1.12fr_1fr]" : "max-w-2xl"}`}
+          aria-live="polite"
         >
-          Create account <ArrowRight className="size-4" />
-        </Link>
+          {people.length ? (
+            people.map((person, index) => (
+              <article
+                key={person.id}
+                className={`talent-preview group border-border bg-card rounded-2xl border ${index === 0 ? "md:row-span-2" : ""}`}
+              >
+                {index === 0 && (
+                  <div className="overflow-hidden rounded-t-2xl">
+                    <img
+                      src="/assets/images/featured-product-designer.webp"
+                      alt="Illustrative view of a designer reviewing work in a studio"
+                      width={1448}
+                      height={1086}
+                      loading="lazy"
+                      className="aspect-[2.15] w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+                    />
+                  </div>
+                )}
+                <div className="p-6 sm:p-7">
+                  <div className="flex items-start gap-4">
+                    <span
+                      className={`grid size-12 shrink-0 place-items-center rounded-xl text-sm font-semibold ${person.background} ${person.foreground}`}
+                    >
+                      {person.initials}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-display text-xl font-medium tracking-tight">{person.name}</h3>
+                      <p className="text-muted-foreground mt-1 text-sm">{person.title}</p>
+                    </div>
+                    <p className="text-lg font-medium whitespace-nowrap tabular-nums">
+                      ${person.rate}
+                      <span className="text-muted-foreground text-xs font-normal"> /hr</span>
+                    </p>
+                  </div>
+                  {index === 0 && <p className="text-muted-foreground mt-5 max-w-xl text-sm leading-6">{person.bio}</p>}
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {person.skills.slice(0, 3).map((skill) => (
+                      <span key={skill} className="bg-muted text-muted-foreground rounded-md px-2.5 py-1.5 text-xs">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="border-border text-muted-foreground mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-4 text-xs">
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="size-3.5" />
+                      {person.location}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Star className="text-primary size-3.5" />
+                      <strong className="text-foreground">{person.rating.toFixed(1)}</strong> ({person.reviews} reviews)
+                    </span>
+                  </div>
+                </div>
+              </article>
+            ))
+          ) : (
+            <div className="border-border col-span-full rounded-2xl border border-dashed p-10 text-center">
+              <Search className="text-muted-foreground mx-auto size-6" />
+              <h3 className="mt-4 text-lg font-medium">More specialists are on the way</h3>
+              <p className="text-muted-foreground mt-2 text-sm">Explore other areas of expertise in the meantime.</p>
+              <button type="button" onClick={() => onFilter("All talent")} className="landing-text-link mt-5">
+                See all talent <ArrowUpRight className="size-4" />
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-muted-foreground text-xs">Sample profiles to help you explore the marketplace.</p>
+          <Link to="/signup" search={{ role: "client" }} className="landing-text-link text-sm">
+            Meet your next collaborator <ArrowUpRight className="size-4" />
+          </Link>
+        </div>
       </div>
     </section>
-  )
+  );
 }
