@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownWideNarrow, Banknote, Clock3, Bookmark, MapPin, Search, SlidersHorizontal, X } from "lucide-react";
+import { ArrowDownWideNarrow, Banknote, Clock3, MapPin, Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { FreelancerCard } from "@/components/talent/freelancer-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { freelancers } from "@/data/freelancers";
 import { useSavedTalent } from "@/hooks/useSavedTalent";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_layout/talent")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -293,15 +293,6 @@ function TalentDirectory() {
               {query ? ` matching “${query}”` : " to explore"}
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                aria-pressed={savedOnly}
-                onClick={() => setSavedOnly(!savedOnly)}
-                className={`inline-flex min-h-11 items-center gap-2 rounded-lg border px-3 text-xs font-medium ${savedOnly ? "border-primary bg-accent text-primary" : "border-border bg-card text-muted-foreground"}`}
-              >
-                <Bookmark className="size-3.5" />
-                Shortlist{savedIds.length > 0 ? ` (${savedIds.length})` : ""}
-              </button>
               <Select value={sort} onValueChange={setSort}>
                 <SelectTrigger aria-label="Sort talent" className="border-border bg-card h-11 w-44 rounded-lg text-xs">
                   <ArrowDownWideNarrow className="text-muted-foreground size-3.5" />
