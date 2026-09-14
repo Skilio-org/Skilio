@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router"
-import { ArrowUpRight } from "lucide-react"
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight } from "lucide-react";
 
 export function LandingCta() {
   return (
@@ -12,17 +12,13 @@ export function LandingCta() {
         </h2>
         <div className="mt-7 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <p className="text-muted-foreground max-w-md text-base leading-7">
-            Find someone to bring it to life. Or be the person who does. One
-            account, both possibilities.
+            Find someone to bring it to life. Or be the person who does. One account, both possibilities.
           </p>
-          <Link
-            to="/signup"
-            className="landing-primary self-start whitespace-nowrap"
-          >
+          <Link to="/signup" className="landing-primary self-start whitespace-nowrap">
             Create account <ArrowUpRight className="size-4" />
           </Link>
         </div>
       </div>
     </section>
-  )
+  );
 }

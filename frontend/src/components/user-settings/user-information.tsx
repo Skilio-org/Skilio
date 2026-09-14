@@ -1,39 +1,32 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { BadgeCheck, Mail, Pencil, UserRound } from "lucide-react"
-import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { BadgeCheck, Mail, Pencil, UserRound } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { UsersService, type UserUpdateMe } from "@/client"
-import { Monogram } from "@/components/dashboard/dashboard-header"
-import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { LoadingButton } from "@/components/ui/loading-button"
-import useAuth from "@/hooks/useAuth"
-import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { UsersService, type UserUpdateMe } from "@/client";
+import { Monogram } from "@/components/dashboard/dashboard-header";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loading-button";
+import useAuth from "@/hooks/useAuth";
+import useCustomToast from "@/hooks/useCustomToast";
+import { handleError } from "@/utils";
 
 const formSchema = z.object({
   full_name: z.string().max(30).optional(),
   email: z.email({ message: "Invalid email address" }),
-})
+});
 
-type FormData = z.infer<typeof formSchema>
+type FormData = z.infer<typeof formSchema>;
 
 const UserInformation = () => {
-  const queryClient = useQueryClient()
-  const { showSuccessToast, showErrorToast } = useCustomToast()
-  const [editMode, setEditMode] = useState(false)
-  const { user: currentUser } = useAuth()
+  const queryClient = useQueryClient();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
+  const [editMode, setEditMode] = useState(false);
+  const { user: currentUser } = useAuth();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -43,49 +36,48 @@ const UserInformation = () => {
       full_name: currentUser?.full_name ?? "",
       email: currentUser?.email ?? "",
     },
-  })
+  });
 
   useEffect(() => {
-    if (!currentUser || editMode) return
+    if (!currentUser || editMode) return;
 
     form.reset({
       full_name: currentUser.full_name ?? "",
       email: currentUser.email,
-    })
-  }, [currentUser, editMode, form])
+    });
+  }, [currentUser, editMode, form]);
 
   const mutation = useMutation({
-    mutationFn: (data: UserUpdateMe) =>
-      UsersService.updateUserMe({ body: data }),
+    mutationFn: (data: UserUpdateMe) => UsersService.updateUserMe({ body: data }),
     onSuccess: () => {
-      showSuccessToast("User updated successfully")
-      setEditMode(false)
+      showSuccessToast("User updated successfully");
+      setEditMode(false);
     },
     onError: handleError.bind(showErrorToast),
     onSettled: () => queryClient.invalidateQueries(),
-  })
+  });
 
   const onSubmit = (data: FormData) => {
-    const updateData: UserUpdateMe = {}
+    const updateData: UserUpdateMe = {};
     if (data.full_name !== currentUser?.full_name) {
-      updateData.full_name = data.full_name
+      updateData.full_name = data.full_name;
     }
-    if (data.email !== currentUser?.email) updateData.email = data.email
-    mutation.mutate(updateData)
-  }
+    if (data.email !== currentUser?.email) updateData.email = data.email;
+    mutation.mutate(updateData);
+  };
 
   const onCancel = () => {
-    form.reset()
-    setEditMode(false)
-  }
+    form.reset();
+    setEditMode(false);
+  };
 
-  const displayName = currentUser?.full_name || "Client account"
+  const displayName = currentUser?.full_name || "Client account";
   const initials = displayName
     .split(" ")
     .map((word) => word[0])
     .join("")
     .slice(0, 2)
-    .toUpperCase()
+    .toUpperCase();
 
   return (
     <div className="space-y-5">
@@ -102,12 +94,8 @@ const UserInformation = () => {
               </span>
             </div>
             <div className="pb-1">
-              <p className="font-display text-xl font-semibold">
-                {displayName}
-              </p>
-              <p className="text-muted-foreground mt-1 text-sm">
-                Client account
-              </p>
+              <p className="font-display text-xl font-semibold">{displayName}</p>
+              <p className="text-muted-foreground mt-1 text-sm">Client account</p>
             </div>
           </div>
           <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/45">
@@ -120,23 +108,14 @@ const UserInformation = () => {
       <section className="border-border bg-card shadow-card overflow-hidden rounded-2xl border">
         <header className="border-border flex flex-col justify-between gap-4 border-b p-5 sm:flex-row sm:items-start sm:p-7">
           <div>
-            <p className="text-brand-700 text-xs font-semibold tracking-[0.16em] uppercase">
-              Identity
-            </p>
-            <h2 className="font-display mt-1 text-2xl font-semibold">
-              Personal details
-            </h2>
+            <p className="text-brand-700 text-xs font-semibold tracking-[0.16em] uppercase">Identity</p>
+            <h2 className="font-display mt-1 text-2xl font-semibold">Personal details</h2>
             <p className="text-muted-foreground mt-1 text-sm leading-6">
               Your name and email appear across your client workspace.
             </p>
           </div>
           {!editMode && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setEditMode(true)}
-              className="self-start"
-            >
+            <Button type="button" variant="outline" onClick={() => setEditMode(true)} className="self-start">
               <Pencil className="size-4" /> Edit details
             </Button>
           )}
@@ -191,19 +170,10 @@ const UserInformation = () => {
 
             {editMode && (
               <footer className="border-border bg-muted/30 flex flex-col-reverse gap-3 border-t p-4 sm:flex-row sm:justify-end sm:px-7">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onCancel}
-                  disabled={mutation.isPending}
-                >
+                <Button type="button" variant="outline" onClick={onCancel} disabled={mutation.isPending}>
                   Cancel
                 </Button>
-                <LoadingButton
-                  type="submit"
-                  loading={mutation.isPending}
-                  disabled={!form.formState.isDirty}
-                >
+                <LoadingButton type="submit" loading={mutation.isPending} disabled={!form.formState.isDirty}>
                   Save changes
                 </LoadingButton>
               </footer>
@@ -212,8 +182,8 @@ const UserInformation = () => {
         </Form>
       </section>
     </div>
-  )
-}
+  );
+};
 
 function InformationRow({
   icon: Icon,
@@ -221,10 +191,10 @@ function InformationRow({
   value,
   badge,
 }: {
-  icon: typeof UserRound
-  label: string
-  value: string
-  badge?: string
+  icon: typeof UserRound;
+  label: string;
+  value: string;
+  badge?: string;
 }) {
   return (
     <div className="flex items-center gap-4 py-5">
@@ -241,7 +211,7 @@ function InformationRow({
         </span>
       )}
     </div>
-  )
+  );
 }
 
-export default UserInformation
+export default UserInformation;
