@@ -1,6 +1,6 @@
+import { workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, Search } from "lucide-react";
-import { workspaceStyles } from "@/components/dashboard/dashboard-header";
 
 export const TalentSearch = () => {
   const navigate = useNavigate();
@@ -15,7 +15,6 @@ export const TalentSearch = () => {
             Find the right person for the work you have in mind.
           </p>
         </div>
-        <ArrowUpRight className="text-primary hidden size-8 shrink-0 sm:block" strokeWidth={1.5} />
       </div>
       <form
         onSubmit={(event) => {
@@ -39,7 +38,7 @@ export const TalentSearch = () => {
             />
           </div>
           <button type="submit" className={`${workspaceStyles.primaryAction} min-h-12 px-6`}>
-            Search talent <ArrowUpRight className="size-4" />
+            Search talent <Search className="size-4" />
           </button>
         </div>
       </form>

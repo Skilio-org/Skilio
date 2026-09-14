@@ -1,11 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, Bookmark, Search, X } from "lucide-react";
-import { useState } from "react";
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { FreelancerCard } from "@/components/talent/freelancer-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { freelancers } from "@/data/freelancers";
 import { useSavedTalent } from "@/hooks/useSavedTalent";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowUpRight, Bookmark, Search, X } from "lucide-react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_layout/saved")({
   component: SavedTalent,
@@ -37,12 +37,7 @@ function SavedTalent() {
         eyebrow="Your shortlist"
         title="Saved talent"
         description="Keep the people you’d like to work with in one place."
-        action={
-          <Link to="/talent" search={{ q: undefined }} className={workspaceStyles.secondaryAction}>
-            Find talent
-            <ArrowUpRight className="size-4" />
-          </Link>
-        }
+        action=""
       />
       {savedIds.length > 0 && (
         <div className="flex flex-col gap-3 sm:flex-row">
