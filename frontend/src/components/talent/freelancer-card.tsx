@@ -1,7 +1,7 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Bookmark, MapPin, Star } from "lucide-react";
 import { Monogram, SkillTag, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import type { Freelancer } from "@/data/freelancers";
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight, Bookmark, MapPin, Star } from "lucide-react";
 
 export function FreelancerCard({
   freelancer,
@@ -13,14 +13,9 @@ export function FreelancerCard({
   onToggleSaved: () => void;
 }) {
   return (
-    <article
-      aria-label={freelancer.name}
-      className="group bg-card hover:bg-muted/15 p-5 transition-colors sm:p-7"
-    >
+    <article aria-label={freelancer.name} className="group bg-card hover:bg-muted/15 p-5 transition-colors sm:p-7">
       <div className="flex items-start gap-3 sm:gap-4">
-        <Monogram
-          className={`size-12 text-base sm:size-14 ${freelancer.background} ${freelancer.foreground}`}
-        >
+        <Monogram className={`size-12 text-base sm:size-14 ${freelancer.background} ${freelancer.foreground}`}>
           {freelancer.initials}
         </Monogram>
         <div className="min-w-0 flex-1">
@@ -58,7 +53,6 @@ export function FreelancerCard({
               <MapPin className="size-3.5" />
               {freelancer.location}
             </span>
-            <span>{freelancer.projects} projects</span>
           </div>
           <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-6">{freelancer.bio}</p>
           <div className="mt-4 flex flex-wrap gap-1.5">
@@ -87,7 +81,7 @@ export function FreelancerCard({
             <Link
               to="/messages"
               search={{ with: freelancer.id }}
-              className="inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-sm font-medium text-primary hover:bg-accent"
+              className="text-primary hover:bg-accent inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-sm font-medium"
             >
               Message
             </Link>

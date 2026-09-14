@@ -125,9 +125,6 @@ function SavedTalent() {
           )}
         </section>
       )}
-      <p className="text-center text-xs text-muted-foreground">
-        Demo profiles · Your saved list is kept on this device.
-      </p>
     </div>
   );
 }

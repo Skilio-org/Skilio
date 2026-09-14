@@ -39,14 +39,6 @@ export function ConversationList({
       <div className="px-5 pt-6">
         <div className="flex items-center justify-between gap-3">
           <h1 className="font-display text-2xl font-medium tracking-tight">Messages</h1>
-          <Link
-            to={clientMode ? "/freelancer-jobs" : "/talent"}
-            search={{ q: undefined }}
-            aria-label={clientMode ? "Find your next client" : "Find talent to message"}
-            className="border-border text-muted-foreground hover:bg-muted hover:text-primary grid size-11 place-items-center rounded-xl border transition-colors"
-          >
-            <ArrowUpRight className="size-4" />
-          </Link>
         </div>
         <p className="text-muted-foreground mt-1 text-xs">Your next great collaboration starts here.</p>
         <label className="border-input bg-background focus-within:border-primary focus-within:ring-primary/15 mt-6 flex min-h-11 items-center gap-2 rounded-lg border px-3 focus-within:ring-2">
