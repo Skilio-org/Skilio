@@ -325,7 +325,6 @@ class FreelancerProfileBase(SQLModel):
     location: str | None = Field(default=None, max_length=255)
     timezone: str | None = Field(default=None, max_length=100)
     languages: str | None = Field(default=None, max_length=500)
-    avatar_url: str | None = Field(default=None, max_length=2048)
     resume_url: str | None = Field(default=None, max_length=2048)
 
 
@@ -342,7 +341,6 @@ class FreelancerProfileUpdate(SQLModel):
     location: str | None = Field(default=None, max_length=255)
     timezone: str | None = Field(default=None, max_length=100)
     languages: str | None = Field(default=None, max_length=500)
-    avatar_url: str | None = Field(default=None, max_length=2048)
     resume_url: str | None = Field(default=None, max_length=2048)
     skills: list[ITSkill] | None = None
 

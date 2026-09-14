@@ -118,15 +118,10 @@ def read_profiles(
         avg_rating = session.exec(avg_rating_stmt).one()
         reviews_count = session.exec(reviews_count_stmt).one()
 
-        effective_avatar = profile.avatar_url or (
-            profile.user.avatar_url if profile.user else None
-        )
-
         profile_data = FreelancerProfilePublic.model_validate(
             profile,
             update={
                 "full_name": profile.user.full_name if profile.user else None,
-                "avatar_url": effective_avatar,
                 "average_rating": float(avg_rating) if avg_rating else None,
                 "reviews_count": reviews_count,
                 "is_saved": profile.id in saved_profile_ids,
@@ -168,15 +163,11 @@ def read_profile_me(session: SessionDep, current_user: CurrentUser) -> Any:
         MediaPublic.model_validate(media) for media in profile.portfolio_media
     ]
     user_public = UserPublic.model_validate(profile.user) if profile.user else None
-    effective_avatar = profile.avatar_url or (
-        profile.user.avatar_url if profile.user else None
-    )
 
     return FreelancerProfileDetailPublic.model_validate(
         profile,
         update={
             "full_name": current_user.full_name,
-            "avatar_url": effective_avatar,
             "average_rating": float(avg_rating) if avg_rating else None,
             "reviews_count": reviews_count,
             "portfolio_media": portfolio_public,
@@ -233,15 +224,11 @@ def read_profile(
     ]
 
     user_public = UserPublic.model_validate(profile.user) if profile.user else None
-    effective_avatar = profile.avatar_url or (
-        profile.user.avatar_url if profile.user else None
-    )
 
     return FreelancerProfileDetailPublic.model_validate(
         profile,
         update={
             "full_name": profile.user.full_name if profile.user else None,
-            "avatar_url": effective_avatar,
             "average_rating": float(avg_rating) if avg_rating else None,
             "reviews_count": reviews_count,
             "portfolio_media": portfolio_public,
@@ -351,13 +338,10 @@ def create_profile(
     session.commit()
     session.refresh(profile)
 
-    effective_avatar = profile.avatar_url or current_user.avatar_url
-
     return FreelancerProfilePublic.model_validate(
         profile,
         update={
             "full_name": current_user.full_name,
-            "avatar_url": effective_avatar,
             "average_rating": None,
             "reviews_count": 0,
             "is_saved": False,
@@ -423,15 +407,10 @@ def update_profile(
     avg_rating = session.exec(avg_rating_stmt).one()
     reviews_count = session.exec(reviews_count_stmt).one()
 
-    effective_avatar = profile.avatar_url or (
-        profile.user.avatar_url if profile.user else None
-    )
-
     return FreelancerProfilePublic.model_validate(
         profile,
         update={
             "full_name": profile.user.full_name if profile.user else None,
-            "avatar_url": effective_avatar,
             "average_rating": float(avg_rating) if avg_rating else None,
             "reviews_count": reviews_count,
             "is_saved": False,

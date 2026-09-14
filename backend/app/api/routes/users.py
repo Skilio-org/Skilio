@@ -120,6 +120,8 @@ async def proxy_media(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     cloudinary_url = user.avatar_url
+    if not cloudinary_url:
+        raise HTTPException(status_code=404, detail="Avatar not found")
     headers = {}
     try:
         req = client.build_request("GET", cloudinary_url, headers=headers)
