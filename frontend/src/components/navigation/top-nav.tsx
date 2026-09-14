@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router"
 import {
   Bell,
   Bookmark,
@@ -8,10 +8,10 @@ import {
   MessageSquare,
   Settings,
   UsersRound,
-} from "lucide-react";
+} from "lucide-react"
 
-import { Logo } from "@/components/common/logo";
-import { User } from "@/components/sidebar/user";
+import { Logo } from "@/components/common/logo"
+import { User } from "@/components/sidebar/user"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,26 +19,29 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useAccountRole } from "@/hooks/useAccountRole";
-import useAuth from "@/hooks/useAuth";
-import { FreelancerNav } from "./freelancer-nav";
+} from "@/components/ui/dropdown-menu"
+import { useAccountRole } from "@/hooks/useAccountRole"
+import useAuth from "@/hooks/useAuth"
+import { FreelancerNav } from "./freelancer-nav"
 
 export function TopNav() {
-  const { user } = useAuth();
-  const role = useAccountRole();
+  const { user } = useAuth()
+  const role = useAccountRole()
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
-  });
+  })
 
-  if (role === "freelancer") return <FreelancerNav />;
+  if (role === "freelancer") return <FreelancerNav />
 
   return (
     <header className="border-border bg-card/95 sticky top-0 z-50 border-b backdrop-blur-md">
       <div className="mx-auto flex h-[72px] max-w-[1320px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Logo to="/dashboard" className="h-8" />
 
-        <nav aria-label="Workspace navigation" className="ml-4 hidden h-full shrink-0 items-center gap-1 lg:flex">
+        <nav
+          aria-label="Workspace navigation"
+          className="ml-4 hidden h-full shrink-0 items-center gap-1 lg:flex"
+        >
           <Link
             to="/dashboard"
             className={`flex h-full items-center border-b-2 px-3 text-sm font-medium whitespace-nowrap transition-colors ${
@@ -90,9 +93,15 @@ export function TopNav() {
                 <Menu className="size-5" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={10} className="w-[min(19rem,calc(100vw-2rem))] p-2.5">
+            <DropdownMenuContent
+              align="end"
+              sideOffset={10}
+              className="w-[min(19rem,calc(100vw-2rem))] p-2.5"
+            >
               <DropdownMenuLabel className="px-2.5 pt-1 pb-2">
-                <span className="font-display text-foreground block text-base font-semibold">Client workspace</span>
+                <span className="font-display text-foreground block text-base font-semibold">
+                  Client workspace
+                </span>
                 <span className="text-muted-foreground mt-0.5 block text-xs font-normal">
                   Navigate your hiring activity
                 </span>
@@ -110,22 +119,37 @@ export function TopNav() {
                 icon={UsersRound}
                 active={pathname.startsWith("/talent")}
               />
-              <MobileNavLink to="/saved" label="Saved talent" icon={Bookmark} active={pathname === "/saved"} />
-              <MobileNavLink to="/messages" label="Messages" icon={MessageSquare} active={pathname === "/messages"} />
+              <MobileNavLink
+                to="/saved"
+                label="Saved talent"
+                icon={Bookmark}
+                active={pathname === "/saved"}
+              />
+              <MobileNavLink
+                to="/messages"
+                label="Messages"
+                icon={MessageSquare}
+                active={pathname === "/messages"}
+              />
               <MobileNavLink
                 to="/notifications"
                 label="Notifications"
                 icon={Bell}
                 active={pathname === "/notifications"}
               />
-              <MobileNavLink to="/settings" label="Settings" icon={Settings} active={pathname === "/settings"} />
+              <MobileNavLink
+                to="/settings"
+                label="Settings"
+                icon={Settings}
+                active={pathname === "/settings"}
+              />
               <DropdownMenuSeparator className="my-2" />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
     </header>
-  );
+  )
 }
 
 function MobileNavLink({
@@ -134,10 +158,16 @@ function MobileNavLink({
   icon: Icon,
   active,
 }: {
-  to: "/dashboard" | "/talent" | "/saved" | "/messages" | "/notifications" | "/settings";
-  label: string;
-  icon: LucideIcon;
-  active: boolean;
+  to:
+    | "/dashboard"
+    | "/talent"
+    | "/saved"
+    | "/messages"
+    | "/notifications"
+    | "/settings"
+  label: string
+  icon: LucideIcon
+  active: boolean
 }) {
   return (
     <DropdownMenuItem
@@ -147,7 +177,9 @@ function MobileNavLink({
       <Link to={to}>
         <span
           className={`grid size-8 place-items-center rounded-lg ${
-            active ? "bg-brand-600 text-white" : "bg-muted text-muted-foreground"
+            active
+              ? "bg-brand-600 text-white"
+              : "bg-muted text-muted-foreground"
           }`}
         >
           <Icon className="size-4 text-current" />
@@ -155,5 +187,5 @@ function MobileNavLink({
         <span className="font-semibold">{label}</span>
       </Link>
     </DropdownMenuItem>
-  );
+  )
 }

@@ -1,8 +1,8 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowLeft, TriangleAlert } from "lucide-react";
+import { Link } from "@tanstack/react-router"
+import { ArrowLeft, TriangleAlert } from "lucide-react"
 
-import { Logo } from "@/components/common/logo";
-import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/common/logo"
+import { Button } from "@/components/ui/button"
 
 const ErrorComponent = () => {
   return (
@@ -15,12 +15,15 @@ const ErrorComponent = () => {
           <div className="grid size-12 place-items-center rounded-2xl bg-amber-50 text-amber-700">
             <TriangleAlert className="size-6" />
           </div>
-          <p className="mt-8 text-xs font-bold tracking-[0.2em] text-amber-700 uppercase">Something went wrong</p>
+          <p className="mt-8 text-xs font-bold tracking-[0.2em] text-amber-700 uppercase">
+            Something went wrong
+          </p>
           <h1 className="font-display mt-3 text-4xl font-medium tracking-[-0.04em] sm:text-5xl">
             We hit an unexpected snag.
           </h1>
           <p className="text-muted-foreground mt-4 max-w-md leading-7">
-            Your work is safe. Return home and try again, or refresh the page if the problem continues.
+            Your work is safe. Return home and try again, or refresh the page if
+            the problem continues.
           </p>
           <Button asChild size="lg" className="mt-8 min-h-11">
             <Link to="/">
@@ -31,7 +34,7 @@ const ErrorComponent = () => {
         </section>
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default ErrorComponent;
+export default ErrorComponent

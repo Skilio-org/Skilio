@@ -1,13 +1,15 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
-import { FreelancerCard } from "@/components/talent/freelancer-card";
-import { freelancers } from "@/data/freelancers";
-import { useSavedTalent } from "@/hooks/useSavedTalent";
+import { Link } from "@tanstack/react-router"
+import { ArrowRight } from "lucide-react"
+import { FreelancerCard } from "@/components/talent/freelancer-card"
+import { freelancers } from "@/data/freelancers"
+import { useSavedTalent } from "@/hooks/useSavedTalent"
 
-const matches = freelancers.filter((person) => ["maya-laurent", "noah-williams", "amara-okafor"].includes(person.id));
+const matches = freelancers.filter((person) =>
+  ["maya-laurent", "noah-williams", "amara-okafor"].includes(person.id),
+)
 
 export const RecommendedFreelancers = () => {
-  const { savedIds, toggleSaved } = useSavedTalent();
+  const { savedIds, toggleSaved } = useSavedTalent()
   return (
     <section
       aria-labelledby="recommended-talent-heading"
@@ -15,8 +17,13 @@ export const RecommendedFreelancers = () => {
     >
       <div className="border-border flex flex-col gap-3 border-b p-5 sm:flex-row sm:items-end sm:justify-between sm:p-7">
         <div>
-          <p className="text-muted-foreground text-xs font-medium">Recommended for you</p>
-          <h2 id="recommended-talent-heading" className="mt-2 text-2xl font-medium tracking-tight">
+          <p className="text-muted-foreground text-xs font-medium">
+            Recommended for you
+          </p>
+          <h2
+            id="recommended-talent-heading"
+            className="mt-2 text-2xl font-medium tracking-tight"
+          >
             People worth getting to know
           </h2>
         </div>
@@ -39,5 +46,5 @@ export const RecommendedFreelancers = () => {
         ))}
       </div>
     </section>
-  );
-};
+  )
+}

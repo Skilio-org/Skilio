@@ -1,9 +1,9 @@
-import { workspaceStyles } from "@/components/dashboard/dashboard-header";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowUpRight, Search } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router"
+import { ArrowUpRight, Search } from "lucide-react"
+import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 
 export const TalentSearch = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   return (
     <section className="border-brand-200 bg-brand-50 rounded-2xl border p-6 sm:p-8">
       <div className="mb-6 flex items-start justify-between gap-5">
@@ -18,13 +18,17 @@ export const TalentSearch = () => {
       </div>
       <form
         onSubmit={(event) => {
-          event.preventDefault();
-          const q = String(new FormData(event.currentTarget).get("q") ?? "").trim();
-          void navigate({ to: "/talent", search: { q: q || undefined } });
+          event.preventDefault()
+          const q = String(
+            new FormData(event.currentTarget).get("q") ?? "",
+          ).trim()
+          void navigate({ to: "/talent", search: { q: q || undefined } })
         }}
       >
         <div className="flex flex-col gap-3 sm:flex-row">
-          <div className={`${workspaceStyles.inputShell} bg-card min-w-0 flex-1`}>
+          <div
+            className={`${workspaceStyles.inputShell} bg-card min-w-0 flex-1`}
+          >
             <Search className="text-muted-foreground size-5 shrink-0" />
             <label htmlFor="dashboard-search" className="sr-only">
               Search talent
@@ -37,7 +41,10 @@ export const TalentSearch = () => {
               className="placeholder:text-muted-foreground min-w-0 flex-1 bg-transparent px-3 py-3 text-base outline-none md:text-sm"
             />
           </div>
-          <button type="submit" className={`${workspaceStyles.primaryAction} min-h-12 px-6`}>
+          <button
+            type="submit"
+            className={`${workspaceStyles.primaryAction} min-h-12 px-6`}
+          >
             Search talent <Search className="size-4" />
           </button>
         </div>
@@ -57,5 +64,5 @@ export const TalentSearch = () => {
         ))}
       </div>
     </section>
-  );
-};
+  )
+}

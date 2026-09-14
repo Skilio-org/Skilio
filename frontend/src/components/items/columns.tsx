@@ -1,15 +1,15 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import { Check, Copy } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table"
+import { Check, Copy } from "lucide-react"
 
-import type { ItemPublic } from "@/client";
-import { Button } from "@/components/ui/button";
-import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
-import { cn } from "@/lib/utils";
-import { ItemActionsMenu } from "./item-actions-menu";
+import type { ItemPublic } from "@/client"
+import { Button } from "@/components/ui/button"
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard"
+import { cn } from "@/lib/utils"
+import { ItemActionsMenu } from "./item-actions-menu"
 
 function CopyId({ id }: { id: string }) {
-  const [copiedText, copy] = useCopyToClipboard();
-  const isCopied = copiedText === id;
+  const [copiedText, copy] = useCopyToClipboard()
+  const isCopied = copiedText === id
 
   return (
     <div className="group flex items-center gap-1.5">
@@ -20,11 +20,15 @@ function CopyId({ id }: { id: string }) {
         className="size-6 opacity-0 transition-opacity group-hover:opacity-100"
         onClick={() => copy(id)}
       >
-        {isCopied ? <Check className="size-3 text-green-500" /> : <Copy className="size-3" />}
+        {isCopied ? (
+          <Check className="size-3 text-green-500" />
+        ) : (
+          <Copy className="size-3" />
+        )}
         <span className="sr-only">Copy ID</span>
       </Button>
     </div>
-  );
+  )
 }
 
 export const columns: ColumnDef<ItemPublic>[] = [
@@ -36,18 +40,25 @@ export const columns: ColumnDef<ItemPublic>[] = [
   {
     accessorKey: "title",
     header: "Title",
-    cell: ({ row }) => <span className="font-medium">{row.original.title}</span>,
+    cell: ({ row }) => (
+      <span className="font-medium">{row.original.title}</span>
+    ),
   },
   {
     accessorKey: "description",
     header: "Description",
     cell: ({ row }) => {
-      const description = row.original.description;
+      const description = row.original.description
       return (
-        <span className={cn("text-muted-foreground block max-w-xs truncate", !description && "italic")}>
+        <span
+          className={cn(
+            "text-muted-foreground block max-w-xs truncate",
+            !description && "italic",
+          )}
+        >
           {description || "No description"}
         </span>
-      );
+      )
     },
   },
   {
@@ -59,4 +70,4 @@ export const columns: ColumnDef<ItemPublic>[] = [
       </div>
     ),
   },
-];
+]

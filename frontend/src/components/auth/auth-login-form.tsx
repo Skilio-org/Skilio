@@ -1,13 +1,20 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Link as RouterLink } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import type { Body_login_login_access_token as AccessToken } from "@/client";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { PasswordInput } from "@/components/ui/password-input";
-import useAuth from "@/hooks/useAuth";
-import { AuthInput } from "./auth-input";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Link as RouterLink } from "@tanstack/react-router"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import type { Body_login_login_access_token as AccessToken } from "@/client"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { LoadingButton } from "@/components/ui/loading-button"
+import { PasswordInput } from "@/components/ui/password-input"
+import useAuth from "@/hooks/useAuth"
+import { AuthInput } from "./auth-input"
 
 const formSchema = z.object({
   username: z.email({
@@ -22,18 +29,18 @@ const formSchema = z.object({
     .min(8, {
       message: "Password must be at least 8 characters.",
     }),
-}) satisfies z.ZodType<AccessToken>;
+}) satisfies z.ZodType<AccessToken>
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof formSchema>
 
 export const LoginForm = () => {
   const onSubmit = (data: FormData) => {
-    if (loginMutation.isPending) return;
+    if (loginMutation.isPending) return
 
-    loginMutation.mutate(data);
-  };
+    loginMutation.mutate(data)
+  }
 
-  const { loginMutation } = useAuth();
+  const { loginMutation } = useAuth()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -45,10 +52,14 @@ export const LoginForm = () => {
       username: "",
       password: "",
     },
-  });
+  })
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-5"
+        noValidate
+      >
         <AuthInput
           control={form.control}
           inputName="username"
@@ -64,7 +75,9 @@ export const LoginForm = () => {
           render={({ field }) => (
             <FormItem className="space-y-2">
               <div className="flex items-center justify-between gap-4">
-                <FormLabel className="text-foreground text-[13px] font-medium">Password</FormLabel>
+                <FormLabel className="text-foreground text-[13px] font-medium">
+                  Password
+                </FormLabel>
 
                 <RouterLink
                   to="/recover-password"
@@ -99,7 +112,7 @@ export const LoginForm = () => {
         </LoadingButton>
       </form>
     </Form>
-  );
-};
+  )
+}
 
-export default LoginForm;
+export default LoginForm

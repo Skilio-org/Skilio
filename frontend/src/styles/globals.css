@@ -16,10 +16,10 @@ html {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
   }
 }
 
@@ -113,13 +113,16 @@ html {
    * Product UI:
    * dashboards, forms, cards, filters, tables, nav...
    */
-  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans:
+    "Geist Variable", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   /*
    * Brand / marketing:
    * hero headlines, landing page headings, large CTAs
    */
-  --font-display: "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
 
   /* =======================================================
      RADIUS
@@ -364,7 +367,8 @@ html {
 
   --elevation-card-hover: 0 8px 24px rgb(26 39 68 / 0.07);
 
-  --elevation-floating: 0 8px 16px rgb(16 24 40 / 0.055), 0 20px 48px rgb(16 24 40 / 0.08);
+  --elevation-floating:
+    0 8px 16px rgb(16 24 40 / 0.055), 0 20px 48px rgb(16 24 40 / 0.08);
 }
 
 /* =========================================================
@@ -428,7 +432,8 @@ html {
 
   --elevation-card: 0 1px 2px rgb(0 0 0 / 0.14), 0 2px 8px rgb(0 0 0 / 0.08);
 
-  --elevation-card-hover: 0 4px 12px rgb(0 0 0 / 0.15), 0 12px 36px rgb(0 0 0 / 0.12);
+  --elevation-card-hover:
+    0 4px 12px rgb(0 0 0 / 0.15), 0 12px 36px rgb(0 0 0 / 0.12);
 
   --elevation-floating: 0 16px 48px rgb(0 0 0 / 0.28);
 }
@@ -550,14 +555,16 @@ html {
    * <h1 className="font-display text-6xl font-bold">
    */
   .font-display {
-    font-family: "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+    font-family:
+      "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
   }
 
   /*
    * Premium tighter headline tracking.
    */
   .heading-display {
-    font-family: "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+    font-family:
+      "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
 
     letter-spacing: -0.035em;
   }
@@ -662,8 +669,16 @@ html {
    */
   .brand-glow {
     background:
-      radial-gradient(circle at 80% 20%, rgb(93 112 247 / 0.11), transparent 30%),
-      radial-gradient(circle at 20% 80%, rgb(173 186 255 / 0.09), transparent 30%);
+      radial-gradient(
+        circle at 80% 20%,
+        rgb(93 112 247 / 0.11),
+        transparent 30%
+      ),
+      radial-gradient(
+        circle at 20% 80%,
+        rgb(173 186 255 / 0.09),
+        transparent 30%
+      );
   }
 
   /*
@@ -865,7 +880,7 @@ html {
 }
 @media (prefers-reduced-motion: reduce) {
   html {
-    scroll-behavior: auto !important;
+    scroll-behavior: auto;
   }
 }
 @media (max-width: 380px) {

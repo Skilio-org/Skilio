@@ -1,29 +1,35 @@
-import { createFileRoute, Navigate, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { Footer } from "@/components/common/footer";
-import { Logo } from "@/components/common/logo";
-import { TopNav } from "@/components/navigation/top-nav";
-import { Button } from "@/components/ui/button";
-import { useAccountRole } from "@/hooks/useAccountRole";
-import useAuth, { isLoggedIn } from "@/hooks/useAuth";
+import {
+  createFileRoute,
+  Navigate,
+  Outlet,
+  redirect,
+  useRouterState,
+} from "@tanstack/react-router"
+import { Footer } from "@/components/common/footer"
+import { Logo } from "@/components/common/logo"
+import { TopNav } from "@/components/navigation/top-nav"
+import { Button } from "@/components/ui/button"
+import { useAccountRole } from "@/hooks/useAccountRole"
+import useAuth, { isLoggedIn } from "@/hooks/useAuth"
 
 export const Route = createFileRoute("/_layout")({
   component: Layout,
   beforeLoad: () => {
-    if (import.meta.env.MODE === "visual-test") return;
+    if (import.meta.env.MODE === "visual-test") return
 
     if (!isLoggedIn()) {
       throw redirect({
         to: "/login",
-      });
+      })
     }
   },
-});
+})
 
 function Layout() {
-  const { user, isPending, isFetching, error, refetch, logout } = useAuth();
-  const role = useAccountRole();
-  const path = useRouterState({ select: (state) => state.location.pathname });
-  const isMessages = path === "/messages" || path === "/freelancer-messages";
+  const { user, isPending, isFetching, error, refetch, logout } = useAuth()
+  const role = useAccountRole()
+  const path = useRouterState({ select: (state) => state.location.pathname })
+  const isMessages = path === "/messages" || path === "/freelancer-messages"
 
   // Use the shared account query so expired sessions reach the existing
   // authentication handler, and transient failures remain recoverable.
@@ -41,9 +47,12 @@ function Layout() {
           >
             {error ? (
               <section role="alert" className="bg-card rounded-2xl border p-8">
-                <h1 className="text-2xl font-semibold tracking-tight">We couldn’t load your account</h1>
+                <h1 className="text-2xl font-semibold tracking-tight">
+                  We couldn’t load your account
+                </h1>
                 <p className="text-muted-foreground mt-3">
-                  Check your connection and try again, or sign in again to refresh your session.
+                  Check your connection and try again, or sign in again to
+                  refresh your session.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Button disabled={isFetching} onClick={() => void refetch()}>
@@ -56,12 +65,14 @@ function Layout() {
               </section>
             ) : (
               <p role="status" className="text-muted-foreground text-center">
-                {isPending ? "Loading your workspace…" : "Checking your account…"}
+                {isPending
+                  ? "Loading your workspace…"
+                  : "Checking your account…"}
               </p>
             )}
           </main>
         </div>
-      );
+      )
     }
     if (role === "freelancer") {
       if (
@@ -87,10 +98,10 @@ function Layout() {
                   : "/freelancer-dashboard"
             }
           />
-        );
+        )
       }
     } else if (path.startsWith("/freelancer")) {
-      return <Navigate replace to="/dashboard" />;
+      return <Navigate replace to="/dashboard" />
     }
   }
   return (
@@ -109,5 +120,5 @@ function Layout() {
       </main>
       {!isMessages && <Footer />}
     </div>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import { freelancers, type Freelancer } from "@/data/freelancers";
+import { type Freelancer, freelancers } from "@/data/freelancers"
 
 // Fictional workspace fixtures. No marketplace or payment API is called.
 export const demoClients: Freelancer[] = [
@@ -38,43 +38,48 @@ export const demoClients: Freelancer[] = [
     availability: "Discussing a new project",
     responseTime: "Demo client · Replies shown are sample messages.",
   },
-];
+]
 export const clientConversations = [
   {
     id: "olivia-bennett",
-    preview: "The team loves the direction. Could we review the prototype on Thursday?",
+    preview:
+      "The team loves the direction. Could we review the prototype on Thursday?",
     time: "10:31",
     unread: 2,
   },
   {
     id: "daniel-kim",
-    preview: "I've added the API notes to our brief. The staging environment is ready.",
+    preview:
+      "I've added the API notes to our brief. The staging environment is ready.",
     time: "Yesterday",
     unread: 1,
   },
   {
     id: "sarah-mitchell",
-    preview: "Thanks for your proposal. Could you share a little more about your process?",
+    preview:
+      "Thanks for your proposal. Could you share a little more about your process?",
     time: "Mon",
     unread: 0,
   },
-];
+]
 export const clientIntroductions: Record<string, string> = {
   "olivia-bennett":
     "Hi! I've shared the onboarding brief with you. We'd love your take on simplifying the first-run experience.",
-  "daniel-kim": "Welcome to the project. Let's start with the overview screen and the shared chart components.",
-  "sarah-mitchell": "Your recent work caught our eye. We are putting together a launch campaign for next month.",
-};
+  "daniel-kim":
+    "Welcome to the project. Let's start with the overview screen and the shared chart components.",
+  "sarah-mitchell":
+    "Your recent work caught our eye. We are putting together a launch campaign for next month.",
+}
 export type DemoProject = {
-  id: string;
-  title: string;
-  company: string;
-  client: string;
-  amount: number;
-  due: string;
-  status: "Active" | "Completed";
-  milestones: { title: string; amount: number; done: boolean }[];
-};
+  id: string
+  title: string
+  company: string
+  client: string
+  amount: number
+  due: string
+  status: "Active" | "Completed"
+  milestones: { title: string; amount: number; done: boolean }[]
+}
 export const demoProjects: DemoProject[] = [
   {
     id: "northstar",
@@ -117,7 +122,7 @@ export const demoProjects: DemoProject[] = [
       { title: "Messaging guide", amount: 900, done: true },
     ],
   },
-];
+]
 export const demoTransactions = [
   {
     id: "TX-1048",
@@ -151,6 +156,10 @@ export const demoTransactions = [
     amount: 2400,
     status: "Paid out",
   },
-];
+]
 export const money = (amount: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(amount);
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(amount)

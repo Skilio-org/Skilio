@@ -1,23 +1,27 @@
-import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header";
-import { ProfileProgress } from "@/components/dashboard/dashboard-profile-progress";
-import { RecommendedFreelancers } from "@/components/dashboard/dashboard-recommended";
-import { TalentSearch } from "@/components/dashboard/dashboard-talent-search";
-import useAuth from "@/hooks/useAuth";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { ProfileProgress } from "@/components/dashboard/dashboard-profile-progress"
+import { RecommendedFreelancers } from "@/components/dashboard/dashboard-recommended"
+import { TalentSearch } from "@/components/dashboard/dashboard-talent-search"
+import useAuth from "@/hooks/useAuth"
 
 export const Route = createFileRoute("/_layout/dashboard")({
   component: Dashboard,
   head: () => ({ meta: [{ title: "Overview | Freelancer" }] }),
-});
+})
 
 function Dashboard() {
-  const { user } = useAuth();
-  const firstName = user?.full_name?.trim().split(/\s+/)[0];
+  const { user } = useAuth()
+  const firstName = user?.full_name?.trim().split(/\s+/)[0]
   return (
     <div className="space-y-8">
       <WorkspacePageHeader
         eyebrow="Client workspace / Overview"
-        title={firstName ? `Good to see you, ${firstName}.` : "Find your next collaborator."}
+        title={
+          firstName
+            ? `Good to see you, ${firstName}.`
+            : "Find your next collaborator."
+        }
         description="Continue your search or review professionals selected for you."
         action=""
       />
@@ -30,5 +34,5 @@ function Dashboard() {
         </aside>
       </section>
     </div>
-  );
+  )
 }

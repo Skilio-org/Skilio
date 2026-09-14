@@ -1,6 +1,6 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
 
-import { Logo } from "@/components/common/logo";
+import { Logo } from "@/components/common/logo"
 
 export function LandingFooter() {
   return (
@@ -8,7 +8,10 @@ export function LandingFooter() {
       <div className="mx-auto max-w-[1344px]">
         <div className="border-border flex flex-col gap-8 border-b pb-10 sm:flex-row sm:items-center sm:justify-between">
           <Logo className="h-8 w-auto self-start" />
-          <nav aria-label="Footer navigation" className="text-muted-foreground flex flex-wrap gap-x-7 gap-y-3 text-sm">
+          <nav
+            aria-label="Footer navigation"
+            className="text-muted-foreground flex flex-wrap gap-x-7 gap-y-3 text-sm"
+          >
             <a href="#talent" className="hover:text-foreground">
               Find talent
             </a>
@@ -29,5 +32,5 @@ export function LandingFooter() {
         </div>
       </div>
     </footer>
-  );
+  )
 }

@@ -1,20 +1,24 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { Search } from "lucide-react";
-import { Suspense } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query"
+import { createFileRoute } from "@tanstack/react-router"
+import { Search } from "lucide-react"
+import { Suspense } from "react"
 
-import { ItemsService } from "@/client";
-import { DataTable } from "@/components/common/data-table";
-import { WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header";
-import AddItem from "@/components/items/add-item";
-import { columns } from "@/components/items/columns";
-import PendingItems from "@/components/pending/pending-items";
+import { ItemsService } from "@/client"
+import { DataTable } from "@/components/common/data-table"
+import {
+  WorkspacePageHeader,
+  WorkspaceSurface,
+} from "@/components/dashboard/dashboard-header"
+import AddItem from "@/components/items/add-item"
+import { columns } from "@/components/items/columns"
+import PendingItems from "@/components/pending/pending-items"
 
 function getItemsQueryOptions() {
   return {
-    queryFn: async () => (await ItemsService.readItems({ query: { skip: 0, limit: 100 } })).data,
+    queryFn: async () =>
+      (await ItemsService.readItems({ query: { skip: 0, limit: 100 } })).data,
     queryKey: ["items"],
-  };
+  }
 }
 
 export const Route = createFileRoute("/_layout/items")({
@@ -26,10 +30,10 @@ export const Route = createFileRoute("/_layout/items")({
       },
     ],
   }),
-});
+})
 
 function ItemsTableContent() {
-  const { data: items } = useSuspenseQuery(getItemsQueryOptions());
+  const { data: items } = useSuspenseQuery(getItemsQueryOptions())
 
   if (items.data.length === 0) {
     return (
@@ -40,10 +44,10 @@ function ItemsTableContent() {
         <h3 className="text-lg font-semibold">You don't have any items yet</h3>
         <p className="text-muted-foreground">Add a new item to get started</p>
       </div>
-    );
+    )
   }
 
-  return <DataTable columns={columns} data={items.data} />;
+  return <DataTable columns={columns} data={items.data} />
 }
 
 function ItemsTable() {
@@ -51,7 +55,7 @@ function ItemsTable() {
     <Suspense fallback={<PendingItems />}>
       <ItemsTableContent />
     </Suspense>
-  );
+  )
 }
 
 function Items() {
@@ -67,5 +71,5 @@ function Items() {
         <ItemsTable />
       </WorkspaceSurface>
     </div>
-  );
+  )
 }

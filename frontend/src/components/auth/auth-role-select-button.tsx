@@ -1,19 +1,25 @@
-import { UseMutationResult } from "@tanstack/react-query";
-import { Check, UserRound, Workflow } from "lucide-react";
-import { ControllerRenderProps } from "react-hook-form";
+import type { UseMutationResult } from "@tanstack/react-query"
+import { Check, UserRound, Workflow } from "lucide-react"
+import type { ControllerRenderProps } from "react-hook-form"
 
-type Role = "freelancer" | "client";
+type Role = "freelancer" | "client"
 
 type RoleSelectButtonProps = {
-  field: ControllerRenderProps<any, "role">;
-  signUpMutation: UseMutationResult<any, Error, any>;
-  userRole: Role;
-  title: string;
-  description: string;
-};
+  field: ControllerRenderProps<any, "role">
+  signUpMutation: UseMutationResult<any, Error, any>
+  userRole: Role
+  title: string
+  description: string
+}
 
-export const RoleSelectButton = ({ field, signUpMutation, userRole, title, description }: RoleSelectButtonProps) => {
-  const selected = field.value === userRole;
+export const RoleSelectButton = ({
+  field,
+  signUpMutation,
+  userRole,
+  title,
+  description,
+}: RoleSelectButtonProps) => {
+  const selected = field.value === userRole
   return (
     <button
       type="button"
@@ -33,13 +39,19 @@ export const RoleSelectButton = ({ field, signUpMutation, userRole, title, descr
             : `bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-accent-foreground`
         } `}
       >
-        {userRole === "client" ? <UserRound className="size-5" /> : <Workflow className="size-5" />}
+        {userRole === "client" ? (
+          <UserRound className="size-5" />
+        ) : (
+          <Workflow className="size-5" />
+        )}
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="text-foreground text-[15px] font-semibold">{title}</div>
 
-        <p className="text-muted-foreground mt-1.5 text-[13px] leading-5">{description}</p>
+        <p className="text-muted-foreground mt-1.5 text-[13px] leading-5">
+          {description}
+        </p>
       </div>
       <div
         className={`flex size-6 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
@@ -51,7 +63,7 @@ export const RoleSelectButton = ({ field, signUpMutation, userRole, title, descr
         <Check className="size-3.5" strokeWidth={3} />
       </div>
     </button>
-  );
-};
+  )
+}
 
-export default RoleSelectButton;
+export default RoleSelectButton

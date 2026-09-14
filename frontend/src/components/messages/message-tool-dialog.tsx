@@ -1,21 +1,27 @@
-import { FileText } from "lucide-react";
-import { useState } from "react";
-import { workspaceStyles } from "@/components/dashboard/dashboard-header";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FileText } from "lucide-react"
+import { useState } from "react"
+import { workspaceStyles } from "@/components/dashboard/dashboard-header"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export function MessageToolDialogView({
   onClose,
   onInsert,
 }: {
-  onClose: () => void;
-  onInsert: (brief: string) => void;
+  onClose: () => void
+  onInsert: (brief: string) => void
 }) {
-  const [brief, setBrief] = useState("");
+  const [brief, setBrief] = useState("")
   return (
     <Dialog
       open
       onOpenChange={(open) => {
-        if (!open) onClose();
+        if (!open) onClose()
       }}
     >
       <DialogContent className="sm:max-w-lg">
@@ -25,13 +31,14 @@ export function MessageToolDialogView({
           </span>
           <DialogTitle>Add a project brief</DialogTitle>
           <DialogDescription>
-            Give your collaborator a clear starting point. You can review it in your message before sending.
+            Give your collaborator a clear starting point. You can review it in
+            your message before sending.
           </DialogDescription>
         </DialogHeader>
         <form
           onSubmit={(event) => {
-            event.preventDefault();
-            if (brief.trim()) onInsert(brief.trim());
+            event.preventDefault()
+            if (brief.trim()) onInsert(brief.trim())
           }}
           className="space-y-5"
         >
@@ -51,7 +58,11 @@ export function MessageToolDialogView({
             />
           </label>
           <div className="flex justify-end gap-3">
-            <button type="button" className={workspaceStyles.secondaryAction} onClick={onClose}>
+            <button
+              type="button"
+              className={workspaceStyles.secondaryAction}
+              onClick={onClose}
+            >
               Cancel
             </button>
             <button
@@ -65,5 +76,5 @@ export function MessageToolDialogView({
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
