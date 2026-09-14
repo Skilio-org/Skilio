@@ -1,4 +1,4 @@
-import { defineConfig } from "@hey-api/openapi-ts";
+import { defineConfig } from "@hey-api/openapi-ts"
 
 export default defineConfig({
   input: "./openapi.json",
@@ -18,4 +18,4 @@ export default defineConfig({
       },
     },
   ],
-});
+})

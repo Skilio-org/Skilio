@@ -1,18 +1,27 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Bell, Eye, KeyRound, Palette, ShieldCheck, Trash2, UserRound } from "lucide-react";
-import { z } from "zod";
+import { createFileRoute } from "@tanstack/react-router"
+import { Bell, Eye, KeyRound, Palette, Trash2, UserRound } from "lucide-react"
+import { z } from "zod"
 
-import { Monogram } from "@/components/dashboard/dashboard-header";
-import ChangePassword from "@/components/user-settings/change-password";
-import DeleteAccount from "@/components/user-settings/delete-account";
-import { AppearanceSettings, NotificationSettings, PrivacySettings } from "@/components/user-settings/preferences";
-import UserInformation from "@/components/user-settings/user-information";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import useAuth from "@/hooks/useAuth";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import ChangePassword from "@/components/user-settings/change-password"
+import DeleteAccount from "@/components/user-settings/delete-account"
+import {
+  AppearanceSettings,
+  NotificationSettings,
+  PrivacySettings,
+} from "@/components/user-settings/preferences"
+import UserInformation from "@/components/user-settings/user-information"
 
-const settingsSectionSchema = z.enum(["profile", "password", "notifications", "privacy", "appearance", "danger-zone"]);
+const settingsSectionSchema = z.enum([
+  "profile",
+  "password",
+  "notifications",
+  "privacy",
+  "appearance",
+  "danger-zone",
+])
 
-type SettingsSection = z.infer<typeof settingsSectionSchema>;
+type SettingsSection = z.infer<typeof settingsSectionSchema>
 
 const settingsSections = [
   {
@@ -58,7 +67,7 @@ const settingsSections = [
     component: DeleteAccount,
     destructive: true,
   },
-];
+]
 
 export const Route = createFileRoute("/_layout/settings")({
   component: UserSettings,
@@ -68,52 +77,14 @@ export const Route = createFileRoute("/_layout/settings")({
   head: () => ({
     meta: [{ title: "Account settings | Freelancer" }],
   }),
-});
+})
 
 function UserSettings() {
-  const { user: currentUser } = useAuth();
-  const { section = "profile" } = Route.useSearch();
-  const navigate = Route.useNavigate();
-
-  const displayName = currentUser?.full_name || "Client account";
-  const initials = displayName
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const { section = "profile" } = Route.useSearch()
+  const navigate = Route.useNavigate()
 
   return (
     <div className="space-y-7">
-      <header className="border-border bg-card shadow-card relative overflow-hidden rounded-[28px] border px-5 py-7 sm:px-8 sm:py-9">
-        <div className="from-brand-50/80 dark:from-brand-950/40 absolute inset-y-0 right-0 w-2/5 bg-gradient-to-l to-transparent" />
-        <div className="relative flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-          <div className="max-w-2xl">
-            <div className="text-brand-700 flex items-center gap-2 text-sm font-semibold">
-              <ShieldCheck className="size-4" />
-              Client workspace
-            </div>
-            <h1 className="font-display mt-3 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
-              Your account, your way.
-            </h1>
-            <p className="text-muted-foreground mt-2 max-w-xl text-sm leading-6 sm:text-base">
-              Manage your identity, security, communication preferences, and how Freelancer works for you.
-            </p>
-          </div>
-          <div className="border-border bg-background/80 flex items-center gap-3 rounded-2xl border p-3 pr-5 backdrop-blur-sm">
-            <Monogram className="bg-brand-100 text-brand-800 dark:bg-brand-950 dark:text-brand-200 size-11 text-sm">
-              {initials}
-            </Monogram>
-            <div className="min-w-0">
-              <p className="max-w-48 truncate text-sm font-semibold">{displayName}</p>
-              <p className="text-muted-foreground max-w-48 truncate text-xs">
-                {currentUser?.email || "client@example.com"}
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <Tabs
         value={section}
         onValueChange={(value) =>
@@ -127,11 +98,13 @@ function UserSettings() {
       >
         <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <div className="mb-3 hidden px-2 lg:block">
-            <p className="text-muted-foreground text-xs font-semibold tracking-[0.16em] uppercase">Settings</p>
+            <p className="text-muted-foreground text-xs font-semibold tracking-[0.16em] uppercase">
+              Settings
+            </p>
           </div>
           <TabsList className="border-border bg-card shadow-card flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl border p-2 lg:flex-col lg:overflow-visible">
             {settingsSections.map((section) => {
-              const Icon = section.icon;
+              const Icon = section.icon
               return (
                 <TabsTrigger
                   key={section.value}
@@ -146,33 +119,34 @@ function UserSettings() {
                     <Icon className="size-4" />
                   </span>
                   <span className="hidden min-w-0 flex-1 lg:block">
-                    <span className="block text-sm font-semibold">{section.title}</span>
+                    <span className="block text-sm font-semibold">
+                      {section.title}
+                    </span>
                     <span className="text-muted-foreground mt-0.5 block text-[11px] font-normal">
                       {section.description}
                     </span>
                   </span>
-                  <span className="text-sm font-semibold lg:hidden">{section.title}</span>
+                  <span className="text-sm font-semibold lg:hidden">
+                    {section.title}
+                  </span>
                 </TabsTrigger>
-              );
+              )
             })}
           </TabsList>
-          <div className="border-brand-100 bg-brand-50/60 dark:border-brand-900 dark:bg-brand-950/35 mt-4 hidden rounded-2xl border p-4 lg:block">
-            <ShieldCheck className="text-brand-700 size-4" />
-            <p className="mt-2 text-xs font-semibold">Account protected</p>
-            <p className="text-muted-foreground mt-1 text-[11px] leading-5">
-              Your identity and sign-in details are handled securely.
-            </p>
-          </div>
         </aside>
 
         <div className="min-w-0">
           {settingsSections.map((section) => (
-            <TabsContent key={section.value} value={section.value} className="m-0 space-y-5">
+            <TabsContent
+              key={section.value}
+              value={section.value}
+              className="m-0 space-y-5"
+            >
               <section.component />
             </TabsContent>
           ))}
         </div>
       </Tabs>
     </div>
-  );
+  )
 }

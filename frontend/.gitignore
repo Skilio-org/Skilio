@@ -25,3 +25,4 @@ openapi.json
 *.sw?
 /blob-report/
 /design-system
+/tests/artifacts/

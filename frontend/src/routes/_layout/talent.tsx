@@ -1,22 +1,36 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
 import {
   ArrowDownWideNarrow,
   Banknote,
-  BriefcaseBusiness,
   Clock3,
-  Filter,
-  type LucideIcon,
   MapPin,
   Search,
   SlidersHorizontal,
   X,
-} from "lucide-react";
-import { useMemo, useState } from "react";
+} from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 
-import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
-import { FreelancerCard } from "@/components/talent/freelancer-card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { freelancers } from "@/data/freelancers";
+import {
+  WorkspacePageHeader,
+  workspaceStyles,
+} from "@/components/dashboard/dashboard-header"
+import { FreelancerCard } from "@/components/talent/freelancer-card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import { freelancers } from "@/data/freelancers"
+import { useSavedTalent } from "@/hooks/useSavedTalent"
 
 export const Route = createFileRoute("/_layout/talent")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -24,40 +38,46 @@ export const Route = createFileRoute("/_layout/talent")({
   }),
   component: TalentDirectory,
   head: () => ({ meta: [{ title: "Find talent | Freelancer" }] }),
-});
+})
 
-const specialties = ["All talent", "Development", "Design", "Marketing", "AI services"] as const;
+const specialties = [
+  "All talent",
+  "Development",
+  "Design",
+  "Marketing",
+  "AI services",
+] as const
 
-const popularSearches = ["Product designer", "React developer", "AI engineer"];
+const popularSearches = ["Product designer", "React developer", "AI engineer"]
 
 const rateOptions = [
   { value: "any", label: "Any hourly rate" },
   { value: "under-50", label: "Under $50/hr" },
-  { value: "50-100", label: "$50–$100/hr" },
+  { value: "50-100", label: "$50–$99/hr" },
   { value: "100-plus", label: "$100+/hr" },
-];
+]
 
 const availabilityOptions = [
   { value: "any", label: "Any availability" },
   { value: "now", label: "Available now" },
   { value: "week", label: "Available this week" },
   { value: "next-week", label: "Available next week" },
-];
+]
 
 const locationOptions = [
   { value: "worldwide", label: "Worldwide" },
   { value: "europe", label: "Europe" },
   { value: "north-america", label: "North America" },
   { value: "asia-pacific", label: "Asia Pacific" },
-];
+]
 
 const specialtyTerms: Record<(typeof specialties)[number], string[]> = {
   "All talent": [],
   Development: ["engineer", "developer", "react", "typescript", "node.js"],
-  Design: ["designer", "design", "figma", "ux"],
+  Design: ["designer", "product design", "figma", "ux research"],
   Marketing: ["marketing", "brand", "growth", "seo", "positioning"],
   "AI services": ["ai", "automation", "llm", "rag", "python"],
-};
+}
 
 const searchAliases: Record<string, string[]> = {
   developer: ["developer", "engineer"],
@@ -65,273 +85,433 @@ const searchAliases: Record<string, string[]> = {
   designer: ["designer", "design"],
   design: ["design", "designer"],
   ai: ["ai", "llm", "automation"],
-};
+}
 
 function TalentDirectory() {
-  const { q } = Route.useSearch();
-  const [query, setQuery] = useState(q ?? "");
-  const [specialty, setSpecialty] = useState<(typeof specialties)[number]>("All talent");
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [rate, setRate] = useState("any");
-  const [availability, setAvailability] = useState("any");
-  const [location, setLocation] = useState("worldwide");
-  const [sort, setSort] = useState("best-match");
+  const { q } = Route.useSearch()
+  const navigate = Route.useNavigate()
+  const [query, setQuery] = useState(q ?? "")
+  useEffect(() => setQuery(q ?? ""), [q])
+  const { savedIds, toggleSaved } = useSavedTalent()
+  const [savedOnly, setSavedOnly] = useState(false)
+  const [specialty, setSpecialty] =
+    useState<(typeof specialties)[number]>("All talent")
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [rate, setRate] = useState("any")
+  const [availability, setAvailability] = useState("any")
+  const [location, setLocation] = useState("worldwide")
+  const [sort, setSort] = useState("best-match")
 
-  const activeFilterCount = [rate !== "any", availability !== "any", location !== "worldwide"].filter(Boolean).length;
+  const activeFilterCount = [
+    rate !== "any",
+    availability !== "any",
+    location !== "worldwide",
+  ].filter(Boolean).length
 
   const results = useMemo(() => {
-    const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
-    const expertiseTerms = specialtyTerms[specialty];
+    const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean)
+    const expertiseTerms = specialtyTerms[specialty]
 
     const filtered = freelancers.filter((person) => {
-      const haystack = [person.name, person.title, person.location, person.bio, ...person.skills]
+      const haystack = [
+        person.name,
+        person.title,
+        person.location,
+        person.bio,
+        ...person.skills,
+      ]
         .join(" ")
-        .toLowerCase();
+        .toLowerCase()
 
       const matchesSearch =
         searchTerms.length === 0 ||
-        searchTerms.every((term) => (searchAliases[term] ?? [term]).some((candidate) => haystack.includes(candidate)));
-      const matchesSpecialty = expertiseTerms.length === 0 || expertiseTerms.some((term) => haystack.includes(term));
+        searchTerms.every((term) =>
+          (searchAliases[term] ?? [term]).some((candidate) =>
+            haystack.includes(candidate),
+          ),
+        )
+      const matchesSpecialty =
+        expertiseTerms.length === 0 ||
+        expertiseTerms.some((term) => haystack.includes(term))
       const matchesRate =
         rate === "any" ||
         (rate === "under-50" && person.rate < 50) ||
-        (rate === "50-100" && person.rate >= 50 && person.rate <= 100) ||
-        (rate === "100-plus" && person.rate >= 100);
+        (rate === "50-100" && person.rate >= 50 && person.rate < 100) ||
+        (rate === "100-plus" && person.rate >= 100)
       const matchesAvailability =
         availability === "any" ||
         (availability === "now" && person.availability === "Available now") ||
-        (availability === "week" && person.availability === "Available this week") ||
-        (availability === "next-week" && person.availability === "Available next week");
+        (availability === "week" &&
+          person.availability === "Available this week") ||
+        (availability === "next-week" &&
+          person.availability === "Available next week")
       const matchesLocation =
         location === "worldwide" ||
         (location === "europe" &&
-          ["France", "Portugal", "United Kingdom"].some((country) => person.location.includes(country))) ||
+          ["France", "Portugal", "United Kingdom"].some((country) =>
+            person.location.includes(country),
+          )) ||
         (location === "north-america" &&
-          ["Canada", "United States"].some((country) => person.location.includes(country))) ||
-        (location === "asia-pacific" && person.location === "Singapore");
+          ["Canada", "United States"].some((country) =>
+            person.location.includes(country),
+          )) ||
+        (location === "asia-pacific" && person.location === "Singapore")
 
-      return matchesSearch && matchesSpecialty && matchesRate && matchesAvailability && matchesLocation;
-    });
+      return (
+        matchesSearch &&
+        matchesSpecialty &&
+        matchesRate &&
+        matchesAvailability &&
+        matchesLocation &&
+        (!savedOnly || savedIds.includes(person.id))
+      )
+    })
 
     return filtered.sort((first, second) => {
-      if (sort === "highest-rated") return second.rating - first.rating;
-      if (sort === "lowest-rate") return first.rate - second.rate;
-      return second.successRate - first.successRate || second.rating - first.rating;
-    });
-  }, [availability, location, query, rate, sort, specialty]);
+      if (sort === "highest-rated") return second.rating - first.rating
+      if (sort === "lowest-rate") return first.rate - second.rate
+      return (
+        second.successRate - first.successRate || second.rating - first.rating
+      )
+    })
+  }, [
+    availability,
+    location,
+    query,
+    rate,
+    sort,
+    specialty,
+    savedOnly,
+    savedIds,
+  ])
 
   const resetFilters = () => {
-    setRate("any");
-    setAvailability("any");
-    setLocation("worldwide");
-  };
+    setRate("any")
+    setAvailability("any")
+    setLocation("worldwide")
+  }
 
-  return (
+  const clearAll = () => {
+    setQuery("")
+    setSpecialty("All talent")
+    setSavedOnly(false)
+    resetFilters()
+    void navigate({ search: { q: undefined }, replace: true })
+  }
+  const hasFilters =
+    !!query || specialty !== "All talent" || activeFilterCount > 0 || savedOnly
+  const filterFields = (group: string) => (
     <div className="space-y-7">
-      <header className="border-border border-b pb-7 sm:pb-8">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div className="max-w-2xl">
-            <WorkspacePageHeader
-              eyebrow="Talent discovery"
-              title="Find the right talent"
-              description="Discover skilled professionals by expertise, role, and location."
-            />
-            <p className="text-muted-foreground mt-2 text-sm leading-6 sm:text-base"></p>
-          </div>
-        </div>
-
-        <search className="block">
-          <form onSubmit={(event) => event.preventDefault()} className="mt-6 flex items-stretch gap-3">
-            <div className="border-input bg-card focus-within:border-brand-600 focus-within:ring-brand-100 dark:focus-within:ring-brand-950 flex min-h-14 min-w-0 flex-1 items-center rounded-xl border px-4 transition-[border-color,box-shadow] focus-within:ring-4">
-              <Search className="text-muted-foreground size-5 shrink-0" />
-              <label htmlFor="talent-directory-search" className="sr-only">
-                Search professionals
-              </label>
-              <input
-                id="talent-directory-search"
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search by role, skill, or location"
-                className="placeholder:text-muted-foreground min-w-0 flex-1 appearance-none bg-transparent px-3 text-base outline-none [&::-webkit-search-cancel-button]:hidden"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => setQuery("")}
-                  aria-label="Clear search"
-                  className="text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-ring grid size-10 shrink-0 place-items-center rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
-                >
-                  <X className="size-4" />
-                </button>
-              )}
-            </div>
-            <button
-              type="button"
-              aria-label="Toggle talent filters"
-              onClick={() => setFiltersOpen((value) => !value)}
-              aria-expanded={filtersOpen}
-              className={`${workspaceStyles.secondaryAction} min-h-14 shrink-0 rounded-xl px-4 lg:hidden`}
+      <fieldset>
+        <legend className="mb-3 flex items-center gap-2 text-sm font-medium">
+          <Banknote className="text-muted-foreground size-4" />
+          Hourly rate
+        </legend>
+        <div className="space-y-1">
+          {rateOptions.map((option) => (
+            <label
+              key={option.value}
+              className="hover:bg-muted flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 text-sm"
             >
-              <SlidersHorizontal className="size-4" />
-              <span className="hidden sm:inline">Filters</span>
-              {activeFilterCount > 0 && (
-                <span className="bg-brand-600 grid size-5 place-items-center rounded-full text-[10px] text-white">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
-          </form>
-
-          <div className="mt-2 flex flex-wrap items-center gap-x-1 text-sm">
-            <span className="text-muted-foreground mr-1">Popular:</span>
-            {popularSearches.map((item) => (
+              <input
+                type="radio"
+                name={group}
+                value={option.value}
+                checked={rate === option.value}
+                onChange={() => setRate(option.value)}
+                className="accent-primary size-4"
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <FilterSelect
+        label="Availability"
+        icon={Clock3}
+        value={availability}
+        onValueChange={setAvailability}
+        options={availabilityOptions}
+      />
+      <FilterSelect
+        label="Location"
+        icon={MapPin}
+        value={location}
+        onValueChange={setLocation}
+        options={locationOptions}
+      />
+      {activeFilterCount > 0 && (
+        <button
+          type="button"
+          onClick={resetFilters}
+          className="text-primary min-h-11 text-sm font-medium hover:underline"
+        >
+          Clear filters
+        </button>
+      )}
+    </div>
+  )
+  return (
+    <div className="space-y-6">
+      <WorkspacePageHeader
+        eyebrow="Find talent"
+        title="Good people for your next project."
+        description="Explore experience, compare skills, and find someone you’d like to work with."
+      />
+      <search className="block">
+        <form
+          onSubmit={(event) => {
+            event.preventDefault()
+            void navigate({
+              search: { q: query.trim() || undefined },
+              replace: true,
+            })
+          }}
+          className="flex gap-2"
+        >
+          <label className="border-input bg-card focus-within:border-primary focus-within:ring-primary/10 flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl border px-4 focus-within:ring-2">
+            <Search className="text-muted-foreground size-5 shrink-0" />
+            <span className="sr-only">Search professionals</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Try a role, skill, or name"
+              className="min-w-0 flex-1 bg-transparent text-base outline-none [&::-webkit-search-cancel-button]:hidden"
+            />
+            {query && (
               <button
-                key={item}
                 type="button"
-                onClick={() => setQuery(item)}
-                className="text-foreground hover:text-brand-700 focus-visible:outline-ring min-h-11 rounded-lg px-2 font-medium underline-offset-4 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-1"
+                onClick={() => {
+                  setQuery("")
+                  void navigate({ search: { q: undefined }, replace: true })
+                }}
+                aria-label="Clear search"
+                className="text-muted-foreground hover:bg-muted grid size-10 shrink-0 place-items-center rounded-lg"
               >
-                {item}
+                <X className="size-4" />
               </button>
-            ))}
-          </div>
-        </search>
-      </header>
-
-      <div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className={`${filtersOpen ? "block" : "hidden"} lg:sticky lg:top-24 lg:block`}>
-          <section className="border-border bg-card shadow-card overflow-hidden rounded-2xl border">
-            <header className="border-border flex items-center justify-between border-b p-5">
-              <div>
-                <h2 className="font-display text-lg font-semibold">Filters</h2>
-                <p className="text-muted-foreground mt-0.5 text-xs">Refine your shortlist</p>
-              </div>
-              {activeFilterCount > 0 && (
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className="text-brand-700 hover:bg-brand-50 min-h-9 rounded-full px-3 text-xs font-semibold"
-                >
-                  Reset
-                </button>
-              )}
-            </header>
-            <div className="space-y-5 p-5">
-              <FilterSelect
-                label="Hourly rate"
-                icon={Banknote}
-                value={rate}
-                onValueChange={setRate}
-                options={rateOptions}
-              />
-              <FilterSelect
-                label="Availability"
-                icon={Clock3}
-                value={availability}
-                onValueChange={setAvailability}
-                options={availabilityOptions}
-              />
-              <FilterSelect
-                label="Location"
-                icon={MapPin}
-                value={location}
-                onValueChange={setLocation}
-                options={locationOptions}
-              />
-            </div>
-          </section>
+            )}
+          </label>
+          <button
+            type="submit"
+            className="bg-primary text-primary-foreground hidden min-h-14 rounded-xl px-7 text-sm font-medium hover:opacity-90 sm:block"
+          >
+            Search
+          </button>
+          <button
+            type="button"
+            aria-label="Open talent filters"
+            aria-expanded={filtersOpen}
+            onClick={() => setFiltersOpen(true)}
+            className="border-border bg-card relative grid min-h-14 w-14 shrink-0 place-items-center rounded-xl border lg:hidden"
+          >
+            <SlidersHorizontal className="size-5" />
+            {activeFilterCount > 0 && (
+              <span className="bg-primary text-primary-foreground absolute top-1 right-1 rounded-full px-1.5 text-[10px]">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+        </form>
+        <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 text-xs">
+          <span>Try:</span>
+          {popularSearches.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => {
+                setQuery(item)
+                void navigate({ search: { q: item }, replace: true })
+              }}
+              className="text-foreground decoration-border hover:text-primary min-h-11 font-medium underline underline-offset-4"
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      </search>
+      <nav
+        aria-label="Talent specialties"
+        className="border-border flex gap-5 overflow-x-auto border-b sm:gap-7"
+      >
+        {specialties.map((item) => (
+          <button
+            type="button"
+            key={item}
+            aria-pressed={specialty === item}
+            onClick={() => setSpecialty(item)}
+            className={`min-h-12 shrink-0 border-b-2 px-1 text-sm font-medium transition-colors ${specialty === item ? "border-primary text-primary" : "text-muted-foreground hover:text-foreground border-transparent"}`}
+          >
+            {item}
+          </button>
+        ))}
+      </nav>
+      <div className="grid items-start gap-6 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
+        <aside
+          aria-label="Talent filters"
+          className="sticky top-24 hidden lg:block"
+        >
+          <h2 className="mb-6 text-base font-semibold">Refine your search</h2>
+          {filterFields("desktop-rate")}
+          <p className="border-border text-muted-foreground mt-7 border-t pt-5 text-xs leading-6">
+            Demo directory. Profiles, reviews, and rates are sample data.
+          </p>
         </aside>
-
-        <section className="min-w-0 space-y-5" aria-label="Talent results">
-          <section aria-labelledby="expertise-heading">
-            <div className="mb-3">
-              <h2 id="expertise-heading" className="text-sm font-semibold">
-                Browse by expertise
-              </h2>
-              <p className="text-muted-foreground mt-0.5 text-xs">Start with a discipline, then refine.</p>
-            </div>
-            <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Talent specialties">
-              {specialties.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setSpecialty(item)}
-                  className={`min-h-10 shrink-0 rounded-full border px-4 text-sm font-semibold transition ${
-                    specialty === item
-                      ? "border-slate-950 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-slate-950"
-                      : "border-border bg-card text-muted-foreground hover:border-brand-200 hover:text-foreground"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </nav>
-          </section>
-
-          <div className="border-border flex flex-col justify-between gap-3 border-b pb-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="font-display text-foreground text-2xl font-semibold">
-                {query ? `Results for “${query}”` : "Recommended for you"}
-              </p>
-              <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm">
-                <BriefcaseBusiness className="size-4" />
-                <strong className="text-foreground">{results.length}</strong>
-                reviewed professionals
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <ArrowDownWideNarrow className="text-muted-foreground size-4" />
+        <section aria-label="Talent results" className="min-w-0">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <p role="status" className="text-muted-foreground text-sm">
+              <strong className="text-foreground font-semibold">
+                {results.length}
+              </strong>{" "}
+              {results.length === 1 ? "professional" : "professionals"}
+              {query ? ` matching “${query}”` : " to explore"}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
               <Select value={sort} onValueChange={setSort}>
                 <SelectTrigger
                   aria-label="Sort talent"
-                  className="border-border bg-card shadow-card h-11 min-w-40 rounded-xl px-3.5 font-semibold"
+                  className="border-border bg-card h-11 w-44 rounded-lg text-xs"
                 >
+                  <ArrowDownWideNarrow className="text-muted-foreground size-3.5" />
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent align="end">
-                  <SelectItem value="best-match">Best match</SelectItem>
+                  <SelectItem value="best-match">Recommended</SelectItem>
                   <SelectItem value="highest-rated">Highest rated</SelectItem>
                   <SelectItem value="lowest-rate">Lowest rate</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-
-          {results.length > 0 ? (
-            <div className="space-y-4">
-              {results.map((freelancer, index) => (
-                <FreelancerCard key={freelancer.id} freelancer={freelancer} featured={index === 0} />
+          {hasFilters && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {specialty !== "All talent" && (
+                <FilterChip
+                  label={specialty}
+                  onRemove={() => setSpecialty("All talent")}
+                />
+              )}
+              {rate !== "any" && (
+                <FilterChip
+                  label={
+                    rateOptions.find((option) => option.value === rate)
+                      ?.label ?? rate
+                  }
+                  onRemove={() => setRate("any")}
+                />
+              )}
+              {availability !== "any" && (
+                <FilterChip
+                  label={
+                    availabilityOptions.find(
+                      (option) => option.value === availability,
+                    )?.label ?? availability
+                  }
+                  onRemove={() => setAvailability("any")}
+                />
+              )}
+              {location !== "worldwide" && (
+                <FilterChip
+                  label={
+                    locationOptions.find((option) => option.value === location)
+                      ?.label ?? location
+                  }
+                  onRemove={() => setLocation("worldwide")}
+                />
+              )}
+              <button
+                type="button"
+                onClick={clearAll}
+                className="text-primary min-h-9 px-2 text-xs font-medium hover:underline"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+          {results.length ? (
+            <div className="divide-border border-border divide-y overflow-hidden rounded-xl border">
+              {results.map((person) => (
+                <FreelancerCard
+                  key={person.id}
+                  freelancer={person}
+                  saved={savedIds.includes(person.id)}
+                  onToggleSaved={() => toggleSaved(person.id)}
+                />
               ))}
             </div>
           ) : (
-            <div className="border-border bg-card grid min-h-80 place-items-center rounded-2xl border border-dashed p-8 text-center">
-              <div>
-                <span className="bg-muted text-muted-foreground mx-auto grid size-12 place-items-center rounded-full">
-                  <Filter className="size-5" />
-                </span>
-                <h2 className="font-display mt-4 text-xl font-semibold">No matching profiles</h2>
-                <p className="text-muted-foreground mt-2 text-sm">Try a broader skill or remove a filter.</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setQuery("");
-                    setSpecialty("All talent");
-                    resetFilters();
-                  }}
-                  className={`${workspaceStyles.primaryAction} mt-5`}
-                >
-                  Reset search
-                </button>
-              </div>
+            <div className="border-border bg-card rounded-xl border px-6 py-16 text-center">
+              <Search className="text-muted-foreground mx-auto size-7" />
+              <h2 className="mt-5 text-xl font-medium tracking-tight">
+                {savedOnly && !savedIds.length
+                  ? "Start your shortlist"
+                  : "No matching profiles"}
+              </h2>
+              <p className="text-muted-foreground mx-auto mt-3 max-w-sm text-sm leading-6">
+                {savedOnly && !savedIds.length
+                  ? "Use the bookmark on a profile to add it to Saved talent."
+                  : "Try a broader skill, another location, or a different hourly rate."}
+              </p>
+              <button
+                type="button"
+                onClick={clearAll}
+                className={`${workspaceStyles.secondaryAction} mt-6`}
+              >
+                Browse all talent
+              </button>
             </div>
           )}
         </section>
       </div>
+      <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <SheetContent
+          side="right"
+          className="flex w-full flex-col gap-0 sm:max-w-sm"
+        >
+          <SheetHeader className="border-border border-b">
+            <SheetTitle>Refine your search</SheetTitle>
+            <SheetDescription>
+              Choose the experience, rate, and availability you need.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto p-6">
+            {filtersOpen && filterFields("mobile-rate")}
+          </div>
+          <div className="border-border border-t p-5">
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(false)}
+              className={`${workspaceStyles.primaryAction} w-full`}
+            >
+              Show {results.length}{" "}
+              {results.length === 1 ? "professional" : "professionals"}
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
-  );
+  )
 }
-
+function FilterChip({
+  label,
+  onRemove,
+}: {
+  label: string
+  onRemove: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onRemove}
+      aria-label={`Remove ${label} filter`}
+      className="bg-accent text-accent-foreground inline-flex min-h-9 items-center gap-2 rounded-md px-3 text-xs"
+    >
+      {label}
+      <X className="size-3" />
+    </button>
+  )
+}
 function FilterSelect({
   label,
   icon: Icon,
@@ -339,11 +519,11 @@ function FilterSelect({
   onValueChange,
   options,
 }: {
-  label: string;
-  icon: LucideIcon;
-  value: string;
-  onValueChange: (value: string) => void;
-  options: { value: string; label: string }[];
+  label: string
+  icon: typeof MapPin
+  value: string
+  onValueChange: (value: string) => void
+  options: { value: string; label: string }[]
 }) {
   return (
     <div>
@@ -351,7 +531,10 @@ function FilterSelect({
         <Icon className="text-brand-600 size-3.5" /> {label}
       </span>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger aria-label={label} className="bg-background h-12 w-full">
+        <SelectTrigger
+          aria-label={label}
+          className="bg-card h-12 w-full rounded-lg"
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -363,5 +546,5 @@ function FilterSelect({
         </SelectContent>
       </Select>
     </div>
-  );
+  )
 }

@@ -1,234 +1,356 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
 import {
   Archive,
   ArrowLeft,
-  BadgeCheck,
-  CheckCheck,
+  ArrowUpRight,
   FileText,
   Info,
+  Mail,
+  MessageSquare,
   MoreHorizontal,
-  Paperclip,
   Search,
   Send,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
-
-import { Monogram, workspaceStyles } from "@/components/dashboard/dashboard-header";
-import { MessageBubble } from "@/components/messages/message-bubble";
-import type { MessageToolDialog } from "@/components/messages/message-types";
+  X,
+} from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Monogram } from "@/components/dashboard/dashboard-header"
+import { MessageBubble } from "@/components/messages/message-bubble"
+import type { ThreadMessage } from "@/components/messages/message-types"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import type { Freelancer } from "@/data/freelancers";
+} from "@/components/ui/dropdown-menu"
+import type { Freelancer } from "@/data/freelancers"
+import { cn } from "@/lib/utils"
+
+const iconButton =
+  "grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 
 export function MessageThread({
+  clientMode = false,
   selected,
-  selectedId,
-  incomingMessage,
-  sentMessages,
+  messages,
   draft,
+  archived,
   onBack,
-  onOpenTool,
-  onShowUnread,
+  onOpenBrief,
+  onDetails,
+  onArchive,
+  onMarkUnread,
   onDraftChange,
   onSend,
+  onOpenLatest,
 }: {
-  selected: Freelancer;
-  selectedId: string;
-  incomingMessage?: string;
-  sentMessages: string[];
-  draft: string;
-  onBack: () => void;
-  onOpenTool: (dialog: Exclude<MessageToolDialog, null>) => void;
-  onShowUnread: () => void;
-  onDraftChange: (draft: string) => void;
-  onSend: () => void;
+  clientMode?: boolean
+  selected?: Freelancer
+  messages: ThreadMessage[]
+  draft: string
+  archived: boolean
+  onBack: () => void
+  onOpenBrief: () => void
+  onDetails: () => void
+  onArchive: () => void
+  onMarkUnread: () => void
+  onDraftChange: (draft: string) => void
+  onSend: () => void
+  onOpenLatest: () => void
 }) {
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [query, setQuery] = useState("")
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const composer = useRef<HTMLTextAreaElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
+  const count = messages.length
+  const selectedId = selected?.id
+  useEffect(() => {
+    if (query || !selectedId || !count) return
+    const scroller = scrollRef.current
+    if (scroller) scroller.scrollTop = scroller.scrollHeight
+  }, [selectedId, count, query])
+  useEffect(() => {
+    if (searchOpen) searchRef.current?.focus()
+  }, [searchOpen])
+  useEffect(() => {
+    const scroller = scrollRef.current
+    if (!scroller || !selectedId) return
+    let previousHeight = scroller.clientHeight
+    const observer = new ResizeObserver(() => {
+      const height = scroller.clientHeight
+      scroller.scrollTop += previousHeight - height
+      previousHeight = height
+    })
+    observer.observe(scroller)
+    return () => observer.disconnect()
+  }, [selectedId])
+  const term = query.trim()
+  const visible = term
+    ? messages.filter((message) =>
+        message.body.toLowerCase().includes(term.toLowerCase()),
+      )
+    : messages
+
+  if (!selected)
+    return (
+      <section
+        aria-label="No conversation selected"
+        className="bg-background/60 hidden min-w-0 flex-col items-center justify-center px-8 text-center lg:flex"
+      >
+        <span className="border-border bg-card text-primary grid size-20 place-items-center rounded-3xl border">
+          <MessageSquare className="size-8" strokeWidth={1.5} />
+        </span>
+        <h2 className="font-display mt-7 max-w-sm text-3xl font-medium tracking-tight">
+          Good work starts with a conversation.
+        </h2>
+        <p className="text-muted-foreground mt-4 max-w-sm text-sm leading-7">
+          Choose a conversation to share ideas, ask questions, and work through
+          the details together.
+        </p>
+        <button
+          type="button"
+          onClick={onOpenLatest}
+          className="text-primary mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium"
+        >
+          Open latest conversation <ArrowUpRight className="size-4" />
+        </button>
+      </section>
+    )
+
   return (
     <section
       aria-label={`Conversation with ${selected.name}`}
-      className={`${selectedId ? "flex" : "hidden lg:flex"} bg-background min-h-0 min-w-0 flex-col`}
+      className="bg-background/60 flex min-h-0 min-w-0 flex-col"
     >
-      <header className="border-border bg-card flex min-h-[76px] items-center gap-3 border-b px-3 sm:px-5">
+      <header className="border-border bg-card flex min-h-[76px] shrink-0 items-center gap-2 border-b px-3 sm:gap-3 sm:px-6">
         <button
           type="button"
-          onClick={() => onBack()}
+          onClick={onBack}
           aria-label="Back to conversations"
-          className="hover:bg-muted grid size-11 place-items-center rounded-full transition lg:hidden"
+          className={cn(iconButton, "lg:hidden")}
         >
           <ArrowLeft className="size-5" />
         </button>
-        <div className="relative">
-          <Monogram className={`size-11 text-sm ${selected.background} ${selected.foreground}`}>
-            {selected.initials}
-          </Monogram>
-          <span className="border-card absolute right-0 bottom-0 size-3 rounded-full border-2 bg-emerald-500" />
+        <Monogram
+          className={cn(
+            "hidden size-10 text-xs sm:grid",
+            selected.background,
+            selected.foreground,
+          )}
+        >
+          {selected.initials}
+        </Monogram>
+        <div className="min-w-0 flex-1">
+          {clientMode ? (
+            <button
+              type="button"
+              onClick={onDetails}
+              className="hover:text-primary block max-w-full truncate text-left text-sm font-semibold"
+            >
+              {selected.name}
+            </button>
+          ) : (
+            <Link
+              to="/talent/$freelancerId"
+              params={{ freelancerId: selected.id }}
+              search={{ q: undefined }}
+              className="hover:text-primary block truncate text-sm font-semibold"
+            >
+              {selected.name}
+            </Link>
+          )}
+          <p className="text-muted-foreground mt-1 truncate text-xs">
+            {selected.title}
+          </p>
         </div>
-        <div className="min-w-0">
-          <Link
-            to="/talent/$freelancerId"
-            params={{ freelancerId: selected.id }}
-            search={{ q: undefined }}
-            className="font-display hover:text-brand-700 flex items-center gap-1 truncate font-semibold"
-          >
-            {selected.name}
-            <BadgeCheck className="text-brand-600 size-3.5 shrink-0" />
-          </Link>
-          <p className="truncate text-xs text-emerald-700">Online · {selected.responseTime.replace("Usually ", "")}</p>
+        <button
+          type="button"
+          aria-label="Search this conversation"
+          aria-expanded={searchOpen}
+          onClick={() => {
+            setSearchOpen(!searchOpen)
+            setQuery("")
+          }}
+          className={cn(iconButton, searchOpen && "bg-accent text-primary")}
+        >
+          <Search className="size-[18px]" />
+        </button>
+        <button
+          type="button"
+          aria-label="Show conversation details"
+          onClick={onDetails}
+          className={iconButton}
+        >
+          <Info className="size-[18px]" />
+        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label="Conversation options"
+              className={iconButton}
+            >
+              <MoreHorizontal className="size-5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 p-1.5">
+            <DropdownMenuItem onSelect={onMarkUnread} className="min-h-11">
+              <Mail className="size-4" />
+              Mark as unread
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={onArchive} className="min-h-11">
+              <Archive className="size-4" />
+              {archived ? "Move to inbox" : "Archive conversation"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </header>
+      {searchOpen && (
+        <div className="border-border bg-card border-b px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-2">
+            <Search className="text-muted-foreground size-4" />
+            <input
+              ref={searchRef}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              aria-label="Search messages in this conversation"
+              placeholder="Find a word or phrase"
+              className="min-h-11 min-w-0 flex-1 rounded-md bg-transparent px-2 text-sm outline-none"
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  setSearchOpen(false)
+                  setQuery("")
+                }
+              }}
+            />
+            <button
+              type="button"
+              aria-label="Close conversation search"
+              onClick={() => {
+                setSearchOpen(false)
+                setQuery("")
+              }}
+              className={iconButton}
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+          {term && (
+            <p role="status" className="text-muted-foreground pb-1 text-xs">
+              {visible.length} {visible.length === 1 ? "message" : "messages"}{" "}
+              found
+            </p>
+          )}
         </div>
-        <div className="ml-auto flex items-center gap-1">
+      )}
+      {archived && (
+        <div className="border-border bg-muted text-muted-foreground flex items-center justify-between border-b px-5 py-2 text-xs">
+          <span>Archived conversation</span>
           <button
             type="button"
-            aria-label="Search this conversation"
-            onClick={() => onOpenTool("search")}
-            className={`${workspaceStyles.iconButton} border-transparent`}
+            onClick={onArchive}
+            className="text-primary min-h-9 font-medium"
           >
-            <Search className="size-4" />
+            Move to inbox
           </button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                aria-label="Conversation options"
-                className={`${workspaceStyles.iconButton} border-transparent`}
-              >
-                <MoreHorizontal className="size-5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={() => onShowUnread()}>
-                <CheckCheck className="size-4" />
-                Show unread only
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled>
-                <Archive className="size-4" />
-                Archive conversation
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/talent/$freelancerId" params={{ freelancerId: selected.id }} search={{ q: undefined }}>
-                  <Info className="size-4" />
-                  View talent details
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
-      </header>
-
-      <div className="min-h-0 flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_var(--color-brand-50),_transparent_38%)] p-4 sm:p-6 dark:bg-none">
-        <div className="mx-auto max-w-2xl space-y-6">
-          <div className="flex items-center gap-3 py-1">
-            <span className="bg-border h-px flex-1" />
-            <span className="text-muted-foreground text-[11px] font-medium">Today</span>
-            <span className="bg-border h-px flex-1" />
-          </div>
-
-          <div className="border-brand-100 bg-brand-50/70 dark:border-brand-900 dark:bg-brand-950/35 rounded-2xl border p-4 text-center">
-            <Sparkles className="text-brand-600 mx-auto size-4" />
-            <p className="mt-2 text-xs font-medium">You started a conversation with {selected.name}</p>
-            <p className="text-muted-foreground mt-1 text-[11px]">Keep project details and files together here.</p>
-          </div>
-
-          <MessageBubble
-            initials={selected.initials}
-            avatarClass={`${selected.background} ${selected.foreground}`}
-            message={
-              incomingMessage ?? "Thanks for reaching out. I’d be happy to learn more about what you’re building."
-            }
-            time="10:24 AM"
-          />
-
-          <div className="ml-auto max-w-[88%] sm:max-w-[76%]">
-            <div className="bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-3 text-sm leading-6 shadow-sm">
-              Great to meet you. We’re building a client-facing marketplace and need help making the core experience
-              feel clear and trustworthy.
+      )}
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-8"
+      >
+        <div className="mx-auto max-w-3xl">
+          {!term && (
+            <div className="mb-8 text-center">
+              <span className="border-border bg-card text-muted-foreground rounded-full border px-3 py-1.5 text-[10px]">
+                Sample conversation
+              </span>
             </div>
-            <p className="text-muted-foreground mt-1 flex items-center justify-end gap-1 text-[11px]">
-              10:28 AM <CheckCheck className="text-brand-600 size-3.5" />
-            </p>
+          )}
+          <div
+            role="log"
+            aria-label="Message history"
+            aria-live="polite"
+            aria-relevant="additions"
+            className="space-y-6"
+          >
+            {visible.map((message) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                name={selected.name.split(" ")[0]}
+                highlight={term}
+              />
+            ))}
           </div>
-
-          <MessageBubble
-            initials={selected.initials}
-            avatarClass={`${selected.background} ${selected.foreground}`}
-            message="Absolutely — I can share a first approach tomorrow. Could you send the main user flow and the screens you want prioritized?"
-            time="10:31 AM"
-          />
-
-          {sentMessages.map((message, index) => (
-            <div key={`${message}-${index}`} className="ml-auto max-w-[88%] sm:max-w-[76%]">
-              <div className="bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-3 text-sm leading-6 shadow-sm">
-                {message}
-              </div>
-              <p className="text-muted-foreground mt-1 flex items-center justify-end gap-1 text-[11px]">
-                Now <CheckCheck className="text-brand-600 size-3.5" />
+          {term && !visible.length && (
+            <div className="py-10 text-center">
+              <Search className="text-muted-foreground mx-auto size-6" />
+              <h2 className="mt-4 text-sm font-medium">
+                No messages match this search
+              </h2>
+              <p className="text-muted-foreground mt-2 text-xs">
+                Try another word or phrase.
               </p>
             </div>
-          ))}
+          )}
         </div>
       </div>
-
-      <footer className="border-border bg-card border-t p-3 sm:p-4">
+      <footer className="border-border bg-card shrink-0 border-t px-3 pt-3 pb-2 sm:px-6 sm:pt-4 sm:pb-3">
         <form
           onSubmit={(event) => {
-            event.preventDefault();
-            onSend();
+            event.preventDefault()
+            onSend()
+            composer.current?.focus()
           }}
-          className="border-input bg-background focus-within:border-brand-600 focus-within:ring-brand-100 rounded-2xl border p-2 transition-shadow focus-within:ring-4"
+          className="border-input bg-card focus-within:border-primary/60 focus-within:ring-primary/10 rounded-xl border transition-shadow focus-within:ring-2"
         >
           <textarea
+            ref={composer}
             value={draft}
             onChange={(event) => onDraftChange(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                onSend();
+              if (
+                event.key === "Enter" &&
+                !event.shiftKey &&
+                !event.nativeEvent.isComposing &&
+                window.matchMedia("(pointer: fine)").matches
+              ) {
+                event.preventDefault()
+                onSend()
               }
             }}
             rows={2}
-            aria-label="Message"
-            placeholder={`Message ${selected.name.split(" ")[0]}…`}
-            className="min-h-12 w-full resize-none bg-transparent px-3 py-2 text-base leading-6 outline-none md:text-sm"
+            maxLength={10000}
+            aria-label={`Message ${selected.name}`}
+            placeholder={`Write to ${selected.name.split(" ")[0]}…`}
+            className="block max-h-36 min-h-16 w-full resize-none rounded-t-xl bg-transparent px-4 pt-3 pb-1 text-base leading-6 outline-none sm:text-sm"
           />
-          <div className="border-border flex items-center gap-1 border-t px-1 pt-2">
+          <div className="flex items-center gap-2 px-2 pb-2">
             <button
               type="button"
-              aria-label="Attach a file"
-              onClick={() => onOpenTool("attachment")}
-              className="text-muted-foreground hover:bg-muted hover:text-foreground grid size-10 place-items-center rounded-full transition"
-            >
-              <Paperclip className="size-4" />
-            </button>
-            <button
-              type="button"
-              aria-label="Add a project brief"
-              onClick={() => onOpenTool("brief")}
-              className="text-muted-foreground hover:bg-muted hover:text-foreground grid size-10 place-items-center rounded-full transition"
+              onClick={onOpenBrief}
+              className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-xs font-medium"
             >
               <FileText className="size-4" />
+              Add a brief
             </button>
-            <span className="text-muted-foreground ml-1 hidden text-[11px] sm:block">
-              Enter to send · Shift + Enter for a new line
+            <span className="text-muted-foreground ml-auto hidden text-[10px] xl:block">
+              Enter to send. Shift + Enter for a new line.
             </span>
             <button
               type="submit"
               disabled={!draft.trim()}
-              className="bg-primary text-primary-foreground hover:bg-brand-700 ml-auto inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
+              className="bg-primary text-primary-foreground ml-auto inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 xl:ml-2"
             >
               Send <Send className="size-3.5" />
             </button>
           </div>
         </form>
-        <p className="text-muted-foreground mt-2 flex items-center justify-center gap-1.5 text-[10px]">
-          <ShieldCheck className="size-3" /> Conversations are protected on Freelancer.
+        <p className="text-muted-foreground mt-2 text-center text-[10px]">
+          Preview only. Messages aren't delivered.
         </p>
       </footer>
     </section>
-  );
+  )
 }

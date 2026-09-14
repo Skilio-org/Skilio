@@ -1,8 +1,8 @@
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { createRootRoute, HeadContent, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import ErrorComponent from "@/components/common/error-component";
-import NotFound from "@/components/common/not-found";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import { createRootRoute, HeadContent, Outlet } from "@tanstack/react-router"
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
+import ErrorComponent from "@/components/common/error-component"
+import NotFound from "@/components/common/not-found"
 
 export const Route = createRootRoute({
   component: () => (
@@ -21,4 +21,4 @@ export const Route = createRootRoute({
   ),
   notFoundComponent: () => <NotFound />,
   errorComponent: () => <ErrorComponent />,
-});
+})

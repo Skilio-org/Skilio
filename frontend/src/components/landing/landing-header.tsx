@@ -1,43 +1,71 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
+import { ArrowUpRight, Menu } from "lucide-react"
+import { Logo } from "@/components/common/logo"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+const links = [
+  ["#talent", "Find talent"],
+  ["#categories", "Categories"],
+  ["#how-it-works", "How it works"],
+]
 
 export function LandingHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-      <div className="mx-auto flex h-[72px] max-w-[1440px] items-center px-5 sm:px-8 lg:px-12">
-        <a href="#main-content" aria-label="Freelancer home" className="shrink-0">
-          <img src="/assets/images/freelancer-logo.png" alt="Freelancer" className="h-8 w-auto" />
-        </a>
-
+    <header className="border-border bg-card/95 sticky top-0 z-50 border-b backdrop-blur-md">
+      <div className="landing-container flex h-[76px] items-center gap-3">
+        <Logo className="h-7 sm:h-8" />
         <nav
           aria-label="Main navigation"
-          className="ml-14 hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex"
+          className="text-muted-foreground ml-12 hidden items-center gap-7 text-sm font-medium lg:flex"
         >
-          <a className="transition-colors hover:text-slate-950" href="#talent">
-            Find talent
-          </a>
-          <a className="transition-colors hover:text-slate-950" href="#categories">
-            Categories
-          </a>
-          <a className="transition-colors hover:text-slate-950" href="#how-it-works">
-            How it works
-          </a>
+          {links.map(([href, label]) => (
+            <a key={href} className="landing-nav-link" href={href}>
+              {label}
+            </a>
+          ))}
         </nav>
-
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <div className="ml-auto flex items-center gap-2 sm:gap-4">
           <Link
             to="/login"
-            className="hover:text-brand-700 hidden min-h-11 items-center px-4 text-sm font-semibold text-slate-700 transition-colors sm:inline-flex"
+            className="landing-nav-link inline-flex min-h-11 items-center px-2 text-sm font-medium"
           >
             Log in
           </Link>
           <Link
             to="/signup"
-            className="bg-brand-600 hover:bg-brand-700 focus-visible:outline-brand-600 inline-flex min-h-11 items-center justify-center rounded-full px-4 text-sm font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 sm:px-5"
+            className="landing-primary min-h-11 gap-3 px-4 text-sm sm:px-5"
           >
-            Create account
+            <span className="hidden sm:inline">Create account</span>
+            <span className="sm:hidden">Join</span>
+            <ArrowUpRight className="size-4" />
           </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                aria-label="Open navigation"
+                className="hover:bg-muted grid size-11 place-items-center rounded-lg lg:hidden"
+              >
+                <Menu className="size-5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 p-2">
+              {links.map(([href, label]) => (
+                <DropdownMenuItem asChild key={href}>
+                  <a className="min-h-11" href={href}>
+                    {label}
+                  </a>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
-  );
+  )
 }

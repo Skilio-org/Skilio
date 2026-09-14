@@ -1,9 +1,13 @@
-import { createFileRoute, Link as RouterLink, redirect } from "@tanstack/react-router";
-import Divider from "@/components/auth/auth-divider";
-import LoginForm from "@/components/auth/auth-login-form";
-import SocialAuth from "@/components/auth/auth-social";
-import { AuthLayout } from "@/components/common/auth-layout";
-import { isLoggedIn } from "@/hooks/useAuth";
+import {
+  createFileRoute,
+  Link as RouterLink,
+  redirect,
+} from "@tanstack/react-router"
+import Divider from "@/components/auth/auth-divider"
+import LoginForm from "@/components/auth/auth-login-form"
+import SocialAuth from "@/components/auth/auth-social"
+import { AuthLayout } from "@/components/common/auth-layout"
+import { isLoggedIn } from "@/hooks/useAuth"
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -12,7 +16,7 @@ export const Route = createFileRoute("/login")({
     if (isLoggedIn()) {
       throw redirect({
         to: "/dashboard",
-      });
+      })
     }
   },
 
@@ -27,7 +31,7 @@ export const Route = createFileRoute("/login")({
       },
     ],
   }),
-});
+})
 
 function Login() {
   return (
@@ -59,5 +63,5 @@ function Login() {
         </div>
       </div>
     </AuthLayout>
-  );
+  )
 }

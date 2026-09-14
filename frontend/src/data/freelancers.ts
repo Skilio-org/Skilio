@@ -1,27 +1,27 @@
 export type Freelancer = {
-  id: string;
-  initials: string;
-  name: string;
-  title: string;
-  location: string;
-  timezone: string;
-  rate: number;
-  rating: number;
-  reviews: number;
-  projects: number;
-  successRate: number;
-  availability: string;
-  responseTime: string;
-  bio: string;
-  about: string[];
-  skills: string[];
-  languages: { name: string; level: string }[];
-  education: string;
-  memberSince: string;
-  background: string;
-  foreground: string;
-  portfolio: { title: string; category: string; color: string }[];
-};
+  id: string
+  initials: string
+  name: string
+  title: string
+  location: string
+  timezone: string
+  rate: number
+  rating: number
+  reviews: number
+  projects: number
+  successRate: number
+  availability: string
+  responseTime: string
+  bio: string
+  about: string[]
+  skills: string[]
+  languages: { name: string; level: string }[]
+  education: string
+  memberSince: string
+  background: string
+  foreground: string
+  portfolio: { title: string; category: string; color: string }[]
+}
 
 export const freelancers: Freelancer[] = [
   {
@@ -43,7 +43,15 @@ export const freelancers: Freelancer[] = [
       "I help product teams turn complex workflows into calm, useful experiences. My work spans early product strategy, UX research, interaction design, and production-ready design systems.",
       "I work closely with founders and engineering teams, keeping decisions visible and making sure the final product is as practical to build as it is intuitive to use.",
     ],
-    skills: ["Product design", "Figma", "UX research", "Design systems", "Prototyping", "SaaS", "User testing"],
+    skills: [
+      "Product design",
+      "Figma",
+      "UX research",
+      "Design systems",
+      "Prototyping",
+      "SaaS",
+      "User testing",
+    ],
     languages: [
       { name: "French", level: "Native" },
       { name: "English", level: "Fluent" },
@@ -85,7 +93,15 @@ export const freelancers: Freelancer[] = [
       "I’m a senior full-stack engineer who enjoys taking products from a rough brief to a stable, measurable release. I specialize in TypeScript systems, React interfaces, and pragmatic Node.js services.",
       "Clients bring me in when they need strong technical judgment, clear communication, and an engineer who can own the result rather than only the ticket.",
     ],
-    skills: ["React", "TypeScript", "Node.js", "PostgreSQL", "AWS", "Next.js", "System design"],
+    skills: [
+      "React",
+      "TypeScript",
+      "Node.js",
+      "PostgreSQL",
+      "AWS",
+      "Next.js",
+      "System design",
+    ],
     languages: [
       { name: "English", level: "Native" },
       { name: "French", level: "Conversational" },
@@ -131,7 +147,14 @@ export const freelancers: Freelancer[] = [
       "I partner with founders and marketing leaders to clarify what their brand stands for and how to express it consistently. Engagements usually cover customer research, positioning, messaging, and launch strategy.",
       "My approach is evidence-led and collaborative, producing a practical foundation your whole team can use—not a presentation that gathers dust.",
     ],
-    skills: ["Brand strategy", "Positioning", "Research", "Messaging", "Content strategy", "Go-to-market"],
+    skills: [
+      "Brand strategy",
+      "Positioning",
+      "Research",
+      "Messaging",
+      "Content strategy",
+      "Go-to-market",
+    ],
     languages: [
       { name: "English", level: "Native" },
       { name: "Igbo", level: "Fluent" },
@@ -169,7 +192,15 @@ export const freelancers: Freelancer[] = [
       "I design and implement AI-assisted workflows that reduce repetitive work without turning core business processes into a black box.",
       "My projects combine retrieval systems, evaluation, human review, and careful observability so teams can trust what they put into production.",
     ],
-    skills: ["Python", "LLM applications", "RAG", "FastAPI", "OpenAI", "Evaluation", "Automation"],
+    skills: [
+      "Python",
+      "LLM applications",
+      "RAG",
+      "FastAPI",
+      "OpenAI",
+      "Evaluation",
+      "Automation",
+    ],
     languages: [
       { name: "English", level: "Fluent" },
       { name: "Mandarin", level: "Native" },
@@ -215,7 +246,14 @@ export const freelancers: Freelancer[] = [
       "I build focused growth programs across content, lifecycle, paid acquisition, and conversion optimization.",
       "Every engagement starts with measurement and customer context, then moves quickly into experiments that create reusable learning.",
     ],
-    skills: ["Growth strategy", "SEO", "Lifecycle", "Analytics", "Paid media", "CRO"],
+    skills: [
+      "Growth strategy",
+      "SEO",
+      "Lifecycle",
+      "Analytics",
+      "Paid media",
+      "CRO",
+    ],
     languages: [
       { name: "Portuguese", level: "Native" },
       { name: "English", level: "Fluent" },
@@ -238,6 +276,7 @@ export const freelancers: Freelancer[] = [
       { title: "Motion", category: "Lifecycle program", color: "bg-[#dce7ff]" },
     ],
   },
-];
+]
 
-export const getFreelancer = (id: string) => freelancers.find((freelancer) => freelancer.id === id);
+export const getFreelancer = (id: string) =>
+  freelancers.find((freelancer) => freelancer.id === id)

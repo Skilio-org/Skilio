@@ -20,14 +20,10 @@ import { Route as LayoutClientProfileRouteImport } from './routes/_layout/client
 import { Route as LayoutDashboardRouteImport } from './routes/_layout/dashboard'
 import { Route as LayoutFreelancerRouteImport } from './routes/_layout/freelancer'
 import { Route as LayoutFreelancerDashboardRouteImport } from './routes/_layout/freelancer-dashboard'
-import { Route as LayoutFreelancerEarningsRouteImport } from './routes/_layout/freelancer-earnings'
 import { Route as LayoutFreelancerJobsRouteImport } from './routes/_layout/freelancer-jobs'
 import { Route as LayoutFreelancerMessagesRouteImport } from './routes/_layout/freelancer-messages'
-import { Route as LayoutFreelancerProjectsRouteImport } from './routes/_layout/freelancer-projects'
 import { Route as LayoutFreelancerProposalsRouteImport } from './routes/_layout/freelancer-proposals'
 import { Route as LayoutFreelancerSettingsRouteImport } from './routes/_layout/freelancer-settings'
-import { Route as LayoutHelpRouteImport } from './routes/_layout/help'
-import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutMessagesRouteImport } from './routes/_layout/messages'
 import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifications'
 import { Route as LayoutSavedRouteImport } from './routes/_layout/saved'
@@ -90,12 +86,6 @@ const LayoutFreelancerDashboardRoute =
     path: '/freelancer-dashboard',
     getParentRoute: () => LayoutRoute,
   } as any)
-const LayoutFreelancerEarningsRoute =
-  LayoutFreelancerEarningsRouteImport.update({
-    id: '/freelancer-earnings',
-    path: '/freelancer-earnings',
-    getParentRoute: () => LayoutRoute,
-  } as any)
 const LayoutFreelancerJobsRoute = LayoutFreelancerJobsRouteImport.update({
   id: '/freelancer-jobs',
   path: '/freelancer-jobs',
@@ -105,12 +95,6 @@ const LayoutFreelancerMessagesRoute =
   LayoutFreelancerMessagesRouteImport.update({
     id: '/freelancer-messages',
     path: '/freelancer-messages',
-    getParentRoute: () => LayoutRoute,
-  } as any)
-const LayoutFreelancerProjectsRoute =
-  LayoutFreelancerProjectsRouteImport.update({
-    id: '/freelancer-projects',
-    path: '/freelancer-projects',
     getParentRoute: () => LayoutRoute,
   } as any)
 const LayoutFreelancerProposalsRoute =
@@ -125,16 +109,6 @@ const LayoutFreelancerSettingsRoute =
     path: '/freelancer-settings',
     getParentRoute: () => LayoutRoute,
   } as any)
-const LayoutHelpRoute = LayoutHelpRouteImport.update({
-  id: '/help',
-  path: '/help',
-  getParentRoute: () => LayoutRoute,
-} as any)
-const LayoutItemsRoute = LayoutItemsRouteImport.update({
-  id: '/items',
-  path: '/items',
-  getParentRoute: () => LayoutRoute,
-} as any)
 const LayoutMessagesRoute = LayoutMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -178,14 +152,10 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof LayoutDashboardRoute
   '/freelancer': typeof LayoutFreelancerRoute
   '/freelancer-dashboard': typeof LayoutFreelancerDashboardRoute
-  '/freelancer-earnings': typeof LayoutFreelancerEarningsRoute
   '/freelancer-jobs': typeof LayoutFreelancerJobsRoute
   '/freelancer-messages': typeof LayoutFreelancerMessagesRoute
-  '/freelancer-projects': typeof LayoutFreelancerProjectsRoute
   '/freelancer-proposals': typeof LayoutFreelancerProposalsRoute
   '/freelancer-settings': typeof LayoutFreelancerSettingsRoute
-  '/help': typeof LayoutHelpRoute
-  '/items': typeof LayoutItemsRoute
   '/messages': typeof LayoutMessagesRoute
   '/notifications': typeof LayoutNotificationsRoute
   '/saved': typeof LayoutSavedRoute
@@ -204,14 +174,10 @@ export interface FileRoutesByTo {
   '/dashboard': typeof LayoutDashboardRoute
   '/freelancer': typeof LayoutFreelancerRoute
   '/freelancer-dashboard': typeof LayoutFreelancerDashboardRoute
-  '/freelancer-earnings': typeof LayoutFreelancerEarningsRoute
   '/freelancer-jobs': typeof LayoutFreelancerJobsRoute
   '/freelancer-messages': typeof LayoutFreelancerMessagesRoute
-  '/freelancer-projects': typeof LayoutFreelancerProjectsRoute
   '/freelancer-proposals': typeof LayoutFreelancerProposalsRoute
   '/freelancer-settings': typeof LayoutFreelancerSettingsRoute
-  '/help': typeof LayoutHelpRoute
-  '/items': typeof LayoutItemsRoute
   '/messages': typeof LayoutMessagesRoute
   '/notifications': typeof LayoutNotificationsRoute
   '/saved': typeof LayoutSavedRoute
@@ -232,14 +198,10 @@ export interface FileRoutesById {
   '/_layout/dashboard': typeof LayoutDashboardRoute
   '/_layout/freelancer': typeof LayoutFreelancerRoute
   '/_layout/freelancer-dashboard': typeof LayoutFreelancerDashboardRoute
-  '/_layout/freelancer-earnings': typeof LayoutFreelancerEarningsRoute
   '/_layout/freelancer-jobs': typeof LayoutFreelancerJobsRoute
   '/_layout/freelancer-messages': typeof LayoutFreelancerMessagesRoute
-  '/_layout/freelancer-projects': typeof LayoutFreelancerProjectsRoute
   '/_layout/freelancer-proposals': typeof LayoutFreelancerProposalsRoute
   '/_layout/freelancer-settings': typeof LayoutFreelancerSettingsRoute
-  '/_layout/help': typeof LayoutHelpRoute
-  '/_layout/items': typeof LayoutItemsRoute
   '/_layout/messages': typeof LayoutMessagesRoute
   '/_layout/notifications': typeof LayoutNotificationsRoute
   '/_layout/saved': typeof LayoutSavedRoute
@@ -260,14 +222,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/freelancer'
     | '/freelancer-dashboard'
-    | '/freelancer-earnings'
     | '/freelancer-jobs'
     | '/freelancer-messages'
-    | '/freelancer-projects'
     | '/freelancer-proposals'
     | '/freelancer-settings'
-    | '/help'
-    | '/items'
     | '/messages'
     | '/notifications'
     | '/saved'
@@ -286,14 +244,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/freelancer'
     | '/freelancer-dashboard'
-    | '/freelancer-earnings'
     | '/freelancer-jobs'
     | '/freelancer-messages'
-    | '/freelancer-projects'
     | '/freelancer-proposals'
     | '/freelancer-settings'
-    | '/help'
-    | '/items'
     | '/messages'
     | '/notifications'
     | '/saved'
@@ -313,14 +267,10 @@ export interface FileRouteTypes {
     | '/_layout/dashboard'
     | '/_layout/freelancer'
     | '/_layout/freelancer-dashboard'
-    | '/_layout/freelancer-earnings'
     | '/_layout/freelancer-jobs'
     | '/_layout/freelancer-messages'
-    | '/_layout/freelancer-projects'
     | '/_layout/freelancer-proposals'
     | '/_layout/freelancer-settings'
-    | '/_layout/help'
-    | '/_layout/items'
     | '/_layout/messages'
     | '/_layout/notifications'
     | '/_layout/saved'
@@ -417,13 +367,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutFreelancerDashboardRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/freelancer-earnings': {
-      id: '/_layout/freelancer-earnings'
-      path: '/freelancer-earnings'
-      fullPath: '/freelancer-earnings'
-      preLoaderRoute: typeof LayoutFreelancerEarningsRouteImport
-      parentRoute: typeof LayoutRoute
-    }
     '/_layout/freelancer-jobs': {
       id: '/_layout/freelancer-jobs'
       path: '/freelancer-jobs'
@@ -438,13 +381,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutFreelancerMessagesRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/freelancer-projects': {
-      id: '/_layout/freelancer-projects'
-      path: '/freelancer-projects'
-      fullPath: '/freelancer-projects'
-      preLoaderRoute: typeof LayoutFreelancerProjectsRouteImport
-      parentRoute: typeof LayoutRoute
-    }
     '/_layout/freelancer-proposals': {
       id: '/_layout/freelancer-proposals'
       path: '/freelancer-proposals'
@@ -457,20 +393,6 @@ declare module '@tanstack/react-router' {
       path: '/freelancer-settings'
       fullPath: '/freelancer-settings'
       preLoaderRoute: typeof LayoutFreelancerSettingsRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/help': {
-      id: '/_layout/help'
-      path: '/help'
-      fullPath: '/help'
-      preLoaderRoute: typeof LayoutHelpRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/items': {
-      id: '/_layout/items'
-      path: '/items'
-      fullPath: '/items'
-      preLoaderRoute: typeof LayoutItemsRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/messages': {
@@ -524,14 +446,10 @@ interface LayoutRouteChildren {
   LayoutDashboardRoute: typeof LayoutDashboardRoute
   LayoutFreelancerRoute: typeof LayoutFreelancerRoute
   LayoutFreelancerDashboardRoute: typeof LayoutFreelancerDashboardRoute
-  LayoutFreelancerEarningsRoute: typeof LayoutFreelancerEarningsRoute
   LayoutFreelancerJobsRoute: typeof LayoutFreelancerJobsRoute
   LayoutFreelancerMessagesRoute: typeof LayoutFreelancerMessagesRoute
-  LayoutFreelancerProjectsRoute: typeof LayoutFreelancerProjectsRoute
   LayoutFreelancerProposalsRoute: typeof LayoutFreelancerProposalsRoute
   LayoutFreelancerSettingsRoute: typeof LayoutFreelancerSettingsRoute
-  LayoutHelpRoute: typeof LayoutHelpRoute
-  LayoutItemsRoute: typeof LayoutItemsRoute
   LayoutMessagesRoute: typeof LayoutMessagesRoute
   LayoutNotificationsRoute: typeof LayoutNotificationsRoute
   LayoutSavedRoute: typeof LayoutSavedRoute
@@ -546,14 +464,10 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutDashboardRoute: LayoutDashboardRoute,
   LayoutFreelancerRoute: LayoutFreelancerRoute,
   LayoutFreelancerDashboardRoute: LayoutFreelancerDashboardRoute,
-  LayoutFreelancerEarningsRoute: LayoutFreelancerEarningsRoute,
   LayoutFreelancerJobsRoute: LayoutFreelancerJobsRoute,
   LayoutFreelancerMessagesRoute: LayoutFreelancerMessagesRoute,
-  LayoutFreelancerProjectsRoute: LayoutFreelancerProjectsRoute,
   LayoutFreelancerProposalsRoute: LayoutFreelancerProposalsRoute,
   LayoutFreelancerSettingsRoute: LayoutFreelancerSettingsRoute,
-  LayoutHelpRoute: LayoutHelpRoute,
-  LayoutItemsRoute: LayoutItemsRoute,
   LayoutMessagesRoute: LayoutMessagesRoute,
   LayoutNotificationsRoute: LayoutNotificationsRoute,
   LayoutSavedRoute: LayoutSavedRoute,

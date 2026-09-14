@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -16,11 +16,15 @@ import {
   ShieldCheck,
   Star,
   Trash2,
-  UsersRound,
-} from "lucide-react";
-import type { ReactNode } from "react";
+  type UsersRound,
+} from "lucide-react"
+import type { ReactNode } from "react"
 
-import { Monogram, SkillTag, workspaceStyles } from "@/components/dashboard/dashboard-header";
+import {
+  Monogram,
+  SkillTag,
+  workspaceStyles,
+} from "@/components/dashboard/dashboard-header"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,19 +35,19 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import type { Freelancer } from "@/data/freelancers";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/dropdown-menu"
+import type { Freelancer } from "@/data/freelancers"
+import { cn } from "@/lib/utils"
 
 export type SavedList = {
-  id: string;
-  name: string;
-  description: string;
-  freelancerIds: string[];
-  updatedLabel: string;
-};
+  id: string
+  name: string
+  description: string
+  freelancerIds: string[]
+  updatedLabel: string
+}
 
-export const ALL_SAVED = "all-saved";
+export const ALL_SAVED = "all-saved"
 
 export function SavedTalentRow({
   freelancer,
@@ -54,13 +58,13 @@ export function SavedTalentRow({
   onMove,
   onRemove,
 }: {
-  freelancer: Freelancer;
-  lists: SavedList[];
-  activeListId: string;
-  selected: boolean;
-  onToggleSelected: () => void;
-  onMove: (destinationId: string) => void;
-  onRemove: () => void;
+  freelancer: Freelancer
+  lists: SavedList[]
+  activeListId: string
+  selected: boolean
+  onToggleSelected: () => void
+  onMove: (destinationId: string) => void
+  onRemove: () => void
 }) {
   return (
     <article
@@ -103,10 +107,17 @@ export function SavedTalentRow({
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <h3 className="font-display text-xl font-semibold">{freelancer.name}</h3>
-                    <BadgeCheck className="text-brand-600 size-4" aria-label="Verified profile" />
+                    <h3 className="font-display text-xl font-semibold">
+                      {freelancer.name}
+                    </h3>
+                    <BadgeCheck
+                      className="text-brand-600 size-4"
+                      aria-label="Verified profile"
+                    />
                   </div>
-                  <p className="text-muted-foreground mt-1 text-sm font-medium">{freelancer.title}</p>
+                  <p className="text-muted-foreground mt-1 text-sm font-medium">
+                    {freelancer.title}
+                  </p>
                 </div>
                 <ProfileMenu
                   freelancer={freelancer}
@@ -121,7 +132,9 @@ export function SavedTalentRow({
               <div className="text-muted-foreground mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
                 <span className="inline-flex items-center gap-1.5">
                   <Star className="size-3.5 fill-amber-400 text-amber-400" />
-                  <strong className="text-foreground">{freelancer.rating.toFixed(1)}</strong>
+                  <strong className="text-foreground">
+                    {freelancer.rating.toFixed(1)}
+                  </strong>
                   <span>({freelancer.reviews} reviews)</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5">
@@ -130,7 +143,9 @@ export function SavedTalentRow({
                 </span>
               </div>
 
-              <p className="text-muted-foreground mt-4 max-w-3xl text-sm leading-6">{freelancer.bio}</p>
+              <p className="text-muted-foreground mt-4 max-w-3xl text-sm leading-6">
+                {freelancer.bio}
+              </p>
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {freelancer.skills.slice(0, 4).map((skill) => (
@@ -139,9 +154,21 @@ export function SavedTalentRow({
               </div>
 
               <div className="border-border mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t pt-4">
-                <ProfileSignal icon={ShieldCheck} value={`${freelancer.successRate}% success`} />
-                <ProfileSignal icon={BriefcaseBusiness} value={`${freelancer.projects} projects`} />
-                <ProfileSignal icon={Clock3} value={freelancer.responseTime.replace("Usually replies ", "")} />
+                <ProfileSignal
+                  icon={ShieldCheck}
+                  value={`${freelancer.successRate}% success`}
+                />
+                <ProfileSignal
+                  icon={BriefcaseBusiness}
+                  value={`${freelancer.projects} projects`}
+                />
+                <ProfileSignal
+                  icon={Clock3}
+                  value={freelancer.responseTime.replace(
+                    "Usually replies ",
+                    "",
+                  )}
+                />
               </div>
             </div>
           </div>
@@ -151,10 +178,14 @@ export function SavedTalentRow({
           <div>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-muted-foreground text-xs font-medium">Hourly rate</p>
+                <p className="text-muted-foreground text-xs font-medium">
+                  Hourly rate
+                </p>
                 <p className="font-display mt-1 text-2xl font-semibold">
                   ${freelancer.rate}
-                  <span className="text-muted-foreground text-sm font-medium">/hr</span>
+                  <span className="text-muted-foreground text-sm font-medium">
+                    /hr
+                  </span>
                 </p>
               </div>
               <ProfileMenu
@@ -193,7 +224,7 @@ export function SavedTalentRow({
         </div>
       </div>
     </article>
-  );
+  )
 }
 
 function ProfileMenu({
@@ -204,14 +235,14 @@ function ProfileMenu({
   onRemove,
   className,
 }: {
-  freelancer: Freelancer;
-  lists: SavedList[];
-  activeListId: string;
-  onMove: (destinationId: string) => void;
-  onRemove: () => void;
-  className?: string;
+  freelancer: Freelancer
+  lists: SavedList[]
+  activeListId: string
+  onMove: (destinationId: string) => void
+  onRemove: () => void
+  className?: string
 }) {
-  const destinations = lists.filter((list) => list.id !== activeListId);
+  const destinations = lists.filter((list) => list.id !== activeListId)
 
   return (
     <DropdownMenu>
@@ -225,7 +256,9 @@ function ProfileMenu({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">
-        <DropdownMenuLabel className="text-muted-foreground px-3 pb-2 text-xs">Manage saved profile</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-muted-foreground px-3 pb-2 text-xs">
+          Manage saved profile
+        </DropdownMenuLabel>
         {destinations.length > 0 && (
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="min-h-10 gap-2 rounded-xl px-3 py-2">
@@ -245,11 +278,13 @@ function ProfileMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onRemove} variant="destructive">
           <Trash2 className="size-4" />
-          {activeListId === ALL_SAVED ? "Remove from saved" : "Remove from list"}
+          {activeListId === ALL_SAVED
+            ? "Remove from saved"
+            : "Remove from list"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }
 
 export function MoveMenu({
@@ -259,13 +294,13 @@ export function MoveMenu({
   onMove,
   triggerClassName,
 }: {
-  lists: SavedList[];
-  activeListId: string;
-  label: string;
-  onMove: (destinationId: string) => void;
-  triggerClassName?: string;
+  lists: SavedList[]
+  activeListId: string
+  label: string
+  onMove: (destinationId: string) => void
+  triggerClassName?: string
 }) {
-  const destinations = lists.filter((list) => list.id !== activeListId);
+  const destinations = lists.filter((list) => list.id !== activeListId)
 
   return (
     <DropdownMenu>
@@ -283,17 +318,21 @@ export function MoveMenu({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">
-        <DropdownMenuLabel className="text-muted-foreground px-3 text-xs">Choose destination</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-muted-foreground px-3 text-xs">
+          Choose destination
+        </DropdownMenuLabel>
         {destinations.map((list) => (
           <DropdownMenuItem key={list.id} onClick={() => onMove(list.id)}>
             <Folder className="size-4" />
             <span className="min-w-0 flex-1 truncate">{list.name}</span>
-            <span className="text-muted-foreground text-xs">{list.freelancerIds.length}</span>
+            <span className="text-muted-foreground text-xs">
+              {list.freelancerIds.length}
+            </span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }
 
 export function ListMenu({
@@ -303,15 +342,17 @@ export function ListMenu({
   onClear,
   onDelete,
 }: {
-  list: SavedList;
-  onRename: () => void;
-  onDuplicate: () => void;
-  onClear: () => void;
-  onDelete: () => void;
+  list: SavedList
+  onRename: () => void
+  onDuplicate: () => void
+  onClear: () => void
+  onDelete: () => void
 }) {
   return (
     <DropdownMenuContent align="end" className="w-56">
-      <DropdownMenuLabel className="text-muted-foreground px-3 pb-2 text-xs">Manage “{list.name}”</DropdownMenuLabel>
+      <DropdownMenuLabel className="text-muted-foreground px-3 pb-2 text-xs">
+        Manage “{list.name}”
+      </DropdownMenuLabel>
       <DropdownMenuItem onClick={onRename}>
         <Edit3 className="size-4" />
         Rename list
@@ -321,7 +362,10 @@ export function ListMenu({
         Duplicate list
       </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem onClick={onClear} disabled={list.freelancerIds.length === 0}>
+      <DropdownMenuItem
+        onClick={onClear}
+        disabled={list.freelancerIds.length === 0}
+      >
         <ListChecks className="size-4" />
         Clear profiles
       </DropdownMenuItem>
@@ -330,28 +374,46 @@ export function ListMenu({
         Delete list
       </DropdownMenuItem>
     </DropdownMenuContent>
-  );
+  )
 }
 
-export function ListMetric({ icon: Icon, value, label }: { icon: typeof UsersRound; value: string; label: string }) {
+export function ListMetric({
+  icon: Icon,
+  value,
+  label,
+}: {
+  icon: typeof UsersRound
+  value: string
+  label: string
+}) {
   return (
     <div className="min-w-0 px-3 py-4 text-center sm:px-5 sm:text-left">
       <div className="flex items-center justify-center gap-2 sm:justify-start">
         <Icon className="text-brand-600 hidden size-4 sm:block" />
-        <strong className="font-display text-lg font-semibold sm:text-xl">{value}</strong>
+        <strong className="font-display text-lg font-semibold sm:text-xl">
+          {value}
+        </strong>
       </div>
-      <p className="text-muted-foreground mt-0.5 truncate text-[11px] font-medium sm:text-xs">{label}</p>
+      <p className="text-muted-foreground mt-0.5 truncate text-[11px] font-medium sm:text-xs">
+        {label}
+      </p>
     </div>
-  );
+  )
 }
 
-function ProfileSignal({ icon: Icon, value }: { icon: typeof ShieldCheck; value: string }) {
+function ProfileSignal({
+  icon: Icon,
+  value,
+}: {
+  icon: typeof ShieldCheck
+  value: string
+}) {
   return (
     <span className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
       <Icon className="text-brand-600 size-3.5" />
       {value}
     </span>
-  );
+  )
 }
 
 export function CompareLabel({ children }: { children: string }) {
@@ -359,11 +421,24 @@ export function CompareLabel({ children }: { children: string }) {
     <div className="bg-muted/70 text-muted-foreground flex items-center p-4 text-xs font-semibold tracking-[0.1em] uppercase">
       {children}
     </div>
-  );
+  )
 }
 
-export function CompareValue({ children, className }: { children: ReactNode; className?: string }) {
+export function CompareValue({
+  children,
+  className,
+}: {
+  children: ReactNode
+  className?: string
+}) {
   return (
-    <div className={cn("bg-card font-display flex items-center p-4 text-lg font-semibold", className)}>{children}</div>
-  );
+    <div
+      className={cn(
+        "bg-card font-display flex items-center p-4 text-lg font-semibold",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  )
 }

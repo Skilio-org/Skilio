@@ -1,26 +1,31 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
 
-import { useTheme } from "@/components/theme-provider";
-import { cn } from "@/lib/utils";
-import icon from "/assets/images/freelancer-icon.png";
-import iconLight from "/assets/images/freelancer-icon-light.png";
-import logo from "/assets/images/freelancer-logo.png";
-import logoLight from "/assets/images/freelancer-logo-light.png";
+import { useTheme } from "@/components/theme-provider"
+import { cn } from "@/lib/utils"
+import icon from "/assets/images/freelancer-icon.webp"
+import iconLight from "/assets/images/freelancer-icon-light.webp"
+import logo from "/assets/images/freelancer-logo.webp"
+import logoLight from "/assets/images/freelancer-logo-light.webp"
 
 interface LogoProps {
-  variant?: "full" | "icon" | "responsive";
-  className?: string;
-  asLink?: boolean;
-  to?: "/" | "/dashboard" | "/freelancer" | "/freelancer-dashboard";
+  variant?: "full" | "icon" | "responsive"
+  className?: string
+  asLink?: boolean
+  to?: "/" | "/dashboard" | "/freelancer" | "/freelancer-dashboard"
 }
 
-export function Logo({ variant = "full", className, asLink = true, to = "/" }: LogoProps) {
-  const { resolvedTheme } = useTheme();
+export function Logo({
+  variant = "full",
+  className,
+  asLink = true,
+  to = "/",
+}: LogoProps) {
+  const { resolvedTheme } = useTheme()
 
-  const isDark = resolvedTheme === "dark";
+  const isDark = resolvedTheme === "dark"
 
-  const fullLogo = isDark ? logoLight : logo;
-  const iconLogo = isDark ? iconLight : icon;
+  const fullLogo = isDark ? logoLight : logo
+  const iconLogo = isDark ? iconLight : icon
 
   const content =
     variant === "responsive" ? (
@@ -28,33 +33,47 @@ export function Logo({ variant = "full", className, asLink = true, to = "/" }: L
         {/* Full logo */}
         <img
           src={fullLogo}
+          width={384}
+          height={128}
           alt="Freelancer"
           draggable={false}
-          className={cn(`h-9 w-auto object-contain select-none group-data-[collapsible=icon]:hidden`, className)}
+          className={cn(
+            `h-9 w-auto object-contain select-none group-data-[collapsible=icon]:hidden`,
+            className,
+          )}
         />
 
         {/* Collapsed sidebar icon */}
         <img
           src={iconLogo}
+          width={128}
+          height={128}
           alt="Freelancer"
           draggable={false}
-          className={cn(`hidden size-8 object-contain select-none group-data-[collapsible=icon]:block`, className)}
+          className={cn(
+            `hidden size-8 object-contain select-none group-data-[collapsible=icon]:block`,
+            className,
+          )}
         />
       </>
     ) : (
       <img
         src={variant === "full" ? fullLogo : iconLogo}
+        width={variant === "full" ? 384 : 128}
+        height={128}
         alt="Freelancer"
         draggable={false}
         className={cn(
-          variant === "full" ? `h-9 w-auto object-contain select-none` : `size-8 object-contain select-none`,
+          variant === "full"
+            ? `h-9 w-auto object-contain select-none`
+            : `size-8 object-contain select-none`,
           className,
         )}
       />
-    );
+    )
 
   if (!asLink) {
-    return content;
+    return content
   }
 
   return (
@@ -65,5 +84,5 @@ export function Logo({ variant = "full", className, asLink = true, to = "/" }: L
     >
       {content}
     </Link>
-  );
+  )
 }
