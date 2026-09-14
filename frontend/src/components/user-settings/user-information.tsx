@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BadgeCheck, Building2, Mail, Pencil, UserRound } from "lucide-react";
+import { BadgeCheck, Mail, Pencil, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -165,7 +165,6 @@ const UserInformation = () => {
                   value={form.getValues("email") || "Not available"}
                   badge={currentUser?.email ? "Verified" : undefined}
                 />
-                <InformationRow icon={Building2} label="Account type" value="Client workspace" />
               </div>
             )}
 

@@ -204,12 +204,7 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
             : titles[page]
         }
         description={subtitles[page]}
-        action={
-          <Link to="/freelancer" className={workspaceStyles.secondaryAction}>
-            My profile
-            <ArrowRight className="size-4" />
-          </Link>
-        }
+        action=""
       />
       {error && (
         <p role="alert" className="text-destructive text-sm">

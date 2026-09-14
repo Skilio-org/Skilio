@@ -153,7 +153,7 @@ function AccountMenuLink({
   return (
     <DropdownMenuItem asChild className={`min-h-11 cursor-pointer rounded-lg px-3 ${active ? "bg-muted" : ""}`}>
       <Link to={to}>
-        <Icon className="text-muted-foreground size-4" />
+        <Icon className="size-4 text-current" />
         <span>{title}</span>
       </Link>
     </DropdownMenuItem>

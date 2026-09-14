@@ -39,7 +39,6 @@ export function MessageBubble({
           </>
         )}
       </p>
-      {message.local && <p className="text-muted-foreground mt-1.5 px-1 text-[10px]">Preview message</p>}
     </article>
   );
 }

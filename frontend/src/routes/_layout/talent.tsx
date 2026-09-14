@@ -365,9 +365,6 @@ function TalentDirectory() {
               </button>
             </div>
           )}
-          <p className="text-muted-foreground mt-5 text-center text-xs">
-            {savedOnly ? "Your shortlist is also available in Saved talent." : "Showing all matching demo profiles"}
-          </p>
         </section>
       </div>
       <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>

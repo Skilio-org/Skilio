@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { KeyRound, ShieldCheck } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -131,10 +131,6 @@ const ChangePassword = () => {
             />
 
             <div className="border-border flex flex-col gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-muted-foreground flex items-center gap-2 text-xs">
-                <ShieldCheck className="size-4 text-emerald-700" />
-                Your password is encrypted and never displayed.
-              </p>
               <LoadingButton type="submit" loading={mutation.isPending} className="self-start sm:self-auto">
                 Update password
               </LoadingButton>
