@@ -15,7 +15,7 @@ export function FreelancerCard({
   return (
     <article
       aria-label={freelancer.name}
-      className="group bg-card p-5 transition-colors hover:bg-muted/15 sm:p-7"
+      className="group bg-card hover:bg-muted/15 p-5 transition-colors sm:p-7"
     >
       <div className="flex items-start gap-3 sm:gap-4">
         <Monogram
@@ -29,12 +29,12 @@ export function FreelancerCard({
               to="/talent/$freelancerId"
               params={{ freelancerId: freelancer.id }}
               search={{ q: undefined }}
-              className="text-lg font-semibold tracking-tight hover:text-primary"
+              className="hover:text-primary text-lg font-semibold tracking-tight"
             >
               {freelancer.name}
             </Link>
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">{freelancer.title}</p>
+          <p className="text-muted-foreground mt-1 text-sm">{freelancer.title}</p>
         </div>
         <button
           type="button"
@@ -48,10 +48,10 @@ export function FreelancerCard({
       </div>
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_175px] xl:gap-8">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+          <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
             <span className="inline-flex items-center gap-1.5">
-              <Star className="size-3.5 text-primary" />
-              <strong className="font-semibold text-foreground">{freelancer.rating.toFixed(1)}</strong>
+              <Star className="text-primary size-3.5" />
+              <strong className="text-foreground font-semibold">{freelancer.rating.toFixed(1)}</strong>
               <span>({freelancer.reviews} reviews)</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
@@ -60,30 +60,38 @@ export function FreelancerCard({
             </span>
             <span>{freelancer.projects} projects</span>
           </div>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">{freelancer.bio}</p>
+          <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-6">{freelancer.bio}</p>
           <div className="mt-4 flex flex-wrap gap-1.5">
             {freelancer.skills.slice(0, 4).map((skill) => (
               <SkillTag key={skill}>{skill}</SkillTag>
             ))}
           </div>
         </div>
-        <div className="flex flex-wrap items-end justify-between gap-4 border-t border-border pt-4 xl:flex-col xl:items-stretch xl:border-t-0 xl:border-l xl:pt-0 xl:pl-6">
+        <div className="border-border flex flex-wrap items-end justify-between gap-4 border-t pt-4 xl:flex-col xl:items-stretch xl:border-t-0 xl:border-l xl:pt-0 xl:pl-6">
           <div>
             <p className="text-xl font-semibold tracking-tight tabular-nums">
               ${freelancer.rate}
-              <span className="ml-1 text-xs font-normal text-muted-foreground">/ hour</span>
+              <span className="text-muted-foreground ml-1 text-xs font-normal">/ hour</span>
             </p>
-            <p className="mt-1.5 text-xs text-muted-foreground">{freelancer.availability}</p>
+            <p className="text-muted-foreground mt-1.5 text-xs">{freelancer.availability}</p>
           </div>
-          <Link
-            to="/talent/$freelancerId"
-            params={{ freelancerId: freelancer.id }}
-            search={{ q: undefined }}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-4 text-sm font-medium transition-colors hover:border-primary hover:text-primary"
-          >
-            View profile
-            <ArrowUpRight className="size-4" />
-          </Link>
+          <div className="flex flex-wrap items-center gap-2 xl:flex-col xl:items-stretch">
+            <Link
+              to="/talent/$freelancerId"
+              params={{ freelancerId: freelancer.id }}
+              search={{ q: undefined }}
+              className="border-border hover:border-primary hover:text-primary inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors"
+            >
+              View profile <ArrowUpRight className="size-4" />
+            </Link>
+            <Link
+              to="/messages"
+              search={{ with: freelancer.id }}
+              className="inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-sm font-medium text-primary hover:bg-accent"
+            >
+              Message
+            </Link>
+          </div>
         </div>
       </div>
     </article>

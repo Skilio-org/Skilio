@@ -105,9 +105,7 @@ export function ConversationList({
               key={person.id}
               type="button"
               aria-pressed={active}
-              aria-label={
-                person.name + (conversation.unread ? `, ${conversation.unread} unread messages` : "")
-              }
+              aria-label={person.name + (conversation.unread ? `, ${conversation.unread} unread messages` : "")}
               onClick={() => onSelect(person.id)}
               className={cn(
                 "mb-1 flex min-h-24 w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors",
@@ -120,10 +118,7 @@ export function ConversationList({
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">
                   <span
-                    className={cn(
-                      "truncate text-sm",
-                      conversation.unread || active ? "font-semibold" : "font-medium",
-                    )}
+                    className={cn("truncate text-sm", conversation.unread || active ? "font-semibold" : "font-medium")}
                   >
                     {person.name}
                   </span>

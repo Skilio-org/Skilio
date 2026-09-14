@@ -28,10 +28,7 @@ const artifact = (name) => path.join(__dirname, "artifacts", name);
     await page.screenshot({ path: artifact(name), fullPage: true, animations: "disabled" });
   };
   const noOverflow = async () =>
-    assert.ok(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-      "Horizontal overflow",
-    );
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Horizontal overflow");
   await page.goto(base + "/messages");
   await page.getByRole("heading", { name: "Good work starts with a conversation." }).waitFor();
   await page.getByRole("button", { name: "Maya Laurent, 2 unread messages", exact: true }).click();
@@ -53,9 +50,7 @@ const artifact = (name) => path.join(__dirname, "artifacts", name);
   await page.getByRole("heading", { name: "No messages match this search" }).waitFor();
   await page.getByRole("button", { name: "Close conversation search" }).click();
   await page.getByRole("button", { name: "Add a brief" }).click();
-  await page
-    .getByRole("textbox", { name: "What do you have in mind?" })
-    .fill("Build a focused onboarding prototype.");
+  await page.getByRole("textbox", { name: "What do you have in mind?" }).fill("Build a focused onboarding prototype.");
   await page.getByRole("button", { name: "Add to message", exact: true }).click();
   assert.equal(await maya.inputValue(), "Build a focused onboarding prototype.");
   await screenshot("messages-updated-desktop.png");
@@ -84,17 +79,13 @@ const artifact = (name) => path.join(__dirname, "artifacts", name);
   await page.getByRole("button", { name: "Prepare proposal", exact: true }).click();
   await page
     .getByRole("textbox", { name: "Your introduction" })
-    .fill(
-      "I would build an accessible React dashboard with reusable chart components and clear responsive behavior.",
-    );
+    .fill("I would build an accessible React dashboard with reusable chart components and clear responsive behavior.");
   await page.getByRole("spinbutton").fill("65");
   await page.getByRole("button", { name: "Save draft", exact: true }).click();
   await page.goto(base + "/freelancer-proposals");
-  const proposal = page
-    .locator("section")
-    .filter({
-      has: page.getByRole("heading", { name: "Build a responsive customer dashboard", exact: true }),
-    });
+  const proposal = page.locator("section").filter({
+    has: page.getByRole("heading", { name: "Build a responsive customer dashboard", exact: true }),
+  });
   await proposal.getByRole("button", { name: "Submit demo proposal" }).click();
   await page.getByRole("button", { name: "Submitted", exact: true }).click();
   await proposal.getByRole("button", { name: "Archive", exact: true }).click();

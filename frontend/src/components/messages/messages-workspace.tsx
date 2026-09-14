@@ -38,10 +38,8 @@ const talentConversations = [
 const talentIntroductions: Record<string, string> = {
   "maya-laurent":
     "Thanks for reaching out. I'd love to learn more about the product and the workflow you want to improve.",
-  "noah-williams":
-    "Thanks for the context. The product sounds like a strong fit for the systems I usually build.",
-  "amara-okafor":
-    "I've read through your brief. There is a good opportunity to make the positioning more distinctive.",
+  "noah-williams": "Thanks for the context. The product sounds like a strong fit for the systems I usually build.",
+  "amara-okafor": "I've read through your brief. There is a good opportunity to make the positioning more distinctive.",
   "elias-chen": "The workflow is a good candidate for automation, especially with a clear human review step.",
 };
 function sampleThread(
@@ -116,10 +114,7 @@ export function MessagesWorkspace({
       unread: 0,
     })),
   ];
-  const unreadCount = all.reduce(
-    (count, item) => count + (archived.includes(item.id) ? 0 : (unread[item.id] ?? 0)),
-    0,
-  );
+  const unreadCount = all.reduce((count, item) => count + (archived.includes(item.id) ? 0 : (unread[item.id] ?? 0)), 0);
   const conversations = all
     .map((item) => {
       const outgoing = sent[item.id] ?? [];
@@ -140,9 +135,7 @@ export function MessagesWorkspace({
         .toLowerCase()
         .includes(query.trim().toLowerCase());
       const isArchived = archived.includes(item.id);
-      return (
-        matches && (filter === "archived" ? isArchived : !isArchived && (filter === "all" || item.unread > 0))
-      );
+      return matches && (filter === "archived" ? isArchived : !isArchived && (filter === "all" || item.unread > 0));
     });
   const messages = selectedId
     ? [...sampleThread(selectedId, meta, introductions, clientMode), ...(sent[selectedId] ?? [])]
@@ -175,9 +168,7 @@ export function MessagesWorkspace({
   };
   const archive = () => {
     const restoring = archived.includes(selectedId);
-    setArchived((current) =>
-      restoring ? current.filter((id) => id !== selectedId) : [...current, selectedId],
-    );
+    setArchived((current) => (restoring ? current.filter((id) => id !== selectedId) : [...current, selectedId]));
     select("");
     toast.success(restoring ? "Conversation moved to inbox" : "Conversation archived");
   };

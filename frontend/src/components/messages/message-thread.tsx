@@ -5,7 +5,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Freelancer } from "@/data/freelancers";
 import { cn } from "@/lib/utils";
@@ -164,12 +164,7 @@ export function MessageThread({
         >
           <Search className="size-[18px]" />
         </button>
-        <button
-          type="button"
-          aria-label="Show conversation details"
-          onClick={onDetails}
-          className={iconButton}
-        >
+        <button type="button" aria-label="Show conversation details" onClick={onDetails} className={iconButton}>
           <Info className="size-[18px]" />
         </button>
         <DropdownMenu>
@@ -252,12 +247,7 @@ export function MessageThread({
             className="space-y-6"
           >
             {visible.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                name={selected.name.split(" ")[0]}
-                highlight={term}
-              />
+              <MessageBubble key={message.id} message={message} name={selected.name.split(" ")[0]} highlight={term} />
             ))}
           </div>
           {term && !visible.length && (
@@ -320,9 +310,7 @@ export function MessageThread({
             </button>
           </div>
         </form>
-        <p className="text-muted-foreground mt-2 text-center text-[10px]">
-          Preview only. Messages aren't delivered.
-        </p>
+        <p className="text-muted-foreground mt-2 text-center text-[10px]">Preview only. Messages aren't delivered.</p>
       </footer>
     </section>
   );

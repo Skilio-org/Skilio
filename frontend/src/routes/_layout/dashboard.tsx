@@ -1,11 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { ProfileProgress } from "@/components/dashboard/dashboard-profile-progress";
 import { RecommendedFreelancers } from "@/components/dashboard/dashboard-recommended";
-import { Stats } from "@/components/dashboard/dashboard-stats";
 import { TalentSearch } from "@/components/dashboard/dashboard-talent-search";
 import useAuth from "@/hooks/useAuth";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_layout/dashboard")({
   component: Dashboard,
@@ -27,7 +26,7 @@ function Dashboard() {
           </Link>
         }
       />
-      <Stats />
+      {/* <Stats /> */}
       <TalentSearch />
       <section className="grid gap-6 xl:grid-cols-[1fr_320px]">
         <RecommendedFreelancers />

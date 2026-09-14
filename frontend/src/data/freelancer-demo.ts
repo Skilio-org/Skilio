@@ -62,10 +62,8 @@ export const clientConversations = [
 export const clientIntroductions: Record<string, string> = {
   "olivia-bennett":
     "Hi! I've shared the onboarding brief with you. We'd love your take on simplifying the first-run experience.",
-  "daniel-kim":
-    "Welcome to the project. Let's start with the overview screen and the shared chart components.",
-  "sarah-mitchell":
-    "Your recent work caught our eye. We are putting together a launch campaign for next month.",
+  "daniel-kim": "Welcome to the project. Let's start with the overview screen and the shared chart components.",
+  "sarah-mitchell": "Your recent work caught our eye. We are putting together a launch campaign for next month.",
 };
 export type DemoProject = {
   id: string;
@@ -155,6 +153,4 @@ export const demoTransactions = [
   },
 ];
 export const money = (amount: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(
-    amount,
-  );
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(amount);

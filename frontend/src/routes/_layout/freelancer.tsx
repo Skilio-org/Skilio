@@ -56,9 +56,7 @@ function FreelancerWorkspace() {
       localStorage.setItem(key, JSON.stringify(profile));
       setSaveError("");
     } catch {
-      setSaveError(
-        "Your latest changes couldn’t be saved on this device. Free up browser storage and try again.",
-      );
+      setSaveError("Your latest changes couldn’t be saved on this device. Free up browser storage and try again.");
     }
   }, [profile, loadedKey, key]);
   const update = <K extends keyof Profile>(name: K, value: Profile[K]) =>
@@ -185,10 +183,10 @@ function FreelancerWorkspace() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-6">
             {!profile.title && !profile.bio && profile.skills.length === 0 && (
-              <section className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-card p-5">
+              <section className="border-border bg-card flex flex-wrap items-center justify-between gap-4 rounded-xl border p-5">
                 <div>
                   <h2 className="text-sm font-medium">Explore with a sample profile</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     Load editable demo details to try the profile preview.
                   </p>
                 </div>
@@ -220,9 +218,7 @@ function FreelancerWorkspace() {
                 <span className="text-sm font-medium">
                   {profile.finished ? "Profile draft complete" : "Make a strong first impression"}
                 </span>
-                <span className="text-muted-foreground text-sm">
-                  {done.filter(Boolean).length} of 6 sections
-                </span>
+                <span className="text-muted-foreground text-sm">{done.filter(Boolean).length} of 6 sections</span>
               </div>
               <div
                 className="bg-muted my-5 h-2 overflow-hidden rounded-full"
@@ -236,8 +232,8 @@ function FreelancerWorkspace() {
               </div>
               <h2 className="text-2xl font-semibold tracking-tight">Your profile is {percent}% complete</h2>
               <p className="text-muted-foreground mt-2 max-w-lg text-sm leading-6">
-                Introduce yourself, choose your skills, and show a little of what you can do. You can come
-                back and edit anything.
+                Introduce yourself, choose your skills, and show a little of what you can do. You can come back and edit
+                anything.
               </p>
               <button
                 type="button"
@@ -282,9 +278,7 @@ function FreelancerWorkspace() {
           </div>
           <aside className="space-y-5">
             <section className="border-border bg-card rounded-xl border p-6">
-              <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-                Profile status
-              </p>
+              <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Profile status</p>
               <h2 className="mt-3 text-lg font-semibold">
                 {profile.finished ? "Ready for publishing" : "Private draft"}
               </h2>
@@ -298,8 +292,8 @@ function FreelancerWorkspace() {
             <section className="p-2">
               <h2 className="font-semibold">A profile that sounds like you</h2>
               <p className="text-muted-foreground mt-3 text-sm leading-6">
-                Be specific about the problems you solve. A clear introduction and one thoughtful project tell
-                clients more than a long list of buzzwords.
+                Be specific about the problems you solve. A clear introduction and one thoughtful project tell clients
+                more than a long list of buzzwords.
               </p>
             </section>
           </aside>
@@ -316,10 +310,7 @@ function FreelancerWorkspace() {
       ) : (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[230px_minmax(0,1fr)]">
           <aside className="min-w-0">
-            <nav
-              aria-label="Profile setup steps"
-              className="flex gap-2 overflow-x-auto pb-3 lg:block lg:space-y-1"
-            >
+            <nav aria-label="Profile setup steps" className="flex gap-2 overflow-x-auto pb-3 lg:block lg:space-y-1">
               {steps.map((name, i) => (
                 <button
                   key={name}
@@ -367,9 +358,7 @@ function FreelancerWorkspace() {
                           onChange={(e) => void upload(e.target.files?.[0])}
                         />
                       </label>
-                      <p className="text-muted-foreground mt-2 text-xs">
-                        Optional · JPG, PNG or WebP, up to 2 MB
-                      </p>
+                      <p className="text-muted-foreground mt-2 text-xs">Optional · JPG, PNG or WebP, up to 2 MB</p>
                       {profile.photo && (
                         <button
                           type="button"
@@ -471,105 +460,90 @@ function FreelancerWorkspace() {
                       <span>{profile.bio.length}/3000</span>
                     </span>
                   </label>
-                  {input(
-                    "Languages and proficiency *",
-                    "languages",
-                    "e.g. English — fluent, Arabic — native",
-                  )}
+                  {input("Languages and proficiency *", "languages", "e.g. English — fluent, Arabic — native")}
                 </>
               )}
               {(step === 3 || step === 4) &&
-                (step === 3 ? (["experience", "education"] as const) : (["portfolio"] as const)).map(
-                  (kind) => (
-                    <section key={kind}>
-                      <div className="mb-4 flex items-center justify-between">
-                        <h3 className="font-semibold">
-                          {kind === "experience"
-                            ? "Work experience"
-                            : kind === "education"
-                              ? "Education"
-                              : "Selected projects"}
-                        </h3>
-                        <button
-                          className={secondary}
-                          type="button"
-                          onClick={() =>
-                            setEditor({
-                              kind,
-                              entry: {
-                                id: crypto.randomUUID(),
-                                title: "",
-                                organization: "",
-                                detail: "",
-                                url: "",
-                              },
-                            })
-                          }
-                        >
-                          <Plus className="size-4" />
-                          Add
-                        </button>
-                      </div>
-                      {profile[kind].length ? (
-                        <div className="space-y-3">
-                          {profile[kind].map((entry) => (
-                            <div
-                              key={entry.id}
-                              className="border-border flex items-start gap-3 rounded-lg border p-4"
+                (step === 3 ? (["experience", "education"] as const) : (["portfolio"] as const)).map((kind) => (
+                  <section key={kind}>
+                    <div className="mb-4 flex items-center justify-between">
+                      <h3 className="font-semibold">
+                        {kind === "experience"
+                          ? "Work experience"
+                          : kind === "education"
+                            ? "Education"
+                            : "Selected projects"}
+                      </h3>
+                      <button
+                        className={secondary}
+                        type="button"
+                        onClick={() =>
+                          setEditor({
+                            kind,
+                            entry: {
+                              id: crypto.randomUUID(),
+                              title: "",
+                              organization: "",
+                              detail: "",
+                              url: "",
+                            },
+                          })
+                        }
+                      >
+                        <Plus className="size-4" />
+                        Add
+                      </button>
+                    </div>
+                    {profile[kind].length ? (
+                      <div className="space-y-3">
+                        {profile[kind].map((entry) => (
+                          <div key={entry.id} className="border-border flex items-start gap-3 rounded-lg border p-4">
+                            <button
+                              type="button"
+                              className="min-w-0 flex-1 text-left"
+                              onClick={() => setEditor({ kind, entry })}
                             >
-                              <button
-                                type="button"
-                                className="min-w-0 flex-1 text-left"
-                                onClick={() => setEditor({ kind, entry })}
-                              >
-                                <span className="block font-medium">{entry.title}</span>
-                                <span className="text-muted-foreground mt-1 block text-sm">
-                                  {entry.organization}
-                                </span>
-                                <span className="text-muted-foreground mt-2 block truncate text-xs">
-                                  {entry.detail}
-                                </span>
-                                <span className="text-primary mt-3 block text-xs">Edit details</span>
-                              </button>
-                              <button
-                                type="button"
-                                className="hover:bg-muted grid size-11 place-items-center rounded-lg"
-                                aria-label={`Remove ${entry.title}`}
-                                onClick={() =>
-                                  update(
-                                    kind,
-                                    profile[kind].filter((e) => e.id !== entry.id),
-                                  )
-                                }
-                              >
-                                <Trash2 className="size-4" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="border-border rounded-lg border border-dashed p-8 text-center">
-                          <p className="text-sm font-medium">
-                            {kind === "portfolio"
-                              ? "Give your work a place to shine"
-                              : `No ${kind} added yet`}
-                          </p>
-                          <p className="text-muted-foreground mt-2 text-sm leading-6">
-                            {kind === "portfolio"
-                              ? "Add a project, describe your contribution, and link to the finished work. Personal projects count, too."
-                              : "Add relevant details, or skip this for now."}
-                          </p>
-                        </div>
-                      )}
-                    </section>
-                  ),
-                )}
+                              <span className="block font-medium">{entry.title}</span>
+                              <span className="text-muted-foreground mt-1 block text-sm">{entry.organization}</span>
+                              <span className="text-muted-foreground mt-2 block truncate text-xs">{entry.detail}</span>
+                              <span className="text-primary mt-3 block text-xs">Edit details</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="hover:bg-muted grid size-11 place-items-center rounded-lg"
+                              aria-label={`Remove ${entry.title}`}
+                              onClick={() =>
+                                update(
+                                  kind,
+                                  profile[kind].filter((e) => e.id !== entry.id),
+                                )
+                              }
+                            >
+                              <Trash2 className="size-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="border-border rounded-lg border border-dashed p-8 text-center">
+                        <p className="text-sm font-medium">
+                          {kind === "portfolio" ? "Give your work a place to shine" : `No ${kind} added yet`}
+                        </p>
+                        <p className="text-muted-foreground mt-2 text-sm leading-6">
+                          {kind === "portfolio"
+                            ? "Add a project, describe your contribution, and link to the finished work. Personal projects count, too."
+                            : "Add relevant details, or skip this for now."}
+                        </p>
+                      </div>
+                    )}
+                  </section>
+                ))}
               {step === 5 && (
                 <>
                   {input("Hourly rate (USD) *", "rate", "50", "number")}
                   <p className="text-muted-foreground text-sm">
-                    This is the starting rate shown on your profile. Agree on the final scope and price with
-                    each client.
+                    This is the starting rate shown on your profile. Agree on the final scope and price with each
+                    client.
                   </p>
                   {select("Availability *", "availability", [
                     "Available now",
@@ -615,11 +589,7 @@ function FreelancerWorkspace() {
               </p>
             )}
             <footer className="border-border mt-8 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
-              <button
-                type="button"
-                className={secondary}
-                onClick={() => (step ? edit(step - 1) : setView("home"))}
-              >
+              <button type="button" className={secondary} onClick={() => (step ? edit(step - 1) : setView("home"))}>
                 <ArrowLeft className="size-4" />
                 {step ? "Back" : "Save & exit"}
               </button>
@@ -661,9 +631,7 @@ function FreelancerWorkspace() {
             const list = profile[editor.kind];
             update(
               editor.kind,
-              list.some((e) => e.id === entry.id)
-                ? list.map((e) => (e.id === entry.id ? entry : e))
-                : [...list, entry],
+              list.some((e) => e.id === entry.id) ? list.map((e) => (e.id === entry.id ? entry : e)) : [...list, entry],
             );
             setEditor(null);
           }}

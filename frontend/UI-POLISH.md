@@ -105,3 +105,54 @@ with a mocked account endpoint. It covers inbox interactions, independent drafts
 proposal transitions, project submission persistence, CSV download, payout preview,
 profile demo persistence, mobile navigation, light/dark screenshots, and viewport
 checks at 375/768/1024/1440 px including a 375×450 composer check.
+
+## Talent directory
+
+The directory uses a single page header, an underlined expertise navigation,
+compact profile rows, visible rate choices, removable filter chips, and a mobile
+filter drawer. Geist handles profile names and supporting UI. Search submissions
+update the URL, the shortlist survives filter changes within the directory, and
+both profile and message links remain available. The shortlist now shares one
+persistent list with Saved talent and the profile view. Sample profiles no longer display
+unsupported verification or online indicators. Design filtering excludes generic
+system-design skills, and hourly price bands no longer overlap.
+
+Validation: TypeScript, production build, Biome lint, and the focused browser
+script `tests/talent.browser.cjs` cover search/reload, specialty and rate filters,
+empty states, shortlist, sorting, profile navigation, mobile filtering, and
+responsive light/dark rendering at 375/768/1024/1440 px.
+
+## Freelancer profile view
+
+Profiles use a compact introduction, section links, a continuous content panel,
+and a single contact panel that is sticky on desktop and precedes the body on
+mobile. Selected work opens accessible demo portfolio dialogs. Background and
+feedback use the same Geist typography as the directory. Sample verification,
+online indicators, stale local clocks, and decorative mock screenshots were
+removed. Saving updates the shared Saved talent list; message actions open
+the selected person's conversation.
+
+Validation: `tests/talent-profile.browser.cjs` covers all five profiles, section
+navigation, saving, portfolio dialog keyboard dismissal, message and directory
+links, four responsive widths, and light/dark screenshots. TypeScript, production
+build, and scoped Biome lint pass.
+
+## One saved talent list
+
+Saved now has one main list, with no folders, list creation, renaming, or moving
+between lists. It renders the exact same FreelancerCard component as Find talent.
+The former sample lists are combined into five unique demo profiles. A shared
+account-scoped browser store connects directory, profile, and Saved controls,
+including refresh persistence and cross-tab updates. Search, sort, removal, and
+empty states work on the single list. Storage failures show feedback rather than
+reporting a successful save.
+
+Validation: `tests/saved-talent.browser.cjs` covers shared card markup, all three
+save surfaces, reload/cross-tab persistence, search/sort, removing every profile,
+the persistent empty state, four viewport widths, and dark mode. Build and scoped
+lint pass. No backend changes.
+
+Client dashboard recommendations also use FreelancerCard and the shared saved
+talent store. They read the same profile data as the directory, so typography,
+rate, availability, skills, and profile/message actions stay consistent. The
+saved-list browser check also verifies dashboard card parity and save syncing.

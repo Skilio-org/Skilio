@@ -15,10 +15,14 @@ export function AuthLayout({ children }: AuthLayoutProps) {
           <Logo className="h-8" />
           <Appearance />
         </div>
-        <main id="main-content" tabIndex={-1} className="flex flex-1 items-center justify-center outline-none">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex flex-1 items-center justify-center py-8 outline-none sm:py-10"
+        >
           <div className="w-full max-w-115">{children}</div>
         </main>
-        <Footer />
+        <Footer variant="auth" />
       </div>
       <div className="bg-muted m-5 ml-0 hidden flex-col overflow-hidden rounded-2xl lg:flex">
         <img

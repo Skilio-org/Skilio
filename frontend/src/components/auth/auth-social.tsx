@@ -1,4 +1,4 @@
-import { FaApple, FaLinkedinIn } from "react-icons/fa";
+import { FaLinkedinIn } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 export const SocialAuth = () => {
@@ -16,12 +16,6 @@ export const SocialAuth = () => {
       href: import.meta.env.VITE_GOOGLE_OAUTH_URL as string | undefined,
     },
     {
-      id: "apple",
-      label: "Continue with Apple",
-      icon: FaApple,
-      href: import.meta.env.VITE_APPLE_OAUTH_URL as string | undefined,
-    },
-    {
       id: "linkedin",
       label: "Continue with LinkedIn",
       icon: FaLinkedinIn,
@@ -30,7 +24,7 @@ export const SocialAuth = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
       {socialProviders.map(({ id, label, icon: Icon, href }) => {
         const isConfigured = Boolean(href);
 
@@ -47,13 +41,11 @@ export const SocialAuth = () => {
 
             <span className="hidden whitespace-nowrap xl:inline">
               {id === "google" && "Google"}
-              {id === "apple" && "Apple"}
               {id === "linkedin" && "LinkedIn"}
             </span>
 
             <span className="whitespace-nowrap xl:hidden">
               {id === "google" && "Google"}
-              {id === "apple" && "Apple"}
               {id === "linkedin" && "LinkedIn"}
             </span>
           </button>

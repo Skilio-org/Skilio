@@ -1,22 +1,14 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowDownToLine, ArrowUpRight, Check, Clock3, FileText } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { WorkspaceSurface, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { demoProjects, demoTransactions, money, type DemoProject } from "@/data/freelancer-demo";
+import { demoProjects, money, type DemoProject } from "@/data/freelancer-demo";
 import useAuth from "@/hooks/useAuth";
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight, Check, Clock3 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const tabs = "flex flex-wrap gap-2";
-function Tabs({
-  values,
-  value,
-  onChange,
-}: {
-  values: string[];
-  value: string;
-  onChange: (value: string) => void;
-}) {
+function Tabs({ values, value, onChange }: { values: string[]; value: string; onChange: (value: string) => void }) {
   return (
     <div className={tabs}>
       {values.map((item) => (
@@ -70,8 +62,7 @@ export function DemoProjects() {
               <h2 className="font-display mt-4 text-2xl font-medium tracking-tight">{project.title}</h2>
               <div className="mt-5 flex items-center justify-between text-sm">
                 <span className="font-medium">
-                  {money(project.amount)}{" "}
-                  <span className="text-muted-foreground font-normal">· Fixed price</span>
+                  {money(project.amount)} <span className="text-muted-foreground font-normal">· Fixed price</span>
                 </span>
                 <span className="text-muted-foreground">
                   {project.status === "Completed" ? "Completed" : "Due"} {project.due}
@@ -99,11 +90,7 @@ export function DemoProjects() {
                     <span
                       className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${milestone.done ? "bg-accent text-primary" : "border-border text-muted-foreground border"}`}
                     >
-                      {milestone.done ? (
-                        <Check className="size-3" />
-                      ) : (
-                        <span className="text-[10px]">{index + 1}</span>
-                      )}
+                      {milestone.done ? <Check className="size-3" /> : <span className="text-[10px]">{index + 1}</span>}
                     </span>
                     <span className="flex-1">{milestone.title}</span>
                     <span className="text-muted-foreground">{money(milestone.amount)}</span>
@@ -172,8 +159,8 @@ export function DemoProjects() {
                 </div>
               </dl>
               <p className="text-muted-foreground text-sm leading-6">
-                Each milestone includes one review round and a final handoff. This sample contract is provided
-                for exploring the workspace.
+                Each milestone includes one review round and a final handoff. This sample contract is provided for
+                exploring the workspace.
               </p>
               {selected.status === "Active" ? (
                 <form
@@ -225,178 +212,6 @@ export function DemoProjects() {
               )}
             </>
           )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-export function DemoEarnings() {
-  const [filter, setFilter] = useState("All transactions");
-  const [payoutOpen, setPayoutOpen] = useState(false);
-  const [requested, setRequested] = useState(false);
-  const transactions = demoTransactions.filter(
-    (item) => filter === "All transactions" || item.status === filter,
-  );
-  const exportStatement = () => {
-    const csv = [
-      "ID,Date,Description,Client,Amount USD,Status",
-      ...transactions.map((item) =>
-        [item.id, item.date, item.description, item.company, item.amount, item.status]
-          .map((value) => `"${String(value).replace(/"/g, '""')}"`)
-          .join(","),
-      ),
-    ].join("\n");
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = "demo-earnings.csv";
-    anchor.click();
-    URL.revokeObjectURL(url);
-  };
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[
-          [
-            "Available balance",
-            requested ? "$0" : "$3,000",
-            requested ? "Demo payout requested" : "Ready for a demo payout",
-          ],
-          ["In review", "$600", "Northstar · Discovery milestone"],
-          ["Total earned", "$6,000", "Across 4 demo payments"],
-        ].map(([title, value, detail]) => (
-          <WorkspaceSurface key={title} className="workspace-metric p-6">
-            <p className="text-muted-foreground text-sm">{title}</p>
-            <p className="mt-4 text-3xl font-semibold tracking-tight">
-              {value}
-              <span className="text-muted-foreground ml-2 text-xs font-normal">USD</span>
-            </p>
-            <p className="text-muted-foreground mt-3 text-xs">{detail}</p>
-          </WorkspaceSurface>
-        ))}
-      </div>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <WorkspaceSurface className="p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="font-display text-xl font-medium">Your earning rhythm</h2>
-              <p className="text-muted-foreground mt-2 text-xs">Demo earnings · April–September 2026</p>
-            </div>
-            <span className="text-sm font-medium">$6,000</span>
-          </div>
-          <div
-            className="mt-8 flex h-40 items-end gap-3 sm:gap-6"
-            role="img"
-            aria-label="Demo earnings: April 0 dollars, May 0, June 0, July 0, August 2400, September 3600"
-          >
-            {[
-              ["Apr", 0],
-              ["May", 0],
-              ["Jun", 0],
-              ["Jul", 0],
-              ["Aug", 2400],
-              ["Sep", 3600],
-            ].map(([month, value]) => (
-              <div key={month} className="flex h-full flex-1 flex-col justify-end gap-2 text-center">
-                <span className="text-muted-foreground text-[10px]">{money(Number(value))}</span>
-                <div
-                  className={`min-h-1 rounded-t-md ${month === "Sep" ? "bg-primary" : "bg-primary/25"}`}
-                  style={{ height: `${(Number(value) / 3600) * 100}px` }}
-                />
-                <span className="text-muted-foreground text-xs">{month}</span>
-              </div>
-            ))}
-          </div>
-        </WorkspaceSurface>
-        <WorkspaceSurface className="flex flex-col p-6">
-          <span className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
-            Payout account
-          </span>
-          <h2 className="font-display mt-4 text-xl font-medium">Demo bank ·· 4821</h2>
-          <p className="text-muted-foreground mt-3 flex-1 text-sm leading-6">
-            Explore the payout flow using a sample account. No real bank details or funds are involved.
-          </p>
-          <button
-            type="button"
-            disabled={requested}
-            onClick={() => setPayoutOpen(true)}
-            className={`${workspaceStyles.primaryAction} mt-5 disabled:opacity-50`}
-          >
-            {requested ? "Demo payout requested" : "Preview payout"}
-            <ArrowUpRight className="size-4" />
-          </button>
-        </WorkspaceSurface>
-      </div>
-      <WorkspaceSurface className="overflow-hidden">
-        <div className="border-border flex flex-wrap items-center justify-between gap-4 border-b p-5 sm:p-6">
-          <div>
-            <h2 className="font-display text-xl font-medium">Transaction history</h2>
-            <p className="text-muted-foreground mt-1 text-xs">All amounts in USD · Demo data</p>
-          </div>
-          <button type="button" onClick={exportStatement} className={workspaceStyles.secondaryAction}>
-            <ArrowDownToLine className="size-4" />
-            Export CSV
-          </button>
-        </div>
-        <div className="p-5">
-          <Tabs
-            values={["All transactions", "Available", "Pending", "Paid out"]}
-            value={filter}
-            onChange={setFilter}
-          />
-        </div>
-        <div className="divide-border divide-y">
-          {transactions.map((item) => (
-            <div key={item.id} className="flex items-center gap-3 px-5 py-5 sm:gap-5 sm:px-6">
-              <span className="bg-muted hidden size-10 shrink-0 place-items-center rounded-xl sm:grid">
-                <FileText className="text-muted-foreground size-4" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-medium">{item.description}</h3>
-                <p className="text-muted-foreground mt-1 text-xs">
-                  {item.company} · {item.date}
-                </p>
-              </div>
-              <div className="shrink-0 text-right">
-                <p className="text-sm font-semibold">{money(item.amount)}</p>
-                <p className="text-muted-foreground mt-1 text-xs">{item.status}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </WorkspaceSurface>
-      <Dialog open={payoutOpen} onOpenChange={setPayoutOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Preview your payout</DialogTitle>
-            <DialogDescription>This is a simulation. No money will move.</DialogDescription>
-          </DialogHeader>
-          <dl className="space-y-4 py-4 text-sm">
-            <div className="flex justify-between">
-              <dt>Demo available balance</dt>
-              <dd className="font-semibold">$3,000.00 USD</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt>Destination</dt>
-              <dd>Demo bank ·· 4821</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt>Estimated arrival</dt>
-              <dd>2–3 business days</dd>
-            </div>
-          </dl>
-          <button
-            type="button"
-            className={workspaceStyles.primaryAction}
-            onClick={() => {
-              setRequested(true);
-              setPayoutOpen(false);
-              toast.success("Demo payout requested. No money was transferred.");
-            }}
-          >
-            Simulate payout request
-          </button>
         </DialogContent>
       </Dialog>
     </div>
