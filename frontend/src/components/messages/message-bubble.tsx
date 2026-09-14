@@ -13,10 +13,7 @@ export function MessageBubble({
   const match = highlight ? message.body.toLowerCase().indexOf(highlight.toLowerCase()) : -1;
   return (
     <article
-      className={cn(
-        "flex max-w-[90%] flex-col sm:max-w-[80%]",
-        message.own ? "ml-auto items-end" : "items-start",
-      )}
+      className={cn("flex max-w-[90%] flex-col sm:max-w-[80%]", message.own ? "ml-auto items-end" : "items-start")}
     >
       <div className="mb-1.5 flex items-baseline gap-2.5 px-1 text-[11px]">
         <span className="text-foreground font-medium">{message.own ? "You" : name}</span>

@@ -44,12 +44,7 @@ function ClientProfile() {
         eyebrow="Your presence"
         title="Client profile"
         description="Help independent professionals understand who you are and what working with you will feel like."
-        action={
-          <div className="inline-flex min-h-11 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-800">
-            <BadgeCheck className="size-4" />
-            Identity verified
-          </div>
-        }
+        action=""
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">

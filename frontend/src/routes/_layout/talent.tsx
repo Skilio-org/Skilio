@@ -1,20 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  ArrowDownWideNarrow,
-  Banknote,
-  Clock3,
-  Bookmark,
-  MapPin,
-  Search,
-  SlidersHorizontal,
-  X,
-} from "lucide-react";
+import { ArrowDownWideNarrow, Banknote, Clock3, Bookmark, MapPin, Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { FreelancerCard } from "@/components/talent/freelancer-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { freelancers } from "@/data/freelancers";
+import { useSavedTalent } from "@/hooks/useSavedTalent";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_layout/talent")({
@@ -71,7 +63,7 @@ function TalentDirectory() {
   const navigate = Route.useNavigate();
   const [query, setQuery] = useState(q ?? "");
   useEffect(() => setQuery(q ?? ""), [q]);
-  const [savedIds, setSavedIds] = useState<string[]>([]);
+  const { savedIds, toggleSaved } = useSavedTalent();
   const [savedOnly, setSavedOnly] = useState(false);
   const [specialty, setSpecialty] = useState<(typeof specialties)[number]>("All talent");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -80,9 +72,7 @@ function TalentDirectory() {
   const [location, setLocation] = useState("worldwide");
   const [sort, setSort] = useState("best-match");
 
-  const activeFilterCount = [rate !== "any", availability !== "any", location !== "worldwide"].filter(
-    Boolean,
-  ).length;
+  const activeFilterCount = [rate !== "any", availability !== "any", location !== "worldwide"].filter(Boolean).length;
 
   const results = useMemo(() => {
     const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
@@ -95,11 +85,8 @@ function TalentDirectory() {
 
       const matchesSearch =
         searchTerms.length === 0 ||
-        searchTerms.every((term) =>
-          (searchAliases[term] ?? [term]).some((candidate) => haystack.includes(candidate)),
-        );
-      const matchesSpecialty =
-        expertiseTerms.length === 0 || expertiseTerms.some((term) => haystack.includes(term));
+        searchTerms.every((term) => (searchAliases[term] ?? [term]).some((candidate) => haystack.includes(candidate)));
+      const matchesSpecialty = expertiseTerms.length === 0 || expertiseTerms.some((term) => haystack.includes(term));
       const matchesRate =
         rate === "any" ||
         (rate === "under-50" && person.rate < 50) ||
@@ -149,26 +136,26 @@ function TalentDirectory() {
     void navigate({ search: { q: undefined }, replace: true });
   };
   const hasFilters = !!query || specialty !== "All talent" || activeFilterCount > 0 || savedOnly;
-  const filterFields = (
+  const filterFields = (group: string) => (
     <div className="space-y-7">
       <fieldset>
         <legend className="mb-3 flex items-center gap-2 text-sm font-medium">
-          <Banknote className="size-4 text-muted-foreground" />
+          <Banknote className="text-muted-foreground size-4" />
           Hourly rate
         </legend>
         <div className="space-y-1">
           {rateOptions.map((option) => (
             <label
               key={option.value}
-              className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 text-sm hover:bg-muted"
+              className="hover:bg-muted flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 text-sm"
             >
               <input
                 type="radio"
-                name={filtersOpen ? "mobile-rate" : "desktop-rate"}
+                name={group}
                 value={option.value}
                 checked={rate === option.value}
                 onChange={() => setRate(option.value)}
-                className="size-4 accent-primary"
+                className="accent-primary size-4"
               />
               {option.label}
             </label>
@@ -193,7 +180,7 @@ function TalentDirectory() {
         <button
           type="button"
           onClick={resetFilters}
-          className="min-h-11 text-sm font-medium text-primary hover:underline"
+          className="text-primary min-h-11 text-sm font-medium hover:underline"
         >
           Clear filters
         </button>
@@ -215,8 +202,8 @@ function TalentDirectory() {
           }}
           className="flex gap-2"
         >
-          <label className="flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl border border-input bg-card px-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
-            <Search className="size-5 shrink-0 text-muted-foreground" />
+          <label className="border-input bg-card focus-within:border-primary focus-within:ring-primary/10 flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl border px-4 focus-within:ring-2">
+            <Search className="text-muted-foreground size-5 shrink-0" />
             <span className="sr-only">Search professionals</span>
             <input
               type="search"
@@ -233,7 +220,7 @@ function TalentDirectory() {
                   void navigate({ search: { q: undefined }, replace: true });
                 }}
                 aria-label="Clear search"
-                className="grid size-10 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
+                className="text-muted-foreground hover:bg-muted grid size-10 shrink-0 place-items-center rounded-lg"
               >
                 <X className="size-4" />
               </button>
@@ -241,7 +228,7 @@ function TalentDirectory() {
           </label>
           <button
             type="submit"
-            className="hidden min-h-14 rounded-xl bg-primary px-7 text-sm font-medium text-primary-foreground hover:opacity-90 sm:block"
+            className="bg-primary text-primary-foreground hidden min-h-14 rounded-xl px-7 text-sm font-medium hover:opacity-90 sm:block"
           >
             Search
           </button>
@@ -250,17 +237,17 @@ function TalentDirectory() {
             aria-label="Open talent filters"
             aria-expanded={filtersOpen}
             onClick={() => setFiltersOpen(true)}
-            className="relative grid min-h-14 w-14 shrink-0 place-items-center rounded-xl border border-border bg-card lg:hidden"
+            className="border-border bg-card relative grid min-h-14 w-14 shrink-0 place-items-center rounded-xl border lg:hidden"
           >
             <SlidersHorizontal className="size-5" />
             {activeFilterCount > 0 && (
-              <span className="absolute top-1 right-1 rounded-full bg-primary px-1.5 text-[10px] text-primary-foreground">
+              <span className="bg-primary text-primary-foreground absolute top-1 right-1 rounded-full px-1.5 text-[10px]">
                 {activeFilterCount}
               </span>
             )}
           </button>
         </form>
-        <div className="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground">
+        <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 text-xs">
           <span>Try:</span>
           {popularSearches.map((item) => (
             <button
@@ -270,41 +257,38 @@ function TalentDirectory() {
                 setQuery(item);
                 void navigate({ search: { q: item }, replace: true });
               }}
-              className="min-h-11 font-medium text-foreground underline decoration-border underline-offset-4 hover:text-primary"
+              className="text-foreground decoration-border hover:text-primary min-h-11 font-medium underline underline-offset-4"
             >
               {item}
             </button>
           ))}
         </div>
       </search>
-      <nav
-        aria-label="Talent specialties"
-        className="flex gap-5 overflow-x-auto border-b border-border sm:gap-7"
-      >
+      <nav aria-label="Talent specialties" className="border-border flex gap-5 overflow-x-auto border-b sm:gap-7">
         {specialties.map((item) => (
           <button
             type="button"
             key={item}
             aria-pressed={specialty === item}
             onClick={() => setSpecialty(item)}
-            className={`min-h-12 shrink-0 border-b-2 px-1 text-sm font-medium transition-colors ${specialty === item ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`min-h-12 shrink-0 border-b-2 px-1 text-sm font-medium transition-colors ${specialty === item ? "border-primary text-primary" : "text-muted-foreground hover:text-foreground border-transparent"}`}
           >
             {item}
           </button>
         ))}
       </nav>
-      <div className="grid items-start gap-7 lg:grid-cols-[220px_minmax(0,1fr)] xl:gap-10">
+      <div className="grid items-start gap-6 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
         <aside aria-label="Talent filters" className="sticky top-24 hidden lg:block">
           <h2 className="mb-6 text-base font-semibold">Refine your search</h2>
-          {filterFields}
-          <p className="mt-7 border-t border-border pt-5 text-xs leading-6 text-muted-foreground">
+          {filterFields("desktop-rate")}
+          <p className="border-border text-muted-foreground mt-7 border-t pt-5 text-xs leading-6">
             Demo directory. Profiles, reviews, and rates are sample data.
           </p>
         </aside>
         <section aria-label="Talent results" className="min-w-0">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <p role="status" className="text-sm text-muted-foreground">
-              <strong className="font-semibold text-foreground">{results.length}</strong>{" "}
+            <p role="status" className="text-muted-foreground text-sm">
+              <strong className="text-foreground font-semibold">{results.length}</strong>{" "}
               {results.length === 1 ? "professional" : "professionals"}
               {query ? ` matching “${query}”` : " to explore"}
             </p>
@@ -319,11 +303,8 @@ function TalentDirectory() {
                 Shortlist{savedIds.length > 0 ? ` (${savedIds.length})` : ""}
               </button>
               <Select value={sort} onValueChange={setSort}>
-                <SelectTrigger
-                  aria-label="Sort talent"
-                  className="h-11 w-44 rounded-lg border-border bg-card text-xs"
-                >
-                  <ArrowDownWideNarrow className="size-3.5 text-muted-foreground" />
+                <SelectTrigger aria-label="Sort talent" className="border-border bg-card h-11 w-44 rounded-lg text-xs">
+                  <ArrowDownWideNarrow className="text-muted-foreground size-3.5" />
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent align="end">
@@ -347,9 +328,7 @@ function TalentDirectory() {
               )}
               {availability !== "any" && (
                 <FilterChip
-                  label={
-                    availabilityOptions.find((option) => option.value === availability)?.label ?? availability
-                  }
+                  label={availabilityOptions.find((option) => option.value === availability)?.label ?? availability}
                   onRemove={() => setAvailability("any")}
                 />
               )}
@@ -362,36 +341,32 @@ function TalentDirectory() {
               <button
                 type="button"
                 onClick={clearAll}
-                className="min-h-9 px-2 text-xs font-medium text-primary hover:underline"
+                className="text-primary min-h-9 px-2 text-xs font-medium hover:underline"
               >
                 Clear all
               </button>
             </div>
           )}
           {results.length ? (
-            <div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
+            <div className="divide-border border-border divide-y overflow-hidden rounded-xl border">
               {results.map((person) => (
                 <FreelancerCard
                   key={person.id}
                   freelancer={person}
                   saved={savedIds.includes(person.id)}
-                  onToggleSaved={() =>
-                    setSavedIds((ids) =>
-                      ids.includes(person.id) ? ids.filter((id) => id !== person.id) : [...ids, person.id],
-                    )
-                  }
+                  onToggleSaved={() => toggleSaved(person.id)}
                 />
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-border bg-card px-6 py-16 text-center">
-              <Search className="mx-auto size-7 text-muted-foreground" />
+            <div className="border-border bg-card rounded-xl border px-6 py-16 text-center">
+              <Search className="text-muted-foreground mx-auto size-7" />
               <h2 className="mt-5 text-xl font-medium tracking-tight">
                 {savedOnly && !savedIds.length ? "Start your shortlist" : "No matching profiles"}
               </h2>
-              <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
+              <p className="text-muted-foreground mx-auto mt-3 max-w-sm text-sm leading-6">
                 {savedOnly && !savedIds.length
-                  ? "Use the bookmark on a profile to keep it in this view’s shortlist."
+                  ? "Use the bookmark on a profile to add it to Saved talent."
                   : "Try a broader skill, another location, or a different hourly rate."}
               </p>
               <button type="button" onClick={clearAll} className={`${workspaceStyles.secondaryAction} mt-6`}>
@@ -399,21 +374,19 @@ function TalentDirectory() {
               </button>
             </div>
           )}
-          <p className="mt-5 text-center text-xs text-muted-foreground">
-            {savedOnly
-              ? "Your shortlist stays available while you browse this directory."
-              : "Showing all matching demo profiles"}
+          <p className="text-muted-foreground mt-5 text-center text-xs">
+            {savedOnly ? "Your shortlist is also available in Saved talent." : "Showing all matching demo profiles"}
           </p>
         </section>
       </div>
       <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
         <SheetContent side="right" className="flex w-full flex-col gap-0 sm:max-w-sm">
-          <SheetHeader className="border-b border-border">
+          <SheetHeader className="border-border border-b">
             <SheetTitle>Refine your search</SheetTitle>
             <SheetDescription>Choose the experience, rate, and availability you need.</SheetDescription>
           </SheetHeader>
-          <div className="flex-1 overflow-y-auto p-6">{filtersOpen && filterFields}</div>
-          <div className="border-t border-border p-5">
+          <div className="flex-1 overflow-y-auto p-6">{filtersOpen && filterFields("mobile-rate")}</div>
+          <div className="border-border border-t p-5">
             <button
               type="button"
               onClick={() => setFiltersOpen(false)}
@@ -433,7 +406,7 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
       type="button"
       onClick={onRemove}
       aria-label={`Remove ${label} filter`}
-      className="inline-flex min-h-9 items-center gap-2 rounded-md bg-accent px-3 text-xs text-accent-foreground"
+      className="bg-accent text-accent-foreground inline-flex min-h-9 items-center gap-2 rounded-md px-3 text-xs"
     >
       {label}
       <X className="size-3" />

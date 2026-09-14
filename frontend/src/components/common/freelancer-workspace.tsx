@@ -1,13 +1,12 @@
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ChangePassword from "@/components/user-settings/change-password";
+import { AppearanceSettings } from "@/components/user-settings/preferences";
+import { demoProjects, money } from "@/data/freelancer-demo";
+import useAuth from "@/hooks/useAuth";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Bookmark, BriefcaseBusiness, FileText, Search, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { DemoProjects, DemoEarnings } from "@/components/freelancer/demo-work";
-import { demoProjects, money } from "@/data/freelancer-demo";
-import ChangePassword from "@/components/user-settings/change-password";
-import { AppearanceSettings } from "@/components/user-settings/preferences";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import useAuth from "@/hooks/useAuth";
 import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "../dashboard/dashboard-header";
 
 type Job = {
@@ -74,8 +73,6 @@ const titles = {
   dashboard: "Your work, in one place.",
   jobs: "Find your next project.",
   proposals: "Your proposals",
-  projects: "My work",
-  earnings: "Earnings",
   settings: "Account settings",
 };
 const subtitles = {
@@ -83,7 +80,6 @@ const subtitles = {
   jobs: "Discover projects that fit your skills and the way you work.",
   proposals: "Keep track of the conversations you want to start.",
   projects: "Manage your active projects, milestones, and completed work.",
-  earnings: "Track payments and see where your income stands.",
   settings: "Manage your account security and workspace appearance.",
 };
 
@@ -180,9 +176,7 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
               aria-label={`${saved.includes(job.id) ? "Unsave" : "Save"} ${job.title}`}
               aria-pressed={saved.includes(job.id)}
               onClick={() =>
-                setSaved((ids) =>
-                  ids.includes(job.id) ? ids.filter((id) => id !== job.id) : [...ids, job.id],
-                )
+                setSaved((ids) => (ids.includes(job.id) ? ids.filter((id) => id !== job.id) : [...ids, job.id]))
               }
               className={workspaceStyles.iconButton}
             >
@@ -218,12 +212,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
           </Link>
         }
       />
-      {page !== "settings" && (
-        <p className="text-muted-foreground text-xs">
-          Demo workspace · Sample projects, clients, and payments. Your demo proposals and deliverables are
-          saved on this device.
-        </p>
-      )}
       {error && (
         <p role="alert" className="text-destructive text-sm">
           {error}
@@ -231,28 +219,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
       )}
       {page === "dashboard" && (
         <>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {[
-              ["Active projects", "2", BriefcaseBusiness],
-              [
-                "Proposal drafts",
-                String(drafts.filter((draft) => !draft.status || draft.status === "Drafts").length),
-                FileText,
-              ],
-              ["Available balance", "$3,000", Wallet],
-            ].map(([label, value, Icon]) => {
-              const MetricIcon = Icon as typeof Wallet;
-              return (
-                <WorkspaceSurface className="workspace-metric p-6" key={String(label)}>
-                  <div className="text-muted-foreground flex justify-between text-sm">
-                    {String(label)}
-                    <MetricIcon className="size-4" />
-                  </div>
-                  <p className="mt-4 text-3xl font-semibold tracking-tight">{String(value)}</p>
-                </WorkspaceSurface>
-              );
-            })}
-          </div>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
             <section>
               <div className="mb-4 flex items-center justify-between">
@@ -273,9 +239,7 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
             </section>
             <aside className="space-y-5">
               <WorkspaceSurface className="border-brand-200 bg-brand-50 p-6">
-                <h2 className="font-display text-xl font-medium tracking-tight">
-                  Let your profile do the talking
-                </h2>
+                <h2 className="font-display text-xl font-medium tracking-tight">Let your profile do the talking</h2>
                 <p className="text-muted-foreground mt-3 text-sm leading-6">
                   Add your skills, set your rate, and share work you’re proud of.
                 </p>
@@ -286,18 +250,18 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
               </WorkspaceSurface>
               <WorkspaceSurface className="p-6">
                 <h2 className="font-semibold">Up next</h2>
-                <div className="mt-4 divide-y divide-border">
+                <div className="divide-border mt-4 divide-y">
                   {demoProjects
                     .filter((project) => project.status === "Active")
                     .map((project) => (
                       <Link key={project.id} to="/freelancer-projects" className="block py-4 first:pt-0">
-                        <span className="text-xs text-primary">
+                        <span className="text-primary text-xs">
                           {project.due} · {project.company}
                         </span>
                         <p className="mt-2 text-sm font-medium">
                           {project.milestones.find((milestone) => !milestone.done)?.title}
                         </p>
-                        <p className="mt-1 text-xs text-muted-foreground">{money(project.amount)} project</p>
+                        <p className="text-muted-foreground mt-1 text-xs">{money(project.amount)} project</p>
                       </Link>
                     ))}
                 </div>
@@ -370,10 +334,7 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
           {visibleProposals.length ? (
             <div className="space-y-4">
               {visibleProposals.map((d) => (
-                <WorkspaceSurface
-                  key={d.job.id}
-                  className="flex flex-wrap items-center justify-between gap-4 p-6"
-                >
+                <WorkspaceSurface key={d.job.id} className="flex flex-wrap items-center justify-between gap-4 p-6">
                   <div>
                     <p className="text-muted-foreground text-xs">
                       {d.status ?? "Drafts"} · {d.job.company}
@@ -418,9 +379,7 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
                     <button
                       type="button"
                       className={workspaceStyles.secondaryAction}
-                      onClick={() =>
-                        changeProposal(d.job.id, proposalTab === "Archived" ? "Drafts" : "Archived")
-                      }
+                      onClick={() => changeProposal(d.job.id, proposalTab === "Archived" ? "Drafts" : "Archived")}
                     >
                       {proposalTab === "Archived" ? "Restore draft" : "Archive"}
                     </button>
@@ -449,8 +408,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
           )}
         </>
       )}
-      {page === "projects" && <DemoProjects />}
-      {page === "earnings" && <DemoEarnings />}
       {page === "settings" && (
         <>
           <div className="flex gap-2">
@@ -538,9 +495,7 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
                 />
               </label>
               <label className="block text-sm font-medium">
-                {selected?.budget.includes("Fixed price")
-                  ? "Your project budget (USD)"
-                  : "Your hourly rate (USD)"}
+                {selected?.budget.includes("Fixed price") ? "Your project budget (USD)" : "Your hourly rate (USD)"}
                 <input
                   required
                   min="1"
@@ -560,11 +515,7 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
           ) : (
             <>
               <p className="text-muted-foreground text-sm leading-7">{selected?.description}</p>
-              <button
-                type="button"
-                className={workspaceStyles.primaryAction}
-                onClick={() => setCompose(true)}
-              >
+              <button type="button" className={workspaceStyles.primaryAction} onClick={() => setCompose(true)}>
                 Prepare proposal
                 <ArrowRight className="size-4" />
               </button>

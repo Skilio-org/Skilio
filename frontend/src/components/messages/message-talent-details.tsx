@@ -4,13 +4,7 @@ import { Monogram, SkillTag, workspaceStyles } from "@/components/dashboard/dash
 import type { Freelancer } from "@/data/freelancers";
 import { cn } from "@/lib/utils";
 
-export function MessageTalentDetails({
-  selected,
-  clientMode = false,
-}: {
-  selected: Freelancer;
-  clientMode?: boolean;
-}) {
+export function MessageTalentDetails({ selected, clientMode = false }: { selected: Freelancer; clientMode?: boolean }) {
   return (
     <div className="px-6 pb-8">
       <div className="mt-5">
