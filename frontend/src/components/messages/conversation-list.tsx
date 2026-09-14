@@ -1,13 +1,11 @@
-import { Link } from "@tanstack/react-router";
-import { Archive, ArrowUpRight, MessageSquare, Search, X } from "lucide-react";
 import { Monogram } from "@/components/dashboard/dashboard-header";
 import type { ConversationSummary, InboxFilter } from "@/components/messages/message-types";
 import type { Freelancer } from "@/data/freelancers";
 import { cn } from "@/lib/utils";
+import { Archive, MessageSquare, Search, X } from "lucide-react";
 
 export function ConversationList({
   people,
-  clientMode = false,
   conversations,
   selectedId,
   query,

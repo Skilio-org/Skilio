@@ -1,7 +1,6 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ChangePassword from "@/components/user-settings/change-password";
 import { AppearanceSettings } from "@/components/user-settings/preferences";
-import { demoProjects, money } from "@/data/freelancer-demo";
 import useAuth from "@/hooks/useAuth";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Bookmark, BriefcaseBusiness, FileText, Search, Wallet } from "lucide-react";
@@ -247,24 +246,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
                   Complete profile
                   <ArrowRight className="size-4" />
                 </Link>
-              </WorkspaceSurface>
-              <WorkspaceSurface className="p-6">
-                <h2 className="font-semibold">Up next</h2>
-                <div className="divide-border mt-4 divide-y">
-                  {demoProjects
-                    .filter((project) => project.status === "Active")
-                    .map((project) => (
-                      <Link key={project.id} to="/freelancer-projects" className="block py-4 first:pt-0">
-                        <span className="text-primary text-xs">
-                          {project.due} · {project.company}
-                        </span>
-                        <p className="mt-2 text-sm font-medium">
-                          {project.milestones.find((milestone) => !milestone.done)?.title}
-                        </p>
-                        <p className="text-muted-foreground mt-1 text-xs">{money(project.amount)} project</p>
-                      </Link>
-                    ))}
-                </div>
               </WorkspaceSurface>
             </aside>
           </div>

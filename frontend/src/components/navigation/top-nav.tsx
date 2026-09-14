@@ -2,13 +2,12 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Bell,
   Bookmark,
-  CircleHelp,
   LayoutDashboard,
   type LucideIcon,
   Menu,
   MessageSquare,
   Settings,
-  UsersRound,
+  UsersRound
 } from "lucide-react";
 
 import { Logo } from "@/components/common/logo";
@@ -121,7 +120,6 @@ export function TopNav() {
               />
               <MobileNavLink to="/settings" label="Settings" icon={Settings} active={pathname === "/settings"} />
               <DropdownMenuSeparator className="my-2" />
-              <MobileNavLink to="/help" label="Help center" icon={CircleHelp} active={pathname === "/help"} />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -136,7 +134,7 @@ function MobileNavLink({
   icon: Icon,
   active,
 }: {
-  to: "/dashboard" | "/talent" | "/saved" | "/messages" | "/notifications" | "/settings" | "/help";
+  to: "/dashboard" | "/talent" | "/saved" | "/messages" | "/notifications" | "/settings";
   label: string;
   icon: LucideIcon;
   active: boolean;
