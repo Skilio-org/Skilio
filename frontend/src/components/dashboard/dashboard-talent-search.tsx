@@ -1,6 +1,6 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowUpRight, Search } from "lucide-react";
 import { workspaceStyles } from "@/components/dashboard/dashboard-header";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Search } from "lucide-react";
 
 export const TalentSearch = () => {
   const navigate = useNavigate();
@@ -49,10 +49,9 @@ export const TalentSearch = () => {
             key={q}
             to="/talent"
             search={{ q }}
-            className="text-muted-foreground decoration-border hover:text-primary inline-flex min-h-9 items-center gap-1 underline underline-offset-4 transition-colors"
+            className="text-muted-foreground decoration-border hover:text-primary inline-flex min-h-9 items-center gap-1 font-medium underline underline-offset-4 transition-colors"
           >
             {q}
-            <ArrowUpRight className="size-3" />
           </Link>
         ))}
       </div>

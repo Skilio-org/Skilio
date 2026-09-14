@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { ProfileProgress } from "@/components/dashboard/dashboard-profile-progress";
 import { RecommendedFreelancers } from "@/components/dashboard/dashboard-recommended";
 import { TalentSearch } from "@/components/dashboard/dashboard-talent-search";
@@ -19,7 +19,11 @@ function Dashboard() {
         eyebrow="Client workspace / Overview"
         title={firstName ? `Good to see you, ${firstName}.` : "Find your next collaborator."}
         description="Continue your search or review professionals selected for you."
-        action=""
+        action={
+          <Link to="/client-jobs" className={workspaceStyles.primaryAction}>
+            Post a job
+          </Link>
+        }
       />
       <TalentSearch />
       <section className="grid gap-6 xl:grid-cols-[1fr_320px]">

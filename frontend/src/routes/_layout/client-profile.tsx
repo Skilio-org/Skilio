@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BadgeCheck, Building2, Camera, CheckCircle2, ImageUp, MapPin, ShieldCheck } from "lucide-react";
+import { Camera, CheckCircle2, ImageUp } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -107,22 +107,6 @@ function ClientProfile() {
               </div>
             </div>
           </div>
-
-          <div className="border-border border-t pt-8">
-            <Label htmlFor="about" className="font-display text-xl font-semibold">
-              What are you building?
-            </Label>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Give professionals useful context about your company and the kind of collaboration you value.
-            </p>
-            <textarea
-              id="about"
-              rows={5}
-              placeholder="Tell freelancers about your team, your product, and how you like to work…"
-              className="border-input bg-card placeholder:text-muted-foreground hover:border-foreground/20 focus:border-brand-600 focus:ring-brand-100 mt-4 flex w-full rounded-xl border px-4 py-3 text-base leading-7 outline-none focus:ring-4 md:text-sm md:leading-6"
-            />
-          </div>
-
           <div className="border-border flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-end">
             {saved && (
               <span className="mr-auto inline-flex items-center gap-2 text-sm text-emerald-700">
@@ -168,27 +152,6 @@ function ClientProfile() {
                 <span>Add company context</span>
               </li>
             </ul>
-          </section>
-          <section className="shadow-card rounded-2xl bg-slate-950 p-6 text-white">
-            <ShieldCheck className="text-brand-300 size-5" />
-            <h2 className="font-display mt-5 text-xl font-semibold">What freelancers see</h2>
-            <div className="mt-5 space-y-4 text-sm text-slate-300">
-              <p className="flex items-center gap-3">
-                <Building2 className="size-4" />
-                Company and role
-              </p>
-              <p className="flex items-center gap-3">
-                <MapPin className="size-4" />
-                General location
-              </p>
-              <p className="flex items-center gap-3">
-                <BadgeCheck className="size-4" />
-                Verification status
-              </p>
-            </div>
-            <p className="mt-5 text-xs leading-5 text-slate-400">
-              Your email and private account details are never shown publicly.
-            </p>
           </section>
         </aside>
       </div>

@@ -70,6 +70,7 @@ function Layout() {
           "/talent",
           "/saved",
           "/client-profile",
+          "/client-jobs",
           "/messages",
           "/help",
           "/notifications",

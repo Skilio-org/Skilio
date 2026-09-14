@@ -1,95 +1,44 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowRight, Bookmark, BriefcaseBusiness, FileText, Search, type Wallet } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import ChangePassword from "@/components/user-settings/change-password";
 import { AppearanceSettings } from "@/components/user-settings/preferences";
 import useAuth from "@/hooks/useAuth";
+import { Link } from "@tanstack/react-router";
+import {
+  ArrowDownWideNarrow,
+  ArrowLeft,
+  ArrowRight,
+  Banknote,
+  Bookmark,
+  BriefcaseBusiness,
+  Building2,
+  CalendarDays,
+  Clock3,
+  FileText,
+  Globe2,
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+  type Wallet,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "../dashboard/dashboard-header";
+import { JobFormSection, jobFormField } from "./job-form-section";
+import {
+  freelancerJobs,
+  freelancerWorkspaceSubtitles,
+  freelancerWorkspaceTitles,
+  seedProposals,
+  type FreelancerJob as Job,
+  type ProposalDraft as Draft,
+} from "../freelancer/freelancer-workspace-data";
+import { FreelancerJobFilterFields } from "../freelancer/freelancer-job-filter-fields";
 
-type Job = {
-  id: string;
-  title: string;
-  company: string;
-  category: string;
-  budget: string;
-  description: string;
-  skills: string[];
-};
-const samples: Job[] = [
-  {
-    id: "1",
-    title: "Design a clearer onboarding experience",
-    company: "Northstar Studio",
-    category: "Design",
-    budget: "$1,500–$2,500 · Fixed price",
-    description:
-      "We’re looking for a product designer to simplify our onboarding flow. The project includes a short discovery phase, wireframes, and a tested Figma prototype. Share a relevant example and tell us how you would approach the first week.",
-    skills: ["Product design", "Figma", "UX research"],
-  },
-  {
-    id: "2",
-    title: "Build a responsive customer dashboard",
-    company: "Forma",
-    category: "Development",
-    budget: "$50–$80/hr · 1–3 months",
-    description:
-      "Help our small product team build an accessible React dashboard from existing designs. You’ll work with our engineer on reusable components, API integration, and responsive behavior.",
-    skills: ["React", "TypeScript", "Accessibility"],
-  },
-  {
-    id: "3",
-    title: "Create a launch content strategy",
-    company: "Good Company",
-    category: "Marketing",
-    budget: "$800–$1,200 · Fixed price",
-    description:
-      "We need a clear content strategy for a new product launch. Deliverables include audience research, messaging, and a four-week editorial calendar.",
-    skills: ["Content strategy", "Copywriting", "Research"],
-  },
-];
-type Draft = {
-  job: Job;
-  cover: string;
-  rate: string;
-  status?: "Drafts" | "Submitted" | "Archived";
-};
-const seedProposals: Draft[] = [
-  {
-    job: samples[2],
-    cover:
-      "I would start with a short discovery workshop, then develop audience-specific messaging and a four-week content plan. My recent launch work focused on independent brands with small teams.",
-    rate: "1000",
-    status: "Submitted",
-  },
-  {
-    job: samples[0],
-    cover:
-      "I would map the existing journey and identify the points of friction before prototyping a simpler first-run experience. I can share a tested Figma prototype within two weeks.",
-    rate: "2200",
-    status: "Drafts",
-  },
-];
-const input =
-  "min-h-12 w-full rounded-xl border border-input bg-card px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
-const titles = {
-  dashboard: "Your work, in one place.",
-  jobs: "Find your next project.",
-  proposals: "Your proposals",
-  settings: "Account settings",
-};
-const subtitles = {
-  dashboard: "Keep your profile current and move your next opportunity forward.",
-  jobs: "Discover projects that fit your skills and the way you work.",
-  proposals: "Keep track of the conversations you want to start.",
-  projects: "Manage your active projects, milestones, and completed work.",
-  settings: "Manage your account security and workspace appearance.",
-};
-
-export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
+export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWorkspaceTitles }) {
   const { user } = useAuth();
-  const jobs = samples;
+  const jobs = freelancerJobs;
   const key = `freelancer-work-v2:${user?.id ?? "preview"}`;
   const [saved, setSaved] = useState<string[]>([]);
   const [drafts, setDrafts] = useState<Draft[]>([]);
@@ -97,11 +46,18 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All work");
+  const [jobType, setJobType] = useState("any");
+  const [duration, setDuration] = useState("any");
+  const [jobSort, setJobSort] = useState("recommended");
+  const [jobFiltersOpen, setJobFiltersOpen] = useState(false);
   const [tab, setTab] = useState("Active");
   const [selected, setSelected] = useState<Job | null>(null);
   const [compose, setCompose] = useState(false);
   const [cover, setCover] = useState("");
   const [rate, setRate] = useState("");
+  const selectedProjectType =
+    selected?.projectType ?? (selected?.budget.includes("Fixed price") ? "Fixed price" : "Hourly");
+  const selectedDuration = selected?.duration ?? "Short term";
   useEffect(() => {
     try {
       const stored = localStorage.getItem(key);
@@ -136,10 +92,42 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
       setError("Changes couldn’t be saved on this device.");
     }
   }, [key, loaded, saved, drafts]);
-  const filtered = jobs.filter(
-    (j) =>
-      (filter === "All work" || filter === j.category || (filter === "Saved" && saved.includes(j.id))) &&
-      `${j.title} ${j.company} ${j.skills.join(" ")}`.toLowerCase().includes(query.toLowerCase()),
+  const filtered = jobs
+    .filter(
+      (j) =>
+        (page !== "savedJobs" || saved.includes(j.id)) &&
+        (filter === "All work" || filter === j.category || (filter === "Saved" && saved.includes(j.id))) &&
+        (jobType === "any" || jobType === j.projectType) &&
+        (duration === "any" || duration === j.duration) &&
+        `${j.title} ${j.company} ${j.skills.join(" ")}`.toLowerCase().includes(query.toLowerCase()),
+    )
+    .sort((first, second) => {
+      if (jobSort === "title") return first.title.localeCompare(second.title);
+      if (jobSort === "budget") return second.budget.localeCompare(first.budget, undefined, { numeric: true });
+      return Number(first.id) - Number(second.id);
+    });
+  const activeJobFilterCount = [jobType !== "any", duration !== "any", filter === "Saved"].filter(Boolean).length;
+  const clearJobFilters = () => {
+    setJobType("any");
+    setDuration("any");
+    if (filter === "Saved") setFilter("All work");
+  };
+  const clearJobSearch = () => {
+    setQuery("");
+    setFilter("All work");
+    clearJobFilters();
+  };
+  const hasJobFilters = !!query || filter !== "All work" || activeJobFilterCount > 0;
+  const jobFilterFields = (group: string) => (
+    <FreelancerJobFilterFields
+      group={group}
+      jobType={jobType}
+      duration={duration}
+      showClear={activeJobFilterCount > 0}
+      onJobTypeChange={setJobType}
+      onDurationChange={setDuration}
+      onClear={clearJobFilters}
+    />
   );
   const proposalTab = tab === "Active" ? "Drafts" : tab;
   const visibleProposals = drafts.filter((draft) => (draft.status ?? "Drafts") === proposalTab);
@@ -159,6 +147,51 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
     setCover(draft?.cover ?? "");
     setRate(draft?.rate ?? "");
   };
+  const directoryJobList = (
+    <div className="divide-border border-border divide-y overflow-hidden rounded-xl border">
+      {filtered.map((job) => (
+        <article key={job.id} className="bg-card p-5 sm:p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-muted-foreground text-xs">
+                {job.posted} · {job.company} · Remote
+              </p>
+              <button
+                type="button"
+                onClick={() => open(job)}
+                className="hover:text-primary mt-2 text-left text-xl font-medium tracking-tight break-words"
+              >
+                {job.title}
+              </button>
+              <p className="mt-3 text-sm font-medium">{job.budget}</p>
+            </div>
+            <button
+              type="button"
+              aria-label={`${saved.includes(job.id) ? "Unsave" : "Save"} ${job.title}`}
+              aria-pressed={saved.includes(job.id)}
+              onClick={() =>
+                setSaved((ids) => (ids.includes(job.id) ? ids.filter((id) => id !== job.id) : [...ids, job.id]))
+              }
+              className={workspaceStyles.iconButton}
+            >
+              <Bookmark className={`size-4 ${saved.includes(job.id) ? "fill-primary text-primary" : ""}`} />
+            </button>
+          </div>
+          <p className="text-muted-foreground mt-4 max-w-3xl text-sm leading-6">{job.description}</p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {job.skills.map((skill) => (
+              <span
+                key={skill}
+                className="bg-muted text-muted-foreground inline-flex min-h-7 items-center rounded-md px-3 text-xs font-medium"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
   const jobList = (
     <div className="space-y-4">
       {filtered.map((job) => (
@@ -200,15 +233,15 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
     </div>
   );
   return (
-    <div className="space-y-7">
+    <div className={page === "savedJobs" ? "mx-auto w-full space-y-6 xl:max-w-[912px]" : "space-y-7"}>
       <WorkspacePageHeader
-        eyebrow="Freelancer workspace"
+        eyebrow={page === "savedJobs" ? "Your shortlist" : "Freelancer workspace"}
         title={
           page === "dashboard" && user?.full_name
             ? `Good to see you, ${user.full_name.trim().split(/\s+/)[0]}.`
-            : titles[page]
+            : freelancerWorkspaceTitles[page]
         }
-        description={subtitles[page]}
+        description={freelancerWorkspaceSubtitles[page]}
         action=""
       />
       {error && (
@@ -249,47 +282,224 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
           </aside>
         </div>
       )}
+      {page === "savedJobs" && (
+        <>
+          {saved.length > 0 && (
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <label className="border-input bg-card focus-within:border-primary focus-within:ring-primary/10 flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border px-4 focus-within:ring-2">
+                <Search className="text-muted-foreground size-4 shrink-0" />
+                <span className="sr-only">Search saved jobs</span>
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search by title, skill, or company"
+                  className="min-w-0 flex-1 bg-transparent text-base outline-none sm:text-sm [&::-webkit-search-cancel-button]:hidden"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery("")}
+                    aria-label="Clear saved search"
+                    className="hover:bg-muted grid size-10 place-items-center rounded-lg"
+                  >
+                    <X className="size-4" />
+                  </button>
+                )}
+              </label>
+              <Select value={jobSort} onValueChange={setJobSort}>
+                <SelectTrigger aria-label="Sort saved jobs" className="bg-card h-12 w-full rounded-xl sm:w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recommended">Recommended</SelectItem>
+                  <SelectItem value="title">Project title</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <p role="status" className="text-muted-foreground text-sm">
+            <strong className="text-foreground font-semibold">{filtered.length}</strong>{" "}
+            {filtered.length === 1 ? "job" : "jobs"}
+            {query ? " matching your search" : " saved"}
+          </p>
+          {filtered.length ? (
+            directoryJobList
+          ) : (
+            <section className="border-border bg-card rounded-xl border px-6 py-16 text-center">
+              <Bookmark className="text-muted-foreground mx-auto size-8" />
+              <h2 className="mt-5 text-xl font-medium tracking-tight">
+                {saved.length ? "No matching saved jobs" : "Your shortlist starts here"}
+              </h2>
+              <p className="text-muted-foreground mx-auto mt-3 max-w-sm text-sm leading-6">
+                {saved.length
+                  ? "Try another title, skill, or company."
+                  : "Save a job while browsing work. You’ll find every opportunity you bookmark right here."}
+              </p>
+              {saved.length ? (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className={`${workspaceStyles.secondaryAction} mt-6`}
+                >
+                  Clear search
+                </button>
+              ) : (
+                <Link to="/freelancer-jobs" className={`${workspaceStyles.primaryAction} mt-6`}>
+                  Explore work <ArrowRight className="size-4" />
+                </Link>
+              )}
+            </section>
+          )}
+        </>
+      )}
       {page === "jobs" && (
         <>
-          <div className="relative">
-            <Search className="text-muted-foreground absolute top-4 left-4 size-4" />
-            <input
-              aria-label="Search jobs"
-              className={`${input} pl-11`}
-              placeholder="Search by title or skill"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {["All work", "Design", "Development", "Marketing", "Saved"].map((f) => (
+          <search className="block">
+            <form className="flex gap-2" onSubmit={(event) => event.preventDefault()}>
+              <label className="border-input bg-card focus-within:border-primary focus-within:ring-primary/10 flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl border px-4 focus-within:ring-2">
+                <Search className="text-muted-foreground size-5 shrink-0" />
+                <span className="sr-only">Search jobs</span>
+                <input
+                  type="search"
+                  aria-label="Search jobs"
+                  placeholder="Try a role, skill, or company"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  className="min-w-0 flex-1 bg-transparent text-base outline-none [&::-webkit-search-cancel-button]:hidden"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery("")}
+                    aria-label="Clear search"
+                    className="text-muted-foreground hover:bg-muted grid size-10 shrink-0 place-items-center rounded-lg"
+                  >
+                    <X className="size-4" />
+                  </button>
+                )}
+              </label>
+              <button
+                type="submit"
+                className="bg-primary text-primary-foreground hidden min-h-14 rounded-xl px-7 text-sm font-medium hover:opacity-90 sm:block"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                aria-label="Open job filters"
+                aria-expanded={jobFiltersOpen}
+                onClick={() => setJobFiltersOpen(true)}
+                className="border-border bg-card relative grid min-h-14 w-14 shrink-0 place-items-center rounded-xl border lg:hidden"
+              >
+                <SlidersHorizontal className="size-5" />
+                {activeJobFilterCount > 0 && (
+                  <span className="bg-primary text-primary-foreground absolute top-1 right-1 rounded-full px-1.5 text-[10px]">
+                    {activeJobFilterCount}
+                  </span>
+                )}
+              </button>
+            </form>
+            <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 text-xs">
+              <span>Try:</span>
+              {["Product design", "React", "Content strategy"].map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setQuery(item)}
+                  className="text-foreground decoration-border hover:text-primary min-h-11 font-medium underline underline-offset-4"
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </search>
+          <nav aria-label="Job categories" className="border-border flex gap-5 overflow-x-auto border-b sm:gap-7">
+            {["All work", "Design", "Development", "Marketing"].map((f) => (
               <button
                 type="button"
                 key={f}
                 aria-pressed={filter === f}
-                className={filter === f ? workspaceStyles.primaryAction : workspaceStyles.secondaryAction}
+                className={`min-h-12 shrink-0 border-b-2 px-1 text-sm font-medium transition-colors ${filter === f ? "border-primary text-primary" : "text-muted-foreground hover:text-foreground border-transparent"}`}
                 onClick={() => setFilter(f)}
               >
                 {f}
               </button>
             ))}
+          </nav>
+          <div className="grid items-start gap-6 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
+            <aside aria-label="Job filters" className="sticky top-24 hidden lg:block">
+              <h2 className="mb-6 text-base font-semibold">Refine your search</h2>
+              {jobFilterFields("desktop-job-type")}
+            </aside>
+            <section aria-label="Job results" className="min-w-0">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-muted-foreground text-sm" role="status">
+                  <strong className="text-foreground font-semibold">{filtered.length}</strong>{" "}
+                  {filtered.length === 1 ? "opportunity" : "opportunities"}
+                  {query ? ` matching “${query}”` : " to explore"}
+                </p>
+                <Select value={jobSort} onValueChange={setJobSort}>
+                  <SelectTrigger aria-label="Sort jobs" className="border-border bg-card h-11 w-44 rounded-lg text-xs">
+                    <ArrowDownWideNarrow className="text-muted-foreground size-3.5" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent align="end">
+                    <SelectItem value="recommended">Recommended</SelectItem>
+                    <SelectItem value="budget">Highest budget</SelectItem>
+                    <SelectItem value="title">Project title</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {hasJobFilters && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {filter !== "All work" && <JobFilterChip label={filter} onRemove={() => setFilter("All work")} />}
+                  {jobType !== "any" && <JobFilterChip label={jobType} onRemove={() => setJobType("any")} />}
+                  {duration !== "any" && <JobFilterChip label={duration} onRemove={() => setDuration("any")} />}
+                  {query && <JobFilterChip label={query} onRemove={() => setQuery("")} />}
+                  <button
+                    type="button"
+                    onClick={clearJobSearch}
+                    className="text-primary min-h-9 px-2 text-xs font-medium hover:underline"
+                  >
+                    Clear all
+                  </button>
+                </div>
+              )}
+              {filtered.length ? (
+                directoryJobList
+              ) : (
+                <div className="border-border bg-card rounded-xl border px-6 py-16 text-center">
+                  <Search className="text-muted-foreground mx-auto size-7" />
+                  <h2 className="mt-5 text-xl font-medium tracking-tight">No matching projects</h2>
+                  <p className="text-muted-foreground mx-auto mt-3 max-w-sm text-sm leading-6">
+                    Try a broader skill, another category, or a different project type.
+                  </p>
+                  <button type="button" onClick={clearJobSearch} className={`${workspaceStyles.secondaryAction} mt-6`}>
+                    Browse all work
+                  </button>
+                </div>
+              )}
+            </section>
           </div>
-          <p className="text-muted-foreground text-sm" role="status">
-            {filtered.length} opportunities
-          </p>
-          {filtered.length ? (
-            jobList
-          ) : (
-            <Empty
-              icon={Search}
-              title="No projects found"
-              detail={
-                jobs.length
-                  ? "Try another skill or select All work."
-                  : "Job listings are not available yet. Check back when the marketplace opens."
-              }
-            />
-          )}
+          <Sheet open={jobFiltersOpen} onOpenChange={setJobFiltersOpen}>
+            <SheetContent side="right" className="flex w-full flex-col gap-0 sm:max-w-sm">
+              <SheetHeader className="border-border border-b">
+                <SheetTitle>Refine your search</SheetTitle>
+                <SheetDescription>Choose the project type and duration that fit your work.</SheetDescription>
+              </SheetHeader>
+              <div className="flex-1 overflow-y-auto p-6">{jobFiltersOpen && jobFilterFields("mobile-job-type")}</div>
+              <div className="border-border border-t p-5">
+                <button
+                  type="button"
+                  onClick={() => setJobFiltersOpen(false)}
+                  className={`${workspaceStyles.primaryAction} w-full`}
+                >
+                  Show {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}
+                </button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </>
       )}
       {page === "proposals" && (
@@ -433,80 +643,307 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
           )}
         </>
       )}
-      <Dialog
+      <Sheet
         open={!!selected}
         onOpenChange={(open) => {
           if (!open) setSelected(null);
         }}
       >
-        <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{compose ? "Prepare your proposal" : selected?.title}</DialogTitle>
-            <DialogDescription>
-              {selected?.company} · {selected?.budget}
-            </DialogDescription>
-          </DialogHeader>
-          {compose ? (
-            <form
-              className="space-y-5"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!selected) return;
-                setDrafts((ds) => [
-                  ...ds.filter((d) => d.job.id !== selected.id),
-                  {
-                    job: selected,
-                    cover: cover.trim(),
-                    rate,
-                    status: "Drafts",
-                  },
-                ]);
-                setSelected(null);
-                toast.success("Proposal draft saved on this device");
-              }}
-            >
-              <label className="block text-sm font-medium">
-                Your introduction
-                <textarea
-                  required
-                  minLength={40}
-                  maxLength={5000}
-                  className={`${input} mt-2`}
-                  rows={6}
-                  value={cover}
-                  onChange={(e) => setCover(e.target.value)}
-                  placeholder="Describe your approach and relevant experience (at least 40 characters)."
-                />
-              </label>
-              <label className="block text-sm font-medium">
-                {selected?.budget.includes("Fixed price") ? "Your project budget (USD)" : "Your hourly rate (USD)"}
-                <input
-                  required
-                  min="1"
-                  type="number"
-                  className={`${input} mt-2`}
-                  value={rate}
-                  onChange={(e) => setRate(e.target.value)}
-                />
-              </label>
-              <button className={workspaceStyles.primaryAction} type="submit">
-                Save draft
-              </button>
-            </form>
-          ) : (
+        <SheetContent
+          side="right"
+          showCloseButton={false}
+          className={
+            compose
+              ? "bg-card w-full max-w-none gap-0 p-0 sm:max-w-[720px]"
+              : "w-full max-w-none gap-0 p-0 sm:w-[min(78vw,1180px)] sm:max-w-none"
+          }
+        >
+          {selected && (
             <>
-              <p className="text-muted-foreground text-sm leading-7">{selected?.description}</p>
-              <button type="button" className={workspaceStyles.primaryAction} onClick={() => setCompose(true)}>
-                Prepare proposal
-                <ArrowRight className="size-4" />
-              </button>
+              <header className="border-border bg-card flex h-[72px] shrink-0 items-center justify-between gap-4 border-b px-5 sm:px-7">
+                <SheetClose className="text-muted-foreground hover:text-foreground focus-visible:outline-ring inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-medium focus-visible:outline-2">
+                  <ArrowLeft className="size-4" />
+                  Back to jobs
+                </SheetClose>
+                <p className="text-muted-foreground hidden text-xs sm:block">{selected.company} · Remote opportunity</p>
+              </header>
+              <div
+                className={
+                  compose
+                    ? "flex min-h-0 flex-1 flex-col"
+                    : "min-h-0 flex-1 overflow-y-auto lg:grid lg:grid-cols-[minmax(0,1fr)_310px] lg:overflow-hidden"
+                }
+              >
+                <main className={compose ? "flex min-h-0 flex-1 flex-col" : "min-w-0 lg:overflow-y-auto"}>
+                  {compose ? (
+                    <section className="flex min-h-0 flex-1 flex-col">
+                      <div className="border-border border-b px-6 py-6 sm:px-8">
+                        <p className="text-primary mb-2 text-xs font-semibold">YOUR NEXT OPPORTUNITY</p>
+                        <SheetTitle className="text-2xl font-semibold tracking-tight">
+                          Make your introduction
+                        </SheetTitle>
+                        <SheetDescription className="mt-2 text-sm leading-6">
+                          A thoughtful proposal is the start of a great collaboration.
+                        </SheetDescription>
+                      </div>
+                      <form
+                        className="flex min-h-0 flex-1 flex-col"
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          setDrafts((items) => [
+                            ...items.filter((draft) => draft.job.id !== selected.id),
+                            {
+                              job: selected,
+                              cover: cover.trim(),
+                              rate,
+                              status: "Drafts",
+                            },
+                          ]);
+                          setSelected(null);
+                          toast.success("Proposal draft saved on this device");
+                        }}
+                      >
+                        <div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-6 py-6 sm:px-8">
+                          <div className="border-border bg-muted/40 rounded-xl border p-4">
+                            <p className="text-muted-foreground text-xs">Applying to · {selected.company}</p>
+                            <p className="mt-2 text-sm leading-6 font-semibold">{selected.title}</p>
+                            <p className="text-muted-foreground mt-2 text-xs">{selected.budget}</p>
+                            <button
+                              type="button"
+                              onClick={() => setCompose(false)}
+                              className="text-primary mt-2 min-h-11 text-sm font-medium hover:underline"
+                            >
+                              View job details <span aria-hidden="true">↗</span>
+                            </button>
+                          </div>
+                          <JobFormSection
+                            number="01"
+                            title="Tell them why you’re a good fit"
+                            description="Share relevant experience and how you’d approach this project."
+                          >
+                            <label className="block text-sm font-medium">
+                              Cover letter
+                              <textarea
+                                required
+                                minLength={40}
+                                maxLength={5000}
+                                className={`${jobFormField} min-h-40 resize-y leading-6`}
+                                rows={6}
+                                value={cover}
+                                onChange={(event) => setCover(event.target.value)}
+                                placeholder="Hi! Your project caught my attention because…"
+                              />
+                              <span className="text-muted-foreground mt-2 block text-xs">
+                                At least 40 characters{" "}
+                                <span className="float-right">{cover.length.toLocaleString()} / 5,000</span>
+                              </span>
+                            </label>
+                          </JobFormSection>
+                          <div className="border-border border-t" />
+                          <JobFormSection
+                            number="02"
+                            title="Set your terms"
+                            description={
+                              selectedProjectType === "Fixed price"
+                                ? "Your total price for the scope described above."
+                                : "The hourly rate you’d charge for this project."
+                            }
+                          >
+                            <label className="block text-sm font-medium">
+                              {selectedProjectType === "Fixed price"
+                                ? "Your project budget (USD)"
+                                : "Your hourly rate (USD)"}
+                              <input
+                                required
+                                min="1"
+                                type="number"
+                                step="0.01"
+                                placeholder={selectedProjectType === "Fixed price" ? "e.g. 2000" : "e.g. 65"}
+                                className={`${jobFormField} block`}
+                                value={rate}
+                                onChange={(event) => setRate(event.target.value)}
+                              />
+                            </label>
+                          </JobFormSection>
+                        </div>
+                        <footer className="border-border shrink-0 border-t px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8">
+                          <div className="flex items-center justify-between gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setCompose(false)}
+                              className={workspaceStyles.secondaryAction}
+                            >
+                              Back
+                            </button>
+                            <button className={workspaceStyles.primaryAction} type="submit">
+                              Save draft
+                              <ArrowRight className="size-4" />
+                            </button>
+                          </div>
+                        </footer>
+                      </form>
+                    </section>
+                  ) : (
+                    <>
+                      <section className="border-border border-b p-6 sm:p-9">
+                        <p className="text-muted-foreground text-xs font-medium">
+                          {selected.posted ?? "Recently posted"}
+                        </p>
+                        <SheetTitle className="font-display mt-4 max-w-3xl text-3xl font-medium tracking-tight sm:text-4xl">
+                          {selected.title}
+                        </SheetTitle>
+                        <SheetDescription className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+                          <span className="inline-flex items-center gap-2">
+                            <Building2 className="size-4" /> {selected.company}
+                          </span>
+                          <span className="inline-flex items-center gap-2">
+                            <Globe2 className="size-4" /> Worldwide · Remote
+                          </span>
+                        </SheetDescription>
+                      </section>
+                      <section className="border-border border-b p-6 sm:p-9">
+                        <h3 className="text-lg font-semibold">Project summary</h3>
+                        <p className="text-muted-foreground mt-4 max-w-3xl text-base leading-7">
+                          {selected.description}
+                        </p>
+                      </section>
+                      <section className="border-border grid gap-7 border-b p-6 sm:grid-cols-3 sm:p-9">
+                        <JobFact icon={Clock3} title={selectedProjectType} detail="Engagement" />
+                        <JobFact
+                          icon={CalendarDays}
+                          title={selectedDuration}
+                          detail={selectedDuration === "Long term" ? "1–3 months" : "1–4 weeks"}
+                        />
+                        <JobFact icon={Sparkles} title="Intermediate" detail="Experience level" />
+                        <JobFact icon={Banknote} title={selected.budget.split(" · ")[0]} detail={selectedProjectType} />
+                      </section>
+                      <section className="border-border border-b p-6 sm:p-9">
+                        <p className="text-sm">
+                          <span className="font-semibold">Project type:</span> {selectedProjectType}
+                        </p>
+                      </section>
+                      <section className="border-border border-b p-6 sm:p-9">
+                        <h3 className="text-xl font-semibold tracking-tight">Skills and expertise</h3>
+                        <p className="mt-5 text-sm font-medium">Required skills</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {selected.skills.map((skill) => (
+                            <span
+                              key={skill}
+                              className="bg-muted text-muted-foreground inline-flex min-h-8 items-center rounded-full px-3.5 text-xs font-medium"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </section>
+                      <section className="grid gap-8 p-6 sm:grid-cols-2 sm:p-9">
+                        <div>
+                          <h3 className="text-lg font-semibold">Preferred qualifications</h3>
+                          <p className="text-muted-foreground mt-3 text-sm leading-6">
+                            Clear communication, relevant project examples, and reliable availability.
+                          </p>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold">Activity on this job</h3>
+                          <dl className="text-muted-foreground mt-3 space-y-2 text-sm">
+                            <div className="flex justify-between gap-4">
+                              <dt>Proposals</dt>
+                              <dd className="text-foreground">5–10</dd>
+                            </div>
+                            <div className="flex justify-between gap-4">
+                              <dt>Interviewing</dt>
+                              <dd className="text-foreground">1</dd>
+                            </div>
+                            <div className="flex justify-between gap-4">
+                              <dt>Invites sent</dt>
+                              <dd className="text-foreground">2</dd>
+                            </div>
+                          </dl>
+                        </div>
+                      </section>
+                    </>
+                  )}
+                </main>
+                {!compose && (
+                  <aside className="border-border bg-card border-t p-6 lg:overflow-y-auto lg:border-t-0 lg:border-l lg:p-7">
+                    <div className="grid gap-3">
+                      <button
+                        type="button"
+                        className={`${workspaceStyles.primaryAction} w-full`}
+                        onClick={() => setCompose(true)}
+                      >
+                        {compose ? "Editing proposal" : "Apply now"}
+                        {!compose && <ArrowRight className="size-4" />}
+                      </button>
+                      <button
+                        type="button"
+                        aria-pressed={saved.includes(selected.id)}
+                        onClick={() =>
+                          setSaved((ids) =>
+                            ids.includes(selected.id) ? ids.filter((id) => id !== selected.id) : [...ids, selected.id],
+                          )
+                        }
+                        className={`${workspaceStyles.secondaryAction} w-full`}
+                      >
+                        <Bookmark
+                          className={`size-4 ${saved.includes(selected.id) ? "fill-primary text-primary" : ""}`}
+                        />
+                        {saved.includes(selected.id) ? "Job saved" : "Save job"}
+                      </button>
+                    </div>
+                    <section className="border-border mt-8 border-t pt-7">
+                      <p className="text-muted-foreground text-xs">About the client</p>
+                      <h3 className="mt-2 text-xl font-semibold">{selected.company}</h3>
+                      <dl className="mt-6 space-y-5 text-sm">
+                        <div>
+                          <dt className="text-muted-foreground">Location</dt>
+                          <dd className="mt-1 font-medium">Worldwide</dd>
+                        </div>
+                        <div>
+                          <dt className="text-muted-foreground">Member since</dt>
+                          <dd className="mt-1 font-medium">2023</dd>
+                        </div>
+                      </dl>
+                    </section>
+                  </aside>
+                )}
+              </div>
             </>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
+
+function JobFilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onRemove}
+      aria-label={`Remove ${label} filter`}
+      className="bg-accent text-accent-foreground inline-flex min-h-9 items-center gap-2 rounded-md px-3 text-xs"
+    >
+      {label}
+      <X className="size-3" />
+    </button>
+  );
+}
+
+function JobFact({ icon: Icon, title, detail }: { icon: typeof Wallet; title: string; detail: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="bg-muted text-muted-foreground grid size-10 shrink-0 place-items-center rounded-xl">
+        <Icon className="size-4" />
+      </span>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold break-words">{title}</p>
+        <p className="text-muted-foreground mt-1 text-xs">{detail}</p>
+      </div>
+    </div>
+  );
+}
+
 function Empty({
   icon: Icon,
   title,

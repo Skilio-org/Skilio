@@ -16,6 +16,7 @@ import { Route as RecoverPasswordRouteImport } from "./routes/recover-password";
 import { Route as ResetPasswordRouteImport } from "./routes/reset-password";
 import { Route as SignupRouteImport } from "./routes/signup";
 import { Route as LayoutAdminRouteImport } from "./routes/_layout/admin";
+import { Route as LayoutClientJobsRouteImport } from "./routes/_layout/client-jobs";
 import { Route as LayoutClientProfileRouteImport } from "./routes/_layout/client-profile";
 import { Route as LayoutDashboardRouteImport } from "./routes/_layout/dashboard";
 import { Route as LayoutFreelancerRouteImport } from "./routes/_layout/freelancer";
@@ -23,6 +24,7 @@ import { Route as LayoutFreelancerDashboardRouteImport } from "./routes/_layout/
 import { Route as LayoutFreelancerJobsRouteImport } from "./routes/_layout/freelancer-jobs";
 import { Route as LayoutFreelancerMessagesRouteImport } from "./routes/_layout/freelancer-messages";
 import { Route as LayoutFreelancerProposalsRouteImport } from "./routes/_layout/freelancer-proposals";
+import { Route as LayoutFreelancerSavedJobsRouteImport } from "./routes/_layout/freelancer-saved-jobs";
 import { Route as LayoutFreelancerSettingsRouteImport } from "./routes/_layout/freelancer-settings";
 import { Route as LayoutMessagesRouteImport } from "./routes/_layout/messages";
 import { Route as LayoutNotificationsRouteImport } from "./routes/_layout/notifications";
@@ -65,6 +67,11 @@ const LayoutAdminRoute = LayoutAdminRouteImport.update({
   path: "/admin",
   getParentRoute: () => LayoutRoute,
 } as any);
+const LayoutClientJobsRoute = LayoutClientJobsRouteImport.update({
+  id: "/client-jobs",
+  path: "/client-jobs",
+  getParentRoute: () => LayoutRoute,
+} as any);
 const LayoutClientProfileRoute = LayoutClientProfileRouteImport.update({
   id: "/client-profile",
   path: "/client-profile",
@@ -98,6 +105,11 @@ const LayoutFreelancerMessagesRoute = LayoutFreelancerMessagesRouteImport.update
 const LayoutFreelancerProposalsRoute = LayoutFreelancerProposalsRouteImport.update({
   id: "/freelancer-proposals",
   path: "/freelancer-proposals",
+  getParentRoute: () => LayoutRoute,
+} as any);
+const LayoutFreelancerSavedJobsRoute = LayoutFreelancerSavedJobsRouteImport.update({
+  id: "/freelancer-saved-jobs",
+  path: "/freelancer-saved-jobs",
   getParentRoute: () => LayoutRoute,
 } as any);
 const LayoutFreelancerSettingsRoute = LayoutFreelancerSettingsRouteImport.update({
@@ -143,6 +155,7 @@ export interface FileRoutesByFullPath {
   "/reset-password": typeof ResetPasswordRoute;
   "/signup": typeof SignupRoute;
   "/admin": typeof LayoutAdminRoute;
+  "/client-jobs": typeof LayoutClientJobsRoute;
   "/client-profile": typeof LayoutClientProfileRoute;
   "/dashboard": typeof LayoutDashboardRoute;
   "/freelancer": typeof LayoutFreelancerRoute;
@@ -150,6 +163,7 @@ export interface FileRoutesByFullPath {
   "/freelancer-jobs": typeof LayoutFreelancerJobsRoute;
   "/freelancer-messages": typeof LayoutFreelancerMessagesRoute;
   "/freelancer-proposals": typeof LayoutFreelancerProposalsRoute;
+  "/freelancer-saved-jobs": typeof LayoutFreelancerSavedJobsRoute;
   "/freelancer-settings": typeof LayoutFreelancerSettingsRoute;
   "/messages": typeof LayoutMessagesRoute;
   "/notifications": typeof LayoutNotificationsRoute;
@@ -165,6 +179,7 @@ export interface FileRoutesByTo {
   "/reset-password": typeof ResetPasswordRoute;
   "/signup": typeof SignupRoute;
   "/admin": typeof LayoutAdminRoute;
+  "/client-jobs": typeof LayoutClientJobsRoute;
   "/client-profile": typeof LayoutClientProfileRoute;
   "/dashboard": typeof LayoutDashboardRoute;
   "/freelancer": typeof LayoutFreelancerRoute;
@@ -172,6 +187,7 @@ export interface FileRoutesByTo {
   "/freelancer-jobs": typeof LayoutFreelancerJobsRoute;
   "/freelancer-messages": typeof LayoutFreelancerMessagesRoute;
   "/freelancer-proposals": typeof LayoutFreelancerProposalsRoute;
+  "/freelancer-saved-jobs": typeof LayoutFreelancerSavedJobsRoute;
   "/freelancer-settings": typeof LayoutFreelancerSettingsRoute;
   "/messages": typeof LayoutMessagesRoute;
   "/notifications": typeof LayoutNotificationsRoute;
@@ -189,6 +205,7 @@ export interface FileRoutesById {
   "/reset-password": typeof ResetPasswordRoute;
   "/signup": typeof SignupRoute;
   "/_layout/admin": typeof LayoutAdminRoute;
+  "/_layout/client-jobs": typeof LayoutClientJobsRoute;
   "/_layout/client-profile": typeof LayoutClientProfileRoute;
   "/_layout/dashboard": typeof LayoutDashboardRoute;
   "/_layout/freelancer": typeof LayoutFreelancerRoute;
@@ -196,6 +213,7 @@ export interface FileRoutesById {
   "/_layout/freelancer-jobs": typeof LayoutFreelancerJobsRoute;
   "/_layout/freelancer-messages": typeof LayoutFreelancerMessagesRoute;
   "/_layout/freelancer-proposals": typeof LayoutFreelancerProposalsRoute;
+  "/_layout/freelancer-saved-jobs": typeof LayoutFreelancerSavedJobsRoute;
   "/_layout/freelancer-settings": typeof LayoutFreelancerSettingsRoute;
   "/_layout/messages": typeof LayoutMessagesRoute;
   "/_layout/notifications": typeof LayoutNotificationsRoute;
@@ -213,6 +231,7 @@ export interface FileRouteTypes {
     | "/reset-password"
     | "/signup"
     | "/admin"
+    | "/client-jobs"
     | "/client-profile"
     | "/dashboard"
     | "/freelancer"
@@ -220,6 +239,7 @@ export interface FileRouteTypes {
     | "/freelancer-jobs"
     | "/freelancer-messages"
     | "/freelancer-proposals"
+    | "/freelancer-saved-jobs"
     | "/freelancer-settings"
     | "/messages"
     | "/notifications"
@@ -235,6 +255,7 @@ export interface FileRouteTypes {
     | "/reset-password"
     | "/signup"
     | "/admin"
+    | "/client-jobs"
     | "/client-profile"
     | "/dashboard"
     | "/freelancer"
@@ -242,6 +263,7 @@ export interface FileRouteTypes {
     | "/freelancer-jobs"
     | "/freelancer-messages"
     | "/freelancer-proposals"
+    | "/freelancer-saved-jobs"
     | "/freelancer-settings"
     | "/messages"
     | "/notifications"
@@ -258,6 +280,7 @@ export interface FileRouteTypes {
     | "/reset-password"
     | "/signup"
     | "/_layout/admin"
+    | "/_layout/client-jobs"
     | "/_layout/client-profile"
     | "/_layout/dashboard"
     | "/_layout/freelancer"
@@ -265,6 +288,7 @@ export interface FileRouteTypes {
     | "/_layout/freelancer-jobs"
     | "/_layout/freelancer-messages"
     | "/_layout/freelancer-proposals"
+    | "/_layout/freelancer-saved-jobs"
     | "/_layout/freelancer-settings"
     | "/_layout/messages"
     | "/_layout/notifications"
@@ -334,6 +358,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LayoutAdminRouteImport;
       parentRoute: typeof LayoutRoute;
     };
+    "/_layout/client-jobs": {
+      id: "/_layout/client-jobs";
+      path: "/client-jobs";
+      fullPath: "/client-jobs";
+      preLoaderRoute: typeof LayoutClientJobsRouteImport;
+      parentRoute: typeof LayoutRoute;
+    };
     "/_layout/client-profile": {
       id: "/_layout/client-profile";
       path: "/client-profile";
@@ -381,6 +412,13 @@ declare module "@tanstack/react-router" {
       path: "/freelancer-proposals";
       fullPath: "/freelancer-proposals";
       preLoaderRoute: typeof LayoutFreelancerProposalsRouteImport;
+      parentRoute: typeof LayoutRoute;
+    };
+    "/_layout/freelancer-saved-jobs": {
+      id: "/_layout/freelancer-saved-jobs";
+      path: "/freelancer-saved-jobs";
+      fullPath: "/freelancer-saved-jobs";
+      preLoaderRoute: typeof LayoutFreelancerSavedJobsRouteImport;
       parentRoute: typeof LayoutRoute;
     };
     "/_layout/freelancer-settings": {
@@ -437,6 +475,7 @@ declare module "@tanstack/react-router" {
 
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute;
+  LayoutClientJobsRoute: typeof LayoutClientJobsRoute;
   LayoutClientProfileRoute: typeof LayoutClientProfileRoute;
   LayoutDashboardRoute: typeof LayoutDashboardRoute;
   LayoutFreelancerRoute: typeof LayoutFreelancerRoute;
@@ -444,6 +483,7 @@ interface LayoutRouteChildren {
   LayoutFreelancerJobsRoute: typeof LayoutFreelancerJobsRoute;
   LayoutFreelancerMessagesRoute: typeof LayoutFreelancerMessagesRoute;
   LayoutFreelancerProposalsRoute: typeof LayoutFreelancerProposalsRoute;
+  LayoutFreelancerSavedJobsRoute: typeof LayoutFreelancerSavedJobsRoute;
   LayoutFreelancerSettingsRoute: typeof LayoutFreelancerSettingsRoute;
   LayoutMessagesRoute: typeof LayoutMessagesRoute;
   LayoutNotificationsRoute: typeof LayoutNotificationsRoute;
@@ -455,6 +495,7 @@ interface LayoutRouteChildren {
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
+  LayoutClientJobsRoute: LayoutClientJobsRoute,
   LayoutClientProfileRoute: LayoutClientProfileRoute,
   LayoutDashboardRoute: LayoutDashboardRoute,
   LayoutFreelancerRoute: LayoutFreelancerRoute,
@@ -462,6 +503,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutFreelancerJobsRoute: LayoutFreelancerJobsRoute,
   LayoutFreelancerMessagesRoute: LayoutFreelancerMessagesRoute,
   LayoutFreelancerProposalsRoute: LayoutFreelancerProposalsRoute,
+  LayoutFreelancerSavedJobsRoute: LayoutFreelancerSavedJobsRoute,
   LayoutFreelancerSettingsRoute: LayoutFreelancerSettingsRoute,
   LayoutMessagesRoute: LayoutMessagesRoute,
   LayoutNotificationsRoute: LayoutNotificationsRoute,

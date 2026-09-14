@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Bell,
+  BriefcaseBusiness,
   Bookmark,
   LayoutDashboard,
   type LucideIcon,
@@ -57,6 +58,12 @@ export function TopNav() {
             Find talent
           </Link>
           <Link
+            to="/client-jobs"
+            className={`flex h-full items-center border-b-2 px-3 text-sm font-medium whitespace-nowrap ${pathname === "/client-jobs" ? "border-brand-600 text-foreground" : "text-muted-foreground hover:text-foreground border-transparent"}`}
+          >
+            Jobs
+          </Link>
+          <Link
             to="/saved"
             className={`flex h-full items-center border-b-2 px-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === "/saved" ? "border-brand-600 text-foreground" : "text-muted-foreground hover:text-foreground border-transparent"}`}
           >
@@ -111,6 +118,12 @@ export function TopNav() {
                 active={pathname.startsWith("/talent")}
               />
               <MobileNavLink to="/saved" label="Saved talent" icon={Bookmark} active={pathname === "/saved"} />
+              <MobileNavLink
+                to="/client-jobs"
+                label="Your jobs"
+                icon={BriefcaseBusiness}
+                active={pathname === "/client-jobs"}
+              />
               <MobileNavLink to="/messages" label="Messages" icon={MessageSquare} active={pathname === "/messages"} />
               <MobileNavLink
                 to="/notifications"
@@ -134,7 +147,7 @@ function MobileNavLink({
   icon: Icon,
   active,
 }: {
-  to: "/dashboard" | "/talent" | "/saved" | "/messages" | "/notifications" | "/settings";
+  to: "/dashboard" | "/talent" | "/saved" | "/messages" | "/notifications" | "/settings" | "/client-jobs";
   label: string;
   icon: LucideIcon;
   active: boolean;

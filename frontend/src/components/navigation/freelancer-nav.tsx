@@ -13,6 +13,7 @@ import useAuth from "@/hooks/useAuth";
 const links = [
   ["/freelancer-dashboard", "Overview"],
   ["/freelancer-jobs", "Find work"],
+  ["/freelancer-saved-jobs", "Saved jobs"],
   ["/freelancer-proposals", "Proposals"],
   ["/freelancer-messages", "Messages"],
 ] as const;
