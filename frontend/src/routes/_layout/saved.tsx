@@ -21,10 +21,7 @@ function SavedTalent() {
       (person) =>
         savedIds.includes(person.id) &&
         terms.every((term) =>
-          [person.name, person.title, person.location, ...person.skills]
-            .join(" ")
-            .toLowerCase()
-            .includes(term),
+          [person.name, person.title, person.location, ...person.skills].join(" ").toLowerCase().includes(term),
         ),
     )
     .sort((a, b) =>
@@ -49,8 +46,8 @@ function SavedTalent() {
       />
       {savedIds.length > 0 && (
         <div className="flex flex-col gap-3 sm:flex-row">
-          <label className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border border-input bg-card px-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
-            <Search className="size-4 shrink-0 text-muted-foreground" />
+          <label className="border-input bg-card focus-within:border-primary focus-within:ring-primary/10 flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border px-4 focus-within:ring-2">
+            <Search className="text-muted-foreground size-4 shrink-0" />
             <span className="sr-only">Search saved talent</span>
             <input
               type="search"
@@ -64,14 +61,14 @@ function SavedTalent() {
                 type="button"
                 onClick={() => setQuery("")}
                 aria-label="Clear saved search"
-                className="grid size-10 place-items-center rounded-lg hover:bg-muted"
+                className="hover:bg-muted grid size-10 place-items-center rounded-lg"
               >
                 <X className="size-4" />
               </button>
             )}
           </label>
           <Select value={sort} onValueChange={setSort}>
-            <SelectTrigger aria-label="Sort saved talent" className="h-12 w-full rounded-xl bg-card sm:w-48">
+            <SelectTrigger aria-label="Sort saved talent" className="bg-card h-12 w-full rounded-xl sm:w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -82,39 +79,30 @@ function SavedTalent() {
           </Select>
         </div>
       )}
-      <p role="status" className="text-sm text-muted-foreground">
-        <strong className="font-semibold text-foreground">{people.length}</strong>{" "}
+      <p role="status" className="text-muted-foreground text-sm">
+        <strong className="text-foreground font-semibold">{people.length}</strong>{" "}
         {people.length === 1 ? "professional" : "professionals"}
         {query ? " matching your search" : " saved"}
       </p>
       {people.length > 0 ? (
-        <div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
+        <div className="divide-border border-border divide-y overflow-hidden rounded-xl border">
           {people.map((person) => (
-            <FreelancerCard
-              key={person.id}
-              freelancer={person}
-              saved
-              onToggleSaved={() => toggleSaved(person.id)}
-            />
+            <FreelancerCard key={person.id} freelancer={person} saved onToggleSaved={() => toggleSaved(person.id)} />
           ))}
         </div>
       ) : (
-        <section className="rounded-xl border border-border bg-card px-6 py-16 text-center">
-          <Bookmark className="mx-auto size-8 text-muted-foreground" />
+        <section className="border-border bg-card rounded-xl border px-6 py-16 text-center">
+          <Bookmark className="text-muted-foreground mx-auto size-8" />
           <h2 className="mt-5 text-xl font-medium tracking-tight">
             {savedIds.length ? "No matching saved profiles" : "Your shortlist starts here"}
           </h2>
-          <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
+          <p className="text-muted-foreground mx-auto mt-3 max-w-sm text-sm leading-6">
             {savedIds.length
               ? "Try another name, skill, or location."
               : "Save a profile while browsing talent. You’ll find everyone you save right here."}
           </p>
           {savedIds.length ? (
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              className={`${workspaceStyles.secondaryAction} mt-6`}
-            >
+            <button type="button" onClick={() => setQuery("")} className={`${workspaceStyles.secondaryAction} mt-6`}>
               Clear search
             </button>
           ) : (

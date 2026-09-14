@@ -18,7 +18,8 @@ const path = require("node:path");
   );
   await context.addInitScript(() => {
     localStorage.setItem("access_token", "profile-test");
-    if (localStorage.getItem("saved-talent-v1:profile-test") === null) localStorage.setItem("saved-talent-v1:profile-test", "[]");
+    if (localStorage.getItem("saved-talent-v1:profile-test") === null)
+      localStorage.setItem("saved-talent-v1:profile-test", "[]");
   });
   const page = await context.newPage();
   page.setDefaultTimeout(10000);
@@ -72,10 +73,7 @@ const path = require("node:path");
     await page.goto(base + "/talent/" + id);
     await page.locator("h1").waitFor();
     await page.setViewportSize({ width: 375, height: 850 });
-    assert.ok(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-      id + " overflow",
-    );
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), id + " overflow");
   }
   await page.getByRole("link", { name: "Back to talent" }).click();
   await page.waitForURL("**/talent");

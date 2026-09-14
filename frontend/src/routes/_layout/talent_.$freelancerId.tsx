@@ -96,7 +96,6 @@ function FreelancerProfile() {
                 Available in your Saved talent list.
               </p>
             )}
-          
           </section>
         </aside>
         <article

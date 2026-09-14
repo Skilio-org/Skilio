@@ -1,14 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  ArrowDownWideNarrow,
-  Banknote,
-  Clock3,
-  Bookmark,
-  MapPin,
-  Search,
-  SlidersHorizontal,
-  X,
-} from "lucide-react";
+import { ArrowDownWideNarrow, Banknote, Clock3, Bookmark, MapPin, Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
@@ -81,9 +72,7 @@ function TalentDirectory() {
   const [location, setLocation] = useState("worldwide");
   const [sort, setSort] = useState("best-match");
 
-  const activeFilterCount = [rate !== "any", availability !== "any", location !== "worldwide"].filter(
-    Boolean,
-  ).length;
+  const activeFilterCount = [rate !== "any", availability !== "any", location !== "worldwide"].filter(Boolean).length;
 
   const results = useMemo(() => {
     const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
@@ -96,11 +85,8 @@ function TalentDirectory() {
 
       const matchesSearch =
         searchTerms.length === 0 ||
-        searchTerms.every((term) =>
-          (searchAliases[term] ?? [term]).some((candidate) => haystack.includes(candidate)),
-        );
-      const matchesSpecialty =
-        expertiseTerms.length === 0 || expertiseTerms.some((term) => haystack.includes(term));
+        searchTerms.every((term) => (searchAliases[term] ?? [term]).some((candidate) => haystack.includes(candidate)));
+      const matchesSpecialty = expertiseTerms.length === 0 || expertiseTerms.some((term) => haystack.includes(term));
       const matchesRate =
         rate === "any" ||
         (rate === "under-50" && person.rate < 50) ||
@@ -278,10 +264,7 @@ function TalentDirectory() {
           ))}
         </div>
       </search>
-      <nav
-        aria-label="Talent specialties"
-        className="border-border flex gap-5 overflow-x-auto border-b sm:gap-7"
-      >
+      <nav aria-label="Talent specialties" className="border-border flex gap-5 overflow-x-auto border-b sm:gap-7">
         {specialties.map((item) => (
           <button
             type="button"
@@ -320,10 +303,7 @@ function TalentDirectory() {
                 Shortlist{savedIds.length > 0 ? ` (${savedIds.length})` : ""}
               </button>
               <Select value={sort} onValueChange={setSort}>
-                <SelectTrigger
-                  aria-label="Sort talent"
-                  className="border-border bg-card h-11 w-44 rounded-lg text-xs"
-                >
+                <SelectTrigger aria-label="Sort talent" className="border-border bg-card h-11 w-44 rounded-lg text-xs">
                   <ArrowDownWideNarrow className="text-muted-foreground size-3.5" />
                   <SelectValue />
                 </SelectTrigger>
@@ -348,9 +328,7 @@ function TalentDirectory() {
               )}
               {availability !== "any" && (
                 <FilterChip
-                  label={
-                    availabilityOptions.find((option) => option.value === availability)?.label ?? availability
-                  }
+                  label={availabilityOptions.find((option) => option.value === availability)?.label ?? availability}
                   onRemove={() => setAvailability("any")}
                 />
               )}
@@ -397,9 +375,7 @@ function TalentDirectory() {
             </div>
           )}
           <p className="text-muted-foreground mt-5 text-center text-xs">
-            {savedOnly
-              ? "Your shortlist is also available in Saved talent."
-              : "Showing all matching demo profiles"}
+            {savedOnly ? "Your shortlist is also available in Saved talent." : "Showing all matching demo profiles"}
           </p>
         </section>
       </div>

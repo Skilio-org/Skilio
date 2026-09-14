@@ -49,10 +49,7 @@ const path = require("node:path");
   await page.getByRole("button", { name: "Save Maya Laurent", exact: true }).click();
   await shot("dashboard-shared-talent-cards.png");
   await page.setViewportSize({ width: 375, height: 850 });
-  assert.ok(
-    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-    "Dashboard overflow",
-  );
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Dashboard overflow");
   await shot("dashboard-shared-talent-cards-mobile.png");
   await page.setViewportSize({ width: 1440, height: 950 });
   await page.goto(base + "/saved");
@@ -85,10 +82,7 @@ const path = require("node:path");
   await second.close();
   for (const width of [375, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 850 });
-    assert.ok(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-      "Overflow at " + width,
-    );
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Overflow at " + width);
     if (width === 375) await shot("saved-single-mobile.png");
   }
   await page.emulateMedia({ colorScheme: "dark" });

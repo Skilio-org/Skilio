@@ -18,7 +18,8 @@ const path = require("node:path");
   );
   await context.addInitScript(() => {
     localStorage.setItem("access_token", "talent-test");
-    if (localStorage.getItem("saved-talent-v1:talent-test") === null) localStorage.setItem("saved-talent-v1:talent-test", "[]");
+    if (localStorage.getItem("saved-talent-v1:talent-test") === null)
+      localStorage.setItem("saved-talent-v1:talent-test", "[]");
   });
   const page = await context.newPage();
   page.setDefaultTimeout(10000);
@@ -64,10 +65,7 @@ const path = require("node:path");
   assert.equal(await page.getByRole("article").first().getAttribute("aria-label"), "Amara Okafor");
   for (const width of [375, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 850 });
-    assert.ok(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-      "Overflow at " + width,
-    );
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Overflow at " + width);
     if (width === 375) {
       await shots("talent-refined-mobile.png");
       await page.getByRole("button", { name: "Open talent filters" }).click();
