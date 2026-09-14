@@ -55,6 +55,11 @@ export type Body_users_upload_avatar = {
 };
 
 /**
+ * BudgetType
+ */
+export type BudgetType = "hourly" | "fixed";
+
+/**
  * FreelancerProfileCreate
  */
 export type FreelancerProfileCreate = {
@@ -90,10 +95,6 @@ export type FreelancerProfileCreate = {
    * Languages
    */
   languages?: string | null;
-  /**
-   * Avatar Url
-   */
-  avatar_url?: string | null;
   /**
    * Resume Url
    */
@@ -140,10 +141,6 @@ export type FreelancerProfileDetailPublic = {
    * Languages
    */
   languages?: string | null;
-  /**
-   * Avatar Url
-   */
-  avatar_url?: string | null;
   /**
    * Resume Url
    */
@@ -232,10 +229,6 @@ export type FreelancerProfilePublic = {
    */
   languages?: string | null;
   /**
-   * Avatar Url
-   */
-  avatar_url?: string | null;
-  /**
    * Resume Url
    */
   resume_url?: string | null;
@@ -313,10 +306,6 @@ export type FreelancerProfileUpdate = {
    * Languages
    */
   languages?: string | null;
-  /**
-   * Avatar Url
-   */
-  avatar_url?: string | null;
   /**
    * Resume Url
    */
@@ -398,6 +387,202 @@ export type ITSkill =
   | "Figma"
   | "QA & Automated Testing"
   | "Cybersecurity";
+
+/**
+ * JobPostCreate
+ */
+export type JobPostCreate = {
+  /**
+   * Title
+   */
+  title: string;
+  /**
+   * Description
+   */
+  description: string;
+  budget_type?: BudgetType;
+  /**
+   * Budget
+   */
+  budget: number;
+  /**
+   * Location
+   */
+  location?: string | null;
+  status?: JobStatus;
+  /**
+   * Skills
+   */
+  skills?: Array<ITSkill>;
+};
+
+/**
+ * JobPostDetailPublic
+ */
+export type JobPostDetailPublic = {
+  /**
+   * Title
+   */
+  title: string;
+  /**
+   * Description
+   */
+  description: string;
+  budget_type?: BudgetType;
+  /**
+   * Budget
+   */
+  budget: number;
+  /**
+   * Location
+   */
+  location?: string | null;
+  status?: JobStatus;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Client Id
+   */
+  client_id: string;
+  /**
+   * Client Name
+   */
+  client_name?: string | null;
+  /**
+   * Created At
+   */
+  created_at?: string | null;
+  /**
+   * Updated At
+   */
+  updated_at?: string | null;
+  /**
+   * Skills
+   */
+  skills?: Array<SkillPublic>;
+  /**
+   * Proposals Count
+   */
+  proposals_count?: number;
+  /**
+   * Is Saved
+   */
+  is_saved?: boolean;
+  /**
+   * Has Applied
+   */
+  has_applied?: boolean;
+  client?: UserPublic | null;
+};
+
+/**
+ * JobPostPublic
+ */
+export type JobPostPublic = {
+  /**
+   * Title
+   */
+  title: string;
+  /**
+   * Description
+   */
+  description: string;
+  budget_type?: BudgetType;
+  /**
+   * Budget
+   */
+  budget: number;
+  /**
+   * Location
+   */
+  location?: string | null;
+  status?: JobStatus;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Client Id
+   */
+  client_id: string;
+  /**
+   * Client Name
+   */
+  client_name?: string | null;
+  /**
+   * Created At
+   */
+  created_at?: string | null;
+  /**
+   * Updated At
+   */
+  updated_at?: string | null;
+  /**
+   * Skills
+   */
+  skills?: Array<SkillPublic>;
+  /**
+   * Proposals Count
+   */
+  proposals_count?: number;
+  /**
+   * Is Saved
+   */
+  is_saved?: boolean;
+  /**
+   * Has Applied
+   */
+  has_applied?: boolean;
+};
+
+/**
+ * JobPostUpdate
+ */
+export type JobPostUpdate = {
+  /**
+   * Title
+   */
+  title?: string | null;
+  /**
+   * Description
+   */
+  description?: string | null;
+  budget_type?: BudgetType | null;
+  /**
+   * Budget
+   */
+  budget?: number | null;
+  /**
+   * Location
+   */
+  location?: string | null;
+  status?: JobStatus | null;
+  /**
+   * Skills
+   */
+  skills?: Array<ITSkill> | null;
+};
+
+/**
+ * JobPostsPublic
+ */
+export type JobPostsPublic = {
+  /**
+   * Data
+   */
+  data: Array<JobPostPublic>;
+  /**
+   * Count
+   */
+  count: number;
+};
+
+/**
+ * JobStatus
+ */
+export type JobStatus = "open" | "closed";
 
 /**
  * MediaPublic
@@ -510,6 +695,79 @@ export type PrivateUserCreate = {
 };
 
 /**
+ * ProposalCreate
+ */
+export type ProposalCreate = {
+  /**
+   * Cover Letter
+   */
+  cover_letter?: string | null;
+  /**
+   * Job Post Id
+   */
+  job_post_id: string;
+};
+
+/**
+ * ProposalPublic
+ */
+export type ProposalPublic = {
+  /**
+   * Cover Letter
+   */
+  cover_letter?: string | null;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Job Post Id
+   */
+  job_post_id: string;
+  /**
+   * Freelancer Id
+   */
+  freelancer_id: string;
+  status: ProposalStatus;
+  /**
+   * Created At
+   */
+  created_at?: string | null;
+  /**
+   * Updated At
+   */
+  updated_at?: string | null;
+  freelancer?: UserPublic | null;
+  freelancer_profile?: FreelancerProfilePublic | null;
+};
+
+/**
+ * ProposalStatus
+ */
+export type ProposalStatus = "pending" | "accepted" | "rejected";
+
+/**
+ * ProposalStatusUpdate
+ */
+export type ProposalStatusUpdate = {
+  status: ProposalStatus;
+};
+
+/**
+ * ProposalsPublic
+ */
+export type ProposalsPublic = {
+  /**
+   * Data
+   */
+  data: Array<ProposalPublic>;
+  /**
+   * Count
+   */
+  count: number;
+};
+
+/**
  * ReviewCreate
  */
 export type ReviewCreate = {
@@ -595,6 +853,39 @@ export type ReviewsPublic = {
    * Data
    */
   data: Array<ReviewPublic>;
+  /**
+   * Count
+   */
+  count: number;
+};
+
+/**
+ * SavedJobPublic
+ */
+export type SavedJobPublic = {
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Job Post Id
+   */
+  job_post_id: string;
+  /**
+   * Created At
+   */
+  created_at?: string | null;
+  job_post?: JobPostPublic | null;
+};
+
+/**
+ * SavedJobsPublic
+ */
+export type SavedJobsPublic = {
+  /**
+   * Data
+   */
+  data: Array<SavedJobPublic>;
   /**
    * Count
    */
@@ -1777,6 +2068,513 @@ export type skillsReadSkillResponses = {
 };
 
 export type skillsReadSkillResponse = skillsReadSkillResponses[keyof skillsReadSkillResponses];
+
+export type jobsReadJobsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Skip
+     */
+    skip?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+    /**
+     * Q
+     */
+    q?: string | null;
+    /**
+     * Skill
+     */
+    skill?: Array<ITSkill> | null;
+    /**
+     * Budget Type
+     */
+    budget_type?: BudgetType | null;
+    /**
+     * Min Budget
+     */
+    min_budget?: number | null;
+    /**
+     * Max Budget
+     */
+    max_budget?: number | null;
+    /**
+     * Location
+     */
+    location?: string | null;
+    /**
+     * Status
+     */
+    status?: JobStatus | null;
+    /**
+     * Sort By
+     */
+    sort_by?: string | null;
+  };
+  url: "/api/v1/jobs/";
+};
+
+export type jobsReadJobsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type jobsReadJobsError = jobsReadJobsErrors[keyof jobsReadJobsErrors];
+
+export type jobsReadJobsResponses = {
+  /**
+   * Successful Response
+   */
+  200: JobPostsPublic;
+};
+
+export type jobsReadJobsResponse = jobsReadJobsResponses[keyof jobsReadJobsResponses];
+
+export type jobsCreateJobData = {
+  body: JobPostCreate;
+  path?: never;
+  query?: never;
+  url: "/api/v1/jobs/";
+};
+
+export type jobsCreateJobErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type jobsCreateJobError = jobsCreateJobErrors[keyof jobsCreateJobErrors];
+
+export type jobsCreateJobResponses = {
+  /**
+   * Successful Response
+   */
+  200: JobPostPublic;
+};
+
+export type jobsCreateJobResponse = jobsCreateJobResponses[keyof jobsCreateJobResponses];
+
+export type jobsReadMyJobsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Skip
+     */
+    skip?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+    /**
+     * Status
+     */
+    status?: JobStatus | null;
+  };
+  url: "/api/v1/jobs/me";
+};
+
+export type jobsReadMyJobsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type jobsReadMyJobsError = jobsReadMyJobsErrors[keyof jobsReadMyJobsErrors];
+
+export type jobsReadMyJobsResponses = {
+  /**
+   * Successful Response
+   */
+  200: JobPostsPublic;
+};
+
+export type jobsReadMyJobsResponse = jobsReadMyJobsResponses[keyof jobsReadMyJobsResponses];
+
+export type jobsReadSavedJobsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Skip
+     */
+    skip?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+  };
+  url: "/api/v1/jobs/saved";
+};
+
+export type jobsReadSavedJobsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type jobsReadSavedJobsError = jobsReadSavedJobsErrors[keyof jobsReadSavedJobsErrors];
+
+export type jobsReadSavedJobsResponses = {
+  /**
+   * Successful Response
+   */
+  200: SavedJobsPublic;
+};
+
+export type jobsReadSavedJobsResponse = jobsReadSavedJobsResponses[keyof jobsReadSavedJobsResponses];
+
+export type jobsDeleteJobData = {
+  body?: never;
+  path: {
+    /**
+     * Id
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/jobs/{id}";
+};
+
+export type jobsDeleteJobErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type jobsDeleteJobError = jobsDeleteJobErrors[keyof jobsDeleteJobErrors];
+
+export type jobsDeleteJobResponses = {
+  /**
+   * Successful Response
+   */
+  200: Message;
+};
+
+export type jobsDeleteJobResponse = jobsDeleteJobResponses[keyof jobsDeleteJobResponses];
+
+export type jobsReadJobData = {
+  body?: never;
+  path: {
+    /**
+     * Id
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/jobs/{id}";
+};
+
+export type jobsReadJobErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type jobsReadJobError = jobsReadJobErrors[keyof jobsReadJobErrors];
+
+export type jobsReadJobResponses = {
+  /**
+   * Successful Response
+   */
+  200: JobPostDetailPublic;
+};
+
+export type jobsReadJobResponse = jobsReadJobResponses[keyof jobsReadJobResponses];
+
+export type jobsUpdateJobData = {
+  body: JobPostUpdate;
+  path: {
+    /**
+     * Id
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/jobs/{id}";
+};
+
+export type jobsUpdateJobErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type jobsUpdateJobError = jobsUpdateJobErrors[keyof jobsUpdateJobErrors];
+
+export type jobsUpdateJobResponses = {
+  /**
+   * Successful Response
+   */
+  200: JobPostPublic;
+};
+
+export type jobsUpdateJobResponse = jobsUpdateJobResponses[keyof jobsUpdateJobResponses];
+
+export type jobsUnsaveJobData = {
+  body?: never;
+  path: {
+    /**
+     * Id
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/jobs/{id}/save";
+};
+
+export type jobsUnsaveJobErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type jobsUnsaveJobError = jobsUnsaveJobErrors[keyof jobsUnsaveJobErrors];
+
+export type jobsUnsaveJobResponses = {
+  /**
+   * Successful Response
+   */
+  200: Message;
+};
+
+export type jobsUnsaveJobResponse = jobsUnsaveJobResponses[keyof jobsUnsaveJobResponses];
+
+export type jobsSaveJobData = {
+  body?: never;
+  path: {
+    /**
+     * Id
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/jobs/{id}/save";
+};
+
+export type jobsSaveJobErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type jobsSaveJobError = jobsSaveJobErrors[keyof jobsSaveJobErrors];
+
+export type jobsSaveJobResponses = {
+  /**
+   * Successful Response
+   */
+  200: Message;
+};
+
+export type jobsSaveJobResponse = jobsSaveJobResponses[keyof jobsSaveJobResponses];
+
+export type proposalsSubmitProposalData = {
+  body: ProposalCreate;
+  path?: never;
+  query?: never;
+  url: "/api/v1/proposals/";
+};
+
+export type proposalsSubmitProposalErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type proposalsSubmitProposalError = proposalsSubmitProposalErrors[keyof proposalsSubmitProposalErrors];
+
+export type proposalsSubmitProposalResponses = {
+  /**
+   * Successful Response
+   */
+  200: ProposalPublic;
+};
+
+export type proposalsSubmitProposalResponse = proposalsSubmitProposalResponses[keyof proposalsSubmitProposalResponses];
+
+export type proposalsReadProposalsForJobData = {
+  body?: never;
+  path: {
+    /**
+     * Job Id
+     */
+    job_id: string;
+  };
+  query?: {
+    /**
+     * Skip
+     */
+    skip?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+  };
+  url: "/api/v1/proposals/job/{job_id}";
+};
+
+export type proposalsReadProposalsForJobErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type proposalsReadProposalsForJobError =
+  proposalsReadProposalsForJobErrors[keyof proposalsReadProposalsForJobErrors];
+
+export type proposalsReadProposalsForJobResponses = {
+  /**
+   * Successful Response
+   */
+  200: ProposalsPublic;
+};
+
+export type proposalsReadProposalsForJobResponse =
+  proposalsReadProposalsForJobResponses[keyof proposalsReadProposalsForJobResponses];
+
+export type proposalsReadMyProposalsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Skip
+     */
+    skip?: number;
+    /**
+     * Limit
+     */
+    limit?: number;
+  };
+  url: "/api/v1/proposals/me";
+};
+
+export type proposalsReadMyProposalsErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type proposalsReadMyProposalsError = proposalsReadMyProposalsErrors[keyof proposalsReadMyProposalsErrors];
+
+export type proposalsReadMyProposalsResponses = {
+  /**
+   * Successful Response
+   */
+  200: ProposalsPublic;
+};
+
+export type proposalsReadMyProposalsResponse =
+  proposalsReadMyProposalsResponses[keyof proposalsReadMyProposalsResponses];
+
+export type proposalsWithdrawProposalData = {
+  body?: never;
+  path: {
+    /**
+     * Id
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/proposals/{id}";
+};
+
+export type proposalsWithdrawProposalErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type proposalsWithdrawProposalError = proposalsWithdrawProposalErrors[keyof proposalsWithdrawProposalErrors];
+
+export type proposalsWithdrawProposalResponses = {
+  /**
+   * Successful Response
+   */
+  200: Message;
+};
+
+export type proposalsWithdrawProposalResponse =
+  proposalsWithdrawProposalResponses[keyof proposalsWithdrawProposalResponses];
+
+export type proposalsReadProposalData = {
+  body?: never;
+  path: {
+    /**
+     * Id
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/proposals/{id}";
+};
+
+export type proposalsReadProposalErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type proposalsReadProposalError = proposalsReadProposalErrors[keyof proposalsReadProposalErrors];
+
+export type proposalsReadProposalResponses = {
+  /**
+   * Successful Response
+   */
+  200: ProposalPublic;
+};
+
+export type proposalsReadProposalResponse = proposalsReadProposalResponses[keyof proposalsReadProposalResponses];
+
+export type proposalsUpdateProposalStatusData = {
+  body: ProposalStatusUpdate;
+  path: {
+    /**
+     * Id
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/proposals/{id}/status";
+};
+
+export type proposalsUpdateProposalStatusErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type proposalsUpdateProposalStatusError =
+  proposalsUpdateProposalStatusErrors[keyof proposalsUpdateProposalStatusErrors];
+
+export type proposalsUpdateProposalStatusResponses = {
+  /**
+   * Successful Response
+   */
+  200: ProposalPublic;
+};
+
+export type proposalsUpdateProposalStatusResponse =
+  proposalsUpdateProposalStatusResponses[keyof proposalsUpdateProposalStatusResponses];
 
 export type privateCreateUserData = {
   body: PrivateUserCreate;

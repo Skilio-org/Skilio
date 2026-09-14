@@ -489,9 +489,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof titles }) {
                   onChange={(e) => setRate(e.target.value)}
                 />
               </label>
-              <p className="text-muted-foreground text-xs leading-5">
-                Saved on this device. You can simulate submission from Your proposals.
-              </p>
               <button className={workspaceStyles.primaryAction} type="submit">
                 Save draft
               </button>

@@ -9,6 +9,33 @@ import {
 } from "./client";
 import { client } from "./client.gen";
 import type {
+  jobsCreateJobData,
+  jobsCreateJobErrors,
+  jobsCreateJobResponses,
+  jobsDeleteJobData,
+  jobsDeleteJobErrors,
+  jobsDeleteJobResponses,
+  jobsReadJobData,
+  jobsReadJobErrors,
+  jobsReadJobResponses,
+  jobsReadJobsData,
+  jobsReadJobsErrors,
+  jobsReadJobsResponses,
+  jobsReadMyJobsData,
+  jobsReadMyJobsErrors,
+  jobsReadMyJobsResponses,
+  jobsReadSavedJobsData,
+  jobsReadSavedJobsErrors,
+  jobsReadSavedJobsResponses,
+  jobsSaveJobData,
+  jobsSaveJobErrors,
+  jobsSaveJobResponses,
+  jobsUnsaveJobData,
+  jobsUnsaveJobErrors,
+  jobsUnsaveJobResponses,
+  jobsUpdateJobData,
+  jobsUpdateJobErrors,
+  jobsUpdateJobResponses,
   loginLoginAccessTokenData,
   loginLoginAccessTokenErrors,
   loginLoginAccessTokenResponses,
@@ -49,6 +76,24 @@ import type {
   profilesUpdateProfileData,
   profilesUpdateProfileErrors,
   profilesUpdateProfileResponses,
+  proposalsReadMyProposalsData,
+  proposalsReadMyProposalsErrors,
+  proposalsReadMyProposalsResponses,
+  proposalsReadProposalData,
+  proposalsReadProposalErrors,
+  proposalsReadProposalResponses,
+  proposalsReadProposalsForJobData,
+  proposalsReadProposalsForJobErrors,
+  proposalsReadProposalsForJobResponses,
+  proposalsSubmitProposalData,
+  proposalsSubmitProposalErrors,
+  proposalsSubmitProposalResponses,
+  proposalsUpdateProposalStatusData,
+  proposalsUpdateProposalStatusErrors,
+  proposalsUpdateProposalStatusResponses,
+  proposalsWithdrawProposalData,
+  proposalsWithdrawProposalErrors,
+  proposalsWithdrawProposalResponses,
   reviewsCreateReviewData,
   reviewsCreateReviewErrors,
   reviewsCreateReviewResponses,
@@ -718,6 +763,279 @@ export class SkillsService {
       responseType: "json",
       url: "/api/v1/skills/{id}",
       ...options,
+    });
+  }
+}
+
+export class JobsService {
+  /**
+   * Read Jobs
+   *
+   * Search and list jobs (Job Feed). Public endpoint with optional authentication.
+   * Supports filtering by keyword search, skills, budget type, budget range, location, and status.
+   * Populates proposals_count, is_saved, and has_applied for authenticated freelancers.
+   */
+  public static readJobs<ThrowOnError extends boolean = true>(options?: Options<jobsReadJobsData, ThrowOnError>) {
+    return (options?.client ?? client).get<jobsReadJobsResponses, jobsReadJobsErrors, ThrowOnError>({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/jobs/",
+      ...options,
+    });
+  }
+
+  /**
+   * Create Job
+   *
+   * Create a new job post.
+   * Only clients or superusers can create job posts.
+   */
+  public static createJob<ThrowOnError extends boolean = true>(options: Options<jobsCreateJobData, ThrowOnError>) {
+    return (options.client ?? client).post<jobsCreateJobResponses, jobsCreateJobErrors, ThrowOnError>({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/jobs/",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+  }
+
+  /**
+   * Read My Jobs
+   *
+   * List jobs created by the current client.
+   */
+  public static readMyJobs<ThrowOnError extends boolean = true>(options?: Options<jobsReadMyJobsData, ThrowOnError>) {
+    return (options?.client ?? client).get<jobsReadMyJobsResponses, jobsReadMyJobsErrors, ThrowOnError>({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/jobs/me",
+      ...options,
+    });
+  }
+
+  /**
+   * Read Saved Jobs
+   *
+   * List jobs saved / bookmarked by the current freelancer.
+   */
+  public static readSavedJobs<ThrowOnError extends boolean = true>(
+    options?: Options<jobsReadSavedJobsData, ThrowOnError>,
+  ) {
+    return (options?.client ?? client).get<jobsReadSavedJobsResponses, jobsReadSavedJobsErrors, ThrowOnError>({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/jobs/saved",
+      ...options,
+    });
+  }
+
+  /**
+   * Delete Job
+   *
+   * Delete a job post. Only the job creator or a superuser can delete.
+   */
+  public static deleteJob<ThrowOnError extends boolean = true>(options: Options<jobsDeleteJobData, ThrowOnError>) {
+    return (options.client ?? client).delete<jobsDeleteJobResponses, jobsDeleteJobErrors, ThrowOnError>({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/jobs/{id}",
+      ...options,
+    });
+  }
+
+  /**
+   * Read Job
+   *
+   * Get detailed information about a single job post.
+   */
+  public static readJob<ThrowOnError extends boolean = true>(options: Options<jobsReadJobData, ThrowOnError>) {
+    return (options.client ?? client).get<jobsReadJobResponses, jobsReadJobErrors, ThrowOnError>({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/jobs/{id}",
+      ...options,
+    });
+  }
+
+  /**
+   * Update Job
+   *
+   * Update a job post. Only the job creator or a superuser can update.
+   */
+  public static updateJob<ThrowOnError extends boolean = true>(options: Options<jobsUpdateJobData, ThrowOnError>) {
+    return (options.client ?? client).put<jobsUpdateJobResponses, jobsUpdateJobErrors, ThrowOnError>({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/jobs/{id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+  }
+
+  /**
+   * Unsave Job
+   *
+   * Remove a job post from bookmarks / saved jobs.
+   */
+  public static unsaveJob<ThrowOnError extends boolean = true>(options: Options<jobsUnsaveJobData, ThrowOnError>) {
+    return (options.client ?? client).delete<jobsUnsaveJobResponses, jobsUnsaveJobErrors, ThrowOnError>({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/jobs/{id}/save",
+      ...options,
+    });
+  }
+
+  /**
+   * Save Job
+   *
+   * Bookmark / save a job post for the current authenticated freelancer.
+   */
+  public static saveJob<ThrowOnError extends boolean = true>(options: Options<jobsSaveJobData, ThrowOnError>) {
+    return (options.client ?? client).post<jobsSaveJobResponses, jobsSaveJobErrors, ThrowOnError>({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/jobs/{id}/save",
+      ...options,
+    });
+  }
+}
+
+export class ProposalsService {
+  /**
+   * Submit Proposal
+   *
+   * Submit a proposal for a job post ("Apply" action).
+   * Only freelancers can submit proposals.
+   * The job must be OPEN and not owned by the proposing user.
+   */
+  public static submitProposal<ThrowOnError extends boolean = true>(
+    options: Options<proposalsSubmitProposalData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).post<
+      proposalsSubmitProposalResponses,
+      proposalsSubmitProposalErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/proposals/",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+  }
+
+  /**
+   * Read Proposals For Job
+   *
+   * List all proposals submitted for a specific job post.
+   * Only the job owner (client) or a superuser can access this list.
+   */
+  public static readProposalsForJob<ThrowOnError extends boolean = true>(
+    options: Options<proposalsReadProposalsForJobData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).get<
+      proposalsReadProposalsForJobResponses,
+      proposalsReadProposalsForJobErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/proposals/job/{job_id}",
+      ...options,
+    });
+  }
+
+  /**
+   * Read My Proposals
+   *
+   * List all proposals submitted by the current authenticated freelancer.
+   */
+  public static readMyProposals<ThrowOnError extends boolean = true>(
+    options?: Options<proposalsReadMyProposalsData, ThrowOnError>,
+  ) {
+    return (options?.client ?? client).get<
+      proposalsReadMyProposalsResponses,
+      proposalsReadMyProposalsErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/proposals/me",
+      ...options,
+    });
+  }
+
+  /**
+   * Withdraw Proposal
+   *
+   * Withdraw / delete a proposal.
+   * Only the proposing freelancer or a superuser can withdraw the proposal.
+   */
+  public static withdrawProposal<ThrowOnError extends boolean = true>(
+    options: Options<proposalsWithdrawProposalData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).delete<
+      proposalsWithdrawProposalResponses,
+      proposalsWithdrawProposalErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/proposals/{id}",
+      ...options,
+    });
+  }
+
+  /**
+   * Read Proposal
+   *
+   * Get single proposal details.
+   * Only the proposing freelancer, the job owner client, or a superuser can access.
+   */
+  public static readProposal<ThrowOnError extends boolean = true>(
+    options: Options<proposalsReadProposalData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).get<proposalsReadProposalResponses, proposalsReadProposalErrors, ThrowOnError>({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/proposals/{id}",
+      ...options,
+    });
+  }
+
+  /**
+   * Update Proposal Status
+   *
+   * Update proposal status (e.g. ACCEPTED or REJECTED).
+   * Only the job owner (client) or a superuser can update the proposal status.
+   */
+  public static updateProposalStatus<ThrowOnError extends boolean = true>(
+    options: Options<proposalsUpdateProposalStatusData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).put<
+      proposalsUpdateProposalStatusResponses,
+      proposalsUpdateProposalStatusErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/proposals/{id}/status",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
     });
   }
 }

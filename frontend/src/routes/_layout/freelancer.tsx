@@ -182,37 +182,6 @@ function FreelancerWorkspace() {
       {view === "home" ? (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-6">
-            {!profile.title && !profile.bio && profile.skills.length === 0 && (
-              <section className="border-border bg-card flex flex-wrap items-center justify-between gap-4 rounded-xl border p-5">
-                <div>
-                  <h2 className="text-sm font-medium">Explore with a sample profile</h2>
-                  <p className="text-muted-foreground mt-1 text-xs">
-                    Load editable demo details to try the profile preview.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className={secondary}
-                  onClick={() =>
-                    setProfile({
-                      ...profile,
-                      name: profile.name || "Alex Morgan",
-                      title: "Product designer & frontend developer",
-                      location: profile.location || "Casablanca, Morocco",
-                      category: "Design",
-                      skills: ["Product design", "Figma", "React"],
-                      bio: "I help small product teams turn complex workflows into clear, useful experiences. My work combines thoughtful interface design with accessible frontend development, from the first wireframe to the final handoff.",
-                      languages: profile.languages || "English, French, Arabic",
-                      rate: profile.rate || "65",
-                      availability: profile.availability || "Available now",
-                      hours: profile.hours || "20–30 hours",
-                    })
-                  }
-                >
-                  Load demo profile
-                </button>
-              </section>
-            )}
             <section className="border-border bg-card rounded-xl border p-6 sm:p-8">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="text-sm font-medium">
@@ -593,9 +562,6 @@ function FreelancerWorkspace() {
                 <ArrowLeft className="size-4" />
                 {step ? "Back" : "Save & exit"}
               </button>
-              <span className="text-muted-foreground text-xs" role="status">
-                {saveError ? "Not saved" : "Saved on this device"}
-              </span>
               {step < 6 ? (
                 <button type="button" className={primary} onClick={next}>
                   {(step === 3 || step === 4) && !done[step] ? "Skip for now" : "Continue"}

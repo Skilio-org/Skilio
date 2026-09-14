@@ -193,9 +193,6 @@ export function DemoProjects() {
                       className="border-input bg-card mt-2 w-full rounded-lg border p-3 text-base sm:text-sm"
                     />
                   </label>
-                  <p className="text-muted-foreground text-xs">
-                    Demo only. Saved on this device; nothing is sent to a client.
-                  </p>
                   <button type="submit" className={workspaceStyles.primaryAction}>
                     {submissions[selected.id] ? "Update demo submission" : "Submit demo deliverable"}
                   </button>

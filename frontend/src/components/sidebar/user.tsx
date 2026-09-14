@@ -155,7 +155,7 @@ function AccountMenuLink({
   active: boolean;
 }) {
   return (
-    <DropdownMenuItem asChild className={`min-h-11 cursor-pointer rounded-lg px-3 ${active ? "bg-muted" : ""}`}>
+    <DropdownMenuItem asChild className={`mt-1 min-h-11 cursor-pointer rounded-lg px-3 ${active ? "bg-muted" : ""}`}>
       <Link to={to}>
         <Icon className="size-4 text-current" />
         <span>{title}</span>
