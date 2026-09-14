@@ -24,7 +24,6 @@ import { Route as LayoutFreelancerJobsRouteImport } from './routes/_layout/freel
 import { Route as LayoutFreelancerMessagesRouteImport } from './routes/_layout/freelancer-messages'
 import { Route as LayoutFreelancerProposalsRouteImport } from './routes/_layout/freelancer-proposals'
 import { Route as LayoutFreelancerSettingsRouteImport } from './routes/_layout/freelancer-settings'
-import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutMessagesRouteImport } from './routes/_layout/messages'
 import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifications'
 import { Route as LayoutSavedRouteImport } from './routes/_layout/saved'
@@ -110,11 +109,6 @@ const LayoutFreelancerSettingsRoute =
     path: '/freelancer-settings',
     getParentRoute: () => LayoutRoute,
   } as any)
-const LayoutItemsRoute = LayoutItemsRouteImport.update({
-  id: '/items',
-  path: '/items',
-  getParentRoute: () => LayoutRoute,
-} as any)
 const LayoutMessagesRoute = LayoutMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -162,7 +156,6 @@ export interface FileRoutesByFullPath {
   '/freelancer-messages': typeof LayoutFreelancerMessagesRoute
   '/freelancer-proposals': typeof LayoutFreelancerProposalsRoute
   '/freelancer-settings': typeof LayoutFreelancerSettingsRoute
-  '/items': typeof LayoutItemsRoute
   '/messages': typeof LayoutMessagesRoute
   '/notifications': typeof LayoutNotificationsRoute
   '/saved': typeof LayoutSavedRoute
@@ -185,7 +178,6 @@ export interface FileRoutesByTo {
   '/freelancer-messages': typeof LayoutFreelancerMessagesRoute
   '/freelancer-proposals': typeof LayoutFreelancerProposalsRoute
   '/freelancer-settings': typeof LayoutFreelancerSettingsRoute
-  '/items': typeof LayoutItemsRoute
   '/messages': typeof LayoutMessagesRoute
   '/notifications': typeof LayoutNotificationsRoute
   '/saved': typeof LayoutSavedRoute
@@ -210,7 +202,6 @@ export interface FileRoutesById {
   '/_layout/freelancer-messages': typeof LayoutFreelancerMessagesRoute
   '/_layout/freelancer-proposals': typeof LayoutFreelancerProposalsRoute
   '/_layout/freelancer-settings': typeof LayoutFreelancerSettingsRoute
-  '/_layout/items': typeof LayoutItemsRoute
   '/_layout/messages': typeof LayoutMessagesRoute
   '/_layout/notifications': typeof LayoutNotificationsRoute
   '/_layout/saved': typeof LayoutSavedRoute
@@ -235,7 +226,6 @@ export interface FileRouteTypes {
     | '/freelancer-messages'
     | '/freelancer-proposals'
     | '/freelancer-settings'
-    | '/items'
     | '/messages'
     | '/notifications'
     | '/saved'
@@ -258,7 +248,6 @@ export interface FileRouteTypes {
     | '/freelancer-messages'
     | '/freelancer-proposals'
     | '/freelancer-settings'
-    | '/items'
     | '/messages'
     | '/notifications'
     | '/saved'
@@ -282,7 +271,6 @@ export interface FileRouteTypes {
     | '/_layout/freelancer-messages'
     | '/_layout/freelancer-proposals'
     | '/_layout/freelancer-settings'
-    | '/_layout/items'
     | '/_layout/messages'
     | '/_layout/notifications'
     | '/_layout/saved'
@@ -407,13 +395,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutFreelancerSettingsRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/items': {
-      id: '/_layout/items'
-      path: '/items'
-      fullPath: '/items'
-      preLoaderRoute: typeof LayoutItemsRouteImport
-      parentRoute: typeof LayoutRoute
-    }
     '/_layout/messages': {
       id: '/_layout/messages'
       path: '/messages'
@@ -469,7 +450,6 @@ interface LayoutRouteChildren {
   LayoutFreelancerMessagesRoute: typeof LayoutFreelancerMessagesRoute
   LayoutFreelancerProposalsRoute: typeof LayoutFreelancerProposalsRoute
   LayoutFreelancerSettingsRoute: typeof LayoutFreelancerSettingsRoute
-  LayoutItemsRoute: typeof LayoutItemsRoute
   LayoutMessagesRoute: typeof LayoutMessagesRoute
   LayoutNotificationsRoute: typeof LayoutNotificationsRoute
   LayoutSavedRoute: typeof LayoutSavedRoute
@@ -488,7 +468,6 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutFreelancerMessagesRoute: LayoutFreelancerMessagesRoute,
   LayoutFreelancerProposalsRoute: LayoutFreelancerProposalsRoute,
   LayoutFreelancerSettingsRoute: LayoutFreelancerSettingsRoute,
-  LayoutItemsRoute: LayoutItemsRoute,
   LayoutMessagesRoute: LayoutMessagesRoute,
   LayoutNotificationsRoute: LayoutNotificationsRoute,
   LayoutSavedRoute: LayoutSavedRoute,
