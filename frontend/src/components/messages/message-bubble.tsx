@@ -1,29 +1,22 @@
-import { cn } from "@/lib/utils"
-import type { ThreadMessage } from "./message-types"
+import { cn } from "@/lib/utils";
+import type { ThreadMessage } from "./message-types";
 
 export function MessageBubble({
   message,
   name,
   highlight = "",
 }: {
-  message: ThreadMessage
-  name: string
-  highlight?: string
+  message: ThreadMessage;
+  name: string;
+  highlight?: string;
 }) {
-  const match = highlight
-    ? message.body.toLowerCase().indexOf(highlight.toLowerCase())
-    : -1
+  const match = highlight ? message.body.toLowerCase().indexOf(highlight.toLowerCase()) : -1;
   return (
     <article
-      className={cn(
-        "flex max-w-[90%] flex-col sm:max-w-[80%]",
-        message.own ? "ml-auto items-end" : "items-start",
-      )}
+      className={cn("flex max-w-[90%] flex-col sm:max-w-[80%]", message.own ? "ml-auto items-end" : "items-start")}
     >
       <div className="mb-1.5 flex items-baseline gap-2.5 px-1 text-[11px]">
-        <span className="text-foreground font-medium">
-          {message.own ? "You" : name}
-        </span>
+        <span className="text-foreground font-medium">{message.own ? "You" : name}</span>
         <span className="text-muted-foreground">{message.time}</span>
       </div>
       <p
@@ -47,5 +40,5 @@ export function MessageBubble({
         )}
       </p>
     </article>
-  )
+  );
 }

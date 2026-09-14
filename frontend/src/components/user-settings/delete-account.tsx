@@ -1,20 +1,15 @@
-import { TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react";
 
-import DeleteConfirmation from "./delete-confirmation"
+import DeleteConfirmation from "./delete-confirmation";
 
 const DeleteAccount = () => {
   return (
     <section className="border-destructive/20 bg-card shadow-card overflow-hidden rounded-2xl border">
       <header className="border-destructive/15 border-b p-5 sm:p-7">
-        <p className="text-destructive text-xs font-bold tracking-[0.16em] uppercase">
-          Danger zone
-        </p>
-        <h2 className="font-display mt-1 text-2xl font-semibold">
-          Delete account
-        </h2>
+        <p className="text-destructive text-xs font-bold tracking-[0.16em] uppercase">Danger zone</p>
+        <h2 className="font-display mt-1 text-2xl font-semibold">Delete account</h2>
         <p className="text-muted-foreground mt-1 max-w-2xl text-sm leading-6">
-          Permanently close your Freelancer account and remove its associated
-          information.
+          Permanently close your Freelancer account and remove its associated information.
         </p>
       </header>
       <div className="p-5 sm:p-7">
@@ -24,9 +19,7 @@ const DeleteAccount = () => {
               <TriangleAlert className="size-4" />
             </span>
             <div>
-              <h3 className="text-destructive font-semibold">
-                This cannot be undone
-              </h3>
+              <h3 className="text-destructive font-semibold">This cannot be undone</h3>
               <p className="text-muted-foreground mt-1 text-sm leading-6">
                 Download anything you need before continuing.
               </p>
@@ -35,12 +28,12 @@ const DeleteAccount = () => {
           <DeleteConfirmation />
         </div>
         <p className="text-muted-foreground mt-4 text-xs leading-5">
-          Your profile, saved talent, conversations, and account data will be
-          removed. Download anything you need before continuing.
+          Your profile, saved talent, conversations, and account data will be removed. Download anything you need before
+          continuing.
         </p>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default DeleteAccount
+export default DeleteAccount;

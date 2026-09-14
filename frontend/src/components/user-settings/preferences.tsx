@@ -12,12 +12,12 @@ import {
   Smartphone,
   Sun,
   UserRoundSearch,
-} from "lucide-react"
-import { useState } from "react"
+} from "lucide-react";
+import { useState } from "react";
 
-import { type Theme, useTheme } from "@/components/theme-provider"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { type Theme, useTheme } from "@/components/theme-provider";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function NotificationSettings() {
   const [settings, setSettings] = useState({
@@ -25,7 +25,7 @@ export function NotificationSettings() {
     recommendations: true,
     account: true,
     digest: false,
-  })
+  });
 
   return (
     <SettingsPanel
@@ -40,9 +40,7 @@ export function NotificationSettings() {
           title="New messages"
           description="Replies and new conversations from freelancers."
           checked={settings.messages}
-          onChange={(checked) =>
-            setSettings((current) => ({ ...current, messages: checked }))
-          }
+          onChange={(checked) => setSettings((current) => ({ ...current, messages: checked }))}
           channel="Email & in-app"
         />
         <ToggleRow
@@ -63,9 +61,7 @@ export function NotificationSettings() {
           title="Security and account"
           description="Important sign-in, password, and account notices."
           checked={settings.account}
-          onChange={(checked) =>
-            setSettings((current) => ({ ...current, account: checked }))
-          }
+          onChange={(checked) => setSettings((current) => ({ ...current, account: checked }))}
           channel="Always on"
           locked
         />
@@ -74,21 +70,19 @@ export function NotificationSettings() {
           title="Product digest"
           description="Occasional platform tips and new feature announcements."
           checked={settings.digest}
-          onChange={(checked) =>
-            setSettings((current) => ({ ...current, digest: checked }))
-          }
+          onChange={(checked) => setSettings((current) => ({ ...current, digest: checked }))}
           channel="Monthly"
         />
       </div>
       <PanelFooter label="Notification preferences are saved automatically." />
     </SettingsPanel>
-  )
+  );
 }
 
 export function PrivacySettings() {
-  const [personalization, setPersonalization] = useState(true)
-  const [recentSearches, setRecentSearches] = useState(true)
-  const [archiveRequested, setArchiveRequested] = useState(false)
+  const [personalization, setPersonalization] = useState(true);
+  const [recentSearches, setRecentSearches] = useState(true);
+  const [archiveRequested, setArchiveRequested] = useState(false);
 
   return (
     <div className="space-y-5">
@@ -121,20 +115,12 @@ export function PrivacySettings() {
       <section className="border-border bg-card shadow-card rounded-2xl border p-5 sm:p-7">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
           <div className="max-w-xl">
-            <h3 className="font-display text-lg font-semibold">
-              Download your account data
-            </h3>
+            <h3 className="font-display text-lg font-semibold">Download your account data</h3>
             <p className="text-muted-foreground mt-1 text-sm leading-6">
-              Request a portable copy of your profile, saved talent, and
-              conversation history.
+              Request a portable copy of your profile, saved talent, and conversation history.
             </p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setArchiveRequested(true)}
-            className="self-start"
-          >
+          <Button type="button" variant="outline" onClick={() => setArchiveRequested(true)} className="self-start">
             {archiveRequested ? "Archive requested" : "Request archive"}
           </Button>
         </div>
@@ -146,14 +132,14 @@ export function PrivacySettings() {
         )}
       </section>
     </div>
-  )
+  );
 }
 
 const themes: {
-  value: Theme
-  title: string
-  description: string
-  icon: LucideIcon
+  value: Theme;
+  title: string;
+  description: string;
+  icon: LucideIcon;
 }[] = [
   {
     value: "light",
@@ -173,10 +159,10 @@ const themes: {
     description: "Match your device",
     icon: Monitor,
   },
-]
+];
 
 export function AppearanceSettings() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
 
   return (
     <SettingsPanel
@@ -187,8 +173,8 @@ export function AppearanceSettings() {
     >
       <div className="grid gap-3 p-5 sm:grid-cols-3 sm:p-7">
         {themes.map((option) => {
-          const Icon = option.icon
-          const selected = theme === option.value
+          const Icon = option.icon;
+          const selected = theme === option.value;
           return (
             <button
               key={option.value}
@@ -197,17 +183,13 @@ export function AppearanceSettings() {
               aria-pressed={selected}
               className={cn(
                 "group hover:shadow-card focus-visible:outline-ring relative min-h-44 overflow-hidden rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2",
-                selected
-                  ? "border-brand-500 ring-brand-100 dark:ring-brand-950 ring-4"
-                  : "border-border",
+                selected ? "border-brand-500 ring-brand-100 dark:ring-brand-950 ring-4" : "border-border",
               )}
             >
               <span
                 className={cn(
                   "absolute inset-x-4 top-4 h-20 overflow-hidden rounded-lg border",
-                  option.value === "dark"
-                    ? "border-slate-700 bg-slate-950"
-                    : "border-slate-200 bg-white",
+                  option.value === "dark" ? "border-slate-700 bg-slate-950" : "border-slate-200 bg-white",
                 )}
               >
                 <span
@@ -234,12 +216,8 @@ export function AppearanceSettings() {
                   <Icon className="size-4" />
                 </span>
                 <span>
-                  <span className="block text-sm font-semibold">
-                    {option.title}
-                  </span>
-                  <span className="text-muted-foreground block text-[11px]">
-                    {option.description}
-                  </span>
+                  <span className="block text-sm font-semibold">{option.title}</span>
+                  <span className="text-muted-foreground block text-[11px]">{option.description}</span>
                 </span>
                 {selected && (
                   <span className="bg-brand-600 ml-auto grid size-5 place-items-center rounded-full text-white">
@@ -248,12 +226,12 @@ export function AppearanceSettings() {
                 )}
               </span>
             </button>
-          )
+          );
         })}
       </div>
       <PanelFooter label="Your theme preference applies across Freelancer." />
     </SettingsPanel>
-  )
+  );
 }
 
 function SettingsPanel({
@@ -263,11 +241,11 @@ function SettingsPanel({
   icon: Icon,
   children,
 }: {
-  eyebrow: string
-  title: string
-  description: string
-  icon: LucideIcon
-  children: React.ReactNode
+  eyebrow: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  children: React.ReactNode;
 }) {
   return (
     <section className="border-border bg-card shadow-card overflow-hidden rounded-2xl border">
@@ -276,18 +254,14 @@ function SettingsPanel({
           <Icon className="size-5" />
         </span>
         <div>
-          <p className="text-brand-700 text-xs font-semibold tracking-[0.16em] uppercase">
-            {eyebrow}
-          </p>
+          <p className="text-brand-700 text-xs font-semibold tracking-[0.16em] uppercase">{eyebrow}</p>
           <h2 className="font-display mt-1 text-2xl font-semibold">{title}</h2>
-          <p className="text-muted-foreground mt-1 text-sm leading-6">
-            {description}
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm leading-6">{description}</p>
         </div>
       </header>
       {children}
     </section>
-  )
+  );
 }
 
 function ToggleRow({
@@ -299,13 +273,13 @@ function ToggleRow({
   onChange,
   locked = false,
 }: {
-  icon: LucideIcon
-  title: string
-  description: string
-  channel: string
-  checked: boolean
-  onChange: (checked: boolean) => void
-  locked?: boolean
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  channel: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  locked?: boolean;
 }) {
   return (
     <div className="flex items-start gap-3 p-5 sm:items-center sm:gap-4 sm:px-7 sm:py-5">
@@ -319,9 +293,7 @@ function ToggleRow({
             {channel}
           </span>
         </div>
-        <p className="text-muted-foreground mt-1 max-w-xl text-xs leading-5 sm:text-sm">
-          {description}
-        </p>
+        <p className="text-muted-foreground mt-1 max-w-xl text-xs leading-5 sm:text-sm">{description}</p>
       </div>
       <button
         type="button"
@@ -343,7 +315,7 @@ function ToggleRow({
         />
       </button>
     </div>
-  )
+  );
 }
 
 function PanelFooter({ label }: { label: string }) {
@@ -352,5 +324,5 @@ function PanelFooter({ label }: { label: string }) {
       <Smartphone className="size-3.5" />
       {label}
     </footer>
-  )
+  );
 }

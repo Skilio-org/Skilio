@@ -1,19 +1,13 @@
-import { ArrowRight, MapPin } from "lucide-react"
-import { type ReactNode, useState } from "react"
+import { ArrowRight, MapPin } from "lucide-react";
+import { type ReactNode, useState } from "react";
 import {
   type Entry,
   fieldClass,
   type Profile,
   primary,
   secondary,
-} from "@/components/freelancer/freelancer-profile-model"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/freelancer/freelancer-profile-model";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export function Avatar({ profile }: { profile: Profile }) {
   return profile.photo ? (
@@ -31,33 +25,17 @@ export function Avatar({ profile }: { profile: Profile }) {
         .slice(0, 2)
         .join("") || "You"}
     </span>
-  )
+  );
 }
 
-export function ProfilePreview({
-  profile: p,
-  compact = false,
-}: {
-  profile: Profile
-  compact?: boolean
-}) {
+export function ProfilePreview({ profile: p, compact = false }: { profile: Profile; compact?: boolean }) {
   return (
-    <article
-      className={
-        compact
-          ? "space-y-6"
-          : "border-border bg-card rounded-xl border p-6 sm:p-10"
-      }
-    >
+    <article className={compact ? "space-y-6" : "border-border bg-card rounded-xl border p-6 sm:p-10"}>
       <div className="flex flex-wrap items-center gap-5">
         <Avatar profile={p} />
         <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-semibold break-words">
-            {p.name || "Your name"}
-          </h2>
-          <p className="text-muted-foreground mt-1 text-lg">
-            {p.title || "Your professional title"}
-          </p>
+          <h2 className="text-2xl font-semibold break-words">{p.name || "Your name"}</h2>
+          <p className="text-muted-foreground mt-1 text-lg">{p.title || "Your professional title"}</p>
           <p className="text-muted-foreground mt-2 flex items-center gap-1.5 text-sm">
             <MapPin className="size-4" />
             {p.location || "Add your location"}
@@ -66,14 +44,9 @@ export function ProfilePreview({
         <div>
           <p className="text-2xl font-semibold">
             {p.rate ? `$${p.rate}` : "—"}
-            <span className="text-muted-foreground text-sm font-normal">
-              {" "}
-              / hour
-            </span>
+            <span className="text-muted-foreground text-sm font-normal"> / hour</span>
           </p>
-          <p className="text-muted-foreground mt-2 text-sm">
-            {p.availability || "Availability not set"}
-          </p>
+          <p className="text-muted-foreground mt-2 text-sm">{p.availability || "Availability not set"}</p>
         </div>
       </div>
       <div className="mt-6 flex flex-wrap gap-2">
@@ -105,24 +78,13 @@ export function ProfilePreview({
           p[kind].length > 0 && (
             <PreviewSection
               key={kind}
-              title={
-                kind === "portfolio"
-                  ? "Selected work"
-                  : kind === "experience"
-                    ? "Work experience"
-                    : "Education"
-              }
+              title={kind === "portfolio" ? "Selected work" : kind === "experience" ? "Work experience" : "Education"}
             >
               <div className="grid gap-4 sm:grid-cols-2">
                 {p[kind].map((e) => (
-                  <section
-                    className="border-border min-w-0 rounded-lg border p-5"
-                    key={e.id}
-                  >
+                  <section className="border-border min-w-0 rounded-lg border p-5" key={e.id}>
                     <h4 className="font-semibold break-words">{e.title}</h4>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                      {e.organization}
-                    </p>
+                    <p className="text-muted-foreground mt-1 text-sm">{e.organization}</p>
                     <p className="text-muted-foreground mt-3 text-sm leading-6 break-words whitespace-pre-wrap">
                       {e.detail}
                     </p>
@@ -143,21 +105,15 @@ export function ProfilePreview({
           ),
       )}
     </article>
-  )
+  );
 }
-function PreviewSection({
-  title,
-  children,
-}: {
-  title: string
-  children: ReactNode
-}) {
+function PreviewSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="border-border mt-7 border-t pt-6">
       <h3 className="mb-4 text-lg font-semibold">{title}</h3>
       {children}
     </section>
-  )
+  );
 }
 
 export function EntryDialog({
@@ -166,17 +122,17 @@ export function EntryDialog({
   close,
   save,
 }: {
-  kind: string
-  entry: Entry
-  close: () => void
-  save: (e: Entry) => void
+  kind: string;
+  entry: Entry;
+  close: () => void;
+  save: (e: Entry) => void;
 }) {
-  const [value, setValue] = useState(entry)
+  const [value, setValue] = useState(entry);
   return (
     <Dialog
       open
       onOpenChange={(open) => {
-        if (!open) close()
+        if (!open) close();
       }}
     >
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
@@ -188,24 +144,17 @@ export function EntryDialog({
                 ? "Education details"
                 : "Experience details"}
           </DialogTitle>
-          <DialogDescription>
-            Add the details you want clients to see.
-          </DialogDescription>
+          <DialogDescription>Add the details you want clients to see.</DialogDescription>
         </DialogHeader>
         <form
           className="space-y-5"
           onSubmit={(e) => {
-            e.preventDefault()
-            save({ ...value, title: value.title.trim() })
+            e.preventDefault();
+            save({ ...value, title: value.title.trim() });
           }}
         >
           <label className="block text-sm font-medium">
-            {kind === "portfolio"
-              ? "Project title"
-              : kind === "education"
-                ? "Degree or qualification"
-                : "Job title"}{" "}
-            *
+            {kind === "portfolio" ? "Project title" : kind === "education" ? "Degree or qualification" : "Job title"} *
             <input
               required
               pattern=".*\S.*"
@@ -225,15 +174,11 @@ export function EntryDialog({
               className={fieldClass}
               maxLength={160}
               value={value.organization}
-              onChange={(e) =>
-                setValue({ ...value, organization: e.target.value })
-              }
+              onChange={(e) => setValue({ ...value, organization: e.target.value })}
             />
           </label>
           <label className="block text-sm font-medium">
-            {kind === "portfolio"
-              ? "Your contribution and results"
-              : "Description"}
+            {kind === "portfolio" ? "Your contribution and results" : "Description"}
             <textarea
               rows={4}
               maxLength={2000}
@@ -266,5 +211,5 @@ export function EntryDialog({
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

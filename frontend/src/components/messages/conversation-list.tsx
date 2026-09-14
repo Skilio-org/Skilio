@@ -1,11 +1,8 @@
-import { Archive, MessageSquare, Search, X } from "lucide-react"
-import { Monogram } from "@/components/dashboard/dashboard-header"
-import type {
-  ConversationSummary,
-  InboxFilter,
-} from "@/components/messages/message-types"
-import type { Freelancer } from "@/data/freelancers"
-import { cn } from "@/lib/utils"
+import { Archive, MessageSquare, Search, X } from "lucide-react";
+import { Monogram } from "@/components/dashboard/dashboard-header";
+import type { ConversationSummary, InboxFilter } from "@/components/messages/message-types";
+import type { Freelancer } from "@/data/freelancers";
+import { cn } from "@/lib/utils";
 
 export function ConversationList({
   people,
@@ -18,16 +15,16 @@ export function ConversationList({
   onFilterChange,
   onSelect,
 }: {
-  people: Freelancer[]
-  clientMode?: boolean
-  conversations: ConversationSummary[]
-  selectedId: string
-  query: string
-  filter: InboxFilter
-  unreadCount: number
-  onQueryChange: (query: string) => void
-  onFilterChange: (filter: InboxFilter) => void
-  onSelect: (id: string) => void
+  people: Freelancer[];
+  clientMode?: boolean;
+  conversations: ConversationSummary[];
+  selectedId: string;
+  query: string;
+  filter: InboxFilter;
+  unreadCount: number;
+  onQueryChange: (query: string) => void;
+  onFilterChange: (filter: InboxFilter) => void;
+  onSelect: (id: string) => void;
 }) {
   return (
     <aside
@@ -39,18 +36,11 @@ export function ConversationList({
     >
       <div className="px-5 pt-6">
         <div className="flex items-center justify-between gap-3">
-          <h1 className="font-display text-2xl font-medium tracking-tight">
-            Messages
-          </h1>
+          <h1 className="font-display text-2xl font-medium tracking-tight">Messages</h1>
         </div>
-        <p className="text-muted-foreground mt-1 text-xs">
-          Your next great collaboration starts here.
-        </p>
+        <p className="text-muted-foreground mt-1 text-xs">Your next great collaboration starts here.</p>
         <label className="border-input bg-background focus-within:border-primary focus-within:ring-primary/15 mt-6 flex min-h-11 items-center gap-2 rounded-lg border px-3 focus-within:ring-2">
-          <Search
-            className="text-muted-foreground size-4 shrink-0"
-            aria-hidden="true"
-          />
+          <Search className="text-muted-foreground size-4 shrink-0" aria-hidden="true" />
           <span className="sr-only">Search conversations</span>
           <input
             type="search"
@@ -85,11 +75,7 @@ export function ConversationList({
                   : "text-muted-foreground hover:text-foreground border-transparent",
               )}
             >
-              {value === "all"
-                ? "All inbox"
-                : value === "unread"
-                  ? "Unread"
-                  : "Archived"}
+              {value === "all" ? "All inbox" : value === "unread" ? "Unread" : "Archived"}
               {value === "unread" && unreadCount > 0 && (
                 <span className="bg-accent text-accent-foreground rounded-md px-1.5 py-0.5 text-[10px]">
                   {unreadCount}
@@ -101,68 +87,42 @@ export function ConversationList({
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto p-2.5">
         {conversations.map((conversation) => {
-          const person = people.find((item) => item.id === conversation.id)
-          if (!person) return null
-          const active = selectedId === person.id
+          const person = people.find((item) => item.id === conversation.id);
+          if (!person) return null;
+          const active = selectedId === person.id;
           return (
             <button
               key={person.id}
               type="button"
               aria-pressed={active}
-              aria-label={
-                person.name +
-                (conversation.unread
-                  ? `, ${conversation.unread} unread messages`
-                  : "")
-              }
+              aria-label={person.name + (conversation.unread ? `, ${conversation.unread} unread messages` : "")}
               onClick={() => onSelect(person.id)}
               className={cn(
                 "mb-1 flex min-h-24 w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors",
-                active
-                  ? "border-brand-200 bg-brand-50"
-                  : "hover:bg-muted/60 border-transparent",
+                active ? "border-brand-200 bg-brand-50" : "hover:bg-muted/60 border-transparent",
               )}
             >
-              <Monogram
-                className={cn(
-                  "mt-0.5 size-11 text-sm",
-                  person.background,
-                  person.foreground,
-                )}
-              >
+              <Monogram className={cn("mt-0.5 size-11 text-sm", person.background, person.foreground)}>
                 {person.initials}
               </Monogram>
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">
                   <span
-                    className={cn(
-                      "truncate text-sm",
-                      conversation.unread || active
-                        ? "font-semibold"
-                        : "font-medium",
-                    )}
+                    className={cn("truncate text-sm", conversation.unread || active ? "font-semibold" : "font-medium")}
                   >
                     {person.name}
                   </span>
-                  <span className="text-muted-foreground shrink-0 text-[10px]">
-                    {conversation.time}
-                  </span>
+                  <span className="text-muted-foreground shrink-0 text-[10px]">{conversation.time}</span>
                 </span>
-                <span className="text-muted-foreground mt-1 block truncate text-[11px]">
-                  {person.title}
-                </span>
+                <span className="text-muted-foreground mt-1 block truncate text-[11px]">{person.title}</span>
                 <span className="mt-2 flex items-start gap-2">
                   <span
                     className={cn(
                       "line-clamp-2 min-w-0 flex-1 text-xs leading-5 break-words",
-                      conversation.unread
-                        ? "text-foreground"
-                        : "text-muted-foreground",
+                      conversation.unread ? "text-foreground" : "text-muted-foreground",
                     )}
                   >
-                    {conversation.hasDraft && (
-                      <span className="text-primary font-medium">Draft: </span>
-                    )}
+                    {conversation.hasDraft && <span className="text-primary font-medium">Draft: </span>}
                     {conversation.preview}
                   </span>
                   {conversation.unread > 0 && (
@@ -173,7 +133,7 @@ export function ConversationList({
                 </span>
               </span>
             </button>
-          )
+          );
         })}
         {conversations.length === 0 && (
           <div className="px-4 py-12 text-center">
@@ -203,8 +163,8 @@ export function ConversationList({
             <button
               type="button"
               onClick={() => {
-                onQueryChange("")
-                onFilterChange("all")
+                onQueryChange("");
+                onFilterChange("all");
               }}
               className="text-primary mt-3 min-h-11 text-xs font-medium"
             >
@@ -215,10 +175,8 @@ export function ConversationList({
       </div>
       <div className="border-border text-muted-foreground flex items-center justify-between gap-3 border-t px-5 py-3 text-[11px]">
         <span>Preview inbox</span>
-        <span>
-          {unreadCount ? `${unreadCount} unread messages` : "All caught up"}
-        </span>
+        <span>{unreadCount ? `${unreadCount} unread messages` : "All caught up"}</span>
       </div>
     </aside>
-  )
+  );
 }
