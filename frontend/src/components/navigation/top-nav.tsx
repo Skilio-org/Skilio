@@ -7,7 +7,7 @@ import {
   Menu,
   MessageSquare,
   Settings,
-  UsersRound
+  UsersRound,
 } from "lucide-react";
 
 import { Logo } from "@/components/common/logo";
