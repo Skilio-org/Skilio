@@ -1,11 +1,11 @@
-import { ClientJobEditor } from "@/components/client/client-job-editor";
-import { ClientJobsList } from "@/components/client/client-jobs-list";
-import { blankClientJob, type ClientJob } from "@/components/client/client-job-types";
-import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
-import useAuth from "@/hooks/useAuth";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ClientJobEditor } from "@/components/client/client-job-editor";
+import { blankClientJob, type ClientJob } from "@/components/client/client-job-types";
+import { ClientJobsList } from "@/components/client/client-jobs-list";
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
+import useAuth from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/_layout/client-jobs")({
   component: ClientJobs,

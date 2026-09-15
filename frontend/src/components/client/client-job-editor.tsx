@@ -77,7 +77,12 @@ export function ClientJobEditor({
                         rows={5}
                         className={`${jobFormField} min-h-32 resize-y leading-6`}
                         value={job.description}
-                        onChange={(event) => onJobChange({ ...job, description: event.target.value })}
+                        onChange={(event) =>
+                          onJobChange({
+                            ...job,
+                            description: event.target.value,
+                          })
+                        }
                         placeholder={"We’re looking for someone to…\nThe main deliverables are…"}
                       />
                       <span className="text-muted-foreground mt-2 flex justify-between gap-3 text-xs font-normal">

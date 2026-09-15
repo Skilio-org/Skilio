@@ -1,6 +1,6 @@
-import { workspaceStyles } from "@/components/dashboard/dashboard-header";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
+import { workspaceStyles } from "@/components/dashboard/dashboard-header";
 
 export const TalentSearch = () => {
   const navigate = useNavigate();

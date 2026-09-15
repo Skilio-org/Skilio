@@ -1,8 +1,3 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import ChangePassword from "@/components/user-settings/change-password";
-import { AppearanceSettings } from "@/components/user-settings/preferences";
-import useAuth from "@/hooks/useAuth";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowDownWideNarrow,
@@ -24,17 +19,22 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import ChangePassword from "@/components/user-settings/change-password";
+import { AppearanceSettings } from "@/components/user-settings/preferences";
+import useAuth from "@/hooks/useAuth";
 import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "../dashboard/dashboard-header";
-import { JobFormSection, jobFormField } from "./job-form-section";
+import { FreelancerJobFilterFields } from "../freelancer/freelancer-job-filter-fields";
 import {
+  type ProposalDraft as Draft,
   freelancerJobs,
   freelancerWorkspaceSubtitles,
   freelancerWorkspaceTitles,
-  seedProposals,
   type FreelancerJob as Job,
-  type ProposalDraft as Draft,
+  seedProposals,
 } from "../freelancer/freelancer-workspace-data";
-import { FreelancerJobFilterFields } from "../freelancer/freelancer-job-filter-fields";
+import { JobFormSection, jobFormField } from "./job-form-section";
 
 export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWorkspaceTitles }) {
   const { user } = useAuth();
@@ -103,7 +103,10 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
     )
     .sort((first, second) => {
       if (jobSort === "title") return first.title.localeCompare(second.title);
-      if (jobSort === "budget") return second.budget.localeCompare(first.budget, undefined, { numeric: true });
+      if (jobSort === "budget")
+        return second.budget.localeCompare(first.budget, undefined, {
+          numeric: true,
+        });
       return Number(first.id) - Number(second.id);
     });
   const activeJobFilterCount = [jobType !== "any", duration !== "any", filter === "Saved"].filter(Boolean).length;
@@ -159,7 +162,7 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
               <button
                 type="button"
                 onClick={() => open(job)}
-                className="hover:text-primary mt-2 text-left text-xl font-medium tracking-tight break-words"
+                className="hover:text-primary mt-2 text-left text-xl font-medium tracking-tight wrap-break-word"
               >
                 {job.title}
               </button>
@@ -233,7 +236,7 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
     </div>
   );
   return (
-    <div className={page === "savedJobs" ? "mx-auto w-full space-y-6 xl:max-w-[912px]" : "space-y-7"}>
+    <div className={page === "savedJobs" ? "mx-auto w-full space-y-6 xl:max-w-228" : "space-y-7"}>
       <WorkspacePageHeader
         eyebrow={page === "savedJobs" ? "Your shortlist" : "Freelancer workspace"}
         title={
@@ -654,13 +657,13 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
           showCloseButton={false}
           className={
             compose
-              ? "bg-card w-full max-w-none gap-0 p-0 sm:max-w-[720px]"
+              ? "bg-card w-full max-w-none gap-0 p-0 sm:max-w-180"
               : "w-full max-w-none gap-0 p-0 sm:w-[min(78vw,1180px)] sm:max-w-none"
           }
         >
           {selected && (
             <>
-              <header className="border-border bg-card flex h-[72px] shrink-0 items-center justify-between gap-4 border-b px-5 sm:px-7">
+              <header className="border-border bg-card flex h-18 shrink-0 items-center justify-between gap-4 border-b px-5 sm:px-7">
                 <SheetClose className="text-muted-foreground hover:text-foreground focus-visible:outline-ring inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-medium focus-visible:outline-2">
                   <ArrowLeft className="size-4" />
                   Back to jobs
@@ -937,7 +940,7 @@ function JobFact({ icon: Icon, title, detail }: { icon: typeof Wallet; title: st
         <Icon className="size-4" />
       </span>
       <div className="min-w-0">
-        <p className="text-sm font-semibold break-words">{title}</p>
+        <p className="text-sm font-semibold wrap-break-word">{title}</p>
         <p className="text-muted-foreground mt-1 text-xs">{detail}</p>
       </div>
     </div>
