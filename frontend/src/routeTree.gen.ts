@@ -8,489 +8,495 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as LayoutRouteImport } from "./routes/_layout";
-import { Route as LoginRouteImport } from "./routes/login";
-import { Route as RecoverPasswordRouteImport } from "./routes/recover-password";
-import { Route as ResetPasswordRouteImport } from "./routes/reset-password";
-import { Route as SignupRouteImport } from "./routes/signup";
-import { Route as LayoutAdminRouteImport } from "./routes/_layout/admin";
-import { Route as LayoutClientJobsRouteImport } from "./routes/_layout/client-jobs";
-import { Route as LayoutClientProfileRouteImport } from "./routes/_layout/client-profile";
-import { Route as LayoutDashboardRouteImport } from "./routes/_layout/dashboard";
-import { Route as LayoutFreelancerRouteImport } from "./routes/_layout/freelancer";
-import { Route as LayoutFreelancerDashboardRouteImport } from "./routes/_layout/freelancer-dashboard";
-import { Route as LayoutFreelancerJobsRouteImport } from "./routes/_layout/freelancer-jobs";
-import { Route as LayoutFreelancerMessagesRouteImport } from "./routes/_layout/freelancer-messages";
-import { Route as LayoutFreelancerProposalsRouteImport } from "./routes/_layout/freelancer-proposals";
-import { Route as LayoutFreelancerSavedJobsRouteImport } from "./routes/_layout/freelancer-saved-jobs";
-import { Route as LayoutFreelancerSettingsRouteImport } from "./routes/_layout/freelancer-settings";
-import { Route as LayoutMessagesRouteImport } from "./routes/_layout/messages";
-import { Route as LayoutNotificationsRouteImport } from "./routes/_layout/notifications";
-import { Route as LayoutSavedRouteImport } from "./routes/_layout/saved";
-import { Route as LayoutSettingsRouteImport } from "./routes/_layout/settings";
-import { Route as LayoutTalentRouteImport } from "./routes/_layout/talent";
-import { Route as LayoutTalentFreelancerIdRouteImport } from "./routes/_layout/talent_.$freelancerId";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as LayoutRouteImport } from './routes/_layout'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutClientJobsRouteImport } from './routes/_layout/client-jobs'
+import { Route as LayoutClientProfileRouteImport } from './routes/_layout/client-profile'
+import { Route as LayoutDashboardRouteImport } from './routes/_layout/dashboard'
+import { Route as LayoutFreelancerRouteImport } from './routes/_layout/freelancer'
+import { Route as LayoutFreelancerDashboardRouteImport } from './routes/_layout/freelancer-dashboard'
+import { Route as LayoutFreelancerJobsRouteImport } from './routes/_layout/freelancer-jobs'
+import { Route as LayoutFreelancerMessagesRouteImport } from './routes/_layout/freelancer-messages'
+import { Route as LayoutFreelancerProposalsRouteImport } from './routes/_layout/freelancer-proposals'
+import { Route as LayoutFreelancerSavedJobsRouteImport } from './routes/_layout/freelancer-saved-jobs'
+import { Route as LayoutFreelancerSettingsRouteImport } from './routes/_layout/freelancer-settings'
+import { Route as LayoutMessagesRouteImport } from './routes/_layout/messages'
+import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifications'
+import { Route as LayoutSavedRouteImport } from './routes/_layout/saved'
+import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
+import { Route as LayoutTalentRouteImport } from './routes/_layout/talent'
+import { Route as LayoutTalentFreelancerIdRouteImport } from './routes/_layout/talent_.$freelancerId'
 
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LayoutRoute = LayoutRouteImport.update({
-  id: "/_layout",
+  id: '/_layout',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LoginRoute = LoginRouteImport.update({
-  id: "/login",
-  path: "/login",
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const RecoverPasswordRoute = RecoverPasswordRouteImport.update({
-  id: "/recover-password",
-  path: "/recover-password",
+  id: '/recover-password',
+  path: '/recover-password',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: "/reset-password",
-  path: "/reset-password",
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SignupRoute = SignupRouteImport.update({
-  id: "/signup",
-  path: "/signup",
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LayoutAdminRoute = LayoutAdminRouteImport.update({
-  id: "/admin",
-  path: "/admin",
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
 const LayoutClientJobsRoute = LayoutClientJobsRouteImport.update({
-  id: "/client-jobs",
-  path: "/client-jobs",
+  id: '/client-jobs',
+  path: '/client-jobs',
   getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
 const LayoutClientProfileRoute = LayoutClientProfileRouteImport.update({
-  id: "/client-profile",
-  path: "/client-profile",
+  id: '/client-profile',
+  path: '/client-profile',
   getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
 const LayoutDashboardRoute = LayoutDashboardRouteImport.update({
-  id: "/dashboard",
-  path: "/dashboard",
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
 const LayoutFreelancerRoute = LayoutFreelancerRouteImport.update({
-  id: "/freelancer",
-  path: "/freelancer",
+  id: '/freelancer',
+  path: '/freelancer',
   getParentRoute: () => LayoutRoute,
-} as any);
-const LayoutFreelancerDashboardRoute = LayoutFreelancerDashboardRouteImport.update({
-  id: "/freelancer-dashboard",
-  path: "/freelancer-dashboard",
-  getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
+const LayoutFreelancerDashboardRoute =
+  LayoutFreelancerDashboardRouteImport.update({
+    id: '/freelancer-dashboard',
+    path: '/freelancer-dashboard',
+    getParentRoute: () => LayoutRoute,
+  } as any)
 const LayoutFreelancerJobsRoute = LayoutFreelancerJobsRouteImport.update({
-  id: "/freelancer-jobs",
-  path: "/freelancer-jobs",
+  id: '/freelancer-jobs',
+  path: '/freelancer-jobs',
   getParentRoute: () => LayoutRoute,
-} as any);
-const LayoutFreelancerMessagesRoute = LayoutFreelancerMessagesRouteImport.update({
-  id: "/freelancer-messages",
-  path: "/freelancer-messages",
-  getParentRoute: () => LayoutRoute,
-} as any);
-const LayoutFreelancerProposalsRoute = LayoutFreelancerProposalsRouteImport.update({
-  id: "/freelancer-proposals",
-  path: "/freelancer-proposals",
-  getParentRoute: () => LayoutRoute,
-} as any);
-const LayoutFreelancerSavedJobsRoute = LayoutFreelancerSavedJobsRouteImport.update({
-  id: "/freelancer-saved-jobs",
-  path: "/freelancer-saved-jobs",
-  getParentRoute: () => LayoutRoute,
-} as any);
-const LayoutFreelancerSettingsRoute = LayoutFreelancerSettingsRouteImport.update({
-  id: "/freelancer-settings",
-  path: "/freelancer-settings",
-  getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
+const LayoutFreelancerMessagesRoute =
+  LayoutFreelancerMessagesRouteImport.update({
+    id: '/freelancer-messages',
+    path: '/freelancer-messages',
+    getParentRoute: () => LayoutRoute,
+  } as any)
+const LayoutFreelancerProposalsRoute =
+  LayoutFreelancerProposalsRouteImport.update({
+    id: '/freelancer-proposals',
+    path: '/freelancer-proposals',
+    getParentRoute: () => LayoutRoute,
+  } as any)
+const LayoutFreelancerSavedJobsRoute =
+  LayoutFreelancerSavedJobsRouteImport.update({
+    id: '/freelancer-saved-jobs',
+    path: '/freelancer-saved-jobs',
+    getParentRoute: () => LayoutRoute,
+  } as any)
+const LayoutFreelancerSettingsRoute =
+  LayoutFreelancerSettingsRouteImport.update({
+    id: '/freelancer-settings',
+    path: '/freelancer-settings',
+    getParentRoute: () => LayoutRoute,
+  } as any)
 const LayoutMessagesRoute = LayoutMessagesRouteImport.update({
-  id: "/messages",
-  path: "/messages",
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
 const LayoutNotificationsRoute = LayoutNotificationsRouteImport.update({
-  id: "/notifications",
-  path: "/notifications",
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
 const LayoutSavedRoute = LayoutSavedRouteImport.update({
-  id: "/saved",
-  path: "/saved",
+  id: '/saved',
+  path: '/saved',
   getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
-  id: "/settings",
-  path: "/settings",
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
 const LayoutTalentRoute = LayoutTalentRouteImport.update({
-  id: "/talent",
-  path: "/talent",
+  id: '/talent',
+  path: '/talent',
   getParentRoute: () => LayoutRoute,
-} as any);
-const LayoutTalentFreelancerIdRoute = LayoutTalentFreelancerIdRouteImport.update({
-  id: "/talent_/$freelancerId",
-  path: "/talent/$freelancerId",
-  getParentRoute: () => LayoutRoute,
-} as any);
+} as any)
+const LayoutTalentFreelancerIdRoute =
+  LayoutTalentFreelancerIdRouteImport.update({
+    id: '/talent_/$freelancerId',
+    path: '/talent/$freelancerId',
+    getParentRoute: () => LayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/login": typeof LoginRoute;
-  "/recover-password": typeof RecoverPasswordRoute;
-  "/reset-password": typeof ResetPasswordRoute;
-  "/signup": typeof SignupRoute;
-  "/admin": typeof LayoutAdminRoute;
-  "/client-jobs": typeof LayoutClientJobsRoute;
-  "/client-profile": typeof LayoutClientProfileRoute;
-  "/dashboard": typeof LayoutDashboardRoute;
-  "/freelancer": typeof LayoutFreelancerRoute;
-  "/freelancer-dashboard": typeof LayoutFreelancerDashboardRoute;
-  "/freelancer-jobs": typeof LayoutFreelancerJobsRoute;
-  "/freelancer-messages": typeof LayoutFreelancerMessagesRoute;
-  "/freelancer-proposals": typeof LayoutFreelancerProposalsRoute;
-  "/freelancer-saved-jobs": typeof LayoutFreelancerSavedJobsRoute;
-  "/freelancer-settings": typeof LayoutFreelancerSettingsRoute;
-  "/messages": typeof LayoutMessagesRoute;
-  "/notifications": typeof LayoutNotificationsRoute;
-  "/saved": typeof LayoutSavedRoute;
-  "/settings": typeof LayoutSettingsRoute;
-  "/talent": typeof LayoutTalentRoute;
-  "/talent/$freelancerId": typeof LayoutTalentFreelancerIdRoute;
+  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/recover-password': typeof RecoverPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRoute
+  '/admin': typeof LayoutAdminRoute
+  '/client-jobs': typeof LayoutClientJobsRoute
+  '/client-profile': typeof LayoutClientProfileRoute
+  '/dashboard': typeof LayoutDashboardRoute
+  '/freelancer': typeof LayoutFreelancerRoute
+  '/freelancer-dashboard': typeof LayoutFreelancerDashboardRoute
+  '/freelancer-jobs': typeof LayoutFreelancerJobsRoute
+  '/freelancer-messages': typeof LayoutFreelancerMessagesRoute
+  '/freelancer-proposals': typeof LayoutFreelancerProposalsRoute
+  '/freelancer-saved-jobs': typeof LayoutFreelancerSavedJobsRoute
+  '/freelancer-settings': typeof LayoutFreelancerSettingsRoute
+  '/messages': typeof LayoutMessagesRoute
+  '/notifications': typeof LayoutNotificationsRoute
+  '/saved': typeof LayoutSavedRoute
+  '/settings': typeof LayoutSettingsRoute
+  '/talent': typeof LayoutTalentRoute
+  '/talent/$freelancerId': typeof LayoutTalentFreelancerIdRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/login": typeof LoginRoute;
-  "/recover-password": typeof RecoverPasswordRoute;
-  "/reset-password": typeof ResetPasswordRoute;
-  "/signup": typeof SignupRoute;
-  "/admin": typeof LayoutAdminRoute;
-  "/client-jobs": typeof LayoutClientJobsRoute;
-  "/client-profile": typeof LayoutClientProfileRoute;
-  "/dashboard": typeof LayoutDashboardRoute;
-  "/freelancer": typeof LayoutFreelancerRoute;
-  "/freelancer-dashboard": typeof LayoutFreelancerDashboardRoute;
-  "/freelancer-jobs": typeof LayoutFreelancerJobsRoute;
-  "/freelancer-messages": typeof LayoutFreelancerMessagesRoute;
-  "/freelancer-proposals": typeof LayoutFreelancerProposalsRoute;
-  "/freelancer-saved-jobs": typeof LayoutFreelancerSavedJobsRoute;
-  "/freelancer-settings": typeof LayoutFreelancerSettingsRoute;
-  "/messages": typeof LayoutMessagesRoute;
-  "/notifications": typeof LayoutNotificationsRoute;
-  "/saved": typeof LayoutSavedRoute;
-  "/settings": typeof LayoutSettingsRoute;
-  "/talent": typeof LayoutTalentRoute;
-  "/talent/$freelancerId": typeof LayoutTalentFreelancerIdRoute;
+  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/recover-password': typeof RecoverPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRoute
+  '/admin': typeof LayoutAdminRoute
+  '/client-jobs': typeof LayoutClientJobsRoute
+  '/client-profile': typeof LayoutClientProfileRoute
+  '/dashboard': typeof LayoutDashboardRoute
+  '/freelancer': typeof LayoutFreelancerRoute
+  '/freelancer-dashboard': typeof LayoutFreelancerDashboardRoute
+  '/freelancer-jobs': typeof LayoutFreelancerJobsRoute
+  '/freelancer-messages': typeof LayoutFreelancerMessagesRoute
+  '/freelancer-proposals': typeof LayoutFreelancerProposalsRoute
+  '/freelancer-saved-jobs': typeof LayoutFreelancerSavedJobsRoute
+  '/freelancer-settings': typeof LayoutFreelancerSettingsRoute
+  '/messages': typeof LayoutMessagesRoute
+  '/notifications': typeof LayoutNotificationsRoute
+  '/saved': typeof LayoutSavedRoute
+  '/settings': typeof LayoutSettingsRoute
+  '/talent': typeof LayoutTalentRoute
+  '/talent/$freelancerId': typeof LayoutTalentFreelancerIdRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/_layout": typeof LayoutRouteWithChildren;
-  "/login": typeof LoginRoute;
-  "/recover-password": typeof RecoverPasswordRoute;
-  "/reset-password": typeof ResetPasswordRoute;
-  "/signup": typeof SignupRoute;
-  "/_layout/admin": typeof LayoutAdminRoute;
-  "/_layout/client-jobs": typeof LayoutClientJobsRoute;
-  "/_layout/client-profile": typeof LayoutClientProfileRoute;
-  "/_layout/dashboard": typeof LayoutDashboardRoute;
-  "/_layout/freelancer": typeof LayoutFreelancerRoute;
-  "/_layout/freelancer-dashboard": typeof LayoutFreelancerDashboardRoute;
-  "/_layout/freelancer-jobs": typeof LayoutFreelancerJobsRoute;
-  "/_layout/freelancer-messages": typeof LayoutFreelancerMessagesRoute;
-  "/_layout/freelancer-proposals": typeof LayoutFreelancerProposalsRoute;
-  "/_layout/freelancer-saved-jobs": typeof LayoutFreelancerSavedJobsRoute;
-  "/_layout/freelancer-settings": typeof LayoutFreelancerSettingsRoute;
-  "/_layout/messages": typeof LayoutMessagesRoute;
-  "/_layout/notifications": typeof LayoutNotificationsRoute;
-  "/_layout/saved": typeof LayoutSavedRoute;
-  "/_layout/settings": typeof LayoutSettingsRoute;
-  "/_layout/talent": typeof LayoutTalentRoute;
-  "/_layout/talent_/$freelancerId": typeof LayoutTalentFreelancerIdRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/_layout': typeof LayoutRouteWithChildren
+  '/login': typeof LoginRoute
+  '/recover-password': typeof RecoverPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRoute
+  '/_layout/admin': typeof LayoutAdminRoute
+  '/_layout/client-jobs': typeof LayoutClientJobsRoute
+  '/_layout/client-profile': typeof LayoutClientProfileRoute
+  '/_layout/dashboard': typeof LayoutDashboardRoute
+  '/_layout/freelancer': typeof LayoutFreelancerRoute
+  '/_layout/freelancer-dashboard': typeof LayoutFreelancerDashboardRoute
+  '/_layout/freelancer-jobs': typeof LayoutFreelancerJobsRoute
+  '/_layout/freelancer-messages': typeof LayoutFreelancerMessagesRoute
+  '/_layout/freelancer-proposals': typeof LayoutFreelancerProposalsRoute
+  '/_layout/freelancer-saved-jobs': typeof LayoutFreelancerSavedJobsRoute
+  '/_layout/freelancer-settings': typeof LayoutFreelancerSettingsRoute
+  '/_layout/messages': typeof LayoutMessagesRoute
+  '/_layout/notifications': typeof LayoutNotificationsRoute
+  '/_layout/saved': typeof LayoutSavedRoute
+  '/_layout/settings': typeof LayoutSettingsRoute
+  '/_layout/talent': typeof LayoutTalentRoute
+  '/_layout/talent_/$freelancerId': typeof LayoutTalentFreelancerIdRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/login"
-    | "/recover-password"
-    | "/reset-password"
-    | "/signup"
-    | "/admin"
-    | "/client-jobs"
-    | "/client-profile"
-    | "/dashboard"
-    | "/freelancer"
-    | "/freelancer-dashboard"
-    | "/freelancer-jobs"
-    | "/freelancer-messages"
-    | "/freelancer-proposals"
-    | "/freelancer-saved-jobs"
-    | "/freelancer-settings"
-    | "/messages"
-    | "/notifications"
-    | "/saved"
-    | "/settings"
-    | "/talent"
-    | "/talent/$freelancerId";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/login'
+    | '/recover-password'
+    | '/reset-password'
+    | '/signup'
+    | '/admin'
+    | '/client-jobs'
+    | '/client-profile'
+    | '/dashboard'
+    | '/freelancer'
+    | '/freelancer-dashboard'
+    | '/freelancer-jobs'
+    | '/freelancer-messages'
+    | '/freelancer-proposals'
+    | '/freelancer-saved-jobs'
+    | '/freelancer-settings'
+    | '/messages'
+    | '/notifications'
+    | '/saved'
+    | '/settings'
+    | '/talent'
+    | '/talent/$freelancerId'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/login"
-    | "/recover-password"
-    | "/reset-password"
-    | "/signup"
-    | "/admin"
-    | "/client-jobs"
-    | "/client-profile"
-    | "/dashboard"
-    | "/freelancer"
-    | "/freelancer-dashboard"
-    | "/freelancer-jobs"
-    | "/freelancer-messages"
-    | "/freelancer-proposals"
-    | "/freelancer-saved-jobs"
-    | "/freelancer-settings"
-    | "/messages"
-    | "/notifications"
-    | "/saved"
-    | "/settings"
-    | "/talent"
-    | "/talent/$freelancerId";
+    | '/'
+    | '/login'
+    | '/recover-password'
+    | '/reset-password'
+    | '/signup'
+    | '/admin'
+    | '/client-jobs'
+    | '/client-profile'
+    | '/dashboard'
+    | '/freelancer'
+    | '/freelancer-dashboard'
+    | '/freelancer-jobs'
+    | '/freelancer-messages'
+    | '/freelancer-proposals'
+    | '/freelancer-saved-jobs'
+    | '/freelancer-settings'
+    | '/messages'
+    | '/notifications'
+    | '/saved'
+    | '/settings'
+    | '/talent'
+    | '/talent/$freelancerId'
   id:
-    | "__root__"
-    | "/"
-    | "/_layout"
-    | "/login"
-    | "/recover-password"
-    | "/reset-password"
-    | "/signup"
-    | "/_layout/admin"
-    | "/_layout/client-jobs"
-    | "/_layout/client-profile"
-    | "/_layout/dashboard"
-    | "/_layout/freelancer"
-    | "/_layout/freelancer-dashboard"
-    | "/_layout/freelancer-jobs"
-    | "/_layout/freelancer-messages"
-    | "/_layout/freelancer-proposals"
-    | "/_layout/freelancer-saved-jobs"
-    | "/_layout/freelancer-settings"
-    | "/_layout/messages"
-    | "/_layout/notifications"
-    | "/_layout/saved"
-    | "/_layout/settings"
-    | "/_layout/talent"
-    | "/_layout/talent_/$freelancerId";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/_layout'
+    | '/login'
+    | '/recover-password'
+    | '/reset-password'
+    | '/signup'
+    | '/_layout/admin'
+    | '/_layout/client-jobs'
+    | '/_layout/client-profile'
+    | '/_layout/dashboard'
+    | '/_layout/freelancer'
+    | '/_layout/freelancer-dashboard'
+    | '/_layout/freelancer-jobs'
+    | '/_layout/freelancer-messages'
+    | '/_layout/freelancer-proposals'
+    | '/_layout/freelancer-saved-jobs'
+    | '/_layout/freelancer-settings'
+    | '/_layout/messages'
+    | '/_layout/notifications'
+    | '/_layout/saved'
+    | '/_layout/settings'
+    | '/_layout/talent'
+    | '/_layout/talent_/$freelancerId'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  LayoutRoute: typeof LayoutRouteWithChildren;
-  LoginRoute: typeof LoginRoute;
-  RecoverPasswordRoute: typeof RecoverPasswordRoute;
-  ResetPasswordRoute: typeof ResetPasswordRoute;
-  SignupRoute: typeof SignupRoute;
+  IndexRoute: typeof IndexRoute
+  LayoutRoute: typeof LayoutRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  RecoverPasswordRoute: typeof RecoverPasswordRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SignupRoute: typeof SignupRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_layout": {
-      id: "/_layout";
-      path: "";
-      fullPath: "/";
-      preLoaderRoute: typeof LayoutRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/login": {
-      id: "/login";
-      path: "/login";
-      fullPath: "/login";
-      preLoaderRoute: typeof LoginRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/recover-password": {
-      id: "/recover-password";
-      path: "/recover-password";
-      fullPath: "/recover-password";
-      preLoaderRoute: typeof RecoverPasswordRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/reset-password": {
-      id: "/reset-password";
-      path: "/reset-password";
-      fullPath: "/reset-password";
-      preLoaderRoute: typeof ResetPasswordRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/signup": {
-      id: "/signup";
-      path: "/signup";
-      fullPath: "/signup";
-      preLoaderRoute: typeof SignupRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_layout/admin": {
-      id: "/_layout/admin";
-      path: "/admin";
-      fullPath: "/admin";
-      preLoaderRoute: typeof LayoutAdminRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/client-jobs": {
-      id: "/_layout/client-jobs";
-      path: "/client-jobs";
-      fullPath: "/client-jobs";
-      preLoaderRoute: typeof LayoutClientJobsRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/client-profile": {
-      id: "/_layout/client-profile";
-      path: "/client-profile";
-      fullPath: "/client-profile";
-      preLoaderRoute: typeof LayoutClientProfileRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/dashboard": {
-      id: "/_layout/dashboard";
-      path: "/dashboard";
-      fullPath: "/dashboard";
-      preLoaderRoute: typeof LayoutDashboardRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/freelancer": {
-      id: "/_layout/freelancer";
-      path: "/freelancer";
-      fullPath: "/freelancer";
-      preLoaderRoute: typeof LayoutFreelancerRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/freelancer-dashboard": {
-      id: "/_layout/freelancer-dashboard";
-      path: "/freelancer-dashboard";
-      fullPath: "/freelancer-dashboard";
-      preLoaderRoute: typeof LayoutFreelancerDashboardRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/freelancer-jobs": {
-      id: "/_layout/freelancer-jobs";
-      path: "/freelancer-jobs";
-      fullPath: "/freelancer-jobs";
-      preLoaderRoute: typeof LayoutFreelancerJobsRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/freelancer-messages": {
-      id: "/_layout/freelancer-messages";
-      path: "/freelancer-messages";
-      fullPath: "/freelancer-messages";
-      preLoaderRoute: typeof LayoutFreelancerMessagesRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/freelancer-proposals": {
-      id: "/_layout/freelancer-proposals";
-      path: "/freelancer-proposals";
-      fullPath: "/freelancer-proposals";
-      preLoaderRoute: typeof LayoutFreelancerProposalsRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/freelancer-saved-jobs": {
-      id: "/_layout/freelancer-saved-jobs";
-      path: "/freelancer-saved-jobs";
-      fullPath: "/freelancer-saved-jobs";
-      preLoaderRoute: typeof LayoutFreelancerSavedJobsRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/freelancer-settings": {
-      id: "/_layout/freelancer-settings";
-      path: "/freelancer-settings";
-      fullPath: "/freelancer-settings";
-      preLoaderRoute: typeof LayoutFreelancerSettingsRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/messages": {
-      id: "/_layout/messages";
-      path: "/messages";
-      fullPath: "/messages";
-      preLoaderRoute: typeof LayoutMessagesRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/notifications": {
-      id: "/_layout/notifications";
-      path: "/notifications";
-      fullPath: "/notifications";
-      preLoaderRoute: typeof LayoutNotificationsRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/saved": {
-      id: "/_layout/saved";
-      path: "/saved";
-      fullPath: "/saved";
-      preLoaderRoute: typeof LayoutSavedRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/settings": {
-      id: "/_layout/settings";
-      path: "/settings";
-      fullPath: "/settings";
-      preLoaderRoute: typeof LayoutSettingsRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/talent": {
-      id: "/_layout/talent";
-      path: "/talent";
-      fullPath: "/talent";
-      preLoaderRoute: typeof LayoutTalentRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
-    "/_layout/talent_/$freelancerId": {
-      id: "/_layout/talent_/$freelancerId";
-      path: "/talent/$freelancerId";
-      fullPath: "/talent/$freelancerId";
-      preLoaderRoute: typeof LayoutTalentFreelancerIdRouteImport;
-      parentRoute: typeof LayoutRoute;
-    };
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_layout': {
+      id: '/_layout'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof LayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recover-password': {
+      id: '/recover-password'
+      path: '/recover-password'
+      fullPath: '/recover-password'
+      preLoaderRoute: typeof RecoverPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_layout/admin': {
+      id: '/_layout/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof LayoutAdminRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/client-jobs': {
+      id: '/_layout/client-jobs'
+      path: '/client-jobs'
+      fullPath: '/client-jobs'
+      preLoaderRoute: typeof LayoutClientJobsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/client-profile': {
+      id: '/_layout/client-profile'
+      path: '/client-profile'
+      fullPath: '/client-profile'
+      preLoaderRoute: typeof LayoutClientProfileRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/dashboard': {
+      id: '/_layout/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof LayoutDashboardRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/freelancer': {
+      id: '/_layout/freelancer'
+      path: '/freelancer'
+      fullPath: '/freelancer'
+      preLoaderRoute: typeof LayoutFreelancerRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/freelancer-dashboard': {
+      id: '/_layout/freelancer-dashboard'
+      path: '/freelancer-dashboard'
+      fullPath: '/freelancer-dashboard'
+      preLoaderRoute: typeof LayoutFreelancerDashboardRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/freelancer-jobs': {
+      id: '/_layout/freelancer-jobs'
+      path: '/freelancer-jobs'
+      fullPath: '/freelancer-jobs'
+      preLoaderRoute: typeof LayoutFreelancerJobsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/freelancer-messages': {
+      id: '/_layout/freelancer-messages'
+      path: '/freelancer-messages'
+      fullPath: '/freelancer-messages'
+      preLoaderRoute: typeof LayoutFreelancerMessagesRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/freelancer-proposals': {
+      id: '/_layout/freelancer-proposals'
+      path: '/freelancer-proposals'
+      fullPath: '/freelancer-proposals'
+      preLoaderRoute: typeof LayoutFreelancerProposalsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/freelancer-saved-jobs': {
+      id: '/_layout/freelancer-saved-jobs'
+      path: '/freelancer-saved-jobs'
+      fullPath: '/freelancer-saved-jobs'
+      preLoaderRoute: typeof LayoutFreelancerSavedJobsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/freelancer-settings': {
+      id: '/_layout/freelancer-settings'
+      path: '/freelancer-settings'
+      fullPath: '/freelancer-settings'
+      preLoaderRoute: typeof LayoutFreelancerSettingsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/messages': {
+      id: '/_layout/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof LayoutMessagesRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/notifications': {
+      id: '/_layout/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof LayoutNotificationsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/saved': {
+      id: '/_layout/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof LayoutSavedRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/settings': {
+      id: '/_layout/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof LayoutSettingsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/talent': {
+      id: '/_layout/talent'
+      path: '/talent'
+      fullPath: '/talent'
+      preLoaderRoute: typeof LayoutTalentRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/talent_/$freelancerId': {
+      id: '/_layout/talent_/$freelancerId'
+      path: '/talent/$freelancerId'
+      fullPath: '/talent/$freelancerId'
+      preLoaderRoute: typeof LayoutTalentFreelancerIdRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
 interface LayoutRouteChildren {
-  LayoutAdminRoute: typeof LayoutAdminRoute;
-  LayoutClientJobsRoute: typeof LayoutClientJobsRoute;
-  LayoutClientProfileRoute: typeof LayoutClientProfileRoute;
-  LayoutDashboardRoute: typeof LayoutDashboardRoute;
-  LayoutFreelancerRoute: typeof LayoutFreelancerRoute;
-  LayoutFreelancerDashboardRoute: typeof LayoutFreelancerDashboardRoute;
-  LayoutFreelancerJobsRoute: typeof LayoutFreelancerJobsRoute;
-  LayoutFreelancerMessagesRoute: typeof LayoutFreelancerMessagesRoute;
-  LayoutFreelancerProposalsRoute: typeof LayoutFreelancerProposalsRoute;
-  LayoutFreelancerSavedJobsRoute: typeof LayoutFreelancerSavedJobsRoute;
-  LayoutFreelancerSettingsRoute: typeof LayoutFreelancerSettingsRoute;
-  LayoutMessagesRoute: typeof LayoutMessagesRoute;
-  LayoutNotificationsRoute: typeof LayoutNotificationsRoute;
-  LayoutSavedRoute: typeof LayoutSavedRoute;
-  LayoutSettingsRoute: typeof LayoutSettingsRoute;
-  LayoutTalentRoute: typeof LayoutTalentRoute;
-  LayoutTalentFreelancerIdRoute: typeof LayoutTalentFreelancerIdRoute;
+  LayoutAdminRoute: typeof LayoutAdminRoute
+  LayoutClientJobsRoute: typeof LayoutClientJobsRoute
+  LayoutClientProfileRoute: typeof LayoutClientProfileRoute
+  LayoutDashboardRoute: typeof LayoutDashboardRoute
+  LayoutFreelancerRoute: typeof LayoutFreelancerRoute
+  LayoutFreelancerDashboardRoute: typeof LayoutFreelancerDashboardRoute
+  LayoutFreelancerJobsRoute: typeof LayoutFreelancerJobsRoute
+  LayoutFreelancerMessagesRoute: typeof LayoutFreelancerMessagesRoute
+  LayoutFreelancerProposalsRoute: typeof LayoutFreelancerProposalsRoute
+  LayoutFreelancerSavedJobsRoute: typeof LayoutFreelancerSavedJobsRoute
+  LayoutFreelancerSettingsRoute: typeof LayoutFreelancerSettingsRoute
+  LayoutMessagesRoute: typeof LayoutMessagesRoute
+  LayoutNotificationsRoute: typeof LayoutNotificationsRoute
+  LayoutSavedRoute: typeof LayoutSavedRoute
+  LayoutSettingsRoute: typeof LayoutSettingsRoute
+  LayoutTalentRoute: typeof LayoutTalentRoute
+  LayoutTalentFreelancerIdRoute: typeof LayoutTalentFreelancerIdRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -511,9 +517,10 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutTalentRoute: LayoutTalentRoute,
   LayoutTalentFreelancerIdRoute: LayoutTalentFreelancerIdRoute,
-};
+}
 
-const LayoutRouteWithChildren = LayoutRoute._addFileChildren(LayoutRouteChildren);
+const LayoutRouteWithChildren =
+  LayoutRoute._addFileChildren(LayoutRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -522,5 +529,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecoverPasswordRoute: RecoverPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
-};
-export const routeTree = rootRouteImport._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>();
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
