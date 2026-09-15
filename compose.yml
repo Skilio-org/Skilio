@@ -67,6 +67,13 @@ services:
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
 
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_TOKEN_URI: ${GOOGLE_TOKEN_URI}
+      GOOGLE_USERINFO_URL: ${GOOGLE_USERINFO_URL}
+      GOOGLE_AUTH_URI: ${GOOGLE_AUTH_URI}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
       interval: 10s
