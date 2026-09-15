@@ -2,23 +2,97 @@ from datetime import timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
-from app.models import Message, NewPassword, Token, UserPublic, UserUpdate
+from app.models import Message, NewPassword, Token, UserPublic, UserUpdate, User
 from app.utils import (
     generate_password_reset_token,
     generate_reset_password_email,
     send_email,
     verify_password_reset_token,
 )
+import requests
+
 
 router = APIRouter(tags=["login"])
 
+
+router = APIRouter(tags=["login"])
+
+@router.get("/login/google")
+def login_google() -> RedirectResponse:
+    """
+    Google OAuth2 compatible token login, get an access token for future requests from google.
+    """
+    params = {
+        "client_id": settings.GOOGLE_CLIENT_ID,
+        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",  # gets you a refresh token
+        "prompt": "consent",
+    }
+    query = "&".join(f"{k}={v}" for k, v in params.items())
+    return RedirectResponse(f"{settings.GOOGLE_AUTH_URI}?{query}")
+
+@router.get("/login/google/callback")
+def google_callback(code: str, session: SessionDep):
+    token_response = requests.post(settings.GOOGLE_TOKEN_URI, data={
+        "code": code,
+        "client_id": settings.GOOGLE_CLIENT_ID,
+        "client_secret": settings.GOOGLE_CLIENT_SECRET,
+        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+        "grant_type": "authorization_code",
+    })
+    token_data    = token_response.json()
+    access_token  = token_data["access_token"]
+    refresh_token = token_data.get("refresh_token")  # may be None on re-login
+
+    userinfo_response = requests.get(
+        settings.GOOGLE_USERINFO_URL,
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    google_user = userinfo_response.json() # google_user has: sub, email, name, picture
+
+    user = crud.get_user_by_email(session=session, email=google_user["email"])
+
+    if user:
+        if not user.google_id:
+            raise HTTPException(
+                status_code=400,
+                detail="An account with this email already exists. Please log in with your password."
+            )
+        user.full_name = google_user.get("name")
+        user.avatar_url = google_user.get("picture")
+        if refresh_token:
+            user.refresh_token = refresh_token
+        session.add(user)
+        session.commit()
+    else:
+        user = User(
+            email=google_user["email"],
+            full_name=google_user.get("name"),
+            avatar_url=google_user.get("picture"),
+            google_id=google_user["sub"],
+            refresh_token=refresh_token,
+            is_active=True,
+            hashed_password=""
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    return Token(
+        access_token=security.create_access_token(
+            user.id, expires_delta=access_token_expires
+        )
+    )
 
 @router.post("/login/access-token")
 def login_access_token(

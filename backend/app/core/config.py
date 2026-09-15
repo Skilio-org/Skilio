@@ -34,6 +34,13 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
 
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/login/google/callback"
+    GOOGLE_TOKEN_URI: str
+    GOOGLE_AUTH_URI: str
+    GOOGLE_USERINFO_URL: str
+
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def _use_psycopg_driver(cls, value: str | PostgresDsn) -> str:

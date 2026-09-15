@@ -121,6 +121,10 @@ class UserBase(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     role: UserRole = Field(default=UserRole.CLIENT)
 
+    # For google Auth.
+    google_id: str | None = Field(default=None, max_length=255)
+    refresh_token: str | None = Field(default=None) 
+
 
 class AvatarResponse(SQLModel):
     status: str
