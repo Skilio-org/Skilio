@@ -1,19 +1,13 @@
-import { ArrowRight, MapPin } from "lucide-react"
-import { type ReactNode, useState } from "react"
+import { useState } from "react";
 import {
   type Entry,
   fieldClass,
   type Profile,
   primary,
   secondary,
-} from "@/components/freelancer/freelancer-profile-model"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/freelancer/freelancer-profile-model";
+import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export function Avatar({ profile }: { profile: Profile }) {
   return profile.photo ? (
@@ -31,133 +25,72 @@ export function Avatar({ profile }: { profile: Profile }) {
         .slice(0, 2)
         .join("") || "You"}
     </span>
-  )
+  );
 }
 
-export function ProfilePreview({
-  profile: p,
-  compact = false,
-}: {
-  profile: Profile
-  compact?: boolean
-}) {
+export function ProfilePreview({ profile: p, compact = false }: { profile: Profile; compact?: boolean }) {
+  const name = p.name || "Your name";
+  const bio = p.bio || "Your introduction will appear here.";
+  const languages = p.languages
+    .split(",")
+    .map((language) => language.trim())
+    .filter(Boolean)
+    .map((language) => {
+      const [languageName, ...levelParts] = language.split(/\s+[—–-]\s+/);
+      return { name: languageName, level: levelParts.join(" — ") || "" };
+    });
+
   return (
-    <article
-      className={
-        compact
-          ? "space-y-6"
-          : "border-border bg-card rounded-xl border p-6 sm:p-10"
-      }
-    >
-      <div className="flex flex-wrap items-center gap-5">
-        <Avatar profile={p} />
-        <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-semibold break-words">
-            {p.name || "Your name"}
-          </h2>
-          <p className="text-muted-foreground mt-1 text-lg">
-            {p.title || "Your professional title"}
+    <div className={compact ? "-mx-1" : undefined} data-profile-preview>
+      <FreelancerProfileView
+        profile={{
+          name,
+          initials:
+            name
+              .trim()
+              .split(/\s+/)
+              .map((part) => part[0])
+              .slice(0, 2)
+              .join("") || "You",
+          avatarUrl: p.photo || undefined,
+          title: p.title || "Your professional title",
+          location: p.location || "Add your location",
+          summary: bio,
+          about: [bio],
+          skills: p.skills,
+          rate: p.rate,
+          availability: p.availability,
+          weeklyCapacity: p.hours,
+          portfolio: p.portfolio.map((entry) => ({
+            id: entry.id,
+            title: entry.title,
+            category: entry.organization || "Portfolio project",
+            detail: entry.detail,
+            url: entry.url,
+          })),
+          languages,
+          education: p.education.map((entry) => ({
+            id: entry.id,
+            title: entry.title,
+            organization: entry.organization,
+            detail: entry.detail,
+          })),
+          experience: p.experience.map((entry) => ({
+            id: entry.id,
+            title: entry.title,
+            organization: entry.organization,
+            detail: entry.detail,
+          })),
+        }}
+        contactTitle="Your availability"
+        contactFooter={
+          <p className="text-muted-foreground mt-4 text-center text-xs leading-5">
+            Clients will see these details when your profile is published.
           </p>
-          <p className="text-muted-foreground mt-2 flex items-center gap-1.5 text-sm">
-            <MapPin className="size-4" />
-            {p.location || "Add your location"}
-          </p>
-        </div>
-        <div>
-          <p className="text-2xl font-semibold">
-            {p.rate ? `$${p.rate}` : "—"}
-            <span className="text-muted-foreground text-sm font-normal">
-              {" "}
-              / hour
-            </span>
-          </p>
-          <p className="text-muted-foreground mt-2 text-sm">
-            {p.availability || "Availability not set"}
-          </p>
-        </div>
-      </div>
-      <div className="mt-6 flex flex-wrap gap-2">
-        {p.skills.map((s) => (
-          <span className="bg-muted rounded-lg px-3 py-2 text-xs" key={s}>
-            {s}
-          </span>
-        ))}
-      </div>
-      <PreviewSection title="About">
-        <p className="text-muted-foreground text-sm leading-7 break-words whitespace-pre-wrap">
-          {p.bio || "Your introduction will appear here."}
-        </p>
-      </PreviewSection>
-      {p.languages && (
-        <p className="mt-4 text-sm">
-          <span className="font-medium">Languages: </span>
-          {p.languages}
-        </p>
-      )}
-      {p.hours && (
-        <p className="mt-3 text-sm">
-          <span className="font-medium">Weekly capacity: </span>
-          {p.hours}
-        </p>
-      )}
-      {(["portfolio", "experience", "education"] as const).map(
-        (kind) =>
-          p[kind].length > 0 && (
-            <PreviewSection
-              key={kind}
-              title={
-                kind === "portfolio"
-                  ? "Selected work"
-                  : kind === "experience"
-                    ? "Work experience"
-                    : "Education"
-              }
-            >
-              <div className="grid gap-4 sm:grid-cols-2">
-                {p[kind].map((e) => (
-                  <section
-                    className="border-border min-w-0 rounded-lg border p-5"
-                    key={e.id}
-                  >
-                    <h4 className="font-semibold break-words">{e.title}</h4>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                      {e.organization}
-                    </p>
-                    <p className="text-muted-foreground mt-3 text-sm leading-6 break-words whitespace-pre-wrap">
-                      {e.detail}
-                    </p>
-                    {/^https?:\/\//i.test(e.url) && (
-                      <a
-                        className="text-primary mt-4 inline-flex min-h-11 items-center text-sm font-medium underline"
-                        href={e.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        View project <ArrowRight className="ml-2 size-4" />
-                      </a>
-                    )}
-                  </section>
-                ))}
-              </div>
-            </PreviewSection>
-          ),
-      )}
-    </article>
-  )
-}
-function PreviewSection({
-  title,
-  children,
-}: {
-  title: string
-  children: ReactNode
-}) {
-  return (
-    <section className="border-border mt-7 border-t pt-6">
-      <h3 className="mb-4 text-lg font-semibold">{title}</h3>
-      {children}
-    </section>
-  )
+        }
+      />
+    </div>
+  );
 }
 
 export function EntryDialog({
@@ -166,17 +99,17 @@ export function EntryDialog({
   close,
   save,
 }: {
-  kind: string
-  entry: Entry
-  close: () => void
-  save: (e: Entry) => void
+  kind: string;
+  entry: Entry;
+  close: () => void;
+  save: (e: Entry) => void;
 }) {
-  const [value, setValue] = useState(entry)
+  const [value, setValue] = useState(entry);
   return (
     <Dialog
       open
       onOpenChange={(open) => {
-        if (!open) close()
+        if (!open) close();
       }}
     >
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
@@ -188,24 +121,17 @@ export function EntryDialog({
                 ? "Education details"
                 : "Experience details"}
           </DialogTitle>
-          <DialogDescription>
-            Add the details you want clients to see.
-          </DialogDescription>
+          <DialogDescription>Add the details you want clients to see.</DialogDescription>
         </DialogHeader>
         <form
           className="space-y-5"
           onSubmit={(e) => {
-            e.preventDefault()
-            save({ ...value, title: value.title.trim() })
+            e.preventDefault();
+            save({ ...value, title: value.title.trim() });
           }}
         >
           <label className="block text-sm font-medium">
-            {kind === "portfolio"
-              ? "Project title"
-              : kind === "education"
-                ? "Degree or qualification"
-                : "Job title"}{" "}
-            *
+            {kind === "portfolio" ? "Project title" : kind === "education" ? "Degree or qualification" : "Job title"} *
             <input
               required
               pattern=".*\S.*"
@@ -225,15 +151,11 @@ export function EntryDialog({
               className={fieldClass}
               maxLength={160}
               value={value.organization}
-              onChange={(e) =>
-                setValue({ ...value, organization: e.target.value })
-              }
+              onChange={(e) => setValue({ ...value, organization: e.target.value })}
             />
           </label>
           <label className="block text-sm font-medium">
-            {kind === "portfolio"
-              ? "Your contribution and results"
-              : "Description"}
+            {kind === "portfolio" ? "Your contribution and results" : "Description"}
             <textarea
               rows={4}
               maxLength={2000}
@@ -266,5 +188,5 @@ export function EntryDialog({
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

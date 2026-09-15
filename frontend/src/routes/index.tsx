@@ -1,13 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { useState } from "react"
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
-import { LandingCategories } from "@/components/landing/landing-categories"
-import { LandingCta } from "@/components/landing/landing-cta"
-import { LandingFooter } from "@/components/landing/landing-footer"
-import { LandingHeader } from "@/components/landing/landing-header"
-import { LandingHero } from "@/components/landing/landing-hero"
-import { LandingHowItWorks } from "@/components/landing/landing-how-it-works"
-import { LandingTalent } from "@/components/landing/landing-talent"
+import { LandingCategories } from "@/components/landing/landing-categories";
+import { LandingCta } from "@/components/landing/landing-cta";
+import { LandingFooter } from "@/components/landing/landing-footer";
+import { LandingHeader } from "@/components/landing/landing-header";
+import { LandingHero } from "@/components/landing/landing-hero";
+import { LandingHowItWorks } from "@/components/landing/landing-how-it-works";
+import { LandingTalent } from "@/components/landing/landing-talent";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -16,15 +16,14 @@ export const Route = createFileRoute("/")({
       { title: "Freelancer - Find independent talent" },
       {
         name: "description",
-        content:
-          "Search verified freelance profiles, compare expertise, and find the right independent professional.",
+        content: "Search verified freelance profiles, compare expertise, and find the right independent professional.",
       },
     ],
   }),
-})
+});
 
 function LandingPage() {
-  const [filter, setFilter] = useState("All talent")
+  const [filter, setFilter] = useState("All talent");
   return (
     <div className="landing-page bg-card text-foreground min-h-[100dvh]">
       <LandingHeader />
@@ -37,5 +36,5 @@ function LandingPage() {
       </main>
       <LandingFooter />
     </div>
-  )
+  );
 }

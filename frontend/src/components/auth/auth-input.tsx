@@ -1,22 +1,16 @@
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form"
-import { Input } from "../ui/input"
-import { PasswordInput } from "../ui/password-input"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Input } from "../ui/input";
+import { PasswordInput } from "../ui/password-input";
 
 type AuthInputProps = {
-  inputName: string
-  inputLabel: string
-  inputPlaceHolder: string
-  inputDataTestId: string
-  inputType: string
-  control: any
-  disabled: boolean
-}
+  inputName: string;
+  inputLabel: string;
+  inputPlaceHolder: string;
+  inputDataTestId: string;
+  inputType: string;
+  control: any;
+  disabled: boolean;
+};
 
 export const AuthInput = ({
   inputName,
@@ -33,9 +27,7 @@ export const AuthInput = ({
       name={inputName}
       render={({ field }) => (
         <FormItem className="space-y-2">
-          <FormLabel className="text-foreground text-[13px] font-medium">
-            {inputLabel}
-          </FormLabel>
+          <FormLabel className="text-foreground text-[13px] font-medium">{inputLabel}</FormLabel>
           <FormControl>
             {inputType === "password" ? (
               <PasswordInput
@@ -64,5 +56,5 @@ export const AuthInput = ({
         </FormItem>
       )}
     />
-  )
-}
+  );
+};

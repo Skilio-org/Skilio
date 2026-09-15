@@ -1,39 +1,27 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { ArrowUpRight, Bookmark, Search, X } from "lucide-react"
-import { useState } from "react"
-import {
-  WorkspacePageHeader,
-  workspaceStyles,
-} from "@/components/dashboard/dashboard-header"
-import { FreelancerCard } from "@/components/talent/freelancer-card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { freelancers } from "@/data/freelancers"
-import { useSavedTalent } from "@/hooks/useSavedTalent"
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowUpRight, Bookmark, Search, X } from "lucide-react";
+import { useState } from "react";
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header";
+import { FreelancerCard } from "@/components/talent/freelancer-card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { freelancers } from "@/data/freelancers";
+import { useSavedTalent } from "@/hooks/useSavedTalent";
 
 export const Route = createFileRoute("/_layout/saved")({
   component: SavedTalent,
   head: () => ({ meta: [{ title: "Saved talent | Freelancer" }] }),
-})
+});
 function SavedTalent() {
-  const { savedIds, toggleSaved } = useSavedTalent()
-  const [query, setQuery] = useState("")
-  const [sort, setSort] = useState("recommended")
-  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  const { savedIds, toggleSaved } = useSavedTalent();
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("recommended");
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const people = freelancers
     .filter(
       (person) =>
         savedIds.includes(person.id) &&
         terms.every((term) =>
-          [person.name, person.title, person.location, ...person.skills]
-            .join(" ")
-            .toLowerCase()
-            .includes(term),
+          [person.name, person.title, person.location, ...person.skills].join(" ").toLowerCase().includes(term),
         ),
     )
     .sort((a, b) =>
@@ -42,7 +30,7 @@ function SavedTalent() {
         : sort === "highest-rated"
           ? b.rating - a.rating
           : b.successRate - a.successRate,
-    )
+    );
   return (
     <div className="mx-auto w-full space-y-6 xl:max-w-[912px]">
       <WorkspacePageHeader
@@ -75,10 +63,7 @@ function SavedTalent() {
             )}
           </label>
           <Select value={sort} onValueChange={setSort}>
-            <SelectTrigger
-              aria-label="Sort saved talent"
-              className="bg-card h-12 w-full rounded-xl sm:w-48"
-            >
+            <SelectTrigger aria-label="Sort saved talent" className="bg-card h-12 w-full rounded-xl sm:w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -90,30 +75,21 @@ function SavedTalent() {
         </div>
       )}
       <p role="status" className="text-muted-foreground text-sm">
-        <strong className="text-foreground font-semibold">
-          {people.length}
-        </strong>{" "}
+        <strong className="text-foreground font-semibold">{people.length}</strong>{" "}
         {people.length === 1 ? "professional" : "professionals"}
         {query ? " matching your search" : " saved"}
       </p>
       {people.length > 0 ? (
         <div className="divide-border border-border divide-y overflow-hidden rounded-xl border">
           {people.map((person) => (
-            <FreelancerCard
-              key={person.id}
-              freelancer={person}
-              saved
-              onToggleSaved={() => toggleSaved(person.id)}
-            />
+            <FreelancerCard key={person.id} freelancer={person} saved onToggleSaved={() => toggleSaved(person.id)} />
           ))}
         </div>
       ) : (
         <section className="border-border bg-card rounded-xl border px-6 py-16 text-center">
           <Bookmark className="text-muted-foreground mx-auto size-8" />
           <h2 className="mt-5 text-xl font-medium tracking-tight">
-            {savedIds.length
-              ? "No matching saved profiles"
-              : "Your shortlist starts here"}
+            {savedIds.length ? "No matching saved profiles" : "Your shortlist starts here"}
           </h2>
           <p className="text-muted-foreground mx-auto mt-3 max-w-sm text-sm leading-6">
             {savedIds.length
@@ -121,19 +97,11 @@ function SavedTalent() {
               : "Save a profile while browsing talent. You’ll find everyone you save right here."}
           </p>
           {savedIds.length ? (
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              className={`${workspaceStyles.secondaryAction} mt-6`}
-            >
+            <button type="button" onClick={() => setQuery("")} className={`${workspaceStyles.secondaryAction} mt-6`}>
               Clear search
             </button>
           ) : (
-            <Link
-              to="/talent"
-              search={{ q: undefined }}
-              className={`${workspaceStyles.primaryAction} mt-6`}
-            >
+            <Link to="/talent" search={{ q: undefined }} className={`${workspaceStyles.primaryAction} mt-6`}>
               Explore talent
               <ArrowUpRight className="size-4" />
             </Link>
@@ -141,5 +109,5 @@ function SavedTalent() {
         </section>
       )}
     </div>
-  )
+  );
 }

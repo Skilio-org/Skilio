@@ -1,18 +1,18 @@
-import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, Menu } from "lucide-react"
-import { Logo } from "@/components/common/logo"
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight, Menu } from "lucide-react";
+import { Logo } from "@/components/common/logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 const links = [
   ["#talent", "Find talent"],
   ["#categories", "Categories"],
   ["#how-it-works", "How it works"],
-]
+];
 
 export function LandingHeader() {
   return (
@@ -30,16 +30,10 @@ export function LandingHeader() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2 sm:gap-4">
-          <Link
-            to="/login"
-            className="landing-nav-link inline-flex min-h-11 items-center px-2 text-sm font-medium"
-          >
+          <Link to="/login" className="landing-nav-link inline-flex min-h-11 items-center px-2 text-sm font-medium">
             Log in
           </Link>
-          <Link
-            to="/signup"
-            className="landing-primary min-h-11 gap-3 px-4 text-sm sm:px-5"
-          >
+          <Link to="/signup" className="landing-primary min-h-11 gap-3 px-4 text-sm sm:px-5">
             <span className="hidden sm:inline">Create account</span>
             <span className="sm:hidden">Join</span>
             <ArrowUpRight className="size-4" />
@@ -67,5 +61,5 @@ export function LandingHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }

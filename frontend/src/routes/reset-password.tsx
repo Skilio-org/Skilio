@@ -1,41 +1,23 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
-import {
-  createFileRoute,
-  Link as RouterLink,
-  redirect,
-  useNavigate,
-} from "@tanstack/react-router"
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  KeyRound,
-  LockKeyhole,
-} from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, Link as RouterLink, redirect, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, Check, KeyRound, LockKeyhole } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { LoginService } from "@/client"
+import { LoginService } from "@/client";
 
-import { AuthLayout } from "@/components/common/auth-layout"
+import { AuthLayout } from "@/components/common/auth-layout";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-import { LoadingButton } from "@/components/ui/loading-button"
-import { PasswordInput } from "@/components/ui/password-input"
+import { LoadingButton } from "@/components/ui/loading-button";
+import { PasswordInput } from "@/components/ui/password-input";
 
-import { isLoggedIn } from "@/hooks/useAuth"
-import useCustomToast from "@/hooks/useCustomToast"
+import { isLoggedIn } from "@/hooks/useAuth";
+import useCustomToast from "@/hooks/useCustomToast";
 
-import { handleError } from "@/utils"
+import { handleError } from "@/utils";
 
 /* =========================================================
    SEARCH PARAMS
@@ -43,7 +25,7 @@ import { handleError } from "@/utils"
 
 const searchSchema = z.object({
   token: z.string().catch(""),
-})
+});
 
 /* =========================================================
    VALIDATION
@@ -67,9 +49,9 @@ const formSchema = z
   .refine((data) => data.new_password === data.confirm_password, {
     message: "The passwords don't match.",
     path: ["confirm_password"],
-  })
+  });
 
-type FormData = z.infer<typeof formSchema>
+type FormData = z.infer<typeof formSchema>;
 
 /* =========================================================
    ROUTE
@@ -84,13 +66,13 @@ export const Route = createFileRoute("/reset-password")({
     if (isLoggedIn()) {
       throw redirect({
         to: "/dashboard",
-      })
+      });
     }
 
     if (!search.token) {
       throw redirect({
         to: "/login",
-      })
+      });
     }
   },
 
@@ -105,18 +87,18 @@ export const Route = createFileRoute("/reset-password")({
       },
     ],
   }),
-})
+});
 
 /* =========================================================
    RESET PASSWORD
    ========================================================= */
 
 function ResetPassword() {
-  const { token } = Route.useSearch()
+  const { token } = Route.useSearch();
 
-  const { showSuccessToast, showErrorToast } = useCustomToast()
+  const { showSuccessToast, showErrorToast } = useCustomToast();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -128,17 +110,14 @@ function ResetPassword() {
       new_password: "",
       confirm_password: "",
     },
-  })
+  });
 
-  const newPassword = form.watch("new_password")
-  const confirmPassword = form.watch("confirm_password")
+  const newPassword = form.watch("new_password");
+  const confirmPassword = form.watch("confirm_password");
 
-  const hasMinLength = newPassword.length >= 8
+  const hasMinLength = newPassword.length >= 8;
 
-  const passwordsMatch =
-    newPassword.length > 0 &&
-    confirmPassword.length > 0 &&
-    newPassword === confirmPassword
+  const passwordsMatch = newPassword.length > 0 && confirmPassword.length > 0 && newPassword === confirmPassword;
 
   /* =======================================================
      API
@@ -151,40 +130,36 @@ function ResetPassword() {
       }),
 
     onSuccess: () => {
-      showSuccessToast("Your password has been updated successfully.")
+      showSuccessToast("Your password has been updated successfully.");
 
-      form.reset()
+      form.reset();
 
       navigate({
         to: "/login",
-      })
+      });
     },
 
     onError: handleError.bind(showErrorToast),
-  })
+  });
 
   /* =======================================================
      SUBMIT
      ======================================================= */
 
   const onSubmit = (data: FormData) => {
-    if (mutation.isPending) return
+    if (mutation.isPending) return;
 
     mutation.mutate({
       new_password: data.new_password,
       token,
-    })
-  }
+    });
+  };
 
   return (
     <AuthLayout>
       <div className="mx-auto w-full max-w-[460px]">
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            noValidate
-            className="w-full"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
             {/* =================================================
                 BACK
                 ================================================= */}
@@ -212,8 +187,7 @@ function ResetPassword() {
               </h1>
 
               <p className="text-muted-foreground mt-4 max-w-[400px] text-sm leading-6">
-                Choose a strong password that you haven't used before. You'll
-                use it to sign in to your account.
+                Choose a strong password that you haven't used before. You'll use it to sign in to your account.
               </p>
             </div>
 
@@ -231,9 +205,7 @@ function ResetPassword() {
                 name="new_password"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-foreground text-[13px] font-medium">
-                      New password
-                    </FormLabel>
+                    <FormLabel className="text-foreground text-[13px] font-medium">New password</FormLabel>
 
                     <FormControl>
                       <PasswordInput
@@ -260,9 +232,7 @@ function ResetPassword() {
                 name="confirm_password"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-foreground text-[13px] font-medium">
-                      Confirm password
-                    </FormLabel>
+                    <FormLabel className="text-foreground text-[13px] font-medium">Confirm password</FormLabel>
 
                     <FormControl>
                       <PasswordInput
@@ -357,5 +327,5 @@ function ResetPassword() {
         </Form>
       </div>
     </AuthLayout>
-  )
+  );
 }
