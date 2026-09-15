@@ -1,5 +1,5 @@
 import type { UseMutationResult } from "@tanstack/react-query";
-import { Check, UserRound, Workflow } from "lucide-react";
+import { BriefcaseBusiness, Check, UserRound } from "lucide-react";
 import type { ControllerRenderProps } from "react-hook-form";
 
 type Role = "freelancer" | "client";
@@ -33,7 +33,7 @@ export const RoleSelectButton = ({ field, signUpMutation, userRole, title, descr
             : `bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-accent-foreground`
         } `}
       >
-        {userRole === "client" ? <UserRound className="size-5" /> : <Workflow className="size-5" />}
+        {userRole === "client" ? <BriefcaseBusiness className="size-5" /> : <UserRound className="size-5" />}
       </div>
 
       <div className="min-w-0 flex-1">
