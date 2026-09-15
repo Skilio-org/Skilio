@@ -123,7 +123,7 @@ class UserBase(SQLModel):
 
     # For google Auth.
     google_id: str | None = Field(default=None, max_length=255)
-    refresh_token: str | None = Field(default=None) 
+    refresh_token: str | None = Field(default=None)
 
 
 class AvatarResponse(SQLModel):
@@ -359,6 +359,101 @@ class SkillsPublic(SQLModel):
 
 
 # ==============================================================================
+# Education Models
+# ==============================================================================
+
+
+class EducationBase(SQLModel):
+    institution: str = Field(max_length=255)
+    degree: str = Field(max_length=255)
+    field_of_study: str | None = Field(default=None, max_length=255)
+    start_date: str | None = Field(default=None, max_length=50)
+    end_date: str | None = Field(default=None, max_length=50)
+    description: str | None = Field(default=None, max_length=2000)
+
+
+class EducationCreate(EducationBase):
+    pass
+
+
+class EducationUpdate(SQLModel):
+    institution: str | None = Field(default=None, max_length=255)
+    degree: str | None = Field(default=None, max_length=255)
+    field_of_study: str | None = Field(default=None, max_length=255)
+    start_date: str | None = Field(default=None, max_length=50)
+    end_date: str | None = Field(default=None, max_length=50)
+    description: str | None = Field(default=None, max_length=2000)
+
+
+class Education(EducationBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    freelancer_profile_id: uuid.UUID = Field(
+        foreign_key="freelancerprofile.id", nullable=False, ondelete="CASCADE"
+    )
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+
+    freelancer_profile: Optional["FreelancerProfile"] = Relationship(
+        back_populates="educations"
+    )
+
+
+class EducationPublic(EducationBase):
+    id: uuid.UUID
+    freelancer_profile_id: uuid.UUID
+    created_at: datetime | None = None
+
+
+# ==============================================================================
+# Portfolio Item Models
+# ==============================================================================
+
+
+class PortfolioItemBase(SQLModel):
+    title: str = Field(max_length=255)
+    description: str = Field(max_length=5000)
+    image_url: str = Field(max_length=2048)
+
+
+class PortfolioItemCreate(PortfolioItemBase):
+    pass
+
+
+class PortfolioItemUpdate(SQLModel):
+    title: str | None = Field(default=None, max_length=255)
+    description: str | None = Field(default=None, max_length=5000)
+    image_url: str | None = Field(default=None, max_length=2048)
+
+
+class PortfolioItem(PortfolioItemBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    freelancer_profile_id: uuid.UUID = Field(
+        foreign_key="freelancerprofile.id", nullable=False, ondelete="CASCADE"
+    )
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    updated_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+
+    freelancer_profile: Optional["FreelancerProfile"] = Relationship(
+        back_populates="portfolio_items"
+    )
+
+
+class PortfolioItemPublic(PortfolioItemBase):
+    id: uuid.UUID
+    freelancer_profile_id: uuid.UUID
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+# ==============================================================================
 # Freelancer Profile Models
 # ==============================================================================
 
@@ -412,6 +507,14 @@ class FreelancerProfile(FreelancerProfileBase, table=True):
         cascade_delete=True,
         sa_relationship_kwargs={"foreign_keys": "[Media.freelancer_profile_id]"},
     )
+    portfolio_items: list[PortfolioItem] = Relationship(
+        back_populates="freelancer_profile",
+        cascade_delete=True,
+    )
+    educations: list[Education] = Relationship(
+        back_populates="freelancer_profile",
+        cascade_delete=True,
+    )
     skills: list[Skill] = Relationship(
         back_populates="freelancer_profiles", link_model=FreelancerSkillLink
     )
@@ -437,6 +540,8 @@ class FreelancerProfilePublic(FreelancerProfileBase):
 
 class FreelancerProfileDetailPublic(FreelancerProfilePublic):
     portfolio_media: list[MediaPublic] = Field(default_factory=list)
+    portfolio: list[PortfolioItemPublic] = Field(default_factory=list)
+    educations: list[EducationPublic] = Field(default_factory=list)
     reviews: list["ReviewPublic"] = Field(default_factory=list)
     user: UserPublic | None = None
 
