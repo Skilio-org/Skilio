@@ -64,9 +64,15 @@ const useAuth = () => {
     mutationFn: login,
     onSuccess: (account) => {
       const role = localStorage.getItem(`account-role:${account.email.trim().toLowerCase()}`);
-      navigate({
-        to: role === "freelancer" ? "/freelancer-dashboard" : "/dashboard",
-      });
+      if (account.is_active && !account.is_superuser) {
+        navigate({
+          to: role === "freelancer" ? "/freelancer-dashboard" : "/dashboard",
+        });
+      } else if (account.is_superuser) {
+        navigate({
+          to: "/admin",
+        });
+      }
     },
     onError: handleError.bind(showErrorToast),
   });

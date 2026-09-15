@@ -1,9 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link as RouterLink, redirect } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, BriefcaseBusiness, UserRound } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import Divider from "@/components/auth/auth-divider";
 import { AuthInput } from "@/components/auth/auth-input";
 import RoleSelectButton from "@/components/auth/auth-role-select-button";
@@ -12,6 +6,12 @@ import { AuthLayout } from "@/components/common/auth-layout";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { LoadingButton } from "@/components/ui/loading-button";
 import useAuth, { isLoggedIn } from "@/hooks/useAuth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createFileRoute, redirect, Link as RouterLink } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, BriefcaseBusiness, UserRound } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const formSchema = z
   .object({

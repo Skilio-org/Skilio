@@ -16,6 +16,8 @@ import {
   suggested,
 } from "@/components/freelancer/freelancer-profile-model";
 import useAuth from "@/hooks/useAuth";
+import { UsersService } from "@/client";
+import { accountAvatarUrl, markAccountAvatarUpdated } from "@/hooks/useAccountAvatar";
 
 export const Route = createFileRoute("/_layout/freelancer")({
   component: FreelancerWorkspace,
@@ -96,18 +98,20 @@ function FreelancerWorkspace() {
     setError("");
   }
   async function upload(file?: File) {
-    if (!file) return;
+    if (!file || !user) return;
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) {
       setError("Choose a JPG, PNG or WebP image under 2 MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      update("photo", String(reader.result));
+    try {
+      const response = await UsersService.uploadAvatar({ body: { file } });
+      if (response.data.status !== "Ok") throw new Error("Upload failed");
+      const version = markAccountAvatarUpdated(user.id);
+      update("photo", accountAvatarUrl(user.id, version));
       setError("");
-    };
-    reader.onerror = () => setError("This image couldn’t be read. Try another file.");
-    reader.readAsDataURL(file);
+    } catch {
+      setError("This image couldn’t be uploaded. Try again.");
+    }
   }
   const input = (
     label: string,

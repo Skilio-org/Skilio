@@ -22,9 +22,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { setAccountRole, useAccountRole } from "@/hooks/useAccountRole";
 import useAuth from "@/hooks/useAuth";
+import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar";
 import { getInitials } from "@/utils";
 
-export function User({ user }: { user?: (UserPublic & { avatar_url?: string }) | null }) {
+export function User({ user }: { user?: UserPublic | null }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({
@@ -34,6 +35,7 @@ export function User({ user }: { user?: (UserPublic & { avatar_url?: string }) |
   const [switching, setSwitching] = useState(false);
   const [open, setOpen] = useState(false);
   const displayName = user?.full_name || user?.email || "Your account";
+  const avatarUrl = useAccountAvatarUrl(user?.id);
   const role = freelancer ? "Freelancer" : "Client";
   const nextRole = freelancer ? "client" : "freelancer";
 
@@ -65,7 +67,7 @@ export function User({ user }: { user?: (UserPublic & { avatar_url?: string }) |
           className="account-trigger hover:bg-muted flex min-h-11 items-center gap-2 rounded-xl p-1.5 text-left transition-colors sm:gap-3 sm:pr-3"
         >
           <Avatar className="size-8 rounded-lg">
-            {user?.avatar_url && <AvatarImage src={user.avatar_url} alt={displayName} />}
+            {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
             <AvatarFallback className="bg-brand-100 text-brand-800 rounded-lg text-xs font-semibold">
               {getInitials(displayName)}
             </AvatarFallback>

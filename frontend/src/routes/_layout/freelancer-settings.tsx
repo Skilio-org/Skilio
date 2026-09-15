@@ -1,6 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { FreelancerWorkspace } from "@/components/common/freelancer-workspace";
+import { SettingsScreen, settingsSectionSchema } from "@/routes/_layout/settings";
+import { z } from "zod";
 export const Route = createFileRoute("/_layout/freelancer-settings")({
-  component: () => <FreelancerWorkspace page="settings" />,
+  component: FreelancerSettings,
+  validateSearch: z.object({ section: settingsSectionSchema.optional() }),
   head: () => ({ meta: [{ title: "Settings | Freelancer" }] }),
 });
+
+function FreelancerSettings() {
+  const { section = "profile" } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  return <SettingsScreen section={section} onSectionChange={(value) => void navigate({ search: { section: value }, replace: true })} />;
+}

@@ -84,6 +84,7 @@ export const freelancerWorkspaceTitles = {
   proposals: "Your proposals",
   settings: "Account settings",
 };
+
 export const freelancerWorkspaceSubtitles = {
   savedJobs: "Keep the projects you’d like to work on in one place.",
   dashboard: "Keep your profile current and move your next opportunity forward.",

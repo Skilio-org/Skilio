@@ -25,7 +25,7 @@ export function ClientJobEditor({
 }: ClientJobEditorProps) {
   return (
     <Sheet open={!!job} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="bg-card w-full gap-0 p-0 sm:max-w-[720px]">
+      <SheetContent className="bg-card w-full gap-0 p-0 sm:max-w-180">
         <SheetHeader className="border-b px-6 py-6 pr-12 sm:px-8 sm:pr-14">
           <p className="text-primary text-xs font-semibold">{editing ? "FIND YOUR NEXT COLLABORATOR" : "YOUR JOB"}</p>
           <SheetTitle className="mt-1 text-2xl font-semibold tracking-tight">
@@ -77,7 +77,12 @@ export function ClientJobEditor({
                         rows={5}
                         className={`${jobFormField} min-h-32 resize-y leading-6`}
                         value={job.description}
-                        onChange={(event) => onJobChange({ ...job, description: event.target.value })}
+                        onChange={(event) =>
+                          onJobChange({
+                            ...job,
+                            description: event.target.value,
+                          })
+                        }
                         placeholder={"We’re looking for someone to…\nThe main deliverables are…"}
                       />
                       <span className="text-muted-foreground mt-2 flex justify-between gap-3 text-xs font-normal">
@@ -196,7 +201,7 @@ function ClientJobDetails({
     <div className="space-y-7">
       <section>
         <h3 className="font-semibold">Project brief</h3>
-        <p className="text-muted-foreground mt-3 text-sm leading-7 break-words whitespace-pre-wrap">
+        <p className="text-muted-foreground mt-3 text-sm leading-7 wrap-break-word whitespace-pre-wrap">
           {job.description || "No description yet."}
         </p>
       </section>

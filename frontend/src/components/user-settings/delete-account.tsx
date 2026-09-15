@@ -1,8 +1,10 @@
 import { TriangleAlert } from "lucide-react";
 
 import DeleteConfirmation from "./delete-confirmation";
+import { useAccountRole } from "@/hooks/useAccountRole";
 
 const DeleteAccount = () => {
+  const savedItems = useAccountRole() === "freelancer" ? "saved jobs" : "saved talent";
   return (
     <section className="border-destructive/20 bg-card shadow-card overflow-hidden rounded-2xl border">
       <header className="border-destructive/15 border-b p-5 sm:p-7">
@@ -28,7 +30,7 @@ const DeleteAccount = () => {
           <DeleteConfirmation />
         </div>
         <p className="text-muted-foreground mt-4 text-xs leading-5">
-          Your profile, saved talent, conversations, and account data will be removed. Download anything you need before
+          Your profile, {savedItems}, conversations, and account data will be removed. Download anything you need before
           continuing.
         </p>
       </div>
