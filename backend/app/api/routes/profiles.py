@@ -48,7 +48,7 @@ def read_profiles(
     Populates is_saved if called by an authenticated user.
     """
     statement = select(FreelancerProfile).join(
-        User, FreelancerProfile.user_id == User.id
+        User, col(FreelancerProfile.user_id) == User.id
     )
 
     if q:
@@ -64,7 +64,7 @@ def read_profiles(
             statement = statement.where(
                 FreelancerProfile.id.in_(  # type: ignore
                     select(FreelancerSkillLink.freelancer_profile_id)
-                    .join(Skill, FreelancerSkillLink.skill_id == Skill.id)
+                    .join(Skill, col(FreelancerSkillLink.skill_id) == Skill.id)
                     .where(Skill.name == s)
                 )
             )
