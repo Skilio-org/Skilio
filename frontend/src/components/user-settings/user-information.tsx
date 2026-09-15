@@ -12,6 +12,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import useAuth from "@/hooks/useAuth";
+import { useAccountRole } from "@/hooks/useAccountRole";
+import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar";
 import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 
@@ -27,6 +29,10 @@ const UserInformation = () => {
   const { showSuccessToast, showErrorToast } = useCustomToast();
   const [editMode, setEditMode] = useState(false);
   const { user: currentUser } = useAuth();
+  const accountLabel = useAccountRole() === "freelancer" ? "Freelancer account" : "Client account";
+  const avatarUrl = useAccountAvatarUrl(currentUser?.id);
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  useEffect(() => setAvatarFailed(false), [avatarUrl]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -71,7 +77,7 @@ const UserInformation = () => {
     setEditMode(false);
   };
 
-  const displayName = currentUser?.full_name || "Client account";
+  const displayName = currentUser?.full_name || accountLabel;
   const initials = displayName
     .split(" ")
     .map((word) => word[0])
@@ -86,8 +92,15 @@ const UserInformation = () => {
         <div className="relative flex flex-col justify-between gap-5 pt-7 sm:flex-row sm:items-end">
           <div className="flex items-end gap-4">
             <div className="relative">
-              <Monogram className="border-card bg-brand-100 text-brand-800 shadow-card dark:bg-brand-950 dark:text-brand-200 size-20 border-4 text-xl">
-                {initials}
+              <Monogram className="border-card bg-brand-100 text-brand-800 shadow-card dark:bg-brand-950 dark:text-brand-200 size-20 overflow-hidden border-4 text-xl">
+                {avatarUrl && !avatarFailed ? (
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="size-full rounded-lg object-cover"
+                    onError={() => setAvatarFailed(true)}
+                  />
+                ) : initials}
               </Monogram>
               <span className="border-card absolute right-0 bottom-0 grid size-6 place-items-center rounded-full border-2 bg-emerald-500 text-white">
                 <BadgeCheck className="size-3.5" />
@@ -95,7 +108,7 @@ const UserInformation = () => {
             </div>
             <div className="pb-1">
               <p className="font-display text-xl font-semibold">{displayName}</p>
-              <p className="text-muted-foreground mt-1 text-sm">Client account</p>
+              <p className="text-muted-foreground mt-1 text-sm">{accountLabel}</p>
             </div>
           </div>
           <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/45">
@@ -111,7 +124,7 @@ const UserInformation = () => {
             <p className="text-brand-700 text-xs font-semibold tracking-[0.16em] uppercase">Identity</p>
             <h2 className="font-display mt-1 text-2xl font-semibold">Personal details</h2>
             <p className="text-muted-foreground mt-1 text-sm leading-6">
-              Your name and email appear across your client workspace.
+              Your name and email appear across your workspace.
             </p>
           </div>
           {!editMode && (

@@ -18,8 +18,10 @@ import { useState } from "react";
 import { type Theme, useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAccountRole } from "@/hooks/useAccountRole";
 
 export function NotificationSettings() {
+  const freelancer = useAccountRole() === "freelancer";
   const [settings, setSettings] = useState({
     messages: true,
     recommendations: true,
@@ -38,15 +40,15 @@ export function NotificationSettings() {
         <ToggleRow
           icon={MessageSquare}
           title="New messages"
-          description="Replies and new conversations from freelancers."
+          description={`Replies and new conversations from ${freelancer ? "clients" : "freelancers"}.`}
           checked={settings.messages}
           onChange={(checked) => setSettings((current) => ({ ...current, messages: checked }))}
           channel="Email & in-app"
         />
         <ToggleRow
           icon={UserRoundSearch}
-          title="Talent recommendations"
-          description="Shortlists and professionals matched to your interests."
+          title={freelancer ? "Job recommendations" : "Talent recommendations"}
+          description={freelancer ? "Projects matched to your skills and interests." : "Shortlists and professionals matched to your interests."}
           checked={settings.recommendations}
           onChange={(checked) =>
             setSettings((current) => ({
@@ -80,6 +82,7 @@ export function NotificationSettings() {
 }
 
 export function PrivacySettings() {
+  const freelancer = useAccountRole() === "freelancer";
   const [personalization, setPersonalization] = useState(true);
   const [recentSearches, setRecentSearches] = useState(true);
   const [archiveRequested, setArchiveRequested] = useState(false);
@@ -89,14 +92,14 @@ export function PrivacySettings() {
       <SettingsPanel
         eyebrow="Privacy"
         title="Personalization & data"
-        description="Control how your activity is used to improve talent discovery."
+        description={`Control how your activity is used to improve ${freelancer ? "job discovery" : "talent discovery"}.`}
         icon={Eye}
       >
         <div className="divide-border divide-y">
           <ToggleRow
             icon={UserRoundSearch}
             title="Personalized recommendations"
-            description="Use saved profiles and browsing activity to improve your matches."
+            description={`Use saved ${freelancer ? "jobs" : "profiles"} and browsing activity to improve your matches.`}
             checked={personalization}
             onChange={setPersonalization}
             channel="Recommended"
@@ -104,7 +107,7 @@ export function PrivacySettings() {
           <ToggleRow
             icon={Search}
             title="Remember recent searches"
-            description="Keep recent talent searches available across your sessions."
+            description={`Keep recent ${freelancer ? "job" : "talent"} searches available across your sessions.`}
             checked={recentSearches}
             onChange={setRecentSearches}
             channel="On this account"
@@ -117,7 +120,7 @@ export function PrivacySettings() {
           <div className="max-w-xl">
             <h3 className="font-display text-lg font-semibold">Download your account data</h3>
             <p className="text-muted-foreground mt-1 text-sm leading-6">
-              Request a portable copy of your profile, saved talent, and conversation history.
+              Request a portable copy of your profile, saved {freelancer ? "jobs" : "talent"}, and conversation history.
             </p>
           </div>
           <Button type="button" variant="outline" onClick={() => setArchiveRequested(true)} className="self-start">

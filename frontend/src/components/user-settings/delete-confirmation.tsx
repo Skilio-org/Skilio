@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { LoadingButton } from "@/components/ui/loading-button";
 import useAuth from "@/hooks/useAuth";
+import { useAccountRole } from "@/hooks/useAccountRole";
 import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 
@@ -23,6 +24,7 @@ const DeleteConfirmation = () => {
   const { showSuccessToast, showErrorToast } = useCustomToast();
   const { handleSubmit } = useForm();
   const { logout } = useAuth();
+  const savedItems = useAccountRole() === "freelancer" ? "saved jobs" : "saved talent";
 
   const mutation = useMutation({
     mutationFn: () => UsersService.deleteUserMe(),
@@ -52,7 +54,7 @@ const DeleteConfirmation = () => {
           <DialogHeader>
             <DialogTitle>Delete your account?</DialogTitle>
             <DialogDescription>
-              Your profile, saved talent, conversations, and account data will be permanently deleted. This action
+              Your profile, {savedItems}, conversations, and account data will be permanently deleted. This action
               cannot be undone.
             </DialogDescription>
           </DialogHeader>

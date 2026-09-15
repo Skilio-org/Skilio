@@ -29,7 +29,7 @@ def claudinary_upload_media(
 
     result = upload_fn(
         media,
-        public_id=media_uuid,
+        public_id=str(media_uuid),
         resource_type=resource_type,
         overwrite=True,
         invalidate=True,

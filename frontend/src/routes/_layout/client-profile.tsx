@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Camera, CheckCircle2, ImageUp } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { UsersService } from "@/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Monogram, WorkspacePageHeader } from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
@@ -17,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import useAuth from "@/hooks/useAuth";
+import { markAccountAvatarUpdated, useAccountAvatarUrl } from "@/hooks/useAccountAvatar";
 import { getInitials } from "@/utils";
 
 export const Route = createFileRoute("/_layout/client-profile")({
@@ -26,11 +29,17 @@ export const Route = createFileRoute("/_layout/client-profile")({
 
 function ClientProfile() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [saved, setSaved] = useState(false);
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   const [selectedPhotoName, setSelectedPhotoName] = useState("");
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [photoUpdated, setPhotoUpdated] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const displayName = user?.full_name || "Your name";
+  const avatarUrl = useAccountAvatarUrl(user?.id);
+  useEffect(() => setAvatarFailed(false), [avatarUrl]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -47,14 +56,16 @@ function ClientProfile() {
         action=""
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-3 lg:grid-cols-[1fr_320px]">
         <form
           onSubmit={handleSubmit}
           className="border-border bg-card shadow-card space-y-8 rounded-2xl border p-5 sm:p-8"
         >
           <div className="border-border flex flex-col gap-5 border-b pb-8 sm:flex-row sm:items-center">
             <Monogram className="bg-brand-100 text-brand-800 relative size-24 text-2xl">
-              {getInitials(displayName)}
+              {avatarUrl && !avatarFailed ? (
+                <img src={avatarUrl} alt={displayName} className="absolute inset-0 size-full rounded-xl object-cover" onError={() => setAvatarFailed(true)} />
+              ) : getInitials(displayName)}
               <button
                 type="button"
                 aria-label="Change profile photo"
@@ -128,32 +139,6 @@ function ClientProfile() {
           </div>
         </form>
 
-        <aside className="space-y-5">
-          <section className="border-border bg-card shadow-card rounded-2xl border p-6">
-            <p className="text-brand-700 text-sm font-semibold">Profile strength</p>
-            <div className="mt-3 flex items-end justify-between">
-              <strong className="font-display text-3xl font-medium">80%</strong>
-              <span className="text-muted-foreground text-xs">Strong profile</span>
-            </div>
-            <div className="bg-muted mt-4 h-1.5">
-              <div className="bg-brand-600 h-full w-4/5" />
-            </div>
-            <ul className="mt-6 space-y-4 text-sm">
-              <li className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
-                <span>Contact details added</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
-                <span>Identity verified</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="border-muted-foreground mt-1 size-3.5 shrink-0 rounded-full border-2" />
-                <span>Add company context</span>
-              </li>
-            </ul>
-          </section>
-        </aside>
       </div>
 
       <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
@@ -180,7 +165,11 @@ function ClientProfile() {
                 id="client-photo-upload"
                 type="file"
                 accept="image/png,image/jpeg"
-                onChange={(event) => setSelectedPhotoName(event.target.files?.[0]?.name ?? "")}
+                onChange={(event) => {
+                  const file = event.target.files?.[0] ?? null;
+                  setSelectedPhoto(file);
+                  setSelectedPhotoName(file?.name ?? "");
+                }}
                 className="sr-only"
               />
             </label>
@@ -194,6 +183,7 @@ function ClientProfile() {
               variant="outline"
               onClick={() => {
                 setSelectedPhotoName("");
+                setSelectedPhoto(null);
                 setPhotoDialogOpen(false);
               }}
             >
@@ -201,14 +191,26 @@ function ClientProfile() {
             </Button>
             <Button
               type="button"
-              disabled={!selectedPhotoName}
-              onClick={() => {
-                setPhotoUpdated(true);
-                setPhotoDialogOpen(false);
-                toast.success("Profile photo updated");
+              disabled={!selectedPhoto || uploading}
+              onClick={async () => {
+                if (!selectedPhoto || uploading || !user) return;
+                setUploading(true);
+                try {
+                  const response = await UsersService.uploadAvatar({ body: { file: selectedPhoto } });
+                  if (response.data.status !== "Ok") throw new Error("Upload failed");
+                  markAccountAvatarUpdated(user.id);
+                  await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+                  setPhotoUpdated(true);
+                  setPhotoDialogOpen(false);
+                  toast.success("Profile photo uploaded");
+                } catch {
+                  toast.error("Couldn’t upload your photo. Please try again.");
+                } finally {
+                  setUploading(false);
+                }
               }}
             >
-              Apply photo
+              {uploading ? "Uploading…" : "Apply photo"}
             </Button>
           </DialogFooter>
         </DialogContent>

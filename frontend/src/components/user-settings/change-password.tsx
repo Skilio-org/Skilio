@@ -72,7 +72,7 @@ const ChangePassword = () => {
           </div>
         </header>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-5 p-5 sm:p-7">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full flex-col gap-5 p-5 sm:p-7">
             <FormField
               control={form.control}
               name="current_password"

@@ -8,9 +8,9 @@ import DeleteAccount from "@/components/user-settings/delete-account";
 import { AppearanceSettings, NotificationSettings, PrivacySettings } from "@/components/user-settings/preferences";
 import UserInformation from "@/components/user-settings/user-information";
 
-const settingsSectionSchema = z.enum(["profile", "password", "notifications", "privacy", "appearance", "danger-zone"]);
+export const settingsSectionSchema = z.enum(["profile", "password", "notifications", "privacy", "appearance", "danger-zone"]);
 
-type SettingsSection = z.infer<typeof settingsSectionSchema>;
+export type SettingsSection = z.infer<typeof settingsSectionSchema>;
 
 const settingsSections = [
   {
@@ -72,16 +72,15 @@ function UserSettings() {
   const { section = "profile" } = Route.useSearch();
   const navigate = Route.useNavigate();
 
+  return <SettingsScreen section={section} onSectionChange={(value) => void navigate({ search: { section: value }, replace: true })} />;
+}
+
+export function SettingsScreen({ section, onSectionChange }: { section: SettingsSection; onSectionChange: (value: SettingsSection) => void }) {
   return (
     <div className="space-y-7">
       <Tabs
         value={section}
-        onValueChange={(value) =>
-          navigate({
-            search: { section: value as SettingsSection },
-            replace: true,
-          })
-        }
+        onValueChange={(value) => onSectionChange(value as SettingsSection)}
         orientation="vertical"
         className="gap-6 lg:grid lg:grid-cols-[270px_minmax(0,1fr)]"
       >
