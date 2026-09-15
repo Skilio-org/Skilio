@@ -1,23 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Eye, Plus, Trash2, Upload, X } from "lucide-react";
-import { useEffect, useState } from "react";
 import { UsersService } from "@/client";
 import { Avatar, EntryDialog, ProfilePreview } from "@/components/freelancer/freelancer-profile-components";
 import {
   completion,
   descriptions,
-  type Entry,
   empty,
   fieldClass,
-  type Profile,
   primary,
   restoreProfile,
   secondary,
   steps,
   suggested,
+  type Entry,
+  type Profile,
 } from "@/components/freelancer/freelancer-profile-model";
 import { accountAvatarUrl, markAccountAvatarUpdated } from "@/hooks/useAccountAvatar";
 import useAuth from "@/hooks/useAuth";
+import { createFileRoute } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, Eye, Plus, Trash2, Upload, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_layout/freelancer")({
   component: FreelancerWorkspace,
@@ -523,12 +523,6 @@ function FreelancerWorkspace() {
                     "Available this week",
                     "Available next month",
                     "Not currently available",
-                  ])}
-                  {select("Weekly capacity *", "hours", [
-                    "Less than 10 hours",
-                    "10–20 hours",
-                    "20–30 hours",
-                    "30+ hours",
                   ])}
                   <div className="bg-muted/60 text-muted-foreground rounded-lg p-4 text-sm leading-6">
                     You can change your rate and availability at any time.
