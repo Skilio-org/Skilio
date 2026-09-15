@@ -95,11 +95,15 @@ async def upload_avatar(
 ) -> AvatarResponse:
     """Uploads avatar asynchronously without blocking the event loop."""
     contents = await file.read()
-    url: str = await run_in_threadpool(
+    url = await run_in_threadpool(
         claudinary_upload_media, current_user.id, contents, media_type="image"
     )
+    if not url:
+        raise HTTPException(
+            status_code=500, detail="Failed to upload avatar image"
+        )
 
-    current_user.avatar_url = str(url)
+    current_user.avatar_url = url
 
     session.add(current_user)
     session.commit()

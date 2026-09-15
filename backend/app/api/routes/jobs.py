@@ -52,7 +52,7 @@ def read_jobs(
     Supports filtering by keyword search, skills, budget type, budget range, location, and status.
     Populates proposals_count, is_saved, and has_applied for authenticated freelancers.
     """
-    statement = select(JobPost).join(User, JobPost.client_id == User.id)
+    statement = select(JobPost).join(User, col(JobPost.client_id) == User.id)
 
     if q:
         statement = statement.where(
@@ -65,7 +65,7 @@ def read_jobs(
             statement = statement.where(
                 JobPost.id.in_(  # type: ignore
                     select(JobSkillLink.job_post_id)
-                    .join(Skill, JobSkillLink.skill_id == Skill.id)
+                    .join(Skill, col(JobSkillLink.skill_id) == Skill.id)
                     .where(Skill.name == s)
                 )
             )
