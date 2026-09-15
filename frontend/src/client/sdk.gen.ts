@@ -36,9 +36,14 @@ import type {
   jobsUpdateJobData,
   jobsUpdateJobErrors,
   jobsUpdateJobResponses,
+  loginGoogleCallbackData,
+  loginGoogleCallbackErrors,
+  loginGoogleCallbackResponses,
   loginLoginAccessTokenData,
   loginLoginAccessTokenErrors,
   loginLoginAccessTokenResponses,
+  loginLoginGoogleData,
+  loginLoginGoogleResponses,
   loginRecoverPasswordData,
   loginRecoverPasswordErrors,
   loginRecoverPasswordHtmlContentData,
@@ -175,6 +180,34 @@ export type Options<
 };
 
 export class LoginService {
+  /**
+   * Login Google
+   *
+   * Google OAuth2 compatible token login, get an access token for future requests from google.
+   */
+  public static loginGoogle<ThrowOnError extends boolean = true>(
+    options?: Options<loginLoginGoogleData, ThrowOnError>,
+  ) {
+    return (options?.client ?? client).get<loginLoginGoogleResponses, unknown, ThrowOnError>({
+      responseType: "json",
+      url: "/api/v1/login/google",
+      ...options,
+    });
+  }
+
+  /**
+   * Google Callback
+   */
+  public static googleCallback<ThrowOnError extends boolean = true>(
+    options: Options<loginGoogleCallbackData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).get<loginGoogleCallbackResponses, loginGoogleCallbackErrors, ThrowOnError>({
+      responseType: "json",
+      url: "/api/v1/login/google/callback",
+      ...options,
+    });
+  }
+
   /**
    * Login Access Token
    *

@@ -17,7 +17,7 @@ export function markAccountAvatarUpdated(userId: string) {
 export function useAccountAvatarUrl(userId?: string) {
   const [version, setVersion] = useState("");
   useEffect(() => {
-    const update = () => setVersion(userId ? localStorage.getItem(`account-avatar-version:${userId}`) ?? "" : "");
+    const update = () => setVersion(userId ? (localStorage.getItem(`account-avatar-version:${userId}`) ?? "") : "");
     update();
     window.addEventListener(changed, update);
     window.addEventListener("storage", update);

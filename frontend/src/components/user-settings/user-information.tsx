@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
-import useAuth from "@/hooks/useAuth";
-import { useAccountRole } from "@/hooks/useAccountRole";
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar";
+import { useAccountRole } from "@/hooks/useAccountRole";
+import useAuth from "@/hooks/useAuth";
 import useCustomToast from "@/hooks/useCustomToast";
 import { handleError } from "@/utils";
 
@@ -32,7 +32,7 @@ const UserInformation = () => {
   const accountLabel = useAccountRole() === "freelancer" ? "Freelancer account" : "Client account";
   const avatarUrl = useAccountAvatarUrl(currentUser?.id);
   const [avatarFailed, setAvatarFailed] = useState(false);
-  useEffect(() => setAvatarFailed(false), [avatarUrl]);
+  useEffect(() => setAvatarFailed(false), []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -100,7 +100,9 @@ const UserInformation = () => {
                     className="size-full rounded-lg object-cover"
                     onError={() => setAvatarFailed(true)}
                   />
-                ) : initials}
+                ) : (
+                  initials
+                )}
               </Monogram>
               <span className="border-card absolute right-0 bottom-0 grid size-6 place-items-center rounded-full border-2 bg-emerald-500 text-white">
                 <BadgeCheck className="size-3.5" />

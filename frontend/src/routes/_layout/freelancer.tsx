@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Eye, Plus, Trash2, Upload, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { UsersService } from "@/client";
 import { Avatar, EntryDialog, ProfilePreview } from "@/components/freelancer/freelancer-profile-components";
 import {
   completion,
@@ -15,9 +16,8 @@ import {
   steps,
   suggested,
 } from "@/components/freelancer/freelancer-profile-model";
-import useAuth from "@/hooks/useAuth";
-import { UsersService } from "@/client";
 import { accountAvatarUrl, markAccountAvatarUpdated } from "@/hooks/useAccountAvatar";
+import useAuth from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/_layout/freelancer")({
   component: FreelancerWorkspace,

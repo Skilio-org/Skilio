@@ -20,9 +20,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar";
 import { setAccountRole, useAccountRole } from "@/hooks/useAccountRole";
 import useAuth from "@/hooks/useAuth";
-import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar";
 import { getInitials } from "@/utils";
 
 export function User({ user }: { user?: UserPublic | null }) {

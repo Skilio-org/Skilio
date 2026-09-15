@@ -17,8 +17,8 @@ import { useState } from "react";
 
 import { type Theme, useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useAccountRole } from "@/hooks/useAccountRole";
+import { cn } from "@/lib/utils";
 
 export function NotificationSettings() {
   const freelancer = useAccountRole() === "freelancer";
@@ -48,7 +48,11 @@ export function NotificationSettings() {
         <ToggleRow
           icon={UserRoundSearch}
           title={freelancer ? "Job recommendations" : "Talent recommendations"}
-          description={freelancer ? "Projects matched to your skills and interests." : "Shortlists and professionals matched to your interests."}
+          description={
+            freelancer
+              ? "Projects matched to your skills and interests."
+              : "Shortlists and professionals matched to your interests."
+          }
           checked={settings.recommendations}
           onChange={(checked) =>
             setSettings((current) => ({

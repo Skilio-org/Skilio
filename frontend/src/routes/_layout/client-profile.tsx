@@ -1,9 +1,9 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Camera, CheckCircle2, ImageUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { UsersService } from "@/client";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { Monogram, WorkspacePageHeader } from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
@@ -18,8 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import useAuth from "@/hooks/useAuth";
 import { markAccountAvatarUpdated, useAccountAvatarUrl } from "@/hooks/useAccountAvatar";
+import useAuth from "@/hooks/useAuth";
 import { getInitials } from "@/utils";
 
 export const Route = createFileRoute("/_layout/client-profile")({
@@ -39,7 +39,7 @@ function ClientProfile() {
   const [avatarFailed, setAvatarFailed] = useState(false);
   const displayName = user?.full_name || "Your name";
   const avatarUrl = useAccountAvatarUrl(user?.id);
-  useEffect(() => setAvatarFailed(false), [avatarUrl]);
+  useEffect(() => setAvatarFailed(false), []);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -64,8 +64,15 @@ function ClientProfile() {
           <div className="border-border flex flex-col gap-5 border-b pb-8 sm:flex-row sm:items-center">
             <Monogram className="bg-brand-100 text-brand-800 relative size-24 text-2xl">
               {avatarUrl && !avatarFailed ? (
-                <img src={avatarUrl} alt={displayName} className="absolute inset-0 size-full rounded-xl object-cover" onError={() => setAvatarFailed(true)} />
-              ) : getInitials(displayName)}
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className="absolute inset-0 size-full rounded-xl object-cover"
+                  onError={() => setAvatarFailed(true)}
+                />
+              ) : (
+                getInitials(displayName)
+              )}
               <button
                 type="button"
                 aria-label="Change profile photo"
@@ -138,7 +145,6 @@ function ClientProfile() {
             </Button>
           </div>
         </form>
-
       </div>
 
       <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
@@ -196,10 +202,14 @@ function ClientProfile() {
                 if (!selectedPhoto || uploading || !user) return;
                 setUploading(true);
                 try {
-                  const response = await UsersService.uploadAvatar({ body: { file: selectedPhoto } });
+                  const response = await UsersService.uploadAvatar({
+                    body: { file: selectedPhoto },
+                  });
                   if (response.data.status !== "Ok") throw new Error("Upload failed");
                   markAccountAvatarUpdated(user.id);
-                  await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+                  await queryClient.invalidateQueries({
+                    queryKey: ["currentUser"],
+                  });
                   setPhotoUpdated(true);
                   setPhotoDialogOpen(false);
                   toast.success("Profile photo uploaded");

@@ -1,7 +1,6 @@
 import { TriangleAlert } from "lucide-react";
-
-import DeleteConfirmation from "./delete-confirmation";
 import { useAccountRole } from "@/hooks/useAccountRole";
+import DeleteConfirmation from "./delete-confirmation";
 
 const DeleteAccount = () => {
   const savedItems = useAccountRole() === "freelancer" ? "saved jobs" : "saved talent";

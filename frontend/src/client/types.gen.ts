@@ -967,6 +967,14 @@ export type UserCreate = {
   full_name?: string | null;
   role?: UserRole;
   /**
+   * Google Id
+   */
+  google_id?: string | null;
+  /**
+   * Refresh Token
+   */
+  refresh_token?: string | null;
+  /**
    * Password
    */
   password: string;
@@ -993,6 +1001,14 @@ export type UserPublic = {
    */
   full_name?: string | null;
   role?: UserRole;
+  /**
+   * Google Id
+   */
+  google_id?: string | null;
+  /**
+   * Refresh Token
+   */
+  refresh_token?: string | null;
   /**
    * Id
    */
@@ -1109,6 +1125,48 @@ export type ValidationError = {
   ctx?: {
     [key: string]: unknown;
   };
+};
+
+export type loginLoginGoogleData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/login/google";
+};
+
+export type loginLoginGoogleResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
+export type loginGoogleCallbackData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Code
+     */
+    code: string;
+  };
+  url: "/api/v1/login/google/callback";
+};
+
+export type loginGoogleCallbackErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type loginGoogleCallbackError = loginGoogleCallbackErrors[keyof loginGoogleCallbackErrors];
+
+export type loginGoogleCallbackResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
 };
 
 export type loginLoginAccessTokenData = {
