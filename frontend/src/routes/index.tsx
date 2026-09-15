@@ -25,7 +25,7 @@ export const Route = createFileRoute("/")({
 function LandingPage() {
   const [filter, setFilter] = useState("All talent");
   return (
-    <div className="landing-page bg-card text-foreground min-h-[100dvh]">
+    <div className="landing-page bg-card text-foreground min-h-dvh">
       <LandingHeader />
       <main id="main-content" tabIndex={-1} className="outline-none">
         <LandingHero />

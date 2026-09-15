@@ -804,7 +804,7 @@ html {
     }
   }
   .landing-container {
-    @apply mx-auto w-full max-w-[1320px] px-5 sm:px-8 lg:px-12;
+    @apply mx-auto w-full max-w-330 px-5 sm:px-8 lg:px-12;
   }
   .landing-heading {
     @apply font-display text-[clamp(2rem,3.7vw,3.5rem)] leading-[1.12] font-medium tracking-[-0.045em];
@@ -832,7 +832,7 @@ html {
   }
   .workspace-metric::before {
     content: "";
-    @apply bg-primary/60 absolute top-6 bottom-6 left-0 w-[3px] rounded-r-full;
+    @apply bg-primary/60 absolute top-6 bottom-6 left-0 w-0.75 rounded-r-full;
   }
   .workspace-shell > header {
     @apply bg-card/95;

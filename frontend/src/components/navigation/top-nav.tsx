@@ -36,7 +36,7 @@ export function TopNav() {
 
   return (
     <header className="border-border bg-card/95 sticky top-0 z-50 border-b backdrop-blur-md">
-      <div className="mx-auto flex h-[72px] max-w-[1320px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-18 max-w-330 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Logo to="/dashboard" className="h-8" />
 
         <nav aria-label="Workspace navigation" className="ml-4 hidden h-full shrink-0 items-center gap-1 lg:flex">

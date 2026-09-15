@@ -88,7 +88,7 @@ const UserInformation = () => {
   return (
     <div className="space-y-5">
       <section className="border-border bg-card shadow-card relative overflow-hidden rounded-2xl border p-5 sm:p-7">
-        <div className="from-brand-50 dark:from-brand-950/50 absolute inset-x-0 top-0 h-20 bg-gradient-to-r via-violet-50/70 to-emerald-50 dark:via-violet-950/20 dark:to-emerald-950/30" />
+        <div className="from-brand-50 dark:from-brand-950/50 absolute inset-x-0 top-0 h-20 bg-linear-to-r via-violet-50/70 to-emerald-50 dark:via-violet-950/20 dark:to-emerald-950/30" />
         <div className="relative flex flex-col justify-between gap-5 pt-7 sm:flex-row sm:items-end">
           <div className="flex items-end gap-4">
             <div className="relative">
