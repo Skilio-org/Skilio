@@ -1,12 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect } from "react";
 
-export const Route = createFileRoute('/googleAuth')({
+export const Route = createFileRoute("/googleAuth")({
   component: AuthCallback,
 })
 
 export function AuthCallback() {
-  const [searchParams] = useSearchParams();
+  const searchParams = new URLSearchParams(window.location.search);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,13 +21,15 @@ export function AuthCallback() {
           return res.json();
         })
         .then((data) => {
-          // Store JWT access token
           localStorage.setItem("access_token", data.access_token);
-          navigate("/dashboard");
+          navigate({ to: "/dashboard" });
         })
         .catch((err) => {
           console.error("Login failed:", err.message);
-          navigate("/login?error=" + encodeURIComponent(err.message));
+          navigate({
+            to: "/login",
+            search: { error: err.message },
+          });
         });
     }
   }, [searchParams, navigate]);
