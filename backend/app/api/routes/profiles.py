@@ -595,14 +595,9 @@ def create_profile(
 ) -> Any:
     """
     Create a freelancer profile for the current user.
-    Only users with the freelancer role can create a profile. One profile per user.
+    Any authenticated user can create a freelancer profile. One profile per user.
+    After creation, the user's active role is switched to freelancer.
     """
-    if current_user.role != UserRole.FREELANCER and not current_user.is_superuser:
-        raise HTTPException(
-            status_code=403,
-            detail="Only freelancers can create a profile",
-        )
-
     existing = session.exec(
         select(FreelancerProfile).where(FreelancerProfile.user_id == current_user.id)
     ).first()
@@ -626,6 +621,11 @@ def create_profile(
     profile_data = profile_in.model_dump(exclude={"skills"})
     profile = FreelancerProfile(**profile_data, user_id=current_user.id)
     session.add(profile)
+
+    # Auto-switch user's active role to freelancer
+    current_user.active_role = UserRole.FREELANCER
+    session.add(current_user)
+
     session.commit()
     session.refresh(profile)
 

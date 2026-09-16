@@ -8,7 +8,7 @@ from tests.utils.user import create_random_user
 def create_random_review(db: Session) -> Review:
     """Create a random review with a fresh client user and freelancer profile."""
     client_user = create_random_user(db)
-    client_user.role = UserRole.CLIENT
+    client_user.active_role = UserRole.CLIENT
     db.add(client_user)
     db.commit()
     db.refresh(client_user)

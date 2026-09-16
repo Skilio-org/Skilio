@@ -10,7 +10,7 @@ from tests.utils.utils import random_lower_string
 
 def create_random_profile(db: Session) -> FreelancerProfile:
     user = create_random_user(db)
-    user.role = UserRole.FREELANCER
+    user.active_role = UserRole.FREELANCER
     db.add(user)
     db.commit()
     db.refresh(user)

@@ -69,7 +69,7 @@ def submit_proposal(
     Only freelancers can submit proposals.
     The job must be OPEN and not owned by the proposing user.
     """
-    if current_user.role != UserRole.FREELANCER and not current_user.is_superuser:
+    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can submit proposals",

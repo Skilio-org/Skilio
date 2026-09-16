@@ -2,7 +2,7 @@ from sqlmodel import Session, create_engine, select
 
 from app import crud
 from app.core.config import settings
-from app.models import ITSkill, Skill, User, UserCreate, UserRole
+from app.models import ITSkill, Skill, User, UserCreate
 
 engine = create_engine(str(settings.DATABASE_URL))
 
@@ -41,10 +41,6 @@ def init_db(session: Session) -> None:
             email=settings.FIRST_SUPERUSER,
             password=settings.FIRST_SUPERUSER_PASSWORD,
             is_superuser=True,
-            role=UserRole.ADMIN,
         )
         user = crud.create_user(session=session, user_create=user_in)
-    elif user.is_superuser and user.role != UserRole.ADMIN:
-        user.role = UserRole.ADMIN
-        session.add(user)
-        session.commit()
+

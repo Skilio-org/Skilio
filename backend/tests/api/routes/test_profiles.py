@@ -53,7 +53,7 @@ def test_read_profile_not_found(client: TestClient) -> None:
 
 def test_create_profile(client: TestClient, db: Session) -> None:
     user = create_random_user(db)
-    user.role = UserRole.FREELANCER
+    user.active_role = UserRole.FREELANCER
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -92,7 +92,7 @@ def test_create_profile(client: TestClient, db: Session) -> None:
 
 def test_create_profile_duplicate(client: TestClient, db: Session) -> None:
     user = create_random_user(db)
-    user.role = UserRole.FREELANCER
+    user.active_role = UserRole.FREELANCER
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -133,10 +133,10 @@ def test_create_profile_duplicate(client: TestClient, db: Session) -> None:
     assert content["detail"] == "Freelancer profile already exists for this user"
 
 
-def test_create_profile_not_freelancer(client: TestClient, db: Session) -> None:
-    """A client-role user should not be able to create a freelancer profile."""
+def test_create_profile_as_client_auto_switches_role(client: TestClient, db: Session) -> None:
+    """Any user can create a freelancer profile. Active role auto-switches to freelancer."""
     user = create_random_user(db)
-    user.role = UserRole.CLIENT
+    user.active_role = UserRole.CLIENT
     db.add(user)
     db.commit()
 
@@ -162,7 +162,13 @@ def test_create_profile_not_freelancer(client: TestClient, db: Session) -> None:
         headers=headers,
         json=data,
     )
-    assert response.status_code == 403
+    assert response.status_code == 200
+    content = response.json()
+    assert content["title"] == data["title"]
+
+    # Verify user's active_role was auto-switched to freelancer
+    db.refresh(user)
+    assert user.active_role == UserRole.FREELANCER
 
 
 def test_update_profile(
@@ -290,7 +296,7 @@ def test_search_profiles_with_location_and_sort(
 
 def test_read_profile_me(client: TestClient, db: Session) -> None:
     user = create_random_user(db)
-    user.role = UserRole.FREELANCER
+    user.active_role = UserRole.FREELANCER
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -386,7 +392,7 @@ def test_save_and_unsave_profile(
 
 def create_authenticated_freelancer(client: TestClient, db: Session):
     user = create_random_user(db)
-    user.role = UserRole.FREELANCER
+    user.active_role = UserRole.FREELANCER
     db.add(user)
     db.commit()
     db.refresh(user)

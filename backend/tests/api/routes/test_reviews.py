@@ -15,7 +15,7 @@ from tests.utils.utils import random_lower_string
 def _make_client_headers(client: TestClient, db: Session) -> tuple[dict[str, str], any]:
     """Create a CLIENT-role user and return (auth_headers, user)."""
     user = create_random_user(db)
-    user.role = UserRole.CLIENT
+    user.active_role = UserRole.CLIENT
     password = random_lower_string()
     user.hashed_password = get_password_hash(password)
     db.add(user)
@@ -28,7 +28,7 @@ def _make_client_headers(client: TestClient, db: Session) -> tuple[dict[str, str
 def _make_freelancer_headers(client: TestClient, db: Session) -> tuple[dict[str, str], any]:
     """Create a FREELANCER-role user and return (auth_headers, user)."""
     user = create_random_user(db)
-    user.role = UserRole.FREELANCER
+    user.active_role = UserRole.FREELANCER
     password = random_lower_string()
     user.hashed_password = get_password_hash(password)
     db.add(user)
@@ -96,7 +96,7 @@ def test_create_review_duplicate(client: TestClient, db: Session) -> None:
 def test_create_review_own_profile(client: TestClient, db: Session) -> None:
     """A client cannot review a freelancer profile owned by their own user account."""
     user = create_random_user(db)
-    user.role = UserRole.CLIENT
+    user.active_role = UserRole.CLIENT
     password = random_lower_string()
     user.hashed_password = get_password_hash(password)
     db.add(user)

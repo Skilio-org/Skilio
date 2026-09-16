@@ -30,7 +30,7 @@ def create_review(
     Only clients can create reviews. A client cannot review their own profile.
     One review per client-freelancer pair (enforced by DB constraint).
     """
-    if current_user.role != UserRole.CLIENT and not current_user.is_superuser:
+    if current_user.active_role != UserRole.CLIENT and not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
             detail="Only clients can create reviews",
