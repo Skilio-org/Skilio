@@ -56,6 +56,29 @@ services:
       # Use the Let's Encrypt resolver
       - traefik.http.routers.backend-https.tls.certresolver=le
 
+  vault:
+    restart: always
+    command: vault server -config=/vault/config/vault-prod.hcl
+    volumes:
+      - ./devops/vault/config/vault-prod.hcl:/vault/config/vault-prod.hcl:ro
+      - vault-data:/vault/data
+    environment:
+      VAULT_ADDR: "http://127.0.0.1:8200"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.vault-https.rule=Host(`vault.${DOMAIN:?Variable not set}`)
+      - traefik.http.routers.vault-https.entrypoints=https
+      - traefik.http.routers.vault-https.tls=true
+      - traefik.http.routers.vault-https.tls.certresolver=le
+      - traefik.http.services.vault.loadbalancer.server.port=8200
+    healthcheck:
+      test: ["CMD", "sh", "-c", "vault status -format=json | grep -q '\"initialized\"'"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+
 volumes:
   # Create a volume to store the certificates, even if the container is recreated
   traefik-certificates:
+  vault-data:

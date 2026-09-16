@@ -94,5 +94,19 @@ services:
       - traefik.http.routers.backend-http.rule=Host(`${DOMAIN:-localhost}`)
       - traefik.http.routers.backend-http.entrypoints=http
 
+  vault:
+    image: hashicorp/vault:latest
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-data:/vault/data
+    healthcheck:
+      test: ["CMD", "sh", "-c", "VAULT_ADDR=http://127.0.0.1:8200 vault status"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+
 volumes:
   app-db-data:
+  vault-data:
