@@ -1,3 +1,8 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import ChangePassword from "@/components/user-settings/change-password";
+import { AppearanceSettings } from "@/components/user-settings/preferences";
+import useAuth from "@/hooks/useAuth";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowDownWideNarrow,
@@ -7,7 +12,6 @@ import {
   Bookmark,
   BriefcaseBusiness,
   Building2,
-  CalendarDays,
   Clock3,
   FileText,
   Globe2,
@@ -19,19 +23,14 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import ChangePassword from "@/components/user-settings/change-password";
-import { AppearanceSettings } from "@/components/user-settings/preferences";
-import useAuth from "@/hooks/useAuth";
 import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "../dashboard/dashboard-header";
 import { FreelancerJobFilterFields } from "../freelancer/freelancer-job-filter-fields";
 import {
   type ProposalDraft as Draft,
+  type FreelancerJob as Job,
   freelancerJobs,
   freelancerWorkspaceSubtitles,
   freelancerWorkspaceTitles,
-  type FreelancerJob as Job,
   seedProposals,
 } from "../freelancer/freelancer-workspace-data";
 import { JobFormSection, jobFormField } from "./job-form-section";
@@ -47,7 +46,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All work");
   const [jobType, setJobType] = useState("any");
-  const [duration, setDuration] = useState("any");
   const [jobSort, setJobSort] = useState("recommended");
   const [jobFiltersOpen, setJobFiltersOpen] = useState(false);
   const [tab, setTab] = useState("Active");
@@ -57,7 +55,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
   const [rate, setRate] = useState("");
   const selectedProjectType =
     selected?.projectType ?? (selected?.budget.includes("Fixed price") ? "Fixed price" : "Hourly");
-  const selectedDuration = selected?.duration ?? "Short term";
   useEffect(() => {
     try {
       const stored = localStorage.getItem(key);
@@ -98,7 +95,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
         (page !== "savedJobs" || saved.includes(j.id)) &&
         (filter === "All work" || filter === j.category || (filter === "Saved" && saved.includes(j.id))) &&
         (jobType === "any" || jobType === j.projectType) &&
-        (duration === "any" || duration === j.duration) &&
         `${j.title} ${j.company} ${j.skills.join(" ")}`.toLowerCase().includes(query.toLowerCase()),
     )
     .sort((first, second) => {
@@ -109,10 +105,9 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
         });
       return Number(first.id) - Number(second.id);
     });
-  const activeJobFilterCount = [jobType !== "any", duration !== "any", filter === "Saved"].filter(Boolean).length;
+  const activeJobFilterCount = [jobType !== "any", filter === "Saved"].filter(Boolean).length;
   const clearJobFilters = () => {
     setJobType("any");
-    setDuration("any");
     if (filter === "Saved") setFilter("All work");
   };
   const clearJobSearch = () => {
@@ -125,10 +120,9 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
     <FreelancerJobFilterFields
       group={group}
       jobType={jobType}
-      duration={duration}
+
       showClear={activeJobFilterCount > 0}
       onJobTypeChange={setJobType}
-      onDurationChange={setDuration}
       onClear={clearJobFilters}
     />
   );
@@ -458,7 +452,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
                 <div className="mb-4 flex flex-wrap gap-2">
                   {filter !== "All work" && <JobFilterChip label={filter} onRemove={() => setFilter("All work")} />}
                   {jobType !== "any" && <JobFilterChip label={jobType} onRemove={() => setJobType("any")} />}
-                  {duration !== "any" && <JobFilterChip label={duration} onRemove={() => setDuration("any")} />}
                   {query && <JobFilterChip label={query} onRemove={() => setQuery("")} />}
                   <button
                     type="button"
@@ -785,11 +778,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
                       </section>
                       <section className="border-border grid gap-7 border-b p-6 sm:grid-cols-3 sm:p-9">
                         <JobFact icon={Clock3} title={selectedProjectType} detail="Engagement" />
-                        <JobFact
-                          icon={CalendarDays}
-                          title={selectedDuration}
-                          detail={selectedDuration === "Long term" ? "1–3 months" : "1–4 weeks"}
-                        />
                         <JobFact icon={Sparkles} title="Intermediate" detail="Experience level" />
                         <JobFact icon={Banknote} title={selected.budget.split(" · ")[0]} detail={selectedProjectType} />
                       </section>

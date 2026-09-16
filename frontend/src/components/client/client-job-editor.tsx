@@ -52,7 +52,6 @@ export function ClientJobEditor({
               >
                 <div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-6 py-6 sm:px-8">
                   <JobFormSection
-                    number="01"
                     title="Start with the big picture"
                     description="What are you building, and what would a great result look like?"
                   >
@@ -93,7 +92,6 @@ export function ClientJobEditor({
                   </JobFormSection>
                   <div className="border-border border-t" />
                   <JobFormSection
-                    number="02"
                     title="Find the right expertise"
                     description="Choose a category and the skills your project needs."
                   >
@@ -130,7 +128,6 @@ export function ClientJobEditor({
                   </JobFormSection>
                   <div className="border-border border-t" />
                   <JobFormSection
-                    number="03"
                     title="Set a budget"
                     description="Give freelancers a clear starting point for their proposal."
                   >

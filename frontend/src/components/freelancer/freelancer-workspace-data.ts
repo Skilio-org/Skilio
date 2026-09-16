@@ -5,7 +5,6 @@ export type FreelancerJob = {
   category: string;
   budget: string;
   projectType: "Fixed price" | "Hourly";
-  duration: "Short term" | "Long term";
   posted: string;
   description: string;
   skills: string[];
@@ -26,7 +25,6 @@ export const freelancerJobs: FreelancerJob[] = [
     category: "Design",
     budget: "$1,500–$2,500 · Fixed price",
     projectType: "Fixed price",
-    duration: "Short term",
     posted: "Posted 2 hours ago",
     description:
       "We’re looking for a product designer to simplify our onboarding flow. The project includes a short discovery phase, wireframes, and a tested Figma prototype. Share a relevant example and tell us how you would approach the first week.",
@@ -39,7 +37,6 @@ export const freelancerJobs: FreelancerJob[] = [
     category: "Development",
     budget: "$50–$80/hr · 1–3 months",
     projectType: "Hourly",
-    duration: "Long term",
     posted: "Posted 5 hours ago",
     description:
       "Help our small product team build an accessible React dashboard from existing designs. You’ll work with our engineer on reusable components, API integration, and responsive behavior.",
@@ -52,7 +49,6 @@ export const freelancerJobs: FreelancerJob[] = [
     category: "Marketing",
     budget: "$800–$1,200 · Fixed price",
     projectType: "Fixed price",
-    duration: "Short term",
     posted: "Posted yesterday",
     description:
       "We need a clear content strategy for a new product launch. Deliverables include audience research, messaging, and a four-week editorial calendar.",
