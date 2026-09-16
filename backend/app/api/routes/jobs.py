@@ -205,7 +205,7 @@ def read_saved_jobs(
     """
     List jobs saved / bookmarked by the current freelancer.
     """
-    if current_user.role != UserRole.FREELANCER and not current_user.is_superuser:
+    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can view saved jobs",
@@ -281,7 +281,7 @@ def create_job(
     Create a new job post.
     Only clients or superusers can create job posts.
     """
-    if current_user.role != UserRole.CLIENT and not current_user.is_superuser:
+    if current_user.active_role != UserRole.CLIENT and not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
             detail="Only clients can post jobs",
@@ -470,7 +470,7 @@ def save_job(
     """
     Bookmark / save a job post for the current authenticated freelancer.
     """
-    if current_user.role != UserRole.FREELANCER and not current_user.is_superuser:
+    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can save jobs",
@@ -502,7 +502,7 @@ def unsave_job(
     """
     Remove a job post from bookmarks / saved jobs.
     """
-    if current_user.role != UserRole.FREELANCER and not current_user.is_superuser:
+    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can save or unsave jobs",

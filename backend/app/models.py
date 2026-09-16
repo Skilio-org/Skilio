@@ -20,7 +20,6 @@ def get_datetime_utc() -> datetime:
 class UserRole(StrEnum):
     CLIENT = "client"
     FREELANCER = "freelancer"
-    ADMIN = "admin"
 
 
 class MediaType(StrEnum):
@@ -119,7 +118,7 @@ class UserBase(SQLModel):
     is_active: bool = True
     is_superuser: bool = False
     full_name: str | None = Field(default=None, max_length=255)
-    role: UserRole = Field(default=UserRole.CLIENT)
+    active_role: UserRole = Field(default=UserRole.CLIENT)
 
     # For google Auth.
     google_id: str | None = Field(default=None, max_length=255)
@@ -139,7 +138,7 @@ class UserRegister(SQLModel):
     email: EmailStr = Field(max_length=255)
     password: str = Field(min_length=8, max_length=128)
     full_name: str | None = Field(default=None, max_length=255)
-    role: UserRole = Field(default=UserRole.CLIENT)
+    active_role: UserRole = Field(default=UserRole.CLIENT)
 
 
 # Properties to receive via API on update, all are optional
@@ -148,19 +147,23 @@ class UserUpdate(SQLModel):
     is_active: bool | None = None
     is_superuser: bool | None = None
     full_name: str | None = Field(default=None, max_length=255)
-    role: UserRole | None = None
+    active_role: UserRole | None = None
     password: str | None = Field(default=None, min_length=8, max_length=128)
 
 
 class UserUpdateMe(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr | None = Field(default=None, max_length=255)
-    role: UserRole | None = None
+    active_role: UserRole | None = None
 
 
 class UpdatePassword(SQLModel):
     current_password: str = Field(min_length=8, max_length=128)
     new_password: str = Field(min_length=8, max_length=128)
+
+
+class SwitchRoleRequest(SQLModel):
+    role: UserRole
 
 
 # Database model, database table inferred from class name

@@ -18,12 +18,15 @@ from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import (
     AvatarResponse,
+    FreelancerProfile,
     Message,
+    SwitchRoleRequest,
     UpdatePassword,
     User,
     UserCreate,
     UserPublic,
     UserRegister,
+    UserRole,
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
@@ -175,6 +178,36 @@ def update_password_me(
     session.add(current_user)
     session.commit()
     return Message(message="Password updated successfully")
+
+
+@router.post("/me/switch-role", response_model=UserPublic)
+def switch_role(
+    *, session: SessionDep, current_user: CurrentUser, body: SwitchRoleRequest
+) -> Any:
+    """
+    Switch the current user's active role between client and freelancer.
+    If switching to freelancer, a FreelancerProfile must exist.
+    """
+    if body.role == current_user.active_role:
+        return current_user
+
+    if body.role == UserRole.FREELANCER:
+        profile = session.exec(
+            select(FreelancerProfile).where(
+                FreelancerProfile.user_id == current_user.id
+            )
+        ).first()
+        if not profile:
+            raise HTTPException(
+                status_code=400,
+                detail="Create a freelancer profile before switching to freelancer role",
+            )
+
+    current_user.active_role = body.role
+    session.add(current_user)
+    session.commit()
+    session.refresh(current_user)
+    return current_user
 
 
 @router.get("/me", response_model=UserPublic)

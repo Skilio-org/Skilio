@@ -12,7 +12,7 @@ from tests.utils.utils import random_lower_string
 
 def _make_client_headers(client: TestClient, db: Session) -> tuple[dict[str, str], any]:
     user = create_random_user(db)
-    user.role = UserRole.CLIENT
+    user.active_role = UserRole.CLIENT
     password = random_lower_string()
     user.hashed_password = get_password_hash(password)
     db.add(user)
@@ -24,7 +24,7 @@ def _make_client_headers(client: TestClient, db: Session) -> tuple[dict[str, str
 
 def _make_freelancer_headers(client: TestClient, db: Session) -> tuple[dict[str, str], any]:
     user = create_random_user(db)
-    user.role = UserRole.FREELANCER
+    user.active_role = UserRole.FREELANCER
     password = random_lower_string()
     user.hashed_password = get_password_hash(password)
     db.add(user)
