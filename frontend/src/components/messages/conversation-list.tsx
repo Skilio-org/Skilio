@@ -1,8 +1,8 @@
-import { Archive, MessageSquare, Search, X } from "lucide-react";
 import { Monogram } from "@/components/dashboard/dashboard-header";
 import type { ConversationSummary, InboxFilter } from "@/components/messages/message-types";
 import type { Freelancer } from "@/data/freelancers";
 import { cn } from "@/lib/utils";
+import { Archive, MessageSquare, Search, X } from "lucide-react";
 
 export function ConversationList({
   people,
@@ -43,7 +43,7 @@ export function ConversationList({
           <Search className="text-muted-foreground size-4 shrink-0" aria-hidden="true" />
           <span className="sr-only">Search conversations</span>
           <input
-            type="search"
+            type="text"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder="Search name or message"

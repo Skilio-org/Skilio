@@ -1,9 +1,9 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/googleAuth")({
   component: AuthCallback,
-})
+});
 
 export function AuthCallback() {
   const searchParams = new URLSearchParams(window.location.search);
@@ -33,6 +33,4 @@ export function AuthCallback() {
         });
     }
   }, [searchParams, navigate]);
-
-  return <div>Completing Google Login...</div>;
 }

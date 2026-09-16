@@ -1,3 +1,8 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import ChangePassword from "@/components/user-settings/change-password";
+import { AppearanceSettings } from "@/components/user-settings/preferences";
+import useAuth from "@/hooks/useAuth";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowDownWideNarrow,
@@ -19,19 +24,14 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import ChangePassword from "@/components/user-settings/change-password";
-import { AppearanceSettings } from "@/components/user-settings/preferences";
-import useAuth from "@/hooks/useAuth";
 import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "../dashboard/dashboard-header";
 import { FreelancerJobFilterFields } from "../freelancer/freelancer-job-filter-fields";
 import {
   type ProposalDraft as Draft,
+  type FreelancerJob as Job,
   freelancerJobs,
   freelancerWorkspaceSubtitles,
   freelancerWorkspaceTitles,
-  type FreelancerJob as Job,
   seedProposals,
 } from "../freelancer/freelancer-workspace-data";
 import { JobFormSection, jobFormField } from "./job-form-section";
@@ -720,7 +720,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
                             </button>
                           </div>
                           <JobFormSection
-                            number="01"
                             title="Tell them why you’re a good fit"
                             description="Share relevant experience and how you’d approach this project."
                           >
@@ -740,32 +739,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
                                 At least 40 characters{" "}
                                 <span className="float-right">{cover.length.toLocaleString()} / 5,000</span>
                               </span>
-                            </label>
-                          </JobFormSection>
-                          <div className="border-border border-t" />
-                          <JobFormSection
-                            number="02"
-                            title="Set your terms"
-                            description={
-                              selectedProjectType === "Fixed price"
-                                ? "Your total price for the scope described above."
-                                : "The hourly rate you’d charge for this project."
-                            }
-                          >
-                            <label className="block text-sm font-medium">
-                              {selectedProjectType === "Fixed price"
-                                ? "Your project budget (USD)"
-                                : "Your hourly rate (USD)"}
-                              <input
-                                required
-                                min="1"
-                                type="number"
-                                step="0.01"
-                                placeholder={selectedProjectType === "Fixed price" ? "e.g. 2000" : "e.g. 65"}
-                                className={`${jobFormField} block`}
-                                value={rate}
-                                onChange={(event) => setRate(event.target.value)}
-                              />
                             </label>
                           </JobFormSection>
                         </div>
