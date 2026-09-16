@@ -45,6 +45,24 @@ export type Body_login_login_access_token = {
 };
 
 /**
+ * Body_profiles-upload_portfolio_item
+ */
+export type Body_profiles_upload_portfolio_item = {
+  /**
+   * Title
+   */
+  title: string;
+  /**
+   * Description
+   */
+  description: string;
+  /**
+   * File
+   */
+  file: Blob | File;
+};
+
+/**
  * Body_users-upload_avatar
  */
 export type Body_users_upload_avatar = {
@@ -58,6 +76,108 @@ export type Body_users_upload_avatar = {
  * BudgetType
  */
 export type BudgetType = "hourly" | "fixed";
+
+/**
+ * EducationCreate
+ */
+export type EducationCreate = {
+  /**
+   * Institution
+   */
+  institution: string;
+  /**
+   * Degree
+   */
+  degree: string;
+  /**
+   * Field Of Study
+   */
+  field_of_study?: string | null;
+  /**
+   * Start Date
+   */
+  start_date?: string | null;
+  /**
+   * End Date
+   */
+  end_date?: string | null;
+  /**
+   * Description
+   */
+  description?: string | null;
+};
+
+/**
+ * EducationPublic
+ */
+export type EducationPublic = {
+  /**
+   * Institution
+   */
+  institution: string;
+  /**
+   * Degree
+   */
+  degree: string;
+  /**
+   * Field Of Study
+   */
+  field_of_study?: string | null;
+  /**
+   * Start Date
+   */
+  start_date?: string | null;
+  /**
+   * End Date
+   */
+  end_date?: string | null;
+  /**
+   * Description
+   */
+  description?: string | null;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Freelancer Profile Id
+   */
+  freelancer_profile_id: string;
+  /**
+   * Created At
+   */
+  created_at?: string | null;
+};
+
+/**
+ * EducationUpdate
+ */
+export type EducationUpdate = {
+  /**
+   * Institution
+   */
+  institution?: string | null;
+  /**
+   * Degree
+   */
+  degree?: string | null;
+  /**
+   * Field Of Study
+   */
+  field_of_study?: string | null;
+  /**
+   * Start Date
+   */
+  start_date?: string | null;
+  /**
+   * End Date
+   */
+  end_date?: string | null;
+  /**
+   * Description
+   */
+  description?: string | null;
+};
 
 /**
  * FreelancerProfileCreate
@@ -185,6 +305,14 @@ export type FreelancerProfileDetailPublic = {
    * Portfolio Media
    */
   portfolio_media?: Array<MediaPublic>;
+  /**
+   * Portfolio
+   */
+  portfolio?: Array<PortfolioItemPublic>;
+  /**
+   * Educations
+   */
+  educations?: Array<EducationPublic>;
   /**
    * Reviews
    */
@@ -670,6 +798,76 @@ export type NewPassword = {
    * New Password
    */
   new_password: string;
+};
+
+/**
+ * PortfolioItemCreate
+ */
+export type PortfolioItemCreate = {
+  /**
+   * Title
+   */
+  title: string;
+  /**
+   * Description
+   */
+  description: string;
+  /**
+   * Image Url
+   */
+  image_url: string;
+};
+
+/**
+ * PortfolioItemPublic
+ */
+export type PortfolioItemPublic = {
+  /**
+   * Title
+   */
+  title: string;
+  /**
+   * Description
+   */
+  description: string;
+  /**
+   * Image Url
+   */
+  image_url: string;
+  /**
+   * Id
+   */
+  id: string;
+  /**
+   * Freelancer Profile Id
+   */
+  freelancer_profile_id: string;
+  /**
+   * Created At
+   */
+  created_at?: string | null;
+  /**
+   * Updated At
+   */
+  updated_at?: string | null;
+};
+
+/**
+ * PortfolioItemUpdate
+ */
+export type PortfolioItemUpdate = {
+  /**
+   * Title
+   */
+  title?: string | null;
+  /**
+   * Description
+   */
+  description?: string | null;
+  /**
+   * Image Url
+   */
+  image_url?: string | null;
 };
 
 /**
@@ -1752,6 +1950,238 @@ export type profilesReadProfileMeResponses = {
 };
 
 export type profilesReadProfileMeResponse = profilesReadProfileMeResponses[keyof profilesReadProfileMeResponses];
+
+export type profilesCreateEducationData = {
+  body: EducationCreate;
+  path?: never;
+  query?: never;
+  url: "/api/v1/profiles/me/educations";
+};
+
+export type profilesCreateEducationErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type profilesCreateEducationError = profilesCreateEducationErrors[keyof profilesCreateEducationErrors];
+
+export type profilesCreateEducationResponses = {
+  /**
+   * Successful Response
+   */
+  200: EducationPublic;
+};
+
+export type profilesCreateEducationResponse = profilesCreateEducationResponses[keyof profilesCreateEducationResponses];
+
+export type profilesDeleteEducationData = {
+  body?: never;
+  path: {
+    /**
+     * Education Id
+     */
+    education_id: string;
+  };
+  query?: never;
+  url: "/api/v1/profiles/me/educations/{education_id}";
+};
+
+export type profilesDeleteEducationErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type profilesDeleteEducationError = profilesDeleteEducationErrors[keyof profilesDeleteEducationErrors];
+
+export type profilesDeleteEducationResponses = {
+  /**
+   * Successful Response
+   */
+  200: Message;
+};
+
+export type profilesDeleteEducationResponse = profilesDeleteEducationResponses[keyof profilesDeleteEducationResponses];
+
+export type profilesUpdateEducationData = {
+  body: EducationUpdate;
+  path: {
+    /**
+     * Education Id
+     */
+    education_id: string;
+  };
+  query?: never;
+  url: "/api/v1/profiles/me/educations/{education_id}";
+};
+
+export type profilesUpdateEducationErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type profilesUpdateEducationError = profilesUpdateEducationErrors[keyof profilesUpdateEducationErrors];
+
+export type profilesUpdateEducationResponses = {
+  /**
+   * Successful Response
+   */
+  200: EducationPublic;
+};
+
+export type profilesUpdateEducationResponse = profilesUpdateEducationResponses[keyof profilesUpdateEducationResponses];
+
+export type profilesCreatePortfolioItemData = {
+  body: PortfolioItemCreate;
+  path?: never;
+  query?: never;
+  url: "/api/v1/profiles/me/portfolio";
+};
+
+export type profilesCreatePortfolioItemErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type profilesCreatePortfolioItemError =
+  profilesCreatePortfolioItemErrors[keyof profilesCreatePortfolioItemErrors];
+
+export type profilesCreatePortfolioItemResponses = {
+  /**
+   * Successful Response
+   */
+  200: PortfolioItemPublic;
+};
+
+export type profilesCreatePortfolioItemResponse =
+  profilesCreatePortfolioItemResponses[keyof profilesCreatePortfolioItemResponses];
+
+export type profilesUploadPortfolioItemData = {
+  body: Body_profiles_upload_portfolio_item;
+  path?: never;
+  query?: never;
+  url: "/api/v1/profiles/me/portfolio/upload";
+};
+
+export type profilesUploadPortfolioItemErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type profilesUploadPortfolioItemError =
+  profilesUploadPortfolioItemErrors[keyof profilesUploadPortfolioItemErrors];
+
+export type profilesUploadPortfolioItemResponses = {
+  /**
+   * Successful Response
+   */
+  200: PortfolioItemPublic;
+};
+
+export type profilesUploadPortfolioItemResponse =
+  profilesUploadPortfolioItemResponses[keyof profilesUploadPortfolioItemResponses];
+
+export type profilesDeletePortfolioItemData = {
+  body?: never;
+  path: {
+    /**
+     * Item Id
+     */
+    item_id: string;
+  };
+  query?: never;
+  url: "/api/v1/profiles/me/portfolio/{item_id}";
+};
+
+export type profilesDeletePortfolioItemErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type profilesDeletePortfolioItemError =
+  profilesDeletePortfolioItemErrors[keyof profilesDeletePortfolioItemErrors];
+
+export type profilesDeletePortfolioItemResponses = {
+  /**
+   * Successful Response
+   */
+  200: Message;
+};
+
+export type profilesDeletePortfolioItemResponse =
+  profilesDeletePortfolioItemResponses[keyof profilesDeletePortfolioItemResponses];
+
+export type profilesUpdatePortfolioItemData = {
+  body: PortfolioItemUpdate;
+  path: {
+    /**
+     * Item Id
+     */
+    item_id: string;
+  };
+  query?: never;
+  url: "/api/v1/profiles/me/portfolio/{item_id}";
+};
+
+export type profilesUpdatePortfolioItemErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type profilesUpdatePortfolioItemError =
+  profilesUpdatePortfolioItemErrors[keyof profilesUpdatePortfolioItemErrors];
+
+export type profilesUpdatePortfolioItemResponses = {
+  /**
+   * Successful Response
+   */
+  200: PortfolioItemPublic;
+};
+
+export type profilesUpdatePortfolioItemResponse =
+  profilesUpdatePortfolioItemResponses[keyof profilesUpdatePortfolioItemResponses];
+
+export type profilesProxyPortfolioImageData = {
+  body?: never;
+  path: {
+    /**
+     * Uuid
+     */
+    uuid: string;
+  };
+  query?: never;
+  url: "/api/v1/profiles/portfolio/{uuid}/image";
+};
+
+export type profilesProxyPortfolioImageErrors = {
+  /**
+   * Validation Error
+   */
+  422: HTTPValidationError;
+};
+
+export type profilesProxyPortfolioImageError =
+  profilesProxyPortfolioImageErrors[keyof profilesProxyPortfolioImageErrors];
+
+export type profilesProxyPortfolioImageResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
 
 export type profilesDeleteProfileData = {
   body?: never;

@@ -1,13 +1,20 @@
 import { createFileRoute, Link as RouterLink, redirect } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
 import Divider from "@/components/auth/auth-divider";
 import LoginForm from "@/components/auth/auth-login-form";
 import SocialAuth from "@/components/auth/auth-social";
 import { AuthLayout } from "@/components/common/auth-layout";
 import { isLoggedIn } from "@/hooks/useAuth";
 
+const loginSearchSchema = z.object({
+  error: z.string().optional(),
+});
+
 export const Route = createFileRoute("/login")({
   component: Login,
-
+  validateSearch: (search) => loginSearchSchema.parse(search),
   beforeLoad: async () => {
     if (isLoggedIn()) {
       throw redirect({
@@ -15,7 +22,6 @@ export const Route = createFileRoute("/login")({
       });
     }
   },
-
   head: () => ({
     meta: [
       {
@@ -30,6 +36,22 @@ export const Route = createFileRoute("/login")({
 });
 
 function Login() {
+  const { error } = Route.useSearch();
+  const navigate = Route.useNavigate();
+
+  useEffect(() => {
+    if (!error) return;
+
+    toast.error(`We couldn't log you in. ${error}`, {
+      id: "login-error",
+    });
+
+    navigate({
+      search: {},
+      replace: true,
+    });
+  }, [error, navigate]);
+
   return (
     <AuthLayout>
       <div className="mx-auto w-full max-w-115">

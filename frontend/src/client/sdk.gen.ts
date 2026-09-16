@@ -58,12 +58,27 @@ import type {
   privateCreateUserData,
   privateCreateUserErrors,
   privateCreateUserResponses,
+  profilesCreateEducationData,
+  profilesCreateEducationErrors,
+  profilesCreateEducationResponses,
+  profilesCreatePortfolioItemData,
+  profilesCreatePortfolioItemErrors,
+  profilesCreatePortfolioItemResponses,
   profilesCreateProfileData,
   profilesCreateProfileErrors,
   profilesCreateProfileResponses,
+  profilesDeleteEducationData,
+  profilesDeleteEducationErrors,
+  profilesDeleteEducationResponses,
+  profilesDeletePortfolioItemData,
+  profilesDeletePortfolioItemErrors,
+  profilesDeletePortfolioItemResponses,
   profilesDeleteProfileData,
   profilesDeleteProfileErrors,
   profilesDeleteProfileResponses,
+  profilesProxyPortfolioImageData,
+  profilesProxyPortfolioImageErrors,
+  profilesProxyPortfolioImageResponses,
   profilesReadProfileData,
   profilesReadProfileErrors,
   profilesReadProfileMeData,
@@ -78,9 +93,18 @@ import type {
   profilesUnsaveProfileData,
   profilesUnsaveProfileErrors,
   profilesUnsaveProfileResponses,
+  profilesUpdateEducationData,
+  profilesUpdateEducationErrors,
+  profilesUpdateEducationResponses,
+  profilesUpdatePortfolioItemData,
+  profilesUpdatePortfolioItemErrors,
+  profilesUpdatePortfolioItemResponses,
   profilesUpdateProfileData,
   profilesUpdateProfileErrors,
   profilesUpdateProfileResponses,
+  profilesUploadPortfolioItemData,
+  profilesUploadPortfolioItemErrors,
+  profilesUploadPortfolioItemResponses,
   proposalsReadMyProposalsData,
   proposalsReadMyProposalsErrors,
   proposalsReadMyProposalsResponses,
@@ -583,6 +607,186 @@ export class ProfilesService {
       responseType: "json",
       security: [{ scheme: "bearer", type: "http" }],
       url: "/api/v1/profiles/me",
+      ...options,
+    });
+  }
+
+  /**
+   * Create Education
+   *
+   * Add an education entry to current user's freelancer profile.
+   */
+  public static createEducation<ThrowOnError extends boolean = true>(
+    options: Options<profilesCreateEducationData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).post<
+      profilesCreateEducationResponses,
+      profilesCreateEducationErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/profiles/me/educations",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+  }
+
+  /**
+   * Delete Education
+   *
+   * Delete an education entry from current user's freelancer profile.
+   */
+  public static deleteEducation<ThrowOnError extends boolean = true>(
+    options: Options<profilesDeleteEducationData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).delete<
+      profilesDeleteEducationResponses,
+      profilesDeleteEducationErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/profiles/me/educations/{education_id}",
+      ...options,
+    });
+  }
+
+  /**
+   * Update Education
+   *
+   * Update an education entry in current user's freelancer profile.
+   */
+  public static updateEducation<ThrowOnError extends boolean = true>(
+    options: Options<profilesUpdateEducationData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).put<
+      profilesUpdateEducationResponses,
+      profilesUpdateEducationErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/profiles/me/educations/{education_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+  }
+
+  /**
+   * Create Portfolio Item
+   *
+   * Create a portfolio item using JSON payload with image_url, title, and description.
+   */
+  public static createPortfolioItem<ThrowOnError extends boolean = true>(
+    options: Options<profilesCreatePortfolioItemData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).post<
+      profilesCreatePortfolioItemResponses,
+      profilesCreatePortfolioItemErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/profiles/me/portfolio",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+  }
+
+  /**
+   * Upload Portfolio Item
+   *
+   * Upload an image for a new portfolio item and save title and description.
+   */
+  public static uploadPortfolioItem<ThrowOnError extends boolean = true>(
+    options: Options<profilesUploadPortfolioItemData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).post<
+      profilesUploadPortfolioItemResponses,
+      profilesUploadPortfolioItemErrors,
+      ThrowOnError
+    >({
+      ...formDataBodySerializer,
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/profiles/me/portfolio/upload",
+      ...options,
+      headers: {
+        "Content-Type": null,
+        ...options.headers,
+      },
+    });
+  }
+
+  /**
+   * Delete Portfolio Item
+   *
+   * Delete a portfolio item.
+   */
+  public static deletePortfolioItem<ThrowOnError extends boolean = true>(
+    options: Options<profilesDeletePortfolioItemData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).delete<
+      profilesDeletePortfolioItemResponses,
+      profilesDeletePortfolioItemErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/profiles/me/portfolio/{item_id}",
+      ...options,
+    });
+  }
+
+  /**
+   * Update Portfolio Item
+   *
+   * Update a portfolio item (title, description, image_url).
+   */
+  public static updatePortfolioItem<ThrowOnError extends boolean = true>(
+    options: Options<profilesUpdatePortfolioItemData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).put<
+      profilesUpdatePortfolioItemResponses,
+      profilesUpdatePortfolioItemErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/api/v1/profiles/me/portfolio/{item_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+  }
+
+  /**
+   * Proxy Portfolio Image
+   *
+   * Get the portfolio item's image using its uuid, proxying from Cloudinary.
+   */
+  public static proxyPortfolioImage<ThrowOnError extends boolean = true>(
+    options: Options<profilesProxyPortfolioImageData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).get<
+      profilesProxyPortfolioImageResponses,
+      profilesProxyPortfolioImageErrors,
+      ThrowOnError
+    >({
+      responseType: "json",
+      url: "/api/v1/profiles/portfolio/{uuid}/image",
       ...options,
     });
   }

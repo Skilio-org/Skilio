@@ -1,36 +1,68 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { z } from "zod";
+
+const googleAuthSearchSchema = z.object({
+  code: z.string().optional(),
+  error: z.string().optional(),
+});
 
 export const Route = createFileRoute("/googleAuth")({
   component: AuthCallback,
+  validateSearch: (search) => googleAuthSearchSchema.parse(search),
 });
 
 export function AuthCallback() {
-  const searchParams = new URLSearchParams(window.location.search);
   const navigate = useNavigate();
+  const { code, error } = Route.useSearch();
 
   useEffect(() => {
-    const code = searchParams.get("code");
-    if (code) {
-      fetch(`http://localhost:8000/api/v1/login/google/callback?code=${code}`)
-        .then(async (res) => {
-          if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.detail || "Authentication failed");
-          }
-          return res.json();
-        })
-        .then((data) => {
-          localStorage.setItem("access_token", data.access_token);
-          navigate({ to: "/dashboard" });
-        })
-        .catch((err) => {
-          console.error("Login failed:", err.message);
-          navigate({
-            to: "/login",
-            search: { error: err.message },
-          });
-        });
+    if (error) {
+      navigate({
+        to: "/login",
+        search: { error },
+      });
+
+      return;
     }
-  }, [searchParams, navigate]);
+
+    if (!code) {
+      navigate({
+        to: "/login",
+        search: { error: "Missing Google authorization code" },
+      });
+
+      return;
+    }
+
+    const authenticate = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/api/v1/login/google/callback?code=${encodeURIComponent(code)}`);
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.detail || "Authentication failed");
+        }
+
+        const data = await res.json();
+
+        localStorage.setItem("access_token", data.access_token);
+
+        navigate({
+          to: "/dashboard",
+        });
+      } catch (err) {
+        navigate({
+          to: "/login",
+          search: {
+            error: err instanceof Error ? err.message : "Authentication failed",
+          },
+        });
+      }
+    };
+
+    void authenticate();
+  }, [code, error, navigate]);
+
+  return null;
 }
