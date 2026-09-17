@@ -1,8 +1,3 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import ChangePassword from "@/components/user-settings/change-password";
-import { AppearanceSettings } from "@/components/user-settings/preferences";
-import useAuth from "@/hooks/useAuth";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowDownWideNarrow,
@@ -23,14 +18,19 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import ChangePassword from "@/components/user-settings/change-password";
+import { AppearanceSettings } from "@/components/user-settings/preferences";
+import useAuth from "@/hooks/useAuth";
 import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "../dashboard/dashboard-header";
 import { FreelancerJobFilterFields } from "../freelancer/freelancer-job-filter-fields";
 import {
   type ProposalDraft as Draft,
-  type FreelancerJob as Job,
   freelancerJobs,
   freelancerWorkspaceSubtitles,
   freelancerWorkspaceTitles,
+  type FreelancerJob as Job,
   seedProposals,
 } from "../freelancer/freelancer-workspace-data";
 import { JobFormSection, jobFormField } from "./job-form-section";
@@ -120,7 +120,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
     <FreelancerJobFilterFields
       group={group}
       jobType={jobType}
-
       showClear={activeJobFilterCount > 0}
       onJobTypeChange={setJobType}
       onClear={clearJobFilters}
@@ -745,7 +744,7 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
                               Back
                             </button>
                             <button className={workspaceStyles.primaryAction} type="submit">
-                              Save draft
+                              Send
                               <ArrowRight className="size-4" />
                             </button>
                           </div>

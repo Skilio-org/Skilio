@@ -37,7 +37,9 @@ export function AuthCallback() {
 
     const authenticate = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/v1/login/linkedin/callback?code=${encodeURIComponent(code)}`);
+        const res = await fetch(
+          `http://localhost:8000/api/v1/login/linkedin/callback?code=${encodeURIComponent(code)}`,
+        );
 
         if (!res.ok) {
           const errorData = await res.json();
