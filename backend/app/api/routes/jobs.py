@@ -8,6 +8,7 @@ from sqlmodel import col, func, select
 from app.api.deps import CurrentUser, CurrentUserOptional, SessionDep
 from app.models import (
     BudgetType,
+    ClientProfilePublic,
     ITSkill,
     JobPost,
     JobPostCreate,
@@ -130,10 +131,17 @@ def read_jobs(
             SkillPublic.model_validate(skill) for skill in job.required_skills
         ]
 
+        client_company = (
+            job.client.client_profile.company
+            if job.client and job.client.client_profile
+            else None
+        )
+
         job_data = JobPostPublic.model_validate(
             job,
             update={
                 "client_name": job.client.full_name if job.client else None,
+                "client_company": client_company,
                 "skills": skills_public,
                 "proposals_count": proposals_count,
                 "is_saved": job.id in saved_job_ids,
@@ -180,10 +188,17 @@ def read_my_jobs(
             SkillPublic.model_validate(skill) for skill in job.required_skills
         ]
 
+        client_company = (
+            current_user.client_profile.company
+            if current_user.client_profile
+            else None
+        )
+
         job_data = JobPostPublic.model_validate(
             job,
             update={
                 "client_name": current_user.full_name,
+                "client_company": client_company,
                 "skills": skills_public,
                 "proposals_count": proposals_count,
                 "is_saved": False,
@@ -366,16 +381,32 @@ def read_job(
         SkillPublic.model_validate(skill) for skill in job.required_skills
     ]
     client_public = UserPublic.model_validate(job.client) if job.client else None
+    client_company = (
+        job.client.client_profile.company
+        if job.client and job.client.client_profile
+        else None
+    )
+    client_profile_public = None
+    if job.client and job.client.client_profile:
+        client_profile_public = ClientProfilePublic.model_validate(
+            job.client.client_profile,
+            update={
+                "full_name": job.client.full_name,
+                "avatar_url": job.client.avatar_url,
+            },
+        )
 
     return JobPostDetailPublic.model_validate(
         job,
         update={
             "client_name": job.client.full_name if job.client else None,
+            "client_company": client_company,
             "skills": skills_public,
             "proposals_count": proposals_count,
             "is_saved": is_saved,
             "has_applied": has_applied,
             "client": client_public,
+            "client_profile": client_profile_public,
         },
     )
 

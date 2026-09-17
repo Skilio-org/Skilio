@@ -1,28 +1,39 @@
-import { Check, ChevronRight, type LucideIcon, Monitor, Moon, Sun } from "lucide-react";
+import {
+  Check,
+  ChevronRight,
+  type LucideIcon,
+  Monitor,
+  Moon,
+  Sun,
+} from "lucide-react"
 
-import { type Theme, useTheme } from "@/components/theme-provider";
+import { type Theme, useTheme } from "@/components/theme-provider"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 
-import { SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import {
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar"
 
 /* =========================================================
    CONFIG
    ========================================================= */
 
 type ThemeOption = {
-  value: Theme;
-  label: string;
-  description: string;
-  icon: LucideIcon;
-};
+  value: Theme
+  label: string
+  description: string
+  icon: LucideIcon
+}
 
 const THEME_OPTIONS: ThemeOption[] = [
   {
@@ -43,34 +54,41 @@ const THEME_OPTIONS: ThemeOption[] = [
     description: "Match your device",
     icon: Monitor,
   },
-];
+]
 
 const ICON_MAP: Record<Theme, LucideIcon> = {
   light: Sun,
   dark: Moon,
   system: Monitor,
-};
+}
 
 const LABEL_MAP: Record<Theme, string> = {
   light: "Light",
   dark: "Dark",
   system: "System",
-};
+}
 
 /* =========================================================
    THEME OPTION
    ========================================================= */
 
 interface ThemeOptionItemProps {
-  value: Theme;
-  label: string;
-  description: string;
-  icon: LucideIcon;
-  selected: boolean;
-  onSelect: () => void;
+  value: Theme
+  label: string
+  description: string
+  icon: LucideIcon
+  selected: boolean
+  onSelect: () => void
 }
 
-function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSelect }: ThemeOptionItemProps) {
+function ThemeOptionItem({
+  value,
+  label,
+  description,
+  icon: Icon,
+  selected,
+  onSelect,
+}: ThemeOptionItemProps) {
   return (
     <DropdownMenuItem
       data-testid={`${value}-mode`}
@@ -102,7 +120,9 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
       <div className="min-w-0 flex-1">
         <div className="text-foreground text-sm font-medium">{label}</div>
 
-        <div className="text-muted-foreground mt-0.5 text-[11px] leading-4">{description}</div>
+        <div className="text-muted-foreground mt-0.5 text-[11px] leading-4">
+          {description}
+        </div>
       </div>
 
       {/* =====================================================
@@ -115,7 +135,7 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
         </div>
       )}
     </DropdownMenuItem>
-  );
+  )
 }
 
 /* =========================================================
@@ -123,12 +143,12 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
    ========================================================= */
 
 export function SidebarAppearance() {
-  const { isMobile } = useSidebar();
+  const { isMobile } = useSidebar()
 
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme()
 
-  const ActiveIcon = ICON_MAP[theme];
-  const activeLabel = LABEL_MAP[theme];
+  const ActiveIcon = ICON_MAP[theme]
+  const activeLabel = LABEL_MAP[theme]
 
   return (
     <SidebarMenuItem>
@@ -179,7 +199,7 @@ export function SidebarAppearance() {
         </DropdownMenuContent>
       </DropdownMenu>
     </SidebarMenuItem>
-  );
+  )
 }
 
 /* =========================================================
@@ -188,9 +208,9 @@ export function SidebarAppearance() {
    ========================================================= */
 
 export function Appearance() {
-  const { theme, resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme()
 
-  const isDark = resolvedTheme === "dark";
+  const isDark = resolvedTheme === "dark"
 
   return (
     <DropdownMenu modal={false}>
@@ -206,7 +226,11 @@ export function Appearance() {
           data-testid="theme-button"
           className="border-border bg-card/80 text-muted-foreground hover:border-foreground/10 hover:bg-muted/60 hover:text-foreground data-[state=open]:border-foreground/10 data-[state=open]:bg-muted/60 data-[state=open]:text-foreground focus-visible:ring-ring/20 relative size-9 rounded-lg border shadow-sm backdrop-blur-sm transition-all duration-150 focus-visible:ring-[3px]"
         >
-          {isDark ? <Moon className="size-[17px]" /> : <Sun className="size-[17px]" />}
+          {isDark ? (
+            <Moon className="size-[17px]" />
+          ) : (
+            <Sun className="size-[17px]" />
+          )}
 
           <span className="sr-only">Change appearance</span>
         </Button>
@@ -232,5 +256,5 @@ export function Appearance() {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

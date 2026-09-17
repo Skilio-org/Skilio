@@ -1,16 +1,22 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, MapPin, Search, Star } from "lucide-react";
-import { freelancers } from "@/data/freelancers";
+import { Link } from "@tanstack/react-router"
+import { ArrowUpRight, MapPin, Search, Star } from "lucide-react"
+import { freelancers } from "@/data/freelancers"
 
-const filters = ["All talent", "Design", "Development", "Marketing", "AI"];
+const filters = ["All talent", "Design", "Development", "Marketing", "AI"]
 const terms: Record<string, string[]> = {
   Design: ["design"],
   Development: ["engineer", "developer"],
   Marketing: ["brand", "marketing"],
   AI: ["ai", "machine learning"],
-};
+}
 
-export function LandingTalent({ filter, onFilter }: { filter: string; onFilter: (value: string) => void }) {
+export function LandingTalent({
+  filter,
+  onFilter,
+}: {
+  filter: string
+  onFilter: (value: string) => void
+}) {
   const people = freelancers
     .filter(
       (person) =>
@@ -23,7 +29,7 @@ export function LandingTalent({ filter, onFilter }: { filter: string; onFilter: 
               .includes(term) || person.title.toLowerCase().includes(term),
         ),
     )
-    .slice(0, 3);
+    .slice(0, 3)
   return (
     <section id="talent" className="scroll-mt-24 py-16 sm:py-24">
       <div className="landing-container">
@@ -32,7 +38,8 @@ export function LandingTalent({ filter, onFilter }: { filter: string; onFilter: 
           <br />A lot of possibility.
         </h2>
         <p className="text-muted-foreground mt-5 max-w-xl text-base leading-7">
-          Explore the people behind the work. Compare their craft, experience, and approach before you say hello.
+          Explore the people behind the work. Compare their craft, experience,
+          and approach before you say hello.
         </p>
         <fieldset className="mt-8 flex flex-wrap gap-2">
           <legend className="sr-only">Filter talent by expertise</legend>
@@ -78,18 +85,32 @@ export function LandingTalent({ filter, onFilter }: { filter: string; onFilter: 
                       {person.initials}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-display text-xl font-medium tracking-tight">{person.name}</h3>
-                      <p className="text-muted-foreground mt-1 text-sm">{person.title}</p>
+                      <h3 className="font-display text-xl font-medium tracking-tight">
+                        {person.name}
+                      </h3>
+                      <p className="text-muted-foreground mt-1 text-sm">
+                        {person.title}
+                      </p>
                     </div>
                     <p className="text-lg font-medium whitespace-nowrap tabular-nums">
                       ${person.rate}
-                      <span className="text-muted-foreground text-xs font-normal"> /hr</span>
+                      <span className="text-muted-foreground text-xs font-normal">
+                        {" "}
+                        /hr
+                      </span>
                     </p>
                   </div>
-                  {index === 0 && <p className="text-muted-foreground mt-5 max-w-xl text-sm leading-6">{person.bio}</p>}
+                  {index === 0 && (
+                    <p className="text-muted-foreground mt-5 max-w-xl text-sm leading-6">
+                      {person.bio}
+                    </p>
+                  )}
                   <div className="mt-5 flex flex-wrap gap-2">
                     {person.skills.slice(0, 3).map((skill) => (
-                      <span key={skill} className="bg-muted text-muted-foreground rounded-md px-2.5 py-1.5 text-xs">
+                      <span
+                        key={skill}
+                        className="bg-muted text-muted-foreground rounded-md px-2.5 py-1.5 text-xs"
+                      >
                         {skill}
                       </span>
                     ))}
@@ -101,7 +122,10 @@ export function LandingTalent({ filter, onFilter }: { filter: string; onFilter: 
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Star className="text-primary size-3.5" />
-                      <strong className="text-foreground">{person.rating.toFixed(1)}</strong> ({person.reviews} reviews)
+                      <strong className="text-foreground">
+                        {person.rating.toFixed(1)}
+                      </strong>{" "}
+                      ({person.reviews} reviews)
                     </span>
                   </div>
                 </div>
@@ -110,21 +134,35 @@ export function LandingTalent({ filter, onFilter }: { filter: string; onFilter: 
           ) : (
             <div className="border-border col-span-full rounded-2xl border border-dashed p-10 text-center">
               <Search className="text-muted-foreground mx-auto size-6" />
-              <h3 className="mt-4 text-lg font-medium">More specialists are on the way</h3>
-              <p className="text-muted-foreground mt-2 text-sm">Explore other areas of expertise in the meantime.</p>
-              <button type="button" onClick={() => onFilter("All talent")} className="landing-text-link mt-5">
+              <h3 className="mt-4 text-lg font-medium">
+                More specialists are on the way
+              </h3>
+              <p className="text-muted-foreground mt-2 text-sm">
+                Explore other areas of expertise in the meantime.
+              </p>
+              <button
+                type="button"
+                onClick={() => onFilter("All talent")}
+                className="landing-text-link mt-5"
+              >
                 See all talent <ArrowUpRight className="size-4" />
               </button>
             </div>
           )}
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-          <p className="text-muted-foreground text-xs">Sample profiles to help you explore the marketplace.</p>
-          <Link to="/signup" search={{ role: "client" }} className="landing-text-link text-sm">
+          <p className="text-muted-foreground text-xs">
+            Sample profiles to help you explore the marketplace.
+          </p>
+          <Link
+            to="/signup"
+            search={{ role: "client" }}
+            className="landing-text-link text-sm"
+          >
             Meet your next collaborator <ArrowUpRight className="size-4" />
           </Link>
         </div>
       </div>
     </section>
-  );
+  )
 }

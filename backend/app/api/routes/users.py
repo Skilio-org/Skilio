@@ -18,6 +18,7 @@ from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import (
     AvatarResponse,
+    ClientProfile,
     FreelancerProfile,
     Message,
     SwitchRoleRequest,
@@ -201,6 +202,16 @@ def switch_role(
             profile = FreelancerProfile(user_id=current_user.id)
             session.add(profile)
             session.commit()
+    elif body.role == UserRole.CLIENT:
+        profile = session.exec(
+            select(ClientProfile).where(
+                ClientProfile.user_id == current_user.id
+            )
+        ).first()
+        if not profile:
+            profile = ClientProfile(user_id=current_user.id)
+            session.add(profile)
+            session.commit()
 
     current_user.active_role = body.role
     session.add(current_user)
@@ -273,6 +284,15 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
         ).first()
         if not profile:
             profile = FreelancerProfile(user_id=user.id)
+            session.add(profile)
+            session.commit()
+            session.refresh(user)
+    elif user.active_role == UserRole.CLIENT:
+        profile = session.exec(
+            select(ClientProfile).where(ClientProfile.user_id == user.id)
+        ).first()
+        if not profile:
+            profile = ClientProfile(user_id=user.id)
             session.add(profile)
             session.commit()
             session.refresh(user)

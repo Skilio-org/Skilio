@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from "react"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
 export function WorkspacePageHeader({
   eyebrow,
@@ -9,11 +9,11 @@ export function WorkspacePageHeader({
   action,
   className,
 }: {
-  eyebrow: string;
-  title: string;
-  description: string;
-  action?: ReactNode;
-  className?: string;
+  eyebrow: string
+  title: string
+  description: string
+  action?: ReactNode
+  className?: string
 }) {
   return (
     <header
@@ -27,30 +27,61 @@ export function WorkspacePageHeader({
         <h1 className="font-display text-foreground mt-3 text-3xl font-medium tracking-[-0.04em] sm:text-[2.5rem]">
           {title}
         </h1>
-        <p className="text-muted-foreground mt-3 text-sm leading-6">{description}</p>
+        <p className="text-muted-foreground mt-3 text-sm leading-6">
+          {description}
+        </p>
       </div>
-      {action && <div className="shrink-0 self-start sm:self-auto">{action}</div>}
+      {action && (
+        <div className="shrink-0 self-start sm:self-auto">{action}</div>
+      )}
     </header>
-  );
+  )
 }
 
-export function WorkspaceSurface({ className, children, ...props }: React.ComponentProps<"section">) {
+export function WorkspaceSurface({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"section">) {
   return (
-    <section className={cn("workspace-panel border-border bg-card rounded-xl border", className)} {...props}>
+    <section
+      className={cn(
+        "workspace-panel border-border bg-card rounded-xl border",
+        className,
+      )}
+      {...props}
+    >
       {children}
     </section>
-  );
+  )
 }
 
-export function Monogram({ children, className }: { children: ReactNode; className?: string }) {
+export function Monogram({
+  children,
+  className,
+}: {
+  children: ReactNode
+  className?: string
+}) {
   return (
-    <span className={cn("font-display grid shrink-0 place-items-center rounded-xl font-semibold", className)}>
+    <span
+      className={cn(
+        "font-display grid shrink-0 place-items-center rounded-xl font-semibold",
+        className,
+      )}
+    >
       {children}
     </span>
-  );
+  )
 }
 
-export function SkillTag({ children, className }: { children: ReactNode; className?: string }) {
+export function SkillTag({
+  children,
+  className,
+}: {
+  children: ReactNode
+  className?: string
+}) {
   return (
     <span
       className={cn(
@@ -60,7 +91,7 @@ export function SkillTag({ children, className }: { children: ReactNode; classNa
     >
       {children}
     </span>
-  );
+  )
 }
 
 export const workspaceStyles = {
@@ -74,4 +105,4 @@ export const workspaceStyles = {
     "flex min-h-12 items-center rounded-xl border border-input bg-background px-4 transition-shadow focus-within:border-brand-600 focus-within:ring-4 focus-within:ring-brand-100",
   select:
     "min-h-11 rounded-xl border border-input bg-card px-4 text-sm font-medium text-foreground outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100",
-} as const;
+} as const

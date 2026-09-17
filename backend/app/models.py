@@ -200,6 +200,11 @@ class User(UserBase, table=True):
         cascade_delete=True,
         sa_relationship_kwargs={"uselist": False},
     )
+    client_profile: Optional["ClientProfile"] = Relationship(
+        back_populates="user",
+        cascade_delete=True,
+        sa_relationship_kwargs={"uselist": False},
+    )
     uploaded_media: list["Media"] = Relationship(
         back_populates="uploader",
         cascade_delete=True,
@@ -570,6 +575,86 @@ class FreelancerProfilesPublic(SQLModel):
 
 
 # ==============================================================================
+# Client Profile Models
+# ==============================================================================
+
+
+class ClientProfileBase(SQLModel):
+    company: str | None = Field(default=None, max_length=255)
+    company_role: str | None = Field(
+        default=None,
+        max_length=255,
+        description="Position or title at company, e.g. Product Lead, Founder",
+    )
+    company_website: str | None = Field(default=None, max_length=2048)
+    company_size: str | None = Field(
+        default=None,
+        max_length=50,
+        description="Company size: solo, 2-10, 11-50, 51-200, 201-plus",
+    )
+    location: str | None = Field(default=None, max_length=255)
+    description: str | None = Field(
+        default=None,
+        max_length=5000,
+        description="Summary or about the company / client",
+    )
+
+
+class ClientProfileCreate(ClientProfileBase):
+    pass
+
+
+class ClientProfileUpdate(SQLModel):
+    company: str | None = Field(default=None, max_length=255)
+    company_role: str | None = Field(default=None, max_length=255)
+    company_website: str | None = Field(default=None, max_length=2048)
+    company_size: str | None = Field(default=None, max_length=50)
+    location: str | None = Field(default=None, max_length=255)
+    description: str | None = Field(default=None, max_length=5000)
+    full_name: str | None = Field(
+        default=None,
+        max_length=255,
+        description="Optional update to user's full name in the same request",
+    )
+
+
+class ClientProfile(ClientProfileBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id", unique=True, nullable=False, ondelete="CASCADE"
+    )
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    updated_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+
+    user: Optional[User] = Relationship(back_populates="client_profile")
+
+
+class ClientProfilePublic(ClientProfileBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    full_name: str | None = None
+    avatar_url: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ClientProfileDetailPublic(ClientProfilePublic):
+    user: Optional[UserPublic] = None
+    job_posts_count: int = 0
+
+
+class ClientProfilesPublic(SQLModel):
+    data: list[ClientProfilePublic]
+    count: int
+
+
+# ==============================================================================
 # Review Models
 # ==============================================================================
 
@@ -872,6 +957,7 @@ class JobPostPublic(JobPostBase):
     id: uuid.UUID
     client_id: uuid.UUID
     client_name: str | None = None
+    client_company: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
     skills: list[SkillPublic] = Field(default_factory=list)
@@ -882,6 +968,7 @@ class JobPostPublic(JobPostBase):
 
 class JobPostDetailPublic(JobPostPublic):
     client: UserPublic | None = None
+    client_profile: Optional[ClientProfilePublic] = None
 
 
 class JobPostsPublic(SQLModel):

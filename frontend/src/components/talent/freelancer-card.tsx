@@ -1,21 +1,30 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Bookmark, MapPin, Star } from "lucide-react";
-import { Monogram, SkillTag, workspaceStyles } from "@/components/dashboard/dashboard-header";
-import type { Freelancer } from "@/data/freelancers";
+import { Link } from "@tanstack/react-router"
+import { ArrowUpRight, Bookmark, MapPin, Star } from "lucide-react"
+import {
+  Monogram,
+  SkillTag,
+  workspaceStyles,
+} from "@/components/dashboard/dashboard-header"
+import type { Freelancer } from "@/data/freelancers"
 
 export function FreelancerCard({
   freelancer,
   saved,
   onToggleSaved,
 }: {
-  freelancer: Freelancer;
-  saved: boolean;
-  onToggleSaved: () => void;
+  freelancer: Freelancer
+  saved: boolean
+  onToggleSaved: () => void
 }) {
   return (
-    <article aria-label={freelancer.name} className="group bg-card hover:bg-muted/15 p-5 transition-colors sm:p-7">
+    <article
+      aria-label={freelancer.name}
+      className="group bg-card hover:bg-muted/15 p-5 transition-colors sm:p-7"
+    >
       <div className="flex items-start gap-3 sm:gap-4">
-        <Monogram className={`size-12 text-base sm:size-14 ${freelancer.background} ${freelancer.foreground}`}>
+        <Monogram
+          className={`size-12 text-base sm:size-14 ${freelancer.background} ${freelancer.foreground}`}
+        >
           {freelancer.initials}
         </Monogram>
         <div className="min-w-0 flex-1">
@@ -29,7 +38,9 @@ export function FreelancerCard({
               {freelancer.name}
             </Link>
           </h2>
-          <p className="text-muted-foreground mt-1 text-sm">{freelancer.title}</p>
+          <p className="text-muted-foreground mt-1 text-sm">
+            {freelancer.title}
+          </p>
         </div>
         <button
           type="button"
@@ -38,7 +49,9 @@ export function FreelancerCard({
           aria-pressed={saved}
           className={workspaceStyles.iconButton}
         >
-          <Bookmark className={`size-4 ${saved ? "fill-primary text-primary" : ""}`} />
+          <Bookmark
+            className={`size-4 ${saved ? "fill-primary text-primary" : ""}`}
+          />
         </button>
       </div>
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_175px] xl:gap-8">
@@ -46,7 +59,9 @@ export function FreelancerCard({
           <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
             <span className="inline-flex items-center gap-1.5">
               <Star className="text-primary size-3.5" />
-              <strong className="text-foreground font-semibold">{freelancer.rating.toFixed(1)}</strong>
+              <strong className="text-foreground font-semibold">
+                {freelancer.rating.toFixed(1)}
+              </strong>
               <span>({freelancer.reviews} reviews)</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
@@ -54,7 +69,9 @@ export function FreelancerCard({
               {freelancer.location}
             </span>
           </div>
-          <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-6">{freelancer.bio}</p>
+          <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-6">
+            {freelancer.bio}
+          </p>
           <div className="mt-4 flex flex-wrap gap-1.5">
             {freelancer.skills.slice(0, 4).map((skill) => (
               <SkillTag key={skill}>{skill}</SkillTag>
@@ -65,9 +82,13 @@ export function FreelancerCard({
           <div>
             <p className="text-xl font-semibold tracking-tight tabular-nums">
               ${freelancer.rate}
-              <span className="text-muted-foreground ml-1 text-xs font-normal">/ hour</span>
+              <span className="text-muted-foreground ml-1 text-xs font-normal">
+                / hour
+              </span>
             </p>
-            <p className="text-muted-foreground mt-1.5 text-xs">{freelancer.availability}</p>
+            <p className="text-muted-foreground mt-1.5 text-xs">
+              {freelancer.availability}
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 xl:flex-col xl:items-stretch">
             <Link
@@ -89,5 +110,5 @@ export function FreelancerCard({
         </div>
       </div>
     </article>
-  );
+  )
 }

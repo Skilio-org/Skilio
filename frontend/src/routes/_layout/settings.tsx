@@ -1,12 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Bell, Eye, KeyRound, Palette, Trash2, UserRound } from "lucide-react";
-import { z } from "zod";
+import { createFileRoute } from "@tanstack/react-router"
+import { Bell, Eye, KeyRound, Palette, Trash2, UserRound } from "lucide-react"
+import { z } from "zod"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ChangePassword from "@/components/user-settings/change-password";
-import DeleteAccount from "@/components/user-settings/delete-account";
-import { AppearanceSettings, NotificationSettings, PrivacySettings } from "@/components/user-settings/preferences";
-import UserInformation from "@/components/user-settings/user-information";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import ChangePassword from "@/components/user-settings/change-password"
+import DeleteAccount from "@/components/user-settings/delete-account"
+import {
+  AppearanceSettings,
+  NotificationSettings,
+  PrivacySettings,
+} from "@/components/user-settings/preferences"
+import UserInformation from "@/components/user-settings/user-information"
 
 export const settingsSectionSchema = z.enum([
   "profile",
@@ -15,9 +19,9 @@ export const settingsSectionSchema = z.enum([
   "privacy",
   "appearance",
   "danger-zone",
-]);
+])
 
-export type SettingsSection = z.infer<typeof settingsSectionSchema>;
+export type SettingsSection = z.infer<typeof settingsSectionSchema>
 
 const settingsSections = [
   {
@@ -63,7 +67,7 @@ const settingsSections = [
     component: DeleteAccount,
     destructive: true,
   },
-];
+]
 
 export const Route = createFileRoute("/_layout/settings")({
   component: UserSettings,
@@ -73,26 +77,28 @@ export const Route = createFileRoute("/_layout/settings")({
   head: () => ({
     meta: [{ title: "Account settings | Freelancer" }],
   }),
-});
+})
 
 function UserSettings() {
-  const { section = "profile" } = Route.useSearch();
-  const navigate = Route.useNavigate();
+  const { section = "profile" } = Route.useSearch()
+  const navigate = Route.useNavigate()
 
   return (
     <SettingsScreen
       section={section}
-      onSectionChange={(value) => void navigate({ search: { section: value }, replace: true })}
+      onSectionChange={(value) =>
+        void navigate({ search: { section: value }, replace: true })
+      }
     />
-  );
+  )
 }
 
 export function SettingsScreen({
   section,
   onSectionChange,
 }: {
-  section: SettingsSection;
-  onSectionChange: (value: SettingsSection) => void;
+  section: SettingsSection
+  onSectionChange: (value: SettingsSection) => void
 }) {
   return (
     <div className="space-y-7">
@@ -104,11 +110,13 @@ export function SettingsScreen({
       >
         <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <div className="mb-3 hidden px-2 lg:block">
-            <p className="text-muted-foreground text-xs font-semibold tracking-[0.16em] uppercase">Settings</p>
+            <p className="text-muted-foreground text-xs font-semibold tracking-[0.16em] uppercase">
+              Settings
+            </p>
           </div>
           <TabsList className="border-border bg-card shadow-card flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl border p-2 lg:flex-col lg:overflow-visible">
             {settingsSections.map((section) => {
-              const Icon = section.icon;
+              const Icon = section.icon
               return (
                 <TabsTrigger
                   key={section.value}
@@ -123,26 +131,34 @@ export function SettingsScreen({
                     <Icon className="size-4" />
                   </span>
                   <span className="hidden min-w-0 flex-1 lg:block">
-                    <span className="block text-sm font-semibold">{section.title}</span>
+                    <span className="block text-sm font-semibold">
+                      {section.title}
+                    </span>
                     <span className="text-muted-foreground mt-0.5 block text-[11px] font-normal">
                       {section.description}
                     </span>
                   </span>
-                  <span className="text-sm font-semibold lg:hidden">{section.title}</span>
+                  <span className="text-sm font-semibold lg:hidden">
+                    {section.title}
+                  </span>
                 </TabsTrigger>
-              );
+              )
             })}
           </TabsList>
         </aside>
 
         <div className="min-w-0">
           {settingsSections.map((section) => (
-            <TabsContent key={section.value} value={section.value} className="m-0 space-y-5">
+            <TabsContent
+              key={section.value}
+              value={section.value}
+              className="m-0 space-y-5"
+            >
               <section.component />
             </TabsContent>
           ))}
         </div>
       </Tabs>
     </div>
-  );
+  )
 }

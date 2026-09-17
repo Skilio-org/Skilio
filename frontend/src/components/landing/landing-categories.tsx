@@ -1,4 +1,10 @@
-import { ArrowUpRight, Code2, Palette, ScanLine, TrendingUp } from "lucide-react";
+import {
+  ArrowUpRight,
+  Code2,
+  Palette,
+  ScanLine,
+  TrendingUp,
+} from "lucide-react"
 
 const categories = [
   {
@@ -25,19 +31,32 @@ const categories = [
     detail: "Put new possibilities to work.",
     value: "AI",
   },
-];
+]
 
-export function LandingCategories({ onSelect }: { onSelect: (value: string) => void }) {
+export function LandingCategories({
+  onSelect,
+}: {
+  onSelect: (value: string) => void
+}) {
   const selectCategory = (value: string) => {
-    onSelect(value);
-    document.getElementById("talent")?.scrollIntoView({ block: "start" });
-  };
+    onSelect(value)
+    document.getElementById("talent")?.scrollIntoView({ block: "start" })
+  }
   return (
-    <section id="categories" className="border-border bg-muted/40 scroll-mt-24 border-y py-12 sm:py-16">
+    <section
+      id="categories"
+      className="border-border bg-muted/40 scroll-mt-24 border-y py-12 sm:py-16"
+    >
       <div className="landing-container">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">What are you working on?</h2>
-          <button type="button" onClick={() => selectCategory("All talent")} className="landing-text-link text-sm">
+          <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
+            What are you working on?
+          </h2>
+          <button
+            type="button"
+            onClick={() => selectCategory("All talent")}
+            className="landing-text-link text-sm"
+          >
             Explore all talent <ArrowUpRight className="size-4" />
           </button>
         </div>
@@ -54,11 +73,13 @@ export function LandingCategories({ onSelect }: { onSelect: (value: string) => v
                 <ArrowUpRight className="text-muted-foreground size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
               <span className="block font-medium tracking-tight">{name}</span>
-              <span className="text-muted-foreground mt-2 block text-sm">{detail}</span>
+              <span className="text-muted-foreground mt-2 block text-sm">
+                {detail}
+              </span>
             </button>
           ))}
         </div>
       </div>
     </section>
-  );
+  )
 }

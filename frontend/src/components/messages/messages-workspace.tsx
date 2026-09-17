@@ -1,18 +1,32 @@
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { ConversationList } from "@/components/messages/conversation-list";
-import { MessageTalentDetails } from "@/components/messages/message-talent-details";
-import { MessageThread } from "@/components/messages/message-thread";
-import { MessageToolDialogView } from "@/components/messages/message-tool-dialog";
-import type { InboxFilter, ThreadMessage } from "@/components/messages/message-types";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { clientConversations, clientIntroductions, demoClients } from "@/data/freelancer-demo";
-import { freelancers } from "@/data/freelancers";
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import { ConversationList } from "@/components/messages/conversation-list"
+import { MessageTalentDetails } from "@/components/messages/message-talent-details"
+import { MessageThread } from "@/components/messages/message-thread"
+import { MessageToolDialogView } from "@/components/messages/message-tool-dialog"
+import type {
+  InboxFilter,
+  ThreadMessage,
+} from "@/components/messages/message-types"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import {
+  clientConversations,
+  clientIntroductions,
+  demoClients,
+} from "@/data/freelancer-demo"
+import { freelancers } from "@/data/freelancers"
 
 const talentConversations = [
   {
     id: "maya-laurent",
-    preview: "Could you send the main user flow and the screens you want prioritized?",
+    preview:
+      "Could you send the main user flow and the screens you want prioritized?",
     time: "10:31",
     unread: 2,
   },
@@ -34,22 +48,25 @@ const talentConversations = [
     time: "Sep 4",
     unread: 0,
   },
-];
+]
 const talentIntroductions: Record<string, string> = {
   "maya-laurent":
     "Thanks for reaching out. I'd love to learn more about the product and the workflow you want to improve.",
-  "noah-williams": "Thanks for the context. The product sounds like a strong fit for the systems I usually build.",
-  "amara-okafor": "I've read through your brief. There is a good opportunity to make the positioning more distinctive.",
-  "elias-chen": "The workflow is a good candidate for automation, especially with a clear human review step.",
-};
+  "noah-williams":
+    "Thanks for the context. The product sounds like a strong fit for the systems I usually build.",
+  "amara-okafor":
+    "I've read through your brief. There is a good opportunity to make the positioning more distinctive.",
+  "elias-chen":
+    "The workflow is a good candidate for automation, especially with a clear human review step.",
+}
 function sampleThread(
   id: string,
   meta: typeof talentConversations,
   introductions: Record<string, string>,
   clientMode: boolean,
 ): ThreadMessage[] {
-  const conversation = meta.find((item) => item.id === id);
-  if (!conversation) return [];
+  const conversation = meta.find((item) => item.id === id)
+  if (!conversation) return []
   return [
     {
       id: `${id}-intro`,
@@ -71,7 +88,7 @@ function sampleThread(
       time: "10:31 AM",
       own: false,
     },
-  ];
+  ]
 }
 
 export function MessagesWorkspace({
@@ -79,32 +96,34 @@ export function MessagesWorkspace({
   onSelectContact,
   clientMode = false,
 }: {
-  selectedContact?: string;
-  onSelectContact: (id: string) => void;
-  clientMode?: boolean;
+  selectedContact?: string
+  onSelectContact: (id: string) => void
+  clientMode?: boolean
 }) {
-  const people = clientMode ? demoClients : freelancers;
-  const meta = clientMode ? clientConversations : talentConversations;
-  const introductions = clientMode ? clientIntroductions : talentIntroductions;
-  const selected = people.find((person) => person.id === selectedContact);
-  const selectedId = selected?.id ?? "";
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<InboxFilter>("all");
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
-  const [sent, setSent] = useState<Record<string, ThreadMessage[]>>({});
+  const people = clientMode ? demoClients : freelancers
+  const meta = clientMode ? clientConversations : talentConversations
+  const introductions = clientMode ? clientIntroductions : talentIntroductions
+  const selected = people.find((person) => person.id === selectedContact)
+  const selectedId = selected?.id ?? ""
+  const [query, setQuery] = useState("")
+  const [filter, setFilter] = useState<InboxFilter>("all")
+  const [drafts, setDrafts] = useState<Record<string, string>>({})
+  const [sent, setSent] = useState<Record<string, ThreadMessage[]>>({})
   const [unread, setUnread] = useState<Record<string, number>>(() =>
     Object.fromEntries(meta.map((item) => [item.id, item.unread])),
-  );
-  const [archived, setArchived] = useState<string[]>([]);
-  const [briefOpen, setBriefOpen] = useState(false);
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const [addedIds, setAddedIds] = useState<string[]>([]);
+  )
+  const [archived, setArchived] = useState<string[]>([])
+  const [briefOpen, setBriefOpen] = useState(false)
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [addedIds, setAddedIds] = useState<string[]>([])
   useEffect(() => {
-    if (!selectedId) return;
-    setUnread((current) => ({ ...current, [selectedId]: 0 }));
+    if (!selectedId) return
+    setUnread((current) => ({ ...current, [selectedId]: 0 }))
     if (!meta.some((item) => item.id === selectedId))
-      setAddedIds((current) => (current.includes(selectedId) ? current : [...current, selectedId]));
-  }, [selectedId, meta]);
+      setAddedIds((current) =>
+        current.includes(selectedId) ? current : [...current, selectedId],
+      )
+  }, [selectedId, meta])
   const all = [
     ...meta,
     ...addedIds.map((id) => ({
@@ -113,42 +132,55 @@ export function MessagesWorkspace({
       time: "",
       unread: 0,
     })),
-  ];
-  const unreadCount = all.reduce((count, item) => count + (archived.includes(item.id) ? 0 : (unread[item.id] ?? 0)), 0);
+  ]
+  const unreadCount = all.reduce(
+    (count, item) =>
+      count + (archived.includes(item.id) ? 0 : (unread[item.id] ?? 0)),
+    0,
+  )
   const conversations = all
     .map((item) => {
-      const outgoing = sent[item.id] ?? [];
-      const last = outgoing[outgoing.length - 1];
-      const draft = drafts[item.id]?.trim();
+      const outgoing = sent[item.id] ?? []
+      const last = outgoing[outgoing.length - 1]
+      const draft = drafts[item.id]?.trim()
       return {
         ...item,
         preview: draft || (last ? `You: ${last.body}` : item.preview),
         time: last?.time ?? item.time,
         unread: unread[item.id] ?? 0,
         hasDraft: !!draft,
-      };
+      }
     })
     .filter((item) => {
-      const person = people.find((candidate) => candidate.id === item.id);
-      if (!person) return false;
+      const person = people.find((candidate) => candidate.id === item.id)
+      if (!person) return false
       const matches = `${person.name} ${person.title} ${item.preview}`
         .toLowerCase()
-        .includes(query.trim().toLowerCase());
-      const isArchived = archived.includes(item.id);
-      return matches && (filter === "archived" ? isArchived : !isArchived && (filter === "all" || item.unread > 0));
-    });
+        .includes(query.trim().toLowerCase())
+      const isArchived = archived.includes(item.id)
+      return (
+        matches &&
+        (filter === "archived"
+          ? isArchived
+          : !isArchived && (filter === "all" || item.unread > 0))
+      )
+    })
   const messages = selectedId
-    ? [...sampleThread(selectedId, meta, introductions, clientMode), ...(sent[selectedId] ?? [])]
-    : [];
-  const draft = drafts[selectedId] ?? "";
+    ? [
+        ...sampleThread(selectedId, meta, introductions, clientMode),
+        ...(sent[selectedId] ?? []),
+      ]
+    : []
+  const draft = drafts[selectedId] ?? ""
   const select = (id: string) => {
-    setDetailsOpen(false);
-    setBriefOpen(false);
-    onSelectContact(id);
-  };
-  const updateDraft = (value: string) => setDrafts((current) => ({ ...current, [selectedId]: value }));
+    setDetailsOpen(false)
+    setBriefOpen(false)
+    onSelectContact(id)
+  }
+  const updateDraft = (value: string) =>
+    setDrafts((current) => ({ ...current, [selectedId]: value }))
   const send = () => {
-    if (!selectedId || !draft.trim()) return;
+    if (!selectedId || !draft.trim()) return
     const message: ThreadMessage = {
       id: crypto.randomUUID(),
       body: draft.trim(),
@@ -158,20 +190,26 @@ export function MessagesWorkspace({
       }),
       own: true,
       local: true,
-    };
+    }
     setSent((current) => ({
       ...current,
       [selectedId]: [...(current[selectedId] ?? []), message],
-    }));
-    updateDraft("");
-    setArchived((current) => current.filter((id) => id !== selectedId));
-  };
+    }))
+    updateDraft("")
+    setArchived((current) => current.filter((id) => id !== selectedId))
+  }
   const archive = () => {
-    const restoring = archived.includes(selectedId);
-    setArchived((current) => (restoring ? current.filter((id) => id !== selectedId) : [...current, selectedId]));
-    select("");
-    toast.success(restoring ? "Conversation moved to inbox" : "Conversation archived");
-  };
+    const restoring = archived.includes(selectedId)
+    setArchived((current) =>
+      restoring
+        ? current.filter((id) => id !== selectedId)
+        : [...current, selectedId],
+    )
+    select("")
+    toast.success(
+      restoring ? "Conversation moved to inbox" : "Conversation archived",
+    )
+  }
   return (
     <div className="messages-workspace border-border bg-card grid min-w-0 overflow-hidden rounded-2xl border lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[330px_minmax(0,1fr)]">
       <ConversationList
@@ -199,8 +237,8 @@ export function MessagesWorkspace({
         onDetails={() => setDetailsOpen(true)}
         onArchive={archive}
         onMarkUnread={() => {
-          setUnread((current) => ({ ...current, [selectedId]: 1 }));
-          select("");
+          setUnread((current) => ({ ...current, [selectedId]: 1 }))
+          select("")
         }}
         onDraftChange={updateDraft}
         onSend={send}
@@ -209,8 +247,8 @@ export function MessagesWorkspace({
         <MessageToolDialogView
           onClose={() => setBriefOpen(false)}
           onInsert={(brief) => {
-            updateDraft((draft ? `${draft}\n\n` : "") + brief);
-            setBriefOpen(false);
+            updateDraft((draft ? `${draft}\n\n` : "") + brief)
+            setBriefOpen(false)
           }}
         />
       )}
@@ -218,11 +256,15 @@ export function MessagesWorkspace({
         <SheetContent className="w-full overflow-y-auto sm:max-w-sm">
           <SheetHeader>
             <SheetTitle>Conversation details</SheetTitle>
-            <SheetDescription>Get to know the person behind the work.</SheetDescription>
+            <SheetDescription>
+              Get to know the person behind the work.
+            </SheetDescription>
           </SheetHeader>
-          {selected && <MessageTalentDetails selected={selected} clientMode={clientMode} />}
+          {selected && (
+            <MessageTalentDetails selected={selected} clientMode={clientMode} />
+          )}
         </SheetContent>
       </Sheet>
     </div>
-  );
+  )
 }

@@ -1,5 +1,12 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 const PendingItems = () => (
   <Table>
@@ -34,6 +41,6 @@ const PendingItems = () => (
       ))}
     </TableBody>
   </Table>
-);
+)
 
-export default PendingItems;
+export default PendingItems

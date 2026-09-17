@@ -1,12 +1,12 @@
-import { Banknote } from "lucide-react";
+import { Banknote } from "lucide-react"
 
 type FreelancerJobFilterFieldsProps = {
-  group: string;
-  jobType: string;
-  showClear: boolean;
-  onClear: () => void;
-  onJobTypeChange: (value: string) => void;
-};
+  group: string
+  jobType: string
+  showClear: boolean
+  onClear: () => void
+  onJobTypeChange: (value: string) => void
+}
 
 export function FreelancerJobFilterFields({
   group,
@@ -46,10 +46,14 @@ export function FreelancerJobFilterFields({
         </div>
       </fieldset>
       {showClear && (
-        <button type="button" onClick={onClear} className="text-primary min-h-11 text-sm font-medium hover:underline">
+        <button
+          type="button"
+          onClick={onClear}
+          className="text-primary min-h-11 text-sm font-medium hover:underline"
+        >
           Clear filters
         </button>
       )}
     </div>
-  );
+  )
 }

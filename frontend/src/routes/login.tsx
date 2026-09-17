@@ -1,16 +1,20 @@
-import { createFileRoute, Link as RouterLink, redirect } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { toast } from "sonner";
-import { z } from "zod";
-import Divider from "@/components/auth/auth-divider";
-import LoginForm from "@/components/auth/auth-login-form";
-import SocialAuth from "@/components/auth/auth-social";
-import { AuthLayout } from "@/components/common/auth-layout";
-import { isLoggedIn } from "@/hooks/useAuth";
+import {
+  createFileRoute,
+  Link as RouterLink,
+  redirect,
+} from "@tanstack/react-router"
+import { useEffect } from "react"
+import { toast } from "sonner"
+import { z } from "zod"
+import Divider from "@/components/auth/auth-divider"
+import LoginForm from "@/components/auth/auth-login-form"
+import SocialAuth from "@/components/auth/auth-social"
+import { AuthLayout } from "@/components/common/auth-layout"
+import { isLoggedIn } from "@/hooks/useAuth"
 
 const loginSearchSchema = z.object({
   error: z.string().optional(),
-});
+})
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -19,7 +23,7 @@ export const Route = createFileRoute("/login")({
     if (isLoggedIn()) {
       throw redirect({
         to: "/dashboard",
-      });
+      })
     }
   },
   head: () => ({
@@ -33,24 +37,24 @@ export const Route = createFileRoute("/login")({
       },
     ],
   }),
-});
+})
 
 function Login() {
-  const { error } = Route.useSearch();
-  const navigate = Route.useNavigate();
+  const { error } = Route.useSearch()
+  const navigate = Route.useNavigate()
 
   useEffect(() => {
-    if (!error) return;
+    if (!error) return
 
     toast.error(`We couldn't log you in. ${error}`, {
       id: "login-error",
-    });
+    })
 
     navigate({
       search: {},
       replace: true,
-    });
-  }, [error, navigate]);
+    })
+  }, [error, navigate])
 
   return (
     <AuthLayout>
@@ -81,5 +85,5 @@ function Login() {
         </div>
       </div>
     </AuthLayout>
-  );
+  )
 }

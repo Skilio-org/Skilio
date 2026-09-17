@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
 import {
   Archive,
   ArrowLeft,
@@ -11,22 +11,22 @@ import {
   Search,
   Send,
   X,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { Monogram } from "@/components/dashboard/dashboard-header";
-import { MessageBubble } from "@/components/messages/message-bubble";
-import type { ThreadMessage } from "@/components/messages/message-types";
+} from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Monogram } from "@/components/dashboard/dashboard-header"
+import { MessageBubble } from "@/components/messages/message-bubble"
+import type { ThreadMessage } from "@/components/messages/message-types"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import type { Freelancer } from "@/data/freelancers";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/dropdown-menu"
+import type { Freelancer } from "@/data/freelancers"
+import { cn } from "@/lib/utils"
 
 const iconButton =
-  "grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
+  "grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 
 export function MessageThread({
   clientMode = false,
@@ -43,51 +43,53 @@ export function MessageThread({
   onSend,
   onOpenLatest,
 }: {
-  clientMode?: boolean;
-  selected?: Freelancer;
-  messages: ThreadMessage[];
-  draft: string;
-  archived: boolean;
-  onBack: () => void;
-  onOpenBrief: () => void;
-  onDetails: () => void;
-  onArchive: () => void;
-  onMarkUnread: () => void;
-  onDraftChange: (draft: string) => void;
-  onSend: () => void;
-  onOpenLatest: () => void;
+  clientMode?: boolean
+  selected?: Freelancer
+  messages: ThreadMessage[]
+  draft: string
+  archived: boolean
+  onBack: () => void
+  onOpenBrief: () => void
+  onDetails: () => void
+  onArchive: () => void
+  onMarkUnread: () => void
+  onDraftChange: (draft: string) => void
+  onSend: () => void
+  onOpenLatest: () => void
 }) {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const composer = useRef<HTMLTextAreaElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
-  const count = messages.length;
-  const selectedId = selected?.id;
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [query, setQuery] = useState("")
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const composer = useRef<HTMLTextAreaElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
+  const count = messages.length
+  const selectedId = selected?.id
   useEffect(() => {
-    if (query || !selectedId || !count) return;
-    const scroller = scrollRef.current;
-    if (scroller) scroller.scrollTop = scroller.scrollHeight;
-  }, [selectedId, count, query]);
+    if (query || !selectedId || !count) return
+    const scroller = scrollRef.current
+    if (scroller) scroller.scrollTop = scroller.scrollHeight
+  }, [selectedId, count, query])
   useEffect(() => {
-    if (searchOpen) searchRef.current?.focus();
-  }, [searchOpen]);
+    if (searchOpen) searchRef.current?.focus()
+  }, [searchOpen])
   useEffect(() => {
-    const scroller = scrollRef.current;
-    if (!scroller || !selectedId) return;
-    let previousHeight = scroller.clientHeight;
+    const scroller = scrollRef.current
+    if (!scroller || !selectedId) return
+    let previousHeight = scroller.clientHeight
     const observer = new ResizeObserver(() => {
-      const height = scroller.clientHeight;
-      scroller.scrollTop += previousHeight - height;
-      previousHeight = height;
-    });
-    observer.observe(scroller);
-    return () => observer.disconnect();
-  }, [selectedId]);
-  const term = query.trim();
+      const height = scroller.clientHeight
+      scroller.scrollTop += previousHeight - height
+      previousHeight = height
+    })
+    observer.observe(scroller)
+    return () => observer.disconnect()
+  }, [selectedId])
+  const term = query.trim()
   const visible = term
-    ? messages.filter((message) => message.body.toLowerCase().includes(term.toLowerCase()))
-    : messages;
+    ? messages.filter((message) =>
+        message.body.toLowerCase().includes(term.toLowerCase()),
+      )
+    : messages
 
   if (!selected)
     return (
@@ -102,7 +104,8 @@ export function MessageThread({
           Good work starts with a conversation.
         </h2>
         <p className="text-muted-foreground mt-4 max-w-sm text-sm leading-7">
-          Choose a conversation to share ideas, ask questions, and work through the details together.
+          Choose a conversation to share ideas, ask questions, and work through
+          the details together.
         </p>
         <button
           type="button"
@@ -112,7 +115,7 @@ export function MessageThread({
           Open latest conversation <ArrowUpRight className="size-4" />
         </button>
       </section>
-    );
+    )
 
   return (
     <section
@@ -128,7 +131,13 @@ export function MessageThread({
         >
           <ArrowLeft className="size-5" />
         </button>
-        <Monogram className={cn("hidden size-10 text-xs sm:grid", selected.background, selected.foreground)}>
+        <Monogram
+          className={cn(
+            "hidden size-10 text-xs sm:grid",
+            selected.background,
+            selected.foreground,
+          )}
+        >
           {selected.initials}
         </Monogram>
         <div className="min-w-0 flex-1">
@@ -150,26 +159,37 @@ export function MessageThread({
               {selected.name}
             </Link>
           )}
-          <p className="text-muted-foreground mt-1 truncate text-xs">{selected.title}</p>
+          <p className="text-muted-foreground mt-1 truncate text-xs">
+            {selected.title}
+          </p>
         </div>
         <button
           type="button"
           aria-label="Search this conversation"
           aria-expanded={searchOpen}
           onClick={() => {
-            setSearchOpen(!searchOpen);
-            setQuery("");
+            setSearchOpen(!searchOpen)
+            setQuery("")
           }}
           className={cn(iconButton, searchOpen && "bg-accent text-primary")}
         >
           <Search className="size-[18px]" />
         </button>
-        <button type="button" aria-label="Show conversation details" onClick={onDetails} className={iconButton}>
+        <button
+          type="button"
+          aria-label="Show conversation details"
+          onClick={onDetails}
+          className={iconButton}
+        >
           <Info className="size-[18px]" />
         </button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button type="button" aria-label="Conversation options" className={iconButton}>
+            <button
+              type="button"
+              aria-label="Conversation options"
+              className={iconButton}
+            >
               <MoreHorizontal className="size-5" />
             </button>
           </DropdownMenuTrigger>
@@ -198,8 +218,8 @@ export function MessageThread({
               className="min-h-11 min-w-0 flex-1 rounded-md bg-transparent px-2 text-sm outline-none"
               onKeyDown={(event) => {
                 if (event.key === "Escape") {
-                  setSearchOpen(false);
-                  setQuery("");
+                  setSearchOpen(false)
+                  setQuery("")
                 }
               }}
             />
@@ -207,8 +227,8 @@ export function MessageThread({
               type="button"
               aria-label="Close conversation search"
               onClick={() => {
-                setSearchOpen(false);
-                setQuery("");
+                setSearchOpen(false)
+                setQuery("")
               }}
               className={iconButton}
             >
@@ -217,7 +237,8 @@ export function MessageThread({
           </div>
           {term && (
             <p role="status" className="text-muted-foreground pb-1 text-xs">
-              {visible.length} {visible.length === 1 ? "message" : "messages"} found
+              {visible.length} {visible.length === 1 ? "message" : "messages"}{" "}
+              found
             </p>
           )}
         </div>
@@ -225,12 +246,19 @@ export function MessageThread({
       {archived && (
         <div className="border-border bg-muted text-muted-foreground flex items-center justify-between border-b px-5 py-2 text-xs">
           <span>Archived conversation</span>
-          <button type="button" onClick={onArchive} className="text-primary min-h-9 font-medium">
+          <button
+            type="button"
+            onClick={onArchive}
+            className="text-primary min-h-9 font-medium"
+          >
             Move to inbox
           </button>
         </div>
       )}
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-8">
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-8"
+      >
         <div className="mx-auto max-w-3xl">
           {!term && (
             <div className="mb-8 text-center">
@@ -247,14 +275,23 @@ export function MessageThread({
             className="space-y-6"
           >
             {visible.map((message) => (
-              <MessageBubble key={message.id} message={message} name={selected.name.split(" ")[0]} highlight={term} />
+              <MessageBubble
+                key={message.id}
+                message={message}
+                name={selected.name.split(" ")[0]}
+                highlight={term}
+              />
             ))}
           </div>
           {term && !visible.length && (
             <div className="py-10 text-center">
               <Search className="text-muted-foreground mx-auto size-6" />
-              <h2 className="mt-4 text-sm font-medium">No messages match this search</h2>
-              <p className="text-muted-foreground mt-2 text-xs">Try another word or phrase.</p>
+              <h2 className="mt-4 text-sm font-medium">
+                No messages match this search
+              </h2>
+              <p className="text-muted-foreground mt-2 text-xs">
+                Try another word or phrase.
+              </p>
             </div>
           )}
         </div>
@@ -262,9 +299,9 @@ export function MessageThread({
       <footer className="border-border bg-card shrink-0 border-t px-3 pt-3 pb-2 sm:px-6 sm:pt-4 sm:pb-3">
         <form
           onSubmit={(event) => {
-            event.preventDefault();
-            onSend();
-            composer.current?.focus();
+            event.preventDefault()
+            onSend()
+            composer.current?.focus()
           }}
           className="border-input bg-card focus-within:border-primary/60 focus-within:ring-primary/10 rounded-xl border transition-shadow focus-within:ring-2"
         >
@@ -279,8 +316,8 @@ export function MessageThread({
                 !event.nativeEvent.isComposing &&
                 window.matchMedia("(pointer: fine)").matches
               ) {
-                event.preventDefault();
-                onSend();
+                event.preventDefault()
+                onSend()
               }
             }}
             rows={2}
@@ -310,8 +347,10 @@ export function MessageThread({
             </button>
           </div>
         </form>
-        <p className="text-muted-foreground mt-2 text-center text-[10px]">Preview only. Messages aren't delivered.</p>
+        <p className="text-muted-foreground mt-2 text-center text-[10px]">
+          Preview only. Messages aren't delivered.
+        </p>
       </footer>
     </section>
-  );
+  )
 }

@@ -1,8 +1,18 @@
-export function Footer({ variant = "workspace" }: { variant?: "workspace" | "auth" }) {
-  const currentYear = new Date().getFullYear();
+export function Footer({
+  variant = "workspace",
+}: {
+  variant?: "workspace" | "auth"
+}) {
+  const currentYear = new Date().getFullYear()
 
   return (
-    <footer className={variant === "auth" ? "shrink-0 bg-transparent pt-4" : "border-border/70 bg-background border-t"}>
+    <footer
+      className={
+        variant === "auth"
+          ? "shrink-0 bg-transparent pt-4"
+          : "border-border/70 bg-background border-t"
+      }
+    >
       <div
         className={
           variant === "auth"
@@ -11,15 +21,19 @@ export function Footer({ variant = "workspace" }: { variant?: "workspace" | "aut
         }
       >
         <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
-          <p className="text-muted-foreground text-xs font-medium whitespace-nowrap">© {currentYear} Freelancer</p>
+          <p className="text-muted-foreground text-xs font-medium whitespace-nowrap">
+            © {currentYear} Freelancer
+          </p>
 
           <span aria-hidden="true" className="text-border hidden sm:inline">
             ·
           </span>
 
-          <p className="text-muted-foreground/80 hidden truncate text-xs sm:block">Better talent. Brighter outcomes.</p>
+          <p className="text-muted-foreground/80 hidden truncate text-xs sm:block">
+            Better talent. Brighter outcomes.
+          </p>
         </div>
       </div>
     </footer>
-  );
+  )
 }

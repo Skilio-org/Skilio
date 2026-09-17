@@ -1,12 +1,19 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { Camera, CheckCircle2, ImageUp } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { UsersService } from "@/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { createFileRoute } from "@tanstack/react-router"
+import { Camera, CheckCircle2, ImageUp } from "lucide-react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import {
+  type ClientProfilePublic,
+  ClientProfilesService,
+  UsersService,
+} from "@/client"
 
-import { Monogram, WorkspacePageHeader } from "@/components/dashboard/dashboard-header";
-import { Button } from "@/components/ui/button";
+import {
+  Monogram,
+  WorkspacePageHeader,
+} from "@/components/dashboard/dashboard-header"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -14,38 +21,121 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { markAccountAvatarUpdated, useAccountAvatarUrl } from "@/hooks/useAccountAvatar";
-import useAuth from "@/hooks/useAuth";
-import { getInitials } from "@/utils";
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  markAccountAvatarUpdated,
+  useAccountAvatarUrl,
+} from "@/hooks/useAccountAvatar"
+import useAuth from "@/hooks/useAuth"
+import { getInitials } from "@/utils"
 
 export const Route = createFileRoute("/_layout/client-profile")({
   component: ClientProfile,
   head: () => ({ meta: [{ title: "Client profile | Freelancer" }] }),
-});
+})
 
 function ClientProfile() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const [saved, setSaved] = useState(false);
-  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
-  const [selectedPhotoName, setSelectedPhotoName] = useState("");
-  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
-  const [photoUpdated, setPhotoUpdated] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [avatarFailed, setAvatarFailed] = useState(false);
-  const displayName = user?.full_name || "Your name";
-  const avatarUrl = useAccountAvatarUrl(user?.id);
-  useEffect(() => setAvatarFailed(false), []);
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+  const [saved, setSaved] = useState(false)
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false)
+  const [selectedPhotoName, setSelectedPhotoName] = useState("")
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null)
+  const [photoUpdated, setPhotoUpdated] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [avatarFailed, setAvatarFailed] = useState(false)
+
+  const [fullName, setFullName] = useState("")
+  const [company, setCompany] = useState("")
+  const [companyRole, setCompanyRole] = useState("")
+  const [website, setWebsite] = useState("")
+  const [location, setLocation] = useState("")
+  const [companySize, setCompanySize] = useState("")
+
+  const { data: profile, isLoading } = useQuery<ClientProfilePublic>({
+    queryKey: ["clientProfile"],
+    queryFn: async () => {
+      const res = await ClientProfilesService.profilesReadClientProfileMe()
+      return res.data
+    },
+    enabled: !!user,
+  })
+
+  useEffect(() => {
+    if (profile) {
+      setFullName(profile.full_name ?? user?.full_name ?? "")
+      setCompany(profile.company ?? "")
+      setCompanyRole(profile.company_role ?? "")
+      setWebsite(profile.company_website ?? "")
+      setLocation(profile.location ?? "")
+      setCompanySize(profile.company_size ?? "")
+    } else if (user) {
+      setFullName(user.full_name ?? "")
+    }
+  }, [profile, user])
+
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      const res = await ClientProfilesService.profilesUpdateClientProfileMe({
+        body: {
+          full_name: fullName.trim() || null,
+          company: company.trim() || null,
+          company_role: companyRole.trim() || null,
+          company_website: website.trim() || null,
+          location: location.trim() || null,
+          company_size: companySize || null,
+        },
+      })
+      return res.data
+    },
+    onSuccess: () => {
+      setSaved(true)
+      queryClient.invalidateQueries({ queryKey: ["clientProfile"] })
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] })
+      toast.success("Client profile saved")
+    },
+    onError: () => {
+      toast.error("Couldn’t save your profile. Please try again.")
+    },
+  })
+
+  const displayName =
+    fullName || profile?.full_name || user?.full_name || "Your name"
+  const avatarUrl = useAccountAvatarUrl(user?.id)
+  useEffect(() => setAvatarFailed(false), [])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSaved(true);
-    toast.success("Client profile saved");
-  };
+    event.preventDefault()
+    updateMutation.mutate()
+  }
+
+  const handleCancel = () => {
+    if (profile) {
+      setFullName(profile.full_name ?? user?.full_name ?? "")
+      setCompany(profile.company ?? "")
+      setCompanyRole(profile.company_role ?? "")
+      setWebsite(profile.company_website ?? "")
+      setLocation(profile.location ?? "")
+      setCompanySize(profile.company_size ?? "")
+    } else if (user) {
+      setFullName(user.full_name ?? "")
+      setCompany("")
+      setCompanyRole("")
+      setWebsite("")
+      setLocation("")
+      setCompanySize("")
+    }
+    setSaved(false)
+  }
 
   return (
     <div className="space-y-8">
@@ -83,7 +173,9 @@ function ClientProfile() {
               </button>
             </Monogram>
             <div>
-              <h2 className="font-display text-xl font-semibold">Profile photo</h2>
+              <h2 className="font-display text-xl font-semibold">
+                Profile photo
+              </h2>
               <p className="text-muted-foreground mt-1 text-sm leading-6">
                 {photoUpdated
                   ? "Your new profile image is ready across the workspace."
@@ -101,17 +193,67 @@ function ClientProfile() {
               <Field
                 label="Full name"
                 id="full-name"
-                defaultValue={user?.full_name ?? ""}
+                value={fullName}
+                onChange={(e) => {
+                  setFullName(e.target.value)
+                  setSaved(false)
+                }}
                 placeholder="Your full name"
               />
-              <Field label="Company" id="company" placeholder="Company or studio" />
-              <Field label="Role" id="role" placeholder="e.g. Product lead" />
-              <Field label="Company website" id="website" type="url" placeholder="https://company.com" />
-              <Field label="Location" id="location" placeholder="City, country" />
+              <Field
+                label="Company"
+                id="company"
+                value={company}
+                onChange={(e) => {
+                  setCompany(e.target.value)
+                  setSaved(false)
+                }}
+                placeholder="Company or studio"
+              />
+              <Field
+                label="Role"
+                id="role"
+                value={companyRole}
+                onChange={(e) => {
+                  setCompanyRole(e.target.value)
+                  setSaved(false)
+                }}
+                placeholder="e.g. Product lead"
+              />
+              <Field
+                label="Company website"
+                id="website"
+                type="url"
+                value={website}
+                onChange={(e) => {
+                  setWebsite(e.target.value)
+                  setSaved(false)
+                }}
+                placeholder="https://company.com"
+              />
+              <Field
+                label="Location"
+                id="location"
+                value={location}
+                onChange={(e) => {
+                  setLocation(e.target.value)
+                  setSaved(false)
+                }}
+                placeholder="City, country"
+              />
               <div className="space-y-2">
                 <Label id="company-size-label">Company size</Label>
-                <Select>
-                  <SelectTrigger aria-labelledby="company-size-label" className="h-12 w-full">
+                <Select
+                  value={companySize}
+                  onValueChange={(val) => {
+                    setCompanySize(val)
+                    setSaved(false)
+                  }}
+                >
+                  <SelectTrigger
+                    aria-labelledby="company-size-label"
+                    className="h-12 w-full"
+                  >
                     <SelectValue placeholder="Select company size" />
                   </SelectTrigger>
                   <SelectContent align="start">
@@ -134,14 +276,18 @@ function ClientProfile() {
             )}
             <Button
               type="reset"
-              onClick={() => setSaved(false)}
+              onClick={handleCancel}
               variant="outline"
               className="min-h-11 rounded-full px-5"
             >
               Cancel
             </Button>
-            <Button type="submit" className="min-h-11 rounded-full px-6">
-              Save profile
+            <Button
+              type="submit"
+              disabled={updateMutation.isPending || isLoading}
+              className="min-h-11 rounded-full px-6"
+            >
+              {updateMutation.isPending ? "Saving…" : "Save profile"}
             </Button>
           </div>
         </form>
@@ -152,15 +298,20 @@ function ClientProfile() {
           <DialogHeader>
             <DialogTitle>Update profile photo</DialogTitle>
             <DialogDescription>
-              Choose the image clients and independent professionals see when they review your workspace.
+              Choose the image clients and independent professionals see when
+              they review your workspace.
             </DialogDescription>
           </DialogHeader>
           <div className="border-brand-200 bg-brand-50/45 dark:border-brand-900 dark:bg-brand-950/25 rounded-2xl border border-dashed p-7 text-center">
             <span className="bg-card text-brand-700 mx-auto grid size-12 place-items-center rounded-xl shadow-sm">
               <ImageUp className="size-5" />
             </span>
-            <p className="mt-3 text-sm font-semibold">Choose a clear headshot or company logo</p>
-            <p className="text-muted-foreground mt-1 text-xs leading-5">JPG or PNG, at least 400px square.</p>
+            <p className="mt-3 text-sm font-semibold">
+              Choose a clear headshot or company logo
+            </p>
+            <p className="text-muted-foreground mt-1 text-xs leading-5">
+              JPG or PNG, at least 400px square.
+            </p>
             <label
               htmlFor="client-photo-upload"
               className="border-border bg-card hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 mt-5 inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border px-5 text-sm font-semibold transition"
@@ -172,15 +323,17 @@ function ClientProfile() {
                 type="file"
                 accept="image/png,image/jpeg"
                 onChange={(event) => {
-                  const file = event.target.files?.[0] ?? null;
-                  setSelectedPhoto(file);
-                  setSelectedPhotoName(file?.name ?? "");
+                  const file = event.target.files?.[0] ?? null
+                  setSelectedPhoto(file)
+                  setSelectedPhotoName(file?.name ?? "")
                 }}
                 className="sr-only"
               />
             </label>
             {selectedPhotoName && (
-              <p className="mt-3 text-xs font-medium text-emerald-700">Selected: {selectedPhotoName}</p>
+              <p className="mt-3 text-xs font-medium text-emerald-700">
+                Selected: {selectedPhotoName}
+              </p>
             )}
           </div>
           <DialogFooter>
@@ -188,9 +341,9 @@ function ClientProfile() {
               type="button"
               variant="outline"
               onClick={() => {
-                setSelectedPhotoName("");
-                setSelectedPhoto(null);
-                setPhotoDialogOpen(false);
+                setSelectedPhotoName("")
+                setSelectedPhoto(null)
+                setPhotoDialogOpen(false)
               }}
             >
               Cancel
@@ -199,24 +352,25 @@ function ClientProfile() {
               type="button"
               disabled={!selectedPhoto || uploading}
               onClick={async () => {
-                if (!selectedPhoto || uploading || !user) return;
-                setUploading(true);
+                if (!selectedPhoto || uploading || !user) return
+                setUploading(true)
                 try {
                   const response = await UsersService.uploadAvatar({
                     body: { file: selectedPhoto },
-                  });
-                  if (response.data.status !== "Ok") throw new Error("Upload failed");
-                  markAccountAvatarUpdated(user.id);
+                  })
+                  if (response.data.status !== "Ok")
+                    throw new Error("Upload failed")
+                  markAccountAvatarUpdated(user.id)
                   await queryClient.invalidateQueries({
                     queryKey: ["currentUser"],
-                  });
-                  setPhotoUpdated(true);
-                  setPhotoDialogOpen(false);
-                  toast.success("Profile photo uploaded");
+                  })
+                  setPhotoUpdated(true)
+                  setPhotoDialogOpen(false)
+                  toast.success("Profile photo uploaded")
                 } catch {
-                  toast.error("Couldn’t upload your photo. Please try again.");
+                  toast.error("Couldn’t upload your photo. Please try again.")
                 } finally {
-                  setUploading(false);
+                  setUploading(false)
                 }
               }}
             >
@@ -226,14 +380,18 @@ function ClientProfile() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }
 
-function Field({ label, id, ...props }: { label: string; id: string } & React.ComponentProps<typeof Input>) {
+function Field({
+  label,
+  id,
+  ...props
+}: { label: string; id: string } & React.ComponentProps<typeof Input>) {
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
       <Input id={id} {...props} />
     </div>
-  );
+  )
 }
