@@ -10,7 +10,7 @@ if [ $(uname -s) = "Linux" ]; then
     sudo find . -type d -name __pycache__ -exec rm -r {} \+
 fi
 
-docker-compose build
-docker-compose run --rm backend bash scripts/prestart.sh
-docker-compose up -d
-docker-compose exec -T backend bash scripts/tests-start.sh "$@"
+docker compose build
+docker compose run --rm backend bash scripts/prestart.sh
+docker compose up -d
+docker compose exec -T backend bash scripts/tests-start.sh "$@"
