@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   ArrowLeftRight,
@@ -11,7 +12,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { UserPublic } from "@/client";
+import { UsersService, type UserPublic } from "@/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ import useAuth from "@/hooks/useAuth";
 import { getInitials } from "@/utils";
 
 export function User({ user }: { user?: UserPublic | null }) {
+  const queryClient = useQueryClient();
   const { logout } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({
@@ -44,7 +46,15 @@ export function User({ user }: { user?: UserPublic | null }) {
     if (!user && import.meta.env.MODE !== "visual-test") return;
     setSwitching(true);
     try {
-      if (user) setAccountRole(user.email, nextRole);
+      if (user) {
+        if (import.meta.env.MODE !== "visual-test") {
+          const response = await UsersService.switchRole({
+            body: { role: nextRole },
+          });
+          queryClient.setQueryData(["currentUser"], response.data);
+        }
+        setAccountRole(user.email, nextRole);
+      }
       setOpen(false);
       await navigate({
         to: freelancer ? "/dashboard" : "/freelancer-dashboard",

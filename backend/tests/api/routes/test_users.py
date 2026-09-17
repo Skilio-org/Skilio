@@ -7,8 +7,8 @@ from sqlmodel import Session, select
 from app import crud
 from app.core.config import settings
 from app.core.security import verify_password
-from app.models import User, UserCreate
-from tests.utils.user import create_random_user
+from app.models import FreelancerProfile, User, UserCreate, UserRole
+from tests.utils.user import create_random_user, user_authentication_headers
 from tests.utils.utils import random_email, random_lower_string
 
 
@@ -338,6 +338,121 @@ def test_register_user(client: TestClient, db: Session) -> None:
     assert user_db.full_name == full_name
     verified, _ = verify_password(password, user_db.hashed_password)
     assert verified
+
+
+def test_register_user_as_freelancer_with_role_field(
+    client: TestClient, db: Session
+) -> None:
+    username = random_email()
+    password = random_lower_string()
+    full_name = random_lower_string()
+    data = {
+        "email": username,
+        "password": password,
+        "full_name": full_name,
+        "role": "freelancer",
+    }
+    r = client.post(
+        f"{settings.API_V1_STR}/users/signup",
+        json=data,
+    )
+    assert r.status_code == 200
+    created_user = r.json()
+    assert created_user["email"] == username
+    assert created_user["active_role"] == "freelancer"
+
+    user_query = select(User).where(User.email == username)
+    user_db = db.exec(user_query).first()
+    assert user_db
+    assert user_db.active_role == UserRole.FREELANCER
+
+    profile_query = select(FreelancerProfile).where(
+        FreelancerProfile.user_id == user_db.id
+    )
+    profile_db = db.exec(profile_query).first()
+    assert profile_db is not None
+
+
+def test_register_user_as_freelancer_with_active_role_field(
+    client: TestClient, db: Session
+) -> None:
+    username = random_email()
+    password = random_lower_string()
+    full_name = random_lower_string()
+    data = {
+        "email": username,
+        "password": password,
+        "full_name": full_name,
+        "active_role": "freelancer",
+    }
+    r = client.post(
+        f"{settings.API_V1_STR}/users/signup",
+        json=data,
+    )
+    assert r.status_code == 200
+    created_user = r.json()
+    assert created_user["email"] == username
+    assert created_user["active_role"] == "freelancer"
+
+    user_query = select(User).where(User.email == username)
+    user_db = db.exec(user_query).first()
+    assert user_db
+    assert user_db.active_role == UserRole.FREELANCER
+
+    profile_query = select(FreelancerProfile).where(
+        FreelancerProfile.user_id == user_db.id
+    )
+    profile_db = db.exec(profile_query).first()
+    assert profile_db is not None
+
+
+def test_switch_role_from_client_to_freelancer(
+    client: TestClient, db: Session
+) -> None:
+    username = random_email()
+    password = random_lower_string()
+    full_name = random_lower_string()
+    data = {
+        "email": username,
+        "password": password,
+        "full_name": full_name,
+        "role": "client",
+    }
+    r = client.post(f"{settings.API_V1_STR}/users/signup", json=data)
+    assert r.status_code == 200
+    assert r.json()["active_role"] == "client"
+
+    auth_headers = user_authentication_headers(
+        client=client, email=username, password=password
+    )
+
+    # Switch to freelancer without an existing profile (should auto-provision draft profile)
+    r_switch = client.post(
+        f"{settings.API_V1_STR}/users/me/switch-role",
+        headers=auth_headers,
+        json={"role": "freelancer"},
+    )
+    assert r_switch.status_code == 200
+    switched_user = r_switch.json()
+    assert switched_user["active_role"] == "freelancer"
+
+    user_db = db.exec(select(User).where(User.email == username)).first()
+    assert user_db
+    assert user_db.active_role == UserRole.FREELANCER
+
+    profile_db = db.exec(
+        select(FreelancerProfile).where(FreelancerProfile.user_id == user_db.id)
+    ).first()
+    assert profile_db is not None
+
+    # Switch back to client
+    r_back = client.post(
+        f"{settings.API_V1_STR}/users/me/switch-role",
+        headers=auth_headers,
+        json={"role": "client"},
+    )
+    assert r_back.status_code == 200
+    assert r_back.json()["active_role"] == "client"
 
 
 def test_register_user_already_exists_error(client: TestClient) -> None:

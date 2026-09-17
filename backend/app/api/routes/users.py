@@ -198,10 +198,9 @@ def switch_role(
             )
         ).first()
         if not profile:
-            raise HTTPException(
-                status_code=400,
-                detail="Create a freelancer profile before switching to freelancer role",
-            )
+            profile = FreelancerProfile(user_id=current_user.id)
+            session.add(profile)
+            session.commit()
 
     current_user.active_role = body.role
     session.add(current_user)
@@ -266,6 +265,18 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
         )
     user_create = UserCreate.model_validate(user_in)
     user = crud.create_user(session=session, user_create=user_create)
+
+    # If registering as a freelancer, auto-initialize an empty draft FreelancerProfile
+    if user.active_role == UserRole.FREELANCER:
+        profile = session.exec(
+            select(FreelancerProfile).where(FreelancerProfile.user_id == user.id)
+        ).first()
+        if not profile:
+            profile = FreelancerProfile(user_id=user.id)
+            session.add(profile)
+            session.commit()
+            session.refresh(user)
+
     return user
 
 

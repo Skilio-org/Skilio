@@ -20,6 +20,7 @@ from sqlmodel import col, func, select
 from app.api.deps import CurrentUser, CurrentUserOptional, SessionDep
 from app.claudinary import claudinary_delete_media, claudinary_upload_media
 from app.models import (
+    AvatarResponse,
     Education,
     EducationCreate,
     EducationPublic,
@@ -44,7 +45,7 @@ from app.models import (
     Skill,
     User,
     UserPublic,
-    UserRole, AvatarResponse,
+    UserRole,
 )
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
@@ -723,7 +724,7 @@ def create_profile(
     existing = session.exec(
         select(FreelancerProfile).where(FreelancerProfile.user_id == current_user.id)
     ).first()
-    if existing:
+    if existing and existing.title is not None:
         raise HTTPException(
             status_code=409,
             detail="Freelancer profile already exists for this user",
@@ -740,8 +741,15 @@ def create_profile(
             )
         skill_objects.append(skill)
 
-    profile_data = profile_in.model_dump(exclude={"skills"})
-    profile = FreelancerProfile(**profile_data, user_id=current_user.id)
+    if existing:
+        profile_data = profile_in.model_dump(exclude_unset=True, exclude={"skills"})
+        if profile_data:
+            existing.sqlmodel_update(profile_data)
+        profile = existing
+    else:
+        profile_data = profile_in.model_dump(exclude={"skills"})
+        profile = FreelancerProfile(**profile_data, user_id=current_user.id)
+
     session.add(profile)
 
     # Auto-switch user's active role to freelancer
@@ -751,6 +759,16 @@ def create_profile(
     session.commit()
     session.refresh(profile)
 
+    # If updating an existing profile, clear old skill links first
+    if existing:
+        old_links = session.exec(
+            select(FreelancerSkillLink).where(
+                FreelancerSkillLink.freelancer_profile_id == profile.id
+            )
+        ).all()
+        for link in old_links:
+            session.delete(link)
+
     # Link skills
     for skill in skill_objects:
         link = FreelancerSkillLink(freelancer_profile_id=profile.id, skill_id=skill.id)
@@ -758,12 +776,19 @@ def create_profile(
     session.commit()
     session.refresh(profile)
 
+    avg_rating_stmt = select(func.avg(Review.rating)).where(
+        Review.freelancer_id == profile.id
+    )
+    reviews_count_stmt = select(func.count()).where(Review.freelancer_id == profile.id)
+    avg_rating = session.exec(avg_rating_stmt).one()
+    reviews_count = session.exec(reviews_count_stmt).one()
+
     return FreelancerProfilePublic.model_validate(
         profile,
         update={
             "full_name": current_user.full_name,
-            "average_rating": None,
-            "reviews_count": 0,
+            "average_rating": float(avg_rating) if avg_rating else None,
+            "reviews_count": reviews_count,
             "is_saved": False,
         },
     )

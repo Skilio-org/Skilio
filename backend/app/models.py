@@ -1,9 +1,9 @@
 import uuid
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Optional
+from typing import Any, Optional
 
-from pydantic import EmailStr
+from pydantic import EmailStr, model_validator
 from sqlalchemy import DateTime, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -137,6 +137,19 @@ class UserRegister(SQLModel):
     password: str = Field(min_length=8, max_length=128)
     full_name: str | None = Field(default=None, max_length=255)
     active_role: UserRole = Field(default=UserRole.CLIENT)
+    role: UserRole | None = Field(
+        default=None, description="Alias for active_role from registration form"
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_role_alias(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "role" in data and "active_role" not in data:
+                data["active_role"] = data["role"]
+            elif "active_role" in data and "role" not in data:
+                data["role"] = data["active_role"]
+        return data
 
 
 # Properties to receive via API on update, all are optional

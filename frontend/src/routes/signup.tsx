@@ -118,9 +118,13 @@ function SignUp() {
   const onSubmit = (data: FormData) => {
     if (signUpMutation.isPending) return;
 
-    const { confirm_password: _confirmPassword, ...submitData } = data;
+    const { confirm_password: _confirmPassword, role, ...submitData } = data;
 
-    signUpMutation.mutate(submitData);
+    signUpMutation.mutate({
+      ...submitData,
+      role,
+      active_role: role,
+    });
   };
 
   return (

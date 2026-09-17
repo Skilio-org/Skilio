@@ -33,9 +33,16 @@ const useAuth = () => {
   });
 
   const signUpMutation = useMutation({
-    mutationFn: (data: UserRegister & { role?: "freelancer" | "client" }) => UsersService.registerUser({ body: data }),
+    mutationFn: (data: UserRegister & { role?: "freelancer" | "client" }) =>
+      UsersService.registerUser({
+        body: {
+          ...data,
+          active_role: data.active_role ?? data.role ?? "client",
+        },
+      }),
     onSuccess: (_result, data) => {
-      if (data.role) localStorage.setItem(`account-role:${data.email.trim().toLowerCase()}`, data.role);
+      const role = data.active_role ?? data.role;
+      if (role) localStorage.setItem(`account-role:${data.email.trim().toLowerCase()}`, role);
       navigate({ to: "/login" });
     },
     onError: handleError.bind(showErrorToast),
@@ -63,7 +70,11 @@ const useAuth = () => {
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (account) => {
-      const role = localStorage.getItem(`account-role:${account.email.trim().toLowerCase()}`);
+      const role =
+        account.active_role || localStorage.getItem(`account-role:${account.email.trim().toLowerCase()}`);
+      if (account.active_role) {
+        localStorage.setItem(`account-role:${account.email.trim().toLowerCase()}`, account.active_role);
+      }
       if (account.is_active && !account.is_superuser) {
         navigate({
           to: role === "freelancer" ? "/freelancer-dashboard" : "/dashboard",
