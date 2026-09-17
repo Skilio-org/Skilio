@@ -14,12 +14,14 @@ export function JobFormSection({
 }) {
   return (
     <section className="space-y-5">
-      <div className="flex items-start gap-3">
-        <div>
-          <h3 className="text-base font-semibold tracking-tight">{title}</h3>
-          <p className="text-muted-foreground mt-1 text-sm leading-5">{description}</p>
+      {title && (
+        <div className="flex items-start gap-3">
+          <div>
+            <h3 className="text-base font-semibold tracking-tight">{title}</h3>
+            <p className="text-muted-foreground mt-1 text-sm leading-5">{description}</p>
+          </div>
         </div>
-      </div>
+      )}
       <div className="space-y-5">{children}</div>
     </section>
   );

@@ -51,10 +51,7 @@ export function ClientJobEditor({
                 }}
               >
                 <div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-6 py-6 sm:px-8">
-                  <JobFormSection
-                    title="Start with the big picture"
-                    description="What are you building, and what would a great result look like?"
-                  >
+                  <JobFormSection title="" description="">
                     <label className="block text-sm font-medium">
                       Job title
                       <input
@@ -92,25 +89,7 @@ export function ClientJobEditor({
                   </JobFormSection>
 
                   <div className="border-border border-t" />
-                  <JobFormSection
-                    title="Find the right expertise"
-                    description="Choose a category and the skills your project needs."
-                  >
-                    <div className="text-sm font-medium">
-                      <label htmlFor="job-category">Category</label>
-                      <Select value={job.category} onValueChange={(category) => onJobChange({ ...job, category })}>
-                        <SelectTrigger id="job-category" className="mt-2 min-h-12 w-full rounded-xl">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {["Development", "Design", "Marketing", "Writing", "AI services"].map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <JobFormSection title="Find the right expertise" description="Choose the skills your project needs.">
                     <label className="block text-sm font-medium">
                       Skills
                       <input

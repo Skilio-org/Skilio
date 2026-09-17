@@ -17,8 +17,6 @@ export const Route = createFileRoute("/_layout/talent")({
   head: () => ({ meta: [{ title: "Find talent | Freelancer" }] }),
 });
 
-const specialties = ["All talent", "Development", "Design", "Marketing", "AI services"] as const;
-
 const popularSearches = ["Product designer", "React developer", "AI engineer"];
 
 const rateOptions = [
@@ -42,14 +40,6 @@ const locationOptions = [
   { value: "asia-pacific", label: "Asia Pacific" },
 ];
 
-const specialtyTerms: Record<(typeof specialties)[number], string[]> = {
-  "All talent": [],
-  Development: ["engineer", "developer", "react", "typescript", "node.js"],
-  Design: ["designer", "product design", "figma", "ux research"],
-  Marketing: ["marketing", "brand", "growth", "seo", "positioning"],
-  "AI services": ["ai", "automation", "llm", "rag", "python"],
-};
-
 const searchAliases: Record<string, string[]> = {
   developer: ["developer", "engineer"],
   engineer: ["engineer", "developer"],
@@ -65,7 +55,6 @@ function TalentDirectory() {
   useEffect(() => setQuery(q ?? ""), [q]);
   const { savedIds, toggleSaved } = useSavedTalent();
   const [savedOnly, setSavedOnly] = useState(false);
-  const [specialty, setSpecialty] = useState<(typeof specialties)[number]>("All talent");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [rate, setRate] = useState("any");
   const [availability, setAvailability] = useState("any");
@@ -76,7 +65,6 @@ function TalentDirectory() {
 
   const results = useMemo(() => {
     const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
-    const expertiseTerms = specialtyTerms[specialty];
 
     const filtered = freelancers.filter((person) => {
       const haystack = [person.name, person.title, person.location, person.bio, ...person.skills]
@@ -86,7 +74,6 @@ function TalentDirectory() {
       const matchesSearch =
         searchTerms.length === 0 ||
         searchTerms.every((term) => (searchAliases[term] ?? [term]).some((candidate) => haystack.includes(candidate)));
-      const matchesSpecialty = expertiseTerms.length === 0 || expertiseTerms.some((term) => haystack.includes(term));
       const matchesRate =
         rate === "any" ||
         (rate === "under-50" && person.rate < 50) ||
@@ -107,7 +94,6 @@ function TalentDirectory() {
 
       return (
         matchesSearch &&
-        matchesSpecialty &&
         matchesRate &&
         matchesAvailability &&
         matchesLocation &&
@@ -120,7 +106,7 @@ function TalentDirectory() {
       if (sort === "lowest-rate") return first.rate - second.rate;
       return second.successRate - first.successRate || second.rating - first.rating;
     });
-  }, [availability, location, query, rate, sort, specialty, savedOnly, savedIds]);
+  }, [availability, location, query, rate, sort, savedOnly, savedIds]);
 
   const resetFilters = () => {
     setRate("any");
@@ -130,12 +116,11 @@ function TalentDirectory() {
 
   const clearAll = () => {
     setQuery("");
-    setSpecialty("All talent");
     setSavedOnly(false);
     resetFilters();
     void navigate({ search: { q: undefined }, replace: true });
   };
-  const hasFilters = !!query || specialty !== "All talent" || activeFilterCount > 0 || savedOnly;
+  const hasFilters = !!query || activeFilterCount > 0 || savedOnly;
   const filterFields = (group: string) => (
     <div className="space-y-7">
       <fieldset>
@@ -267,26 +252,10 @@ function TalentDirectory() {
           ))}
         </div>
       </search>
-      <nav aria-label="Talent specialties" className="border-border flex gap-5 overflow-x-auto border-b sm:gap-7">
-        {specialties.map((item) => (
-          <button
-            type="button"
-            key={item}
-            aria-pressed={specialty === item}
-            onClick={() => setSpecialty(item)}
-            className={`min-h-12 shrink-0 border-b-2 px-1 text-sm font-medium transition-colors ${specialty === item ? "border-primary text-primary" : "text-muted-foreground hover:text-foreground border-transparent"}`}
-          >
-            {item}
-          </button>
-        ))}
-      </nav>
       <div className="grid items-start gap-6 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
         <aside aria-label="Talent filters" className="sticky top-24 hidden lg:block">
           <h2 className="mb-6 text-base font-semibold">Refine your search</h2>
           {filterFields("desktop-rate")}
-          <p className="border-border text-muted-foreground mt-7 border-t pt-5 text-xs leading-6">
-            Demo directory. Profiles, reviews, and rates are sample data.
-          </p>
         </aside>
         <section aria-label="Talent results" className="min-w-0">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -311,9 +280,6 @@ function TalentDirectory() {
           </div>
           {hasFilters && (
             <div className="mb-4 flex flex-wrap gap-2">
-              {specialty !== "All talent" && (
-                <FilterChip label={specialty} onRemove={() => setSpecialty("All talent")} />
-              )}
               {rate !== "any" && (
                 <FilterChip
                   label={rateOptions.find((option) => option.value === rate)?.label ?? rate}

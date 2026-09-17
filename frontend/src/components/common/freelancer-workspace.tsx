@@ -1,3 +1,8 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import ChangePassword from "@/components/user-settings/change-password";
+import { AppearanceSettings } from "@/components/user-settings/preferences";
+import useAuth from "@/hooks/useAuth";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowDownWideNarrow,
@@ -18,19 +23,14 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import ChangePassword from "@/components/user-settings/change-password";
-import { AppearanceSettings } from "@/components/user-settings/preferences";
-import useAuth from "@/hooks/useAuth";
 import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "../dashboard/dashboard-header";
 import { FreelancerJobFilterFields } from "../freelancer/freelancer-job-filter-fields";
 import {
   type ProposalDraft as Draft,
+  type FreelancerJob as Job,
   freelancerJobs,
   freelancerWorkspaceSubtitles,
   freelancerWorkspaceTitles,
-  type FreelancerJob as Job,
   seedProposals,
 } from "../freelancer/freelancer-workspace-data";
 import { JobFormSection, jobFormField } from "./job-form-section";
@@ -410,19 +410,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
               ))}
             </div>
           </search>
-          <nav aria-label="Job categories" className="border-border flex gap-5 overflow-x-auto border-b sm:gap-7">
-            {["All work", "Design", "Development", "Marketing"].map((f) => (
-              <button
-                type="button"
-                key={f}
-                aria-pressed={filter === f}
-                className={`min-h-12 shrink-0 border-b-2 px-1 text-sm font-medium transition-colors ${filter === f ? "border-primary text-primary" : "text-muted-foreground hover:text-foreground border-transparent"}`}
-                onClick={() => setFilter(f)}
-              >
-                {f}
-              </button>
-            ))}
-          </nav>
           <div className="grid items-start gap-6 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
             <aside aria-label="Job filters" className="sticky top-24 hidden lg:block">
               <h2 className="mb-6 text-base font-semibold">Refine your search</h2>
