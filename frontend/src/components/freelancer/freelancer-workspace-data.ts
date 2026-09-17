@@ -23,7 +23,7 @@ export const freelancerJobs: FreelancerJob[] = [
 		title: "Design a clearer onboarding experience",
 		company: "Northstar Studio",
 		category: "Design",
-		budget: "$1,500–$2,500 · Fixed price",
+		budget: "$1,500 · Fixed price",
 		projectType: "Fixed price",
 		posted: "Posted 2 hours ago",
 		description:
@@ -35,7 +35,7 @@ export const freelancerJobs: FreelancerJob[] = [
 		title: "Build a responsive customer dashboard",
 		company: "Forma",
 		category: "Development",
-		budget: "$50–$80/hr · 1–3 months",
+		budget: "$50/hr · 1–3 months",
 		projectType: "Hourly",
 		posted: "Posted 5 hours ago",
 		description:
@@ -47,7 +47,7 @@ export const freelancerJobs: FreelancerJob[] = [
 		title: "Create a launch content strategy",
 		company: "Good Company",
 		category: "Marketing",
-		budget: "$800–$1,200 · Fixed price",
+		budget: "$800 · Fixed price",
 		projectType: "Fixed price",
 		posted: "Posted yesterday",
 		description:

@@ -11,10 +11,10 @@ repos:
           - --unsafe
       - id: end-of-file-fixer
         exclude: |
-            (?x)^(
-                frontend/src/client/.*|
-                backend/app/email-templates/.*
-            )$
+          (?x)^(
+              frontend/src/client/.*|
+              backend/app/email-templates/.*
+          )$
       - id: trailing-whitespace
         exclude: ^frontend/src/client/.*
   - repo: https://github.com/crate-ci/typos
@@ -64,7 +64,7 @@ repos:
         entry: bash ./scripts/generate-client.sh
         pass_filenames: false
         language: unsupported
-        files: ^backend/app/.*\.py$|^backend/pyproject\.toml$|^uv\.lock$|^frontend/openapi-ts\.config\.ts$|^scripts/generate-client\.sh$
+        # files: ^backend/app/.*\.py$|^backend/pyproject\.toml$|^uv\.lock$|^frontend/openapi-ts\.config\.ts$|^scripts/generate-client\.sh$
 
       - id: add-release-date
         language: unsupported
