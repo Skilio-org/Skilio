@@ -58,9 +58,7 @@ def google_callback(code: str, session: SessionDep):
         headers={"Authorization": f"Bearer {access_token}"}
     )
     google_user = userinfo_response.json() # google_user has: sub, email, name, picture
-
     user = crud.get_user_by_email(session=session, email=google_user["email"])
-
     if user:
         if not user.google_id:
             raise HTTPException(
@@ -93,6 +91,89 @@ def google_callback(code: str, session: SessionDep):
             user.id, expires_delta=access_token_expires
         )
     )
+@router.get("/login/linkedin")
+def login_linkedin() -> RedirectResponse:
+    """
+    LinkedIn OAuth2 OpenID Compatible login redirect.
+    """
+    params = {
+        "client_id": settings.LINKEDIN_CLIENT_ID,
+        "redirect_uri": settings.LINKEDIN_REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email profile",
+    }
+    query = "&".join(f"{k}={v}" for k, v in params.items())
+    return RedirectResponse(f"{settings.LINKEDIN_AUTH_URI}?{query}")
+
+router.get("/login/linkedin/callback")
+def linkedin_callback(code: str, session: SessionDep):
+    # 1. Exchange authorization code for an access token
+    token_response = requests.post(
+        settings.LINKEDIN_TOKEN_URI,
+        data={
+            "code": code,
+            "client_id": settings.LINKEDIN_CLIENT_ID,
+            "client_secret": settings.LINKEDIN_CLIENT_SECRET,
+            "redirect_uri": settings.LINKEDIN_REDIRECT_URI,
+            "grant_type": "authorization_code",
+        },
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    
+    if token_response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Failed to retrieve token from LinkedIn.")
+
+    token_data = token_response.json()
+    access_token = token_data["access_token"]
+    refresh_token: Any = token_data["refresh_token"]
+
+    # 2. Fetch user information from LinkedIn OIDC userinfo endpoint
+    userinfo_response = requests.get(
+        settings.LINKEDIN_USERINFO_URL,
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    if userinfo_response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Failed to retrieve profile from LinkedIn.")
+
+    # linkedin_user contains standard OIDC fields: sub, email, name, picture
+    linkedin_user = userinfo_response.json() 
+
+    # 3. Apply exact user lookup and creation logic
+    user = crud.get_user_by_email(session=session, email=linkedin_user["email"])
+
+    if user:
+        if not user.linkedin_id:
+            # If the user registered via password or Google, link the account
+            user.linkedin_id = linkedin_user["sub"]
+        
+        user.full_name = linkedin_user.get("name")
+        user.avatar_url = linkedin_user.get("picture")
+        
+        session.add(user)
+        session.commit()
+    else:
+        # Create new user record
+        user = User(
+            email=linkedin_user["email"],
+            full_name=linkedin_user.get("name"),
+            avatar_url=linkedin_user.get("picture"),
+            linkedin_id=linkedin_user["sub"],
+            is_active=True,
+            refresh_token=refresh_token,
+            hashed_password=""
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+
+    # 4. Issue standard JWT token back to the frontend
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    return Token(
+        access_token=security.create_access_token(
+            user.id, expires_delta=access_token_expires
+        )
+    )
 
 @router.post("/login/access-token")
 def login_access_token(
@@ -115,7 +196,6 @@ def login_access_token(
             user.id, expires_delta=access_token_expires
         )
     )
-
 
 @router.post("/login/test-token", response_model=UserPublic)
 def test_token(current_user: CurrentUser) -> Any:

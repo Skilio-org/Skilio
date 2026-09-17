@@ -37,9 +37,16 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/login/google/callback"
-    GOOGLE_TOKEN_URI: str
-    GOOGLE_AUTH_URI: str
-    GOOGLE_USERINFO_URL: str
+    GOOGLE_TOKEN_URI: str = "https://oauth2.googleapis.com/token"
+    GOOGLE_AUTH_URI: str = "https://accounts.google.com/o/oauth2/auth"
+    GOOGLE_USERINFO_URL: str = "https://www.googleapis.com/oauth2/v3/userinfo"
+
+    LINKEDIN_CLIENT_ID: str
+    LINKEDIN_CLIENT_SECRET: str
+    LINKEDIN_REDIRECT_URI: str = "http://localhost:8000/api/v1/login/linkedin/callback"
+    LINKEDIN_AUTH_URI: str = "https://www.linkedin.com/oauth/v2/authorization"
+    LINKEDIN_TOKEN_URI: str = "https://www.linkedin.com/oauth/v2/accessToken"
+    LINKEDIN_USERINFO_URL: str = "https://api.linkedin.com/v2/userinfo"
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod

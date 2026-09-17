@@ -122,7 +122,12 @@ class UserBase(SQLModel):
 
     # For google Auth.
     google_id: str | None = Field(default=None, max_length=255)
+    linkedin_id: str | None = Field(default=None, max_length=255)
+
+    # For OAuth linkedin
     refresh_token: str | None = Field(default=None)
+
+
 
 
 class AvatarResponse(SQLModel):
