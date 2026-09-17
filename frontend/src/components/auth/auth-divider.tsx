@@ -1,15 +1,15 @@
 type DeviderProps = {
-  text: string;
-};
+	text: string
+}
 
 export const Divider = ({ text }: DeviderProps) => {
-  return (
-    <div className="my-7 flex items-center gap-4">
-      <div className="bg-border h-px flex-1" />
-      <span className="text-muted-foreground shrink-0 text-xs font-medium">{text}</span>
-      <div className="bg-border h-px flex-1" />
-    </div>
-  );
-};
+	return (
+		<div className="my-7 flex items-center gap-4">
+			<div className="h-px flex-1 bg-border" />
+			<span className="shrink-0 font-medium text-muted-foreground text-xs">{text}</span>
+			<div className="h-px flex-1 bg-border" />
+		</div>
+	)
+}
 
-export default Divider;
+export default Divider
