@@ -1,32 +1,17 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  createFileRoute,
-  Link as RouterLink,
-  redirect,
-} from "@tanstack/react-router"
-import {
-  ArrowLeft,
-  ArrowRight,
-  BriefcaseBusiness,
-  UserRound,
-} from "lucide-react"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import Divider from "@/components/auth/auth-divider"
-import { AuthInput } from "@/components/auth/auth-input"
-import RoleSelectButton from "@/components/auth/auth-role-select-button"
-import SocialAuth from "@/components/auth/auth-social"
-import { AuthLayout } from "@/components/common/auth-layout"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form"
-import { LoadingButton } from "@/components/ui/loading-button"
-import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createFileRoute, Link as RouterLink, redirect } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, BriefcaseBusiness, UserRound } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import Divider from "@/components/auth/auth-divider";
+import { AuthInput } from "@/components/auth/auth-input";
+import RoleSelectButton from "@/components/auth/auth-role-select-button";
+import SocialAuth from "@/components/auth/auth-social";
+import { AuthLayout } from "@/components/common/auth-layout";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { LoadingButton } from "@/components/ui/loading-button";
+import useAuth, { isLoggedIn } from "@/hooks/useAuth";
 
 const formSchema = z
   .object({
@@ -64,28 +49,23 @@ const formSchema = z
   .refine((data) => data.password === data.confirm_password, {
     message: "The passwords don't match.",
     path: ["confirm_password"],
-  })
+  });
 
-type FormData = z.infer<typeof formSchema>
+type FormData = z.infer<typeof formSchema>;
 
-type SignupStep = 1 | 2
+type SignupStep = 1 | 2;
 
 export const Route = createFileRoute("/signup")({
   component: SignUp,
-  validateSearch: (
-    search: Record<string, unknown>,
-  ): { role?: "client" | "freelancer" } => ({
-    role:
-      search.role === "client" || search.role === "freelancer"
-        ? search.role
-        : undefined,
+  validateSearch: (search: Record<string, unknown>): { role?: "client" | "freelancer" } => ({
+    role: search.role === "client" || search.role === "freelancer" ? search.role : undefined,
   }),
 
   beforeLoad: async () => {
     if (isLoggedIn()) {
       throw redirect({
         to: "/dashboard",
-      })
+      });
     }
   },
 
@@ -96,18 +76,17 @@ export const Route = createFileRoute("/signup")({
       },
       {
         name: "description",
-        content:
-          "Create your account as a freelancer or client and start working together.",
+        content: "Create your account as a freelancer or client and start working together.",
       },
     ],
   }),
-})
+});
 
 function SignUp() {
-  const { signUpMutation } = useAuth()
-  const { role } = Route.useSearch()
+  const { signUpMutation } = useAuth();
+  const { role } = Route.useSearch();
 
-  const [step, setStep] = useState<SignupStep>(1)
+  const [step, setStep] = useState<SignupStep>(1);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -122,31 +101,31 @@ function SignUp() {
       password: "",
       confirm_password: "",
     },
-  })
+  });
 
-  const selectedRole = form.watch("role")
+  const selectedRole = form.watch("role");
 
   const goToDetails = async () => {
-    const valid = await form.trigger("role")
-    if (!valid) return
-    setStep(2)
-  }
+    const valid = await form.trigger("role");
+    if (!valid) return;
+    setStep(2);
+  };
 
   const goBackToRole = () => {
-    setStep(1)
-  }
+    setStep(1);
+  };
 
   const onSubmit = (data: FormData) => {
-    if (signUpMutation.isPending) return
+    if (signUpMutation.isPending) return;
 
-    const { confirm_password: _confirmPassword, role, ...submitData } = data
+    const { confirm_password: _confirmPassword, role, ...submitData } = data;
 
     signUpMutation.mutate({
       ...submitData,
       role,
       active_role: role,
-    })
-  }
+    });
+  };
 
   return (
     <AuthLayout>
@@ -162,8 +141,7 @@ function SignUp() {
                   </h1>
 
                   <p className="text-muted-foreground mx-auto mt-4 max-w-95 text-sm leading-6">
-                    Choose how you'd like to get started. You can manage your
-                    account settings later.
+                    Choose how you'd like to get started. You can manage your account settings later.
                   </p>
                 </div>
                 {/* Role Selection */}
@@ -236,9 +214,7 @@ function SignUp() {
                   <p className="text-muted-foreground mt-3 max-w-sm text-sm leading-6">
                     You're joining as{" "}
                     <span className="text-foreground font-medium">
-                      {selectedRole === "freelancer"
-                        ? "a freelancer"
-                        : "a client"}
+                      {selectedRole === "freelancer" ? "a freelancer" : "a client"}
                     </span>
                     .
                   </p>
@@ -254,9 +230,7 @@ function SignUp() {
 
                   <div className="min-w-0 flex-1">
                     <div className="text-foreground text-[13px] font-semibold">
-                      {selectedRole === "freelancer"
-                        ? "Freelancer account"
-                        : "Client account"}
+                      {selectedRole === "freelancer" ? "Freelancer account" : "Client account"}
                     </div>
 
                     <div className="text-muted-foreground mt-0.5 text-xs">
@@ -321,9 +295,7 @@ function SignUp() {
                     disabled={signUpMutation.isPending}
                     className="bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/85 focus-visible:ring-ring/30 mt-2 h-12 w-full rounded-xl text-sm font-semibold shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md focus-visible:ring-[3px] active:translate-y-0"
                   >
-                    {selectedRole === "freelancer"
-                      ? "Create freelancer account"
-                      : "Create client account"}
+                    {selectedRole === "freelancer" ? "Create freelancer account" : "Create client account"}
                   </LoadingButton>
                 </div>
 
@@ -346,5 +318,5 @@ function SignUp() {
         </Form>
       </div>
     </AuthLayout>
-  )
+  );
 }

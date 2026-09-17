@@ -1,10 +1,10 @@
-import { Appearance } from "@/components/common/appearance"
-import { Logo } from "@/components/common/logo"
-import artwork from "/assets/images/landing-studio-professional.webp"
-import { Footer } from "./footer"
+import { Appearance } from "@/components/common/appearance";
+import { Logo } from "@/components/common/logo";
+import artwork from "/assets/images/landing-studio-professional.webp";
+import { Footer } from "./footer";
 
 interface AuthLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function AuthLayout({ children }: AuthLayoutProps) {
@@ -39,11 +39,10 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             <span className="text-primary">Great work.</span>
           </h2>
           <p className="text-muted-foreground mt-4 max-w-sm text-sm leading-7">
-            A place to find your next collaborator, build your independent
-            career, and do work you care about.
+            A place to find your next collaborator, build your independent career, and do work you care about.
           </p>
         </div>
       </div>
     </div>
-  )
+  );
 }

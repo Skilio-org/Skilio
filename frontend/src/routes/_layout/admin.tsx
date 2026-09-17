@@ -1,34 +1,30 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, redirect } from "@tanstack/react-router"
-import { Suspense } from "react"
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Suspense } from "react";
 
-import { type UserPublic, UsersService } from "@/client"
-import AddUser from "@/components/admin/add-user"
-import { columns, type UserTableData } from "@/components/admin/columns"
-import { DataTable } from "@/components/common/data-table"
-import {
-  WorkspacePageHeader,
-  WorkspaceSurface,
-} from "@/components/dashboard/dashboard-header"
-import PendingUsers from "@/components/pending/pending-users"
-import useAuth from "@/hooks/useAuth"
+import { type UserPublic, UsersService } from "@/client";
+import AddUser from "@/components/admin/add-user";
+import { columns, type UserTableData } from "@/components/admin/columns";
+import { DataTable } from "@/components/common/data-table";
+import { WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header";
+import PendingUsers from "@/components/pending/pending-users";
+import useAuth from "@/hooks/useAuth";
 
 function getUsersQueryOptions() {
   return {
-    queryFn: async () =>
-      (await UsersService.readUsers({ query: { skip: 0, limit: 100 } })).data,
+    queryFn: async () => (await UsersService.readUsers({ query: { skip: 0, limit: 100 } })).data,
     queryKey: ["users"],
-  }
+  };
 }
 
 export const Route = createFileRoute("/_layout/admin")({
   component: Admin,
   beforeLoad: async () => {
-    const { data: user } = await UsersService.readUserMe()
+    const { data: user } = await UsersService.readUserMe();
     if (!user.is_superuser) {
       throw redirect({
         to: "/dashboard",
-      })
+      });
     }
   },
   head: () => ({
@@ -38,18 +34,18 @@ export const Route = createFileRoute("/_layout/admin")({
       },
     ],
   }),
-})
+});
 
 function UsersTableContent() {
-  const { user: currentUser } = useAuth()
-  const { data: users } = useSuspenseQuery(getUsersQueryOptions())
+  const { user: currentUser } = useAuth();
+  const { data: users } = useSuspenseQuery(getUsersQueryOptions());
 
   const tableData: UserTableData[] = users.data.map((user: UserPublic) => ({
     ...user,
     isCurrentUser: currentUser?.id === user.id,
-  }))
+  }));
 
-  return <DataTable columns={columns} data={tableData} />
+  return <DataTable columns={columns} data={tableData} />;
 }
 
 function UsersTable() {
@@ -57,7 +53,7 @@ function UsersTable() {
     <Suspense fallback={<PendingUsers />}>
       <UsersTableContent />
     </Suspense>
-  )
+  );
 }
 
 function Admin() {
@@ -73,5 +69,5 @@ function Admin() {
         <UsersTable />
       </WorkspaceSurface>
     </div>
-  )
+  );
 }

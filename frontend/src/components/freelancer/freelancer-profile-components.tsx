@@ -1,19 +1,13 @@
-import { useState } from "react"
+import { useState } from "react";
 import {
   type Entry,
   fieldClass,
   type Profile,
   primary,
   secondary,
-} from "@/components/freelancer/freelancer-profile-model"
-import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/freelancer/freelancer-profile-model";
+import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export function Avatar({ profile }: { profile: Profile }) {
   return profile.photo ? (
@@ -31,26 +25,20 @@ export function Avatar({ profile }: { profile: Profile }) {
         .slice(0, 2)
         .join("") || "You"}
     </span>
-  )
+  );
 }
 
-export function ProfilePreview({
-  profile: p,
-  compact = false,
-}: {
-  profile: Profile
-  compact?: boolean
-}) {
-  const name = p.name || "Your name"
-  const bio = p.bio || "Your introduction will appear here."
+export function ProfilePreview({ profile: p, compact = false }: { profile: Profile; compact?: boolean }) {
+  const name = p.name || "Your name";
+  const bio = p.bio || "Your introduction will appear here.";
   const languages = p.languages
     .split(",")
     .map((language) => language.trim())
     .filter(Boolean)
     .map((language) => {
-      const [languageName, ...levelParts] = language.split(/\s+[—–-]\s+/)
-      return { name: languageName, level: levelParts.join(" — ") || "" }
-    })
+      const [languageName, ...levelParts] = language.split(/\s+[—–-]\s+/);
+      return { name: languageName, level: levelParts.join(" — ") || "" };
+    });
 
   return (
     <div className={compact ? "-mx-1" : undefined} data-profile-preview>
@@ -102,7 +90,7 @@ export function ProfilePreview({
         }
       />
     </div>
-  )
+  );
 }
 
 export function EntryDialog({
@@ -111,17 +99,17 @@ export function EntryDialog({
   close,
   save,
 }: {
-  kind: string
-  entry: Entry
-  close: () => void
-  save: (e: Entry) => void
+  kind: string;
+  entry: Entry;
+  close: () => void;
+  save: (e: Entry) => void;
 }) {
-  const [value, setValue] = useState(entry)
+  const [value, setValue] = useState(entry);
   return (
     <Dialog
       open
       onOpenChange={(open) => {
-        if (!open) close()
+        if (!open) close();
       }}
     >
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
@@ -133,24 +121,17 @@ export function EntryDialog({
                 ? "Education details"
                 : "Experience details"}
           </DialogTitle>
-          <DialogDescription>
-            Add the details you want clients to see.
-          </DialogDescription>
+          <DialogDescription>Add the details you want clients to see.</DialogDescription>
         </DialogHeader>
         <form
           className="space-y-5"
           onSubmit={(e) => {
-            e.preventDefault()
-            save({ ...value, title: value.title.trim() })
+            e.preventDefault();
+            save({ ...value, title: value.title.trim() });
           }}
         >
           <label className="block text-sm font-medium">
-            {kind === "portfolio"
-              ? "Project title"
-              : kind === "education"
-                ? "Degree or qualification"
-                : "Job title"}{" "}
-            *
+            {kind === "portfolio" ? "Project title" : kind === "education" ? "Degree or qualification" : "Job title"} *
             <input
               required
               pattern=".*\S.*"
@@ -170,15 +151,11 @@ export function EntryDialog({
               className={fieldClass}
               maxLength={160}
               value={value.organization}
-              onChange={(e) =>
-                setValue({ ...value, organization: e.target.value })
-              }
+              onChange={(e) => setValue({ ...value, organization: e.target.value })}
             />
           </label>
           <label className="block text-sm font-medium">
-            {kind === "portfolio"
-              ? "Your contribution and results"
-              : "Description"}
+            {kind === "portfolio" ? "Your contribution and results" : "Description"}
             <textarea
               rows={4}
               maxLength={2000}
@@ -211,5 +188,5 @@ export function EntryDialog({
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -1,14 +1,14 @@
-import { Link, useRouterState } from "@tanstack/react-router"
-import { Menu } from "lucide-react"
-import { Logo } from "@/components/common/logo"
-import { User } from "@/components/sidebar/user"
+import { Link, useRouterState } from "@tanstack/react-router";
+import { Menu } from "lucide-react";
+import { Logo } from "@/components/common/logo";
+import { User } from "@/components/sidebar/user";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import useAuth from "@/hooks/useAuth"
+} from "@/components/ui/dropdown-menu";
+import useAuth from "@/hooks/useAuth";
 
 const links = [
   ["/freelancer-dashboard", "Overview"],
@@ -16,18 +16,15 @@ const links = [
   ["/freelancer-saved-jobs", "Saved jobs"],
   ["/freelancer-proposals", "Proposals"],
   ["/freelancer-messages", "Messages"],
-] as const
+] as const;
 export function FreelancerNav() {
-  const { user } = useAuth()
-  const path = useRouterState({ select: (state) => state.location.pathname })
+  const { user } = useAuth();
+  const path = useRouterState({ select: (state) => state.location.pathname });
   return (
     <header className="border-border bg-card/95 sticky top-0 z-50 border-b backdrop-blur-md">
       <div className="mx-auto flex h-[72px] max-w-[1320px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Logo to="/freelancer-dashboard" className="h-8" />
-        <nav
-          aria-label="Freelancer workspace"
-          className="ml-4 hidden h-full shrink-0 items-center gap-1 lg:flex"
-        >
+        <nav aria-label="Freelancer workspace" className="ml-4 hidden h-full shrink-0 items-center gap-1 lg:flex">
           {links.map(([to, label]) => (
             <Link
               key={to}
@@ -63,5 +60,5 @@ export function FreelancerNav() {
         </div>
       </div>
     </header>
-  )
+  );
 }

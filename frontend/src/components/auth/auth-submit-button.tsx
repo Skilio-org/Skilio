@@ -1,8 +1,8 @@
-import type { MouseEventHandler, ReactNode } from "react"
+import type { MouseEventHandler, ReactNode } from "react";
 
 interface AuthSubmitButtonProps {
-  onClick: MouseEventHandler<HTMLButtonElement>
-  icon?: ReactNode
+  onClick: MouseEventHandler<HTMLButtonElement>;
+  icon?: ReactNode;
 }
 
 export const AuthSubmitButton = ({ onClick, icon }: AuthSubmitButtonProps) => {
@@ -15,5 +15,5 @@ export const AuthSubmitButton = ({ onClick, icon }: AuthSubmitButtonProps) => {
       Continue
       {icon}
     </button>
-  )
-}
+  );
+};

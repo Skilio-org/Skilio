@@ -1,34 +1,23 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
-import {
-  createFileRoute,
-  Link as RouterLink,
-  redirect,
-} from "@tanstack/react-router"
-import { ArrowLeft, ArrowRight, Mail } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, Link as RouterLink, redirect } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, Mail } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { LoginService } from "@/client"
+import { LoginService } from "@/client";
 
-import { AuthLayout } from "@/components/common/auth-layout"
+import { AuthLayout } from "@/components/common/auth-layout";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-import { Input } from "@/components/ui/input"
-import { LoadingButton } from "@/components/ui/loading-button"
+import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loading-button";
 
-import { isLoggedIn } from "@/hooks/useAuth"
-import useCustomToast from "@/hooks/useCustomToast"
+import { isLoggedIn } from "@/hooks/useAuth";
+import useCustomToast from "@/hooks/useCustomToast";
 
-import { handleError } from "@/utils"
+import { handleError } from "@/utils";
 
 /* =========================================================
    VALIDATION
@@ -38,9 +27,9 @@ const formSchema = z.object({
   email: z.email({
     message: "Please enter a valid email address.",
   }),
-})
+});
 
-type FormData = z.infer<typeof formSchema>
+type FormData = z.infer<typeof formSchema>;
 
 /* =========================================================
    ROUTE
@@ -53,7 +42,7 @@ export const Route = createFileRoute("/recover-password")({
     if (isLoggedIn()) {
       throw redirect({
         to: "/dashboard",
-      })
+      });
     }
   },
 
@@ -64,19 +53,18 @@ export const Route = createFileRoute("/recover-password")({
       },
       {
         name: "description",
-        content:
-          "Recover access to your Freelancer account by requesting a password reset link.",
+        content: "Recover access to your Freelancer account by requesting a password reset link.",
       },
     ],
   }),
-})
+});
 
 /* =========================================================
    RECOVER PASSWORD
    ========================================================= */
 
 function RecoverPassword() {
-  const { showSuccessToast, showErrorToast } = useCustomToast()
+  const { showSuccessToast, showErrorToast } = useCustomToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -86,7 +74,7 @@ function RecoverPassword() {
     defaultValues: {
       email: "",
     },
-  })
+  });
 
   /* =======================================================
      API
@@ -97,40 +85,36 @@ function RecoverPassword() {
       path: {
         email: data.email,
       },
-    })
-  }
+    });
+  };
 
   const mutation = useMutation({
     mutationFn: recoverPassword,
 
     onSuccess: () => {
-      showSuccessToast("Password recovery email sent successfully.")
+      showSuccessToast("Password recovery email sent successfully.");
 
-      form.reset()
+      form.reset();
     },
 
     onError: handleError.bind(showErrorToast),
-  })
+  });
 
   /* =======================================================
      SUBMIT
      ======================================================= */
 
   const onSubmit = (data: FormData) => {
-    if (mutation.isPending) return
+    if (mutation.isPending) return;
 
-    mutation.mutate(data)
-  }
+    mutation.mutate(data);
+  };
 
   return (
     <AuthLayout>
       <div className="mx-auto w-full max-w-[460px]">
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            noValidate
-            className="w-full"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
             {/* =================================================
                 BACK TO LOGIN
                 ================================================= */}
@@ -172,8 +156,8 @@ function RecoverPassword() {
               </h1>
 
               <p className="text-muted-foreground mt-4 max-w-[400px] text-sm leading-6">
-                No problem. Enter the email address associated with your account
-                and we'll send you a link to reset your password.
+                No problem. Enter the email address associated with your account and we'll send you a link to reset your
+                password.
               </p>
             </div>
 
@@ -187,9 +171,7 @@ function RecoverPassword() {
                 name="email"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-foreground text-[13px] font-medium">
-                      Email address
-                    </FormLabel>
+                    <FormLabel className="text-foreground text-[13px] font-medium">Email address</FormLabel>
 
                     <FormControl>
                       <div className="relative">
@@ -244,5 +226,5 @@ function RecoverPassword() {
         </Form>
       </div>
     </AuthLayout>
-  )
+  );
 }

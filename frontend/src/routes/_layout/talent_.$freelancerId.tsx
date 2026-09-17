@@ -1,27 +1,27 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router"
-import { ArrowLeft, ArrowUpRight, Bookmark, Check } from "lucide-react"
-import { workspaceStyles } from "@/components/dashboard/dashboard-header"
-import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view"
-import { getFreelancer } from "@/data/freelancers"
-import { useSavedTalent } from "@/hooks/useSavedTalent"
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { ArrowLeft, ArrowUpRight, Bookmark, Check } from "lucide-react";
+import { workspaceStyles } from "@/components/dashboard/dashboard-header";
+import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view";
+import { getFreelancer } from "@/data/freelancers";
+import { useSavedTalent } from "@/hooks/useSavedTalent";
 
 export const Route = createFileRoute("/_layout/talent_/$freelancerId")({
   loader: ({ params }) => {
-    const freelancer = getFreelancer(params.freelancerId)
-    if (!freelancer) throw notFound()
-    return freelancer
+    const freelancer = getFreelancer(params.freelancerId);
+    if (!freelancer) throw notFound();
+    return freelancer;
   },
   component: FreelancerProfile,
   head: ({ loaderData }) => ({
     meta: [{ title: `${loaderData?.name ?? "Profile"} | Freelancer` }],
   }),
-})
+});
 
 function FreelancerProfile() {
-  const person = Route.useLoaderData()
-  const firstName = person.name.split(" ")[0]
-  const { savedIds, toggleSaved } = useSavedTalent()
-  const saved = savedIds.includes(person.id)
+  const person = Route.useLoaderData();
+  const firstName = person.name.split(" ")[0];
+  const { savedIds, toggleSaved } = useSavedTalent();
+  const saved = savedIds.includes(person.id);
 
   return (
     <FreelancerProfileView
@@ -68,11 +68,7 @@ function FreelancerProfile() {
       }
       contactActions={
         <>
-          <Link
-            to="/messages"
-            search={{ with: person.id }}
-            className={`${workspaceStyles.primaryAction} w-full`}
-          >
+          <Link to="/messages" search={{ with: person.id }} className={`${workspaceStyles.primaryAction} w-full`}>
             Message {firstName}
             <ArrowUpRight className="size-4" />
           </Link>
@@ -82,25 +78,16 @@ function FreelancerProfile() {
             aria-pressed={saved}
             className={`${workspaceStyles.secondaryAction} w-full`}
           >
-            {saved ? (
-              <Check className="size-4" />
-            ) : (
-              <Bookmark className="size-4" />
-            )}
+            {saved ? <Check className="size-4" /> : <Bookmark className="size-4" />}
             {saved ? "Profile saved" : "Save profile"}
           </button>
         </>
       }
       contactFooter={
         <>
-          <p className="text-muted-foreground mt-4 text-center text-xs leading-5">
-            {person.responseTime}
-          </p>
+          <p className="text-muted-foreground mt-4 text-center text-xs leading-5">{person.responseTime}</p>
           {saved && (
-            <p
-              role="status"
-              className="text-muted-foreground mt-2 text-center text-xs"
-            >
+            <p role="status" className="text-muted-foreground mt-2 text-center text-xs">
               Available in your Saved talent list.
             </p>
           )}
@@ -123,16 +110,12 @@ function FreelancerProfile() {
               Start a conversation about your goals, scope, and timeline.
             </p>
           </div>
-          <Link
-            to="/messages"
-            search={{ with: person.id }}
-            className={workspaceStyles.primaryAction}
-          >
+          <Link to="/messages" search={{ with: person.id }} className={workspaceStyles.primaryAction}>
             Discuss a project
             <ArrowUpRight className="size-4" />
           </Link>
         </>
       }
     />
-  )
+  );
 }

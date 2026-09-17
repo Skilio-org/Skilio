@@ -1,19 +1,19 @@
-import { BriefcaseBusiness, Search } from "lucide-react"
-import { workspaceStyles } from "@/components/dashboard/dashboard-header"
-import type { ClientJob } from "./client-job-types"
+import { BriefcaseBusiness, Search } from "lucide-react";
+import { workspaceStyles } from "@/components/dashboard/dashboard-header";
+import type { ClientJob } from "./client-job-types";
 
 type ClientJobsListProps = {
-  jobs: ClientJob[]
-  results: ClientJob[]
-  query: string
-  tab: string
-  disabled: boolean
-  onQueryChange: (query: string) => void
-  onTabChange: (tab: string) => void
-  onOpenJob: (job: ClientJob) => void
-  onCreateJob: () => void
-  onClearFilters: () => void
-}
+  jobs: ClientJob[];
+  results: ClientJob[];
+  query: string;
+  tab: string;
+  disabled: boolean;
+  onQueryChange: (query: string) => void;
+  onTabChange: (tab: string) => void;
+  onOpenJob: (job: ClientJob) => void;
+  onCreateJob: () => void;
+  onClearFilters: () => void;
+};
 
 export function ClientJobsList({
   jobs,
@@ -29,10 +29,7 @@ export function ClientJobsList({
 }: ClientJobsListProps) {
   return (
     <>
-      <nav
-        aria-label="Job status"
-        className="border-border flex gap-6 overflow-x-auto border-b"
-      >
+      <nav aria-label="Job status" className="border-border flex gap-6 overflow-x-auto border-b">
         {["All jobs", "Draft", "Open", "Closed"].map((status) => (
           <button
             type="button"
@@ -43,11 +40,7 @@ export function ClientJobsList({
           >
             {status}{" "}
             <span className="ml-1 text-xs">
-              {
-                jobs.filter(
-                  (job) => status === "All jobs" || job.status === status,
-                ).length
-              }
+              {jobs.filter((job) => status === "All jobs" || job.status === status).length}
             </span>
           </button>
         ))}
@@ -69,28 +62,16 @@ export function ClientJobsList({
       {results.length ? (
         <div className="border-border divide-border divide-y overflow-hidden rounded-xl border">
           {results.map((job) => (
-            <article
-              key={job.id}
-              className="bg-card flex flex-wrap items-center justify-between gap-5 p-6"
-            >
+            <article key={job.id} className="bg-card flex flex-wrap items-center justify-between gap-5 p-6">
               <div className="min-w-0">
-                <span className="bg-muted text-muted-foreground rounded-md px-2 py-1 text-xs">
-                  {job.status}
-                </span>
-                <h2 className="mt-3 text-lg font-semibold break-words">
-                  {job.title || "Untitled job"}
-                </h2>
+                <span className="bg-muted text-muted-foreground rounded-md px-2 py-1 text-xs">{job.status}</span>
+                <h2 className="mt-3 text-lg font-semibold break-words">{job.title || "Untitled job"}</h2>
                 <p className="text-muted-foreground mt-2 text-sm">
                   {job.category} · {job.type}
-                  {job.budget &&
-                    ` · $${job.budget}${job.type === "Hourly" ? "/hr" : ""}`}
+                  {job.budget && ` · $${job.budget}${job.type === "Hourly" ? "/hr" : ""}`}
                 </p>
               </div>
-              <button
-                type="button"
-                className={workspaceStyles.secondaryAction}
-                onClick={() => onOpenJob(job)}
-              >
+              <button type="button" className={workspaceStyles.secondaryAction} onClick={() => onOpenJob(job)}>
                 View job
               </button>
             </article>
@@ -100,9 +81,7 @@ export function ClientJobsList({
         <section className="bg-card rounded-xl border px-6 py-16 text-center">
           <BriefcaseBusiness className="text-primary mx-auto size-8" />
           <h2 className="mt-5 text-xl font-semibold">
-            {jobs.length
-              ? "No matching jobs"
-              : "Make room for your next project."}
+            {jobs.length ? "No matching jobs" : "Make room for your next project."}
           </h2>
           <p className="text-muted-foreground mx-auto mt-3 max-w-md text-sm leading-6">
             {jobs.length
@@ -120,5 +99,5 @@ export function ClientJobsList({
         </section>
       )}
     </>
-  )
+  );
 }

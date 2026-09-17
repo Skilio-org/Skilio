@@ -10,9 +10,13 @@
     "build": "bun run --filter frontend build",
     "lint": "bun run --filter frontend lint",
     "email:dev": "bun run --filter emails dev",
-    "email:export": "bun run --filter emails export"
+    "email:export": "bun run --filter emails export",
+    "prepare": "husky"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }

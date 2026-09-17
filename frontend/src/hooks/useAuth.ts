@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useNavigate } from "@tanstack/react-router"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 
 import {
   type Body_login_login_access_token as AccessToken,
@@ -7,18 +7,18 @@ import {
   type UserPublic,
   type UserRegister,
   UsersService,
-} from "@/client"
-import { handleError } from "@/utils"
-import useCustomToast from "./useCustomToast"
+} from "@/client";
+import { handleError } from "@/utils";
+import useCustomToast from "./useCustomToast";
 
 const isLoggedIn = () => {
-  return localStorage.getItem("access_token") !== null
-}
+  return localStorage.getItem("access_token") !== null;
+};
 
 const useAuth = () => {
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
-  const { showErrorToast } = useCustomToast()
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { showErrorToast } = useCustomToast();
 
   const {
     data: user,
@@ -30,7 +30,7 @@ const useAuth = () => {
     queryKey: ["currentUser"],
     queryFn: async () => (await UsersService.readUserMe()).data,
     enabled: isLoggedIn(),
-  })
+  });
 
   const signUpMutation = useMutation({
     mutationFn: (data: UserRegister & { role?: "freelancer" | "client" }) =>
@@ -41,68 +41,57 @@ const useAuth = () => {
         },
       }),
     onSuccess: (_result, data) => {
-      const role = data.active_role ?? data.role
-      if (role)
-        localStorage.setItem(
-          `account-role:${data.email.trim().toLowerCase()}`,
-          role,
-        )
-      navigate({ to: "/login" })
+      const role = data.active_role ?? data.role;
+      if (role) localStorage.setItem(`account-role:${data.email.trim().toLowerCase()}`, role);
+      navigate({ to: "/login" });
     },
     onError: handleError.bind(showErrorToast),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] })
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-  })
+  });
 
   const login = async (data: AccessToken) => {
     const response = await LoginService.loginAccessToken({
       body: data,
-    })
-    localStorage.setItem("access_token", response.data.access_token)
+    });
+    localStorage.setItem("access_token", response.data.access_token);
     try {
-      const { data: account } = await UsersService.readUserMe()
-      queryClient.setQueryData(["currentUser"], account)
-      return account
+      const { data: account } = await UsersService.readUserMe();
+      queryClient.setQueryData(["currentUser"], account);
+      return account;
     } catch (error) {
-      localStorage.removeItem("access_token")
-      queryClient.removeQueries({ queryKey: ["currentUser"] })
-      throw error
+      localStorage.removeItem("access_token");
+      queryClient.removeQueries({ queryKey: ["currentUser"] });
+      throw error;
     }
-  }
+  };
 
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (account) => {
-      const role =
-        account.active_role ||
-        localStorage.getItem(
-          `account-role:${account.email.trim().toLowerCase()}`,
-        )
+      const role = account.active_role || localStorage.getItem(`account-role:${account.email.trim().toLowerCase()}`);
       if (account.active_role) {
-        localStorage.setItem(
-          `account-role:${account.email.trim().toLowerCase()}`,
-          account.active_role,
-        )
+        localStorage.setItem(`account-role:${account.email.trim().toLowerCase()}`, account.active_role);
       }
       if (account.is_active && !account.is_superuser) {
         navigate({
           to: role === "freelancer" ? "/freelancer-dashboard" : "/dashboard",
-        })
+        });
       } else if (account.is_superuser) {
         navigate({
           to: "/admin",
-        })
+        });
       }
     },
     onError: handleError.bind(showErrorToast),
-  })
+  });
 
   const logout = () => {
-    localStorage.removeItem("access_token")
-    queryClient.clear()
-    navigate({ to: "/login" })
-  }
+    localStorage.removeItem("access_token");
+    queryClient.clear();
+    navigate({ to: "/login" });
+  };
 
   return {
     signUpMutation,
@@ -113,8 +102,8 @@ const useAuth = () => {
     isFetching,
     error,
     refetch,
-  }
-}
+  };
+};
 
-export { isLoggedIn }
-export default useAuth
+export { isLoggedIn };
+export default useAuth;
