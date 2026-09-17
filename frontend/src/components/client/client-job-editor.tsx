@@ -90,6 +90,7 @@ export function ClientJobEditor({
                       </span>
                     </label>
                   </JobFormSection>
+
                   <div className="border-border border-t" />
                   <JobFormSection
                     title="Find the right expertise"
