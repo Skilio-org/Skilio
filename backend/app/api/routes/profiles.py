@@ -44,15 +44,12 @@ from app.models import (
     Skill,
     User,
     UserPublic,
-    UserRole,
+    UserRole, AvatarResponse,
 )
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
-
-def get_http_client(request: Request) -> httpx.AsyncClient:
-    return request.app.state.http_client
-
+def get_http_client(request: Request) -> httpx.AsyncClient: return request.app.state.http_client
 
 @router.get("/", response_model=FreelancerProfilesPublic)
 def read_profiles(
@@ -267,7 +264,6 @@ def update_education(
     session.refresh(education)
     return education
 
-
 @router.delete("/me/educations/{education_id}", response_model=Message)
 def delete_education(
     *,
@@ -292,11 +288,137 @@ def delete_education(
     session.commit()
     return Message(message="Education entry deleted successfully")
 
+# ==============================================================================
+# Portfolio profile upload and download.
+# ==============================================================================
+
+@router.post("/resume", response_model=AvatarResponse)
+async def upload_resume(
+    *,
+    session: SessionDep,
+    file: UploadFile = File(...),
+    current_user: CurrentUser,
+) -> AvatarResponse:
+    """Uploads resume asynchronously without blocking the event loop."""
+    if file.content_type != "application/pdf":
+        raise HTTPException(
+            status_code=400, detail="Only PDF files are allowed"
+        )
+    # if not file.filename.lower().endswith(".pdf"):
+    #     raise HTTPException(
+    #         status_code=400, detail="File must have a .pdf extension"
+    #     )
+    contents = await file.read()
+    url = await run_in_threadpool(
+        claudinary_upload_media, current_user.id, contents, media_type="pdf"
+    )
+    if not url:
+        raise HTTPException(
+            status_code=500, detail="Failed to upload avatar image"
+        )
+
+
+    if current_user.freelancer_profile:
+        current_user.freelancer_profile.resume_url = url
+    else:
+        raise HTTPException(status_code=404, detail="Freelancer profile not found")
+
+    session.add(current_user)
+    session.commit()
+    session.refresh(current_user)
+
+    return AvatarResponse(status="Ok")
+
+
+@router.get("/resume/{uuid}")
+async def proxy_resume(
+    *,
+    uuid: uuid.UUID,
+    session: SessionDep,
+    client: httpx.AsyncClient = Depends(get_http_client),
+):
+    """Gets the user's resume using his uuid."""
+    user = session.get(User, uuid)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    cloudinary_url = user.freelancer_profile.resume_url if user.freelancer_profile else None
+    if not cloudinary_url:
+        raise HTTPException(status_code=404, detail="resume not found")
+    headers = {}
+    try:
+        req = client.build_request("GET", cloudinary_url, headers=headers)
+        response = await client.send(req, stream=True)
+    except httpx.PoolTimeout:
+        raise HTTPException(
+            status_code=503, detail="Server capacity reached, retry shortly"
+        )
+    except httpx.RequestError:
+        raise HTTPException(status_code=502, detail="Upstream media fetch failed")
+
+    if response.status_code not in (200, 206):
+        await response.aclose()
+        raise HTTPException(status_code=response.status_code)
+
+    passthrough_headers = {
+        k: v
+        for k, v in response.headers.items()
+        if k.lower()
+        in ["content-type", "content-length", "accept-ranges", "content-range"]
+    }
+
+    return StreamingResponse(
+        content=response.aiter_bytes(chunk_size=64 * 1024),
+        status_code=response.status_code,
+        headers=passthrough_headers,
+        media_type=response.headers.get("content-type"),
+    )
+
+# @router.get("/resume/me")
+# async def proxy_me(
+#     *,
+#     uuid: uuid.UUID,
+#     session: SessionDep,
+#     client: httpx.AsyncClient = Depends(get_http_client),
+# ):
+#     """Gets the user's resume using his uuid."""
+#     user = session.get(User, uuid)
+#     if not user:
+#         raise HTTPException(status_code=404, detail="User not found")
+#     cloudinary_url = user.freelancer_profile.resume_url if user.freelancer_profile else None
+#     if not cloudinary_url:
+#         raise HTTPException(status_code=404, detail="resume not found")
+#     headers = {}
+#     try:
+#         req = client.build_request("GET", cloudinary_url, headers=headers)
+#         response = await client.send(req, stream=True)
+#     except httpx.PoolTimeout:
+#         raise HTTPException(
+#             status_code=503, detail="Server capacity reached, retry shortly"
+#         )
+#     except httpx.RequestError:
+#         raise HTTPException(status_code=502, detail="Upstream media fetch failed")
+
+#     if response.status_code not in (200, 206):
+#         await response.aclose()
+#         raise HTTPException(status_code=response.status_code)
+
+#     passthrough_headers = {
+#         k: v
+#         for k, v in response.headers.items()
+#         if k.lower()
+#         in ["content-type", "content-length", "accept-ranges", "content-range"]
+#     }
+
+#     return StreamingResponse(
+#         content=response.aiter_bytes(chunk_size=64 * 1024),
+#         status_code=response.status_code,
+#         headers=passthrough_headers,
+#         media_type=response.headers.get("content-type"),
+#     )
 
 # ==============================================================================
 # Portfolio Item Sub-resources
 # ==============================================================================
-
 
 @router.post("/me/portfolio", response_model=PortfolioItemPublic)
 def create_portfolio_item(
