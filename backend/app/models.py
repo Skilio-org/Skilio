@@ -120,13 +120,6 @@ class UserBase(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     active_role: UserRole = Field(default=UserRole.CLIENT)
 
-    # For google Auth.
-    google_id: str | None = Field(default=None, max_length=255)
-    linkedin_id: str | None = Field(default=None, max_length=255)
-
-    # For OAuth linkedin
-    refresh_token: str | None = Field(default=None)
-
 
 
 
@@ -183,7 +176,12 @@ class User(UserBase, table=True):
         default=None, max_length=500
     )  # stores the Cloudinary url
     # items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True) No items anymore
+    # For google Auth.
+    google_id: str | None = Field(default=None, max_length=255)
+    linkedin_id: str | None = Field(default=None, max_length=255)
 
+    # For OAuth linkedin
+    refresh_token: str | None = Field(default=None)
     freelancer_profile: Optional["FreelancerProfile"] = Relationship(
         back_populates="user",
         cascade_delete=True,
