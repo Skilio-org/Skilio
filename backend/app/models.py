@@ -473,7 +473,6 @@ class FreelancerProfileBase(SQLModel):
     location: str | None = Field(default=None, max_length=255)
     timezone: str | None = Field(default=None, max_length=100)
     languages: str | None = Field(default=None, max_length=500)
-    resume_url: str | None = Field(default=None, max_length=2048)
 
 
 class FreelancerProfileCreate(FreelancerProfileBase):
@@ -489,12 +488,12 @@ class FreelancerProfileUpdate(SQLModel):
     location: str | None = Field(default=None, max_length=255)
     timezone: str | None = Field(default=None, max_length=100)
     languages: str | None = Field(default=None, max_length=500)
-    resume_url: str | None = Field(default=None, max_length=2048)
     skills: list[ITSkill] | None = None
 
 
 class FreelancerProfile(FreelancerProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    resume_url: str | None = Field(default=None, max_length=2048)
     user_id: uuid.UUID = Field(
         foreign_key="user.id", unique=True, nullable=False, ondelete="CASCADE"
     )
