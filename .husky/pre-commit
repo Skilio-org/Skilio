@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔄 Generating client and formatting frontend..."
+
+# Run the client generation script
+bash ./scripts/generate-client.sh || exit 1
+
+# Change directory into frontend and format
+cd frontend && bun run format || exit 1
