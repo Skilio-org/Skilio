@@ -91,6 +91,7 @@ def google_callback(code: str, session: SessionDep):
             user.id, expires_delta=access_token_expires
         )
     )
+
 @router.get("/login/linkedin")
 def login_linkedin() -> RedirectResponse:
     """
@@ -105,9 +106,8 @@ def login_linkedin() -> RedirectResponse:
     query = "&".join(f"{k}={v}" for k, v in params.items())
     return RedirectResponse(f"{settings.LINKEDIN_AUTH_URI}?{query}")
 
-router.get("/login/linkedin/callback")
+@router.get("/login/linkedin/callback")
 def linkedin_callback(code: str, session: SessionDep):
-    # 1. Exchange authorization code for an access token
     token_response = requests.post(
         settings.LINKEDIN_TOKEN_URI,
         data={
@@ -125,7 +125,7 @@ def linkedin_callback(code: str, session: SessionDep):
 
     token_data = token_response.json()
     access_token = token_data["access_token"]
-    refresh_token: Any = token_data["refresh_token"]
+    # refresh_token: Any = token_data["refresh_token"]
 
     # 2. Fetch user information from LinkedIn OIDC userinfo endpoint
     userinfo_response = requests.get(
@@ -160,7 +160,6 @@ def linkedin_callback(code: str, session: SessionDep):
             avatar_url=linkedin_user.get("picture"),
             linkedin_id=linkedin_user["sub"],
             is_active=True,
-            refresh_token=refresh_token,
             hashed_password=""
         )
         session.add(user)
