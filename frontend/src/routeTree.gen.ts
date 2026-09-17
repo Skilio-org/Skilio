@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as GoogleAuthRouteImport } from './routes/googleAuth'
+import { Route as LinkedinAuthRouteImport } from './routes/linkedinAuth'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -46,6 +47,11 @@ const LayoutRoute = LayoutRouteImport.update({
 const GoogleAuthRoute = GoogleAuthRouteImport.update({
   id: '/googleAuth',
   path: '/googleAuth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LinkedinAuthRoute = LinkedinAuthRouteImport.update({
+  id: '/linkedinAuth',
+  path: '/linkedinAuth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -163,6 +169,7 @@ const LayoutTalentFreelancerIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/googleAuth': typeof GoogleAuthRoute
+  '/linkedinAuth': typeof LinkedinAuthRoute
   '/login': typeof LoginRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/googleAuth': typeof GoogleAuthRoute
+  '/linkedinAuth': typeof LinkedinAuthRoute
   '/login': typeof LoginRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_layout': typeof LayoutRouteWithChildren
   '/googleAuth': typeof GoogleAuthRoute
+  '/linkedinAuth': typeof LinkedinAuthRoute
   '/login': typeof LoginRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/googleAuth'
+    | '/linkedinAuth'
     | '/login'
     | '/recover-password'
     | '/reset-password'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/googleAuth'
+    | '/linkedinAuth'
     | '/login'
     | '/recover-password'
     | '/reset-password'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_layout'
     | '/googleAuth'
+    | '/linkedinAuth'
     | '/login'
     | '/recover-password'
     | '/reset-password'
@@ -320,6 +332,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LayoutRoute: typeof LayoutRouteWithChildren
   GoogleAuthRoute: typeof GoogleAuthRoute
+  LinkedinAuthRoute: typeof LinkedinAuthRoute
   LoginRoute: typeof LoginRoute
   RecoverPasswordRoute: typeof RecoverPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -347,6 +360,13 @@ declare module '@tanstack/react-router' {
       path: '/googleAuth'
       fullPath: '/googleAuth'
       preLoaderRoute: typeof GoogleAuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/linkedinAuth': {
+      id: '/linkedinAuth'
+      path: '/linkedinAuth'
+      fullPath: '/linkedinAuth'
+      preLoaderRoute: typeof LinkedinAuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -546,6 +566,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LayoutRoute: LayoutRouteWithChildren,
   GoogleAuthRoute: GoogleAuthRoute,
+  LinkedinAuthRoute: LinkedinAuthRoute,
   LoginRoute: LoginRoute,
   RecoverPasswordRoute: RecoverPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,

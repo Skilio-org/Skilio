@@ -144,8 +144,12 @@ def linkedin_callback(code: str, session: SessionDep):
 
     if user:
         if not user.linkedin_id:
+            raise HTTPException(
+                status_code=400,
+                detail="An account with this email already exists. Please log in with your password."
+            )
             # If the user registered via password or Google, link the account
-            user.linkedin_id = linkedin_user["sub"]
+            # user.linkedin_id = linkedin_user["sub"]
         
         user.full_name = linkedin_user.get("name")
         user.avatar_url = linkedin_user.get("picture")
