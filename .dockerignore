@@ -6,3 +6,6 @@ frontend/dist
 frontend/node_modules
 frontend/test-results
 node_modules
+.env
+.env.vault
+devops/vault/.credentials/

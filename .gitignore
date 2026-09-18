@@ -10,4 +10,5 @@ loaddotenv.fish
 ./loaddotenv.fish
 devops/vault/.credentials/
 devops/vault/backups/
+devops/backup/dumps/
 .env.vault

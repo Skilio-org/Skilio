@@ -863,11 +863,13 @@ html {
 		}
 	}
 }
+
 @media (prefers-reduced-motion: reduce) {
 	html {
 		scroll-behavior: auto;
 	}
 }
+
 @media (max-width: 380px) {
 	.landing-page header .landing-container {
 		padding-inline: 1rem;
