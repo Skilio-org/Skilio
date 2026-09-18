@@ -18,13 +18,11 @@ import {
 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import { JobFormSection, jobFormField } from "@/components/common/job-form-section"
+import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "@/components/dashboard/dashboard-header"
+import { FreelancerJobFilterFields } from "@/components/freelancer/freelancer-job-filter-fields"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import ChangePassword from "@/components/user-settings/change-password"
-import { AppearanceSettings } from "@/components/user-settings/preferences"
-import useAuth from "@/hooks/useAuth"
-import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "../dashboard/dashboard-header"
-import { FreelancerJobFilterFields } from "../freelancer/freelancer-job-filter-fields"
 import {
 	type ProposalDraft as Draft,
 	freelancerJobs,
@@ -32,10 +30,28 @@ import {
 	freelancerWorkspaceTitles,
 	type FreelancerJob as Job,
 	seedProposals,
-} from "../freelancer/freelancer-workspace-data"
-import { JobFormSection, jobFormField } from "./job-form-section"
+} from "@/data/freelancer-workspace"
+import useAuth from "@/hooks/useAuth"
 
-export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWorkspaceTitles }) {
+type FreelancerWorkspacePageName = "dashboard" | "jobs" | "proposals" | "savedJobs"
+
+export function FreelancerDashboardPage() {
+	return <FreelancerWorkspacePage page="dashboard" />
+}
+
+export function FreelancerJobsPage() {
+	return <FreelancerWorkspacePage page="jobs" />
+}
+
+export function FreelancerProposalsPage() {
+	return <FreelancerWorkspacePage page="proposals" />
+}
+
+export function FreelancerSavedJobsPage() {
+	return <FreelancerWorkspacePage page="savedJobs" />
+}
+
+function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }) {
 	const { user } = useAuth()
 	const jobs = freelancerJobs
 	const key = `freelancer-work-v2:${user?.id ?? "preview"}`
@@ -576,52 +592,6 @@ export function FreelancerWorkspace({ page }: { page: keyof typeof freelancerWor
 								</Link>
 							}
 						/>
-					)}
-				</>
-			)}
-			{page === "settings" && (
-				<>
-					<div className="flex gap-2">
-						{["Account", "Security", "Appearance"].map((t) => (
-							<button
-								key={t}
-								type="button"
-								className={
-									(tab === "Active" ? "Account" : tab) === t
-										? workspaceStyles.primaryAction
-										: workspaceStyles.secondaryAction
-								}
-								onClick={() => setTab(t)}
-							>
-								{t}
-							</button>
-						))}
-					</div>
-					{tab === "Security" ? (
-						<ChangePassword />
-					) : tab === "Appearance" ? (
-						<AppearanceSettings />
-					) : (
-						<WorkspaceSurface className="p-6">
-							<h2 className="font-semibold text-lg">Freelancer account</h2>
-							<dl className="mt-5 space-y-4 text-sm">
-								<div>
-									<dt className="text-muted-foreground">Name</dt>
-									<dd className="mt-1">{user?.full_name || "Your name"}</dd>
-								</div>
-								<div>
-									<dt className="text-muted-foreground">Email</dt>
-									<dd className="mt-1">{user?.email || "Sign in to see your email"}</dd>
-								</div>
-								<div>
-									<dt className="text-muted-foreground">Account type</dt>
-									<dd className="mt-1">Freelancer</dd>
-								</div>
-							</dl>
-							<Link className={`${workspaceStyles.secondaryAction} mt-6`} to="/freelancer">
-								Edit professional profile
-							</Link>
-						</WorkspaceSurface>
 					)}
 				</>
 			)}

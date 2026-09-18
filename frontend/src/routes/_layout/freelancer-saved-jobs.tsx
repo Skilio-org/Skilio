@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { FreelancerWorkspace } from "@/components/common/freelancer-workspace"
+import { FreelancerSavedJobsPage } from "@/pages/freelancer-area/freelancer-workspace-page"
 
 export const Route = createFileRoute("/_layout/freelancer-saved-jobs")({
-	component: () => <FreelancerWorkspace page="savedJobs" />,
+	component: FreelancerSavedJobsPage,
 	head: () => ({ meta: [{ title: "Saved jobs | Freelancer" }] }),
 })

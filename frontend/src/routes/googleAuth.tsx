@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useEffect } from "react"
+import { createFileRoute } from "@tanstack/react-router"
 import { z } from "zod"
+import { GoogleAuthCallbackPage } from "@/pages/auth/google-auth-callback-page"
 
 const googleAuthSearchSchema = z.object({
 	code: z.string().optional(),
@@ -8,61 +8,10 @@ const googleAuthSearchSchema = z.object({
 })
 
 export const Route = createFileRoute("/googleAuth")({
-	component: AuthCallback,
+	component: GoogleAuthCallbackRoute,
 	validateSearch: (search) => googleAuthSearchSchema.parse(search),
 })
 
-export function AuthCallback() {
-	const navigate = useNavigate()
-	const { code, error } = Route.useSearch()
-
-	useEffect(() => {
-		if (error) {
-			navigate({
-				to: "/login",
-				search: { error },
-			})
-
-			return
-		}
-
-		if (!code) {
-			navigate({
-				to: "/login",
-				search: { error: "Missing Google authorization code" },
-			})
-
-			return
-		}
-
-		const authenticate = async () => {
-			try {
-				const res = await fetch(`http://localhost:8000/api/v1/login/google/callback?code=${encodeURIComponent(code)}`)
-
-				if (!res.ok) {
-					const errorData = await res.json()
-					throw new Error(errorData.detail || "Authentication failed")
-				}
-
-				const data = await res.json()
-
-				localStorage.setItem("access_token", data.access_token)
-
-				navigate({
-					to: "/dashboard",
-				})
-			} catch (err) {
-				navigate({
-					to: "/login",
-					search: {
-						error: err instanceof Error ? err.message : "Authentication failed",
-					},
-				})
-			}
-		}
-
-		void authenticate()
-	}, [code, error, navigate])
-
-	return null
+function GoogleAuthCallbackRoute() {
+	return <GoogleAuthCallbackPage {...Route.useSearch()} />
 }

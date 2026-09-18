@@ -1,3 +1,4 @@
+// Demo workspace records used by the freelancer route-level pages.
 export type FreelancerJob = {
 	id: string
 	title: string

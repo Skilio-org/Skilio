@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { MessagesWorkspace } from "@/components/messages/messages-workspace"
+import { MessagesPage } from "@/pages/common/messages-page"
 export const Route = createFileRoute("/_layout/messages")({
 	validateSearch: (search: Record<string, unknown>): { with?: string } => ({
 		with: typeof search.with === "string" ? search.with : undefined,
@@ -11,7 +11,7 @@ function Messages() {
 	const search = Route.useSearch()
 	const navigate = Route.useNavigate()
 	return (
-		<MessagesWorkspace
+		<MessagesPage
 			selectedContact={search.with}
 			onSelectContact={(id) => void navigate({ search: { with: id || undefined } })}
 		/>

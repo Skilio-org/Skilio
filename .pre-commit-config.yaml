@@ -51,6 +51,7 @@ repos:
         require_serial: true
         language: unsupported
         pass_filenames: false
+        files: ^backend/.*\.py$|^backend/pyproject\.toml$|^uv\.lock$
 
       - id: local-ty
         name: ty check

@@ -9,7 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as LayoutRouteImport } from './routes/_layout'
+import { Route as GoogleAuthRouteImport } from './routes/googleAuth'
+import { Route as LinkedinAuthRouteImport } from './routes/linkedinAuth'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutClientJobsRouteImport } from './routes/_layout/client-jobs'
 import { Route as LayoutClientProfileRouteImport } from './routes/_layout/client-profile'
@@ -27,13 +34,6 @@ import { Route as LayoutSavedRouteImport } from './routes/_layout/saved'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutTalentRouteImport } from './routes/_layout/talent'
 import { Route as LayoutTalentFreelancerIdRouteImport } from './routes/_layout/talent_.$freelancerId'
-import { Route as GoogleAuthRouteImport } from './routes/googleAuth'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as LinkedinAuthRouteImport } from './routes/linkedinAuth'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as SignupRouteImport } from './routes/signup'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',

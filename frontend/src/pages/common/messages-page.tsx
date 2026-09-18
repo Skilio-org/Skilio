@@ -74,7 +74,7 @@ function sampleThread(
 	]
 }
 
-export function MessagesWorkspace({
+export function MessagesPage({
 	selectedContact,
 	onSelectContact,
 	clientMode = false,

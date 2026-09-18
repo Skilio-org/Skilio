@@ -1,24 +1,10 @@
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import { createRootRoute, HeadContent, Outlet } from "@tanstack/react-router"
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
+import { createRootRoute } from "@tanstack/react-router"
 import ErrorComponent from "@/components/common/error-component"
 import NotFound from "@/components/common/not-found"
+import { RootLayout } from "@/pages/common/root-layout"
 
 export const Route = createRootRoute({
-	component: () => (
-		<>
-			<HeadContent />
-			<a
-				href="#main-content"
-				className="fixed top-4 left-4 z-[100] -translate-y-24 rounded-full bg-slate-950 px-4 py-2 font-semibold text-sm text-white shadow-floating transition-transform focus:translate-y-0"
-			>
-				Skip to main content
-			</a>
-			<Outlet />
-			<TanStackRouterDevtools position="bottom-right" />
-			<ReactQueryDevtools initialIsOpen={false} />
-		</>
-	),
+	component: RootLayout,
 	notFoundComponent: () => <NotFound />,
 	errorComponent: ({ error, reset }) => (
 		<ErrorComponent error={error instanceof Error ? error : new Error(String(error))} reset={reset} />
