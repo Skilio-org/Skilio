@@ -4,6 +4,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, SessionDep
@@ -21,6 +22,7 @@ from app.models import (
     ProposalStatusUpdate,
     Review,
     SkillPublic,
+    User,
     UserPublic,
     UserRole,
 )
@@ -29,17 +31,22 @@ router = APIRouter(prefix="/proposals", tags=["proposals"])
 
 
 def _build_freelancer_profile_public(
-    session: SessionDep, profile: FreelancerProfile | None
+    session: SessionDep,
+    profile: FreelancerProfile | None,
+    avg_rating: float | None = None,
+    reviews_count: int | None = None,
 ) -> FreelancerProfilePublic | None:
     if not profile:
         return None
 
-    avg_rating_stmt = select(func.avg(Review.rating)).where(
-        Review.freelancer_id == profile.id
-    )
-    reviews_count_stmt = select(func.count()).where(Review.freelancer_id == profile.id)
-    avg_rating = session.exec(avg_rating_stmt).one()
-    reviews_count = session.exec(reviews_count_stmt).one()
+    if reviews_count is None:
+        avg_rating_stmt = select(func.avg(Review.rating)).where(
+            Review.freelancer_id == profile.id
+        )
+        reviews_count_stmt = select(func.count()).where(Review.freelancer_id == profile.id)
+        raw_avg = session.exec(avg_rating_stmt).one()
+        reviews_count = session.exec(reviews_count_stmt).one()
+        avg_rating = float(raw_avg) if raw_avg is not None else None
 
     skills_public = [
         SkillPublic.model_validate(skill) for skill in profile.skills
@@ -49,7 +56,7 @@ def _build_freelancer_profile_public(
         profile,
         update={
             "full_name": profile.user.full_name if profile.user else None,
-            "average_rating": float(avg_rating) if avg_rating else None,
+            "average_rating": avg_rating,
             "reviews_count": reviews_count,
             "skills": skills_public,
             "is_saved": False,
@@ -162,11 +169,39 @@ def read_proposals_for_job(
     statement = (
         select(Proposal)
         .where(Proposal.job_post_id == job_id)
+        .options(
+            joinedload(Proposal.freelancer)  # type: ignore[arg-type]
+            .joinedload(User.freelancer_profile)  # type: ignore[arg-type]
+            .selectinload(FreelancerProfile.skills),  # type: ignore[arg-type]
+        )
         .order_by(col(Proposal.created_at).desc())
         .offset(skip)
         .limit(limit)
     )
     proposals = session.exec(statement).all()
+
+    # Pre-fetch review statistics for all candidate profiles in a single batch query
+    profile_ids = [
+        p.freelancer.freelancer_profile.id
+        for p in proposals
+        if p.freelancer and p.freelancer.freelancer_profile
+    ]
+    stats_map: dict[uuid.UUID, tuple[float | None, int]] = {}
+    if profile_ids:
+        review_stats_stmt = (
+            select(
+                Review.freelancer_id,
+                func.avg(Review.rating),
+                func.count(col(Review.id)),
+            )
+            .where(col(Review.freelancer_id).in_(profile_ids))
+            .group_by(col(Review.freelancer_id))
+        )
+        for f_id, raw_avg, r_cnt in session.exec(review_stats_stmt).all():
+            stats_map[f_id] = (
+                float(raw_avg) if raw_avg is not None else None,
+                r_cnt,
+            )
 
     proposals_public = []
     for prop in proposals:
@@ -174,11 +209,18 @@ def read_proposals_for_job(
         freelancer_public = (
             UserPublic.model_validate(freelancer_user) if freelancer_user else None
         )
+        profile = (
+            freelancer_user.freelancer_profile if freelancer_user else None
+        )
+        avg_r, r_cnt = stats_map.get(profile.id, (None, 0)) if profile else (None, 0)
         freelancer_profile_public = (
             _build_freelancer_profile_public(
-                session, freelancer_user.freelancer_profile
+                session,
+                profile,
+                avg_rating=avg_r,
+                reviews_count=r_cnt,
             )
-            if freelancer_user
+            if profile
             else None
         )
 

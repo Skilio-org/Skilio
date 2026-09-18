@@ -1,6 +1,6 @@
 import uuid
 from datetime import UTC, datetime
-from typing import Any
+from typing import Annotated, Any
 
 import httpx
 from fastapi import (
@@ -15,6 +15,7 @@ from fastapi import (
 )
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
+from sqlalchemy.orm import selectinload
 from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, CurrentUserOptional, SessionDep
@@ -35,7 +36,6 @@ from app.models import (
     FreelancerProfilePublic,
     FreelancerProfilesPublic,
     FreelancerProfileUpdate,
-    FreelancerSkillLink,
     LikedFreelancer,
     MediaPublic,
     Message,
@@ -128,13 +128,17 @@ def _build_profile_public(
     profile: FreelancerProfile,
     current_user: User | None = None,
     is_saved: bool = False,
+    avg_rating: float | None = None,
+    reviews_count: int | None = None,
 ) -> FreelancerProfilePublic:
-    avg_rating_stmt = select(func.avg(Review.rating)).where(
-        Review.freelancer_id == profile.id
-    )
-    reviews_count_stmt = select(func.count()).where(Review.freelancer_id == profile.id)
-    avg_rating = session.exec(avg_rating_stmt).one()
-    reviews_count = session.exec(reviews_count_stmt).one()
+    if reviews_count is None:
+        avg_rating_stmt = select(func.avg(Review.rating)).where(
+            Review.freelancer_id == profile.id
+        )
+        reviews_count_stmt = select(func.count()).where(Review.freelancer_id == profile.id)
+        raw_avg = session.exec(avg_rating_stmt).one()
+        reviews_count = session.exec(reviews_count_stmt).one()
+        avg_rating = float(raw_avg) if raw_avg is not None else None
 
     skills_public = [SkillPublic.model_validate(s) for s in profile.skills]
     skill_names = [s.name for s in profile.skills]
@@ -145,7 +149,7 @@ def _build_profile_public(
         profile,
         update={
             "full_name": user_obj.full_name if user_obj else None,
-            "average_rating": float(avg_rating) if avg_rating else None,
+            "average_rating": avg_rating,
             "reviews_count": reviews_count,
             "skills": skills_public,
             "skill_names": skill_names,
@@ -161,7 +165,7 @@ def read_profiles(
     skip: int = 0,
     limit: int = 100,
     q: str | None = None,
-    skill: list[str] | None = Query(default=None),
+    skill: Annotated[list[str] | None, Query()] = None,
     category: str | None = None,
     min_rate: float | None = None,
     max_rate: float | None = None,
@@ -196,7 +200,7 @@ def read_profiles(
     if finished is not None:
         statement = statement.where(FreelancerProfile.finished == finished)
     elif not (current_user and current_user.is_superuser):
-        statement = statement.where(FreelancerProfile.finished == True)
+        statement = statement.where(FreelancerProfile.finished)
 
     if skill:
         for s in skill:
@@ -234,7 +238,14 @@ def read_profiles(
     else:
         statement = statement.order_by(col(FreelancerProfile.updated_at).desc())
 
-    statement = statement.offset(skip).limit(limit)
+    statement = (
+        statement.options(
+            selectinload(FreelancerProfile.skills),  # type: ignore[arg-type]
+            selectinload(FreelancerProfile.user),  # type: ignore[arg-type]
+        )
+        .offset(skip)
+        .limit(limit)
+    )
     profiles = session.exec(statement).all()
 
     # Pre-fetch saved profile IDs for current user to avoid N+1 queries
@@ -247,9 +258,32 @@ def read_profiles(
         ).all()
         saved_profile_ids = set(saved_rows)
 
+    # Pre-fetch review statistics (avg rating and count) in one batch query
+    profile_ids = [p.id for p in profiles]
+    stats_map: dict[uuid.UUID, tuple[float | None, int]] = {}
+    if profile_ids:
+        review_stats_stmt = (
+            select(
+                Review.freelancer_id,
+                func.avg(Review.rating),
+                func.count(col(Review.id)),
+            )
+            .where(col(Review.freelancer_id).in_(profile_ids))
+            .group_by(col(Review.freelancer_id))
+        )
+        for f_id, raw_avg, r_cnt in session.exec(review_stats_stmt).all():
+            stats_map[f_id] = (
+                float(raw_avg) if raw_avg is not None else None,
+                r_cnt,
+            )
+
     profiles_public = [
         _build_profile_public(
-            session, profile, is_saved=(profile.id in saved_profile_ids)
+            session,
+            profile,
+            is_saved=(profile.id in saved_profile_ids),
+            avg_rating=stats_map.get(profile.id, (None, 0))[0],
+            reviews_count=stats_map.get(profile.id, (None, 0))[1],
         )
         for profile in profiles
     ]
