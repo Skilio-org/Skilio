@@ -8,6 +8,17 @@ set -euo pipefail
 #   export VAULT_NAMESPACE="admin"
 #   bash devops/vault/scripts/vault-push.sh
 
+# Load local .env.vault file if present
+if [ -f ".env.vault" ]; then
+  set -a
+  source ".env.vault"
+  set +a
+elif [ -f "devops/vault/.credentials/vault.env" ]; then
+  set -a
+  source "devops/vault/.credentials/vault.env"
+  set +a
+fi
+
 ENV_FILE=".env"
 VAULT_ADDR="${VAULT_ADDR:-https://vault-cluster-public-vault-f91a1ccc.eecb9a06.z1.hashicorp.cloud:8200}"
 VAULT_TOKEN="${VAULT_TOKEN:?VAULT_TOKEN environment variable must be set to your HCP Vault admin token}"
