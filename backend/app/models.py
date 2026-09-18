@@ -476,11 +476,9 @@ class PortfolioItemPublic(PortfolioItemBase):
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
-
 # ==============================================================================
 # Freelancer Profile Models
 # ==============================================================================
-
 
 class FreelancerProfileBase(SQLModel):
     title: str | None = Field(default=None, max_length=255)
@@ -507,7 +505,6 @@ class FreelancerProfileUpdate(SQLModel):
     timezone: str | None = Field(default=None, max_length=100)
     languages: str | None = Field(default=None, max_length=500)
     skills: list[ITSkill] | None = None
-
 
 class FreelancerProfile(FreelancerProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
