@@ -53,6 +53,13 @@ GOOGLE_TOKEN_URI="${GOOGLE_TOKEN_URI:-https://oauth2.googleapis.com/token}"
 GOOGLE_AUTH_URI="${GOOGLE_AUTH_URI:-https://accounts.google.com/o/oauth2/auth}"
 GOOGLE_USERINFO_URL="${GOOGLE_USERINFO_URL:-https://www.googleapis.com/oauth2/v3/userinfo}"
 
+LINKEDIN_CLIENT_ID="${LINKEDIN_CLIENT_ID:-}"
+LINKEDIN_CLIENT_SECRET="${LINKEDIN_CLIENT_SECRET:-}"
+LINKEDIN_REDIRECT_URI="${LINKEDIN_REDIRECT_URI:-http://localhost:8000/api/v1/login/linkedin/callback}"
+LINKEDIN_AUTH_URI="${LINKEDIN_AUTH_URI:-https://www.linkedin.com/oauth/v2/authorization}"
+LINKEDIN_TOKEN_URI="${LINKEDIN_TOKEN_URI:-https://www.linkedin.com/oauth/v2/accessToken}"
+LINKEDIN_USERINFO_URL="${LINKEDIN_USERINFO_URL:-https://api.linkedin.com/v2/userinfo}"
+
 # Ensure KV-v2 secrets engine is enabled at secret/
 curl -s -X POST \
   -H "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -149,6 +156,21 @@ post_secret_json "google" "$(cat <<EOF
     "token_uri": "${GOOGLE_TOKEN_URI}",
     "auth_uri": "${GOOGLE_AUTH_URI}",
     "userinfo_url": "${GOOGLE_USERINFO_URL}"
+  }
+}
+EOF
+)"
+
+# 6. LinkedIn OAuth secrets
+post_secret_json "linkedin" "$(cat <<EOF
+{
+  "data": {
+    "client_id": "${LINKEDIN_CLIENT_ID}",
+    "client_secret": "${LINKEDIN_CLIENT_SECRET}",
+    "redirect_uri": "${LINKEDIN_REDIRECT_URI}",
+    "auth_uri": "${LINKEDIN_AUTH_URI}",
+    "token_uri": "${LINKEDIN_TOKEN_URI}",
+    "userinfo_url": "${LINKEDIN_USERINFO_URL}"
   }
 }
 EOF
