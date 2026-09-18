@@ -2,7 +2,7 @@
 # Grants read access to production secrets and listing capabilities for browsing in UI/CLI
 
 path "secret/data/production/*" {
-  capabilities = ["read"]
+  capabilities = ["read", "list"]
 }
 
 path "secret/metadata/production/*" {

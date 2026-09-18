@@ -21,12 +21,12 @@ fi
 
 VAULT_ADDR="${VAULT_ADDR:-https://vault-cluster-public-vault-f91a1ccc.eecb9a06.z1.hashicorp.cloud:8200}"
 VAULT_TOKEN="${VAULT_TOKEN:?VAULT_TOKEN must be set as an environment variable or defined in .env.vault}"
-VAULT_NAMESPACE="${VAULT_NAMESPACE:-admin}"
+VAULT_NAMESPACE="${VAULT_NAMESPACE:}"
 ENV_FILE=".env"
 
 VAULT_ADDR="${VAULT_ADDR%/}"
 
-echo "Connecting to HCP Vault at $VAULT_ADDR (Namespace: $VAULT_NAMESPACE)..."
+echo "Connecting to HCP Vault at $VAULT_ADDR"
 
 # Helper function to query KV-v2 secrets via HTTP REST API
 get_secret_json() {
