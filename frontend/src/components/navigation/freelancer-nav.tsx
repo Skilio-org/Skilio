@@ -191,7 +191,7 @@ export function FreelancerNav() {
 								</DropdownMenuItem>
 
 								<DropdownMenuItem asChild className="cursor-pointer rounded p-0 focus:bg-surface-container">
-									<Link to="/client-dashboard" className="flex min-h-11 w-full items-center gap-3 px-2.5 py-2">
+									<Link to="/dashboard" className="flex min-h-11 w-full items-center gap-3 px-2.5 py-2">
 										<span className="grid size-8 shrink-0 place-items-center rounded border border-outline-variant bg-surface-container text-on-surface-variant">
 											<BriefcaseBusiness className="size-4" />
 										</span>
