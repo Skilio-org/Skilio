@@ -255,11 +255,11 @@ export type EducationCreate = {
     /**
      * Institution
      */
-    institution: string;
+    institution?: string | null;
     /**
      * Degree
      */
-    degree: string;
+    degree?: string | null;
     /**
      * Field Of Study
      */
@@ -276,6 +276,22 @@ export type EducationCreate = {
      * Description
      */
     description?: string | null;
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Organization
+     */
+    organization?: string | null;
+    /**
+     * Detail
+     */
+    detail?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
 };
 
 /**
@@ -285,11 +301,11 @@ export type EducationPublic = {
     /**
      * Institution
      */
-    institution: string;
+    institution?: string | null;
     /**
      * Degree
      */
-    degree: string;
+    degree?: string | null;
     /**
      * Field Of Study
      */
@@ -306,6 +322,22 @@ export type EducationPublic = {
      * Description
      */
     description?: string | null;
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Organization
+     */
+    organization?: string | null;
+    /**
+     * Detail
+     */
+    detail?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
     /**
      * Id
      */
@@ -348,6 +380,104 @@ export type EducationUpdate = {
      * Description
      */
     description?: string | null;
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Organization
+     */
+    organization?: string | null;
+    /**
+     * Detail
+     */
+    detail?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
+};
+
+/**
+ * ExperienceCreate
+ */
+export type ExperienceCreate = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Organization
+     */
+    organization?: string | null;
+    /**
+     * Detail
+     */
+    detail?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
+};
+
+/**
+ * ExperiencePublic
+ */
+export type ExperiencePublic = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Organization
+     */
+    organization?: string | null;
+    /**
+     * Detail
+     */
+    detail?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Freelancer Profile Id
+     */
+    freelancer_profile_id: string;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+};
+
+/**
+ * ExperienceUpdate
+ */
+export type ExperienceUpdate = {
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Organization
+     */
+    organization?: string | null;
+    /**
+     * Detail
+     */
+    detail?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
 };
 
 /**
@@ -375,6 +505,22 @@ export type FreelancerProfileCreate = {
      */
     is_available?: boolean;
     /**
+     * Availability
+     */
+    availability?: string | null;
+    /**
+     * Hours
+     */
+    hours?: string | null;
+    /**
+     * Category
+     */
+    category?: string | null;
+    /**
+     * Finished
+     */
+    finished?: boolean;
+    /**
      * Location
      */
     location?: string | null;
@@ -389,7 +535,7 @@ export type FreelancerProfileCreate = {
     /**
      * Skills
      */
-    skills?: Array<ITSkill>;
+    skills?: Array<string>;
 };
 
 /**
@@ -416,6 +562,22 @@ export type FreelancerProfileDetailPublic = {
      * Is Available
      */
     is_available?: boolean;
+    /**
+     * Availability
+     */
+    availability?: string | null;
+    /**
+     * Hours
+     */
+    hours?: string | null;
+    /**
+     * Category
+     */
+    category?: string | null;
+    /**
+     * Finished
+     */
+    finished?: boolean;
     /**
      * Location
      */
@@ -453,6 +615,10 @@ export type FreelancerProfileDetailPublic = {
      */
     skills?: Array<SkillPublic>;
     /**
+     * Skill Names
+     */
+    skill_names?: Array<string>;
+    /**
      * Average Rating
      */
     average_rating?: number | null;
@@ -476,6 +642,10 @@ export type FreelancerProfileDetailPublic = {
      * Educations
      */
     educations?: Array<EducationPublic>;
+    /**
+     * Experiences
+     */
+    experiences?: Array<ExperiencePublic>;
     /**
      * Reviews
      */
@@ -508,6 +678,22 @@ export type FreelancerProfilePublic = {
      */
     is_available?: boolean;
     /**
+     * Availability
+     */
+    availability?: string | null;
+    /**
+     * Hours
+     */
+    hours?: string | null;
+    /**
+     * Category
+     */
+    category?: string | null;
+    /**
+     * Finished
+     */
+    finished?: boolean;
+    /**
      * Location
      */
     location?: string | null;
@@ -543,6 +729,10 @@ export type FreelancerProfilePublic = {
      * Skills
      */
     skills?: Array<SkillPublic>;
+    /**
+     * Skill Names
+     */
+    skill_names?: Array<string>;
     /**
      * Average Rating
      */
@@ -582,6 +772,22 @@ export type FreelancerProfileUpdate = {
      */
     is_available?: boolean | null;
     /**
+     * Availability
+     */
+    availability?: string | null;
+    /**
+     * Hours
+     */
+    hours?: string | null;
+    /**
+     * Category
+     */
+    category?: string | null;
+    /**
+     * Finished
+     */
+    finished?: boolean | null;
+    /**
      * Location
      */
     location?: string | null;
@@ -596,7 +802,23 @@ export type FreelancerProfileUpdate = {
     /**
      * Skills
      */
-    skills?: Array<ITSkill> | null;
+    skills?: Array<string> | null;
+    /**
+     * Full Name
+     */
+    full_name?: string | null;
+    /**
+     * Experiences
+     */
+    experiences?: Array<ExperienceCreate> | null;
+    /**
+     * Educations
+     */
+    educations?: Array<EducationCreate> | null;
+    /**
+     * Portfolio
+     */
+    portfolio?: Array<PortfolioItemCreate> | null;
 };
 
 /**
@@ -932,11 +1154,23 @@ export type PortfolioItemCreate = {
     /**
      * Description
      */
-    description: string;
+    description?: string | null;
     /**
      * Image Url
      */
-    image_url: string;
+    image_url?: string | null;
+    /**
+     * Organization
+     */
+    organization?: string | null;
+    /**
+     * Detail
+     */
+    detail?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
 };
 
 /**
@@ -950,11 +1184,23 @@ export type PortfolioItemPublic = {
     /**
      * Description
      */
-    description: string;
+    description?: string | null;
     /**
      * Image Url
      */
-    image_url: string;
+    image_url?: string | null;
+    /**
+     * Organization
+     */
+    organization?: string | null;
+    /**
+     * Detail
+     */
+    detail?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
     /**
      * Id
      */
@@ -989,6 +1235,18 @@ export type PortfolioItemUpdate = {
      * Image Url
      */
     image_url?: string | null;
+    /**
+     * Organization
+     */
+    organization?: string | null;
+    /**
+     * Detail
+     */
+    detail?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
 };
 
 /**
@@ -1215,7 +1473,10 @@ export type SavedJobsPublic = {
  * SkillPublic
  */
 export type SkillPublic = {
-    name: ITSkill;
+    /**
+     * Name
+     */
+    name: string;
     /**
      * Id
      */
@@ -2052,7 +2313,11 @@ export type profilesReadProfilesData = {
         /**
          * Skill
          */
-        skill?: Array<ITSkill> | null;
+        skill?: Array<string> | null;
+        /**
+         * Category
+         */
+        category?: string | null;
         /**
          * Min Rate
          */
@@ -2065,6 +2330,14 @@ export type profilesReadProfilesData = {
          * Is Available
          */
         is_available?: boolean | null;
+        /**
+         * Availability
+         */
+        availability?: string | null;
+        /**
+         * Finished
+         */
+        finished?: boolean | null;
         /**
          * Sort By
          */
@@ -2131,6 +2404,116 @@ export type profilesReadProfileMeResponses = {
 };
 
 export type profilesReadProfileMeResponse = profilesReadProfileMeResponses[keyof profilesReadProfileMeResponses];
+
+export type profilesUpdateProfileMeData = {
+    body: FreelancerProfileUpdate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/profiles/me';
+};
+
+export type profilesUpdateProfileMeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type profilesUpdateProfileMeError = profilesUpdateProfileMeErrors[keyof profilesUpdateProfileMeErrors];
+
+export type profilesUpdateProfileMeResponses = {
+    /**
+     * Successful Response
+     */
+    200: FreelancerProfileDetailPublic;
+};
+
+export type profilesUpdateProfileMeResponse = profilesUpdateProfileMeResponses[keyof profilesUpdateProfileMeResponses];
+
+export type profilesCreateExperienceData = {
+    body: ExperienceCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/profiles/me/experiences';
+};
+
+export type profilesCreateExperienceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type profilesCreateExperienceError = profilesCreateExperienceErrors[keyof profilesCreateExperienceErrors];
+
+export type profilesCreateExperienceResponses = {
+    /**
+     * Successful Response
+     */
+    200: ExperiencePublic;
+};
+
+export type profilesCreateExperienceResponse = profilesCreateExperienceResponses[keyof profilesCreateExperienceResponses];
+
+export type profilesDeleteExperienceData = {
+    body?: never;
+    path: {
+        /**
+         * Experience Id
+         */
+        experience_id: string;
+    };
+    query?: never;
+    url: '/api/v1/profiles/me/experiences/{experience_id}';
+};
+
+export type profilesDeleteExperienceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type profilesDeleteExperienceError = profilesDeleteExperienceErrors[keyof profilesDeleteExperienceErrors];
+
+export type profilesDeleteExperienceResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type profilesDeleteExperienceResponse = profilesDeleteExperienceResponses[keyof profilesDeleteExperienceResponses];
+
+export type profilesUpdateExperienceData = {
+    body: ExperienceUpdate;
+    path: {
+        /**
+         * Experience Id
+         */
+        experience_id: string;
+    };
+    query?: never;
+    url: '/api/v1/profiles/me/experiences/{experience_id}';
+};
+
+export type profilesUpdateExperienceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type profilesUpdateExperienceError = profilesUpdateExperienceErrors[keyof profilesUpdateExperienceErrors];
+
+export type profilesUpdateExperienceResponses = {
+    /**
+     * Successful Response
+     */
+    200: ExperiencePublic;
+};
+
+export type profilesUpdateExperienceResponse = profilesUpdateExperienceResponses[keyof profilesUpdateExperienceResponses];
 
 export type profilesCreateEducationData = {
     body: EducationCreate;
