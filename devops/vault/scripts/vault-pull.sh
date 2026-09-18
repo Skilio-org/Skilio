@@ -32,7 +32,7 @@ echo "Connecting to HCP Vault at $VAULT_ADDR (Namespace: $VAULT_NAMESPACE)..."
 get_secret_json() {
   local path="$1"
   local url="${VAULT_ADDR}/v1/secret/data/production/${path}"
-  
+
   local response
   response=$(curl -s -f \
     -H "X-Vault-Token: ${VAULT_TOKEN}" \

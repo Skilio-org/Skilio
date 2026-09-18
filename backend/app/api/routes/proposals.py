@@ -41,9 +41,7 @@ def _build_freelancer_profile_public(
     avg_rating = session.exec(avg_rating_stmt).one()
     reviews_count = session.exec(reviews_count_stmt).one()
 
-    skills_public = [
-        SkillPublic.model_validate(skill) for skill in profile.skills
-    ]
+    skills_public = [SkillPublic.model_validate(skill) for skill in profile.skills]
 
     return FreelancerProfilePublic.model_validate(
         profile,
@@ -69,7 +67,10 @@ def submit_proposal(
     Only freelancers can submit proposals.
     The job must be OPEN and not owned by the proposing user.
     """
-    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+    if (
+        current_user.active_role != UserRole.FREELANCER
+        and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can submit proposals",
@@ -265,9 +266,7 @@ def read_proposal(
         UserPublic.model_validate(freelancer_user) if freelancer_user else None
     )
     freelancer_profile_public = (
-        _build_freelancer_profile_public(
-            session, freelancer_user.freelancer_profile
-        )
+        _build_freelancer_profile_public(session, freelancer_user.freelancer_profile)
         if freelancer_user
         else None
     )
@@ -298,9 +297,7 @@ def update_proposal_status(
         raise HTTPException(status_code=404, detail="Proposal not found")
 
     job = proposal.job_post
-    if not job or (
-        job.client_id != current_user.id and not current_user.is_superuser
-    ):
+    if not job or (job.client_id != current_user.id and not current_user.is_superuser):
         raise HTTPException(
             status_code=403,
             detail="Only the job owner can update the proposal status",
@@ -317,9 +314,7 @@ def update_proposal_status(
         UserPublic.model_validate(freelancer_user) if freelancer_user else None
     )
     freelancer_profile_public = (
-        _build_freelancer_profile_public(
-            session, freelancer_user.freelancer_profile
-        )
+        _build_freelancer_profile_public(session, freelancer_user.freelancer_profile)
         if freelancer_user
         else None
     )
@@ -347,10 +342,7 @@ def withdraw_proposal(
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
 
-    if (
-        proposal.freelancer_id != current_user.id
-        and not current_user.is_superuser
-    ):
+    if proposal.freelancer_id != current_user.id and not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
             detail="Only the proposing freelancer can withdraw this proposal",

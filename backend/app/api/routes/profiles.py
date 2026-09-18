@@ -50,7 +50,10 @@ from app.models import (
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
-def get_http_client(request: Request) -> httpx.AsyncClient: return request.app.state.http_client
+
+def get_http_client(request: Request) -> httpx.AsyncClient:
+    return request.app.state.http_client
+
 
 @router.get("/", response_model=FreelancerProfilesPublic)
 def read_profiles(
@@ -265,6 +268,7 @@ def update_education(
     session.refresh(education)
     return education
 
+
 @router.delete("/me/educations/{education_id}", response_model=Message)
 def delete_education(
     *,
@@ -289,9 +293,11 @@ def delete_education(
     session.commit()
     return Message(message="Education entry deleted successfully")
 
+
 # ==============================================================================
 # Portfolio profile upload and download.
 # ==============================================================================
+
 
 @router.post("/resume", response_model=AvatarResponse)
 async def upload_resume(
@@ -302,9 +308,7 @@ async def upload_resume(
 ) -> AvatarResponse:
     """Uploads resume asynchronously without blocking the event loop."""
     if file.content_type != "application/pdf":
-        raise HTTPException(
-            status_code=400, detail="Only PDF files are allowed"
-        )
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
     # if not file.filename.lower().endswith(".pdf"):
     #     raise HTTPException(
     #         status_code=400, detail="File must have a .pdf extension"
@@ -314,10 +318,7 @@ async def upload_resume(
         claudinary_upload_media, current_user.id, contents, media_type="pdf"
     )
     if not url:
-        raise HTTPException(
-            status_code=500, detail="Failed to upload avatar image"
-        )
-
+        raise HTTPException(status_code=500, detail="Failed to upload avatar image")
 
     if current_user.freelancer_profile:
         current_user.freelancer_profile.resume_url = url
@@ -342,7 +343,9 @@ async def proxy_resume(
     user = session.get(User, uuid)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    cloudinary_url = user.freelancer_profile.resume_url if user.freelancer_profile else None
+    cloudinary_url = (
+        user.freelancer_profile.resume_url if user.freelancer_profile else None
+    )
     if not cloudinary_url:
         raise HTTPException(status_code=404, detail="resume not found")
     headers = {}
@@ -373,6 +376,7 @@ async def proxy_resume(
         headers=passthrough_headers,
         media_type=response.headers.get("content-type"),
     )
+
 
 # @router.get("/resume/me")
 # async def proxy_me(
@@ -420,6 +424,7 @@ async def proxy_resume(
 # ==============================================================================
 # Portfolio Item Sub-resources
 # ==============================================================================
+
 
 @router.post("/me/portfolio", response_model=PortfolioItemPublic)
 def create_portfolio_item(

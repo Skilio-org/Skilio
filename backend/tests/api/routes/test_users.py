@@ -406,9 +406,7 @@ def test_register_user_as_freelancer_with_active_role_field(
     assert profile_db is not None
 
 
-def test_switch_role_from_client_to_freelancer(
-    client: TestClient, db: Session
-) -> None:
+def test_switch_role_from_client_to_freelancer(client: TestClient, db: Session) -> None:
     username = random_email()
     password = random_lower_string()
     full_name = random_lower_string()

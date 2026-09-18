@@ -78,7 +78,7 @@ post_secret_json() {
 
   local http_code
   http_code=$(echo "$response" | tail -n1)
-  
+
   if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
     echo "✔ Successfully stored secret/production/${path}"
   else

@@ -189,9 +189,7 @@ def read_my_jobs(
         ]
 
         client_company = (
-            current_user.client_profile.company
-            if current_user.client_profile
-            else None
+            current_user.client_profile.company if current_user.client_profile else None
         )
 
         job_data = JobPostPublic.model_validate(
@@ -220,7 +218,10 @@ def read_saved_jobs(
     """
     List jobs saved / bookmarked by the current freelancer.
     """
-    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+    if (
+        current_user.active_role != UserRole.FREELANCER
+        and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can view saved jobs",
@@ -242,9 +243,7 @@ def read_saved_jobs(
 
     # Pre-fetch applied job IDs
     applied_rows = session.exec(
-        select(Proposal.job_post_id).where(
-            Proposal.freelancer_id == current_user.id
-        )
+        select(Proposal.job_post_id).where(Proposal.freelancer_id == current_user.id)
     ).all()
     applied_job_ids = set(applied_rows)
 
@@ -326,9 +325,7 @@ def create_job(
     session.commit()
     session.refresh(job)
 
-    skills_public = [
-        SkillPublic.model_validate(skill) for skill in job.required_skills
-    ]
+    skills_public = [SkillPublic.model_validate(skill) for skill in job.required_skills]
 
     return JobPostPublic.model_validate(
         job,
@@ -377,9 +374,7 @@ def read_job(
         ).first()
         has_applied = applied_row is not None
 
-    skills_public = [
-        SkillPublic.model_validate(skill) for skill in job.required_skills
-    ]
+    skills_public = [SkillPublic.model_validate(skill) for skill in job.required_skills]
     client_public = UserPublic.model_validate(job.client) if job.client else None
     client_company = (
         job.client.client_profile.company
@@ -460,9 +455,7 @@ def update_job(
     proposals_count_stmt = select(func.count()).where(Proposal.job_post_id == job.id)
     proposals_count = session.exec(proposals_count_stmt).one()
 
-    skills_public = [
-        SkillPublic.model_validate(skill) for skill in job.required_skills
-    ]
+    skills_public = [SkillPublic.model_validate(skill) for skill in job.required_skills]
 
     return JobPostPublic.model_validate(
         job,
@@ -501,7 +494,10 @@ def save_job(
     """
     Bookmark / save a job post for the current authenticated freelancer.
     """
-    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+    if (
+        current_user.active_role != UserRole.FREELANCER
+        and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can save jobs",
@@ -533,7 +529,10 @@ def unsave_job(
     """
     Remove a job post from bookmarks / saved jobs.
     """
-    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+    if (
+        current_user.active_role != UserRole.FREELANCER
+        and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can save or unsave jobs",

@@ -5,7 +5,7 @@ from sqlmodel import Session
 
 from app.core.config import settings
 from app.core.security import get_password_hash
-from app.models import FreelancerProfile, Review, UserRole
+from app.models import FreelancerProfile, UserRole
 from tests.utils.profile import create_random_profile
 from tests.utils.review import create_random_review
 from tests.utils.user import create_random_user, user_authentication_headers
@@ -21,11 +21,15 @@ def _make_client_headers(client: TestClient, db: Session) -> tuple[dict[str, str
     db.add(user)
     db.commit()
     db.refresh(user)
-    headers = user_authentication_headers(client=client, email=user.email, password=password)
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
     return headers, user
 
 
-def _make_freelancer_headers(client: TestClient, db: Session) -> tuple[dict[str, str], any]:
+def _make_freelancer_headers(
+    client: TestClient, db: Session
+) -> tuple[dict[str, str], any]:
     """Create a FREELANCER-role user and return (auth_headers, user)."""
     user = create_random_user(db)
     user.active_role = UserRole.FREELANCER
@@ -34,7 +38,9 @@ def _make_freelancer_headers(client: TestClient, db: Session) -> tuple[dict[str,
     db.add(user)
     db.commit()
     db.refresh(user)
-    headers = user_authentication_headers(client=client, email=user.email, password=password)
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
     return headers, user
 
 
@@ -102,7 +108,9 @@ def test_create_review_own_profile(client: TestClient, db: Session) -> None:
     db.add(user)
     db.commit()
     db.refresh(user)
-    headers = user_authentication_headers(client=client, email=user.email, password=password)
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
 
     # Create a freelancer profile for this same user
     profile = FreelancerProfile(
@@ -201,9 +209,7 @@ def test_list_reviews_for_freelancer(client: TestClient, db: Session) -> None:
 
 def test_list_reviews_freelancer_not_found(client: TestClient) -> None:
     """Listing reviews for a non-existent freelancer returns 404."""
-    response = client.get(
-        f"{settings.API_V1_STR}/reviews/freelancer/{uuid.uuid4()}"
-    )
+    response = client.get(f"{settings.API_V1_STR}/reviews/freelancer/{uuid.uuid4()}")
     assert response.status_code == 404
     assert response.json()["detail"] == "Freelancer profile not found"
 
@@ -328,9 +334,7 @@ def test_delete_as_superuser(
     assert response.json()["message"] == "Review deleted successfully"
 
 
-def test_delete_other_users_review_forbidden(
-    client: TestClient, db: Session
-) -> None:
+def test_delete_other_users_review_forbidden(client: TestClient, db: Session) -> None:
     """A non-superuser cannot delete someone else's review."""
     review = create_random_review(db)
     headers, _ = _make_client_headers(client, db)

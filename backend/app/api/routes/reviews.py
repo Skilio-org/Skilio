@@ -86,9 +86,7 @@ def list_reviews_for_freelancer(
     if not profile:
         raise HTTPException(status_code=404, detail="Freelancer profile not found")
 
-    count_statement = select(func.count()).where(
-        Review.freelancer_id == freelancer_id
-    )
+    count_statement = select(func.count()).where(Review.freelancer_id == freelancer_id)
     count = session.exec(count_statement).one()
 
     statement = (

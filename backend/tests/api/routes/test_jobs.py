@@ -1,11 +1,9 @@
-import uuid
-
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.core.config import settings
 from app.core.security import get_password_hash
-from app.models import BudgetType, ITSkill, JobStatus, UserRole
+from app.models import UserRole
 from tests.utils.user import create_random_user, user_authentication_headers
 from tests.utils.utils import random_lower_string
 
@@ -18,11 +16,15 @@ def _make_client_headers(client: TestClient, db: Session) -> tuple[dict[str, str
     db.add(user)
     db.commit()
     db.refresh(user)
-    headers = user_authentication_headers(client=client, email=user.email, password=password)
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
     return headers, user
 
 
-def _make_freelancer_headers(client: TestClient, db: Session) -> tuple[dict[str, str], any]:
+def _make_freelancer_headers(
+    client: TestClient, db: Session
+) -> tuple[dict[str, str], any]:
     user = create_random_user(db)
     user.active_role = UserRole.FREELANCER
     password = random_lower_string()
@@ -30,7 +32,9 @@ def _make_freelancer_headers(client: TestClient, db: Session) -> tuple[dict[str,
     db.add(user)
     db.commit()
     db.refresh(user)
-    headers = user_authentication_headers(client=client, email=user.email, password=password)
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
     return headers, user
 
 
@@ -189,29 +193,39 @@ def test_save_and_unsave_job(client: TestClient, db: Session) -> None:
     job_id = create_resp.json()["id"]
 
     # Freelancer saves the job
-    save_resp = client.post(f"{settings.API_V1_STR}/jobs/{job_id}/save", headers=freelancer_headers)
+    save_resp = client.post(
+        f"{settings.API_V1_STR}/jobs/{job_id}/save", headers=freelancer_headers
+    )
     assert save_resp.status_code == 200
     assert save_resp.json()["message"] == "Job post saved successfully"
 
     # Verify job shows is_saved=True in detail and feed
-    detail_resp = client.get(f"{settings.API_V1_STR}/jobs/{job_id}", headers=freelancer_headers)
+    detail_resp = client.get(
+        f"{settings.API_V1_STR}/jobs/{job_id}", headers=freelancer_headers
+    )
     assert detail_resp.status_code == 200
     assert detail_resp.json()["is_saved"] is True
 
     # List saved jobs
-    saved_resp = client.get(f"{settings.API_V1_STR}/jobs/saved", headers=freelancer_headers)
+    saved_resp = client.get(
+        f"{settings.API_V1_STR}/jobs/saved", headers=freelancer_headers
+    )
     assert saved_resp.status_code == 200
     saved_data = saved_resp.json()
     assert saved_data["count"] >= 1
     assert any(s["job_post_id"] == job_id for s in saved_data["data"])
 
     # Unsave job
-    unsave_resp = client.delete(f"{settings.API_V1_STR}/jobs/{job_id}/save", headers=freelancer_headers)
+    unsave_resp = client.delete(
+        f"{settings.API_V1_STR}/jobs/{job_id}/save", headers=freelancer_headers
+    )
     assert unsave_resp.status_code == 200
     assert unsave_resp.json()["message"] == "Job post removed from saved"
 
     # Verify is_saved is now False
-    detail_after = client.get(f"{settings.API_V1_STR}/jobs/{job_id}", headers=freelancer_headers)
+    detail_after = client.get(
+        f"{settings.API_V1_STR}/jobs/{job_id}", headers=freelancer_headers
+    )
     assert detail_after.json()["is_saved"] is False
 
 
@@ -228,7 +242,9 @@ def test_client_cannot_save_job(client: TestClient, db: Session) -> None:
         },
     )
     job_id = create_resp.json()["id"]
-    save_resp = client.post(f"{settings.API_V1_STR}/jobs/{job_id}/save", headers=client_headers)
+    save_resp = client.post(
+        f"{settings.API_V1_STR}/jobs/{job_id}/save", headers=client_headers
+    )
     assert save_resp.status_code == 403
 
 
@@ -294,11 +310,15 @@ def test_delete_job(client: TestClient, db: Session) -> None:
     job_id = create_resp.json()["id"]
 
     # Non-owner cannot delete
-    fail_del = client.delete(f"{settings.API_V1_STR}/jobs/{job_id}", headers=other_client_headers)
+    fail_del = client.delete(
+        f"{settings.API_V1_STR}/jobs/{job_id}", headers=other_client_headers
+    )
     assert fail_del.status_code == 403
 
     # Owner deletes
-    del_resp = client.delete(f"{settings.API_V1_STR}/jobs/{job_id}", headers=client_headers)
+    del_resp = client.delete(
+        f"{settings.API_V1_STR}/jobs/{job_id}", headers=client_headers
+    )
     assert del_resp.status_code == 200
     assert del_resp.json()["message"] == "Job post deleted successfully"
 

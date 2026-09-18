@@ -103,9 +103,7 @@ async def upload_avatar(
         claudinary_upload_media, current_user.id, contents, media_type="image"
     )
     if not url:
-        raise HTTPException(
-            status_code=500, detail="Failed to upload avatar image"
-        )
+        raise HTTPException(status_code=500, detail="Failed to upload avatar image")
 
     current_user.avatar_url = url
 
@@ -204,9 +202,7 @@ def switch_role(
             session.commit()
     elif body.role == UserRole.CLIENT:
         profile = session.exec(
-            select(ClientProfile).where(
-                ClientProfile.user_id == current_user.id
-            )
+            select(ClientProfile).where(ClientProfile.user_id == current_user.id)
         ).first()
         if not profile:
             profile = ClientProfile(user_id=current_user.id)

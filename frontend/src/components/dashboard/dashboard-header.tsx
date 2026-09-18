@@ -18,25 +18,31 @@ export function WorkspacePageHeader({
 	return (
 		<header
 			className={cn(
-				"workspace-page-header flex flex-col justify-between gap-5 border-border border-b pb-7 sm:flex-row sm:items-end",
+				"workspace-page-header flex flex-col justify-between gap-4 border-outline-variant border-b pb-8 md:flex-row md:items-end",
 				className,
 			)}
 		>
-			<div className="max-w-2xl">
-				<p className="font-medium text-muted-foreground text-xs">{eyebrow}</p>
-				<h1 className="mt-3 font-display font-medium text-3xl text-foreground tracking-[-0.04em] sm:text-[2.5rem]">
-					{title}
-				</h1>
-				<p className="mt-3 text-muted-foreground text-sm leading-6">{description}</p>
+			<div className="flex max-w-2xl flex-col gap-1.5">
+				<p className="font-caption font-semibold text-caption text-on-surface-variant uppercase tracking-wider">
+					{eyebrow}
+				</p>
+
+				<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">{title}</h1>
+
+				<p className="font-body-md text-body-md text-on-surface-variant">{description}</p>
 			</div>
-			{action && <div className="shrink-0 self-start sm:self-auto">{action}</div>}
+
+			{action && <div className="shrink-0 self-start md:self-auto">{action}</div>}
 		</header>
 	)
 }
 
 export function WorkspaceSurface({ className, children, ...props }: React.ComponentProps<"section">) {
 	return (
-		<section className={cn("workspace-panel rounded-xl border border-border bg-card", className)} {...props}>
+		<section
+			className={cn("workspace-panel rounded-lg border border-outline-variant bg-surface-container-lowest", className)}
+			{...props}
+		>
 			{children}
 		</section>
 	)
@@ -44,7 +50,12 @@ export function WorkspaceSurface({ className, children, ...props }: React.Compon
 
 export function Monogram({ children, className }: { children: ReactNode; className?: string }) {
 	return (
-		<span className={cn("grid shrink-0 place-items-center rounded-xl font-display font-semibold", className)}>
+		<span
+			className={cn(
+				"grid shrink-0 place-items-center rounded bg-primary font-label-sm font-semibold text-on-primary",
+				className,
+			)}
+		>
 			{children}
 		</span>
 	)
@@ -54,7 +65,7 @@ export function SkillTag({ children, className }: { children: ReactNode; classNa
 	return (
 		<span
 			className={cn(
-				"inline-flex min-h-7 items-center rounded-md bg-muted px-3 font-medium text-muted-foreground text-xs",
+				"inline-flex min-h-5 items-center rounded bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant",
 				className,
 			)}
 		>
@@ -65,13 +76,17 @@ export function SkillTag({ children, className }: { children: ReactNode; classNa
 
 export const workspaceStyles = {
 	primaryAction:
-		"inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-700 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+		"inline-flex h-9 items-center justify-center gap-2 rounded bg-primary px-4 font-label-md text-label-md font-medium text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+
 	secondaryAction:
-		"inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+		"inline-flex h-9 items-center justify-center gap-2 rounded border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+
 	iconButton:
-		"grid size-11 shrink-0 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+		"grid size-8 shrink-0 place-items-center rounded border border-outline-variant bg-surface-container-lowest text-outline transition-colors hover:bg-surface-container hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+
 	inputShell:
-		"flex min-h-12 items-center rounded-xl border border-input bg-background px-4 transition-shadow focus-within:border-brand-600 focus-within:ring-4 focus-within:ring-brand-100",
+		"flex h-9 items-center rounded border border-outline-variant bg-surface-container-lowest px-3 font-body-sm text-body-sm text-on-surface transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary",
+
 	select:
-		"min-h-11 rounded-xl border border-input bg-card px-4 text-sm font-medium text-foreground outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100",
+		"h-9 rounded border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md font-medium text-on-surface outline-none transition-colors hover:border-outline focus:border-primary focus:ring-1 focus:ring-primary",
 } as const

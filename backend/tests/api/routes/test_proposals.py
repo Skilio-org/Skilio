@@ -1,11 +1,9 @@
-import uuid
-
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.core.config import settings
 from app.core.security import get_password_hash
-from app.models import BudgetType, ProposalStatus, UserRole
+from app.models import UserRole
 from tests.utils.user import create_random_user, user_authentication_headers
 from tests.utils.utils import random_lower_string
 
@@ -18,11 +16,15 @@ def _make_client_headers(client: TestClient, db: Session) -> tuple[dict[str, str
     db.add(user)
     db.commit()
     db.refresh(user)
-    headers = user_authentication_headers(client=client, email=user.email, password=password)
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
     return headers, user
 
 
-def _make_freelancer_headers(client: TestClient, db: Session) -> tuple[dict[str, str], any]:
+def _make_freelancer_headers(
+    client: TestClient, db: Session
+) -> tuple[dict[str, str], any]:
     user = create_random_user(db)
     user.active_role = UserRole.FREELANCER
     password = random_lower_string()
@@ -30,7 +32,9 @@ def _make_freelancer_headers(client: TestClient, db: Session) -> tuple[dict[str,
     db.add(user)
     db.commit()
     db.refresh(user)
-    headers = user_authentication_headers(client=client, email=user.email, password=password)
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
     return headers, user
 
 
@@ -59,7 +63,9 @@ def test_submit_proposal(client: TestClient, db: Session) -> None:
         "job_post_id": job_id,
         "cover_letter": "I have extensive experience with FastAPI and React. Ready to start immediately!",
     }
-    response = client.post(f"{settings.API_V1_STR}/proposals/", headers=freelancer_headers, json=data)
+    response = client.post(
+        f"{settings.API_V1_STR}/proposals/", headers=freelancer_headers, json=data
+    )
     assert response.status_code == 200
     content = response.json()
     assert content["job_post_id"] == job_id
@@ -75,10 +81,14 @@ def test_duplicate_proposal_conflict(client: TestClient, db: Session) -> None:
     job_id = _create_open_job(client, client_headers)
 
     data = {"job_post_id": job_id, "cover_letter": "First submission"}
-    r1 = client.post(f"{settings.API_V1_STR}/proposals/", headers=freelancer_headers, json=data)
+    r1 = client.post(
+        f"{settings.API_V1_STR}/proposals/", headers=freelancer_headers, json=data
+    )
     assert r1.status_code == 200
 
-    r2 = client.post(f"{settings.API_V1_STR}/proposals/", headers=freelancer_headers, json=data)
+    r2 = client.post(
+        f"{settings.API_V1_STR}/proposals/", headers=freelancer_headers, json=data
+    )
     assert r2.status_code == 409
     assert r2.json()["detail"] == "You have already submitted a proposal for this job"
 
@@ -103,7 +113,11 @@ def test_proposal_on_closed_job_forbidden(client: TestClient, db: Session) -> No
     job_id = _create_open_job(client, client_headers)
 
     # Close job
-    client.put(f"{settings.API_V1_STR}/jobs/{job_id}", headers=client_headers, json={"status": "closed"})
+    client.put(
+        f"{settings.API_V1_STR}/jobs/{job_id}",
+        headers=client_headers,
+        json={"status": "closed"},
+    )
 
     # Attempt to propose
     response = client.post(
@@ -124,15 +138,27 @@ def test_client_reads_proposals_for_job(client: TestClient, db: Session) -> None
     job_id = _create_open_job(client, client_headers)
 
     # Both freelancers submit proposals
-    client.post(f"{settings.API_V1_STR}/proposals/", headers=f1_headers, json={"job_post_id": job_id})
-    client.post(f"{settings.API_V1_STR}/proposals/", headers=f2_headers, json={"job_post_id": job_id})
+    client.post(
+        f"{settings.API_V1_STR}/proposals/",
+        headers=f1_headers,
+        json={"job_post_id": job_id},
+    )
+    client.post(
+        f"{settings.API_V1_STR}/proposals/",
+        headers=f2_headers,
+        json={"job_post_id": job_id},
+    )
 
     # Non-owner client cannot view proposals
-    forbidden_resp = client.get(f"{settings.API_V1_STR}/proposals/job/{job_id}", headers=other_client_headers)
+    forbidden_resp = client.get(
+        f"{settings.API_V1_STR}/proposals/job/{job_id}", headers=other_client_headers
+    )
     assert forbidden_resp.status_code == 403
 
     # Job owner client can view all proposals
-    owner_resp = client.get(f"{settings.API_V1_STR}/proposals/job/{job_id}", headers=client_headers)
+    owner_resp = client.get(
+        f"{settings.API_V1_STR}/proposals/job/{job_id}", headers=client_headers
+    )
     assert owner_resp.status_code == 200
     content = owner_resp.json()
     assert content["count"] == 2
@@ -149,10 +175,20 @@ def test_freelancer_reads_my_proposals(client: TestClient, db: Session) -> None:
     job_id1 = _create_open_job(client, client_headers)
     job_id2 = _create_open_job(client, client_headers)
 
-    client.post(f"{settings.API_V1_STR}/proposals/", headers=freelancer_headers, json={"job_post_id": job_id1})
-    client.post(f"{settings.API_V1_STR}/proposals/", headers=freelancer_headers, json={"job_post_id": job_id2})
+    client.post(
+        f"{settings.API_V1_STR}/proposals/",
+        headers=freelancer_headers,
+        json={"job_post_id": job_id1},
+    )
+    client.post(
+        f"{settings.API_V1_STR}/proposals/",
+        headers=freelancer_headers,
+        json={"job_post_id": job_id2},
+    )
 
-    my_proposals = client.get(f"{settings.API_V1_STR}/proposals/me", headers=freelancer_headers)
+    my_proposals = client.get(
+        f"{settings.API_V1_STR}/proposals/me", headers=freelancer_headers
+    )
     assert my_proposals.status_code == 200
     content = my_proposals.json()
     assert content["count"] >= 2
@@ -229,7 +265,9 @@ def test_withdraw_proposal(client: TestClient, db: Session) -> None:
     assert withdraw_resp.json()["message"] == "Proposal withdrawn successfully"
 
     # Verify 404 after deletion
-    get_resp = client.get(f"{settings.API_V1_STR}/proposals/{proposal_id}", headers=freelancer_headers)
+    get_resp = client.get(
+        f"{settings.API_V1_STR}/proposals/{proposal_id}", headers=freelancer_headers
+    )
     assert get_resp.status_code == 404
 
 
@@ -240,14 +278,22 @@ def test_proposal_feed_count_and_has_applied(client: TestClient, db: Session) ->
     job_id = _create_open_job(client, client_headers)
 
     # Check initially has_applied is False and count is 0
-    detail_before = client.get(f"{settings.API_V1_STR}/jobs/{job_id}", headers=freelancer_headers)
+    detail_before = client.get(
+        f"{settings.API_V1_STR}/jobs/{job_id}", headers=freelancer_headers
+    )
     assert detail_before.json()["proposals_count"] == 0
     assert detail_before.json()["has_applied"] is False
 
     # Submit proposal
-    client.post(f"{settings.API_V1_STR}/proposals/", headers=freelancer_headers, json={"job_post_id": job_id})
+    client.post(
+        f"{settings.API_V1_STR}/proposals/",
+        headers=freelancer_headers,
+        json={"job_post_id": job_id},
+    )
 
     # Check after proposal
-    detail_after = client.get(f"{settings.API_V1_STR}/jobs/{job_id}", headers=freelancer_headers)
+    detail_after = client.get(
+        f"{settings.API_V1_STR}/jobs/{job_id}", headers=freelancer_headers
+    )
     assert detail_after.json()["proposals_count"] == 1
     assert detail_after.json()["has_applied"] is True

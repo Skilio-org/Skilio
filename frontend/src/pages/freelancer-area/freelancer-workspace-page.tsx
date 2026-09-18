@@ -7,9 +7,13 @@ import {
 	Bookmark,
 	BriefcaseBusiness,
 	Building2,
+	CheckCircle2,
+	ChevronDown,
+	Circle,
 	Clock3,
 	FileText,
 	Globe2,
+	Pencil,
 	Search,
 	SlidersHorizontal,
 	Sparkles,
@@ -143,6 +147,9 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 	)
 	const proposalTab = tab === "Active" ? "Drafts" : tab
 	const visibleProposals = drafts.filter((draft) => (draft.status ?? "Drafts") === proposalTab)
+	const submittedProposals = drafts.filter((draft) => (draft.status ?? "Drafts") === "Submitted")
+	const firstName = user?.full_name?.trim().split(/\s+/)[0] || "there"
+	const dashboardFilters = ["All work", ...Array.from(new Set(jobs.map((job) => job.category))).slice(0, 2)]
 	const changeProposal = (id: string, status: Draft["status"]) => {
 		setDrafts((items) => items.map((item) => (item.job.id === id ? { ...item, status } : item)))
 		toast.success(
@@ -159,138 +166,360 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 		setCover(draft?.cover ?? "")
 		setRate(draft?.rate ?? "")
 	}
-	const directoryJobList = (
-		<div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
-			{filtered.map((job) => (
-				<article key={job.id} className="bg-card p-5 sm:p-6">
-					<div className="flex items-start justify-between gap-4">
-						<div className="min-w-0">
-							<p className="text-muted-foreground text-xs">
-								{job.posted} · {job.company} · Remote
-							</p>
-							<button
-								type="button"
-								onClick={() => open(job)}
-								className="wrap-break-word mt-2 text-left font-medium text-xl tracking-tight hover:text-primary"
-							>
-								{job.title}
-							</button>
-							<p className="mt-3 font-medium text-sm">{job.budget}</p>
+	const renderJobCard = (job: Job) => {
+		const isSaved = saved.includes(job.id)
+		const projectType = job.budget.toLowerCase().includes("fixed") ? "Fixed price" : "Hourly"
+
+		return (
+			<article
+				key={job.id}
+				className="group relative rounded-lg border border-outline-variant bg-surface-container-lowest p-5 transition-colors duration-150 hover:border-outline"
+			>
+				<div className="mb-2.5 flex items-start justify-between gap-4">
+					<div className="min-w-0 flex-1">
+						<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
+							<span className="font-label-sm font-medium text-label-sm text-on-surface-variant">{job.company}</span>
+							<span className="text-outline">•</span>
+							<span className="text-outline">Remote</span>
+							{job.posted && (
+								<>
+									<span className="text-outline">•</span>
+									<span className="text-outline">{job.posted}</span>
+								</>
+							)}
 						</div>
 						<button
 							type="button"
-							aria-label={`${saved.includes(job.id) ? "Unsave" : "Save"} ${job.title}`}
-							aria-pressed={saved.includes(job.id)}
-							onClick={() =>
-								setSaved((ids) => (ids.includes(job.id) ? ids.filter((id) => id !== job.id) : [...ids, job.id]))
-							}
-							className={workspaceStyles.iconButton}
+							onClick={() => open(job)}
+							className="pt-0.5 text-left font-headline-md font-semibold text-headline-md text-on-surface transition-colors group-hover:text-primary-container"
 						>
-							<Bookmark className={`size-4 ${saved.includes(job.id) ? "fill-primary text-primary" : ""}`} />
+							{job.title}
 						</button>
 					</div>
-					<p className="mt-4 max-w-3xl text-muted-foreground text-sm leading-6">{job.description}</p>
-					<div className="mt-5 flex flex-wrap gap-2">
-						{job.skills.map((skill) => (
+					<button
+						type="button"
+						aria-label={`${isSaved ? "Unsave" : "Save"} ${job.title}`}
+						aria-pressed={isSaved}
+						onClick={() =>
+							setSaved((ids) => (ids.includes(job.id) ? ids.filter((id) => id !== job.id) : [...ids, job.id]))
+						}
+						className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-primary"
+					>
+						<Bookmark className={`size-5 ${isSaved ? "fill-primary text-primary" : ""}`} />
+					</button>
+				</div>
+
+				<div className="mb-3 flex flex-wrap items-center gap-3">
+					<div className="flex items-baseline gap-1 font-numeric-data text-numeric-data">
+						<span className="font-semibold text-[15px] text-on-surface">{job.budget}</span>
+						<span className="font-caption text-caption text-on-surface-variant">{projectType}</span>
+					</div>
+					<span className="size-1 rounded-full bg-outline-variant" />
+					<span className="font-caption text-caption text-on-surface-variant">{job.category}</span>
+				</div>
+
+				<p className="mb-4 line-clamp-2 font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+					{job.description}
+				</p>
+
+				<div className="flex flex-col gap-3 border-surface-container border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
+					<div className="flex flex-wrap items-center gap-1.5">
+						{job.skills.slice(0, 4).map((skill) => (
 							<span
 								key={skill}
-								className="inline-flex min-h-7 items-center rounded-md bg-muted px-3 font-medium text-muted-foreground text-xs"
+								className="rounded bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant"
 							>
 								{skill}
 							</span>
 						))}
 					</div>
-				</article>
-			))}
-		</div>
-	)
-	const jobList = (
-		<div className="space-y-4">
-			{filtered.map((job) => (
-				<WorkspaceSurface key={job.id} className="p-5 sm:p-6">
-					<div className="flex items-start justify-between gap-4">
-						<div>
-							<p className="text-muted-foreground text-xs">{job.company} · Remote</p>
-							<button
-								onClick={() => open(job)}
-								className="mt-2 text-left font-medium text-xl tracking-tight hover:text-primary"
-								type="button"
-							>
-								{job.title}
-							</button>
-							<p className="mt-3 font-medium text-sm">{job.budget}</p>
-						</div>
+					<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
 						<button
 							type="button"
-							aria-label={`${saved.includes(job.id) ? "Unsave" : "Save"} ${job.title}`}
-							aria-pressed={saved.includes(job.id)}
-							onClick={() =>
-								setSaved((ids) => (ids.includes(job.id) ? ids.filter((id) => id !== job.id) : [...ids, job.id]))
-							}
-							className={workspaceStyles.iconButton}
+							onClick={() => open(job)}
+							className="h-8 rounded-lg px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
 						>
-							<Bookmark className={`size-4 ${saved.includes(job.id) ? "fill-primary text-primary" : ""}`} />
+							View details
+						</button>
+						<button
+							type="button"
+							onClick={() => {
+								setSelected(job)
+								setCompose(true)
+							}}
+							className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243]"
+						>
+							Apply now
 						</button>
 					</div>
-					<p className="mt-3 text-muted-foreground text-sm leading-6">{job.description}</p>
-					<div className="mt-5 flex flex-wrap gap-2">
-						{job.skills.map((s) => (
-							<span key={s} className="rounded-full bg-muted px-3 py-1.5 text-muted-foreground text-xs">
-								{s}
-							</span>
-						))}
-					</div>
-				</WorkspaceSurface>
-			))}
-		</div>
-	)
+				</div>
+			</article>
+		)
+	}
+
+	const directoryJobList = <div className="flex flex-col gap-3.5">{filtered.map(renderJobCard)}</div>
+	const dashboardJobList = <div className="flex flex-col gap-3.5">{filtered.slice(0, 4).map(renderJobCard)}</div>
 	return (
-		<div className={page === "savedJobs" ? "mx-auto w-full space-y-6 xl:max-w-228" : "space-y-7"}>
-			<WorkspacePageHeader
-				eyebrow={page === "savedJobs" ? "Your shortlist" : "Freelancer workspace"}
-				title={
-					page === "dashboard" && user?.full_name
-						? `Good to see you, ${user.full_name.trim().split(/\s+/)[0]}.`
-						: freelancerWorkspaceTitles[page]
-				}
-				description={freelancerWorkspaceSubtitles[page]}
-				action=""
-			/>
+		<div className="mx-auto w-full max-w-[1440px] space-y-7 px-4 py-8 md:px-6 md:py-10">
+			{page === "dashboard" ? (
+				<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
+					<div className="flex max-w-2xl flex-col gap-4">
+						<div className="flex flex-wrap items-center gap-2">
+							<span className="font-caption font-semibold text-caption text-on-surface-variant uppercase tracking-wider">
+								Freelancer workspace
+							</span>
+							<span className="size-1 rounded-full bg-outline-variant" />
+							<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary">
+								<span className="size-1.5 animate-pulse rounded-full bg-primary-container" />
+								Available for new contracts
+							</span>
+						</div>
+						<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">
+							Good to see you, {firstName}.
+						</h1>
+						<p className="font-body-md text-body-md text-on-surface-variant">
+							Keep your profile current and discover verified opportunities curated specifically for your skill stack.
+						</p>
+					</div>
+					<div className="flex items-center gap-2.5 self-start md:self-auto">
+						<Link
+							to="/freelancer-saved-jobs"
+							className="flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low"
+						>
+							<Bookmark className="size-4 text-outline" />
+							Saved ({saved.length})
+						</Link>
+						<Link
+							to="/freelancer-jobs"
+							className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243]"
+						>
+							<Search className="size-4" />
+							Browse all jobs
+						</Link>
+					</div>
+				</header>
+			) : (
+				<WorkspacePageHeader
+					eyebrow={page === "savedJobs" ? "Your shortlist" : "Freelancer workspace"}
+					title={freelancerWorkspaceTitles[page]}
+					description={freelancerWorkspaceSubtitles[page]}
+					action=""
+				/>
+			)}
 			{error && (
 				<p role="alert" className="text-destructive text-sm">
 					{error}
 				</p>
 			)}
 			{page === "dashboard" && (
-				<div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-					<section>
-						<div className="mb-4 flex items-center justify-between">
-							<h2 className="font-semibold text-lg">Opportunities to explore</h2>
-							<Link className="font-medium text-primary text-sm" to="/freelancer-jobs">
+				<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+					<section className="flex flex-col gap-6 lg:col-span-8">
+						<div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
+							<div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+								{dashboardFilters.map((item) => {
+									const active = filter === item
+									const count = item === "All work" ? jobs.length : jobs.filter((job) => job.category === item).length
+
+									return (
+										<button
+											key={item}
+											type="button"
+											onClick={() => setFilter(item)}
+											className={
+												active
+													? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors"
+													: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+											}
+										>
+											<span>{item === "All work" ? "All matches" : item}</span>
+											<span
+												className={
+													active
+														? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption"
+														: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
+												}
+											>
+												{count}
+											</span>
+										</button>
+									)
+								})}
+							</div>
+							<div className="flex items-center gap-2 self-end sm:self-auto">
+								<span className="font-caption text-caption text-outline">
+									Sorted by: <strong className="font-medium text-on-surface">Best Match</strong>
+								</span>
+								<button
+									type="button"
+									title="Adjust preferences"
+									onClick={() => setJobFiltersOpen(true)}
+									className="p-1 text-outline transition-colors hover:text-on-surface"
+								>
+									<SlidersHorizontal className="size-[18px]" />
+								</button>
+							</div>
+						</div>
+
+						<div className="flex items-center justify-between px-1">
+							<div className="flex items-center gap-2">
+								<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
+									Opportunities to explore
+								</h2>
+								<span className="size-1.5 rounded-full bg-outline-variant" />
+								<span className="font-caption text-caption text-outline">Updated recently</span>
+							</div>
+							<Link
+								to="/freelancer-jobs"
+								className="flex items-center gap-0.5 font-label-sm font-medium text-label-sm text-primary transition-colors hover:text-primary-container"
+							>
 								View all
+								<ArrowRight className="size-3.5" />
 							</Link>
 						</div>
-						{jobs.length ? (
-							jobList
+
+						{filtered.length ? (
+							dashboardJobList
 						) : (
 							<Empty
 								icon={BriefcaseBusiness}
-								title="Your next project starts here"
-								detail="New opportunities will appear when job listings are available."
+								title="No opportunities in this category"
+								detail="Try another category or browse all available work."
 							/>
 						)}
+
+						{filtered.length > 0 && (
+							<div className="flex justify-center pt-2 pb-6">
+								<Link
+									to="/freelancer-jobs"
+									className="flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-6 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low"
+								>
+									Load more opportunities
+									<ChevronDown className="size-4 text-outline" />
+								</Link>
+							</div>
+						)}
 					</section>
-					<aside className="space-y-5">
-						<WorkspaceSurface className="border-brand-200 bg-brand-50 p-6">
-							<h2 className="font-display font-medium text-xl tracking-tight">Let your profile do the talking</h2>
-							<p className="mt-3 text-muted-foreground text-sm leading-6">
-								Add your skills, set your rate, and share work you’re proud of.
-							</p>
-							<Link to="/freelancer" className={`${workspaceStyles.primaryAction} mt-5`}>
+
+					<aside className="flex flex-col gap-5 lg:sticky lg:top-20 lg:col-span-4">
+						<section className="relative overflow-hidden rounded-lg border border-outline-variant bg-gradient-to-b from-[#e8f1fc] to-[#f0f6fd] p-5">
+							<div className="mb-3">
+								<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
+									Let your profile do the talking
+								</h2>
+								<p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+									Add your verified skills, set your target rate, and showcase client work you’re proud of.
+								</p>
+							</div>
+
+							<div className="my-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-3.5 shadow-sm">
+								<div className="mb-1.5 flex items-center justify-between font-caption text-caption">
+									<span className="font-medium text-on-surface">Profile readiness</span>
+									<span className="font-medium text-primary">Review</span>
+								</div>
+								<div className="h-px w-full bg-surface-container" />
+								<ul className="mt-3 flex flex-col gap-2 font-caption text-caption text-on-surface-variant">
+									<li className="flex items-center gap-2">
+										<CheckCircle2 className="size-3.5 shrink-0 text-primary-container" />
+										<span>Keep your skills and rate current</span>
+									</li>
+									<li className="flex items-center gap-2">
+										<CheckCircle2 className="size-3.5 shrink-0 text-primary-container" />
+										<span>Show strong portfolio work</span>
+									</li>
+									<li className="flex items-center gap-2 text-on-surface">
+										<Circle className="size-3.5 shrink-0 text-outline" />
+										<span>Review your public profile before applying</span>
+									</li>
+								</ul>
+							</div>
+
+							<Link
+								to="/freelancer"
+								className="group flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243]"
+							>
 								Complete profile
-								<ArrowRight className="size-4" />
+								<ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
 							</Link>
-						</WorkspaceSurface>
+						</section>
+
+						<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
+							<div className="mb-4 flex items-center justify-between">
+								<div className="flex items-center gap-2">
+									<h3 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Active proposals</h3>
+									<span className="rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline">
+										{submittedProposals.length}
+									</span>
+								</div>
+								<Link to="/freelancer-proposals" className="font-label-sm text-label-sm text-primary hover:underline">
+									View all
+								</Link>
+							</div>
+							<div className="flex flex-col gap-3">
+								{submittedProposals.slice(0, 2).length ? (
+									submittedProposals.slice(0, 2).map((proposal) => (
+										<button
+											key={proposal.job.id}
+											type="button"
+											onClick={() => open(proposal.job, proposal)}
+											className="flex flex-col gap-1.5 rounded-lg border border-outline-variant p-3 text-left transition-colors hover:bg-surface-container-low"
+										>
+											<div className="flex w-full items-center justify-between gap-3">
+												<span className="truncate font-label-sm font-medium text-label-sm text-on-surface">
+													{proposal.job.title}
+												</span>
+												<span className="shrink-0 rounded bg-primary-fixed px-2 py-0.5 font-caption font-medium text-caption text-on-primary-fixed">
+													Submitted
+												</span>
+											</div>
+											<div className="flex w-full items-center justify-between gap-3 font-caption text-caption text-outline">
+												<span className="truncate">
+													{proposal.job.company} • {proposal.job.budget}
+												</span>
+												<span className="shrink-0">{proposal.job.posted ?? "Recently"}</span>
+											</div>
+										</button>
+									))
+								) : (
+									<p className="rounded-lg border border-outline-variant border-dashed px-3 py-4 font-body-sm text-body-sm text-on-surface-variant">
+										Submitted proposals will appear here.
+									</p>
+								)}
+							</div>
+						</section>
+
+						<section className="flex flex-col gap-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
+							<div className="flex items-center justify-between">
+								<h3 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Quick searches</h3>
+								<Pencil className="size-4 text-outline" />
+							</div>
+							<div className="flex flex-col gap-2">
+								{["Product design", "React & Design Systems"].map((search) => (
+									<button
+										key={search}
+										type="button"
+										onClick={() => {
+											setQuery(search)
+											setFilter("All work")
+										}}
+										className="group flex items-center justify-between rounded p-2 text-left transition-colors hover:bg-surface-container"
+									>
+										<span className="flex items-center gap-2">
+											<Search className="size-4 text-outline" />
+											<span className="font-body-sm text-body-sm text-on-surface transition-colors group-hover:text-primary-container">
+												{search}
+											</span>
+										</span>
+										<ArrowRight className="size-3.5 text-outline" />
+									</button>
+								))}
+							</div>
+							<div className="flex items-center justify-between border-outline-variant border-t pt-3 font-caption text-caption text-on-surface-variant">
+								<span>Use these to jump back into common searches.</span>
+								<Link to="/freelancer-jobs" className="font-medium text-primary hover:underline">
+									Browse
+								</Link>
+							</div>
+						</section>
 					</aside>
 				</div>
 			)}
@@ -842,7 +1071,7 @@ function JobFilterChip({ label, onRemove }: { label: string; onRemove: () => voi
 			type="button"
 			onClick={onRemove}
 			aria-label={`Remove ${label} filter`}
-			className="inline-flex min-h-9 items-center gap-2 rounded-md bg-accent px-3 text-accent-foreground text-xs"
+			className="inline-flex min-h-8 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container px-3 font-label-sm text-label-sm text-on-surface-variant"
 		>
 			{label}
 			<X className="size-3" />
@@ -853,7 +1082,7 @@ function JobFilterChip({ label, onRemove }: { label: string; onRemove: () => voi
 function JobFact({ icon: Icon, title, detail }: { icon: typeof Wallet; title: string; detail: string }) {
 	return (
 		<div className="flex items-start gap-3">
-			<span className="grid size-10 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
+			<span className="grid size-9 shrink-0 place-items-center rounded-lg bg-surface-container text-on-surface-variant">
 				<Icon className="size-4" />
 			</span>
 			<div className="min-w-0">
@@ -876,13 +1105,13 @@ function Empty({
 	action?: React.ReactNode
 }) {
 	return (
-		<WorkspaceSurface className="grid min-h-80 place-items-center border-dashed bg-muted/20 p-8 text-center">
+		<WorkspaceSurface className="grid min-h-72 place-items-center border-outline-variant border-dashed bg-surface-container-lowest p-8 text-center">
 			<div>
-				<span className="mx-auto grid size-16 place-items-center rounded-2xl border border-border bg-card text-primary">
+				<span className="mx-auto grid size-14 place-items-center rounded-lg border border-outline-variant bg-surface-container text-primary">
 					<Icon className="size-6" strokeWidth={1.5} />
 				</span>
-				<h2 className="mt-5 font-display font-medium text-2xl tracking-tight">{title}</h2>
-				<p className="mx-auto mt-3 max-w-lg text-muted-foreground text-sm leading-6">{detail}</p>
+				<h2 className="mt-5 font-headline-lg font-semibold text-headline-lg text-on-surface">{title}</h2>
+				<p className="mx-auto mt-3 max-w-lg font-body-sm text-body-sm text-on-surface-variant leading-6">{detail}</p>
 				{action && <div className="mt-5">{action}</div>}
 			</div>
 		</WorkspaceSurface>

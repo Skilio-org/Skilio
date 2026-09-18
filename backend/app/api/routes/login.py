@@ -1,6 +1,7 @@
 from datetime import timedelta
 from typing import Annotated, Any
 
+import requests
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -9,20 +10,19 @@ from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
-from app.models import Message, NewPassword, Token, UserPublic, UserUpdate, User
+from app.models import Message, NewPassword, Token, User, UserPublic, UserUpdate
 from app.utils import (
     generate_password_reset_token,
     generate_reset_password_email,
     send_email,
     verify_password_reset_token,
 )
-import requests
-
 
 router = APIRouter(tags=["login"])
 
 
 router = APIRouter(tags=["login"])
+
 
 @router.get("/login/google")
 def login_google() -> RedirectResponse:
@@ -40,30 +40,34 @@ def login_google() -> RedirectResponse:
     query = "&".join(f"{k}={v}" for k, v in params.items())
     return RedirectResponse(f"{settings.GOOGLE_AUTH_URI}?{query}")
 
+
 @router.get("/login/google/callback")
 def google_callback(code: str, session: SessionDep):
-    token_response = requests.post(settings.GOOGLE_TOKEN_URI, data={
-        "code": code,
-        "client_id": settings.GOOGLE_CLIENT_ID,
-        "client_secret": settings.GOOGLE_CLIENT_SECRET,
-        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
-        "grant_type": "authorization_code",
-    })
-    token_data    = token_response.json()
-    access_token  = token_data["access_token"]
+    token_response = requests.post(
+        settings.GOOGLE_TOKEN_URI,
+        data={
+            "code": code,
+            "client_id": settings.GOOGLE_CLIENT_ID,
+            "client_secret": settings.GOOGLE_CLIENT_SECRET,
+            "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+            "grant_type": "authorization_code",
+        },
+    )
+    token_data = token_response.json()
+    access_token = token_data["access_token"]
     refresh_token = token_data.get("refresh_token")  # may be None on re-login
 
     userinfo_response = requests.get(
         settings.GOOGLE_USERINFO_URL,
-        headers={"Authorization": f"Bearer {access_token}"}
+        headers={"Authorization": f"Bearer {access_token}"},
     )
-    google_user = userinfo_response.json() # google_user has: sub, email, name, picture
+    google_user = userinfo_response.json()  # google_user has: sub, email, name, picture
     user = crud.get_user_by_email(session=session, email=google_user["email"])
     if user:
         if not user.google_id:
             raise HTTPException(
                 status_code=400,
-                detail="An account with this email already exists. Please log in with your password."
+                detail="An account with this email already exists. Please log in with your password.",
             )
         user.full_name = google_user.get("name")
         user.avatar_url = google_user.get("picture")
@@ -79,7 +83,7 @@ def google_callback(code: str, session: SessionDep):
             google_id=google_user["sub"],
             refresh_token=refresh_token,
             is_active=True,
-            hashed_password=""
+            hashed_password="",
         )
         session.add(user)
         session.commit()
@@ -91,6 +95,7 @@ def google_callback(code: str, session: SessionDep):
             user.id, expires_delta=access_token_expires
         )
     )
+
 
 @router.get("/login/linkedin")
 def login_linkedin() -> RedirectResponse:
@@ -106,6 +111,7 @@ def login_linkedin() -> RedirectResponse:
     query = "&".join(f"{k}={v}" for k, v in params.items())
     return RedirectResponse(f"{settings.LINKEDIN_AUTH_URI}?{query}")
 
+
 @router.get("/login/linkedin/callback")
 def linkedin_callback(code: str, session: SessionDep):
     token_response = requests.post(
@@ -119,9 +125,11 @@ def linkedin_callback(code: str, session: SessionDep):
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
-    
+
     if token_response.status_code != 200:
-        raise HTTPException(status_code=400, detail="Failed to retrieve token from LinkedIn.")
+        raise HTTPException(
+            status_code=400, detail="Failed to retrieve token from LinkedIn."
+        )
 
     token_data = token_response.json()
     access_token = token_data["access_token"]
@@ -130,14 +138,16 @@ def linkedin_callback(code: str, session: SessionDep):
     # 2. Fetch user information from LinkedIn OIDC userinfo endpoint
     userinfo_response = requests.get(
         settings.LINKEDIN_USERINFO_URL,
-        headers={"Authorization": f"Bearer {access_token}"}
+        headers={"Authorization": f"Bearer {access_token}"},
     )
-    
+
     if userinfo_response.status_code != 200:
-        raise HTTPException(status_code=400, detail="Failed to retrieve profile from LinkedIn.")
+        raise HTTPException(
+            status_code=400, detail="Failed to retrieve profile from LinkedIn."
+        )
 
     # linkedin_user contains standard OIDC fields: sub, email, name, picture
-    linkedin_user = userinfo_response.json() 
+    linkedin_user = userinfo_response.json()
 
     # 3. Apply exact user lookup and creation logic
     user = crud.get_user_by_email(session=session, email=linkedin_user["email"])
@@ -146,14 +156,14 @@ def linkedin_callback(code: str, session: SessionDep):
         if not user.linkedin_id:
             raise HTTPException(
                 status_code=400,
-                detail="An account with this email already exists. Please log in with your password."
+                detail="An account with this email already exists. Please log in with your password.",
             )
             # If the user registered via password or Google, link the account
             # user.linkedin_id = linkedin_user["sub"]
-        
+
         user.full_name = linkedin_user.get("name")
         user.avatar_url = linkedin_user.get("picture")
-        
+
         session.add(user)
         session.commit()
     else:
@@ -164,7 +174,7 @@ def linkedin_callback(code: str, session: SessionDep):
             avatar_url=linkedin_user.get("picture"),
             linkedin_id=linkedin_user["sub"],
             is_active=True,
-            hashed_password=""
+            hashed_password="",
         )
         session.add(user)
         session.commit()
@@ -177,6 +187,7 @@ def linkedin_callback(code: str, session: SessionDep):
             user.id, expires_delta=access_token_expires
         )
     )
+
 
 @router.post("/login/access-token")
 def login_access_token(
@@ -199,6 +210,7 @@ def login_access_token(
             user.id, expires_delta=access_token_expires
         )
     )
+
 
 @router.post("/login/test-token", response_model=UserPublic)
 def test_token(current_user: CurrentUser) -> Any:

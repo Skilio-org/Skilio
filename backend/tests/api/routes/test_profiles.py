@@ -133,7 +133,9 @@ def test_create_profile_duplicate(client: TestClient, db: Session) -> None:
     assert content["detail"] == "Freelancer profile already exists for this user"
 
 
-def test_create_profile_as_client_auto_switches_role(client: TestClient, db: Session) -> None:
+def test_create_profile_as_client_auto_switches_role(
+    client: TestClient, db: Session
+) -> None:
     """Any user can create a freelancer profile. Active role auto-switches to freelancer."""
     user = create_random_user(db)
     user.active_role = UserRole.CLIENT

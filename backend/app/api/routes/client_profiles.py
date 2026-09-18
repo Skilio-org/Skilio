@@ -66,7 +66,10 @@ def update_client_profile_me(
         session.add(profile)
 
     # Update full_name on User model if provided
-    if profile_in.full_name is not None and profile_in.full_name != current_user.full_name:
+    if (
+        profile_in.full_name is not None
+        and profile_in.full_name != current_user.full_name
+    ):
         current_user.full_name = profile_in.full_name
         session.add(current_user)
 
@@ -107,9 +110,7 @@ def read_client_profile(
     )
     job_posts_count = session.exec(job_posts_count_stmt).one()
 
-    user_public = (
-        UserPublic.model_validate(profile.user) if profile.user else None
-    )
+    user_public = UserPublic.model_validate(profile.user) if profile.user else None
 
     return ClientProfileDetailPublic.model_validate(
         profile,
@@ -142,9 +143,7 @@ def read_client_profile_by_user_id(
     )
     job_posts_count = session.exec(job_posts_count_stmt).one()
 
-    user_public = (
-        UserPublic.model_validate(profile.user) if profile.user else None
-    )
+    user_public = UserPublic.model_validate(profile.user) if profile.user else None
 
     return ClientProfileDetailPublic.model_validate(
         profile,

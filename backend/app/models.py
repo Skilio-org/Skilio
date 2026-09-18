@@ -121,8 +121,6 @@ class UserBase(SQLModel):
     active_role: UserRole = Field(default=UserRole.CLIENT)
 
 
-
-
 class AvatarResponse(SQLModel):
     status: str
 
