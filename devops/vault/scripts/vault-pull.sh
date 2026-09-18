@@ -51,7 +51,7 @@ echo "  Token identity: $TOKEN_DISPLAY_NAME (policies: $TOKEN_POLICIES)"
 get_secret_json() {
   local path="$1"
   local url="${VAULT_ADDR}/v1/secret/data/production/${path}"
-  
+
   local response
   response=$(curl -s -f \
     -H "X-Vault-Token: ${VAULT_TOKEN}" \
