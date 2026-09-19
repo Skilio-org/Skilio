@@ -13,7 +13,6 @@ import {
 	Clock3,
 	FileText,
 	Globe2,
-	Pencil,
 	Search,
 	SlidersHorizontal,
 	Sparkles,
@@ -39,23 +38,7 @@ import useAuth from "@/hooks/useAuth"
 
 type FreelancerWorkspacePageName = "dashboard" | "jobs" | "proposals" | "savedJobs"
 
-export function FreelancerDashboardPage() {
-	return <FreelancerWorkspacePage page="dashboard" />
-}
-
-export function FreelancerJobsPage() {
-	return <FreelancerWorkspacePage page="jobs" />
-}
-
-export function FreelancerProposalsPage() {
-	return <FreelancerWorkspacePage page="proposals" />
-}
-
-export function FreelancerSavedJobsPage() {
-	return <FreelancerWorkspacePage page="savedJobs" />
-}
-
-function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }) {
+export default function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }) {
 	const { user } = useAuth()
 	const jobs = freelancerJobs
 	const key = `freelancer-work-v2:${user?.id ?? "preview"}`
@@ -321,7 +304,6 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 								{dashboardFilters.map((item) => {
 									const active = filter === item
 									const count = item === "All work" ? jobs.length : jobs.filter((job) => job.category === item).length
-
 									return (
 										<button
 											key={item}
@@ -489,11 +471,9 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 								)}
 							</div>
 						</section>
-
 						<section className="flex flex-col gap-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
 							<div className="flex items-center justify-between">
 								<h3 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Quick searches</h3>
-								<Pencil className="size-4 text-outline" />
 							</div>
 							<div className="flex flex-col gap-2">
 								{["Product design", "React & Design Systems"].map((search) => (
