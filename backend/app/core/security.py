@@ -29,6 +29,7 @@ def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
 def verify_password(
     plain_password: str, hashed_password: str
 ) -> tuple[bool, str | None]:
+    if not plain_password or len(plain_password) < 8: return False, None
     return password_hash.verify_and_update(plain_password, hashed_password)
 
 

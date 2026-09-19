@@ -1,9 +1,10 @@
 from datetime import timedelta
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from app.core.security import get_password_hash
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
@@ -17,18 +18,20 @@ from app.utils import (
     verify_password_reset_token,
 )
 import requests
-
-
-router = APIRouter(tags=["login"])
+from passlib.context import CryptContext
+import secrets
+from urllib.parse import urlencode
 
 
 router = APIRouter(tags=["login"])
 
 @router.get("/login/google")
-def login_google() -> RedirectResponse:
+def login_google(response: Response) -> RedirectResponse:
     """
     Google OAuth2 compatible token login, get an access token for future requests from google.
     """
+    state = secrets.token_urlsafe(16)
+    response.set_cookie(key="oauth_state", value=state, httponly=True) 
     params = {
         "client_id": settings.GOOGLE_CLIENT_ID,
         "redirect_uri": settings.GOOGLE_REDIRECT_URI,
@@ -36,12 +39,16 @@ def login_google() -> RedirectResponse:
         "scope": "openid email profile",
         "access_type": "offline",  # gets you a refresh token
         "prompt": "consent",
+        "state": state,
     }
-    query = "&".join(f"{k}={v}" for k, v in params.items())
-    return RedirectResponse(f"{settings.GOOGLE_AUTH_URI}?{query}")
+    authorization_url = f"{settings.GOOGLE_AUTH_URI}?{urlencode(params)}"
+    return RedirectResponse(authorization_url)
 
 @router.get("/login/google/callback")
-def google_callback(code: str, session: SessionDep):
+def google_callback(request: Request, code: str, session: SessionDep):
+    state = request.cookies.get("oauth_state")
+    if state != request.query_params.get("state"):
+        raise HTTPException(status_code=400, detail="Invalid state parameter")
     token_response = requests.post(settings.GOOGLE_TOKEN_URI, data={
         "code": code,
         "client_id": settings.GOOGLE_CLIENT_ID,
@@ -49,6 +56,8 @@ def google_callback(code: str, session: SessionDep):
         "redirect_uri": settings.GOOGLE_REDIRECT_URI,
         "grant_type": "authorization_code",
     })
+    if token_response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Failed to retrieve token from Google.")
     token_data    = token_response.json()
     access_token  = token_data["access_token"]
     refresh_token = token_data.get("refresh_token")  # may be None on re-login
@@ -79,7 +88,7 @@ def google_callback(code: str, session: SessionDep):
             google_id=google_user["sub"],
             refresh_token=refresh_token,
             is_active=True,
-            hashed_password=""
+            hashed_password=get_password_hash("placeolder")  # Placeholder password for OAuth users
         )
         session.add(user)
         session.commit()
@@ -93,21 +102,27 @@ def google_callback(code: str, session: SessionDep):
     )
 
 @router.get("/login/linkedin")
-def login_linkedin() -> RedirectResponse:
+def login_linkedin(response: Response) -> RedirectResponse:
     """
     LinkedIn OAuth2 OpenID Compatible login redirect.
     """
+    state = secrets.token_urlsafe(16)
+    response.set_cookie(key="oauth_state", value=state, httponly=True) 
     params = {
         "client_id": settings.LINKEDIN_CLIENT_ID,
         "redirect_uri": settings.LINKEDIN_REDIRECT_URI,
         "response_type": "code",
         "scope": "openid email profile",
+        "state": state
     }
-    query = "&".join(f"{k}={v}" for k, v in params.items())
-    return RedirectResponse(f"{settings.LINKEDIN_AUTH_URI}?{query}")
+    auth_url = f"{settings.LINKEDIN_AUTH_URI}?{urlencode(params)}"
+    return RedirectResponse(auth_url)
 
 @router.get("/login/linkedin/callback")
-def linkedin_callback(code: str, session: SessionDep):
+def linkedin_callback(request: Request, code: str, session: SessionDep):
+    state = request.cookies.get("oauth_state")
+    if state != request.query_params.get("state"):
+        raise HTTPException(status_code=400, detail="Invalid state parameter")
     token_response = requests.post(
         settings.LINKEDIN_TOKEN_URI,
         data={
@@ -164,7 +179,7 @@ def linkedin_callback(code: str, session: SessionDep):
             avatar_url=linkedin_user.get("picture"),
             linkedin_id=linkedin_user["sub"],
             is_active=True,
-            hashed_password=""
+            hashed_password=get_password_hash("placeolder")
         )
         session.add(user)
         session.commit()

@@ -26,6 +26,7 @@ dependencies = [
     "google-auth-httplib2>=0.4.2",
     "google-api-python-client>=2.200.0",
     "requests>=2.34.2",
+    "passlib>=1.7.4",
 ]
 
 [dependency-groups]
