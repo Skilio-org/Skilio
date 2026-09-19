@@ -100,8 +100,8 @@ const FreelancerDashboardPage = () => {
 
 						<span className="size-1 rounded-full bg-outline-variant" />
 
-						<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary dark:gap-1.5 dark:rounded dark:border dark:border-emerald-border dark:bg-emerald-well dark:px-2 dark:py-0.5 dark:text-emerald-text">
-							<span className="size-1.5 animate-pulse rounded-full bg-primary-container dark:bg-[#10b981] dark:shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
+						<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary">
+							<span className="size-1.5 animate-pulse rounded-full bg-primary-container dark:bg-primary" />
 							Available for new contracts
 						</span>
 					</div>
@@ -126,7 +126,7 @@ const FreelancerDashboardPage = () => {
 
 					<Link
 						to="/freelancer-jobs"
-						className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-white dark:text-background dark:shadow-[0_0_15px_rgba(255,255,255,0.08)] dark:hover:bg-[#f1f5f9]"
+						className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
 					>
 						<Search className="size-4" />
 						Browse all jobs
@@ -154,9 +154,10 @@ const FreelancerDashboardPage = () => {
 										key={item}
 										type="button"
 										onClick={() => setFilter(item)}
+										aria-pressed={active}
 										className={
 											active
-												? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors dark:border dark:border-primary/50 dark:bg-surface-container-high dark:text-white dark:shadow-[0_0_10px_rgba(59,130,246,0.15)]"
+												? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors dark:bg-on-surface dark:text-background"
 												: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
 										}
 									>
@@ -165,7 +166,7 @@ const FreelancerDashboardPage = () => {
 										<span
 											className={
 												active
-													? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-primary/20 dark:text-on-primary-container"
+													? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-background/15 dark:text-background"
 													: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
 											}
 										>
@@ -251,7 +252,7 @@ const FreelancerDashboardPage = () => {
 				</section>
 
 				<aside className="flex flex-col gap-5 lg:sticky lg:top-20 lg:col-span-4">
-					<section className="relative overflow-hidden rounded-lg border border-outline-variant bg-gradient-to-b from-[#e8f1fc] to-[#f0f6fd] p-5 dark:from-[#111c33] dark:to-[#0f172a] dark:shadow-sm">
+					<section className="relative overflow-hidden rounded-lg border border-outline-variant bg-gradient-to-b from-[#e8f1fc] to-[#f0f6fd] p-5 dark:bg-surface-card dark:bg-none dark:shadow-none">
 						<div className="mb-3">
 							<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
 								Let your profile do the talking
@@ -262,7 +263,7 @@ const FreelancerDashboardPage = () => {
 							</p>
 						</div>
 
-						<div className="my-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-3.5 shadow-sm dark:border-border-subtle dark:bg-background/70 dark:shadow-inner">
+						<div className="my-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-3.5 shadow-sm dark:border-border-subtle dark:bg-surface-panel dark:shadow-none">
 							<div className="mb-1.5 flex items-center justify-between font-caption text-caption">
 								<span className="font-medium text-on-surface dark:text-on-surface-soft">Profile readiness</span>
 
@@ -273,12 +274,12 @@ const FreelancerDashboardPage = () => {
 
 							<ul className="mt-3 flex flex-col gap-2 font-caption text-caption text-on-surface-variant">
 								<li className="flex items-center gap-2">
-									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-emerald-text" />
+									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-primary" />
 									<span>Keep your skills and rate current</span>
 								</li>
 
 								<li className="flex items-center gap-2">
-									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-emerald-text" />
+									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-primary" />
 									<span>Show strong portfolio work</span>
 								</li>
 
@@ -291,7 +292,7 @@ const FreelancerDashboardPage = () => {
 
 						<Link
 							to="/freelancer"
-							className="group flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-white dark:text-background dark:shadow-[0_0_20px_rgba(255,255,255,0.08)] dark:hover:bg-[#f1f5f9]"
+							className="group flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
 						>
 							Complete profile
 							<ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
@@ -319,7 +320,7 @@ const FreelancerDashboardPage = () => {
 									<Link
 										key={proposal.job.id}
 										to="/freelancer-proposals"
-										className="flex flex-col gap-1.5 rounded-lg border border-outline-variant p-3 text-left transition-colors hover:bg-surface-container-low dark:bg-background/50"
+										className="flex flex-col gap-1.5 rounded-lg border border-outline-variant p-3 text-left transition-colors hover:bg-surface-container-low dark:bg-surface-panel"
 									>
 										<div className="flex w-full items-center justify-between gap-3">
 											<span className="truncate font-label-sm font-medium text-label-sm text-on-surface">

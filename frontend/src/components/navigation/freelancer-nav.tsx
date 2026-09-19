@@ -10,9 +10,11 @@ import {
 	Moon,
 	Search,
 	Settings,
+	Sun,
 	UserRound,
 } from "lucide-react"
 
+import { useTheme } from "@/components/theme-provider"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -33,6 +35,8 @@ const links = [
 
 export function FreelancerNav() {
 	const { user, logout } = useAuth()
+	const { resolvedTheme, setTheme } = useTheme()
+	const isDark = resolvedTheme === "dark"
 
 	const path = useRouterState({
 		select: (state) => state.location.pathname,
@@ -42,12 +46,12 @@ export function FreelancerNav() {
 	const email = user?.email || ""
 
 	return (
-		<header className="fixed top-0 right-0 left-0 z-50 w-full border-outline-variant border-b bg-surface-container-lowest/95 backdrop-blur-md">
+		<header className="fixed top-0 right-0 left-0 z-50 w-full border-outline-variant border-b bg-surface-container-lowest/95 backdrop-blur-md dark:bg-surface-panel/95">
 			<div className="mx-auto flex h-14 w-full max-w-[1440px] items-center justify-between gap-4 px-4 md:px-6">
 				{/* Left */}
 				<div className="flex h-full min-w-0 items-center gap-7">
 					<Link to="/freelancer-dashboard" className="group flex shrink-0 items-center gap-2">
-						<span className="flex size-6 items-center justify-center rounded-lg bg-primary text-surface-bright">
+						<span className="flex size-6 items-center justify-center rounded-lg bg-primary text-surface-bright dark:border dark:border-border-dark dark:bg-surface-container dark:text-primary">
 							<Boxes className="size-4" strokeWidth={2} />
 						</span>
 
@@ -67,7 +71,7 @@ export function FreelancerNav() {
 									aria-current={active ? "page" : undefined}
 									className={
 										active
-											? "flex h-full items-center whitespace-nowrap border-primary border-b-2 px-0 font-label-md font-medium text-label-md text-primary transition-colors"
+											? "flex h-full items-center whitespace-nowrap border-primary border-b-2 px-0 font-label-md font-medium text-label-md text-primary transition-colors dark:text-on-surface"
 											: "flex h-full items-center whitespace-nowrap border-transparent border-b-2 px-0 font-label-md font-medium text-label-md text-on-surface-variant transition-colors hover:text-on-surface"
 									}
 								>
@@ -111,10 +115,13 @@ export function FreelancerNav() {
 					{/* dark/light mode toggle*/}
 					<button
 						type="button"
-						aria-label="Theme Mode"
+						aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+						onClick={() => setTheme(isDark ? "light" : "dark")}
 						className="relative flex size-8 shrink-0 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
 					>
-						<Moon className="size-[18px]" />
+						<span key={resolvedTheme} className="theme-toggle-icon" aria-hidden="true">
+							{isDark ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
+						</span>
 					</button>
 
 					<div className="hidden h-4 w-px bg-outline-variant sm:block" />

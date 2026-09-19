@@ -86,7 +86,7 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 							// setSelected(job)
 							// setCompose(true)
 						}}
-						className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-white dark:text-background dark:hover:bg-[#f1f5f9]"
+						className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
 					>
 						Apply now
 					</button>
