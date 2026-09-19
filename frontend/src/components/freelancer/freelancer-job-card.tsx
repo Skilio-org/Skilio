@@ -6,7 +6,7 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 	const [saved, setSaved] = useState<string[]>([])
 	const isSaved = saved.includes(job.id)
 	const projectType = job.budget.toLowerCase().includes("fixed") ? "Fixed price" : "Hourly"
-	const [selected, setSelected] = useState<FreelancerJob | null>(null)
+
 	return (
 		<article
 			key={job.id}
