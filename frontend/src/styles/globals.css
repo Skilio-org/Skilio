@@ -179,6 +179,11 @@
 	--color-amber-well: var(--amber-well);
 	--color-amber-border: var(--amber-border);
 	--color-amber-text: var(--amber-text);
+	--color-on-surface-strong: var(--on-surface-strong);
+	--color-on-surface-soft: var(--on-surface-soft);
+	--color-on-surface-faint: var(--on-surface-faint);
+	--color-border-hover: var(--border-hover);
+	--color-surface-footer: var(--surface-footer);
 
 	/* Existing app/shadcn compatibility */
 	--color-foreground: var(--foreground);
@@ -311,6 +316,11 @@
 	--amber-well: rgb(77 92 141 / 0.08);
 	--amber-border: rgb(77 92 141 / 0.24);
 	--amber-text: var(--surface-tint);
+	--on-surface-strong: var(--on-surface);
+	--on-surface-soft: var(--on-surface-variant);
+	--on-surface-faint: var(--outline);
+	--border-hover: var(--outline);
+	--surface-footer: var(--surface-container-low);
 
 	/* Existing app/shadcn semantic aliases */
 	--foreground: var(--on-surface);
@@ -413,7 +423,14 @@
 	--on-surface: #f8fafc;
 	--on-surface-variant: #94a3b8;
 	--on-surface-muted: #64748b;
+	--on-surface-strong: #e2e8f0;
+	--on-surface-soft: #cbd5e1;
+	--on-surface-faint: #475569;
 	--inverse-on-surface: #090d16;
+
+	/* Direct reference-only surfaces / borders */
+	--border-hover: #2d3d54;
+	--surface-footer: #0b0f19;
 
 	/* Blue accent system */
 	--primary: #3b82f6;
@@ -530,8 +547,8 @@
 	--chart-5: #ef4444;
 
 	/* Elevation */
-	--elevation-card: 0 1px 2px rgb(0 0 0 / 0.14);
-	--elevation-card-hover: 0 0 0 1px rgb(59 130 246 / 0.06);
+	--elevation-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+	--elevation-card-hover: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 	--elevation-floating: 0 12px 24px rgb(0 0 0 / 0.28), 0 28px 64px rgb(0 0 0 / 0.32);
 }
 
@@ -1110,8 +1127,8 @@
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .surface-interactive:hover {
-		border-color: #2d3d54;
-		background: var(--surface-raised);
+		border-color: var(--border-hover);
+		background: var(--surface-card);
 		box-shadow: var(--elevation-card-hover);
 	}
 
@@ -1155,7 +1172,7 @@
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-row:hover {
-		background: var(--surface-raised);
+		background: var(--surface-card);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-tag {
@@ -1254,7 +1271,13 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-metric::before {
 		background: var(--primary);
 	}
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-shell > footer,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .landing-page > footer {
+		border-top-color: var(--border-dark);
+		background: var(--surface-footer);
+	}
 }
+
 
 /* Direct Tailwind classes used by the freelancer workspace page. */
 @layer utilities {
@@ -1262,12 +1285,12 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) article.border-outline-variant.bg-surface-container-lowest {
 		border-color: var(--border-dark);
 		background: var(--surface-card);
-		box-shadow: 0 1px 2px rgb(0 0 0 / 0.14);
+		box-shadow: var(--elevation-card);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"])
 		article.border-outline-variant.bg-surface-container-lowest:hover {
-		border-color: #2d3d54;
+		border-color: var(--border-hover);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"])
@@ -1309,7 +1332,7 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) aside section.bg-gradient-to-b {
 		border-color: var(--border-dark);
 		background-image: linear-gradient(to bottom, #111c33, #0f172a);
-		box-shadow: 0 1px 2px rgb(0 0 0 / 0.14);
+		box-shadow: var(--elevation-card);
 	}
 
 	/* Cards and saved-search widgets in the right rail. */
@@ -1381,17 +1404,9 @@
 	}
 }
 
-<<<<<<< HEAD
-@media (prefers-reduced-motion: reduce) {
-	html {
-		scroll-behavior: auto;
-	}
-}
-=======
 /* =========================================================
    MOBILE
    ========================================================= */
->>>>>>> zakaria
 
 @media (max-width: 380px) {
 	.landing-page header .landing-container {

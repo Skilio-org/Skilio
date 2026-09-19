@@ -173,17 +173,19 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 		return (
 			<article
 				key={job.id}
-				className="group relative rounded-lg border border-outline-variant bg-surface-container-lowest p-5 transition-colors duration-150 hover:border-outline"
+				className="group relative rounded-lg border border-outline-variant bg-surface-container-lowest p-5 transition-colors duration-150 hover:border-outline dark:hover:border-border-hover"
 			>
 				<div className="mb-2.5 flex items-start justify-between gap-4">
 					<div className="min-w-0 flex-1">
 						<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
-							<span className="font-label-sm font-medium text-label-sm text-on-surface-variant">{job.company}</span>
-							<span className="text-outline">•</span>
+							<span className="font-label-sm font-medium text-label-sm text-on-surface-variant dark:text-on-surface-soft">
+								{job.company}
+							</span>
+							<span className="text-outline dark:text-on-surface-faint">•</span>
 							<span className="text-outline">Remote</span>
 							{job.posted && (
 								<>
-									<span className="text-outline">•</span>
+									<span className="text-outline dark:text-on-surface-faint">•</span>
 									<span className="text-outline">{job.posted}</span>
 								</>
 							)}
@@ -203,7 +205,7 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 						onClick={() =>
 							setSaved((ids) => (ids.includes(job.id) ? ids.filter((id) => id !== job.id) : [...ids, job.id]))
 						}
-						className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-primary"
+						className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-primary dark:hover:text-on-surface"
 					>
 						<Bookmark className={`size-5 ${isSaved ? "fill-primary text-primary" : ""}`} />
 					</button>
@@ -222,12 +224,12 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 					{job.description}
 				</p>
 
-				<div className="flex flex-col gap-3 border-surface-container border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex flex-col gap-3 border-surface-container border-t pt-3 dark:border-border-dark sm:flex-row sm:items-center sm:justify-between">
 					<div className="flex flex-wrap items-center gap-1.5">
 						{job.skills.slice(0, 4).map((skill) => (
 							<span
 								key={skill}
-								className="rounded bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant"
+								className="rounded border border-transparent bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant dark:border-border-subtle dark:text-on-surface-soft"
 							>
 								{skill}
 							</span>
@@ -247,7 +249,7 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 								setSelected(job)
 								setCompose(true)
 							}}
-							className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243]"
+							className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-white dark:text-background dark:hover:bg-[#f1f5f9]"
 						>
 							Apply now
 						</button>
@@ -260,7 +262,7 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 	const directoryJobList = <div className="flex flex-col gap-3.5">{filtered.map(renderJobCard)}</div>
 	const dashboardJobList = <div className="flex flex-col gap-3.5">{filtered.slice(0, 4).map(renderJobCard)}</div>
 	return (
-		<div className="mx-auto w-full max-w-[1440px] space-y-7 px-4 py-8 md:px-6 md:py-10">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			{page === "dashboard" ? (
 				<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
 					<div className="flex max-w-2xl flex-col gap-4">
@@ -269,8 +271,8 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 								Freelancer workspace
 							</span>
 							<span className="size-1 rounded-full bg-outline-variant" />
-							<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary">
-								<span className="size-1.5 animate-pulse rounded-full bg-primary-container" />
+							<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary dark:gap-1.5 dark:rounded dark:border dark:border-emerald-border dark:bg-emerald-well dark:px-2 dark:py-0.5 dark:text-emerald-text">
+								<span className="size-1.5 animate-pulse rounded-full bg-primary-container dark:bg-[#10b981] dark:shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
 								Available for new contracts
 							</span>
 						</div>
@@ -284,14 +286,14 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 					<div className="flex items-center gap-2.5 self-start md:self-auto">
 						<Link
 							to="/freelancer-saved-jobs"
-							className="flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low"
+							className="flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
 						>
-							<Bookmark className="size-4 text-outline" />
+							<Bookmark className="size-4 text-outline dark:text-on-surface-variant" />
 							Saved ({saved.length})
 						</Link>
 						<Link
 							to="/freelancer-jobs"
-							className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243]"
+							className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-white dark:text-background dark:shadow-[0_0_15px_rgba(255,255,255,0.08)] dark:hover:bg-[#f1f5f9]"
 						>
 							<Search className="size-4" />
 							Browse all jobs
@@ -327,15 +329,15 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 											onClick={() => setFilter(item)}
 											className={
 												active
-													? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors"
-													: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+													? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors dark:border dark:border-primary/50 dark:bg-surface-container-high dark:text-white dark:shadow-[0_0_10px_rgba(59,130,246,0.15)]"
+													: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
 											}
 										>
 											<span>{item === "All work" ? "All matches" : item}</span>
 											<span
 												className={
 													active
-														? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption"
+														? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-primary/20 dark:text-on-primary-container"
 														: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
 												}
 											>
@@ -347,7 +349,8 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 							</div>
 							<div className="flex items-center gap-2 self-end sm:self-auto">
 								<span className="font-caption text-caption text-outline">
-									Sorted by: <strong className="font-medium text-on-surface">Best Match</strong>
+									Sorted by:{" "}
+									<strong className="font-medium text-on-surface dark:text-on-surface-strong">Best Match</strong>
 								</span>
 								<button
 									type="button"
@@ -391,7 +394,7 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 							<div className="flex justify-center pt-2 pb-6">
 								<Link
 									to="/freelancer-jobs"
-									className="flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-6 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low"
+									className="flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-6 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
 								>
 									Load more opportunities
 									<ChevronDown className="size-4 text-outline" />
@@ -401,7 +404,7 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 					</section>
 
 					<aside className="flex flex-col gap-5 lg:sticky lg:top-20 lg:col-span-4">
-						<section className="relative overflow-hidden rounded-lg border border-outline-variant bg-gradient-to-b from-[#e8f1fc] to-[#f0f6fd] p-5">
+						<section className="relative overflow-hidden rounded-lg border border-outline-variant bg-gradient-to-b from-[#e8f1fc] to-[#f0f6fd] p-5 dark:from-[#111c33] dark:to-[#0f172a] dark:shadow-sm">
 							<div className="mb-3">
 								<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
 									Let your profile do the talking
@@ -411,19 +414,19 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 								</p>
 							</div>
 
-							<div className="my-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-3.5 shadow-sm">
+							<div className="my-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-3.5 shadow-sm dark:border-border-subtle dark:bg-background/70 dark:shadow-inner">
 								<div className="mb-1.5 flex items-center justify-between font-caption text-caption">
-									<span className="font-medium text-on-surface">Profile readiness</span>
-									<span className="font-medium text-primary">Review</span>
+									<span className="font-medium text-on-surface dark:text-on-surface-soft">Profile readiness</span>
+									<span className="font-medium text-primary dark:text-primary-hover">Review</span>
 								</div>
-								<div className="h-px w-full bg-surface-container" />
+								<div className="h-px w-full bg-surface-container dark:bg-border-dark" />
 								<ul className="mt-3 flex flex-col gap-2 font-caption text-caption text-on-surface-variant">
 									<li className="flex items-center gap-2">
-										<CheckCircle2 className="size-3.5 shrink-0 text-primary-container" />
+										<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-emerald-text" />
 										<span>Keep your skills and rate current</span>
 									</li>
 									<li className="flex items-center gap-2">
-										<CheckCircle2 className="size-3.5 shrink-0 text-primary-container" />
+										<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-emerald-text" />
 										<span>Show strong portfolio work</span>
 									</li>
 									<li className="flex items-center gap-2 text-on-surface">
@@ -435,7 +438,7 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 
 							<Link
 								to="/freelancer"
-								className="group flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243]"
+								className="group flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-white dark:text-background dark:shadow-[0_0_20px_rgba(255,255,255,0.08)] dark:hover:bg-[#f1f5f9]"
 							>
 								Complete profile
 								<ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
@@ -446,7 +449,7 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 							<div className="mb-4 flex items-center justify-between">
 								<div className="flex items-center gap-2">
 									<h3 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Active proposals</h3>
-									<span className="rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline">
+									<span className="rounded border border-transparent bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline dark:border-border-subtle dark:text-on-surface-variant">
 										{submittedProposals.length}
 									</span>
 								</div>
@@ -461,7 +464,7 @@ function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }
 											key={proposal.job.id}
 											type="button"
 											onClick={() => open(proposal.job, proposal)}
-											className="flex flex-col gap-1.5 rounded-lg border border-outline-variant p-3 text-left transition-colors hover:bg-surface-container-low"
+											className="flex flex-col gap-1.5 rounded-lg border border-outline-variant p-3 text-left transition-colors hover:bg-surface-container-low dark:bg-background/50"
 										>
 											<div className="flex w-full items-center justify-between gap-3">
 												<span className="truncate font-label-sm font-medium text-label-sm text-on-surface">
