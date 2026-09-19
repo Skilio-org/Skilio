@@ -1,7 +1,392 @@
-import FreelancerWorkspacePage from "./freelancer-workspace-page"
+import { Link } from "@tanstack/react-router"
+import {
+	ArrowRight,
+	Bookmark,
+	BriefcaseBusiness,
+	CheckCircle2,
+	ChevronDown,
+	Circle,
+	Search,
+	SlidersHorizontal,
+} from "lucide-react"
+import { useEffect, useState } from "react"
+
+import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
+import { type ProposalDraft as Draft, freelancerJobs, seedProposals } from "@/data/freelancer-workspace"
+import useAuth from "@/hooks/useAuth"
 
 const FreelancerDashboardPage = () => {
-	return <FreelancerWorkspacePage page="dashboard" />
+	const { user } = useAuth()
+
+	const jobs = freelancerJobs
+
+	const storageKey = `freelancer-work-v2:${user?.id ?? "preview"}`
+
+	const [saved, setSaved] = useState<string[]>([])
+	const [drafts, setDrafts] = useState<Draft[]>([])
+	const [error, setError] = useState("")
+
+	const [query, setQuery] = useState("")
+	const [filter, setFilter] = useState("All work")
+
+	useEffect(() => {
+		try {
+			const stored = localStorage.getItem(storageKey)
+
+			if (!stored) {
+				setSaved([])
+				setDrafts(seedProposals)
+				return
+			}
+
+			const data = JSON.parse(stored)
+
+			setSaved(
+				Array.isArray(data.saved) ? data.saved.filter((id: unknown): id is string => typeof id === "string") : [],
+			)
+
+			setDrafts(
+				Array.isArray(data.drafts)
+					? data.drafts.filter(
+							(draft: Draft) =>
+								draft?.job &&
+								[
+									draft.job.id,
+									draft.job.title,
+									draft.job.company,
+									draft.job.category,
+									draft.job.budget,
+									draft.job.description,
+								].every((value) => typeof value === "string") &&
+								Array.isArray(draft.job.skills) &&
+								draft.job.skills.every((value) => typeof value === "string") &&
+								typeof draft.cover === "string" &&
+								typeof draft.rate === "string",
+						)
+					: seedProposals,
+			)
+		} catch {
+			setSaved([])
+			setDrafts(seedProposals)
+
+			setError("Your saved workspace data couldn't be restored. Showing demo data.")
+		}
+	}, [storageKey])
+
+	const filteredJobs = jobs.filter((job) => {
+		const matchesCategory = filter === "All work" || job.category === filter
+
+		const matchesSearch = `${job.title} ${job.company} ${job.skills.join(" ")}`
+			.toLowerCase()
+			.includes(query.toLowerCase())
+
+		return matchesCategory && matchesSearch
+	})
+
+	const submittedProposals = drafts.filter((draft) => (draft.status ?? "Drafts") === "Submitted")
+
+	const firstName = user?.full_name?.trim().split(/\s+/)[0] || "there"
+
+	const dashboardFilters = ["All work", ...Array.from(new Set(jobs.map((job) => job.category))).slice(0, 2)]
+
+	return (
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
+			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
+				<div className="flex max-w-2xl flex-col gap-4">
+					<div className="flex flex-wrap items-center gap-2">
+						<span className="font-caption font-semibold text-caption text-on-surface-variant uppercase tracking-wider">
+							Freelancer workspace
+						</span>
+
+						<span className="size-1 rounded-full bg-outline-variant" />
+
+						<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary dark:gap-1.5 dark:rounded dark:border dark:border-emerald-border dark:bg-emerald-well dark:px-2 dark:py-0.5 dark:text-emerald-text">
+							<span className="size-1.5 animate-pulse rounded-full bg-primary-container dark:bg-[#10b981] dark:shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
+							Available for new contracts
+						</span>
+					</div>
+
+					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">
+						Good to see you, {firstName}.
+					</h1>
+
+					<p className="font-body-md text-body-md text-on-surface-variant">
+						Keep your profile current and discover verified opportunities curated specifically for your skill stack.
+					</p>
+				</div>
+
+				<div className="flex items-center gap-2.5 self-start md:self-auto">
+					<Link
+						to="/freelancer-saved-jobs"
+						className="flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
+					>
+						<Bookmark className="size-4 text-outline dark:text-on-surface-variant" />
+						Saved ({saved.length})
+					</Link>
+
+					<Link
+						to="/freelancer-jobs"
+						className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-white dark:text-background dark:shadow-[0_0_15px_rgba(255,255,255,0.08)] dark:hover:bg-[#f1f5f9]"
+					>
+						<Search className="size-4" />
+						Browse all jobs
+					</Link>
+				</div>
+			</header>
+
+			{error && (
+				<p role="alert" className="text-destructive text-sm">
+					{error}
+				</p>
+			)}
+
+			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+				<section className="flex flex-col gap-6 lg:col-span-8">
+					<div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
+						<div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+							{dashboardFilters.map((item) => {
+								const active = filter === item
+
+								const count = item === "All work" ? jobs.length : jobs.filter((job) => job.category === item).length
+
+								return (
+									<button
+										key={item}
+										type="button"
+										onClick={() => setFilter(item)}
+										className={
+											active
+												? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors dark:border dark:border-primary/50 dark:bg-surface-container-high dark:text-white dark:shadow-[0_0_10px_rgba(59,130,246,0.15)]"
+												: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
+										}
+									>
+										<span>{item === "All work" ? "All matches" : item}</span>
+
+										<span
+											className={
+												active
+													? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-primary/20 dark:text-on-primary-container"
+													: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
+											}
+										>
+											{count}
+										</span>
+									</button>
+								)
+							})}
+						</div>
+
+						<div className="flex items-center gap-2 self-end sm:self-auto">
+							<span className="font-caption text-caption text-outline">
+								Sorted by:{" "}
+								<strong className="font-medium text-on-surface dark:text-on-surface-strong">Best Match</strong>
+							</span>
+
+							<Link
+								to="/freelancer-jobs"
+								title="Adjust preferences"
+								aria-label="Adjust job preferences"
+								className="p-1 text-outline transition-colors hover:text-on-surface"
+							>
+								<SlidersHorizontal className="size-[18px]" />
+							</Link>
+						</div>
+					</div>
+
+					<div className="flex items-center justify-between px-1">
+						<div className="flex items-center gap-2">
+							<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
+								Opportunities to explore
+							</h2>
+
+							<span className="size-1.5 rounded-full bg-outline-variant" />
+
+							<span className="font-caption text-caption text-outline">Updated recently</span>
+						</div>
+
+						<Link
+							to="/freelancer-jobs"
+							className="flex items-center gap-0.5 font-label-sm font-medium text-label-sm text-primary transition-colors hover:text-primary-container"
+						>
+							View all
+							<ArrowRight className="size-3.5" />
+						</Link>
+					</div>
+
+					{filteredJobs.length > 0 ? (
+						<div className="flex flex-col gap-3.5">
+							{filteredJobs.slice(0, 4).map((job) => (
+								<FreelancerJobCard key={job.id} {...job} />
+							))}
+						</div>
+					) : (
+						<section className="grid min-h-72 place-items-center rounded-lg border border-outline-variant border-dashed bg-surface-container-lowest p-8 text-center">
+							<div>
+								<span className="mx-auto grid size-14 place-items-center rounded-lg border border-outline-variant bg-surface-container text-primary">
+									<BriefcaseBusiness className="size-6" strokeWidth={1.5} />
+								</span>
+
+								<h2 className="mt-5 font-headline-lg font-semibold text-headline-lg text-on-surface">
+									No opportunities in this category
+								</h2>
+
+								<p className="mx-auto mt-3 max-w-lg font-body-sm text-body-sm text-on-surface-variant leading-6">
+									Try another category or browse all available work.
+								</p>
+							</div>
+						</section>
+					)}
+
+					{filteredJobs.length > 0 && (
+						<div className="flex justify-center pt-2 pb-6">
+							<Link
+								to="/freelancer-jobs"
+								className="flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-6 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
+							>
+								Load more opportunities
+								<ChevronDown className="size-4 text-outline" />
+							</Link>
+						</div>
+					)}
+				</section>
+
+				<aside className="flex flex-col gap-5 lg:sticky lg:top-20 lg:col-span-4">
+					<section className="relative overflow-hidden rounded-lg border border-outline-variant bg-gradient-to-b from-[#e8f1fc] to-[#f0f6fd] p-5 dark:from-[#111c33] dark:to-[#0f172a] dark:shadow-sm">
+						<div className="mb-3">
+							<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
+								Let your profile do the talking
+							</h2>
+
+							<p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+								Add your verified skills, set your target rate, and showcase client work you’re proud of.
+							</p>
+						</div>
+
+						<div className="my-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-3.5 shadow-sm dark:border-border-subtle dark:bg-background/70 dark:shadow-inner">
+							<div className="mb-1.5 flex items-center justify-between font-caption text-caption">
+								<span className="font-medium text-on-surface dark:text-on-surface-soft">Profile readiness</span>
+
+								<span className="font-medium text-primary dark:text-primary-hover">Review</span>
+							</div>
+
+							<div className="h-px w-full bg-surface-container dark:bg-border-dark" />
+
+							<ul className="mt-3 flex flex-col gap-2 font-caption text-caption text-on-surface-variant">
+								<li className="flex items-center gap-2">
+									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-emerald-text" />
+									<span>Keep your skills and rate current</span>
+								</li>
+
+								<li className="flex items-center gap-2">
+									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-emerald-text" />
+									<span>Show strong portfolio work</span>
+								</li>
+
+								<li className="flex items-center gap-2 text-on-surface">
+									<Circle className="size-3.5 shrink-0 text-outline" />
+									<span>Review your public profile before applying</span>
+								</li>
+							</ul>
+						</div>
+
+						<Link
+							to="/freelancer"
+							className="group flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-white dark:text-background dark:shadow-[0_0_20px_rgba(255,255,255,0.08)] dark:hover:bg-[#f1f5f9]"
+						>
+							Complete profile
+							<ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+						</Link>
+					</section>
+
+					<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
+						<div className="mb-4 flex items-center justify-between">
+							<div className="flex items-center gap-2">
+								<h3 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Active proposals</h3>
+
+								<span className="rounded border border-transparent bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline dark:border-border-subtle dark:text-on-surface-variant">
+									{submittedProposals.length}
+								</span>
+							</div>
+
+							<Link to="/freelancer-proposals" className="font-label-sm text-label-sm text-primary hover:underline">
+								View all
+							</Link>
+						</div>
+
+						<div className="flex flex-col gap-3">
+							{submittedProposals.length > 0 ? (
+								submittedProposals.slice(0, 2).map((proposal) => (
+									<Link
+										key={proposal.job.id}
+										to="/freelancer-proposals"
+										className="flex flex-col gap-1.5 rounded-lg border border-outline-variant p-3 text-left transition-colors hover:bg-surface-container-low dark:bg-background/50"
+									>
+										<div className="flex w-full items-center justify-between gap-3">
+											<span className="truncate font-label-sm font-medium text-label-sm text-on-surface">
+												{proposal.job.title}
+											</span>
+
+											<span className="shrink-0 rounded bg-primary-fixed px-2 py-0.5 font-caption font-medium text-caption text-on-primary-fixed">
+												Submitted
+											</span>
+										</div>
+
+										<div className="flex w-full items-center justify-between gap-3 font-caption text-caption text-outline">
+											<span className="truncate">
+												{proposal.job.company} • {proposal.job.budget}
+											</span>
+
+											<span className="shrink-0">{proposal.job.posted ?? "Recently"}</span>
+										</div>
+									</Link>
+								))
+							) : (
+								<p className="rounded-lg border border-outline-variant border-dashed px-3 py-4 font-body-sm text-body-sm text-on-surface-variant">
+									Submitted proposals will appear here.
+								</p>
+							)}
+						</div>
+					</section>
+
+					<section className="flex flex-col gap-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
+						<h3 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Quick searches</h3>
+
+						<div className="flex flex-col gap-2">
+							{["Product design", "React & Design Systems"].map((search) => (
+								<button
+									key={search}
+									type="button"
+									onClick={() => {
+										setQuery(search)
+										setFilter("All work")
+									}}
+									className="group flex items-center justify-between rounded p-2 text-left transition-colors hover:bg-surface-container"
+								>
+									<span className="flex items-center gap-2">
+										<Search className="size-4 text-outline" />
+
+										<span className="font-body-sm text-body-sm text-on-surface transition-colors group-hover:text-primary-container">
+											{search}
+										</span>
+									</span>
+
+									<ArrowRight className="size-3.5 text-outline" />
+								</button>
+							))}
+						</div>
+
+						<div className="flex items-center justify-between border-outline-variant border-t pt-3 font-caption text-caption text-on-surface-variant">
+							<span>Use these to jump back into common searches.</span>
+
+							<Link to="/freelancer-jobs" className="font-medium text-primary hover:underline">
+								Browse
+							</Link>
+						</div>
+					</section>
+				</aside>
+			</div>
+		</div>
+	)
 }
 
 export default FreelancerDashboardPage
