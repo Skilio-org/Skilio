@@ -1,5 +1,7 @@
-import FreelancerWorkspacePage from "./freelancer-workspace-page";
+import FreelancerWorkspacePage from "./freelancer-workspace-page"
 
-export function FreelancerDashboardPage() {
+const FreelancerDashboardPage = () => {
 	return <FreelancerWorkspacePage page="dashboard" />
 }
+
+export default FreelancerDashboardPage

@@ -23,6 +23,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { JobFormSection, jobFormField } from "@/components/common/job-form-section"
 import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "@/components/dashboard/dashboard-header"
+import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { FreelancerJobFilterFields } from "@/components/freelancer/freelancer-job-filter-fields"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -31,14 +32,14 @@ import {
 	freelancerJobs,
 	freelancerWorkspaceSubtitles,
 	freelancerWorkspaceTitles,
-	type FreelancerJob as Job,
 	seedProposals,
 } from "@/data/freelancer-workspace"
 import useAuth from "@/hooks/useAuth"
+import type { FreelancerJob } from "@/types/job"
 
 type FreelancerWorkspacePageName = "dashboard" | "jobs" | "proposals" | "savedJobs"
 
-export default function FreelancerWorkspacePage({ page }: { page: FreelancerWorkspacePageName }) {
+const FreelancerWorkspacePage = ({ page }: { page: FreelancerWorkspacePageName }) => {
 	const { user } = useAuth()
 	const jobs = freelancerJobs
 	const key = `freelancer-work-v2:${user?.id ?? "preview"}`
@@ -52,7 +53,7 @@ export default function FreelancerWorkspacePage({ page }: { page: FreelancerWork
 	const [jobSort, setJobSort] = useState("recommended")
 	const [jobFiltersOpen, setJobFiltersOpen] = useState(false)
 	const [tab, setTab] = useState("Active")
-	const [selected, setSelected] = useState<Job | null>(null)
+	const [selected, setSelected] = useState<FreelancerJob | null>(null)
 	const [compose, setCompose] = useState(false)
 	const [cover, setCover] = useState("")
 	const [rate, setRate] = useState("")
@@ -143,107 +144,28 @@ export default function FreelancerWorkspacePage({ page }: { page: FreelancerWork
 					: "Proposal restored to drafts",
 		)
 	}
-	const open = (job: Job, draft?: Draft) => {
+	const open = (job: FreelancerJob, draft?: Draft) => {
 		setSelected(job)
 		setCompose(!!draft)
 		setCover(draft?.cover ?? "")
 		setRate(draft?.rate ?? "")
 	}
-	const renderJobCard = (job: Job) => {
-		const isSaved = saved.includes(job.id)
-		const projectType = job.budget.toLowerCase().includes("fixed") ? "Fixed price" : "Hourly"
 
-		return (
-			<article
-				key={job.id}
-				className="group relative rounded-lg border border-outline-variant bg-surface-container-lowest p-5 transition-colors duration-150 hover:border-outline dark:hover:border-border-hover"
-			>
-				<div className="mb-2.5 flex items-start justify-between gap-4">
-					<div className="min-w-0 flex-1">
-						<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
-							<span className="font-label-sm font-medium text-label-sm text-on-surface-variant dark:text-on-surface-soft">
-								{job.company}
-							</span>
-							<span className="text-outline dark:text-on-surface-faint">•</span>
-							<span className="text-outline">Remote</span>
-							{job.posted && (
-								<>
-									<span className="text-outline dark:text-on-surface-faint">•</span>
-									<span className="text-outline">{job.posted}</span>
-								</>
-							)}
-						</div>
-						<button
-							type="button"
-							onClick={() => open(job)}
-							className="pt-0.5 text-left font-headline-md font-semibold text-headline-md text-on-surface transition-colors group-hover:text-primary-container"
-						>
-							{job.title}
-						</button>
-					</div>
-					<button
-						type="button"
-						aria-label={`${isSaved ? "Unsave" : "Save"} ${job.title}`}
-						aria-pressed={isSaved}
-						onClick={() =>
-							setSaved((ids) => (ids.includes(job.id) ? ids.filter((id) => id !== job.id) : [...ids, job.id]))
-						}
-						className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-primary dark:hover:text-on-surface"
-					>
-						<Bookmark className={`size-5 ${isSaved ? "fill-primary text-primary" : ""}`} />
-					</button>
-				</div>
+	const directoryJobList = (
+		<div className="flex flex-col gap-3.5">
+			{filtered.map((job) => (
+				<FreelancerJobCard key={job.id} {...job} />
+			))}
+		</div>
+	)
 
-				<div className="mb-3 flex flex-wrap items-center gap-3">
-					<div className="flex items-baseline gap-1 font-numeric-data text-numeric-data">
-						<span className="font-semibold text-[15px] text-on-surface">{job.budget}</span>
-						<span className="font-caption text-caption text-on-surface-variant">{projectType}</span>
-					</div>
-					<span className="size-1 rounded-full bg-outline-variant" />
-					<span className="font-caption text-caption text-on-surface-variant">{job.category}</span>
-				</div>
-
-				<p className="mb-4 line-clamp-2 font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-					{job.description}
-				</p>
-
-				<div className="flex flex-col gap-3 border-surface-container border-t pt-3 dark:border-border-dark sm:flex-row sm:items-center sm:justify-between">
-					<div className="flex flex-wrap items-center gap-1.5">
-						{job.skills.slice(0, 4).map((skill) => (
-							<span
-								key={skill}
-								className="rounded border border-transparent bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant dark:border-border-subtle dark:text-on-surface-soft"
-							>
-								{skill}
-							</span>
-						))}
-					</div>
-					<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
-						<button
-							type="button"
-							onClick={() => open(job)}
-							className="h-8 rounded-lg px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
-						>
-							View details
-						</button>
-						<button
-							type="button"
-							onClick={() => {
-								setSelected(job)
-								setCompose(true)
-							}}
-							className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-white dark:text-background dark:hover:bg-[#f1f5f9]"
-						>
-							Apply now
-						</button>
-					</div>
-				</div>
-			</article>
-		)
-	}
-
-	const directoryJobList = <div className="flex flex-col gap-3.5">{filtered.map(renderJobCard)}</div>
-	const dashboardJobList = <div className="flex flex-col gap-3.5">{filtered.slice(0, 4).map(renderJobCard)}</div>
+	const dashboardJobList = (
+		<div className="flex flex-col gap-3.5">
+			{filtered.slice(0, 4).map((job) => (
+				<FreelancerJobCard key={job.id} {...job} />
+			))}
+		</div>
+	)
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			{page === "dashboard" ? (
@@ -1100,3 +1022,5 @@ function Empty({
 		</WorkspaceSurface>
 	)
 }
+
+export default FreelancerWorkspacePage
