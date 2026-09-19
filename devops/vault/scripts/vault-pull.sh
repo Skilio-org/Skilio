@@ -26,13 +26,32 @@ ENV_FILE=".env"
 
 VAULT_ADDR="${VAULT_ADDR%/}"
 
-echo "Connecting to HCP Vault at $VAULT_ADDR (Namespace: $VAULT_NAMESPACE)..."
+# Look up who this token belongs to
+TOKEN_INFO=$(curl -s \
+  -H "X-Vault-Token: ${VAULT_TOKEN}" \
+  -H "X-Vault-Namespace: ${VAULT_NAMESPACE}" \
+  "${VAULT_ADDR}/v1/auth/token/lookup-self" 2>/dev/null || echo "")
+
+if [ -n "$TOKEN_INFO" ] && command -v jq >/dev/null 2>&1; then
+  TOKEN_DISPLAY_NAME=$(echo "$TOKEN_INFO" | jq -r '.data.display_name // empty')
+  TOKEN_POLICIES=$(echo "$TOKEN_INFO" | jq -r '.data.policies // [] | join(", ")')
+elif [ -n "$TOKEN_INFO" ] && command -v python3 >/dev/null 2>&1; then
+  TOKEN_DISPLAY_NAME=$(echo "$TOKEN_INFO" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('data', {}).get('display_name', ''))" 2>/dev/null || echo "")
+  TOKEN_POLICIES=$(echo "$TOKEN_INFO" | python3 -c "import sys, json; data=json.load(sys.stdin); print(', '.join(data.get('data', {}).get('policies', [])))" 2>/dev/null || echo "")
+fi
+
+TOKEN_DISPLAY_NAME="${TOKEN_DISPLAY_NAME:-unknown}"
+TOKEN_POLICIES="${TOKEN_POLICIES:-unknown}"
+
+echo "Connecting to HCP Vault at $VAULT_ADDR"
+echo "  Namespace: $VAULT_NAMESPACE"
+echo "  Token identity: $TOKEN_DISPLAY_NAME (policies: $TOKEN_POLICIES)"
 
 # Helper function to query KV-v2 secrets via HTTP REST API
 get_secret_json() {
   local path="$1"
   local url="${VAULT_ADDR}/v1/secret/data/production/${path}"
-  
+
   local response
   response=$(curl -s -f \
     -H "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -71,6 +90,7 @@ DB_JSON=$(get_secret_json "database")
 EMAIL_JSON=$(get_secret_json "email")
 CLOUDINARY_JSON=$(get_secret_json "cloudinary")
 GOOGLE_JSON=$(get_secret_json "google")
+LINKEDIN_JSON=$(get_secret_json "linkedin")
 
 SECRET_KEY=$(json_field "$APP_JSON" secret_key)
 FIRST_SUPERUSER=$(json_field "$APP_JSON" first_superuser)
@@ -96,6 +116,13 @@ GOOGLE_REDIRECT_URI=$(json_field "$GOOGLE_JSON" redirect_uri)
 GOOGLE_TOKEN_URI=$(json_field "$GOOGLE_JSON" token_uri)
 GOOGLE_AUTH_URI=$(json_field "$GOOGLE_JSON" auth_uri)
 GOOGLE_USERINFO_URL=$(json_field "$GOOGLE_JSON" userinfo_url)
+
+LINKEDIN_CLIENT_ID=$(json_field "$LINKEDIN_JSON" client_id)
+LINKEDIN_CLIENT_SECRET=$(json_field "$LINKEDIN_JSON" client_secret)
+LINKEDIN_REDIRECT_URI=$(json_field "$LINKEDIN_JSON" redirect_uri)
+LINKEDIN_AUTH_URI=$(json_field "$LINKEDIN_JSON" auth_uri)
+LINKEDIN_TOKEN_URI=$(json_field "$LINKEDIN_JSON" token_uri)
+LINKEDIN_USERINFO_URL=$(json_field "$LINKEDIN_JSON" userinfo_url)
 
 # Fallbacks for missing values
 SECRET_KEY="${SECRET_KEY:-changethis}"
@@ -142,6 +169,14 @@ GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
 GOOGLE_REDIRECT_URI=$GOOGLE_REDIRECT_URI
 GOOGLE_TOKEN_URI=$GOOGLE_TOKEN_URI
 GOOGLE_AUTH_URI=$GOOGLE_AUTH_URI
+
+# LinkedIn OAuth 2
+LINKEDIN_CLIENT_ID=$LINKEDIN_CLIENT_ID
+LINKEDIN_CLIENT_SECRET=$LINKEDIN_CLIENT_SECRET
+LINKEDIN_REDIRECT_URI=$LINKEDIN_REDIRECT_URI
+LINKEDIN_AUTH_URI=$LINKEDIN_AUTH_URI
+LINKEDIN_TOKEN_URI=$LINKEDIN_TOKEN_URI
+LINKEDIN_USERINFO_URL=$LINKEDIN_USERINFO_URL
 EOF
 
 echo ""

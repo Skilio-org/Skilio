@@ -4,6 +4,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
@@ -94,6 +95,7 @@ def list_reviews_for_freelancer(
     statement = (
         select(Review)
         .where(Review.freelancer_id == freelancer_id)
+        .options(joinedload(Review.client))  # type: ignore[arg-type]
         .order_by(Review.created_at.desc())  # type: ignore
         .offset(skip)
         .limit(limit)

@@ -1,4 +1,4 @@
-.PHONY: help dev up down env push logs status clean
+.PHONY: help dev up down env push logs status clean backup restore
 
 # Default target — show available commands
 help:
@@ -17,8 +17,12 @@ help:
 	@echo "    make env          Pull secrets from HCP Vault → generate .env"
 	@echo "    make push         Upload local .env secrets to HCP Vault"
 	@echo ""
+	@echo "  Database:"
+	@echo "    make backup       Dump the Postgres database to a .sql.gz file"
+	@echo "    make restore      Restore the database from the latest (or given) backup"
+	@echo ""
 	@echo "  Cleanup:"
-	@echo "    make clean        Stop everything + remove containers & volumes"
+	@echo "    make clean        Backup DB → stop everything → remove containers & volumes"
 	@echo ""
 
 # ─── Development ────────────────────────────────────────────
@@ -52,9 +56,19 @@ env:
 push:
 	@bash devops/vault/scripts/vault-push.sh
 
+# ─── Database ───────────────────────────────────────────────
+
+# Backup the database to a compressed SQL dump
+backup:
+	@bash devops/backup/backup.sh
+
+# Restore the database from the latest (or given) backup
+restore:
+	@bash devops/backup/restore.sh $(FILE)
+
 # ─── Cleanup ────────────────────────────────────────────────
 
-# Stop everything and remove volumes
-clean:
+# Backup first, then stop everything and remove volumes
+clean: backup
 	docker compose down -v
 	@echo "All containers and volumes removed."

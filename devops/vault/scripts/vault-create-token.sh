@@ -11,6 +11,17 @@ set -euo pipefail
 NAME="${1:?Usage: bash devops/vault/scripts/vault-create-token.sh <developer-name> [ttl]}"
 TTL="${2:-720h}" # Default: 30 days (720h)
 
+# Load local .env.vault file if present
+if [ -f ".env.vault" ]; then
+  set -a
+  source ".env.vault"
+  set +a
+elif [ -f "devops/vault/.credentials/vault.env" ]; then
+  set -a
+  source "devops/vault/.credentials/vault.env"
+  set +a
+fi
+
 VAULT_ADDR="${VAULT_ADDR:-https://vault-cluster-public-vault-f91a1ccc.eecb9a06.z1.hashicorp.cloud:8200}"
 VAULT_TOKEN="${VAULT_TOKEN:?VAULT_TOKEN environment variable must be set to your HCP Vault admin token}"
 VAULT_NAMESPACE="${VAULT_NAMESPACE:-admin}"

@@ -12,10 +12,29 @@ engine = create_engine(str(settings.DATABASE_URL))
 # for more details: https://github.com/fastapi/full-stack-fastapi-template/issues/28
 
 
+SUGGESTED_SKILLS = [
+    "Product design",
+    "UX research",
+    "Figma",
+    "React",
+    "TypeScript",
+    "Python",
+    "Brand strategy",
+    "Copywriting",
+    "SEO",
+    "Video editing",
+    "AI automation",
+    "Webflow",
+]
+
+
 def init_skills(session: Session) -> None:
     existing_skills = set(session.exec(select(Skill.name)).all())
+    initial_skills = [str(skill) for skill in ITSkill] + SUGGESTED_SKILLS
     new_skills = [
-        Skill(name=skill) for skill in ITSkill if skill not in existing_skills
+        Skill(name=skill)
+        for skill in dict.fromkeys(initial_skills)
+        if skill not in existing_skills
     ]
     if new_skills:
         session.add_all(new_skills)

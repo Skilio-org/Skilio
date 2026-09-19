@@ -1,8 +1,9 @@
 import uuid
 from datetime import UTC, datetime
-from typing import Any
+from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Query
+from sqlalchemy.orm import joinedload, selectinload
 from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, CurrentUserOptional, SessionDep
@@ -40,7 +41,7 @@ def read_jobs(
     skip: int = 0,
     limit: int = 100,
     q: str | None = None,
-    skill: list[ITSkill] | None = Query(default=None),
+    skill: Annotated[list[ITSkill] | None, Query()] = None,
     budget_type: BudgetType | None = None,
     min_budget: float | None = None,
     max_budget: float | None = None,
@@ -98,7 +99,14 @@ def read_jobs(
     else:  # "newest" is default
         statement = statement.order_by(col(JobPost.created_at).desc())
 
-    statement = statement.offset(skip).limit(limit)
+    statement = (
+        statement.options(
+            selectinload(JobPost.required_skills),  # type: ignore[arg-type]
+            selectinload(JobPost.client).selectinload(User.client_profile),  # type: ignore[arg-type]
+        )
+        .offset(skip)
+        .limit(limit)
+    )
     jobs = session.exec(statement).all()
 
     # Pre-fetch saved and applied job IDs for current user to avoid N+1 queries
@@ -120,13 +128,21 @@ def read_jobs(
         ).all()
         applied_job_ids = set(applied_rows)
 
+    # Pre-fetch proposal counts for all returned jobs in a single batch query
+    job_ids = [job.id for job in jobs]
+    proposal_counts: dict[uuid.UUID, int] = {}
+    if job_ids:
+        prop_stats_stmt = (
+            select(Proposal.job_post_id, func.count(col(Proposal.id)))
+            .where(col(Proposal.job_post_id).in_(job_ids))
+            .group_by(col(Proposal.job_post_id))
+        )
+        for j_id, p_cnt in session.exec(prop_stats_stmt).all():
+            proposal_counts[j_id] = p_cnt
+
     jobs_public = []
     for job in jobs:
-        proposals_count_stmt = select(func.count()).where(
-            Proposal.job_post_id == job.id
-        )
-        proposals_count = session.exec(proposals_count_stmt).one()
-
+        proposals_count = proposal_counts.get(job.id, 0)
         skills_public = [
             SkillPublic.model_validate(skill) for skill in job.required_skills
         ]
@@ -173,26 +189,37 @@ def read_my_jobs(
     count = session.exec(count_statement).one()
 
     statement = (
-        statement.order_by(col(JobPost.created_at).desc()).offset(skip).limit(limit)
+        statement.options(selectinload(JobPost.required_skills))  # type: ignore[arg-type]
+        .order_by(col(JobPost.created_at).desc())
+        .offset(skip)
+        .limit(limit)
     )
     jobs = session.exec(statement).all()
 
+    # Pre-fetch proposal counts in a single batch query
+    job_ids = [job.id for job in jobs]
+    proposal_counts: dict[uuid.UUID, int] = {}
+    if job_ids:
+        prop_stats_stmt = (
+            select(Proposal.job_post_id, func.count(col(Proposal.id)))
+            .where(col(Proposal.job_post_id).in_(job_ids))
+            .group_by(col(Proposal.job_post_id))
+        )
+        for j_id, p_cnt in session.exec(prop_stats_stmt).all():
+            proposal_counts[j_id] = p_cnt
+
+    client_company = (
+        current_user.client_profile.company
+        if current_user.client_profile
+        else None
+    )
+
     jobs_public = []
     for job in jobs:
-        proposals_count_stmt = select(func.count()).where(
-            Proposal.job_post_id == job.id
-        )
-        proposals_count = session.exec(proposals_count_stmt).one()
-
+        proposals_count = proposal_counts.get(job.id, 0)
         skills_public = [
             SkillPublic.model_validate(skill) for skill in job.required_skills
         ]
-
-        client_company = (
-            current_user.client_profile.company
-            if current_user.client_profile
-            else None
-        )
 
         job_data = JobPostPublic.model_validate(
             job,
@@ -234,6 +261,10 @@ def read_saved_jobs(
     statement = (
         select(SavedJob)
         .where(SavedJob.freelancer_id == current_user.id)
+        .options(
+            joinedload(SavedJob.job_post).selectinload(JobPost.required_skills),  # type: ignore[arg-type]
+            joinedload(SavedJob.job_post).selectinload(JobPost.client),  # type: ignore[arg-type]
+        )
         .order_by(col(SavedJob.created_at).desc())
         .offset(skip)
         .limit(limit)
@@ -248,16 +279,24 @@ def read_saved_jobs(
     ).all()
     applied_job_ids = set(applied_rows)
 
+    # Pre-fetch proposal counts in a single batch query
+    job_ids = [saved.job_post_id for saved in saved_jobs if saved.job_post]
+    proposal_counts: dict[uuid.UUID, int] = {}
+    if job_ids:
+        prop_stats_stmt = (
+            select(Proposal.job_post_id, func.count(col(Proposal.id)))
+            .where(col(Proposal.job_post_id).in_(job_ids))
+            .group_by(col(Proposal.job_post_id))
+        )
+        for j_id, p_cnt in session.exec(prop_stats_stmt).all():
+            proposal_counts[j_id] = p_cnt
+
     saved_public = []
     for saved in saved_jobs:
         job = saved.job_post
         job_public = None
         if job:
-            proposals_count_stmt = select(func.count()).where(
-                Proposal.job_post_id == job.id
-            )
-            proposals_count = session.exec(proposals_count_stmt).one()
-
+            proposals_count = proposal_counts.get(job.id, 0)
             skills_public = [
                 SkillPublic.model_validate(skill) for skill in job.required_skills
             ]

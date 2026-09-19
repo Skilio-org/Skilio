@@ -8,6 +8,17 @@ set -euo pipefail
 #   export VAULT_NAMESPACE="admin"
 #   bash devops/vault/scripts/vault-push.sh
 
+# Load local .env.vault file if present
+if [ -f ".env.vault" ]; then
+  set -a
+  source ".env.vault"
+  set +a
+elif [ -f "devops/vault/.credentials/vault.env" ]; then
+  set -a
+  source "devops/vault/.credentials/vault.env"
+  set +a
+fi
+
 ENV_FILE=".env"
 VAULT_ADDR="${VAULT_ADDR:-https://vault-cluster-public-vault-f91a1ccc.eecb9a06.z1.hashicorp.cloud:8200}"
 VAULT_TOKEN="${VAULT_TOKEN:?VAULT_TOKEN environment variable must be set to your HCP Vault admin token}"
@@ -53,6 +64,13 @@ GOOGLE_TOKEN_URI="${GOOGLE_TOKEN_URI:-https://oauth2.googleapis.com/token}"
 GOOGLE_AUTH_URI="${GOOGLE_AUTH_URI:-https://accounts.google.com/o/oauth2/auth}"
 GOOGLE_USERINFO_URL="${GOOGLE_USERINFO_URL:-https://www.googleapis.com/oauth2/v3/userinfo}"
 
+LINKEDIN_CLIENT_ID="${LINKEDIN_CLIENT_ID:-}"
+LINKEDIN_CLIENT_SECRET="${LINKEDIN_CLIENT_SECRET:-}"
+LINKEDIN_REDIRECT_URI="${LINKEDIN_REDIRECT_URI:-http://localhost:8000/api/v1/login/linkedin/callback}"
+LINKEDIN_AUTH_URI="${LINKEDIN_AUTH_URI:-https://www.linkedin.com/oauth/v2/authorization}"
+LINKEDIN_TOKEN_URI="${LINKEDIN_TOKEN_URI:-https://www.linkedin.com/oauth/v2/accessToken}"
+LINKEDIN_USERINFO_URL="${LINKEDIN_USERINFO_URL:-https://api.linkedin.com/v2/userinfo}"
+
 # Ensure KV-v2 secrets engine is enabled at secret/
 curl -s -X POST \
   -H "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -78,7 +96,7 @@ post_secret_json() {
 
   local http_code
   http_code=$(echo "$response" | tail -n1)
-  
+
   if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
     echo "✔ Successfully stored secret/production/${path}"
   else
@@ -149,6 +167,21 @@ post_secret_json "google" "$(cat <<EOF
     "token_uri": "${GOOGLE_TOKEN_URI}",
     "auth_uri": "${GOOGLE_AUTH_URI}",
     "userinfo_url": "${GOOGLE_USERINFO_URL}"
+  }
+}
+EOF
+)"
+
+# 6. LinkedIn OAuth secrets
+post_secret_json "linkedin" "$(cat <<EOF
+{
+  "data": {
+    "client_id": "${LINKEDIN_CLIENT_ID}",
+    "client_secret": "${LINKEDIN_CLIENT_SECRET}",
+    "redirect_uri": "${LINKEDIN_REDIRECT_URI}",
+    "auth_uri": "${LINKEDIN_AUTH_URI}",
+    "token_uri": "${LINKEDIN_TOKEN_URI}",
+    "userinfo_url": "${LINKEDIN_USERINFO_URL}"
   }
 }
 EOF

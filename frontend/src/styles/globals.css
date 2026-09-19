@@ -2,170 +2,202 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
-html {
-	scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	html {
-		scroll-behavior: auto;
-	}
-
-	*,
-	*::before,
-	*::after {
-		animation-duration: 0.01ms;
-		animation-iteration-count: 1;
-		scroll-behavior: auto;
-		transition-duration: 0.01ms;
-	}
-}
+@custom-variant dark (
+	&:is(:where(.dark, [data-theme="dark"], [data-mode="dark"]) *, [data-theme="dark"] *, [data-mode="dark"] *)
+);
 
 /* =========================================================
-   NOHEMI
-   Brand / Marketing / Display Typeface
-   ========================================================= */
-
-@font-face {
-	font-family: "Nohemi";
-	src: url("/fonts/Nohemi-Thin.woff2") format("woff2");
-	font-style: normal;
-	font-weight: 100;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: "Nohemi";
-	src: url("/fonts/Nohemi-ExtraLight.woff2") format("woff2");
-	font-style: normal;
-	font-weight: 200;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: "Nohemi";
-	src: url("/fonts/Nohemi-Light.woff2") format("woff2");
-	font-style: normal;
-	font-weight: 300;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: "Nohemi";
-	src: url("/fonts/Nohemi-Regular.woff2") format("woff2");
-	font-style: normal;
-	font-weight: 400;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: "Nohemi";
-	src: url("/fonts/Nohemi-Medium.woff2") format("woff2");
-	font-style: normal;
-	font-weight: 500;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: "Nohemi";
-	src: url("/fonts/Nohemi-SemiBold.woff2") format("woff2");
-	font-style: normal;
-	font-weight: 600;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: "Nohemi";
-	src: url("/fonts/Nohemi-Bold.woff2") format("woff2");
-	font-style: normal;
-	font-weight: 700;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: "Nohemi";
-	src: url("/fonts/Nohemi-ExtraBold.woff2") format("woff2");
-	font-style: normal;
-	font-weight: 800;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: "Nohemi";
-	src: url("/fonts/Nohemi-Black.woff2") format("woff2");
-	font-style: normal;
-	font-weight: 900;
-	font-display: swap;
-}
-
-/* =========================================================
-   TAILWIND V4 THEME
+   REFERENCE DESIGN SYSTEM
+   Ported from the supplied Tailwind configuration.
    ========================================================= */
 
 @theme inline {
-	/* =======================================================
-     TYPOGRAPHY
-     ======================================================= */
+	/* Fonts */
+	--font-sans:
+		"Geist Variable", "Geist", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--font-body: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-display: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-headline: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-label: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-label-sm: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-label-md: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-numeric-data: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-headline-sm: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-headline-md: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-headline-lg: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-headline-xl: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-headline-xl-mobile: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-body-sm: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-body-md: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-body-lg: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-caption: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
 
-	/*
-   * Product UI:
-   * dashboards, forms, cards, filters, tables, nav...
-   */
-	--font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	/* Exact reference type scale */
+	--text-label-sm: 12px;
+	--text-label-sm--line-height: 16px;
+	--text-label-sm--letter-spacing: 0.01em;
+	--text-label-sm--font-weight: 500;
 
-	/*
-   * Brand / marketing:
-   * hero headlines, landing page headings, large CTAs
-   */
-	--font-display: "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+	--text-numeric-data: 13px;
+	--text-numeric-data--line-height: 16px;
+	--text-numeric-data--letter-spacing: 0.02em;
+	--text-numeric-data--font-weight: 400;
 
-	/* =======================================================
-     RADIUS
-     ======================================================= */
+	--text-label-md: 13px;
+	--text-label-md--line-height: 16px;
+	--text-label-md--letter-spacing: 0.005em;
+	--text-label-md--font-weight: 500;
 
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
-	--radius-2xl: calc(var(--radius) + 8px);
+	--text-headline-md: 18px;
+	--text-headline-md--line-height: 24px;
+	--text-headline-md--letter-spacing: -0.015em;
+	--text-headline-md--font-weight: 500;
 
-	/* =======================================================
-     CORE COLORS
-     ======================================================= */
+	--text-body-sm: 13px;
+	--text-body-sm--line-height: 18px;
+	--text-body-sm--letter-spacing: 0em;
+	--text-body-sm--font-weight: 400;
 
+	--text-caption: 11px;
+	--text-caption--line-height: 14px;
+	--text-caption--letter-spacing: 0.015em;
+	--text-caption--font-weight: 400;
+
+	--text-body-lg: 15px;
+	--text-body-lg--line-height: 22px;
+	--text-body-lg--letter-spacing: -0.005em;
+	--text-body-lg--font-weight: 400;
+
+	--text-body-md: 14px;
+	--text-body-md--line-height: 20px;
+	--text-body-md--letter-spacing: 0em;
+	--text-body-md--font-weight: 400;
+
+	--text-headline-xl-mobile: 28px;
+	--text-headline-xl-mobile--line-height: 32px;
+	--text-headline-xl-mobile--letter-spacing: -0.02em;
+	--text-headline-xl-mobile--font-weight: 600;
+
+	--text-headline-sm: 15px;
+	--text-headline-sm--line-height: 20px;
+	--text-headline-sm--letter-spacing: -0.01em;
+	--text-headline-sm--font-weight: 500;
+
+	--text-headline-xl: 36px;
+	--text-headline-xl--line-height: 40px;
+	--text-headline-xl--letter-spacing: -0.025em;
+	--text-headline-xl--font-weight: 600;
+
+	--text-headline-lg: 24px;
+	--text-headline-lg--line-height: 28px;
+	--text-headline-lg--letter-spacing: -0.02em;
+	--text-headline-lg--font-weight: 600;
+
+	/* Exact reference spacing aliases */
+	--spacing-space-xs: 0.25rem;
+	--spacing-space-sm: 0.5rem;
+	--spacing-space-md: 0.75rem;
+	--spacing-gutter-mobile: 0.75rem;
+	--spacing-gutter: 1rem;
+	--spacing-margin-mobile: 1rem;
+	--spacing-space-lg: 1.25rem;
+	--spacing-margin: 1.5rem;
+	--spacing-space-xl: 1.75rem;
+
+	/* Exact reference radius values */
+	--radius-xs: 0.125rem;
+	--radius-sm: 0.125rem;
+	--radius-md: 0.25rem;
+	--radius-lg: 0.25rem;
+	--radius-xl: 0.5rem;
+	--radius-2xl: 0.5rem;
+
+	/* Reference colors */
+	--color-primary-fixed: var(--primary-fixed);
+	--color-surface-variant: var(--surface-variant);
+	--color-error-container: var(--error-container);
+	--color-inverse-surface: var(--inverse-surface);
+	--color-on-primary-fixed: var(--on-primary-fixed);
+	--color-tertiary: var(--tertiary);
+	--color-on-error: var(--on-error);
+	--color-tertiary-container: var(--tertiary-container);
+	--color-on-secondary-fixed-variant: var(--on-secondary-fixed-variant);
+	--color-inverse-primary: var(--inverse-primary);
+	--color-secondary-container: var(--secondary-container);
+	--color-primary-fixed-dim: var(--primary-fixed-dim);
+	--color-on-surface: var(--on-surface);
+	--color-error: var(--error);
+	--color-tertiary-fixed: var(--tertiary-fixed);
+	--color-outline: var(--outline);
+	--color-outline-variant: var(--outline-variant);
+	--color-surface-container-lowest: var(--surface-container-lowest);
+	--color-secondary-fixed-dim: var(--secondary-fixed-dim);
+	--color-primary-container: var(--primary-container);
+	--color-surface-bright: var(--surface-bright);
+	--color-on-error-container: var(--on-error-container);
+	--color-on-secondary-container: var(--on-secondary-container);
+	--color-secondary: var(--secondary);
+	--color-surface-container-highest: var(--surface-container-highest);
+	--color-on-primary: var(--on-primary);
+	--color-on-tertiary: var(--on-tertiary);
+	--color-surface-container: var(--surface-container);
+	--color-surface: var(--surface);
+	--color-on-tertiary-fixed-variant: var(--on-tertiary-fixed-variant);
+	--color-on-primary-container: var(--on-primary-container);
+	--color-inverse-on-surface: var(--inverse-on-surface);
+	--color-surface-container-low: var(--surface-container-low);
+	--color-surface-tint: var(--surface-tint);
+	--color-secondary-fixed: var(--secondary-fixed);
+	--color-surface-dim: var(--surface-dim);
+	--color-on-secondary-fixed: var(--on-secondary-fixed);
 	--color-background: var(--background);
-	--color-foreground: var(--foreground);
+	--color-primary: var(--primary);
+	--color-on-secondary: var(--on-secondary);
+	--color-on-tertiary-container: var(--on-tertiary-container);
+	--color-on-surface-variant: var(--on-surface-variant);
+	--color-tertiary-fixed-dim: var(--tertiary-fixed-dim);
+	--color-surface-container-high: var(--surface-container-high);
+	--color-on-background: var(--on-background);
+	--color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
+	--color-on-tertiary-fixed: var(--on-tertiary-fixed);
 
+	/* Dark reference extensions */
+	--color-surface-raised: var(--surface-raised);
+	--color-surface-panel: var(--surface-panel);
+	--color-surface-well: var(--surface-well);
+	--color-surface-card: var(--surface-card);
+	--color-border-dark: var(--border-dark);
+	--color-border-subtle: var(--border-subtle);
+	--color-border-input: var(--border-input);
+	--color-on-surface-muted: var(--on-surface-muted);
+	--color-primary-hover: var(--primary-hover);
+	--color-primary-glow: var(--primary-glow);
+	--color-accent-cyan: var(--accent-cyan);
+	--color-emerald-well: var(--emerald-well);
+	--color-emerald-border: var(--emerald-border);
+	--color-emerald-text: var(--emerald-text);
+	--color-amber-well: var(--amber-well);
+	--color-amber-border: var(--amber-border);
+	--color-amber-text: var(--amber-text);
+
+	/* Existing app/shadcn compatibility */
+	--color-foreground: var(--foreground);
 	--color-card: var(--card);
 	--color-card-foreground: var(--card-foreground);
-
 	--color-popover: var(--popover);
 	--color-popover-foreground: var(--popover-foreground);
-
-	--color-primary: var(--primary);
 	--color-primary-foreground: var(--primary-foreground);
-
-	--color-secondary: var(--secondary);
 	--color-secondary-foreground: var(--secondary-foreground);
-
 	--color-muted: var(--muted);
 	--color-muted-foreground: var(--muted-foreground);
-
 	--color-accent: var(--accent);
 	--color-accent-foreground: var(--accent-foreground);
-
 	--color-destructive: var(--destructive);
-
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
 
-	/* =======================================================
-     PREMIUM BRAND SCALE
-     ======================================================= */
-
+	/* Brand compatibility */
 	--color-brand-50: var(--brand-50);
 	--color-brand-100: var(--brand-100);
 	--color-brand-200: var(--brand-200);
@@ -178,259 +210,329 @@ html {
 	--color-brand-900: var(--brand-900);
 	--color-brand-950: var(--brand-950);
 
-	/* =======================================================
-     STATUS
-     ======================================================= */
-
+	/* Status compatibility */
 	--color-success: var(--success);
 	--color-success-foreground: var(--success-foreground);
 	--color-success-soft: var(--success-soft);
-
 	--color-warning: var(--warning);
 	--color-warning-foreground: var(--warning-foreground);
 	--color-warning-soft: var(--warning-soft);
-
 	--color-danger-soft: var(--danger-soft);
 
-	/* =======================================================
-     CHARTS
-     ======================================================= */
-
+	/* Charts */
 	--color-chart-1: var(--chart-1);
 	--color-chart-2: var(--chart-2);
 	--color-chart-3: var(--chart-3);
 	--color-chart-4: var(--chart-4);
 	--color-chart-5: var(--chart-5);
 
-	/* =======================================================
-     SIDEBAR
-     ======================================================= */
-
+	/* Sidebar */
 	--color-sidebar: var(--sidebar);
 	--color-sidebar-foreground: var(--sidebar-foreground);
-
 	--color-sidebar-primary: var(--sidebar-primary);
 	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-
 	--color-sidebar-accent: var(--sidebar-accent);
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
 
-	/* =======================================================
-     SHADOWS
-     ======================================================= */
-
+	/* Elevation */
 	--shadow-card: var(--elevation-card);
 	--shadow-card-hover: var(--elevation-card-hover);
 	--shadow-floating: var(--elevation-floating);
 }
 
-/* =========================================================
-   LIGHT THEME
-   ========================================================= */
-
 :root {
-	/*
-   * Radius system
-   *
-   * sm   8px
-   * md  10px
-   * lg  12px
-   * xl  16px
-   * 2xl 20px
-   */
-	--radius: 0.75rem;
+	/* Exact colors from the reference Tailwind config */
+	--primary-fixed: #dbe1ff;
+	--surface-variant: #d3e4fe;
+	--error-container: #ffdad6;
+	--inverse-surface: #213145;
+	--on-primary-fixed: #051846;
+	--tertiary: #001d31;
+	--on-error: #ffffff;
+	--tertiary-container: #003351;
+	--on-secondary-fixed-variant: #004395;
+	--inverse-primary: #b5c5fc;
+	--secondary-container: #2170e4;
+	--primary-fixed-dim: #b5c5fc;
+	--on-surface: #0b1c30;
+	--error: #ba1a1a;
+	--tertiary-fixed: #cce5ff;
+	--outline: #757680;
+	--outline-variant: #c5c6d0;
+	--surface-container-lowest: #ffffff;
+	--secondary-fixed-dim: #adc6ff;
+	--primary-container: #1e2e5c;
+	--surface-bright: #f8f9ff;
+	--on-error-container: #93000a;
+	--on-secondary-container: #fefcff;
+	--secondary: #0058be;
+	--surface-container-highest: #d3e4fe;
+	--on-primary: #ffffff;
+	--on-tertiary: #ffffff;
+	--surface-container: #e5eeff;
+	--surface: #f8f9ff;
+	--on-tertiary-fixed-variant: #004b73;
+	--on-primary-container: #8797cb;
+	--inverse-on-surface: #eaf1ff;
+	--surface-container-low: #eff4ff;
+	--surface-tint: #4d5c8d;
+	--secondary-fixed: #d8e2ff;
+	--surface-dim: #cbdbf5;
+	--on-secondary-fixed: #001a42;
+	--background: #f8f9ff;
+	--primary: #051846;
+	--on-secondary: #ffffff;
+	--on-tertiary-container: #3c9fe4;
+	--on-surface-variant: #45464f;
+	--tertiary-fixed-dim: #93ccff;
+	--surface-container-high: #dce9ff;
+	--on-background: #0b1c30;
+	--on-primary-fixed-variant: #354574;
+	--on-tertiary-fixed: #001d31;
 
-	/* =======================================================
-     BRAND — PREMIUM COBALT / INDIGO
-     ======================================================= */
+	/* Extended surface/status tokens.
+	   These map to the light reference until :where(.dark, [data-theme="dark"], [data-mode="dark"]) overrides them. */
+	--surface-raised: var(--surface-container-low);
+	--surface-panel: var(--surface-container-lowest);
+	--surface-well: var(--surface-container);
+	--surface-card: var(--surface-container-lowest);
+	--border-dark: var(--outline-variant);
+	--border-subtle: var(--outline-variant);
+	--border-input: var(--outline-variant);
+	--on-surface-muted: var(--outline);
+	--primary-hover: var(--primary-container);
+	--primary-glow: rgb(30 46 92 / 0.1);
+	--accent-cyan: var(--on-tertiary-container);
+	--emerald-well: rgb(0 51 81 / 0.08);
+	--emerald-border: rgb(0 75 115 / 0.24);
+	--emerald-text: var(--tertiary-container);
+	--amber-well: rgb(77 92 141 / 0.08);
+	--amber-border: rgb(77 92 141 / 0.24);
+	--amber-text: var(--surface-tint);
 
-	--brand-50: #f4f6ff;
-	--brand-100: #e9edff;
-	--brand-200: #d1d9ff;
-	--brand-300: #adbaff;
-	--brand-400: #8094ff;
-	--brand-500: #5d70f7;
-
-	/* Main brand */
-	--brand-600: #4056cf;
-
-	--brand-700: #3345b2;
-	--brand-800: #303ba2;
-	--brand-900: #2c357f;
-	--brand-950: #1a1e4c;
-
-	/* =======================================================
-     APP CANVAS
-     ======================================================= */
-
-	--background: #f6f7f9;
-	--foreground: #20242e;
-
-	/* =======================================================
-     SURFACES
-     ======================================================= */
-
-	--card: #ffffff;
-	--card-foreground: #20242e;
-
-	--popover: #ffffff;
-	--popover-foreground: #0b1220;
-
-	/* =======================================================
-     PRIMARY
-     ======================================================= */
-
-	--primary: #4056cf;
-	--primary-foreground: #ffffff;
-
-	/* =======================================================
-     SECONDARY
-     ======================================================= */
-
-	--secondary: #f1f3f7;
-	--secondary-foreground: #344054;
-
-	/* =======================================================
-     MUTED
-     ======================================================= */
-
-	--muted: #f0f2f5;
-	--muted-foreground: #626b7a;
-
-	/* =======================================================
-     ACCENT
-     ======================================================= */
-
-	--accent: #eef1ff;
-	--accent-foreground: #3544c5;
-
-	/* =======================================================
-     STATUS
-     ======================================================= */
-
-	--destructive: #e5484d;
-	--danger-soft: #fff1f2;
-
-	--success: #15966d;
+	/* Existing app/shadcn semantic aliases */
+	--foreground: var(--on-surface);
+	--card: var(--surface-container-lowest);
+	--card-foreground: var(--on-surface);
+	--popover: var(--surface-container-lowest);
+	--popover-foreground: var(--on-surface);
+	--primary-foreground: var(--on-primary);
+	--secondary-foreground: var(--on-secondary);
+	--muted: var(--surface-container-low);
+	--muted-foreground: var(--on-surface-variant);
+	--accent: var(--surface-container);
+	--accent-foreground: var(--on-surface);
+	--destructive: var(--error);
+	--danger-soft: var(--error-container);
+	--success: var(--tertiary-container);
 	--success-foreground: #ffffff;
-	--success-soft: #ecfdf5;
-
-	--warning: #d98324;
+	--success-soft: var(--tertiary-fixed);
+	--warning: var(--surface-tint);
 	--warning-foreground: #ffffff;
-	--warning-soft: #fff8eb;
+	--warning-soft: var(--primary-fixed);
+	--border: var(--outline-variant);
+	--input: var(--outline-variant);
+	--ring: var(--primary-container);
 
-	/* =======================================================
-     BORDERS / FORMS
-     ======================================================= */
+	/* Brand aliases made only from supplied reference colors */
+	--brand-50: var(--surface-bright);
+	--brand-100: var(--surface-container-low);
+	--brand-200: var(--primary-fixed);
+	--brand-300: var(--primary-fixed-dim);
+	--brand-400: var(--on-primary-container);
+	--brand-500: var(--surface-tint);
+	--brand-600: var(--on-primary-fixed-variant);
+	--brand-700: var(--primary-container);
+	--brand-800: #152243;
+	--brand-900: var(--on-surface);
+	--brand-950: var(--primary);
 
-	--border: #e1e5eb;
-	--input: #dfe3ea;
-	--ring: #9aa9ff;
+	/* Sidebar */
+	--sidebar: var(--surface-container-lowest);
+	--sidebar-foreground: var(--on-surface-variant);
+	--sidebar-primary: var(--primary);
+	--sidebar-primary-foreground: var(--on-primary);
+	--sidebar-accent: var(--surface-container);
+	--sidebar-accent-foreground: var(--on-surface);
+	--sidebar-border: var(--outline-variant);
+	--sidebar-ring: var(--primary-container);
 
-	/* =======================================================
-     SIDEBAR
-     ======================================================= */
+	/* Charts use the supplied blue / cyan family */
+	--chart-1: var(--secondary);
+	--chart-2: var(--tertiary-container);
+	--chart-3: var(--surface-tint);
+	--chart-4: var(--on-tertiary-container);
+	--chart-5: var(--error);
 
-	--sidebar: #fbfcfe;
-	--sidebar-foreground: #475467;
-
-	--sidebar-primary: #4658e8;
-	--sidebar-primary-foreground: #ffffff;
-
-	--sidebar-accent: #eef1ff;
-	--sidebar-accent-foreground: #3544c5;
-
-	--sidebar-border: #eaecf0;
-	--sidebar-ring: #9aa9ff;
-
-	/* =======================================================
-     CHARTS
-     ======================================================= */
-
-	--chart-1: #4658e8;
-	--chart-2: #15966d;
-	--chart-3: #805ad5;
-	--chart-4: #e09f3e;
-	--chart-5: #e5484d;
-
-	/* =======================================================
-     ELEVATION
-     ======================================================= */
-
-	--elevation-card: 0 2px 4px rgb(26 39 68 / 0.025);
-
-	--elevation-card-hover: 0 8px 24px rgb(26 39 68 / 0.07);
-
-	--elevation-floating: 0 8px 16px rgb(16 24 40 / 0.055), 0 20px 48px rgb(16 24 40 / 0.08);
+	/* Reference is intentionally flat */
+	--elevation-card: none;
+	--elevation-card-hover: none;
+	--elevation-floating: 0 8px 24px rgb(5 24 70 / 0.08);
 }
 
-/* =========================================================
-   DARK THEME
-   ========================================================= */
+:where(.dark, [data-theme="dark"], [data-mode="dark"]),
+:root:has(body.dark),
+:root:has(body[data-theme="dark"]),
+:root:has(body[data-mode="dark"]),
+:root:has(#root.dark),
+:root:has(#root[data-theme="dark"]),
+:root:has(#root[data-mode="dark"]) {
+	/* =====================================================
+	   EXACT DARK REFERENCE PALETTE
+	   ===================================================== */
 
-.dark {
-	--background: #101319;
-	--foreground: #f0f2f6;
+	/* Canvas / surfaces */
+	--background: #090d16;
+	--surface: #0f172a;
+	--surface-card: #0f172a;
+	--surface-raised: #131d33;
+	--surface-panel: #111a2e;
+	--surface-well: #1a2336;
 
-	--card: #171c24;
-	--card-foreground: #f0f2f6;
+	/* Existing reference surface aliases */
+	--surface-container-lowest: #0f172a;
+	--surface-container-low: #131d33;
+	--surface-container: #1a2336;
+	--surface-container-high: #1e293b;
+	--surface-container-highest: #26354a;
+	--surface-bright: #131d33;
+	--surface-dim: #090d16;
+	--surface-variant: #1a2336;
 
-	--popover: #111620;
-	--popover-foreground: #f5f7fa;
+	/* Borders */
+	--border-dark: #1e293b;
+	--border-subtle: #26354a;
+	--border-input: #334155;
+	--outline-variant: #1e293b;
+	--outline: #64748b;
 
-	--primary: #93a2ff;
-	--primary-foreground: #11182e;
+	/* Foreground */
+	--on-background: #f8fafc;
+	--on-surface: #f8fafc;
+	--on-surface-variant: #94a3b8;
+	--on-surface-muted: #64748b;
+	--inverse-on-surface: #090d16;
 
-	--secondary: #171c27;
-	--secondary-foreground: #e4e7ec;
+	/* Blue accent system */
+	--primary: #3b82f6;
+	--primary-hover: #60a5fa;
+	--primary-container: #60a5fa;
+	--on-primary: #ffffff;
+	--on-primary-container: #bfdbfe;
+	--inverse-primary: #60a5fa;
+	--primary-glow: rgb(59 130 246 / 0.15);
+	--primary-fixed: rgb(59 130 246 / 0.15);
+	--primary-fixed-dim: rgb(59 130 246 / 0.3);
+	--on-primary-fixed: #93c5fd;
+	--on-primary-fixed-variant: #bfdbfe;
 
-	--muted: #202631;
-	--muted-foreground: #a4afbf;
+	/* Secondary / cyan */
+	--secondary: #38bdf8;
+	--secondary-container: #1a2336;
+	--secondary-fixed: #1a2336;
+	--secondary-fixed-dim: #26354a;
+	--on-secondary: #090d16;
+	--on-secondary-container: #e0f2fe;
+	--on-secondary-fixed: #f8fafc;
+	--on-secondary-fixed-variant: #cbd5e1;
+	--accent-cyan: #38bdf8;
 
-	--accent: #1c2347;
-	--accent-foreground: #cbd3ff;
+	/* Emerald status */
+	--tertiary: #10b981;
+	--tertiary-container: #10b981;
+	--tertiary-fixed: rgb(16 185 129 / 0.12);
+	--tertiary-fixed-dim: rgb(16 185 129 / 0.28);
+	--on-tertiary: #06120e;
+	--on-tertiary-container: #34d399;
+	--on-tertiary-fixed: #34d399;
+	--on-tertiary-fixed-variant: #6ee7b7;
+	--emerald-well: rgb(16 185 129 / 0.12);
+	--emerald-border: rgb(16 185 129 / 0.28);
+	--emerald-text: #34d399;
 
-	--destructive: #f05d61;
-	--danger-soft: #2b1216;
+	/* Amber status */
+	--amber-well: rgb(245 158 11 / 0.12);
+	--amber-border: rgb(245 158 11 / 0.28);
+	--amber-text: #fbbf24;
 
-	--success: #32b889;
-	--success-foreground: #051b13;
-	--success-soft: #0b211a;
+	/* Error */
+	--error: #ef4444;
+	--error-container: rgb(239 68 68 / 0.12);
+	--on-error: #ffffff;
+	--on-error-container: #fecaca;
 
-	--warning: #f2a94b;
-	--warning-foreground: #221404;
-	--warning-soft: #271b0c;
+	/* Legacy tint */
+	--surface-tint: #3b82f6;
+	--inverse-surface: #e2e8f0;
 
-	--border: #2c3441;
-	--input: #303744;
-	--ring: #7182ff;
+	/* =====================================================
+	   SHADCN / APP SEMANTICS
+	   ===================================================== */
+	--foreground: #f8fafc;
+	--card: #0f172a;
+	--card-foreground: #f8fafc;
+	--popover: #131d33;
+	--popover-foreground: #f8fafc;
 
-	--sidebar: #0c1017;
-	--sidebar-foreground: #cdd2dc;
+	--primary-foreground: #ffffff;
+	--secondary-foreground: #f8fafc;
 
-	--sidebar-primary: #7080ff;
+	--muted: #1a2336;
+	--muted-foreground: #94a3b8;
+	--accent: #1a2336;
+	--accent-foreground: #f8fafc;
+
+	--destructive: #ef4444;
+	--danger-soft: rgb(239 68 68 / 0.12);
+
+	--success: #10b981;
+	--success-foreground: #06120e;
+	--success-soft: rgb(16 185 129 / 0.12);
+
+	--warning: #f59e0b;
+	--warning-foreground: #090d16;
+	--warning-soft: rgb(245 158 11 / 0.12);
+
+	--border: #1e293b;
+	--input: #334155;
+	--ring: #3b82f6;
+
+	/* Brand compatibility */
+	--brand-50: #0f172a;
+	--brand-100: #131d33;
+	--brand-200: #1a2336;
+	--brand-300: #26354a;
+	--brand-400: #60a5fa;
+	--brand-500: #3b82f6;
+	--brand-600: #3b82f6;
+	--brand-700: #60a5fa;
+	--brand-800: #93c5fd;
+	--brand-900: #bfdbfe;
+	--brand-950: #f8fafc;
+
+	/* Sidebar */
+	--sidebar: #090d16;
+	--sidebar-foreground: #94a3b8;
+	--sidebar-primary: #3b82f6;
 	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #1a2336;
+	--sidebar-accent-foreground: #f8fafc;
+	--sidebar-border: #1e293b;
+	--sidebar-ring: #3b82f6;
 
-	--sidebar-accent: #1c2347;
-	--sidebar-accent-foreground: #d2d8ff;
+	/* Charts */
+	--chart-1: #3b82f6;
+	--chart-2: #10b981;
+	--chart-3: #f59e0b;
+	--chart-4: #38bdf8;
+	--chart-5: #ef4444;
 
-	--sidebar-border: #202631;
-	--sidebar-ring: #7182ff;
-
-	--chart-1: #7080ff;
-	--chart-2: #32b889;
-	--chart-3: #a78bfa;
-	--chart-4: #f2a94b;
-	--chart-5: #f05d61;
-
-	--elevation-card: 0 1px 2px rgb(0 0 0 / 0.14), 0 2px 8px rgb(0 0 0 / 0.08);
-
-	--elevation-card-hover: 0 4px 12px rgb(0 0 0 / 0.15), 0 12px 36px rgb(0 0 0 / 0.12);
-
-	--elevation-floating: 0 16px 48px rgb(0 0 0 / 0.28);
+	/* Elevation */
+	--elevation-card: 0 1px 2px rgb(0 0 0 / 0.14);
+	--elevation-card-hover: 0 0 0 1px rgb(59 130 246 / 0.06);
+	--elevation-floating: 0 12px 24px rgb(0 0 0 / 0.28), 0 28px 64px rgb(0 0 0 / 0.32);
 }
 
 /* =========================================================
@@ -445,23 +547,20 @@ html {
 		box-sizing: border-box;
 	}
 
+	html,
+	body {
+		margin: 0;
+		padding: 0;
+	}
+
 	html {
 		@apply bg-background;
-
 		color-scheme: light;
-
-		/*
-     * Prevent font-size inflation on mobile Safari.
-     */
 		-webkit-text-size-adjust: 100%;
-
-		/*
-     * Smooth navigation to anchors.
-     */
 		scroll-behavior: smooth;
 	}
 
-	html.dark {
+	html:where(.dark, [data-theme="dark"], [data-mode="dark"]) {
 		color-scheme: dark;
 	}
 
@@ -472,29 +571,25 @@ html {
 	}
 
 	body {
-		@apply bg-background text-foreground font-sans;
-
-		margin: 0;
-
+		@apply bg-background font-body-md text-body-md text-on-surface antialiased;
 		min-width: 320px;
 		min-height: 100vh;
-
-		/*
-     * Geist OpenType features
-     */
+		overscroll-behavior: none;
 		font-feature-settings:
 			"rlig" 1,
 			"calt" 1;
-
-		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
-
 		text-rendering: optimizeLegibility;
 	}
 
-	/*
-   * Forms inherit Geist rather than using the browser font.
-   */
+	main > :first-child {
+		margin-top: 0;
+	}
+
+	main > :last-child {
+		margin-bottom: 0;
+	}
+
 	button,
 	input,
 	textarea,
@@ -512,9 +607,6 @@ html {
 		cursor: not-allowed;
 	}
 
-	/*
-   * Remove default blue tap flash on mobile.
-   */
 	a,
 	button {
 		-webkit-tap-highlight-color: transparent;
@@ -533,347 +625,823 @@ html {
 	}
 
 	::selection {
-		background: var(--brand-200);
-		color: var(--brand-950);
+		background: var(--primary-fixed);
+		color: var(--on-primary-fixed);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) ::selection {
+		background: rgb(59 130 246 / 0.3);
+		color: #ffffff;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms;
+		animation-iteration-count: 1;
+		scroll-behavior: auto;
+		transition-duration: 0.01ms;
 	}
 }
 
 /* =========================================================
-   PREMIUM TYPOGRAPHY
+   EXACT REFERENCE RADIUS OVERRIDES
+   Tailwind's rounded/full defaults are otherwise much larger.
    ========================================================= */
 
 @layer utilities {
-	/*
-   * Marketing / brand display font.
-   *
-   * Example:
-   * <h1 className="font-display text-6xl font-bold">
-   */
-	.font-display {
-		font-family: "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+	.rounded {
+		border-radius: 0.125rem;
 	}
 
-	/*
-   * Premium tighter headline tracking.
-   */
+	.rounded-lg {
+		border-radius: 0.25rem;
+	}
+
+	.rounded-xl {
+		border-radius: 0.5rem;
+	}
+
+	.rounded-full {
+		border-radius: 0.75rem;
+	}
+}
+
+/* =========================================================
+   TYPOGRAPHY COMPATIBILITY
+   ========================================================= */
+
+@layer utilities {
+	.font-display,
+	.heading-display,
+	.heading-ui,
+	.workspace-shell .font-display,
+	.workspace-shell .heading-display {
+		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	}
+
 	.heading-display {
-		font-family: "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
-
-		letter-spacing: -0.035em;
+		font-weight: 600;
+		letter-spacing: -0.025em;
 	}
 
-	/*
-   * Geist UI titles.
-   */
 	.heading-ui {
-		font-family: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
-
-		letter-spacing: -0.02em;
+		font-weight: 600;
+		letter-spacing: -0.025em;
 	}
 
-	/* Reserve the brand face for page headlines; interface titles use Geist. */
-	.workspace-shell .font-display:not(h1) {
-		font-family: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
-		letter-spacing: -0.02em;
+	.workspace-shell .font-display,
+	.workspace-shell .heading-display {
+		letter-spacing: -0.025em;
 	}
 
-	/*
-   * Numbers such as:
-   * ratings, hourly rates, dashboard statistics.
-   */
 	.tabular-nums {
 		font-variant-numeric: tabular-nums;
 	}
 }
 
 /* =========================================================
-   PREMIUM SURFACES
+   SURFACES
    ========================================================= */
 
 @layer utilities {
-	/*
-   * Standard app card
-   */
 	.surface-card {
-		@apply bg-card shadow-card rounded-2xl border;
+		@apply border-outline-variant bg-surface-container-lowest rounded-lg border;
+		box-shadow: none;
 	}
 
-	/*
-   * Freelancer cards / clickable marketplace items.
-   */
 	.surface-interactive {
-		@apply bg-card shadow-card rounded-2xl border;
-
+		@apply border-outline-variant bg-surface-container-lowest rounded-lg border;
+		box-shadow: none;
 		transition:
-			transform 180ms cubic-bezier(0.2, 0, 0, 1),
-			border-color 180ms cubic-bezier(0.2, 0, 0, 1),
-			box-shadow 180ms cubic-bezier(0.2, 0, 0, 1),
-			background-color 180ms cubic-bezier(0.2, 0, 0, 1);
+			border-color 150ms ease,
+			background-color 150ms ease;
 	}
 
 	.surface-interactive:hover {
-		border-color: #d6dbe5;
-		box-shadow: var(--elevation-card-hover);
-		transform: translateY(-1px);
+		border-color: var(--outline);
+		background: var(--surface-container-lowest);
 	}
 
-	.dark .surface-interactive:hover {
-		border-color: #353d4b;
-	}
-
-	/*
-   * Dropdown / dialog / floating surface.
-   */
 	.surface-floating {
-		@apply bg-popover shadow-floating rounded-2xl border;
+		@apply border-outline-variant bg-surface-container-lowest rounded-lg border;
+		box-shadow: var(--elevation-floating);
 	}
-}
 
-/* =========================================================
-   BRAND UTILITIES
-   ========================================================= */
-
-@layer utilities {
-	/*
-   * Use for very important marketing areas only.
-   */
 	.brand-gradient {
-		background: linear-gradient(135deg, #4658e8 0%, #596cf5 48%, #7b82f6 100%);
+		background: var(--primary);
 	}
 
 	.brand-gradient-hover {
-		background: linear-gradient(135deg, #3846c8 0%, #4c5ce5 48%, #696ee5 100%);
+		background: #152243;
 	}
 
-	/*
-   * Premium gradient headline.
-   */
 	.brand-gradient-text {
-		background: linear-gradient(120deg, #3342c3 0%, #5266ef 50%, #786df2 100%);
-
-		background-clip: text;
-		-webkit-background-clip: text;
-
-		color: transparent;
+		background: none;
+		color: var(--primary);
 	}
 
-	/*
-   * Very subtle background for marketing hero areas.
-   */
 	.brand-glow {
-		background:
-			radial-gradient(circle at 80% 20%, rgb(93 112 247 / 0.11), transparent 30%),
-			radial-gradient(circle at 20% 80%, rgb(173 186 255 / 0.09), transparent 30%);
+		background: var(--surface-container-low);
 	}
 
-	/*
-   * Soft blue surface for selected / highlighted sections.
-   */
 	.brand-surface {
-		background: var(--brand-50);
-		border-color: var(--brand-200);
-		color: var(--brand-800);
-	}
-
-	.dark .text-brand-600 {
-		color: #91a0ff;
-	}
-
-	.dark .text-brand-700 {
-		color: #aeb9ff;
-	}
-
-	.dark .text-brand-800,
-	.dark .text-brand-900,
-	.dark .text-brand-950 {
-		color: #d6dcff;
-	}
-
-	.dark .bg-brand-50 {
-		background-color: #151a31;
-	}
-
-	.dark .bg-brand-100 {
-		background-color: #1b2345;
-	}
-
-	.dark .border-brand-200,
-	.dark .border-brand-300,
-	.dark .border-brand-400 {
-		border-color: #394571;
-	}
-
-	.dark .text-emerald-700,
-	.dark .text-emerald-800 {
-		color: #6ee7b7;
-	}
-
-	.dark .bg-emerald-50 {
-		background-color: #0b211a;
-	}
-
-	.dark .border-emerald-200 {
-		border-color: #23654f;
-	}
-
-	.dark .bg-amber-50 {
-		background-color: #271b0c;
-	}
-
-	.dark .text-amber-700 {
-		color: #f2b96b;
+		background: var(--primary-fixed);
+		border-color: var(--primary-fixed-dim);
+		color: var(--on-primary-fixed);
 	}
 }
 
 /* =========================================================
-   SCROLLBAR
+   MARKETPLACE / PRODUCT UI
+   ========================================================= */
+
+@layer components {
+	.marketplace-list {
+		@apply border-outline-variant bg-surface-container-lowest rounded-lg border;
+		overflow: hidden;
+	}
+
+	.marketplace-row {
+		@apply border-surface-container border-b;
+		padding: 1.25rem;
+		background: var(--surface-container-lowest);
+		transition:
+			background-color 150ms ease,
+			border-color 150ms ease;
+	}
+
+	.marketplace-row:last-child {
+		border-bottom: 0;
+	}
+
+	.marketplace-row:hover {
+		background: var(--surface-container-lowest);
+	}
+
+	.marketplace-tag {
+		display: inline-flex;
+		align-items: center;
+		min-height: 1.25rem;
+		padding: 0.125rem 0.5rem;
+		border: 0;
+		border-radius: 0.125rem;
+		background: var(--surface-container);
+		color: var(--on-secondary-fixed-variant);
+		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+		font-size: 12px;
+		font-weight: 500;
+		line-height: 16px;
+		letter-spacing: 0.01em;
+	}
+
+	.marketplace-tag-active {
+		background: var(--primary);
+		color: var(--surface-container-lowest);
+	}
+
+	.marketplace-filter {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.375rem;
+		min-height: 2rem;
+		padding-inline: 0.75rem;
+		border: 1px solid var(--outline-variant);
+		border-radius: 0.25rem;
+		background: var(--surface-container-lowest);
+		color: var(--on-surface-variant);
+		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+		font-size: 13px;
+		font-weight: 500;
+		line-height: 16px;
+		letter-spacing: 0.005em;
+		transition:
+			background-color 150ms ease,
+			border-color 150ms ease,
+			color 150ms ease;
+	}
+
+	.marketplace-filter:hover {
+		background: var(--surface-container-low);
+		color: var(--on-surface);
+	}
+
+	.marketplace-filter[aria-pressed="true"],
+	.marketplace-filter[data-state="active"] {
+		border-color: var(--primary);
+		background: var(--primary);
+		color: var(--surface-container-lowest);
+	}
+
+	.marketplace-search {
+		width: 100%;
+		min-height: 2.25rem;
+		border: 1px solid var(--outline-variant);
+		border-radius: 0.25rem;
+		background: var(--surface-container-lowest);
+		color: var(--on-surface);
+		box-shadow: none;
+		transition:
+			border-color 150ms ease,
+			box-shadow 150ms ease,
+			background-color 150ms ease;
+	}
+
+	.marketplace-search:hover {
+		border-color: var(--outline);
+	}
+
+	.marketplace-search:focus-within {
+		border-color: var(--primary-container);
+		box-shadow: 0 0 0 1px var(--primary-container);
+	}
+
+	.app-primary-action {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		min-height: 2.25rem;
+		padding-inline: 1rem;
+		border-radius: 0.25rem;
+		background: var(--primary);
+		color: var(--surface-container-lowest);
+		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+		font-size: 13px;
+		font-weight: 500;
+		line-height: 16px;
+		letter-spacing: 0.005em;
+		transition: background-color 150ms ease;
+	}
+
+	.app-primary-action:hover {
+		background: #152243;
+	}
+
+	.app-link {
+		color: var(--primary);
+		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+		font-size: 12px;
+		font-weight: 500;
+		line-height: 16px;
+		letter-spacing: 0.01em;
+		text-decoration: none;
+		transition: color 150ms ease;
+	}
+
+	.app-link:hover {
+		color: var(--primary-container);
+	}
+}
+
+/* =========================================================
+   SCROLLBAR — exact reference behavior
    ========================================================= */
 
 @layer base {
 	* {
-		scrollbar-width: thin;
-		scrollbar-color: #cbd0da transparent;
+		scrollbar-width: none;
 	}
 
 	::-webkit-scrollbar {
-		width: 8px;
-		height: 8px;
-	}
-
-	::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background: #cbd0da;
-		border-radius: 999px;
-	}
-
-	::-webkit-scrollbar-thumb:hover {
-		background: #aeb5c2;
-	}
-
-	.dark * {
-		scrollbar-color: #3a4250 transparent;
-	}
-
-	.dark ::-webkit-scrollbar-thumb {
-		background: #3a4250;
-	}
-
-	.dark ::-webkit-scrollbar-thumb:hover {
-		background: #4c5565;
+		display: none;
 	}
 }
 
-/* Shared interaction and layout polish. */
+/* =========================================================
+   INTERACTION
+   ========================================================= */
+
 @layer base {
 	h1,
 	h2,
 	h3 {
 		text-wrap: balance;
 	}
+
 	p {
 		text-wrap: pretty;
 	}
+
 	a:focus-visible,
-	button:focus-visible {
-		outline: 2px solid var(--primary);
-		outline-offset: 4px;
+	button:focus-visible,
+	input:focus-visible,
+	select:focus-visible,
+	textarea:focus-visible {
+		outline: 1px solid var(--primary-container);
+		outline-offset: 2px;
 	}
+
 	button,
 	a,
 	input,
 	select,
 	textarea {
-		transition-duration: 180ms;
-	}
-	button:active:not(:disabled),
-	a[data-slot="button"]:active {
-		transform: translateY(1px);
+		transition-duration: 150ms;
 	}
 }
+
+/* =========================================================
+   APPLICATION COMPONENTS
+   ========================================================= */
 
 @layer components {
 	.messages-workspace {
 		height: calc(100dvh - 96px);
 	}
+
 	@media (min-width: 640px) {
 		.messages-workspace {
 			height: calc(100dvh - 120px);
 		}
 	}
+
+	/* Landing page kept compatible, but now uses the same Geist system. */
 	.landing-container {
 		@apply mx-auto w-full max-w-330 px-5 sm:px-8 lg:px-12;
 	}
+
 	.landing-heading {
-		@apply font-display text-[clamp(2rem,3.7vw,3.5rem)] leading-[1.12] font-medium tracking-[-0.045em];
+		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+		font-size: clamp(2rem, 3.7vw, 3.5rem);
+		font-weight: 600;
+		line-height: 1.08;
+		letter-spacing: -0.025em;
 	}
+
 	.landing-primary {
-		@apply bg-primary text-primary-foreground hover:bg-brand-700 inline-flex min-h-12 items-center justify-center gap-7 rounded-full px-6 text-sm font-medium transition-colors hover:text-white;
+		display: inline-flex;
+		min-height: 2.25rem;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding-inline: 1rem;
+		border-radius: 0.25rem;
+		background: var(--primary);
+		color: var(--surface-container-lowest);
+		font-size: 13px;
+		font-weight: 500;
+		line-height: 16px;
+		transition: background-color 150ms ease;
 	}
-	.landing-text-link {
-		@apply text-foreground hover:text-primary inline-flex min-h-11 items-center gap-2 text-sm font-medium transition-colors;
+
+	.landing-primary:hover {
+		background: #152243;
 	}
+
+	.landing-text-link,
 	.landing-nav-link {
-		@apply hover:text-primary transition-colors;
+		color: var(--on-surface-variant);
+		transition: color 150ms ease;
 	}
+
+	.landing-text-link:hover,
+	.landing-nav-link:hover {
+		color: var(--on-surface);
+	}
+
 	.workspace-page-header {
-		@apply relative;
+		position: relative;
 	}
+
 	.workspace-page-header h1 {
-		@apply font-display font-medium;
+		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+		font-size: 36px;
+		font-weight: 600;
+		line-height: 40px;
+		letter-spacing: -0.025em;
+		color: var(--on-surface);
 	}
+
 	.workspace-panel {
-		@apply rounded-xl;
+		border-radius: 0.25rem;
 	}
+
 	.workspace-metric {
-		@apply relative overflow-hidden;
+		position: relative;
+		overflow: hidden;
 	}
+
 	.workspace-metric::before {
 		content: "";
-		@apply bg-primary/60 absolute top-6 bottom-6 left-0 w-0.75 rounded-r-full;
+		position: absolute;
+		top: 1.25rem;
+		bottom: 1.25rem;
+		left: 0;
+		width: 2px;
+		border-radius: 0 0.75rem 0.75rem 0;
+		background: var(--primary-container);
 	}
+
 	.workspace-shell > header {
-		@apply bg-card/95;
+		background: rgb(255 255 255 / 0.95);
+		border-bottom: 1px solid var(--outline-variant);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
 	}
+
 	.workspace-shell > header nav a {
-		@apply transition-colors;
+		position: relative;
+		color: var(--on-surface-variant);
+		transition: color 150ms ease;
 	}
+
+	.workspace-shell > header nav a:hover {
+		color: var(--on-surface);
+	}
+
 	.workspace-shell > header nav a[aria-current="page"] {
-		@apply text-primary;
+		color: var(--primary);
+	}
+
+	.workspace-shell > header nav a[aria-current="page"]::after {
+		content: "";
+		position: absolute;
+		right: 0;
+		bottom: -1px;
+		left: 0;
+		height: 2px;
+		background: var(--primary);
+	}
+
+	.workspace-divider {
+		width: 100%;
+		height: 1px;
+		background: var(--outline-variant);
+	}
+
+	.workspace-section-title {
+		color: var(--on-surface);
+		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+		font-size: 15px;
+		font-weight: 600;
+		line-height: 20px;
+		letter-spacing: -0.01em;
+	}
+
+	.workspace-secondary-text {
+		color: var(--on-surface-variant);
+		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 20px;
 	}
 }
 
+/* =========================================================
+   DARK REFERENCE COMPONENT OVERRIDES
+   The dark reference intentionally uses blue for links/focus,
+   dark navy for selected filters, and white for primary CTAs.
+   ========================================================= */
+
+@layer utilities {
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .surface-card,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .surface-interactive {
+		border-color: var(--border-dark);
+		background: var(--surface-card);
+		box-shadow: var(--elevation-card);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .surface-interactive:hover {
+		border-color: #2d3d54;
+		background: var(--surface-raised);
+		box-shadow: var(--elevation-card-hover);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .surface-floating {
+		border-color: var(--border-subtle);
+		background: var(--surface-raised);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-gradient {
+		background: #ffffff;
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-gradient-hover {
+		background: #f1f5f9;
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-gradient-text {
+		color: var(--primary);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-glow {
+		background: var(--surface-raised);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-surface {
+		border-color: rgb(59 130 246 / 0.3);
+		background: var(--primary-glow);
+		color: #93c5fd;
+	}
+}
+
+@layer components {
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-list {
+		border-color: var(--border-dark);
+		background: var(--surface-card);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-row {
+		border-color: var(--border-dark);
+		background: var(--surface-card);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-row:hover {
+		background: var(--surface-raised);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-tag {
+		border: 1px solid var(--border-subtle);
+		background: var(--surface-well);
+		color: #cbd5e1;
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-filter {
+		border-color: var(--border-subtle);
+		background: var(--surface-card);
+		color: var(--on-surface-variant);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-filter:hover {
+		border-color: var(--border-input);
+		background: var(--surface-raised);
+		color: #ffffff;
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-filter[aria-pressed="true"],
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-filter[data-state="active"] {
+		border-color: rgb(59 130 246 / 0.5);
+		background: #1e293b;
+		color: #ffffff;
+		box-shadow: 0 0 10px rgb(59 130 246 / 0.15);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-search {
+		border-color: var(--border-subtle);
+		background: var(--surface-card);
+		color: #ffffff;
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-search:hover {
+		border-color: var(--border-input);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-search:focus-within {
+		border-color: var(--primary);
+		box-shadow: 0 0 0 1px var(--primary);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .app-primary-action,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .landing-primary {
+		background: #ffffff;
+		color: #090d16;
+		font-weight: 600;
+		box-shadow: 0 0 15px rgb(255 255 255 / 0.08);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .app-primary-action:hover,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .landing-primary:hover {
+		background: #f1f5f9;
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .app-link {
+		color: var(--primary);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .app-link:hover {
+		color: var(--primary-hover);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-shell > header {
+		border-bottom-color: var(--border-dark);
+		background: rgb(9 13 22 / 0.95);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-shell > header nav a {
+		color: var(--on-surface-variant);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-shell > header nav a:hover,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-shell > header nav a[aria-current="page"] {
+		color: #ffffff;
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-shell > header nav a[aria-current="page"]::after {
+		background: var(--primary);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-divider {
+		background: var(--border-dark);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-section-title,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-page-header h1 {
+		color: #ffffff;
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-secondary-text {
+		color: var(--on-surface-variant);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-metric::before {
+		background: var(--primary);
+	}
+}
+
+/* Direct Tailwind classes used by the freelancer workspace page. */
+@layer utilities {
+	/* Job cards */
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) article.border-outline-variant.bg-surface-container-lowest {
+		border-color: var(--border-dark);
+		background: var(--surface-card);
+		box-shadow: 0 1px 2px rgb(0 0 0 / 0.14);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"])
+		article.border-outline-variant.bg-surface-container-lowest:hover {
+		border-color: #2d3d54;
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"])
+		article.border-outline-variant.bg-surface-container-lowest
+		> .border-t {
+		border-color: var(--border-dark);
+	}
+
+	/* White action buttons used by the dark reference. */
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) article button.bg-primary,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) a.bg-primary:not([aria-current="page"]),
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) search button[type="submit"].bg-primary {
+		background: #ffffff;
+		color: #090d16;
+		font-weight: 600;
+		box-shadow: 0 0 15px rgb(255 255 255 / 0.08);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) article button.bg-primary:hover,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) a.bg-primary:not([aria-current="page"]):hover,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) search button[type="submit"].bg-primary:hover {
+		background: #f1f5f9;
+	}
+
+	/* Dashboard selected filter: dark navy with a blue edge, not a solid blue pill. */
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) button.bg-primary:has(> span:nth-child(2)) {
+		border: 1px solid rgb(59 130 246 / 0.5);
+		background: #1e293b;
+		color: #ffffff;
+		box-shadow: 0 0 10px rgb(59 130 246 / 0.15);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) button.bg-primary:has(> span:nth-child(2)) > span:last-child {
+		background: rgb(59 130 246 / 0.2);
+		color: #bfdbfe;
+	}
+
+	/* Dark profile card gradient from the reference. */
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) aside section.bg-gradient-to-b {
+		border-color: var(--border-dark);
+		background-image: linear-gradient(to bottom, #111c33, #0f172a);
+		box-shadow: 0 1px 2px rgb(0 0 0 / 0.14);
+	}
+
+	/* Cards and saved-search widgets in the right rail. */
+	:where(.dark, [data-theme="dark"], [data-mode="dark"])
+		aside
+		section.border-outline-variant.bg-surface-container-lowest {
+		border-color: var(--border-dark);
+		background: var(--surface-card);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) aside button.border-outline-variant:hover,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) aside .hover\\:bg-surface-container-low:hover {
+		background: var(--surface-raised);
+	}
+
+	/* Skill tags */
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .bg-surface-container.text-on-secondary-fixed-variant {
+		border: 1px solid var(--border-subtle);
+		background: var(--surface-well);
+		color: #cbd5e1;
+	}
+
+	/* Proposal status chip */
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .bg-primary-fixed.text-on-primary-fixed {
+		border: 1px solid rgb(59 130 246 / 0.3);
+		background: var(--primary-glow);
+		color: #93c5fd;
+	}
+
+	/* Muted borders and search inputs */
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .border-outline-variant {
+		border-color: var(--border-dark);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .border-input {
+		border-color: var(--border-input);
+	}
+
+	/* The reference uses brighter blue on hover for links/titles. */
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .hover\\:text-primary-container:hover,
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .group:hover .group-hover\\:text-primary-container {
+		color: var(--primary-hover);
+	}
+}
+
+/* =========================================================
+   MOTION
+   ========================================================= */
+
 @media (prefers-reduced-motion: no-preference) {
 	.hero-copy {
-		animation: settle-in 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+		animation: settle-in 500ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 	}
+
 	.hero-image {
-		animation: settle-in 750ms 80ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+		animation: settle-in 650ms 60ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 	}
+
 	@keyframes settle-in {
 		from {
 			opacity: 0;
-			transform: translateY(14px);
+			transform: translateY(10px);
 		}
+
 		to {
 			opacity: 1;
 			transform: translateY(0);
 		}
 	}
 }
+
+<<<<<<< HEAD
 @media (prefers-reduced-motion: reduce) {
 	html {
 		scroll-behavior: auto;
 	}
 }
+=======
+/* =========================================================
+   MOBILE
+   ========================================================= */
+>>>>>>> zakaria
+
 @media (max-width: 380px) {
 	.landing-page header .landing-container {
 		padding-inline: 1rem;
 		gap: 0.25rem;
 	}
+
 	.landing-page header img {
 		height: 1.5rem;
+	}
+}
+
+/* =========================================================
+   THEME ACTIVATION BRIDGE
+   Supports class-based and attribute-based theme providers.
+   ========================================================= */
+
+@layer base {
+	:where(
+		html.dark,
+		html[data-theme="dark"],
+		html[data-mode="dark"],
+		body.dark,
+		body[data-theme="dark"],
+		body[data-mode="dark"],
+		#root.dark,
+		#root[data-theme="dark"],
+		#root[data-mode="dark"]
+	) {
+		color-scheme: dark;
+	}
+
+	:where(
+			html.dark,
+			html[data-theme="dark"],
+			html[data-mode="dark"],
+			body.dark,
+			body[data-theme="dark"],
+			body[data-mode="dark"]
+		)
+		body,
+	:where(
+		body.dark,
+		body[data-theme="dark"],
+		body[data-mode="dark"],
+		#root.dark,
+		#root[data-theme="dark"],
+		#root[data-mode="dark"]
+	) {
+		background-color: #090d16;
+		color: #f8fafc;
 	}
 }

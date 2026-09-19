@@ -5,7 +5,13 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.core.config import settings
-from app.models import Education, FreelancerProfile, PortfolioItem, UserRole
+from app.models import (
+    Education,
+    Experience,
+    FreelancerProfile,
+    PortfolioItem,
+    UserRole,
+)
 from tests.utils.profile import create_random_profile
 from tests.utils.user import create_random_user, user_authentication_headers
 from tests.utils.utils import random_lower_string
@@ -410,6 +416,7 @@ def create_authenticated_freelancer(client: TestClient, db: Session):
         bio="Experienced engineer",
         hourly_rate=65.0,
         years_of_experience=5,
+        finished=True,
     )
     db.add(profile)
     db.commit()
@@ -679,3 +686,210 @@ def test_cascade_delete_educations_and_portfolio_items(
     db.expire_all()
     assert db.get(Education, edu_id) is None
     assert db.get(PortfolioItem, item_id) is None
+
+
+def test_read_profile_me_auto_creates_draft(client: TestClient, db: Session) -> None:
+    user = create_random_user(db)
+    password = random_lower_string()
+    from app.core.security import get_password_hash
+
+    user.hashed_password = get_password_hash(password)
+    db.add(user)
+    db.commit()
+
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
+
+    resp = client.get(f"{settings.API_V1_STR}/profiles/me", headers=headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["finished"] is False
+    assert data["user_id"] == str(user.id)
+    assert data["full_name"] == user.full_name
+
+
+def test_update_profile_me_upsert(client: TestClient, db: Session) -> None:
+    user = create_random_user(db)
+    password = random_lower_string()
+    from app.core.security import get_password_hash
+
+    user.hashed_password = get_password_hash(password)
+    db.add(user)
+    db.commit()
+
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
+
+    payload = {
+        "full_name": "Jane Developer",
+        "title": "Full Stack Architect",
+        "category": "Development & IT",
+        "hourly_rate": 95.0,
+        "availability": "Available now",
+        "hours": "More than 30 hrs/week",
+        "skills": ["FastAPI", "React 19", "TailwindCSS"],
+        "finished": True,
+        "experiences": [
+            {
+                "title": "Lead Engineer",
+                "organization": "Tech Corp",
+                "detail": "Built scalable cloud services",
+                "url": "https://example.com/project",
+            }
+        ],
+        "educations": [
+            {
+                "title": "B.S. Computer Science",
+                "organization": "MIT",
+                "detail": "Graduated with honors",
+            }
+        ],
+        "portfolio": [
+            {
+                "title": "E-commerce Platform",
+                "organization": "ShopCo",
+                "detail": "High-conversion checkout system",
+                "url": "https://shop.example.com",
+            }
+        ],
+    }
+
+    resp = client.put(
+        f"{settings.API_V1_STR}/profiles/me",
+        headers=headers,
+        json=payload,
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["full_name"] == "Jane Developer"
+    assert data["title"] == "Full Stack Architect"
+    assert data["category"] == "Development & IT"
+    assert data["hourly_rate"] == 95.0
+    assert data["is_available"] is True
+    assert data["finished"] is True
+    assert any(s.lower() == "fastapi" for s in data["skill_names"])
+    assert "React 19" in data["skill_names"]
+    assert len(data["experiences"]) == 1
+    assert data["experiences"][0]["title"] == "Lead Engineer"
+    assert len(data["educations"]) == 1
+    assert data["educations"][0]["organization"] == "MIT"
+    assert len(data["portfolio"]) == 1
+    assert data["portfolio"][0]["title"] == "E-commerce Platform"
+
+    db.refresh(user)
+    assert user.full_name == "Jane Developer"
+    assert user.active_role == UserRole.FREELANCER
+
+
+def test_experience_crud(client: TestClient, db: Session) -> None:
+    user, profile, headers = create_authenticated_freelancer(client, db)
+
+    # 1. Create experience
+    create_resp = client.post(
+        f"{settings.API_V1_STR}/profiles/me/experiences",
+        headers=headers,
+        json={
+            "title": "Senior Backend Developer",
+            "organization": "Acme Inc",
+            "detail": "Designed microservices",
+            "url": "https://acme.com",
+        },
+    )
+    assert create_resp.status_code == 200
+    exp = create_resp.json()
+    exp_id = exp["id"]
+    assert exp["title"] == "Senior Backend Developer"
+    assert exp["organization"] == "Acme Inc"
+
+    # 2. Update experience
+    update_resp = client.put(
+        f"{settings.API_V1_STR}/profiles/me/experiences/{exp_id}",
+        headers=headers,
+        json={"title": "Principal Architect"},
+    )
+    assert update_resp.status_code == 200
+    assert update_resp.json()["title"] == "Principal Architect"
+
+    # 3. Verify in GET /profiles/me
+    me_resp = client.get(f"{settings.API_V1_STR}/profiles/me", headers=headers)
+    assert me_resp.status_code == 200
+    assert len(me_resp.json()["experiences"]) == 1
+    assert me_resp.json()["experiences"][0]["title"] == "Principal Architect"
+
+    # 4. Delete experience
+    del_resp = client.delete(
+        f"{settings.API_V1_STR}/profiles/me/experiences/{exp_id}",
+        headers=headers,
+    )
+    assert del_resp.status_code == 200
+    assert del_resp.json()["message"] == "Experience deleted successfully"
+
+    # 5. Verify deleted
+    me_resp_after = client.get(f"{settings.API_V1_STR}/profiles/me", headers=headers)
+    assert len(me_resp_after.json()["experiences"]) == 0
+
+
+def test_talent_search_filters(client: TestClient, db: Session) -> None:
+    p1 = create_random_profile(db)
+    p1.category = "Design & Creative"
+    p1.availability = "Available this week"
+    p1.finished = True
+    db.add(p1)
+
+    p2 = create_random_profile(db)
+    p2.category = "Engineering & Architecture"
+    p2.availability = "Not currently available"
+    p2.finished = True
+    db.add(p2)
+
+    draft = create_random_profile(db)
+    draft.category = "Design & Creative"
+    draft.finished = False
+    db.add(draft)
+    db.commit()
+
+    # Filter by category
+    resp_cat = client.get(f"{settings.API_V1_STR}/profiles/?category=Design%20%26%20Creative")
+    assert resp_cat.status_code == 200
+    cat_ids = [p["id"] for p in resp_cat.json()["data"]]
+    assert str(p1.id) in cat_ids
+    assert str(p2.id) not in cat_ids
+    assert str(draft.id) not in cat_ids
+
+    # Filter by availability
+    resp_avail = client.get(
+        f"{settings.API_V1_STR}/profiles/?availability=Available%20this%20week"
+    )
+    assert resp_avail.status_code == 200
+    avail_ids = [p["id"] for p in resp_avail.json()["data"]]
+    assert str(p1.id) in avail_ids
+    assert str(p2.id) not in avail_ids
+
+
+def test_draft_profile_privacy(client: TestClient, db: Session) -> None:
+    user_a, profile_a, headers_a = create_authenticated_freelancer(client, db)
+    profile_a.finished = False
+    db.add(profile_a)
+    db.commit()
+
+    _, _, headers_b = create_authenticated_freelancer(client, db)
+
+    # Public unauthenticated cannot view draft
+    resp_anon = client.get(f"{settings.API_V1_STR}/profiles/{profile_a.id}")
+    assert resp_anon.status_code == 404
+
+    # Other user cannot view draft
+    resp_other = client.get(
+        f"{settings.API_V1_STR}/profiles/{profile_a.id}", headers=headers_b
+    )
+    assert resp_other.status_code == 404
+
+    # Owner CAN view draft
+    resp_owner = client.get(
+        f"{settings.API_V1_STR}/profiles/{profile_a.id}", headers=headers_a
+    )
+    assert resp_owner.status_code == 200
+    assert resp_owner.json()["id"] == str(profile_a.id)
+

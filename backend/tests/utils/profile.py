@@ -22,6 +22,9 @@ def create_random_profile(db: Session) -> FreelancerProfile:
         hourly_rate=50.0,
         years_of_experience=3,
         is_available=True,
+        availability="Available now",
+        category="Software Development",
+        finished=True,
     )
     db.add(profile)
     db.commit()

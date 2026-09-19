@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, Optional
+from typing import Any, Optional, Self
 
 from pydantic import EmailStr, model_validator
 from sqlalchemy import DateTime, UniqueConstraint
@@ -348,7 +348,7 @@ class JobSkillLink(SQLModel, table=True):
 
 
 class SkillBase(SQLModel):
-    name: ITSkill = Field(unique=True, index=True)
+    name: str = Field(unique=True, index=True, max_length=100)
 
 
 class SkillCreate(SkillBase):
@@ -356,7 +356,7 @@ class SkillCreate(SkillBase):
 
 
 class SkillUpdate(SQLModel):
-    name: ITSkill | None = None
+    name: str | None = Field(default=None, max_length=100)
 
 
 class Skill(SkillBase, table=True):
@@ -383,17 +383,88 @@ class SkillsPublic(SQLModel):
 
 
 # ==============================================================================
+# Experience Models
+# ==============================================================================
+
+
+class ExperienceBase(SQLModel):
+    title: str = Field(max_length=255)
+    organization: str | None = Field(default=None, max_length=255)
+    detail: str | None = Field(default=None, max_length=5000)
+    url: str | None = Field(default=None, max_length=2048)
+
+
+class ExperienceCreate(ExperienceBase):
+    pass
+
+
+class ExperienceUpdate(SQLModel):
+    title: str | None = Field(default=None, max_length=255)
+    organization: str | None = Field(default=None, max_length=255)
+    detail: str | None = Field(default=None, max_length=5000)
+    url: str | None = Field(default=None, max_length=2048)
+
+
+class Experience(ExperienceBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    freelancer_profile_id: uuid.UUID = Field(
+        foreign_key="freelancerprofile.id", nullable=False, ondelete="CASCADE"
+    )
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    updated_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+
+    freelancer_profile: Optional["FreelancerProfile"] = Relationship(
+        back_populates="experiences"
+    )
+
+
+class ExperiencePublic(ExperienceBase):
+    id: uuid.UUID
+    freelancer_profile_id: uuid.UUID
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+# ==============================================================================
 # Education Models
 # ==============================================================================
 
 
 class EducationBase(SQLModel):
-    institution: str = Field(max_length=255)
-    degree: str = Field(max_length=255)
+    institution: str | None = Field(default=None, max_length=255)
+    degree: str | None = Field(default=None, max_length=255)
     field_of_study: str | None = Field(default=None, max_length=255)
     start_date: str | None = Field(default=None, max_length=50)
     end_date: str | None = Field(default=None, max_length=50)
     description: str | None = Field(default=None, max_length=2000)
+    title: str | None = Field(default=None, max_length=255)
+    organization: str | None = Field(default=None, max_length=255)
+    detail: str | None = Field(default=None, max_length=5000)
+    url: str | None = Field(default=None, max_length=2048)
+
+    @model_validator(mode="after")
+    def _sync_education_fields(self) -> Self:
+        if self.title and not self.degree:
+            self.degree = self.title
+        elif self.degree and not self.title:
+            self.title = self.degree
+
+        if self.organization and not self.institution:
+            self.institution = self.organization
+        elif self.institution and not self.organization:
+            self.organization = self.institution
+
+        if self.detail and not self.description:
+            self.description = self.detail
+        elif self.description and not self.detail:
+            self.detail = self.description
+        return self
 
 
 class EducationCreate(EducationBase):
@@ -407,6 +478,10 @@ class EducationUpdate(SQLModel):
     start_date: str | None = Field(default=None, max_length=50)
     end_date: str | None = Field(default=None, max_length=50)
     description: str | None = Field(default=None, max_length=2000)
+    title: str | None = Field(default=None, max_length=255)
+    organization: str | None = Field(default=None, max_length=255)
+    detail: str | None = Field(default=None, max_length=5000)
+    url: str | None = Field(default=None, max_length=2048)
 
 
 class Education(EducationBase, table=True):
@@ -437,8 +512,19 @@ class EducationPublic(EducationBase):
 
 class PortfolioItemBase(SQLModel):
     title: str = Field(max_length=255)
-    description: str = Field(max_length=5000)
-    image_url: str = Field(max_length=2048)
+    description: str | None = Field(default=None, max_length=5000)
+    image_url: str | None = Field(default=None, max_length=2048)
+    organization: str | None = Field(default=None, max_length=255)
+    detail: str | None = Field(default=None, max_length=5000)
+    url: str | None = Field(default=None, max_length=2048)
+
+    @model_validator(mode="after")
+    def _sync_portfolio_fields(self) -> Self:
+        if self.detail and not self.description:
+            self.description = self.detail
+        elif self.description and not self.detail:
+            self.detail = self.description
+        return self
 
 
 class PortfolioItemCreate(PortfolioItemBase):
@@ -449,6 +535,9 @@ class PortfolioItemUpdate(SQLModel):
     title: str | None = Field(default=None, max_length=255)
     description: str | None = Field(default=None, max_length=5000)
     image_url: str | None = Field(default=None, max_length=2048)
+    organization: str | None = Field(default=None, max_length=255)
+    detail: str | None = Field(default=None, max_length=5000)
+    url: str | None = Field(default=None, max_length=2048)
 
 
 class PortfolioItem(PortfolioItemBase, table=True):
@@ -486,13 +575,17 @@ class FreelancerProfileBase(SQLModel):
     hourly_rate: float | None = Field(default=None, ge=0)
     years_of_experience: int | None = Field(default=None, ge=0)
     is_available: bool = True
+    availability: str | None = Field(default="Available now", max_length=100)
+    hours: str | None = Field(default=None, max_length=100)
+    category: str | None = Field(default=None, max_length=100, index=True)
+    finished: bool = Field(default=False)
     location: str | None = Field(default=None, max_length=255)
     timezone: str | None = Field(default=None, max_length=100)
     languages: str | None = Field(default=None, max_length=500)
 
 
 class FreelancerProfileCreate(FreelancerProfileBase):
-    skills: list[ITSkill] = Field(default_factory=list)
+    skills: list[str] = Field(default_factory=list)
 
 
 class FreelancerProfileUpdate(SQLModel):
@@ -501,10 +594,18 @@ class FreelancerProfileUpdate(SQLModel):
     hourly_rate: float | None = Field(default=None, ge=0)
     years_of_experience: int | None = Field(default=None, ge=0)
     is_available: bool | None = None
+    availability: str | None = Field(default=None, max_length=100)
+    hours: str | None = Field(default=None, max_length=100)
+    category: str | None = Field(default=None, max_length=100)
+    finished: bool | None = None
     location: str | None = Field(default=None, max_length=255)
     timezone: str | None = Field(default=None, max_length=100)
     languages: str | None = Field(default=None, max_length=500)
-    skills: list[ITSkill] | None = None
+    skills: list[str] | None = None
+    full_name: str | None = Field(default=None, max_length=255)
+    experiences: list[ExperienceCreate] | None = None
+    educations: list[EducationCreate] | None = None
+    portfolio: list[PortfolioItemCreate] | None = None
 
 class FreelancerProfile(FreelancerProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -535,6 +636,10 @@ class FreelancerProfile(FreelancerProfileBase, table=True):
         back_populates="freelancer_profile",
         cascade_delete=True,
     )
+    experiences: list[Experience] = Relationship(
+        back_populates="freelancer_profile",
+        cascade_delete=True,
+    )
     skills: list[Skill] = Relationship(
         back_populates="freelancer_profiles", link_model=FreelancerSkillLink
     )
@@ -553,6 +658,7 @@ class FreelancerProfilePublic(FreelancerProfileBase):
     created_at: datetime | None = None
     updated_at: datetime | None = None
     skills: list[SkillPublic] = Field(default_factory=list)
+    skill_names: list[str] = Field(default_factory=list)
     average_rating: float | None = None
     reviews_count: int = 0
     is_saved: bool = False
@@ -562,6 +668,7 @@ class FreelancerProfileDetailPublic(FreelancerProfilePublic):
     portfolio_media: list[MediaPublic] = Field(default_factory=list)
     portfolio: list[PortfolioItemPublic] = Field(default_factory=list)
     educations: list[EducationPublic] = Field(default_factory=list)
+    experiences: list[ExperiencePublic] = Field(default_factory=list)
     reviews: list["ReviewPublic"] = Field(default_factory=list)
     user: UserPublic | None = None
 
