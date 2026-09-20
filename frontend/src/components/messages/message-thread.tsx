@@ -112,7 +112,7 @@ export function MessageThread({
 	return (
 		<section
 			aria-label={`Conversation with ${selected.name}`}
-			className="flex min-h-0 min-w-0 flex-col bg-background/60"
+			className="message-thread flex min-h-0 min-w-0 flex-col bg-background/60"
 		>
 			<header className="flex min-h-[76px] shrink-0 items-center gap-2 border-border border-b bg-card px-3 sm:gap-3 sm:px-6">
 				<button
@@ -124,7 +124,13 @@ export function MessageThread({
 					<ArrowLeft className="size-5" />
 				</button>
 				<Monogram className={cn("hidden size-10 text-xs sm:grid", selected.background, selected.foreground)}>
-					{selected.initials}
+					{clientMode
+						? (selected.title.split(" · ")[1] || selected.name)
+								.split(" ")
+								.map((word) => word[0])
+								.slice(0, 2)
+								.join("")
+						: selected.initials}
 				</Monogram>
 				<div className="min-w-0 flex-1">
 					{clientMode ? (
@@ -133,7 +139,7 @@ export function MessageThread({
 							onClick={onDetails}
 							className="block max-w-full truncate text-left font-semibold text-sm hover:text-primary"
 						>
-							{selected.name}
+							{selected.title.split(" · ")[1] || selected.name}
 						</button>
 					) : (
 						<Link
@@ -145,7 +151,9 @@ export function MessageThread({
 							{selected.name}
 						</Link>
 					)}
-					<p className="mt-1 truncate text-muted-foreground text-xs">{selected.title}</p>
+					<p className="mt-1 truncate text-muted-foreground text-xs">
+						{clientMode ? `${selected.name} · ${selected.skills.join(" · ")}` : selected.title}
+					</p>
 				</div>
 				<button
 					type="button"
@@ -225,12 +233,15 @@ export function MessageThread({
 					</button>
 				</div>
 			)}
-			<div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-8">
-				<div className="mx-auto max-w-3xl">
+			<div
+				ref={scrollRef}
+				className="message-history min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-8"
+			>
+				<div className="mx-auto w-full max-w-4xl">
 					{!term && (
 						<div className="mb-8 text-center">
 							<span className="rounded-full border border-border bg-card px-3 py-1.5 text-[10px] text-muted-foreground">
-								Sample conversation
+								{clientMode ? "Project conversation · Preview" : "Sample conversation"}
 							</span>
 						</div>
 					)}
@@ -242,7 +253,13 @@ export function MessageThread({
 						className="space-y-6"
 					>
 						{visible.map((message) => (
-							<MessageBubble key={message.id} message={message} name={selected.name.split(" ")[0]} highlight={term} />
+							<MessageBubble
+								key={message.id}
+								message={message}
+								name={selected.name}
+								highlight={term}
+								rich={clientMode}
+							/>
 						))}
 					</div>
 					{term && !visible.length && (
@@ -270,7 +287,7 @@ export function MessageThread({
 						onKeyDown={(event) => {
 							if (
 								event.key === "Enter" &&
-								!event.shiftKey &&
+								(clientMode ? event.metaKey || event.ctrlKey : !event.shiftKey) &&
 								!event.nativeEvent.isComposing &&
 								window.matchMedia("(pointer: fine)").matches
 							) {
@@ -278,10 +295,10 @@ export function MessageThread({
 								onSend()
 							}
 						}}
-						rows={2}
+						rows={clientMode ? 4 : 2}
 						maxLength={10000}
 						aria-label={`Message ${selected.name}`}
-						placeholder={`Write to ${selected.name.split(" ")[0]}…`}
+						placeholder={`Write a message to ${clientMode ? selected.title.split(" · ")[1] || selected.name : selected.name}…`}
 						className="block max-h-36 min-h-16 w-full resize-none rounded-t-xl bg-transparent px-4 pt-3 pb-1 text-base leading-6 outline-none sm:text-sm"
 					/>
 					<div className="flex items-center gap-2 px-2 pb-2">
@@ -294,7 +311,7 @@ export function MessageThread({
 							Add a brief
 						</button>
 						<span className="ml-auto hidden text-[10px] text-muted-foreground xl:block">
-							Enter to send. Shift + Enter for a new line.
+							{clientMode ? "⌘ / Ctrl + Enter to send" : "Enter to send. Shift + Enter for a new line."}
 						</span>
 						<button
 							type="submit"
@@ -305,7 +322,6 @@ export function MessageThread({
 						</button>
 					</div>
 				</form>
-				<p className="mt-2 text-center text-[10px] text-muted-foreground">Preview only. Messages aren't delivered.</p>
 			</footer>
 		</section>
 	)

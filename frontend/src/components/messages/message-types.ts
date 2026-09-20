@@ -13,4 +13,6 @@ export type ThreadMessage = {
 	time: string
 	own: boolean
 	local?: boolean
+	feedback?: string[]
+	attachment?: { name: string; content: string }
 }

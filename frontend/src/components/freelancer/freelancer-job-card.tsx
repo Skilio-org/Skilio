@@ -6,6 +6,7 @@ import type { FreelancerJob } from "@/types/job"
 
 const FreelancerJobCard = (job: FreelancerJob) => {
 	const [detailsOpen, setDetailsOpen] = useState(false)
+	const [initiallyApplying, setInitiallyApplying] = useState(false)
 	const detailsTrigger = useRef<HTMLButtonElement | null>(null)
 	const [saved, setSaved] = useState<string[]>([])
 	const isSaved = saved.includes(job.id)
@@ -36,6 +37,7 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 							type="button"
 							onClick={(event) => {
 								detailsTrigger.current = event.currentTarget
+								setInitiallyApplying(false)
 								setDetailsOpen(true)
 							}}
 							aria-haspopup="dialog"
@@ -86,6 +88,7 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 							type="button"
 							onClick={(event) => {
 								detailsTrigger.current = event.currentTarget
+								setInitiallyApplying(false)
 								setDetailsOpen(true)
 							}}
 							aria-haspopup="dialog"
@@ -95,10 +98,12 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 						</button>
 						<button
 							type="button"
-							onClick={() => {
-								// setSelected(job)
-								// setCompose(true)
+							onClick={(event) => {
+								detailsTrigger.current = event.currentTarget
+								setInitiallyApplying(true)
+								setDetailsOpen(true)
 							}}
+							aria-haspopup="dialog"
 							className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
 						>
 							Apply now
@@ -109,20 +114,20 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 			<SheetContent
 				side="right"
 				showCloseButton={false}
-				className="w-full max-w-none gap-0 bg-card p-0 sm:w-[min(78vw,1180px)] sm:max-w-none"
+				className="w-full max-w-none gap-0 bg-card p-0 sm:w-[min(88vw,1040px)] sm:max-w-none"
 				onCloseAutoFocus={(event) => {
 					event.preventDefault()
 					detailsTrigger.current?.focus()
 				}}
 			>
-				<header className="flex h-18 shrink-0 items-center justify-between gap-4 border-border border-b bg-card px-5 sm:px-7">
+				<header className="flex h-14 shrink-0 items-center justify-between gap-4 border-border border-b bg-card px-5 sm:px-7">
 					<SheetClose className="inline-flex min-h-11 items-center gap-2 rounded-lg font-medium text-muted-foreground text-sm hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
 						<ArrowLeft className="size-4" />
 						Back to opportunities
 					</SheetClose>
 					<p className="hidden text-muted-foreground text-xs sm:block">{job.company} · Remote opportunity</p>
 				</header>
-				<JobDetails job={job} projectType={job.projectType} />
+				<JobDetails job={job} projectType={projectType} initiallyApplying={initiallyApplying} />
 			</SheetContent>
 		</Sheet>
 	)

@@ -264,12 +264,12 @@ const FreelancerProposalsPage = () => {
 					className={
 						compose
 							? "w-full max-w-none gap-0 bg-card p-0 sm:max-w-180"
-							: "w-full max-w-none gap-0 p-0 sm:w-[min(78vw,1180px)] sm:max-w-none"
+							: "w-full max-w-none gap-0 p-0 sm:w-[min(88vw,1040px)] sm:max-w-none"
 					}
 				>
 					{selected && (
 						<>
-							<header className="flex h-18 shrink-0 items-center justify-between gap-4 border-border border-b bg-card px-5 sm:px-7">
+							<header className="flex h-14 shrink-0 items-center justify-between gap-4 border-border border-b bg-card px-5 sm:px-7">
 								<SheetClose className="inline-flex min-h-11 items-center gap-2 rounded-lg font-medium text-muted-foreground text-sm hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
 									<ArrowLeft className="size-4" />
 									Back to proposals
@@ -289,7 +289,7 @@ const FreelancerProposalsPage = () => {
 									onSubmit={saveDraft}
 								/>
 							) : (
-								<JobDetails job={selected} projectType={selectedProjectType} />
+								<JobDetails key={selected.id} job={selected} projectType={selectedProjectType} />
 							)}
 						</>
 					)}

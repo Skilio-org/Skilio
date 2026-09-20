@@ -24,6 +24,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import useAuth from "@/hooks/useAuth"
+import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
 
 const links = [
 	["/freelancer-dashboard", "Overview"],
@@ -35,6 +36,7 @@ const links = [
 
 export function FreelancerNav() {
 	const { user, logout } = useAuth()
+	const availability = useFreelancerAvailability()
 	const { resolvedTheme, setTheme } = useTheme()
 	const isDark = resolvedTheme === "dark"
 
@@ -96,7 +98,7 @@ export function FreelancerNav() {
 							className="h-8 w-52 rounded-lg border border-outline-variant bg-surface-container-lowest pr-10 pl-8 font-body-sm text-body-sm text-on-surface outline-none transition-all placeholder:text-outline focus:border-primary-container focus:ring-1 focus:ring-primary-container lg:w-64 [&::-webkit-search-cancel-button]:hidden"
 						/>
 
-						<kbd className="pointer-events-none absolute right-1 rounded border border-outline-variant bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline">
+						<kbd className="pointer-events-none absolute right-1 rounded-lg bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline">
 							⌘K
 						</kbd>
 					</label>
@@ -131,13 +133,14 @@ export function FreelancerNav() {
 						<DropdownMenuTrigger asChild>
 							<button
 								type="button"
-								className="group hidden items-center gap-2 rounded-lg py-1 pr-1 pl-1 text-left outline-none transition-colors hover:bg-surface-container lg:flex"
+								aria-label="Open account menu"
+								className="group flex items-center gap-2 rounded-lg p-1 text-left outline-none transition-colors hover:bg-surface-container focus-visible:ring-2 focus-visible:ring-primary"
 							>
 								<span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary">
 									<UserRound className="size-[18px]" strokeWidth={2} />
 								</span>
 
-								<span className="flex min-w-0 flex-col">
+								<span className="hidden min-w-0 flex-col lg:flex">
 									<span className="max-w-32 truncate font-label-sm font-medium text-label-sm text-on-surface leading-none">
 										{fullName}
 									</span>
@@ -147,14 +150,14 @@ export function FreelancerNav() {
 									</span>
 								</span>
 
-								<ChevronDown className="size-4 text-outline transition-colors group-hover:text-on-surface" />
+								<ChevronDown className="hidden size-3.5 text-outline transition-transform group-data-[state=open]:rotate-180 lg:block" />
 							</button>
 						</DropdownMenuTrigger>
 
 						<DropdownMenuContent
 							align="end"
 							sideOffset={8}
-							className="w-[280px] rounded-lg border border-outline-variant bg-surface-container-lowest p-0 shadow-lg"
+							className="w-[296px] max-w-[calc(100vw-24px)] rounded-xl border border-outline-variant/70 bg-surface-container-lowest p-1.5 shadow-xl"
 						>
 							{/* Account header */}
 							<div className="flex items-center gap-3 px-3.5 py-3.5">
@@ -171,17 +174,52 @@ export function FreelancerNav() {
 								</div>
 							</div>
 
-							<DropdownMenuSeparator className="m-0 bg-outline-variant" />
+							<DropdownMenuSeparator className="mx-2 my-0 bg-outline-variant/50" />
+
+							<div className="px-2 py-3">
+								<DropdownMenuItem
+									role="switch"
+									aria-label="Available for work"
+									aria-checked={availability.available === true}
+									disabled={availability.pending || availability.error}
+									onSelect={(event) => {
+										event.preventDefault()
+										availability.toggle()
+									}}
+									className="flex cursor-pointer items-center justify-between gap-3 rounded-lg bg-surface-container-low px-3 py-3 focus:bg-surface-container"
+								>
+									<span className="min-w-0">
+										<span className="block text-[13px] font-medium text-on-surface">Available for work</span>
+										<span className="mt-1 block text-[11px] text-on-surface-variant">
+											{availability.error
+												? "Status unavailable. Try again later."
+												: availability.pending
+													? "Updating availability…"
+													: availability.available
+														? "Open to new opportunities"
+														: "Not taking new projects"}
+										</span>
+									</span>
+									<span
+										aria-hidden="true"
+										className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors motion-reduce:transition-none ${availability.available ? "bg-primary" : "bg-outline"}`}
+									>
+										<span
+											className={`size-4 rounded-full bg-white shadow-sm transition-transform motion-reduce:transition-none ${availability.available ? "translate-x-[18px]" : "translate-x-0.5"}`}
+										/>
+									</span>
+								</DropdownMenuItem>
+							</div>
 
 							{/* Workspace switcher */}
 							<div className="p-2">
-								<DropdownMenuLabel className="px-2 py-1.5 font-caption font-semibold text-caption text-outline uppercase tracking-wider">
-									Workspaces
+								<DropdownMenuLabel className="px-2 py-1.5 font-caption font-medium text-[10px] text-outline uppercase tracking-widest">
+									Switch workspace
 								</DropdownMenuLabel>
 
-								<DropdownMenuItem asChild className="cursor-pointer rounded p-0 focus:bg-surface-container">
+								<DropdownMenuItem asChild className="cursor-pointer rounded-lg p-0 focus:bg-surface-container">
 									<Link to="/freelancer-dashboard" className="flex min-h-11 w-full items-center gap-3 px-2.5 py-2">
-										<span className="grid size-8 shrink-0 place-items-center rounded border border-outline-variant bg-surface-container text-primary">
+										<span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-container text-primary">
 											<UserRound className="size-4" />
 										</span>
 
@@ -189,7 +227,7 @@ export function FreelancerNav() {
 											<span className="block font-label-md font-medium text-label-md text-on-surface">Freelancer</span>
 
 											<span className="mt-0.5 block font-caption text-caption text-on-surface-variant">
-												Find work and manage proposals
+												Find work & manage proposals
 											</span>
 										</span>
 
@@ -197,9 +235,9 @@ export function FreelancerNav() {
 									</Link>
 								</DropdownMenuItem>
 
-								<DropdownMenuItem asChild className="cursor-pointer rounded p-0 focus:bg-surface-container">
+								<DropdownMenuItem asChild className="cursor-pointer rounded-lg p-0 focus:bg-surface-container">
 									<Link to="/dashboard" className="flex min-h-11 w-full items-center gap-3 px-2.5 py-2">
-										<span className="grid size-8 shrink-0 place-items-center rounded border border-outline-variant bg-surface-container text-on-surface-variant">
+										<span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-container text-on-surface-variant">
 											<BriefcaseBusiness className="size-4" />
 										</span>
 
@@ -207,17 +245,17 @@ export function FreelancerNav() {
 											<span className="block font-label-md font-medium text-label-md text-on-surface">Client</span>
 
 											<span className="mt-0.5 block font-caption text-caption text-on-surface-variant">
-												Hire talent and manage projects
+												Hire talent & manage projects
 											</span>
 										</span>
 									</Link>
 								</DropdownMenuItem>
 							</div>
 
-							<DropdownMenuSeparator className="m-0 bg-outline-variant" />
+							<DropdownMenuSeparator className="mx-2 my-0 bg-outline-variant/50" />
 
 							<div className="p-2">
-								<DropdownMenuItem asChild className="cursor-pointer rounded p-0 focus:bg-surface-container">
+								<DropdownMenuItem asChild className="cursor-pointer rounded-lg p-0 focus:bg-surface-container">
 									<Link
 										to="/freelancer"
 										className="flex min-h-9 items-center gap-2.5 px-2.5 font-label-md text-label-md text-on-surface"
@@ -227,7 +265,7 @@ export function FreelancerNav() {
 									</Link>
 								</DropdownMenuItem>
 
-								<DropdownMenuItem asChild className="cursor-pointer rounded p-0 focus:bg-surface-container">
+								<DropdownMenuItem asChild className="cursor-pointer rounded-lg p-0 focus:bg-surface-container">
 									<Link
 										to="/settings"
 										className="flex min-h-9 items-center gap-2.5 px-2.5 font-label-md text-label-md text-on-surface"
@@ -238,7 +276,7 @@ export function FreelancerNav() {
 								</DropdownMenuItem>
 							</div>
 
-							<DropdownMenuSeparator className="m-0 bg-outline-variant" />
+							<DropdownMenuSeparator className="mx-2 my-0 bg-outline-variant/50" />
 
 							<div className="p-2">
 								<DropdownMenuItem

@@ -185,7 +185,7 @@ export default function FreelancerJobsPage() {
 			<fieldset className="space-y-2.5 pt-4">
 				<legend className="sr-only">Weekly Commitment</legend>
 				<p className="mb-3 font-medium text-label-sm">Weekly Commitment</p>
-				{["Under 15 hrs/wk", "15–30 hrs/wk", "30+ hrs/wk (Full-time)"].map((label) => (
+				{["Under 15 hrs/wk", "15–30 hrs/wk", "30+ hrs/wk"].map((label) => (
 					<label key={label} className="flex cursor-pointer items-center gap-2 text-body-sm text-on-surface-variant">
 						<input
 							type="radio"

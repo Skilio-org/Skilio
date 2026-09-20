@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 
 export function ConversationList({
 	people,
+	clientMode = false,
 	conversations,
 	selectedId,
 	query,
@@ -36,9 +37,16 @@ export function ConversationList({
 		>
 			<div className="px-5 pt-6">
 				<div className="flex items-center justify-between gap-3">
-					<h1 className="font-display font-medium text-2xl tracking-tight">Messages</h1>
+					<h2 className="font-semibold text-lg tracking-tight">{clientMode ? "Direct Threads" : "Messages"}</h2>
+					{clientMode && (
+						<span className="rounded-full bg-surface-container px-2.5 py-1 text-xs text-primary">
+							{people.length} Total
+						</span>
+					)}
 				</div>
-				<p className="mt-1 text-muted-foreground text-xs">Your next great collaboration starts here.</p>
+				{!clientMode && (
+					<p className="mt-1 text-muted-foreground text-xs">Your next great collaboration starts here.</p>
+				)}
 				<label className="mt-6 flex min-h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
 					<Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
 					<span className="sr-only">Search conversations</span>
@@ -46,7 +54,7 @@ export function ConversationList({
 						type="text"
 						value={query}
 						onChange={(event) => onQueryChange(event.target.value)}
-						placeholder="Search name or message"
+						placeholder="Search conversations…"
 						className="min-w-0 flex-1 bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground"
 					/>
 					{query && (
@@ -75,7 +83,13 @@ export function ConversationList({
 									: "border-transparent text-muted-foreground hover:text-foreground",
 							)}
 						>
-							{value === "all" ? "All inbox" : value === "unread" ? "Unread" : "Archived"}
+							{value === "all"
+								? clientMode
+									? `All (${people.length})`
+									: "All inbox"
+								: value === "unread"
+									? "Unread"
+									: "Archived"}
 							{value === "unread" && unreadCount > 0 && (
 								<span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] text-accent-foreground">
 									{unreadCount}
@@ -103,18 +117,26 @@ export function ConversationList({
 							)}
 						>
 							<Monogram className={cn("mt-0.5 size-11 text-sm", person.background, person.foreground)}>
-								{person.initials}
+								{clientMode
+									? (person.title.split(" · ")[1] || person.name)
+											.split(" ")
+											.map((word) => word[0])
+											.slice(0, 2)
+											.join("")
+									: person.initials}
 							</Monogram>
 							<span className="min-w-0 flex-1">
 								<span className="flex items-baseline justify-between gap-2">
 									<span
 										className={cn("truncate text-sm", conversation.unread || active ? "font-semibold" : "font-medium")}
 									>
-										{person.name}
+										{clientMode ? person.title.split(" · ")[1] || person.name : person.name}
 									</span>
 									<span className="shrink-0 text-[10px] text-muted-foreground">{conversation.time}</span>
 								</span>
-								<span className="mt-1 block truncate text-[11px] text-muted-foreground">{person.title}</span>
+								<span className="mt-1 block truncate text-[11px] text-muted-foreground">
+									{clientMode ? `${person.name} · ${person.title.split(" · ")[0]}` : person.title}
+								</span>
 								<span className="mt-2 flex items-start gap-2">
 									<span
 										className={cn(

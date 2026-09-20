@@ -95,7 +95,7 @@ export function AppLayout() {
 					<Outlet />
 				</div>
 			</main>
-			{!isMessages && <Footer />}
+			{(!isMessages || path === "/freelancer-messages") && <Footer />}
 		</div>
 	)
 }

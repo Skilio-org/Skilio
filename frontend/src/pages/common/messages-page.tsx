@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react"
+import { SquarePen } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { toast } from "sonner"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { MessageTalentDetails } from "@/components/messages/message-talent-details"
@@ -53,14 +55,33 @@ function sampleThread(
 	return [
 		{
 			id: `${id}-intro`,
-			body: introductions[id],
+			body:
+				clientMode && id === "olivia-bennett"
+					? "Morning! We just reviewed the interactive prototype for the new user onboarding sequence. Overall, the typography hierarchy feels significantly crisper than our last iteration."
+					: introductions[id],
+			feedback:
+				clientMode && id === "olivia-bennett"
+					? [
+							"Step 2 progress bar: The completion interaction is much more intuitive. Keep that easing curve.",
+							"Contrast adjustment: Could we increase contrast on the secondary button? It looks washed out in bright light.",
+							"Animation timing: Let's check the tooltip animation on slower connections before sign-off.",
+						]
+					: undefined,
 			time: "10:24 AM",
 			own: false,
 		},
 		{
 			id: `${id}-reply`,
+			attachment:
+				clientMode && id === "olivia-bennett"
+					? {
+							name: "onboarding-handoff-notes.txt",
+							content:
+								"Onboarding handoff\n\nReview secondary button contrast.\nCheck tooltip animation on slower connections.\nPrepare the next prototype iteration for Thursday's review.",
+						}
+					: undefined,
 			body: clientMode
-				? "Thanks for the brief. I’ll share the next iteration with you after reviewing the feedback."
+				? "Thanks for the notes! That aligns with my thinking. I’ll refine the secondary buttons, check the animation timing, and share the updated prototype for your review."
 				: "Great to meet you. We're building a marketplace and would like to talk through the scope, timeline, and your approach.",
 			time: "10:28 AM",
 			own: true,
@@ -88,6 +109,8 @@ export function MessagesPage({
 	const introductions = clientMode ? clientIntroductions : talentIntroductions
 	const selected = people.find((person) => person.id === selectedContact)
 	const selectedId = selected?.id ?? ""
+	const [newMessageOpen, setNewMessageOpen] = useState(false)
+	const [recipientQuery, setRecipientQuery] = useState("")
 	const [query, setQuery] = useState("")
 	const [filter, setFilter] = useState<InboxFilter>("all")
 	const [drafts, setDrafts] = useState<Record<string, string>>({})
@@ -138,7 +161,13 @@ export function MessagesPage({
 			return matches && (filter === "archived" ? isArchived : !isArchived && (filter === "all" || item.unread > 0))
 		})
 	const messages = selectedId
-		? [...sampleThread(selectedId, meta, introductions, clientMode), ...(sent[selectedId] ?? [])]
+		? [
+				...sampleThread(selectedId, meta, introductions, clientMode).slice(
+					0,
+					clientMode && selectedId === "olivia-bennett" ? 2 : 3,
+				),
+				...(sent[selectedId] ?? []),
+			]
 		: []
 	const draft = drafts[selectedId] ?? ""
 	const select = (id: string) => {
@@ -173,56 +202,114 @@ export function MessagesPage({
 		toast.success(restoring ? "Conversation moved to inbox" : "Conversation archived")
 	}
 	return (
-		<div className="messages-workspace grid min-w-0 overflow-hidden rounded-2xl border border-border bg-card lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[330px_minmax(0,1fr)]">
-			<ConversationList
-				people={people}
-				clientMode={clientMode}
-				conversations={conversations}
-				selectedId={selectedId}
-				query={query}
-				filter={filter}
-				unreadCount={unreadCount}
-				onQueryChange={setQuery}
-				onFilterChange={setFilter}
-				onSelect={select}
-			/>
-			<MessageThread
-				clientMode={clientMode}
-				key={selectedId}
-				selected={selected}
-				messages={messages}
-				draft={draft}
-				archived={archived.includes(selectedId)}
-				onBack={() => select("")}
-				onOpenLatest={() => select(meta[0].id)}
-				onOpenBrief={() => setBriefOpen(true)}
-				onDetails={() => setDetailsOpen(true)}
-				onArchive={archive}
-				onMarkUnread={() => {
-					setUnread((current) => ({ ...current, [selectedId]: 1 }))
-					select("")
-				}}
-				onDraftChange={updateDraft}
-				onSend={send}
-			/>
-			{briefOpen && (
-				<MessageToolDialogView
-					onClose={() => setBriefOpen(false)}
-					onInsert={(brief) => {
-						updateDraft((draft ? `${draft}\n\n` : "") + brief)
-						setBriefOpen(false)
-					}}
-				/>
+		<div className={clientMode ? "freelancer-inbox" : undefined}>
+			{clientMode && (
+				<header className="mb-7 flex flex-wrap items-end justify-between gap-5">
+					<div>
+						<p className="mb-2 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
+							<span className="uppercase tracking-wider text-primary">Freelancer workspace</span>
+							<span>·</span>Communications & active contracts
+						</p>
+						<h1 className="text-4xl font-semibold tracking-tight text-foreground">Messages</h1>
+						<p className="mt-2 text-sm text-muted-foreground">
+							Manage client conversations, share design artifacts, and collaborate on active contracts.
+						</p>
+					</div>
+					<button
+						type="button"
+						onClick={() => setNewMessageOpen(true)}
+						className="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground dark:bg-on-surface dark:text-background"
+					>
+						<SquarePen className="size-4" />
+						New message
+					</button>
+				</header>
 			)}
-			<Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
-				<SheetContent className="w-full overflow-y-auto sm:max-w-sm">
-					<SheetHeader>
-						<SheetTitle>Conversation details</SheetTitle>
-						<SheetDescription>Get to know the person behind the work.</SheetDescription>
-					</SheetHeader>
-					{selected && <MessageTalentDetails selected={selected} clientMode={clientMode} />}
-				</SheetContent>
-			</Sheet>
+			<Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>New message</DialogTitle>
+						<DialogDescription>Choose a client to start or continue a conversation.</DialogDescription>
+					</DialogHeader>
+					<input
+						aria-label="Find a recipient"
+						value={recipientQuery}
+						onChange={(e) => setRecipientQuery(e.target.value)}
+						placeholder="Search clients…"
+						className="h-11 rounded-lg border bg-background px-3 text-sm"
+					/>
+					{people
+						.filter((person) => `${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()))
+						.map((person) => (
+							<button
+								key={person.id}
+								type="button"
+								onClick={() => {
+									select(person.id)
+									setNewMessageOpen(false)
+								}}
+								className="rounded-lg p-3 text-left hover:bg-muted"
+							>
+								<span className="block text-sm font-medium">{person.name}</span>
+								<span className="text-xs text-muted-foreground">{person.title}</span>
+							</button>
+						))}
+					{!people.some((person) =>
+						`${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()),
+					) && <p className="py-4 text-sm text-muted-foreground">No matching clients.</p>}
+				</DialogContent>
+			</Dialog>
+			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-2xl border border-border bg-card lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[330px_minmax(0,1fr)]">
+				<ConversationList
+					people={people}
+					clientMode={clientMode}
+					conversations={conversations}
+					selectedId={selectedId}
+					query={query}
+					filter={filter}
+					unreadCount={unreadCount}
+					onQueryChange={setQuery}
+					onFilterChange={setFilter}
+					onSelect={select}
+				/>
+				<MessageThread
+					clientMode={clientMode}
+					key={selectedId}
+					selected={selected}
+					messages={messages}
+					draft={draft}
+					archived={archived.includes(selectedId)}
+					onBack={() => select("")}
+					onOpenLatest={() => select(meta[0].id)}
+					onOpenBrief={() => setBriefOpen(true)}
+					onDetails={() => setDetailsOpen(true)}
+					onArchive={archive}
+					onMarkUnread={() => {
+						setUnread((current) => ({ ...current, [selectedId]: 1 }))
+						select("")
+					}}
+					onDraftChange={updateDraft}
+					onSend={send}
+				/>
+				{briefOpen && (
+					<MessageToolDialogView
+						onClose={() => setBriefOpen(false)}
+						onInsert={(brief) => {
+							updateDraft((draft ? `${draft}\n\n` : "") + brief)
+							setBriefOpen(false)
+						}}
+					/>
+				)}
+				<Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
+					<SheetContent className="w-full overflow-y-auto sm:max-w-sm">
+						<SheetHeader>
+							<SheetTitle>Conversation details</SheetTitle>
+							<SheetDescription>Get to know the person behind the work.</SheetDescription>
+						</SheetHeader>
+						{selected && <MessageTalentDetails selected={selected} clientMode={clientMode} />}
+					</SheetContent>
+				</Sheet>
+			</div>
 		</div>
 	)
 }

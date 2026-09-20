@@ -14,9 +14,11 @@ import { useEffect, useState } from "react"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { type ProposalDraft as Draft, freelancerJobs, seedProposals } from "@/data/freelancer-workspace"
 import useAuth from "@/hooks/useAuth"
+import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
 
 const FreelancerDashboardPage = () => {
 	const { user } = useAuth()
+	const { available } = useFreelancerAvailability()
 
 	const jobs = freelancerJobs
 
@@ -101,8 +103,14 @@ const FreelancerDashboardPage = () => {
 						<span className="size-1 rounded-full bg-outline-variant" />
 
 						<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary">
-							<span className="size-1.5 animate-pulse rounded-full bg-primary-container dark:bg-primary" />
-							Available for new contracts
+							<span
+								className={`size-1.5 rounded-full ${available ? "bg-primary-container dark:bg-primary" : "bg-outline"}`}
+							/>
+							{available === undefined
+								? "Availability not loaded"
+								: available
+									? "Available for new contracts"
+									: "Not taking new contracts"}
 						</span>
 					</div>
 
