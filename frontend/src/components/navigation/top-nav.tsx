@@ -1,7 +1,7 @@
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { Link, useRouterState } from "@tanstack/react-router"
-import { Bell, Boxes, Menu, Moon, Search, Sun } from "lucide-react"
-
+import { Bell, Boxes, Menu, Moon, Sun } from "lucide-react"
+import { NotificationDropdown } from "@/components/common/notification-dropdown"
 import { useTheme } from "@/components/theme-provider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import useAuth from "@/hooks/useAuth"
@@ -50,7 +50,7 @@ export function TopNav() {
 					</Link>
 
 					<nav aria-label="Freelancer workspace" className="hidden h-full items-center gap-5 md:flex">
-						{ menu.map(([to, label]) => {
+						{menu.map(([to, label]) => {
 							const active = path === to
 
 							return (
@@ -91,15 +91,7 @@ export function TopNav() {
 					</label> */}
 
 					{/* Notifications */}
-					<button
-						type="button"
-						aria-label="Notifications"
-						className="relative flex size-8 shrink-0 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
-					>
-						<Bell className="size-[18px]" />
-
-						<span aria-hidden="true" className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-error" />
-					</button>
+					<NotificationDropdown />
 
 					{/* dark/light mode toggle*/}
 					<button
