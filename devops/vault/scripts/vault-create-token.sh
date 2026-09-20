@@ -3,34 +3,35 @@ set -euo pipefail
 
 # Generates a Developer Read-Only Token for HCP Vault
 # Usage:
-#   export VAULT_ADDR="https://your-hcp-cluster.hashicorp.cloud:8200"
 #   export VAULT_TOKEN="your-hcp-admin-token"
-#   export VAULT_NAMESPACE="admin"
 #   bash devops/vault/scripts/vault-create-token.sh <developer-name> [ttl]
 
 NAME="${1:?Usage: bash devops/vault/scripts/vault-create-token.sh <developer-name> [ttl]}"
 TTL="${2:-720h}" # Default: 30 days (720h)
 
-# Load local .env.vault file if present
-if [ -f ".env.vault" ]; then
-  set -a
-  source ".env.vault"
-  set +a
-elif [ -f "devops/vault/.credentials/vault.env" ]; then
-  set -a
-  source "devops/vault/.credentials/vault.env"
-  set +a
+# ─── Load shared utilities ──────────────────────────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/vault-common.sh"
+
+# ─── Initialize ─────────────────────────────────────────────
+vault_load_credentials
+vault_configure
+
+echo ""
+
+# ─── Pre-flight: verify connectivity and token ──────────────
+if ! vault_check_connection; then
+  echo "" >&2
+  echo -e "${RED}Cannot proceed — Vault connectivity check failed.${NC}" >&2
+  exit 1
 fi
 
-VAULT_ADDR="${VAULT_ADDR:-https://vault-cluster-public-vault-f91a1ccc.eecb9a06.z1.hashicorp.cloud:8200}"
-VAULT_TOKEN="${VAULT_TOKEN:?VAULT_TOKEN environment variable must be set to your HCP Vault admin token}"
-VAULT_NAMESPACE="${VAULT_NAMESPACE:-admin}"
-
-VAULT_ADDR="${VAULT_ADDR%/}"
-
-echo "Creating token for '$NAME' (TTL: $TTL) on HCP Vault..."
+echo ""
+echo "Creating token for '${NAME}' (TTL: ${TTL}) on HCP Vault..."
 
 RESPONSE=$(curl -s -f -X POST \
+  --connect-timeout 10 \
+  --max-time 15 \
   -H "X-Vault-Token: ${VAULT_TOKEN}" \
   -H "X-Vault-Namespace: ${VAULT_NAMESPACE}" \
   -H "Content-Type: application/json" \
@@ -40,7 +41,7 @@ RESPONSE=$(curl -s -f -X POST \
 CLIENT_TOKEN=$(echo "$RESPONSE" | jq -r '.auth.client_token // empty')
 
 if [ -z "$CLIENT_TOKEN" ]; then
-  echo "Error: Failed to create token. Response:" >&2
+  echo -e "${RED}Error: Failed to create token. Response:${NC}" >&2
   echo "$RESPONSE" >&2
   exit 1
 fi
