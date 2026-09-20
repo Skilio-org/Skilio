@@ -3,11 +3,9 @@ import { SquarePen } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { toast } from "sonner"
 import { ConversationList } from "@/components/messages/conversation-list"
-import { MessageTalentDetails } from "@/components/messages/message-talent-details"
 import { MessageThread } from "@/components/messages/message-thread"
 import { MessageToolDialogView } from "@/components/messages/message-tool-dialog"
 import type { InboxFilter, ThreadMessage } from "@/components/messages/message-types"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { clientConversations, clientIntroductions, demoClients } from "@/data/freelancer-demo"
 import { freelancers } from "@/data/freelancers"
 
@@ -72,14 +70,14 @@ function sampleThread(
 		},
 		{
 			id: `${id}-reply`,
-			attachment:
-				clientMode && id === "olivia-bennett"
-					? {
-							name: "onboarding-handoff-notes.txt",
-							content:
-								"Onboarding handoff\n\nReview secondary button contrast.\nCheck tooltip animation on slower connections.\nPrepare the next prototype iteration for Thursday's review.",
-						}
-					: undefined,
+			// attachment:
+			// 	clientMode && id === "olivia-bennett"
+			// 		? {
+			// 				name: "onboarding-handoff-notes.txt",
+			// 				content:
+			// 					"Onboarding handoff\n\nReview secondary button contrast.\nCheck tooltip animation on slower connections.\nPrepare the next prototype iteration for Thursday's review.",
+			// 			}
+			// 		: undefined,
 			body: clientMode
 				? "Thanks for the notes! That aligns with my thinking. I’ll refine the secondary buttons, check the animation timing, and share the updated prototype for your review."
 				: "Great to meet you. We're building a marketplace and would like to talk through the scope, timeline, and your approach.",
@@ -120,7 +118,6 @@ export function MessagesPage({
 	)
 	const [archived, setArchived] = useState<string[]>([])
 	const [briefOpen, setBriefOpen] = useState(false)
-	const [detailsOpen, setDetailsOpen] = useState(false)
 	const [addedIds, setAddedIds] = useState<string[]>([])
 	useEffect(() => {
 		if (!selectedId) return
@@ -171,7 +168,6 @@ export function MessagesPage({
 		: []
 	const draft = drafts[selectedId] ?? ""
 	const select = (id: string) => {
-		setDetailsOpen(false)
 		setBriefOpen(false)
 		onSelectContact(id)
 	}
@@ -282,7 +278,7 @@ export function MessagesPage({
 					onBack={() => select("")}
 					onOpenLatest={() => select(meta[0].id)}
 					onOpenBrief={() => setBriefOpen(true)}
-					onDetails={() => setDetailsOpen(true)}
+					onDetails={() => {}}
 					onArchive={archive}
 					onMarkUnread={() => {
 						setUnread((current) => ({ ...current, [selectedId]: 1 }))
@@ -300,15 +296,6 @@ export function MessagesPage({
 						}}
 					/>
 				)}
-				<Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
-					<SheetContent className="w-full overflow-y-auto sm:max-w-sm">
-						<SheetHeader>
-							<SheetTitle>Conversation details</SheetTitle>
-							<SheetDescription>Get to know the person behind the work.</SheetDescription>
-						</SheetHeader>
-						{selected && <MessageTalentDetails selected={selected} clientMode={clientMode} />}
-					</SheetContent>
-				</Sheet>
 			</div>
 		</div>
 	)

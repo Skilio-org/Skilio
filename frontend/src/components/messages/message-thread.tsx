@@ -3,8 +3,6 @@ import {
 	Archive,
 	ArrowLeft,
 	ArrowUpRight,
-	FileText,
-	Info,
 	Mail,
 	MessageSquare,
 	MoreHorizontal,
@@ -30,7 +28,6 @@ export function MessageThread({
 	draft,
 	archived,
 	onBack,
-	onOpenBrief,
 	onDetails,
 	onArchive,
 	onMarkUnread,
@@ -167,9 +164,6 @@ export function MessageThread({
 				>
 					<Search className="size-[18px]" />
 				</button>
-				<button type="button" aria-label="Show conversation details" onClick={onDetails} className={iconButton}>
-					<Info className="size-[18px]" />
-				</button>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<button type="button" aria-label="Conversation options" className={iconButton}>
@@ -302,14 +296,6 @@ export function MessageThread({
 						className="block max-h-36 min-h-16 w-full resize-none rounded-t-xl bg-transparent px-4 pt-3 pb-1 text-base leading-6 outline-none sm:text-sm"
 					/>
 					<div className="flex items-center gap-2 px-2 pb-2">
-						<button
-							type="button"
-							onClick={onOpenBrief}
-							className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2 font-medium text-muted-foreground text-xs hover:bg-muted hover:text-foreground"
-						>
-							<FileText className="size-4" />
-							Add a brief
-						</button>
 						<span className="ml-auto hidden text-[10px] text-muted-foreground xl:block">
 							{clientMode ? "⌘ / Ctrl + Enter to send" : "Enter to send. Shift + Enter for a new line."}
 						</span>
