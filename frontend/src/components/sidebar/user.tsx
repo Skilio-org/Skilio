@@ -205,8 +205,8 @@ export function User({ user }: { user?: UserPublic | null }) {
 						className="min-h-11 cursor-pointer rounded-lg p-0 focus:bg-surface-container"
 					>
 						<div className="flex w-full items-center gap-3 px-2.5 py-2">
-							<span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-container text-primary">
-								<UserRound className="size-4" />
+							<span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-container text-on-surface">
+								<UserRound className="size-4 text-current" />
 							</span>
 
 							<span className="min-w-0 flex-1">
@@ -230,8 +230,8 @@ export function User({ user }: { user?: UserPublic | null }) {
 						className="min-h-11 cursor-pointer rounded-lg p-0 focus:bg-surface-container"
 					>
 						<div className="flex w-full items-center gap-3 px-2.5 py-2">
-							<span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-container text-on-surface-variant">
-								<BriefcaseBusiness className="size-4" />
+							<span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-container text-on-surface">
+								<BriefcaseBusiness className="size-4 text-current" />
 							</span>
 
 							<span className="min-w-0 flex-1">
@@ -252,14 +252,14 @@ export function User({ user }: { user?: UserPublic | null }) {
 				{/* Account links */}
 				<div className="p-2">
 					<DropdownMenuItem asChild className="cursor-pointer rounded-lg p-0 focus:bg-surface-container">
-						<Link
-							to={freelancer ? "/freelancer" : "/client-profile"}
-							className="flex min-h-9 items-center gap-2.5 px-2.5 font-label-md text-label-md text-on-surface"
-						>
-							<UserRound className="size-4 text-outline" />
+					<Link
+						to={freelancer ? "/freelancer" : "/client-profile"}
+						className="flex min-h-9 items-center gap-2.5 px-2.5 font-label-md text-label-md text-on-surface"
+					>
+						<UserRound className="size-4 text-current" />
 
-							{freelancer ? "Freelancer profile" : "Client profile"}
-						</Link>
+						{freelancer ? "Freelancer profile" : "Client profile"}
+					</Link>
 					</DropdownMenuItem>
 
 					<DropdownMenuItem asChild className="cursor-pointer rounded-lg p-0 focus:bg-surface-container">
@@ -267,7 +267,7 @@ export function User({ user }: { user?: UserPublic | null }) {
 							to={freelancer ? "/freelancer-settings" : "/settings"}
 							className="flex min-h-9 items-center gap-2.5 px-2.5 font-label-md text-label-md text-on-surface"
 						>
-							<Settings className="size-4 text-outline" />
+							<Settings className="size-4  text-current" />
 							Settings
 						</Link>
 					</DropdownMenuItem>
@@ -277,13 +277,13 @@ export function User({ user }: { user?: UserPublic | null }) {
 
 				{/* Logout */}
 				<div className="p-2">
-					<DropdownMenuItem
-						onSelect={() => logout()}
-						className="min-h-9 cursor-pointer rounded-lg px-2.5 font-label-md text-error text-label-md focus:bg-error-container focus:text-error"
-					>
-						<LogOut className="mr-2.5 size-4" />
-						Log out
-					</DropdownMenuItem>
+				<DropdownMenuItem
+					onSelect={() => logout()}
+					className="min-h-9 cursor-pointer rounded-lg px-2.5 font-label-md text-error text-label-md focus:bg-error-container focus:text-error"
+				>
+					<LogOut className="mr-2.5 size-4 text-current" />
+					Log out
+				</DropdownMenuItem>
 				</div>
 			</DropdownMenuContent>
 		</DropdownMenu>

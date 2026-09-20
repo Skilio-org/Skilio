@@ -12,7 +12,6 @@ const iconButton =
 	"grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 
 export function MessageThread({
-	clientMode = false,
 	selected,
 	messages,
 	draft,
@@ -25,7 +24,6 @@ export function MessageThread({
 	onSend,
 	onOpenLatest,
 }: {
-	clientMode?: boolean
 	selected?: Freelancer
 	messages: ThreadMessage[]
 	draft: string
@@ -75,7 +73,7 @@ export function MessageThread({
 		return (
 			<section
 				aria-label="No conversation selected"
-				className="hidden min-w-0 flex-col items-center justify-center bg-background/60 px-8 text-center lg:flex"
+				className="hidden min-w-0 mt-12 flex-col items-center justify-center bg-background/60 px-8 text-center lg:flex"
 			>
 				<span className="grid size-20 place-items-center rounded-3xl border border-border bg-card text-primary">
 					<MessageSquare className="size-8" strokeWidth={1.5} />
@@ -111,16 +109,15 @@ export function MessageThread({
 					<ArrowLeft className="size-5" />
 				</button>
 				<Monogram className={cn("hidden size-10 text-xs sm:grid", selected.background, selected.foreground)}>
-					{clientMode
-						? (selected.title.split(" · ")[1] || selected.name)
+					{(selected.title.split(" · ")[1] || selected.name)
 								.split(" ")
 								.map((word) => word[0])
 								.slice(0, 2)
 								.join("")
-						: selected.initials}
+					}
 				</Monogram>
 				<div className="min-w-0 flex-1">
-					{clientMode ? (
+					
 						<button
 							type="button"
 							onClick={onDetails}
@@ -128,18 +125,9 @@ export function MessageThread({
 						>
 							{selected.title.split(" · ")[1] || selected.name}
 						</button>
-					) : (
-						<Link
-							to="/talent/$freelancerId"
-							params={{ freelancerId: selected.id }}
-							search={{ q: undefined }}
-							className="block truncate font-semibold text-sm hover:text-primary"
-						>
-							{selected.name}
-						</Link>
-					)}
+					
 					<p className="mt-1 truncate text-muted-foreground text-xs">
-						{clientMode ? `${selected.name} · ${selected.skills.join(" · ")}` : selected.title}
+						{`${selected.name} · ${selected.skills.join(" · ")}`}
 					</p>
 				</div>
 				<button
@@ -225,7 +213,7 @@ export function MessageThread({
 					{!term && (
 						<div className="mb-8 text-center">
 							<span className="rounded-full border border-border bg-card px-3 py-1.5 text-[10px] text-muted-foreground">
-								{clientMode ? "Project conversation · Preview" : "Sample conversation"}
+								{"Project conversation · Preview"}
 							</span>
 						</div>
 					)}
@@ -242,7 +230,6 @@ export function MessageThread({
 								message={message}
 								name={selected.name}
 								highlight={term}
-								rich={clientMode}
 							/>
 						))}
 					</div>
@@ -271,7 +258,7 @@ export function MessageThread({
 						onKeyDown={(event) => {
 							if (
 								event.key === "Enter" &&
-								(clientMode ? event.metaKey || event.ctrlKey : !event.shiftKey) &&
+								(event.metaKey || event.ctrlKey ) &&
 								!event.nativeEvent.isComposing &&
 								window.matchMedia("(pointer: fine)").matches
 							) {
@@ -279,15 +266,15 @@ export function MessageThread({
 								onSend()
 							}
 						}}
-						rows={clientMode ? 4 : 2}
+						rows={4}
 						maxLength={10000}
 						aria-label={`Message ${selected.name}`}
-						placeholder={`Write a message to ${clientMode ? selected.title.split(" · ")[1] || selected.name : selected.name}…`}
+						placeholder={`Write a message to ${selected.name}…`}
 						className="block max-h-36 min-h-16 w-full resize-none rounded-t-xl bg-transparent px-4 pt-3 pb-1 text-base leading-6 outline-none sm:text-sm"
 					/>
 					<div className="flex items-center gap-2 px-2 pb-2">
 						<span className="ml-auto hidden text-[10px] text-muted-foreground xl:block">
-							{clientMode ? "⌘ / Ctrl + Enter to send" : "Enter to send. Shift + Enter for a new line."}
+							{"⌘ / Ctrl + Enter to send"}
 						</span>
 						<button
 							type="submit"

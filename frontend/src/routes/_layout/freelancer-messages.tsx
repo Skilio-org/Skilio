@@ -18,7 +18,6 @@ function Messages() {
 	}, [])
 	return (
 		<MessagesPage
-			clientMode
 			selectedContact={search.with}
 			onSelectContact={(id) => void navigate({ search: { with: id || undefined } })}
 		/>

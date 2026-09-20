@@ -35,18 +35,11 @@ const talentConversations = [
 		unread: 0,
 	},
 ]
-const talentIntroductions: Record<string, string> = {
-	"maya-laurent":
-		"Thanks for reaching out. I'd love to learn more about the product and the workflow you want to improve.",
-	"noah-williams": "Thanks for the context. The product sounds like a strong fit for the systems I usually build.",
-	"amara-okafor": "I've read through your brief. There is a good opportunity to make the positioning more distinctive.",
-	"elias-chen": "The workflow is a good candidate for automation, especially with a clear human review step.",
-}
+
 function sampleThread(
 	id: string,
 	meta: typeof talentConversations,
 	introductions: Record<string, string>,
-	clientMode: boolean,
 ): ThreadMessage[] {
 	const conversation = meta.find((item) => item.id === id)
 	if (!conversation) return []
@@ -54,11 +47,11 @@ function sampleThread(
 		{
 			id: `${id}-intro`,
 			body:
-				clientMode && id === "olivia-bennett"
+				id === "olivia-bennett"
 					? "Morning! We just reviewed the interactive prototype for the new user onboarding sequence. Overall, the typography hierarchy feels significantly crisper than our last iteration."
 					: introductions[id],
 			feedback:
-				clientMode && id === "olivia-bennett"
+				 id === "olivia-bennett"
 					? [
 							"Step 2 progress bar: The completion interaction is much more intuitive. Keep that easing curve.",
 							"Contrast adjustment: Could we increase contrast on the secondary button? It looks washed out in bright light.",
@@ -78,9 +71,7 @@ function sampleThread(
 			// 					"Onboarding handoff\n\nReview secondary button contrast.\nCheck tooltip animation on slower connections.\nPrepare the next prototype iteration for Thursday's review.",
 			// 			}
 			// 		: undefined,
-			body: clientMode
-				? "Thanks for the notes! That aligns with my thinking. I’ll refine the secondary buttons, check the animation timing, and share the updated prototype for your review."
-				: "Great to meet you. We're building a marketplace and would like to talk through the scope, timeline, and your approach.",
+			body: "Thanks for the notes! That aligns with my thinking. I’ll refine the secondary buttons, check the animation timing, and share the updated prototype for your review.",
 			time: "10:28 AM",
 			own: true,
 		},
@@ -96,15 +87,13 @@ function sampleThread(
 export function MessagesPage({
 	selectedContact,
 	onSelectContact,
-	clientMode = false,
 }: {
 	selectedContact?: string
 	onSelectContact: (id: string) => void
-	clientMode?: boolean
 }) {
-	const people = clientMode ? demoClients : freelancers
-	const meta = clientMode ? clientConversations : talentConversations
-	const introductions = clientMode ? clientIntroductions : talentIntroductions
+	const people = demoClients
+	const meta = clientConversations 
+	const introductions = clientIntroductions 
 	const selected = people.find((person) => person.id === selectedContact)
 	const selectedId = selected?.id ?? ""
 	const [newMessageOpen, setNewMessageOpen] = useState(false)
@@ -117,7 +106,6 @@ export function MessagesPage({
 		Object.fromEntries(meta.map((item) => [item.id, item.unread])),
 	)
 	const [archived, setArchived] = useState<string[]>([])
-	const [briefOpen, setBriefOpen] = useState(false)
 	const [addedIds, setAddedIds] = useState<string[]>([])
 	useEffect(() => {
 		if (!selectedId) return
@@ -159,16 +147,15 @@ export function MessagesPage({
 		})
 	const messages = selectedId
 		? [
-				...sampleThread(selectedId, meta, introductions, clientMode).slice(
+				...sampleThread(selectedId, meta, introductions).slice(
 					0,
-					clientMode && selectedId === "olivia-bennett" ? 2 : 3,
+					selectedId === "olivia-bennett" ? 2 : 3,
 				),
 				...(sent[selectedId] ?? []),
 			]
 		: []
 	const draft = drafts[selectedId] ?? ""
 	const select = (id: string) => {
-		setBriefOpen(false)
 		onSelectContact(id)
 	}
 	const updateDraft = (value: string) => setDrafts((current) => ({ ...current, [selectedId]: value }))
@@ -198,29 +185,27 @@ export function MessagesPage({
 		toast.success(restoring ? "Conversation moved to inbox" : "Conversation archived")
 	}
 	return (
-		<div className={clientMode ? "freelancer-inbox" : undefined}>
-			{clientMode && (
-				<header className="mb-7 flex flex-wrap items-end justify-between gap-5">
-					<div>
-						<p className="mb-2 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
-							<span className="uppercase tracking-wider text-primary">Freelancer workspace</span>
-							<span>·</span>Communications & active contracts
-						</p>
-						<h1 className="text-4xl font-semibold tracking-tight text-foreground">Messages</h1>
-						<p className="mt-2 text-sm text-muted-foreground">
-							Manage client conversations, share design artifacts, and collaborate on active contracts.
-						</p>
-					</div>
-					<button
-						type="button"
-						onClick={() => setNewMessageOpen(true)}
-						className="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground dark:bg-on-surface dark:text-background"
-					>
-						<SquarePen className="size-4" />
-						New message
-					</button>
-				</header>
-			)}
+		<div className="freelancer-inbox">
+			<header className="mb-7 flex flex-wrap items-end justify-between gap-5">
+				<div>
+					<p className="mb-2 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
+						<span className="uppercase tracking-wider text-primary">Freelancer workspace</span>
+						<span>·</span>Communications & active contracts
+					</p>
+					<h1 className="text-4xl font-semibold tracking-tight text-foreground">Messages</h1>
+					<p className="mt-2 text-sm text-muted-foreground">
+						Manage client conversations, share design artifacts, and collaborate on active contracts.
+					</p>
+				</div>
+				<button
+					type="button"
+					onClick={() => setNewMessageOpen(true)}
+					className="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground dark:bg-on-surface dark:text-background"
+				>
+					<SquarePen className="size-4" />
+					New message
+				</button>
+			</header>
 			<Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
 				<DialogContent>
 					<DialogHeader>
@@ -258,7 +243,6 @@ export function MessagesPage({
 			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-2xl border border-border bg-card lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[330px_minmax(0,1fr)]">
 				<ConversationList
 					people={people}
-					clientMode={clientMode}
 					conversations={conversations}
 					selectedId={selectedId}
 					query={query}
@@ -269,7 +253,6 @@ export function MessagesPage({
 					onSelect={select}
 				/>
 				<MessageThread
-					clientMode={clientMode}
 					key={selectedId}
 					selected={selected}
 					messages={messages}
@@ -277,7 +260,7 @@ export function MessagesPage({
 					archived={archived.includes(selectedId)}
 					onBack={() => select("")}
 					onOpenLatest={() => select(meta[0].id)}
-					onOpenBrief={() => setBriefOpen(true)}
+					onOpenBrief={() => {}}
 					onDetails={() => {}}
 					onArchive={archive}
 					onMarkUnread={() => {
@@ -287,15 +270,6 @@ export function MessagesPage({
 					onDraftChange={updateDraft}
 					onSend={send}
 				/>
-				{briefOpen && (
-					<MessageToolDialogView
-						onClose={() => setBriefOpen(false)}
-						onInsert={(brief) => {
-							updateDraft((draft ? `${draft}\n\n` : "") + brief)
-							setBriefOpen(false)
-						}}
-					/>
-				)}
 			</div>
 		</div>
 	)

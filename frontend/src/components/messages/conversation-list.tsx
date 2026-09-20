@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils"
 
 export function ConversationList({
 	people,
-	clientMode = false,
 	conversations,
 	selectedId,
 	query,
@@ -17,7 +16,6 @@ export function ConversationList({
 	onSelect,
 }: {
 	people: Freelancer[]
-	clientMode?: boolean
 	conversations: ConversationSummary[]
 	selectedId: string
 	query: string
@@ -37,16 +35,11 @@ export function ConversationList({
 		>
 			<div className="px-5 pt-6">
 				<div className="flex items-center justify-between gap-3">
-					<h2 className="font-semibold text-lg tracking-tight">{clientMode ? "Direct Threads" : "Messages"}</h2>
-					{clientMode && (
-						<span className="rounded-full bg-surface-container px-2.5 py-1 text-xs text-primary">
-							{people.length} Total
-						</span>
-					)}
+					<h2 className="font-semibold text-lg tracking-tight">{"Direct Threads"}</h2>
+					<span className="rounded-full bg-surface-container px-2.5 py-1 text-xs text-primary">
+						{people.length} Total
+					</span>
 				</div>
-				{!clientMode && (
-					<p className="mt-1 text-muted-foreground text-xs">Your next great collaboration starts here.</p>
-				)}
 				<label className="mt-6 flex min-h-11 items-center gap-2 rounded-lg border border-input bg-background px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
 					<Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
 					<span className="sr-only">Search conversations</span>
@@ -84,9 +77,7 @@ export function ConversationList({
 							)}
 						>
 							{value === "all"
-								? clientMode
-									? `All (${people.length})`
-									: "All inbox"
+								? "All inbox"
 								: value === "unread"
 									? "Unread"
 									: "Archived"}
@@ -117,25 +108,23 @@ export function ConversationList({
 							)}
 						>
 							<Monogram className={cn("mt-0.5 size-11 text-sm", person.background, person.foreground)}>
-								{clientMode
-									? (person.title.split(" · ")[1] || person.name)
+								{(person.title.split(" · ")[1] || person.name)
 											.split(" ")
 											.map((word) => word[0])
 											.slice(0, 2)
-											.join("")
-									: person.initials}
+											.join("")}
 							</Monogram>
 							<span className="min-w-0 flex-1">
 								<span className="flex items-baseline justify-between gap-2">
 									<span
 										className={cn("truncate text-sm", conversation.unread || active ? "font-semibold" : "font-medium")}
 									>
-										{clientMode ? person.title.split(" · ")[1] || person.name : person.name}
+										{person.title.split(" · ")[1]}
 									</span>
 									<span className="shrink-0 text-[10px] text-muted-foreground">{conversation.time}</span>
 								</span>
 								<span className="mt-1 block truncate text-[11px] text-muted-foreground">
-									{clientMode ? `${person.name} · ${person.title.split(" · ")[0]}` : person.title}
+									{`${person.name} · ${person.title.split(" · ")[0]}`}
 								</span>
 								<span className="mt-2 flex items-start gap-2">
 									<span
