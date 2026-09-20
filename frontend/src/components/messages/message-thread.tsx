@@ -1,15 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import {
-	Archive,
-	ArrowLeft,
-	ArrowUpRight,
-	Mail,
-	MessageSquare,
-	MoreHorizontal,
-	Search,
-	Send,
-	X,
-} from "lucide-react"
+import { Archive, ArrowLeft, ArrowUpRight, Mail, MessageSquare, MoreHorizontal, Search, Send, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Monogram } from "@/components/dashboard/dashboard-header"
 import { MessageBubble } from "@/components/messages/message-bubble"

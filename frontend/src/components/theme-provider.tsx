@@ -41,18 +41,21 @@ export function ThemeProvider({
 	const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(() => getResolvedTheme(theme))
 	const activeTransition = useRef<ViewTransition | null>(null)
 
-	const updateTheme = useCallback((newTheme: Theme) => {
-		const root = window.document.documentElement
-		const nextTheme = getResolvedTheme(newTheme)
-		// Never interpolate individual borders against already-switched surfaces.
-		root.setAttribute("data-theme-transition", "")
-		root.classList.remove("light", "dark")
-		root.classList.add(nextTheme)
-		setResolvedTheme(nextTheme)
-		// Resolve the new palette with element transitions disabled before restoring hover effects.
-		void getComputedStyle(root).backgroundColor
-		root.removeAttribute("data-theme-transition")
-	}, [getResolvedTheme])
+	const updateTheme = useCallback(
+		(newTheme: Theme) => {
+			const root = window.document.documentElement
+			const nextTheme = getResolvedTheme(newTheme)
+			// Never interpolate individual borders against already-switched surfaces.
+			root.setAttribute("data-theme-transition", "")
+			root.classList.remove("light", "dark")
+			root.classList.add(nextTheme)
+			setResolvedTheme(nextTheme)
+			// Resolve the new palette with element transitions disabled before restoring hover effects.
+			void getComputedStyle(root).backgroundColor
+			root.removeAttribute("data-theme-transition")
+		},
+		[getResolvedTheme],
+	)
 
 	useLayoutEffect(() => {
 		updateTheme(theme)
@@ -85,10 +88,12 @@ export function ThemeProvider({
 		document.documentElement.setAttribute("data-theme-crossfade", "")
 		const transition = document.startViewTransition(commit)
 		activeTransition.current = transition
-		void transition.finished.catch(() => undefined).finally(() => {
-			activeTransition.current = null
-			document.documentElement.removeAttribute("data-theme-crossfade")
-		})
+		void transition.finished
+			.catch(() => undefined)
+			.finally(() => {
+				activeTransition.current = null
+				document.documentElement.removeAttribute("data-theme-crossfade")
+			})
 	}
 
 	const value = { theme, resolvedTheme, setTheme: changeTheme }

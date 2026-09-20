@@ -1,22 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
-import {
-	BriefcaseBusiness,
-	Check,
-	ChevronDown,
-	LogOut,
-	Settings,
-	UserRound,
-} from "lucide-react"
+import { BriefcaseBusiness, Check, ChevronDown, LogOut, Settings, UserRound } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
 import { type UserPublic, UsersService } from "@/client"
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -26,10 +15,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
-import {
-	setAccountRole,
-	useAccountRole,
-} from "@/hooks/useAccountRole"
+import { setAccountRole, useAccountRole } from "@/hooks/useAccountRole"
 import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
 import { getInitials } from "@/utils"
@@ -51,10 +37,7 @@ export function User({ user }: { user?: UserPublic | null }) {
 
 	const role = freelancer ? "Freelancer" : "Client"
 
-	const displayName =
-		user?.full_name?.trim() ||
-		user?.email ||
-		"Your account"
+	const displayName = user?.full_name?.trim() || user?.email || "Your account"
 
 	const fullName = user?.full_name?.trim() || "My account"
 	const email = user?.email || ""
@@ -63,14 +46,9 @@ export function User({ user }: { user?: UserPublic | null }) {
 	const switchWorkspace = async (targetRole: AccountRole) => {
 		if (switching) return
 
-		const currentRole: AccountRole = freelancer
-			? "freelancer"
-			: "client"
+		const currentRole: AccountRole = freelancer ? "freelancer" : "client"
 
-		const destination =
-			targetRole === "freelancer"
-				? "/freelancer-dashboard"
-				: "/dashboard"
+		const destination = targetRole === "freelancer" ? "/freelancer-dashboard" : "/dashboard"
 
 		/*
 		 * Clicking the workspace we're already in should just
@@ -97,10 +75,7 @@ export function User({ user }: { user?: UserPublic | null }) {
 						},
 					})
 
-					queryClient.setQueryData(
-						["currentUser"],
-						response.data,
-					)
+					queryClient.setQueryData(["currentUser"], response.data)
 				}
 
 				setAccountRole(user.email, targetRole)
@@ -112,27 +87,16 @@ export function User({ user }: { user?: UserPublic | null }) {
 				to: destination,
 			})
 
-			toast.success(
-				`Switched to ${
-					targetRole === "freelancer"
-						? "Freelancer"
-						: "Client"
-				} workspace`,
-			)
+			toast.success(`Switched to ${targetRole === "freelancer" ? "Freelancer" : "Client"} workspace`)
 		} catch {
-			toast.error(
-				"We couldn't switch workspaces. Please try again.",
-			)
+			toast.error("We couldn't switch workspaces. Please try again.")
 		} finally {
 			setSwitching(false)
 		}
 	}
 
 	return (
-		<DropdownMenu
-			open={open}
-			onOpenChange={setOpen}
-		>
+		<DropdownMenu open={open} onOpenChange={setOpen}>
 			<DropdownMenuTrigger asChild>
 				<button
 					type="button"
@@ -141,13 +105,7 @@ export function User({ user }: { user?: UserPublic | null }) {
 					className="account-trigger group flex min-h-11 items-center gap-2 rounded-xl p-1.5 text-left outline-none transition-colors hover:bg-surface-container focus-visible:ring-2 focus-visible:ring-primary sm:gap-3 sm:pr-3"
 				>
 					<Avatar className="size-8 rounded-lg">
-						{avatarUrl && (
-							<AvatarImage
-								src={avatarUrl}
-								alt={displayName}
-								className="rounded-lg"
-							/>
-						)}
+						{avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="rounded-lg" />}
 
 						<AvatarFallback className="rounded-lg bg-brand-100 font-semibold text-brand-800 text-xs">
 							{getInitials(displayName)}
@@ -155,13 +113,9 @@ export function User({ user }: { user?: UserPublic | null }) {
 					</Avatar>
 
 					<div className="hidden min-w-0 sm:block">
-						<p className="max-w-28 truncate font-label-sm font-medium text-label-sm text-on-surface">
-							{fullName}
-						</p>
+						<p className="max-w-28 truncate font-label-sm font-medium text-label-sm text-on-surface">{fullName}</p>
 
-						<p className="mt-0.5 font-caption text-caption text-on-surface-variant">
-							{role}
-						</p>
+						<p className="mt-0.5 font-caption text-caption text-on-surface-variant">{role}</p>
 					</div>
 
 					<ChevronDown className="size-3.5 text-outline transition-transform group-data-[state=open]:rotate-180" />
@@ -176,13 +130,7 @@ export function User({ user }: { user?: UserPublic | null }) {
 				{/* Account */}
 				<div className="flex items-center gap-3 px-3.5 py-3.5">
 					<Avatar className="size-9 rounded-lg">
-						{avatarUrl && (
-							<AvatarImage
-								src={avatarUrl}
-								alt={displayName}
-								className="rounded-lg"
-							/>
-						)}
+						{avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="rounded-lg" />}
 
 						<AvatarFallback className="rounded-lg bg-brand-100 font-semibold text-brand-800 text-xs">
 							{getInitials(displayName)}
@@ -190,15 +138,9 @@ export function User({ user }: { user?: UserPublic | null }) {
 					</Avatar>
 
 					<div className="min-w-0 flex-1">
-						<p className="truncate font-label-md font-medium text-label-md text-on-surface">
-							{fullName}
-						</p>
+						<p className="truncate font-label-md font-medium text-label-md text-on-surface">{fullName}</p>
 
-						{email && (
-							<p className="mt-0.5 truncate font-caption text-caption text-on-surface-variant">
-								{email}
-							</p>
-						)}
+						{email && <p className="mt-0.5 truncate font-caption text-caption text-on-surface-variant">{email}</p>}
 					</div>
 				</div>
 
@@ -210,13 +152,8 @@ export function User({ user }: { user?: UserPublic | null }) {
 						<DropdownMenuItem
 							role="switch"
 							aria-label="Available for work"
-							aria-checked={
-								availability.available === true
-							}
-							disabled={
-								availability.pending ||
-								availability.error
-							}
+							aria-checked={availability.available === true}
+							disabled={availability.pending || availability.error}
 							onSelect={(event) => {
 								event.preventDefault()
 								availability.toggle()
@@ -224,9 +161,7 @@ export function User({ user }: { user?: UserPublic | null }) {
 							className="flex cursor-pointer items-center justify-between gap-3 rounded-lg bg-surface-container-low px-3 py-3 focus:bg-surface-container"
 						>
 							<span className="min-w-0">
-								<span className="block text-[13px] font-medium text-on-surface">
-									Available for work
-								</span>
+								<span className="block text-[13px] font-medium text-on-surface">Available for work</span>
 
 								<span className="mt-1 block text-[11px] text-on-surface-variant">
 									{availability.error
@@ -242,16 +177,12 @@ export function User({ user }: { user?: UserPublic | null }) {
 							<span
 								aria-hidden="true"
 								className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors motion-reduce:transition-none ${
-									availability.available
-										? "bg-primary"
-										: "bg-outline"
+									availability.available ? "bg-primary" : "bg-outline"
 								}`}
 							>
 								<span
 									className={`size-4 rounded-full bg-white shadow-sm transition-transform motion-reduce:transition-none ${
-										availability.available
-											? "translate-x-[18px]"
-											: "translate-x-0.5"
+										availability.available ? "translate-x-[18px]" : "translate-x-0.5"
 									}`}
 								/>
 							</span>
@@ -279,18 +210,14 @@ export function User({ user }: { user?: UserPublic | null }) {
 							</span>
 
 							<span className="min-w-0 flex-1">
-								<span className="block font-label-md font-medium text-label-md text-on-surface">
-									Freelancer
-								</span>
+								<span className="block font-label-md font-medium text-label-md text-on-surface">Freelancer</span>
 
 								<span className="mt-0.5 block font-caption text-caption text-on-surface-variant">
 									Find work & manage proposals
 								</span>
 							</span>
 
-							{freelancer && (
-								<Check className="size-4 shrink-0 text-primary" />
-							)}
+							{freelancer && <Check className="size-4 shrink-0 text-primary" />}
 						</div>
 					</DropdownMenuItem>
 
@@ -308,18 +235,14 @@ export function User({ user }: { user?: UserPublic | null }) {
 							</span>
 
 							<span className="min-w-0 flex-1">
-								<span className="block font-label-md font-medium text-label-md text-on-surface">
-									Client
-								</span>
+								<span className="block font-label-md font-medium text-label-md text-on-surface">Client</span>
 
 								<span className="mt-0.5 block font-caption text-caption text-on-surface-variant">
 									Hire talent & manage projects
 								</span>
 							</span>
 
-							{!freelancer && (
-								<Check className="size-4 shrink-0 text-primary" />
-							)}
+							{!freelancer && <Check className="size-4 shrink-0 text-primary" />}
 						</div>
 					</DropdownMenuItem>
 				</div>
@@ -328,36 +251,20 @@ export function User({ user }: { user?: UserPublic | null }) {
 
 				{/* Account links */}
 				<div className="p-2">
-					<DropdownMenuItem
-						asChild
-						className="cursor-pointer rounded-lg p-0 focus:bg-surface-container"
-					>
+					<DropdownMenuItem asChild className="cursor-pointer rounded-lg p-0 focus:bg-surface-container">
 						<Link
-							to={
-								freelancer
-									? "/freelancer"
-									: "/client-profile"
-							}
+							to={freelancer ? "/freelancer" : "/client-profile"}
 							className="flex min-h-9 items-center gap-2.5 px-2.5 font-label-md text-label-md text-on-surface"
 						>
 							<UserRound className="size-4 text-outline" />
 
-							{freelancer
-								? "Freelancer profile"
-								: "Client profile"}
+							{freelancer ? "Freelancer profile" : "Client profile"}
 						</Link>
 					</DropdownMenuItem>
 
-					<DropdownMenuItem
-						asChild
-						className="cursor-pointer rounded-lg p-0 focus:bg-surface-container"
-					>
+					<DropdownMenuItem asChild className="cursor-pointer rounded-lg p-0 focus:bg-surface-container">
 						<Link
-							to={
-								freelancer
-									? "/freelancer-settings"
-									: "/settings"
-							}
+							to={freelancer ? "/freelancer-settings" : "/settings"}
 							className="flex min-h-9 items-center gap-2.5 px-2.5 font-label-md text-label-md text-on-surface"
 						>
 							<Settings className="size-4 text-outline" />
