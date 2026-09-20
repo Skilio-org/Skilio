@@ -1,16 +1,20 @@
-import { ArrowLeft, Bookmark } from "lucide-react"
+import { ArrowLeft, Bookmark, CircleCheck } from "lucide-react"
 import { useRef, useState } from "react"
 import { JobDetails } from "@/components/freelancer/freelancer-job-details"
 import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet"
+import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
+import { useSavedJobs } from "@/hooks/useSavedJobs"
 import type { FreelancerJob } from "@/types/job"
 
-const FreelancerJobCard = (job: FreelancerJob) => {
+const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { savedView?: boolean }) => {
 	const [detailsOpen, setDetailsOpen] = useState(false)
 	const [initiallyApplying, setInitiallyApplying] = useState(false)
 	const detailsTrigger = useRef<HTMLButtonElement | null>(null)
-	const [saved, setSaved] = useState<string[]>([])
+	const { saved, savedAt, toggleSaved, error } = useSavedJobs()
+	const { isSubmitted } = useFreelancerProposals()
+	const hasApplied = isSubmitted(job.id)
 	const isSaved = saved.includes(job.id)
-	const projectType = job.budget.toLowerCase().includes("fixed") ? "Fixed price" : "Hourly"
+	const projectType = job.projectType
 
 	return (
 		<Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
@@ -26,10 +30,16 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 							</span>
 							<span className="text-outline dark:text-on-surface-faint">•</span>
 							<span className="text-outline">Remote</span>
-							{job.posted && (
+							{(savedView || job.posted) && (
 								<>
 									<span className="text-outline dark:text-on-surface-faint">•</span>
-									<span className="text-outline">{job.posted}</span>
+									<span className="text-outline">
+										{savedView
+											? savedAt[job.id]
+												? `Saved ${new Date(savedAt[job.id]).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
+												: "Saved to your shortlist"
+											: job.posted}
+									</span>
 								</>
 							)}
 						</div>
@@ -41,7 +51,7 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 								setDetailsOpen(true)
 							}}
 							aria-haspopup="dialog"
-							className="relative pt-0.5 text-left font-headline-md font-semibold text-headline-md text-on-surface transition-colors group-hover:text-primary-container after:absolute after:right-0 after:bottom-0 after:left-0 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-200 group-hover:after:scale-x-100"
+							className="relative pt-0.5 text-left font-headline-md font-semibold text-headline-md text-on-surface transition-colors after:absolute after:right-0 after:bottom-0 after:left-0 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-200 group-hover:text-primary-container group-hover:after:scale-x-100"
 						>
 							{job.title}
 						</button>
@@ -50,18 +60,21 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 						type="button"
 						aria-label={`${isSaved ? "Unsave" : "Save"} ${job.title}`}
 						aria-pressed={isSaved}
-						onClick={() =>
-							setSaved((ids) => (ids.includes(job.id) ? ids.filter((id) => id !== job.id) : [...ids, job.id]))
-						}
+						onClick={() => toggleSaved(job.id)}
 						className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-primary dark:hover:text-on-surface"
 					>
 						<Bookmark className={`size-5 ${isSaved ? "fill-primary text-primary" : ""}`} />
 					</button>
 				</div>
 
+				{error && (
+					<p role="alert" className="mb-3 text-destructive text-sm">
+						{error}
+					</p>
+				)}
 				<div className="mb-3 flex flex-wrap items-center gap-3">
 					<div className="flex items-baseline gap-2 font-numeric-data text-numeric-data">
-						<span className="font-semibold text-[15px] text-on-surface">{job.budget}</span>
+						<span className="font-semibold text-[15px] text-on-surface">{job.budget.split(" · ")[0]}</span>
 						<span className="font-caption text-caption text-on-surface-variant">{projectType}</span>
 					</div>
 					<span className="size-1 rounded-full bg-outline-variant" />
@@ -72,7 +85,7 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 					{job.description}
 				</p>
 
-				<div className="flex flex-col gap-3 border-surface-container border-t pt-3 dark:border-border-dark sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex flex-col gap-3 border-surface-container border-t pt-3 sm:flex-row sm:items-center sm:justify-between dark:border-border-dark">
 					<div className="flex flex-wrap items-center gap-1.5">
 						{job.skills.slice(0, 4).map((skill) => (
 							<span
@@ -84,6 +97,15 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 						))}
 					</div>
 					<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
+						{savedView && (
+							<button
+								type="button"
+								onClick={() => toggleSaved(job.id)}
+								className="h-8 rounded-lg px-3 font-label-md text-destructive text-label-md hover:bg-destructive/10"
+							>
+								Remove
+							</button>
+						)}
 						<button
 							type="button"
 							onClick={(event) => {
@@ -96,18 +118,25 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 						>
 							View details
 						</button>
-						<button
-							type="button"
-							onClick={(event) => {
-								detailsTrigger.current = event.currentTarget
-								setInitiallyApplying(true)
-								setDetailsOpen(true)
-							}}
-							aria-haspopup="dialog"
-							className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
-						>
-							Apply now
-						</button>
+						{hasApplied ? (
+							<span className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 font-label-md text-label-md text-primary dark:border-border-subtle dark:bg-surface-container">
+								<CircleCheck className="size-3.5" />
+								Applied
+							</span>
+						) : (
+							<button
+								type="button"
+								onClick={(event) => {
+									detailsTrigger.current = event.currentTarget
+									setInitiallyApplying(true)
+									setDetailsOpen(true)
+								}}
+								aria-haspopup="dialog"
+								className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
+							>
+								Apply now
+							</button>
+						)}
 					</div>
 				</div>
 			</article>

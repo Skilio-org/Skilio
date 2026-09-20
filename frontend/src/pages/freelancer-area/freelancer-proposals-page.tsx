@@ -1,22 +1,55 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowLeft, ArrowRight, FileText } from "lucide-react"
+import {
+	Archive,
+	ArrowLeft,
+	ArrowRight,
+	Bookmark,
+	CircleCheck,
+	FilePenLine,
+	FileText,
+	Search,
+	Send,
+	X,
+} from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { JobDetails } from "@/components/freelancer/freelancer-job-details"
 import { JobFormSection, jobFormField } from "@/components/common/job-form-section"
-import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "@/components/dashboard/dashboard-header"
+import { WorkspaceSurface } from "@/components/dashboard/dashboard-header"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet"
-import {
-	type ProposalDraft as Draft,
-	freelancerWorkspaceSubtitles,
-	freelancerWorkspaceTitles,
-	seedProposals,
-} from "@/data/freelancer-workspace"
+import { type ProposalDraft as Draft, seedProposals } from "@/data/freelancer-workspace"
 import useAuth from "@/hooks/useAuth"
 import type { FreelancerJob } from "@/types/job"
 
 type ProposalTab = "Drafts" | "Submitted" | "Archived"
+const workspaceStyles = {
+	primaryAction:
+		"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary transition-colors hover:opacity-90 dark:bg-on-surface dark:text-background",
+	secondaryAction:
+		"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low",
+}
+const proposalStatuses = [
+	{
+		label: "Drafts" as const,
+		title: "Ready for your next move",
+		description: "Finish your introduction and make it count.",
+		icon: FilePenLine,
+	},
+	{
+		label: "Submitted" as const,
+		title: "Out in the world",
+		description: "Keep track of the proposals you’ve sent.",
+		icon: Send,
+	},
+	{
+		label: "Archived" as const,
+		title: "Filed for later",
+		description: "Past proposals, ready when you need them.",
+		icon: Archive,
+	},
+]
 
 const FreelancerProposalsPage = () => {
 	const { user } = useAuth()
@@ -24,10 +57,17 @@ const FreelancerProposalsPage = () => {
 	const storageKey = `freelancer-work-v2:${user?.id ?? "preview"}`
 
 	const [drafts, setDrafts] = useState<Draft[]>([])
-	const [loaded, setLoaded] = useState(false)
+	const [loadedKey, setLoadedKey] = useState("")
 	const [error, setError] = useState("")
 
 	const [tab, setTab] = useState<ProposalTab>("Drafts")
+	const [query, setQuery] = useState("")
+	const [sort, setSort] = useState("default")
+	const counts = (status: ProposalTab) => drafts.filter((draft) => (draft.status ?? "Drafts") === status).length
+	const selectTab = (status: ProposalTab) => {
+		setTab(status)
+		setQuery("")
+	}
 
 	const [selected, setSelected] = useState<FreelancerJob | null>(null)
 	const [compose, setCompose] = useState(false)
@@ -35,7 +75,17 @@ const FreelancerProposalsPage = () => {
 	const [cover, setCover] = useState("")
 	const [rate, setRate] = useState("")
 
-	const visibleProposals = drafts.filter((draft) => (draft.status ?? "Drafts") === tab)
+	const visibleProposals = drafts
+		.filter(
+			(draft) =>
+				(draft.status ?? "Drafts") === tab &&
+				`${draft.job.title} ${draft.job.company} ${draft.job.skills.join(" ")}`
+					.toLowerCase()
+					.includes(query.trim().toLowerCase()),
+		)
+		.sort((a, b) => (sort === "title" ? a.job.title.localeCompare(b.job.title) : 0))
+	const selectedReadOnly =
+		!!selected && drafts.some((draft) => draft.job.id === selected.id && (draft.status ?? "Drafts") !== "Drafts")
 
 	const selectedProjectType =
 		selected?.projectType ?? (selected?.budget.toLowerCase().includes("fixed") ? "Fixed price" : "Hourly")
@@ -46,7 +96,7 @@ const FreelancerProposalsPage = () => {
 
 			if (!stored) {
 				setDrafts(seedProposals)
-				setLoaded(true)
+				setLoadedKey(storageKey)
 				return
 			}
 
@@ -77,11 +127,11 @@ const FreelancerProposalsPage = () => {
 			setError("Your saved proposals couldn't be restored. Showing demo proposals.")
 		}
 
-		setLoaded(true)
+		setLoadedKey(storageKey)
 	}, [storageKey])
 
 	useEffect(() => {
-		if (!loaded) return
+		if (loadedKey !== storageKey) return
 
 		try {
 			const stored = localStorage.getItem(storageKey)
@@ -94,12 +144,43 @@ const FreelancerProposalsPage = () => {
 					drafts,
 				}),
 			)
+			window.dispatchEvent(new Event("freelancer-proposals-changed"))
 		} catch {
 			setError("Proposal changes couldn't be saved on this device.")
 		}
-	}, [drafts, loaded, storageKey])
+	}, [drafts, loadedKey, storageKey])
+
+	useEffect(() => {
+		const handleSync = () => {
+			try {
+				const stored = localStorage.getItem(storageKey)
+				if (stored) {
+					const data = JSON.parse(stored)
+					if (Array.isArray(data.drafts)) {
+						setDrafts(data.drafts)
+					}
+				}
+			} catch {}
+		}
+		window.addEventListener("freelancer-proposals-changed", handleSync)
+		return () => window.removeEventListener("freelancer-proposals-changed", handleSync)
+	}, [storageKey])
 
 	const changeProposal = (id: string, status: ProposalTab) => {
+		const proposal = drafts.find((draft) => draft.job.id === id)
+		if (status === "Submitted" && proposal?.status === "Submitted") {
+			toast.error("You have already submitted a proposal for this job.")
+			return
+		}
+		if (
+			status === "Submitted" &&
+			proposal &&
+			proposal.cover.trim().length < 40
+		) {
+			toast.error("Add a cover letter of at least 40 characters before submitting.")
+			openProposal(proposal.job, proposal)
+			return
+		}
 		setDrafts((items) =>
 			items.map((item) =>
 				item.job.id === id
@@ -148,6 +229,13 @@ const FreelancerProposalsPage = () => {
 	const saveDraft = () => {
 		if (!selected) return
 
+		const existing = drafts.find((draft) => draft.job.id === selected.id)
+		if (existing?.status === "Submitted") {
+			toast.error("You have already submitted a proposal for this job.")
+			closeSheet()
+			return
+		}
+
 		setDrafts((items) => [
 			...items.filter((draft) => draft.job.id !== selected.id),
 			{
@@ -165,90 +253,298 @@ const FreelancerProposalsPage = () => {
 
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
-			<WorkspacePageHeader
-				eyebrow="Freelancer workspace"
-				title={freelancerWorkspaceTitles.proposals}
-				description={freelancerWorkspaceSubtitles.proposals}
-				action=""
-			/>
-
+			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
+				<div className="flex max-w-2xl flex-col gap-4">
+					<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
+						<span className="font-semibold text-on-surface-variant uppercase tracking-wider">Freelancer workspace</span>
+						<span className="size-1 rounded-full bg-outline-variant" />
+						<span className="flex items-center gap-1 font-medium text-primary">
+							<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
+							{counts("Drafts")} {counts("Drafts") === 1 ? "draft" : "drafts"} to make your own
+						</span>
+					</div>
+					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">
+						Your proposals.
+					</h1>
+					<p className="font-body-md text-body-md text-on-surface-variant">
+						From a thoughtful introduction to your next collaboration. Keep every opportunity moving.
+					</p>
+				</div>
+				<div className="flex shrink-0 flex-wrap items-center gap-2.5">
+					<Link to="/freelancer-saved-jobs" className={workspaceStyles.secondaryAction}>
+						<Bookmark className="size-4" />
+						Saved jobs
+					</Link>
+					<Link to="/freelancer-jobs" className={workspaceStyles.primaryAction}>
+						<Search className="size-4" />
+						Find opportunities
+					</Link>
+				</div>
+			</header>
 			{error && (
-				<p role="alert" className="text-destructive text-sm">
+				<p role="alert" className="text-body-sm text-destructive">
 					{error}
 				</p>
 			)}
-
-			<div className="flex flex-wrap gap-2">
-				{(["Drafts", "Submitted", "Archived"] as ProposalTab[]).map((proposalTab) => (
+			<section aria-label="Proposal overview" className="grid grid-cols-3 gap-2 sm:gap-3">
+				{proposalStatuses.map(({ label, description, icon: Icon }) => (
 					<button
-						key={proposalTab}
+						key={label}
 						type="button"
-						className={tab === proposalTab ? workspaceStyles.primaryAction : workspaceStyles.secondaryAction}
-						onClick={() => setTab(proposalTab)}
+						onClick={() => selectTab(label)}
+						aria-pressed={tab === label}
+						className={`group rounded-lg border bg-surface-container-lowest p-3 text-left transition-colors hover:border-outline sm:p-5 ${tab === label ? "border-outline" : "border-outline-variant"}`}
 					>
-						{proposalTab}
+						<div className="flex items-center justify-between">
+							<span className="font-label-md text-caption text-on-surface-variant sm:text-label-md">
+								{label === "Drafts" ? "In progress" : label}
+							</span>
+							<Icon className={`hidden size-4 sm:block ${tab === label ? "text-primary" : "text-outline"}`} />
+						</div>
+						<div className="mt-3 flex items-end justify-between">
+							<span className="font-headline-xl font-semibold text-headline-xl tabular-nums tracking-tight">
+								{counts(label).toString().padStart(2, "0")}
+							</span>
+						</div>
+						<p className="mt-2 hidden text-caption text-on-surface-variant sm:block">{description}</p>
 					</button>
 				))}
-			</div>
-
-			{visibleProposals.length > 0 ? (
-				<div className="space-y-4">
-					{visibleProposals.map((draft) => (
-						<WorkspaceSurface key={draft.job.id} className="flex flex-wrap items-center justify-between gap-4 p-6">
-							<div>
-								<p className="text-muted-foreground text-xs">
-									{draft.status ?? "Drafts"} · {draft.job.company}
-								</p>
-
-								<h2 className="mt-2 font-semibold text-lg">{draft.job.title}</h2>
-
-								<p className="mt-2 text-muted-foreground text-sm">
-									Proposed {draft.job.projectType === "Fixed price" ? "budget" : "rate"}: ${draft.rate}
-									{draft.job.projectType === "Hourly" ? "/hr" : ""}
-								</p>
-							</div>
-
-							<div className="flex flex-wrap gap-2">
-								{tab === "Drafts" && (
-									<>
-										<button
-											type="button"
-											className={workspaceStyles.secondaryAction}
-											onClick={() => openProposal(draft.job, draft)}
-										>
-											Edit draft
-										</button>
-
-										<button
-											type="button"
-											className={workspaceStyles.primaryAction}
-											onClick={() => changeProposal(draft.job.id, "Submitted")}
-										>
-											Submit proposal
-										</button>
-									</>
-								)}
-
-								{tab === "Submitted" && (
-									<button type="button" className={workspaceStyles.secondaryAction} onClick={() => openJob(draft.job)}>
-										View job
-									</button>
-								)}
-
+			</section>
+			<div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2.1fr)_minmax(280px,1fr)] lg:gap-8">
+				<section aria-label="Your proposal list" className="min-w-0 space-y-5">
+					<div className="flex flex-wrap items-center justify-between gap-3">
+						<fieldset aria-label="Proposal status" className="flex min-w-0 flex-wrap gap-1.5">
+							{proposalStatuses.map(({ label }) => (
 								<button
+									key={label}
 									type="button"
-									className={workspaceStyles.secondaryAction}
-									onClick={() => changeProposal(draft.job.id, tab === "Archived" ? "Drafts" : "Archived")}
+									aria-pressed={tab === label}
+									onClick={() => selectTab(label)}
+									className={
+										tab === label
+											? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors dark:bg-on-surface dark:text-background"
+											: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
+									}
 								>
-									{tab === "Archived" ? "Restore draft" : "Archive"}
+									<span>{label}</span>
+									<span
+										className={
+											tab === label
+												? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-background/15 dark:text-background"
+												: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
+										}
+									>
+										{counts(label)}
+									</span>
 								</button>
-							</div>
+							))}
+						</fieldset>
+						<div className="flex items-center gap-2">
+							<span className="font-caption text-caption text-outline">Sort by:</span>
+							<Select value={sort} onValueChange={setSort}>
+								<SelectTrigger
+									size="sm"
+									aria-label="Sort proposals"
+									className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+								>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent
+									align="end"
+									sideOffset={6}
+									className="w-[var(--radix-select-trigger-width)] min-w-0 rounded-lg border-outline-variant bg-surface-container-lowest p-1 text-on-surface shadow-md [&_[data-radix-select-viewport]]:min-w-0"
+								>
+									{[
+										["default", "Default order"],
+										["title", "Project title"],
+									].map(([value, label]) => (
+										<SelectItem
+											key={value}
+											value={value}
+											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+										>
+											{label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+					</div>
+					<label className="flex h-11 items-center gap-2.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 focus-within:border-primary">
+						<Search className="size-4 shrink-0 text-outline" />
+						<span className="sr-only">Search proposals</span>
+						<input
+							type="text"
+							value={query}
+							onChange={(event) => setQuery(event.target.value)}
+							placeholder="Search by project, client, or skill"
+							className="min-w-0 flex-1 bg-transparent text-body-sm outline-none"
+						/>
+						{query && (
+							<button
+								type="button"
+								aria-label="Clear proposal search"
+								onClick={() => setQuery("")}
+								className="rounded p-1 text-outline hover:text-on-surface"
+							>
+								<X className="size-4" />
+							</button>
+						)}
+					</label>
+					<div className="flex items-center justify-between gap-3">
+						<h2 className="font-headline-sm font-semibold text-headline-sm">
+							{proposalStatuses.find((status) => status.label === tab)?.title}
+						</h2>
+						<span role="status" className="text-caption text-outline">
+							{visibleProposals.length} {visibleProposals.length === 1 ? "proposal" : "proposals"}
+						</span>
+					</div>
+					{visibleProposals.length ? (
+						<div className="space-y-3.5">
+							{visibleProposals.map((draft) => (
+								<article
+									key={draft.job.id}
+									className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5 transition-colors hover:border-outline"
+								>
+									<div className="flex items-start justify-between gap-3">
+										<div className="min-w-0">
+											<div className="flex flex-wrap items-center gap-2 text-caption text-outline">
+												<span className="font-medium text-on-surface-variant">{draft.job.company}</span>
+												<span aria-hidden="true">·</span>
+												<span>Remote</span>
+												<span aria-hidden="true">·</span>
+												<span>{draft.job.category}</span>
+											</div>
+											<button
+												type="button"
+												onClick={() => openJob(draft.job)}
+												className="mt-1.5 text-left font-headline-md font-semibold text-headline-md text-on-surface hover:text-primary"
+											>
+												{draft.job.title}
+											</button>
+										</div>
+										<span className="inline-flex shrink-0 items-center gap-1.5 rounded border border-outline-variant bg-surface-container-low px-2 py-1 text-caption text-on-surface-variant">
+											{tab === "Drafts" ? (
+												<FilePenLine className="size-3" />
+											) : tab === "Submitted" ? (
+												<Send className="size-3" />
+											) : (
+												<Archive className="size-3" />
+											)}
+											{tab === "Drafts" ? "Draft" : tab}
+										</span>
+									</div>
+									<div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-caption">
+										<div>
+											<span className="mr-2 text-on-surface-variant">Project budget</span>
+											<strong className="font-numeric-data font-semibold text-[16px] text-on-surface">
+												{draft.job.budget.split(" · ")[0]}
+											</strong>
+										</div>
+										<span className="text-outline">{draft.job.projectType} contract</span>
+									</div>
+									<div className="mt-4 rounded-lg border border-outline-variant/50 bg-surface-container-low/50 p-3.5">
+										<p className="mb-1.5 font-caption font-medium text-caption text-on-surface-variant">
+											Your introduction
+										</p>
+										<p className="line-clamp-3 text-body-sm text-on-surface-variant leading-relaxed">
+											{draft.cover ||
+												"A great proposal starts with a personal introduction. Tell the client how you can help."}
+										</p>
+									</div>
+									<div className="mt-4 flex flex-col gap-3 border-outline-variant/50 border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
+										<div className="flex flex-wrap gap-1.5">
+											{draft.job.skills.slice(0, 3).map((skill) => (
+												<span
+													key={skill}
+													className="rounded border border-transparent bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant dark:border-border-subtle dark:text-on-surface-soft"
+												>
+													{skill}
+												</span>
+											))}
+										</div>
+										<div className="flex shrink-0 flex-wrap items-center gap-2 self-end">
+											<button
+												type="button"
+												onClick={() => changeProposal(draft.job.id, tab === "Archived" ? "Drafts" : "Archived")}
+												className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-label-sm text-on-surface-variant hover:bg-surface-container"
+											>
+												{tab === "Archived" ? "Restore draft" : "Archive"}
+											</button>
+											<button
+												type="button"
+												onClick={() => openProposal(draft.job, draft)}
+												className={workspaceStyles.primaryAction}
+											>
+												{tab === "Drafts" ? "Continue draft" : "View proposal"}
+												<ArrowRight className="size-3.5" />
+											</button>
+										</div>
+									</div>
+								</article>
+							))}
+						</div>
+					) : query ? (
+						<WorkspaceSurface className="p-10 text-center">
+							<Search className="mx-auto size-6 text-outline" />
+							<h3 className="mt-4 font-headline-md font-semibold text-headline-md">No matching proposals</h3>
+							<p className="mt-2 text-body-sm text-on-surface-variant">Try another project, client, or skill.</p>
+							<button type="button" onClick={() => setQuery("")} className={`${workspaceStyles.secondaryAction} mt-5`}>
+								Clear search
+							</button>
 						</WorkspaceSurface>
-					))}
-				</div>
-			) : (
-				<EmptyProposals tab={tab} />
-			)}
+					) : (
+						<EmptyProposals tab={tab} />
+					)}
+					<p className="pt-1 text-caption text-outline">Your next great project starts with a conversation.</p>
+				</section>
+				<aside aria-label="Proposal guidance" className="space-y-5">
+					<WorkspaceSurface className="p-5">
+						<div className="mb-4 flex items-center justify-between">
+							<h2 className="font-headline-sm font-semibold text-headline-sm">Make your first impression count</h2>
+							<FilePenLine className="size-4 shrink-0 text-primary" />
+						</div>
+						<p className="text-body-sm text-on-surface-variant leading-relaxed">
+							A little care goes a long way. Give every proposal a personal touch.
+						</p>
+						<div className="mt-5 space-y-4">
+							{[
+								["Start with their project", "Show you understand what they need."],
+								["Make your experience relevant", "Share a similar project and its outcome."],
+								["Offer a clear next step", "Explain how you’d start the work."],
+							].map(([title, description]) => (
+								<div key={title} className="flex gap-2.5">
+									<CircleCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+									<div>
+										<h3 className="font-label-md font-medium text-label-md">{title}</h3>
+										<p className="mt-1 text-caption text-on-surface-variant leading-relaxed">{description}</p>
+									</div>
+								</div>
+							))}
+						</div>
+						<Link to="/freelancer" className={`${workspaceStyles.secondaryAction} mt-5 w-full`}>
+							Review your profile
+							<ArrowRight className="size-3.5" />
+						</Link>
+					</WorkspaceSurface>
+					<WorkspaceSurface className="p-5">
+						<div className="mb-3 flex items-center gap-2">
+							<Bookmark className="size-4 text-primary" />
+							<h2 className="font-headline-sm font-semibold text-headline-sm">Keep the momentum</h2>
+						</div>
+						<p className="text-body-sm text-on-surface-variant leading-relaxed">
+							Your shortlist is a good place to find your next introduction.
+						</p>
+						<Link
+							to="/freelancer-saved-jobs"
+							className="mt-4 inline-flex items-center gap-2 font-label-md text-label-md text-primary hover:underline"
+						>
+							Explore saved jobs
+							<ArrowRight className="size-3.5" />
+						</Link>
+					</WorkspaceSurface>
+				</aside>
+			</div>
 
 			<Sheet
 				open={selected !== null}
@@ -282,10 +578,21 @@ const FreelancerProposalsPage = () => {
 								<ProposalEditor
 									job={selected}
 									cover={cover}
-									rate={rate}
 									onCoverChange={setCover}
-									onRateChange={setRate}
-									onCancel={() => setCompose(false)}
+									readOnly={selectedReadOnly}
+									onSend={() => {
+										setDrafts((items) =>
+											items.map((item) =>
+												item.job.id === selected.id
+													? { ...item, cover: cover.trim(), rate, status: "Submitted" }
+													: item,
+											),
+										)
+										closeSheet()
+										setTab("Submitted")
+										toast.success("Proposal submitted")
+									}}
+									onCancel={closeSheet}
 									onSubmit={saveDraft}
 								/>
 							) : (
@@ -302,31 +609,34 @@ const FreelancerProposalsPage = () => {
 const ProposalEditor = ({
 	job,
 	cover,
-	rate,
 	onCoverChange,
-	onRateChange,
 	onCancel,
 	onSubmit,
+	readOnly = false,
+	onSend,
 }: {
 	job: FreelancerJob
 	cover: string
-	rate: string
 	onCoverChange: (value: string) => void
-	onRateChange: (value: string) => void
 	onCancel: () => void
 	onSubmit: () => void
+	readOnly?: boolean
+	onSend: () => void
 }) => {
-	const isHourly = job.projectType === "Hourly"
 
 	return (
 		<section className="flex min-h-0 flex-1 flex-col">
 			<div className="border-border border-b px-6 py-6 sm:px-8">
 				<p className="mb-2 font-semibold text-primary text-xs">YOUR NEXT OPPORTUNITY</p>
 
-				<SheetTitle className="font-semibold text-2xl tracking-tight">Make your introduction</SheetTitle>
+				<SheetTitle className="font-semibold text-2xl tracking-tight">
+					{readOnly ? "Your proposal" : "Make your introduction"}
+				</SheetTitle>
 
 				<SheetDescription className="mt-2 text-sm leading-6">
-					A thoughtful proposal is the start of a great collaboration.
+					{readOnly
+						? "Your introduction and proposed terms, all in one place."
+						: "A thoughtful proposal is the start of a great collaboration."}
 				</SheetDescription>
 			</div>
 
@@ -334,44 +644,19 @@ const ProposalEditor = ({
 				className="flex min-h-0 flex-1 flex-col"
 				onSubmit={(event) => {
 					event.preventDefault()
-					onSubmit()
+					if (!readOnly) onSubmit()
 				}}
 			>
 				<div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-6 py-6 sm:px-8">
 					<div className="rounded-xl border border-border bg-muted/40 p-4">
-						<p className="text-muted-foreground text-xs">Applying to · {job.company}</p>
+						<p className="text-muted-foreground text-xs">
+							{readOnly ? "Proposal for" : "Applying to"} · {job.company}
+						</p>
 
 						<p className="mt-2 font-semibold text-sm leading-6">{job.title}</p>
 
 						<p className="mt-2 text-muted-foreground text-xs">{job.budget}</p>
 					</div>
-
-					<JobFormSection
-						title={isHourly ? "Set your hourly rate" : "Set your project price"}
-						description={
-							isHourly
-								? "Enter the hourly rate you'd like to propose."
-								: "Enter the total amount you'd like to propose."
-						}
-					>
-						<label className="block font-medium text-sm">
-							{isHourly ? "Hourly rate" : "Project price"}
-
-							<div className="relative mt-2">
-								<span className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground">$</span>
-
-								<input
-									required
-									type="number"
-									min="1"
-									step="0.01"
-									value={rate}
-									onChange={(event) => onRateChange(event.target.value)}
-									className={`${jobFormField} pl-7`}
-								/>
-							</div>
-						</label>
-					</JobFormSection>
 
 					<JobFormSection
 						title="Tell them why you're a good fit"
@@ -380,6 +665,7 @@ const ProposalEditor = ({
 						<label className="block font-medium text-sm">
 							Cover letter
 							<textarea
+								readOnly={readOnly}
 								required
 								minLength={40}
 								maxLength={5000}
@@ -403,10 +689,22 @@ const ProposalEditor = ({
 							Back
 						</button>
 
-						<button type="submit" className={workspaceStyles.primaryAction}>
-							Save draft
-							<ArrowRight className="size-4" />
-						</button>
+						{!readOnly && (
+							<div className="flex items-center justify-end gap-2.5">
+								<button type="submit" className={workspaceStyles.secondaryAction}>
+									Save as draft
+								</button>
+								<button
+									type="button"
+									disabled={cover.trim().length < 40 || cover.length > 5000}
+									onClick={onSend}
+									className={`${workspaceStyles.primaryAction} disabled:opacity-50`}
+								>
+									<Send className="size-3.5" />
+									Apply now
+								</button>
+							</div>
+						)}
 					</div>
 				</footer>
 			</form>
