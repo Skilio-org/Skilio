@@ -1,4 +1,4 @@
-.PHONY: help dev up down env push logs status clean backup restore
+.PHONY: help dev up down env env-dev push push-dry logs status clean backup restore
 
 # Default target — show available commands
 help:
@@ -15,7 +15,9 @@ help:
 	@echo ""
 	@echo "  HCP Vault:"
 	@echo "    make env          Pull secrets from HCP Vault → generate .env"
+	@echo "    make env-dev      Pull secrets (use fallback defaults for missing values)"
 	@echo "    make push         Upload local .env secrets to HCP Vault"
+	@echo "    make push-dry     Preview what will be pushed (no writes)"
 	@echo ""
 	@echo "  Database:"
 	@echo "    make backup       Dump the Postgres database to a .sql.gz file"
@@ -52,9 +54,17 @@ status:
 env:
 	@bash devops/vault/scripts/vault-pull.sh
 
+# Pull secrets with fallback defaults for local development
+env-dev:
+	@bash devops/vault/scripts/vault-pull.sh --allow-fallbacks
+
 # Upload local .env secrets up to HCP Vault
 push:
 	@bash devops/vault/scripts/vault-push.sh
+
+# Preview what will be pushed without writing
+push-dry:
+	@bash devops/vault/scripts/vault-push.sh --dry-run
 
 # ─── Database ───────────────────────────────────────────────
 
