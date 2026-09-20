@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Bell, BriefcaseBusiness, CheckCheck, FileText, MessageSquare, UserRound } from "lucide-react"
+
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -24,32 +25,24 @@ const initialNotifications: Notification[] = [
 	{
 		id: 1,
 		type: "message",
-		title: "New message",
-		description: "Sarah sent you a message about the React dashboard project.",
+		title: "New message from Sarah",
+		description: "She sent you a message about the React dashboard project.",
 		time: "2m",
 		read: false,
 	},
 	{
 		id: 2,
-		type: "proposal",
-		title: "Proposal viewed",
-		description: "Your proposal for Senior Frontend Developer was viewed by the client.",
-		time: "18m",
-		read: false,
-	},
-	{
-		id: 3,
 		type: "contract",
 		title: "Contract offer received",
-		description: "Acme Studio sent you a new contract offer.",
+		description: "Acme Studio sent you an offer for the Mobile App Redesign project.",
 		time: "1h",
 		read: false,
 	},
 	{
-		id: 4,
+		id: 3,
 		type: "profile",
-		title: "Profile activity",
-		description: "Your profile appeared in 8 client searches this week.",
+		title: "Your profile is getting noticed",
+		description: "You appeared in 8 client searches this week.",
 		time: "1d",
 		read: true,
 	},
@@ -103,16 +96,17 @@ export function NotificationDropdown() {
 			<DropdownMenuTrigger asChild>
 				<button
 					type="button"
-					aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
-					className="relative flex size-8 shrink-0 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant outline-none transition-colors hover:bg-surface-container hover:text-on-surface focus-visible:ring-2 focus-visible:ring-primary/30"
+					aria-label={unreadCount ? `${unreadCount} unread notifications` : "Notifications"}
+					className="group relative flex size-8 shrink-0 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant outline-none transition-colors hover:bg-surface-container hover:text-on-surface focus-visible:ring-2 focus-visible:ring-primary/25 dark:border-border-subtle"
 				>
 					<Bell className="size-[18px]" />
 
 					{unreadCount > 0 && (
-						<span
-							aria-hidden="true"
-							className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-error ring-2 ring-surface-container-lowest"
-						/>
+						<span aria-hidden="true" className="absolute top-1 right-1 flex size-2 items-center justify-center">
+							<span className="absolute size-2 rounded-full bg-surface-container-lowest dark:bg-surface-panel" />
+
+							<span className="relative size-1.5 rounded-full bg-error" />
+						</span>
 					)}
 				</button>
 			</DropdownMenuTrigger>
@@ -120,116 +114,137 @@ export function NotificationDropdown() {
 			<DropdownMenuContent
 				align="end"
 				sideOffset={8}
-				className="w-[380px] max-w-[calc(100vw-24px)] rounded-xl border border-outline-variant/70 bg-surface-container-lowest p-1.5 shadow-xl"
+				className="w-[390px] max-w-[calc(100vw-20px)] overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest p-0 shadow-xl dark:border-border-subtle dark:bg-surface-panel"
 			>
 				{/* Header */}
-				<div className="flex items-center justify-between gap-4 px-3.5 py-3">
+				<div className="flex items-center justify-between gap-4 px-4 py-3.5">
 					<div className="min-w-0">
 						<div className="flex items-center gap-2">
-							<h2 className="font-label-md font-semibold text-label-md text-on-surface">Notifications</h2>
+							<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Notifications</h2>
 
 							{unreadCount > 0 && (
-								<span className="rounded-full bg-primary/10 px-2 py-0.5 font-caption text-[10px] text-primary">
-									{unreadCount} new
+								<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption font-medium text-caption text-primary dark:border dark:border-border-subtle dark:bg-surface-container">
+									{unreadCount}
 								</span>
 							)}
 						</div>
 
-						<p className="mt-0.5 font-caption text-caption text-on-surface-variant">Workspace activity and updates</p>
+						<p className="mt-0.5 font-caption text-caption text-on-surface-variant">Updates from your workspace</p>
 					</div>
 
 					{unreadCount > 0 && (
 						<button
 							type="button"
 							onClick={markAllAsRead}
-							className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 font-caption text-caption text-primary transition-colors hover:bg-surface-container"
+							title="Mark all as read"
+							aria-label="Mark all notifications as read"
+							className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-primary"
 						>
-							<CheckCheck className="size-3.5" />
-							<span className="hidden sm:inline">Mark all read</span>
+							<CheckCheck className="size-4" />
 						</button>
 					)}
 				</div>
 
-				<DropdownMenuSeparator className="mx-2 my-0 bg-outline-variant/50" />
+				<DropdownMenuSeparator className="m-0 bg-outline-variant/60 dark:bg-border-subtle" />
+
+				{/* Small section heading */}
+				<div className="flex items-center justify-between px-4 pt-3 pb-1.5">
+					<span className="font-caption font-semibold text-[10px] text-outline uppercase tracking-wider">
+						Recent activity
+					</span>
+
+					{unreadCount > 0 && <span className="font-caption text-[10px] text-outline">{unreadCount} unread</span>}
+				</div>
 
 				{/* Notifications */}
-				<div className="max-h-[420px] overflow-y-auto p-1.5">
+				<div className="max-h-[410px] overflow-y-auto px-1.5 pb-1.5">
 					{notifications.length > 0 ? (
 						notifications.map((notification) => (
 							<DropdownMenuItem
 								key={notification.id}
 								onSelect={(event) => {
 									event.preventDefault()
-
 									markAsRead(notification.id)
 								}}
 								className={cn(
-									"group relative mb-1 cursor-pointer items-start gap-3 rounded-lg px-3 py-3 outline-none focus:bg-surface-container",
-									!notification.read && "bg-surface-container-low",
+									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 my-1 outline-none transition-colors focus:bg-surface-container",
+									!notification.read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
 								)}
 							>
+								{/* Unread marker */}
+								{!notification.read && (
+									<span aria-hidden="true" className="absolute top-3 bottom-3 left-0 w-0.5 rounded-full bg-primary" />
+								)}
+
 								{/* Icon */}
 								<span
 									className={cn(
-										"mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg",
-										notification.read ? "bg-surface-container text-on-surface-variant" : "bg-primary/10 text-primary",
+										"grid size-8 shrink-0 place-items-center rounded-lg border transition-colors",
+										notification.read
+											? "border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container"
+											: "border-primary/15 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/10",
 									)}
 								>
 									<NotificationIcon type={notification.type} />
 								</span>
 
-								{/* Content */}
+								{/* Body */}
 								<span className="min-w-0 flex-1">
 									<span className="flex items-start justify-between gap-3">
 										<span
 											className={cn(
-												"truncate text-[13px] text-on-surface",
+												"min-w-0 truncate font-label-sm text-label-sm text-on-surface",
 												notification.read ? "font-medium" : "font-semibold",
 											)}
 										>
 											{notification.title}
 										</span>
 
-										<span className="shrink-0 font-caption text-[10px] text-outline">{notification.time}</span>
+										<span className="mt-0.5 shrink-0 font-caption text-[10px] text-outline">{notification.time}</span>
 									</span>
 
-									<span className="mt-1 line-clamp-2 block font-caption text-[11px] leading-4 text-on-surface-variant">
+									<span className="mt-1 line-clamp-2 block font-body-sm text-[11px] text-on-surface-variant leading-[17px]">
 										{notification.description}
 									</span>
 								</span>
 
-								{/* Unread */}
+								{/* Unread dot */}
 								{!notification.read && (
-									<span aria-label="Unread" className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
+									<span aria-label="Unread" className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
 								)}
 							</DropdownMenuItem>
 						))
 					) : (
-						<div className="px-5 py-10 text-center">
-							<span className="mx-auto grid size-11 place-items-center rounded-xl bg-surface-container text-on-surface-variant">
-								<Bell className="size-5" />
+						<div className="px-6 py-12 text-center">
+							<span className="mx-auto grid size-10 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-outline dark:border-border-subtle">
+								<Bell className="size-[18px]" />
 							</span>
 
-							<p className="mt-3 font-label-md font-medium text-on-surface">You're all caught up</p>
+							<h3 className="mt-3 font-label-md font-medium text-label-md text-on-surface">You're all caught up</h3>
 
 							<p className="mt-1 font-caption text-caption text-on-surface-variant">
-								New notifications will appear here.
+								New workspace activity will show up here.
 							</p>
 						</div>
 					)}
 				</div>
 
-				{/* <DropdownMenuSeparator className="mx-2 my-0 bg-outline-variant/50" /> */}
+				{notifications.length > 0 && (
+					<>
+						<DropdownMenuSeparator className="m-0 bg-outline-variant/60 dark:bg-border-subtle" />
 
-				{/* Footer */}
-				{/* <div className="p-1.5">
-					<button
-						type="button"
-						className="flex min-h-9 w-full items-center justify-center rounded-lg font-label-md font-medium text-label-md text-primary transition-colors hover:bg-surface-container"
-					>
-						View all notifications
-					</button>
-				</div> */}
+						<div className="flex items-center justify-between px-4 py-2.5">
+							<span className="font-caption text-caption text-outline">Showing recent activity</span>
+
+							<button
+								type="button"
+								className="font-label-sm font-medium text-label-sm text-primary transition-colors hover:text-primary-container"
+							>
+								View all
+							</button>
+						</div>
+					</>
+				)}
 			</DropdownMenuContent>
 		</DropdownMenu>
 	)

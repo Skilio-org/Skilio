@@ -247,10 +247,18 @@ export default function FreelancerJobsPage() {
 						Discover freelance opportunities curated for your skill set and contract preferences.
 					</p>
 				</div>
-				<div className="flex shrink-0 items-center gap-2.5 self-start md:self-auto">
-					<Link to="/freelancer-saved-jobs" className={secondaryAction}>
-						<Bookmark className="size-4 text-outline dark:text-on-surface-variant" />
-						Saved ({savedCount})
+				<div className="flex shrink-0 items-center self-start md:self-auto">
+					<Link
+						to="/freelancer-saved-jobs"
+						className="group inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md font-medium text-label-md text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
+					>
+						<Bookmark className="size-4 text-current transition-colors" />
+
+						<span>Saved</span>
+
+						<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption text-[10px] text-on-surface-variant transition-colors group-hover:text-on-surface">
+							{savedCount}
+						</span>
 					</Link>
 				</div>
 			</header>

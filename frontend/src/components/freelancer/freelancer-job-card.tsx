@@ -41,7 +41,7 @@ const FreelancerJobCard = (job: FreelancerJob) => {
 								setDetailsOpen(true)
 							}}
 							aria-haspopup="dialog"
-							className="pt-0.5 text-left font-headline-md font-semibold text-headline-md text-on-surface transition-colors group-hover:text-primary-container"
+							className="relative pt-0.5 text-left font-headline-md font-semibold text-headline-md text-on-surface transition-colors group-hover:text-primary-container after:absolute after:right-0 after:bottom-0 after:left-0 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-200 group-hover:after:scale-x-100"
 						>
 							{job.title}
 						</button>
