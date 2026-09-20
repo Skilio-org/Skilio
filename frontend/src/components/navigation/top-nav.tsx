@@ -74,7 +74,7 @@ export function TopNav() {
 				{/* Right */}
 				<div className="flex shrink-0 items-center gap-3">
 					{/* Search */}
-					<label className="relative hidden items-center sm:flex">
+					{/* <label className="relative hidden items-center sm:flex">
 						<Search className="pointer-events-none absolute left-2 size-[18px] text-outline" />
 
 						<span className="sr-only">Search jobs and contracts</span>
@@ -88,7 +88,7 @@ export function TopNav() {
 						<kbd className="pointer-events-none absolute right-1 rounded-lg bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline">
 							⌘K
 						</kbd>
-					</label>
+					</label> */}
 
 					{/* Notifications */}
 					<button

@@ -185,21 +185,7 @@ const FreelancerDashboardPage = () => {
 							})}
 						</div>
 
-						<div className="flex items-center gap-2 self-end sm:self-auto">
-							<span className="font-caption text-caption text-outline">
-								Sorted by:{" "}
-								<strong className="font-medium text-on-surface dark:text-on-surface-strong">Best Match</strong>
-							</span>
-
-							<Link
-								to="/freelancer-jobs"
-								title="Adjust preferences"
-								aria-label="Adjust job preferences"
-								className="p-1 text-outline transition-colors hover:text-on-surface"
-							>
-								<SlidersHorizontal className="size-[18px]" />
-							</Link>
-						</div>
+					
 					</div>
 
 					<div className="flex items-center justify-between px-1">
