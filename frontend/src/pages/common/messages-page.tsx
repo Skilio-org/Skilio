@@ -4,10 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from "sonner"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { MessageThread } from "@/components/messages/message-thread"
-import { MessageToolDialogView } from "@/components/messages/message-tool-dialog"
 import type { InboxFilter, ThreadMessage } from "@/components/messages/message-types"
 import { clientConversations, clientIntroductions, demoClients } from "@/data/freelancer-demo"
-import { freelancers } from "@/data/freelancers"
 
 const talentConversations = [
 	{
