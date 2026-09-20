@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router"
+import { useQueryClient } from "@tanstack/react-query"
 import {
 	Bell,
 	Boxes,
@@ -25,6 +26,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
+import { User } from "../sidebar/user"
+import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
+import { getInitials } from "@/utils"
+import { setAccountRole, useAccountRole } from "@/hooks/useAccountRole"
+import { UsersService } from "@/client"
+import { useState } from "react"
+import { toast } from "sonner"
 
 const links = [
 	["/freelancer-dashboard", "Overview"],
@@ -46,6 +55,40 @@ export function FreelancerNav() {
 
 	const fullName = user?.full_name?.trim() || "User"
 	const email = user?.email || ""
+
+	const avatarUrl = useAccountAvatarUrl(user?.id)
+
+	const displayName = user?.full_name || user?.email || "Your account"
+
+	const queryClient = useQueryClient()
+	const freelancer = useAccountRole() === "freelancer"
+	const role = freelancer ? "Freelancer" : "Client"
+	const [open, setOpen] = useState(false)
+	const [switching, setSwitching] = useState(false)
+	const switchWorkspace = async () => {
+		if (switching) return
+		setSwitching(true)
+		try {
+			if (user) {
+				if (import.meta.env.MODE !== "visual-test") {
+					const response = await UsersService.switchRole({
+						body: { role: nextRole },
+					})
+					// QueryClient.setQueryData(["currentUser"], response.data)
+				}
+				// setAccountRole(user.email, nextRole)
+			}
+			setOpen(false)
+			// await navigate({
+			// 	to: freelancer ? "/dashboard" : "/freelancer-dashboard",
+			// })
+			toast.success(`Switched to workspace`)
+		} catch {
+			toast.error("We couldn't switch workspaces. Please try again.")
+		} finally {
+			setSwitching(false)
+		}
+	}
 
 	return (
 		<header className="fixed top-0 right-0 left-0 z-50 w-full border-outline-variant border-b bg-surface-container-lowest/95 backdrop-blur-md dark:bg-surface-panel/95">
@@ -127,9 +170,31 @@ export function FreelancerNav() {
 					</button>
 
 					<div className="hidden h-4 w-px bg-outline-variant sm:block" />
-
+					{/* <User user={user}/> */}
+					
 					{/* Account menu */}
-					<DropdownMenu>
+					<DropdownMenu open={open} onOpenChange={setOpen}>
+						<DropdownMenuTrigger asChild>
+							<button
+								type="button"
+								data-testid="user-menu"
+								aria-label={`Open account menu,  workspace`}
+								className="account-trigger flex min-h-11 items-center gap-2 rounded-xl p-1.5 text-left transition-colors hover:bg-muted sm:gap-3 sm:pr-3"
+							>
+								<Avatar className="size-8 rounded-lg">
+									{avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="size-8 rounded-lg"/>}
+									<AvatarFallback className="rounded-lg bg-brand-100 font-semibold text-brand-800 text-xs">
+										{getInitials(displayName)}
+									</AvatarFallback>
+								</Avatar>
+								<div className="hidden min-w-0 sm:block">
+									<p className="max-w-28 truncate font-semibold text-xs">{user?.full_name || "My account"}</p>
+									<p className="mt-0.5 text-muted-foreground text-xs">{role}</p>
+								</div>
+								<ChevronDown className="size-3.5 text-muted-foreground" />
+							</button>
+						</DropdownMenuTrigger>
+{/* 
 						<DropdownMenuTrigger asChild>
 							<button
 								type="button"
@@ -137,8 +202,14 @@ export function FreelancerNav() {
 								className="group flex items-center gap-2 rounded-lg p-1 text-left outline-none transition-colors hover:bg-surface-container focus-visible:ring-2 focus-visible:ring-primary"
 							>
 								<span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary">
-									<UserRound className="size-[18px]" strokeWidth={2} />
+									<Avatar className="size-[18px] rounded-lg">
+										{avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+										<AvatarFallback className="rounded-lg bg-brand-100 font-semibold text-brand-800 text-xs">
+											{getInitials(displayName)}
+										</AvatarFallback>
+									</Avatar>
 								</span>
+								
 
 								<span className="hidden min-w-0 flex-col lg:flex">
 									<span className="max-w-32 truncate font-label-sm font-medium text-label-sm text-on-surface leading-none">
@@ -152,31 +223,29 @@ export function FreelancerNav() {
 
 								<ChevronDown className="hidden size-3.5 text-outline transition-transform group-data-[state=open]:rotate-180 lg:block" />
 							</button>
-						</DropdownMenuTrigger>
+						</DropdownMenuTrigger> */}
 
 						<DropdownMenuContent
 							align="end"
 							sideOffset={8}
 							className="w-[296px] max-w-[calc(100vw-24px)] rounded-xl border border-outline-variant/70 bg-surface-container-lowest p-1.5 shadow-xl"
 						>
-							{/* Account header */}
 							<div className="flex items-center gap-3 px-3.5 py-3.5">
-								<div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary">
-									<UserRound className="size-[19px]" />
-								</div>
-
+								<Avatar className="size-8 rounded-lg">
+									{avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="size-8 rounded-lg"/>}
+									<AvatarFallback className="rounded-lg bg-brand-100 font-semibold text-brand-800 text-xs">
+										{getInitials(displayName)}
+									</AvatarFallback>
+								</Avatar>
 								<div className="min-w-0 flex-1">
 									<p className="truncate font-label-md font-medium text-label-md text-on-surface">{fullName}</p>
-
 									{email && (
 										<p className="mt-0.5 truncate font-caption text-caption text-on-surface-variant">{email}</p>
 									)}
 								</div>
 							</div>
-
 							<DropdownMenuSeparator className="mx-2 my-0 bg-outline-variant/50" />
-
-							<div className="px-2 py-3">
+							<div className="px-2 pt-3 pb-0">
 								<DropdownMenuItem
 									role="switch"
 									aria-label="Available for work"
@@ -222,15 +291,12 @@ export function FreelancerNav() {
 										<span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-container text-primary">
 											<UserRound className="size-4" />
 										</span>
-
 										<span className="min-w-0 flex-1">
 											<span className="block font-label-md font-medium text-label-md text-on-surface">Freelancer</span>
-
 											<span className="mt-0.5 block font-caption text-caption text-on-surface-variant">
 												Find work & manage proposals
 											</span>
 										</span>
-
 										<Check className="size-4 shrink-0 text-primary" />
 									</Link>
 								</DropdownMenuItem>
