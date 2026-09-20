@@ -1,14 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import {
-	ArrowRight,
-	Bookmark,
-	BriefcaseBusiness,
-	CheckCircle2,
-	ChevronDown,
-	Circle,
-	Search,
-	SlidersHorizontal,
-} from "lucide-react"
+import { ArrowRight, Bookmark, BriefcaseBusiness, CheckCircle2, ChevronDown, Circle, Search } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
@@ -24,7 +15,6 @@ const FreelancerDashboardPage = () => {
 
 	const storageKey = `freelancer-work-v2:${user?.id ?? "preview"}`
 
-	const [saved, setSaved] = useState<string[]>([])
 	const [drafts, setDrafts] = useState<Draft[]>([])
 	const [error, setError] = useState("")
 
@@ -36,16 +26,15 @@ const FreelancerDashboardPage = () => {
 			const stored = localStorage.getItem(storageKey)
 
 			if (!stored) {
-				setSaved([])
 				setDrafts(seedProposals)
 				return
 			}
 
 			const data = JSON.parse(stored)
 
-			setSaved(
-				Array.isArray(data.saved) ? data.saved.filter((id: unknown): id is string => typeof id === "string") : [],
-			)
+			// setSaved(
+			// 	Array.isArray(data.saved) ? data.saved.filter((id: unknown): id is string => typeof id === "string") : [],
+			// )
 
 			setDrafts(
 				Array.isArray(data.drafts)
@@ -68,7 +57,6 @@ const FreelancerDashboardPage = () => {
 					: seedProposals,
 			)
 		} catch {
-			setSaved([])
 			setDrafts(seedProposals)
 
 			setError("Your saved workspace data couldn't be restored. Showing demo data.")
@@ -91,7 +79,6 @@ const FreelancerDashboardPage = () => {
 
 	const dashboardFilters = ["All work", ...Array.from(new Set(jobs.map((job) => job.category))).slice(0, 2)]
 
-	const [savedCount, setSavedCount] = useState(0)
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
@@ -134,7 +121,7 @@ const FreelancerDashboardPage = () => {
 						<span>Saved</span>
 
 						<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption text-[10px] text-on-surface-variant transition-colors group-hover:text-on-surface">
-							{savedCount}
+							{/* {savedCount} */}0
 						</span>
 					</Link>
 					<Link

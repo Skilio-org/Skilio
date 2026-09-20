@@ -1,6 +1,6 @@
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { Link, useRouterState } from "@tanstack/react-router"
-import { Bell, Boxes, Menu, Moon, Sun } from "lucide-react"
+import { Boxes, Menu, Moon, Sun } from "lucide-react"
 import { NotificationDropdown } from "@/components/common/notification-dropdown"
 import { useTheme } from "@/components/theme-provider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"

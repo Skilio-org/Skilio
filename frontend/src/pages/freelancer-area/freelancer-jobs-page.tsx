@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { Bookmark, ChevronDown, Filter, MapPin, Search, SlidersHorizontal, X } from "lucide-react"
+import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
