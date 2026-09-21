@@ -68,16 +68,12 @@ export function User({ user }: { user?: UserPublic | null }) {
 
 		try {
 			if (user) {
-				if (import.meta.env.MODE !== "visual-test") {
-					const response = await UsersService.switchRole({
-						body: {
-							role: targetRole,
-						},
-					})
-
-					queryClient.setQueryData(["currentUser"], response.data)
-				}
-
+				const response = await UsersService.switchRole({
+					body: {
+						role: targetRole,
+					},
+				})
+				queryClient.setQueryData(["currentUser"], response.data)
 				setAccountRole(user.email, targetRole)
 			}
 

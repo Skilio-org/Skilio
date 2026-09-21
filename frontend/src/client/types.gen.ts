@@ -88,6 +88,20 @@ export type Body_users_upload_avatar = {
 export type BudgetType = 'hourly' | 'fixed';
 
 /**
+ * CategoriesPublic
+ */
+export type CategoriesPublic = {
+    /**
+     * Data
+     */
+    data: Array<string>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
  * ClientProfileDetailPublic
  */
 export type ClientProfileDetailPublic = {
@@ -246,6 +260,34 @@ export type ClientProfileUpdate = {
      * Optional update to user's full name in the same request
      */
     full_name?: string | null;
+};
+
+/**
+ * DeepHealthCheck
+ */
+export type DeepHealthCheck = {
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Timestamp
+     */
+    timestamp: string;
+    /**
+     * Uptime Seconds
+     */
+    uptime_seconds: number;
+    /**
+     * Environment
+     */
+    environment: string;
+    /**
+     * Services
+     */
+    services: {
+        [key: string]: ServiceHealth;
+    };
 };
 
 /**
@@ -871,6 +913,10 @@ export type JobPostCreate = {
      * Location
      */
     location?: string | null;
+    /**
+     * Category
+     */
+    category?: string | null;
     status?: JobStatus;
     /**
      * Skills
@@ -899,6 +945,10 @@ export type JobPostDetailPublic = {
      * Location
      */
     location?: string | null;
+    /**
+     * Category
+     */
+    category?: string | null;
     status?: JobStatus;
     /**
      * Id
@@ -965,6 +1015,10 @@ export type JobPostPublic = {
      * Location
      */
     location?: string | null;
+    /**
+     * Category
+     */
+    category?: string | null;
     status?: JobStatus;
     /**
      * Id
@@ -1029,6 +1083,10 @@ export type JobPostUpdate = {
      * Location
      */
     location?: string | null;
+    /**
+     * Category
+     */
+    category?: string | null;
     status?: JobStatus | null;
     /**
      * Skills
@@ -1345,6 +1403,30 @@ export type ProposalsPublic = {
 };
 
 /**
+ * RecentSearchCreate
+ */
+export type RecentSearchCreate = {
+    /**
+     * Query
+     */
+    query: string;
+};
+
+/**
+ * RecentSearchesPublic
+ */
+export type RecentSearchesPublic = {
+    /**
+     * Data
+     */
+    data: Array<string>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
  * ReviewCreate
  */
 export type ReviewCreate = {
@@ -1467,6 +1549,24 @@ export type SavedJobsPublic = {
      * Count
      */
     count: number;
+};
+
+/**
+ * ServiceHealth
+ */
+export type ServiceHealth = {
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Latency Ms
+     */
+    latency_ms?: number | null;
+    /**
+     * Details
+     */
+    details?: string | null;
 };
 
 /**
@@ -2294,6 +2394,22 @@ export type utilsHealthCheckResponses = {
 
 export type utilsHealthCheckResponse = utilsHealthCheckResponses[keyof utilsHealthCheckResponses];
 
+export type utilsDeepHealthCheckData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/utils/health/detailed';
+};
+
+export type utilsDeepHealthCheckResponses = {
+    /**
+     * Successful Response
+     */
+    200: DeepHealthCheck;
+};
+
+export type utilsDeepHealthCheckResponse = utilsDeepHealthCheckResponses[keyof utilsDeepHealthCheckResponses];
+
 export type profilesReadProfilesData = {
     body?: never;
     path?: never;
@@ -2310,10 +2426,6 @@ export type profilesReadProfilesData = {
          * Q
          */
         q?: string | null;
-        /**
-         * Skill
-         */
-        skill?: Array<string> | null;
         /**
          * Category
          */
@@ -3264,6 +3376,79 @@ export type skillsReadSkillResponses = {
 
 export type skillsReadSkillResponse = skillsReadSkillResponses[keyof skillsReadSkillResponses];
 
+export type categoriesReadCategoriesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/categories/';
+};
+
+export type categoriesReadCategoriesResponses = {
+    /**
+     * Successful Response
+     */
+    200: CategoriesPublic;
+};
+
+export type categoriesReadCategoriesResponse = categoriesReadCategoriesResponses[keyof categoriesReadCategoriesResponses];
+
+export type searchesClearRecentSearchesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/searches/recent';
+};
+
+export type searchesClearRecentSearchesResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type searchesClearRecentSearchesResponse = searchesClearRecentSearchesResponses[keyof searchesClearRecentSearchesResponses];
+
+export type searchesReadRecentSearchesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/searches/recent';
+};
+
+export type searchesReadRecentSearchesResponses = {
+    /**
+     * Successful Response
+     */
+    200: RecentSearchesPublic;
+};
+
+export type searchesReadRecentSearchesResponse = searchesReadRecentSearchesResponses[keyof searchesReadRecentSearchesResponses];
+
+export type searchesSaveRecentSearchData = {
+    body: RecentSearchCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/searches/recent';
+};
+
+export type searchesSaveRecentSearchErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type searchesSaveRecentSearchError = searchesSaveRecentSearchErrors[keyof searchesSaveRecentSearchErrors];
+
+export type searchesSaveRecentSearchResponses = {
+    /**
+     * Successful Response
+     */
+    200: RecentSearchesPublic;
+};
+
+export type searchesSaveRecentSearchResponse = searchesSaveRecentSearchResponses[keyof searchesSaveRecentSearchResponses];
+
 export type jobsReadJobsData = {
     body?: never;
     path?: never;
@@ -3281,9 +3466,9 @@ export type jobsReadJobsData = {
          */
         q?: string | null;
         /**
-         * Skill
+         * Category
          */
-        skill?: Array<ITSkill> | null;
+        category?: string | null;
         /**
          * Budget Type
          */

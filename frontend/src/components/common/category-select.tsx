@@ -19,15 +19,27 @@ type CategorySelectProps = {
 	value: string
 	categories: string[]
 	onValueChange: (value: string) => void
+	isLoading?: boolean
+	isError?: boolean
 }
 
 export default function CategorySelect({
 	value,
 	categories,
 	onValueChange,
+	isLoading = false,
+	isError = false,
 }: CategorySelectProps) {
+	const disabled = isLoading || isError
+
 	const selectedLabel =
 		value === "all" ? "All categories" : value
+
+	const triggerLabel = isLoading
+		? "Loading categories..."
+		: isError
+			? "Failed to load categories"
+			: selectedLabel
 
 	return (
 		<Popover>
@@ -35,10 +47,15 @@ export default function CategorySelect({
 				<button
 					type="button"
 					aria-label="Select category"
-					className="hidden h-9 min-w-40 max-w-52 items-center justify-between gap-2 border-outline-variant border-l px-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors hover:text-primary sm:flex"
+					disabled={disabled}
+					className={cn(
+						"hidden h-9 min-w-40 max-w-52 items-center justify-between gap-2 border-outline-variant border-l px-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors sm:flex",
+						"hover:text-primary",
+						"disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-on-surface",
+					)}
 				>
 					<span className="truncate">
-						{selectedLabel}
+						{triggerLabel}
 					</span>
 
 					<ChevronDown className="size-3.5 shrink-0 text-current" />
@@ -61,9 +78,7 @@ export default function CategorySelect({
 						<CommandGroup>
 							<CommandItem
 								value="All categories"
-								onSelect={() =>
-									onValueChange("all")
-								}
+								onSelect={() => onValueChange("all")}
 								className="cursor-pointer"
 							>
 								<span className="flex-1">
