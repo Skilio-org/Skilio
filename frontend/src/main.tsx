@@ -7,7 +7,7 @@ import { client } from "./client/client.gen"
 import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "./components/ui/sonner"
 import { routeTree } from "./routeTree.gen"
-import "./styles/globals.css"
+import "./styles/globals-freelancetheworld.css"
 
 client.setConfig({
 	baseURL: import.meta.env.VITE_API_URL ?? "",

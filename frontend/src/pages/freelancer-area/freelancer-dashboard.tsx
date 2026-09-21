@@ -1,14 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import {
-	ArrowRight,
-	Bookmark,
-	BriefcaseBusiness,
-	CheckCircle2,
-	ChevronDown,
-	Circle,
-	Search,
-	SlidersHorizontal,
-} from "lucide-react"
+import { ArrowRight, Bookmark, BriefcaseBusiness, CheckCircle2, ChevronDown, Circle, Search } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
@@ -24,7 +15,6 @@ const FreelancerDashboardPage = () => {
 
 	const storageKey = `freelancer-work-v2:${user?.id ?? "preview"}`
 
-	const [saved, setSaved] = useState<string[]>([])
 	const [drafts, setDrafts] = useState<Draft[]>([])
 	const [error, setError] = useState("")
 
@@ -36,16 +26,15 @@ const FreelancerDashboardPage = () => {
 			const stored = localStorage.getItem(storageKey)
 
 			if (!stored) {
-				setSaved([])
 				setDrafts(seedProposals)
 				return
 			}
 
 			const data = JSON.parse(stored)
 
-			setSaved(
-				Array.isArray(data.saved) ? data.saved.filter((id: unknown): id is string => typeof id === "string") : [],
-			)
+			// setSaved(
+			// 	Array.isArray(data.saved) ? data.saved.filter((id: unknown): id is string => typeof id === "string") : [],
+			// )
 
 			setDrafts(
 				Array.isArray(data.drafts)
@@ -68,7 +57,6 @@ const FreelancerDashboardPage = () => {
 					: seedProposals,
 			)
 		} catch {
-			setSaved([])
 			setDrafts(seedProposals)
 
 			setError("Your saved workspace data couldn't be restored. Showing demo data.")
@@ -126,12 +114,16 @@ const FreelancerDashboardPage = () => {
 				<div className="flex items-center gap-2.5 self-start md:self-auto">
 					<Link
 						to="/freelancer-saved-jobs"
-						className="flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
+						className="group inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md font-medium text-label-md text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
 					>
-						<Bookmark className="size-4 text-outline dark:text-on-surface-variant" />
-						Saved ({saved.length})
-					</Link>
+						<Bookmark className="size-4 text-current transition-colors" />
 
+						<span>Saved</span>
+
+						<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption text-[10px] text-on-surface-variant transition-colors group-hover:text-on-surface">
+							{/* {savedCount} */}0
+						</span>
+					</Link>
 					<Link
 						to="/freelancer-jobs"
 						className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
@@ -184,22 +176,6 @@ const FreelancerDashboardPage = () => {
 								)
 							})}
 						</div>
-
-						<div className="flex items-center gap-2 self-end sm:self-auto">
-							<span className="font-caption text-caption text-outline">
-								Sorted by:{" "}
-								<strong className="font-medium text-on-surface dark:text-on-surface-strong">Best Match</strong>
-							</span>
-
-							<Link
-								to="/freelancer-jobs"
-								title="Adjust preferences"
-								aria-label="Adjust job preferences"
-								className="p-1 text-outline transition-colors hover:text-on-surface"
-							>
-								<SlidersHorizontal className="size-[18px]" />
-							</Link>
-						</div>
 					</div>
 
 					<div className="flex items-center justify-between px-1">
@@ -207,10 +183,6 @@ const FreelancerDashboardPage = () => {
 							<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
 								Opportunities to explore
 							</h2>
-
-							<span className="size-1.5 rounded-full bg-outline-variant" />
-
-							<span className="font-caption text-caption text-outline">Updated recently</span>
 						</div>
 
 						<Link

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { Bookmark, ChevronDown, Filter, MapPin, Search, SlidersHorizontal, X } from "lucide-react"
+import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -7,6 +7,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { freelancerJobs } from "@/data/freelancer-workspace"
 import useAuth from "@/hooks/useAuth"
 import type { FreelancerJob } from "@/types/job"
+import CategorySelect from "@/components/common/category-select"
+import { Slider } from "@/components/ui/slider"
 
 // Optional search metadata: unknown client credentials must never be treated as verified.
 type SearchJob = FreelancerJob & {
@@ -126,6 +128,34 @@ export default function FreelancerJobsPage() {
 			{label}
 		</label>
 	)
+
+	const [category, setCategory] = useState("all")
+	const categories = [
+		"Web Development",
+		"Frontend Development",
+		"Backend Development",
+		"Full-Stack Development",
+		"Mobile Development",
+		"iOS Development",
+		"Android Development",
+		"Cross-Platform App Development",
+		"Desktop Application Development",
+		"Game Development",
+		"WordPress Development",
+		"Shopify Development",
+		"Webflow Development",
+		"E-commerce Development",
+		"CMS Development",
+		"API Development",
+		"Software Architecture",
+		"Database Development",
+		"Cloud Development",
+		"DevOps & Cloud",
+		"Site Reliability Engineering",
+		"QA & Software Testing",
+		"Automation Testing",
+	]
+	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
 	const filters = (group: string) => (
 		<div className="divide-y divide-outline-variant/50">
 			<div className="flex items-center justify-between gap-2 pb-4">
@@ -153,34 +183,29 @@ export default function FreelancerJobsPage() {
 			</fieldset>
 			<fieldset className="py-4">
 				<legend className="sr-only">Hourly Rate</legend>
-				<div className="mb-3 flex items-center justify-between">
-					<span className="font-medium text-label-sm">Hourly Rate</span>
+
+				<legend className="sr-only">Hourly Rate</legend>
+
+				<div className="mb-4 flex items-center justify-between">
+					<span className="font-medium text-label-sm">
+						Hourly Rate
+					</span>
+
 					<span className="text-caption text-outline">
-						${minimum || "0"} – ${maximum || "120+"}/hr
+						${hourlyRate[0]} – $
+						{hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr
 					</span>
 				</div>
-				<div className="grid grid-cols-2 gap-2">
-					{[
-						["Minimum hourly rate", minimum, setMinimum, "40"],
-						["Maximum hourly rate", maximum, setMaximum, "120+"],
-					].map(([label, value, update, placeholder]) => (
-						<label
-							key={String(label)}
-							className="flex h-9 min-w-0 items-center gap-2 rounded-lg border border-outline-variant bg-background px-2 text-body-sm"
-						>
-							<span className="text-outline">$</span>
-							<input
-								aria-label={String(label)}
-								type="number"
-								min="0"
-								value={String(value)}
-								placeholder={String(placeholder)}
-								onChange={(event) => (update as (value: string) => void)(event.target.value)}
-								className="w-full min-w-0 bg-transparent outline-none"
-							/>
-						</label>
-					))}
-				</div>
+				<Slider
+				min={0}
+				max={120}
+				step={5}
+				value={hourlyRate}
+				onValueChange={(value) => {
+					setHourlyRate(value as [number, number])
+					setVisibleCount(4)
+				}}
+			/>
 			</fieldset>
 			<fieldset className="space-y-2.5 pt-4">
 				<legend className="sr-only">Weekly Commitment</legend>
@@ -222,39 +247,54 @@ export default function FreelancerJobsPage() {
 						Discover freelance opportunities curated for your skill set and contract preferences.
 					</p>
 				</div>
-				<div className="flex shrink-0 items-center gap-2.5 self-start md:self-auto">
-					<Link to="/freelancer-saved-jobs" className={secondaryAction}>
-						<Bookmark className="size-4 text-outline dark:text-on-surface-variant" />
-						Saved ({savedCount})
+				<div className="flex shrink-0 items-center self-start md:self-auto">
+					<Link
+						to="/freelancer-saved-jobs"
+						className="group inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md font-medium text-label-md text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
+					>
+						<Bookmark className="size-4 text-current transition-colors" />
+
+						<span>Saved</span>
+
+						<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption text-[10px] text-on-surface-variant transition-colors group-hover:text-on-surface">
+							{savedCount}
+						</span>
 					</Link>
 				</div>
 			</header>
 			<search className="block">
-				<form
-					onSubmit={(event) => {
-						event.preventDefault()
-						setSearch(query.trim())
+			<form
+				onSubmit={(event) => {
+					event.preventDefault()
+					setSearch(query.trim())
+					setVisibleCount(4)
+				}}
+				className="flex min-h-16 items-center gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-3 shadow-sm"
+			>
+				<Search className="ml-2 size-4 shrink-0 text-outline" />
+
+				<input
+					aria-label="Search projects"
+					type="search"
+					value={query}
+					onChange={(event) => setQuery(event.target.value)}
+					placeholder="Search by title, skill, or company"
+					className="min-w-0 flex-1 bg-transparent text-body-sm outline-none"
+				/>
+
+				<CategorySelect
+					value={category}
+					categories={categories}
+					onValueChange={(value) => {
+						setCategory(value)
 						setVisibleCount(4)
 					}}
-					className="flex min-h-16 items-center gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-3 shadow-sm"
-				>
-					<Search className="ml-2 size-4 shrink-0 text-outline" />
-					<input
-						aria-label="Search projects"
-						type="search"
-						value={query}
-						onChange={(event) => setQuery(event.target.value)}
-						placeholder="Search by title, skill, or company"
-						className="min-w-0 flex-1 bg-transparent text-body-sm outline-none"
-					/>
-					<span className="hidden items-center gap-1.5 border-outline-variant border-l pl-3 text-caption text-on-surface-variant sm:flex">
-						<MapPin className="size-3.5 text-primary" />
-						Remote or Any
-					</span>
-					<button type="submit" className={primaryAction}>
-						Search
-					</button>
-				</form>
+				/>
+
+				<button type="submit" className={primaryAction}>
+					Search
+				</button>
+			</form>
 				<div className="mt-3 flex flex-wrap items-center gap-2 text-caption">
 					<span className="mr-1 font-medium">Popular searches:</span>
 					{popularSearches.map((item) => (
@@ -378,11 +418,20 @@ export default function FreelancerJobsPage() {
 					</SheetHeader>
 					<div className="p-5">
 						{filters("mobile")}
-						<button type="button" onClick={() => setFiltersOpen(false)} className={`${primaryAction} mt-6 w-full`}>
-							Show {filtered.length} opportunities
+
+						<button
+							type="button"
+							onClick={() =>
+								setFiltersOpen(false)
+							}
+							className={`${primaryAction} mt-6 w-full`}
+						>
+							Show {filtered.length}{" "}
+							opportunities
 						</button>
 					</div>
 				</SheetContent>
+
 			</Sheet>
 		</div>
 	)

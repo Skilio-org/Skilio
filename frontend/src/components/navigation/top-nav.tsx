@@ -1,7 +1,7 @@
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { Link, useRouterState } from "@tanstack/react-router"
-import { Bell, Boxes, Menu, Moon, Search, Sun } from "lucide-react"
-
+import { Boxes, Menu, Moon, Sun } from "lucide-react"
+import { NotificationDropdown } from "@/components/common/notification-dropdown"
 import { useTheme } from "@/components/theme-provider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import useAuth from "@/hooks/useAuth"
@@ -50,7 +50,7 @@ export function TopNav() {
 					</Link>
 
 					<nav aria-label="Freelancer workspace" className="hidden h-full items-center gap-5 md:flex">
-						{ menu.map(([to, label]) => {
+						{menu.map(([to, label]) => {
 							const active = path === to
 
 							return (
@@ -74,7 +74,7 @@ export function TopNav() {
 				{/* Right */}
 				<div className="flex shrink-0 items-center gap-3">
 					{/* Search */}
-					<label className="relative hidden items-center sm:flex">
+					{/* <label className="relative hidden items-center sm:flex">
 						<Search className="pointer-events-none absolute left-2 size-[18px] text-outline" />
 
 						<span className="sr-only">Search jobs and contracts</span>
@@ -88,18 +88,10 @@ export function TopNav() {
 						<kbd className="pointer-events-none absolute right-1 rounded-lg bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline">
 							⌘K
 						</kbd>
-					</label>
+					</label> */}
 
 					{/* Notifications */}
-					<button
-						type="button"
-						aria-label="Notifications"
-						className="relative flex size-8 shrink-0 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
-					>
-						<Bell className="size-[18px]" />
-
-						<span aria-hidden="true" className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-error" />
-					</button>
+					<NotificationDropdown />
 
 					{/* dark/light mode toggle*/}
 					<button
