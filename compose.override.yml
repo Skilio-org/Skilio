@@ -78,3 +78,8 @@ services:
     ports:
       - "8025:8025"
       - "1025:1025"
+
+  prometheus:
+    ports:
+      - "9090:9090"
+
