@@ -18,13 +18,15 @@ export function MessageToolDialogView({
 				if (!open) onClose()
 			}}
 		>
-			<DialogContent className="sm:max-w-lg">
+			<DialogContent className="sm:max-w-lg border-outline-variant bg-surface-container-lowest">
 				<DialogHeader>
-					<span className="mb-2 grid size-11 place-items-center rounded-xl bg-accent text-primary">
+					<span className="mb-2 grid size-10 place-items-center rounded-lg border border-outline-variant/60 bg-surface-container text-primary">
 						<FileText className="size-5" />
 					</span>
-					<DialogTitle>Add a project brief</DialogTitle>
-					<DialogDescription>
+					<DialogTitle className="font-headline-sm font-semibold text-headline-sm text-on-surface">
+						Add a project brief
+					</DialogTitle>
+					<DialogDescription className="font-body-sm text-body-sm text-on-surface-variant">
 						Give your collaborator a clear starting point. You can review it in your message before sending.
 					</DialogDescription>
 				</DialogHeader>
@@ -33,9 +35,9 @@ export function MessageToolDialogView({
 						event.preventDefault()
 						if (brief.trim()) onInsert(brief.trim())
 					}}
-					className="space-y-5"
+					className="space-y-4"
 				>
-					<label className="block font-medium text-sm">
+					<label className="block font-label-md font-medium text-label-md text-on-surface">
 						What do you have in mind?
 						<textarea
 							autoFocus
@@ -47,10 +49,10 @@ export function MessageToolDialogView({
 							placeholder={
 								"Project goal\nWhat you'd like to create or improve\n\nScope and deliverables\n\nTimeline and budget"
 							}
-							className="mt-2 w-full resize-y rounded-xl border border-input bg-background px-4 py-3 text-sm leading-7 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+							className="mt-2 w-full resize-y rounded-lg border border-outline-variant bg-surface-container-low/40 px-3.5 py-2.5 font-body-sm text-body-sm leading-relaxed text-on-surface outline-none placeholder:text-outline focus:border-outline focus:bg-surface-container-lowest focus:ring-1 focus:ring-outline"
 						/>
 					</label>
-					<div className="flex justify-end gap-3">
+					<div className="flex justify-end gap-2.5 pt-1">
 						<button type="button" className={workspaceStyles.secondaryAction} onClick={onClose}>
 							Cancel
 						</button>

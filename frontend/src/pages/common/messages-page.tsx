@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
-import { SquarePen } from "lucide-react"
+import { Search, SquarePen } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { toast } from "sonner"
+import { getClientTheme } from "@/components/messages/message-types"
+import { cn } from "@/lib/utils"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { MessageThread } from "@/components/messages/message-thread"
 import type { InboxFilter, ThreadMessage } from "@/components/messages/message-types"
@@ -183,62 +185,102 @@ export function MessagesPage({
 		toast.success(restoring ? "Conversation moved to inbox" : "Conversation archived")
 	}
 	return (
-		<div className="freelancer-inbox">
-			<header className="mb-7 flex flex-wrap items-end justify-between gap-5">
-				<div>
-					<p className="mb-2 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
-						<span className="uppercase tracking-wider text-primary">Freelancer workspace</span>
-						<span>·</span>Communications & active contracts
-					</p>
-					<h1 className="text-4xl font-semibold tracking-tight text-foreground">Messages</h1>
-					<p className="mt-2 text-sm text-muted-foreground">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
+			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
+				<div className="flex max-w-2xl flex-col gap-4">
+					<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
+						<span className="font-semibold text-on-surface-variant uppercase tracking-wider">Freelancer workspace</span>
+						<span className="size-1 rounded-full bg-outline-variant" />
+						<span className="flex items-center gap-1 font-medium text-primary">
+							<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
+							{unreadCount > 0
+								? `${unreadCount} unread ${unreadCount === 1 ? "message" : "messages"}`
+								: "Active communications"}
+						</span>
+					</div>
+					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">Messages</h1>
+					<p className="font-body-md text-body-md text-on-surface-variant">
 						Manage client conversations, share design artifacts, and collaborate on active contracts.
 					</p>
 				</div>
-				<button
-					type="button"
-					onClick={() => setNewMessageOpen(true)}
-					className="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground dark:bg-on-surface dark:text-background"
-				>
-					<SquarePen className="size-4" />
-					New message
-				</button>
+				<div className="flex shrink-0 flex-wrap items-center gap-2.5">
+					<button
+						type="button"
+						onClick={() => setNewMessageOpen(true)}
+						className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md font-medium text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+					>
+						<SquarePen className="size-4" />
+						New message
+					</button>
+				</div>
 			</header>
 			<Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
-				<DialogContent>
+				<DialogContent className="max-w-md border-outline-variant bg-surface-container-lowest">
 					<DialogHeader>
-						<DialogTitle>New message</DialogTitle>
-						<DialogDescription>Choose a client to start or continue a conversation.</DialogDescription>
+						<DialogTitle className="font-headline-sm font-semibold text-headline-sm text-on-surface">
+							New message
+						</DialogTitle>
+						<DialogDescription className="font-body-sm text-body-sm text-on-surface-variant">
+							Choose a client to start or continue a conversation.
+						</DialogDescription>
 					</DialogHeader>
-					<input
-						aria-label="Find a recipient"
-						value={recipientQuery}
-						onChange={(e) => setRecipientQuery(e.target.value)}
-						placeholder="Search clients…"
-						className="h-11 rounded-lg border bg-background px-3 text-sm"
-					/>
-					{people
-						.filter((person) => `${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()))
-						.map((person) => (
-							<button
-								key={person.id}
-								type="button"
-								onClick={() => {
-									select(person.id)
-									setNewMessageOpen(false)
-								}}
-								className="rounded-lg p-3 text-left hover:bg-muted"
-							>
-								<span className="block text-sm font-medium">{person.name}</span>
-								<span className="text-xs text-muted-foreground">{person.title}</span>
-							</button>
-						))}
-					{!people.some((person) =>
-						`${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()),
-					) && <p className="py-4 text-sm text-muted-foreground">No matching clients.</p>}
+					<div className="relative mt-2">
+						<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-outline" />
+						<input
+							aria-label="Find a recipient"
+							value={recipientQuery}
+							onChange={(e) => setRecipientQuery(e.target.value)}
+							placeholder="Search clients…"
+							className="h-10 w-full rounded-lg border border-outline-variant bg-surface-container-low pl-9 pr-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-outline focus:ring-1 focus:ring-outline"
+						/>
+					</div>
+					<div className="max-h-64 space-y-1 overflow-y-auto pt-2">
+						{people
+							.filter((person) => `${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()))
+							.map((person) => {
+								const theme = getClientTheme(person.id)
+								return (
+									<button
+										key={person.id}
+										type="button"
+										onClick={() => {
+											select(person.id)
+											setNewMessageOpen(false)
+										}}
+										className="flex w-full items-center gap-3 rounded-lg border border-transparent p-2.5 text-left transition-colors hover:border-outline-variant hover:bg-surface-container-low"
+									>
+										<span
+											className={cn(
+												"grid size-9 shrink-0 place-items-center rounded-lg border font-label-sm font-semibold shadow-2xs",
+												theme.bg,
+												theme.text,
+												theme.border,
+											)}
+										>
+											{person.initials}
+										</span>
+										<div className="min-w-0 flex-1">
+											<span className="block truncate font-label-md font-semibold text-label-md text-on-surface">
+												{person.name}
+											</span>
+											<span className="block truncate font-caption text-caption text-on-surface-variant">
+												{person.title}
+											</span>
+										</div>
+									</button>
+								)
+							})}
+						{!people.some((person) =>
+							`${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()),
+						) && (
+							<p className="py-6 text-center font-body-sm text-body-sm text-on-surface-variant">
+								No matching clients.
+							</p>
+						)}
+					</div>
 				</DialogContent>
 			</Dialog>
-			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-2xl border border-border bg-card lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[330px_minmax(0,1fr)]">
+			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] h-[calc(100vh-14.5rem)] min-h-[640px] max-h-[880px]">
 				<ConversationList
 					people={people}
 					conversations={conversations}

@@ -1,9 +1,9 @@
-import { ArrowRight, Banknote, Bookmark, Building2, Clock3, Globe2 } from "lucide-react"
+import { ArrowRight, Banknote, Bookmark, Building2, CircleCheck, Clock3, Globe2, Send } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { SheetDescription, SheetTitle } from "@/components/ui/sheet"
-import { seedProposals } from "@/data/freelancer-workspace"
-import useAuth from "@/hooks/useAuth"
+import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
+import { useSavedJobs } from "@/hooks/useSavedJobs"
 import type { FreelancerJob } from "@/types/job"
 
 export const JobDetails = ({
@@ -15,53 +15,72 @@ export const JobDetails = ({
 	projectType: string
 	initiallyApplying?: boolean
 }) => {
-	const { user } = useAuth()
-	const storageKey = `freelancer-work-v2:${user?.id ?? "preview"}`
-	const [saved, setSaved] = useState(() => {
-		try {
-			return JSON.parse(localStorage.getItem(storageKey) || "{}").saved?.includes(job.id) ?? false
-		} catch {
-			return false
-		}
-	})
-	const [applying, setApplying] = useState(initiallyApplying)
-	const rateInput = useRef<HTMLInputElement>(null)
+	const { saved: savedIds, toggleSaved: toggleBookmark } = useSavedJobs()
+	const saved = savedIds.includes(job.id)
+	const { isSubmitted, getProposal, saveProposal } = useFreelancerProposals()
+	const submitted = isSubmitted(job.id)
+	const existingProposal = getProposal(job.id)
+
+	const [applying, setApplying] = useState(() => initiallyApplying && !submitted)
+	const coverInput = useRef<HTMLTextAreaElement>(null)
+
 	useEffect(() => {
-		if (applying) rateInput.current?.focus()
+		if (applying) coverInput.current?.focus()
 	}, [applying])
-	const [cover, setCover] = useState("")
-	const [rate, setRate] = useState("")
-	const toggleSaved = () => {
-		try {
-			const existing = JSON.parse(localStorage.getItem(storageKey) || "{}")
-			const ids: string[] = Array.isArray(existing.saved) ? existing.saved : []
-			const next = !ids.includes(job.id)
-			localStorage.setItem(
-				storageKey,
-				JSON.stringify({ ...existing, saved: next ? [...ids, job.id] : ids.filter((id) => id !== job.id) }),
-			)
-			setSaved(next)
-		} catch {
-			toast.error("Couldn't update saved jobs.")
-		}
-	}
-	const saveDraft = () => {
-		try {
-			const existing = JSON.parse(localStorage.getItem(storageKey) || "{}")
-			const drafts = Array.isArray(existing.drafts) ? existing.drafts : seedProposals
-			if (drafts.some((draft: { job: FreelancerJob }) => draft.job.id === job.id)) {
-				toast.info("You already have a proposal for this job. Continue it from Proposals.")
-				return
-			}
-			localStorage.setItem(
-				storageKey,
-				JSON.stringify({ ...existing, drafts: [...drafts, { job, cover: cover.trim(), rate, status: "Drafts" }] }),
-			)
+
+	const [cover, setCover] = useState(() => (!submitted && existingProposal ? existingProposal.cover : ""))
+
+	useEffect(() => {
+		if (submitted) {
 			setApplying(false)
-			toast.success("Draft saved", { description: "You can review it in Proposals." })
-		} catch {
-			toast.error("Couldn't save your draft.")
 		}
+	}, [submitted])
+
+	const toggleSaved = () => {
+		if (!toggleBookmark(job.id)) toast.error("Couldn't update saved jobs.")
+	}
+
+	const handleSaveDraft = () => {
+		if (submitted) {
+			toast.error("You have already submitted a proposal for this job.")
+			setApplying(false)
+			return
+		}
+		const result = saveProposal(job, cover, "Drafts")
+		if (!result.success) {
+			if (result.reason === "already_submitted") {
+				toast.error("You have already submitted a proposal for this job.")
+			} else {
+				toast.error("Couldn't save your draft.")
+			}
+			return
+		}
+		setApplying(false)
+		toast.success("Draft saved", { description: "You can review it in Proposals." })
+	}
+
+	const handleApplyNow = () => {
+		if (submitted) {
+			toast.error("You have already submitted a proposal for this job.")
+			setApplying(false)
+			return
+		}
+		if (cover.trim().length < 40) {
+			toast.error("Add a cover letter of at least 40 characters before submitting.")
+			coverInput.current?.focus()
+			return
+		}
+		const result = saveProposal(job, cover, "Submitted")
+		if (!result.success) {
+			if (result.reason === "already_submitted") {
+				toast.error("You have already submitted a proposal for this job.")
+			} else {
+				toast.error("Couldn't submit your proposal.")
+			}
+			return
+		}
+		setApplying(false)
+		toast.success("Proposal submitted")
 	}
 	const primary =
 		"flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container dark:bg-on-surface dark:text-background dark:hover:bg-white"
@@ -73,7 +92,7 @@ export const JobDetails = ({
 						<p className="mb-3 font-caption font-medium text-caption text-primary uppercase tracking-wider">
 							{job.category} · Opportunity
 						</p>
-						<SheetTitle className="max-w-2xl font-headline-lg font-semibold text-2xl leading-8 text-on-surface tracking-tight">
+						<SheetTitle className="max-w-2xl font-headline-lg font-semibold text-2xl text-on-surface leading-8 tracking-tight">
 							{job.title}
 						</SheetTitle>
 						<SheetDescription className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 font-caption text-caption text-on-surface-variant">
@@ -121,33 +140,40 @@ export const JobDetails = ({
 							))}
 						</div>
 					</section>
-					{applying && (
+					{submitted && (
+						<section className="border-outline-variant/60 border-t px-6 py-6 sm:px-8">
+							<div className="flex items-center gap-2 font-medium text-body-sm text-primary">
+								<CircleCheck className="size-4" />
+								<span>You have already submitted a proposal for this project.</span>
+							</div>
+							{existingProposal?.cover && (
+								<div className="mt-3 rounded-lg border border-outline-variant/60 bg-surface-container-low/50 p-4">
+									<p className="font-caption font-medium text-caption text-on-surface-variant">
+										Your submitted introduction
+									</p>
+									<p className="mt-2 whitespace-pre-line text-body-sm text-on-surface-variant leading-relaxed">
+										{existingProposal.cover}
+									</p>
+								</div>
+							)}
+						</section>
+					)}
+					{applying && !submitted && (
 						<section className="border-outline-variant/60 border-t px-6 py-6 sm:px-8">
 							<h3 className="font-semibold text-headline-sm">Make your introduction</h3>
-							<p className="mt-1 text-body-sm text-on-surface-variant">Prepare a draft to review before submitting.</p>
+							<p className="mt-1 text-body-sm text-on-surface-variant">
+								A thoughtful proposal is the start of a great collaboration.
+							</p>
 							<form
 								onSubmit={(event) => {
 									event.preventDefault()
-									saveDraft()
 								}}
 								className="mt-4 space-y-4"
 							>
 								<label className="block text-label-sm">
-									{projectType === "Hourly" ? "Hourly rate ($)" : "Project price ($)"}
-									<input
-										required
-										ref={rateInput}
-										type="number"
-										min="1"
-										step="0.01"
-										value={rate}
-										onChange={(event) => setRate(event.target.value)}
-										className="mt-2 h-10 w-full rounded-lg border border-outline-variant bg-background px-3 outline-none focus:border-primary"
-									/>
-								</label>
-								<label className="block text-label-sm">
 									Cover letter
 									<textarea
+										ref={coverInput}
 										required
 										minLength={40}
 										maxLength={5000}
@@ -157,19 +183,39 @@ export const JobDetails = ({
 										placeholder="Introduce yourself and explain your approach…"
 										className="mt-2 w-full rounded-lg border border-outline-variant bg-background p-3 text-body-sm outline-none focus:border-primary"
 									/>
+									<span className="mt-1.5 block text-caption text-outline">
+										At least 40 characters ({cover.length.toLocaleString()} / 5,000)
+									</span>
 								</label>
-								<div className="flex items-center gap-3">
-									<button type="submit" className={primary}>
-										Save draft
-										<ArrowRight className="size-4" />
-									</button>
+								<div className="flex items-center justify-between gap-3 pt-2">
 									<button
 										type="button"
-										onClick={() => setApplying(false)}
-										className="px-3 text-label-sm text-on-surface-variant"
+										onClick={() => {
+											setApplying(false)
+											setCover("")
+										}}
+										className="inline-flex h-10 items-center justify-center rounded-lg px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
 									>
 										Cancel
 									</button>
+									<div className="flex items-center gap-2.5">
+										<button
+											type="button"
+											onClick={handleSaveDraft}
+											className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low"
+										>
+											Save as draft
+										</button>
+										<button
+											type="button"
+											disabled={cover.trim().length < 40 || cover.length > 5000}
+											onClick={handleApplyNow}
+											className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container disabled:opacity-50 dark:bg-on-surface dark:text-background dark:hover:bg-white"
+										>
+											<Send className="size-4" />
+											Apply now
+										</button>
+									</div>
 								</div>
 							</form>
 						</section>
@@ -177,10 +223,24 @@ export const JobDetails = ({
 				</div>
 				<aside className="border-outline-variant/60 border-t bg-surface-container-low/40 p-6 md:border-t-0 md:border-l">
 					<div className="space-y-2.5">
-						<button type="button" className={primary} onClick={() => setApplying(true)}>
-							Apply now
-							<ArrowRight className="size-4" />
-						</button>
+						{submitted ? (
+							<div className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 font-label-md text-label-md text-primary dark:border-border-subtle dark:bg-surface-container">
+								<CircleCheck className="size-4 text-primary" />
+								<span>Proposal submitted</span>
+							</div>
+						) : (
+							<button
+								type="button"
+								className={primary}
+								onClick={() => {
+									if (existingProposal?.cover && !cover) setCover(existingProposal.cover)
+									setApplying(true)
+								}}
+							>
+								{existingProposal ? "Continue proposal" : "Apply now"}
+								<ArrowRight className="size-4" />
+							</button>
+						)}
 						<button
 							type="button"
 							onClick={toggleSaved}
@@ -209,7 +269,9 @@ export const JobDetails = ({
 					<section className="mt-6 border-outline-variant/60 border-t pt-5">
 						<h3 className="font-medium text-label-sm">Your next step</h3>
 						<p className="mt-2 text-body-sm text-on-surface-variant leading-5">
-							Share relevant work and how you would approach this project. You can save your proposal as a draft.
+							{submitted
+								? "You have already submitted a proposal for this project. Track its progress in Proposals."
+								: "Share relevant work and how you would approach this project. You can apply directly or save your proposal as a draft."}
 						</p>
 					</section>
 				</aside>

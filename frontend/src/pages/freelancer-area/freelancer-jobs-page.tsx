@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { freelancerJobs } from "@/data/freelancer-workspace"
-import useAuth from "@/hooks/useAuth"
+import { useSavedJobs } from "@/hooks/useSavedJobs"
 import type { FreelancerJob } from "@/types/job"
 import CategorySelect from "@/components/common/category-select"
 import { Slider } from "@/components/ui/slider"
@@ -24,7 +24,8 @@ const secondaryAction =
 	"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface hover:bg-surface-container-low"
 
 export default function FreelancerJobsPage() {
-	const { user } = useAuth()
+	const { saved } = useSavedJobs()
+	const savedCount = saved.length
 	const [query, setQuery] = useState("")
 	const [search, setSearch] = useState("")
 	const [types, setTypes] = useState<string[]>([])
@@ -36,15 +37,6 @@ export default function FreelancerJobsPage() {
 	const [sort, setSort] = useState("recommended")
 	const [filtersOpen, setFiltersOpen] = useState(false)
 	const [visibleCount, setVisibleCount] = useState(4)
-	const [savedCount, setSavedCount] = useState(0)
-	useEffect(() => {
-		try {
-			const data = JSON.parse(localStorage.getItem(`freelancer-work-v2:${user?.id ?? "preview"}`) || "{}")
-			setSavedCount(Array.isArray(data.saved) ? data.saved.length : 0)
-		} catch {
-			setSavedCount(0)
-		}
-	}, [user?.id])
 	const toggle = (values: string[], value: string, update: (values: string[]) => void) => {
 		update(values.includes(value) ? values.filter((item) => item !== value) : [...values, value])
 		setVisibleCount(4)
