@@ -1,22 +1,21 @@
 import { Link } from "@tanstack/react-router"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
-import CategorySelect from "@/components/common/category-select"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
 import { freelancers } from "@/data/freelancers"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
+import { SearchWithCategories } from "@/components/common/search-with-categories"
 
-const popularSearches = ["Product design", "React", "Brand strategy", "Design systems", "AI"]
-const categories = [...new Set(freelancers.map((person) => person.title))]
 const availabilityOptions = ["Available now", "Available this week", "Available next week"]
 const locationOptions = ["Worldwide", "Europe", "North America", "Asia Pacific"]
 const primaryAction =
 	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
 const secondaryAction =
 	"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface hover:bg-surface-container-low"
+
 const searchAliases: Record<string, string[]> = {
 	developer: ["developer", "engineer"],
 	engineer: ["engineer", "developer"],
@@ -32,7 +31,6 @@ export function TalentDirectoryPage({
 	initialQuery?: string
 	onQueryChange: (query?: string) => void
 }) {
-	const [query, setQuery] = useState(initialQuery ?? "")
 	const [search, setSearch] = useState(initialQuery ?? "")
 	const [category, setCategory] = useState("all")
 	const [availability, setAvailability] = useState<string[]>([])
@@ -44,16 +42,16 @@ export function TalentDirectoryPage({
 	const [visibleCount, setVisibleCount] = useState(4)
 	const { savedIds, toggleSaved } = useSavedTalent()
 	useEffect(() => {
-		setQuery(initialQuery ?? "")
 		setSearch(initialQuery ?? "")
 		setVisibleCount(4)
 	}, [initialQuery])
 	useEffect(() => setVisibleCount(4), [category, availability, location, hourlyRate, highlyRated, sort])
 	const submitSearch = (value: string) => {
-		setQuery(value)
-		setSearch(value.trim())
+		const trimmedValue = value.trim()
+
+		setSearch(trimmedValue)
 		setVisibleCount(4)
-		onQueryChange(value.trim() || undefined)
+		onQueryChange(trimmedValue || undefined)
 	}
 	const clearAll = () => {
 		submitSearch("")
@@ -213,42 +211,19 @@ export function TalentDirectoryPage({
 					</Link>
 				</div>
 			</header>
-			<search className="block">
-				<form
-					onSubmit={(event) => {
-						event.preventDefault()
-						submitSearch(query)
-					}}
-					className="flex min-h-16 items-center gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-3 shadow-sm"
-				>
-					<Search className="ml-2 size-4 shrink-0 text-outline" />
-					<input
-						aria-label="Search professionals"
-						type="search"
-						value={query}
-						onChange={(event) => setQuery(event.target.value)}
-						placeholder="Search by title, skill, or name"
-						className="min-w-0 flex-1 bg-transparent text-body-sm outline-none"
-					/>
-					<CategorySelect value={category} categories={categories} onValueChange={setCategory} />
-					<button type="submit" className={primaryAction}>
-						Search
-					</button>
-				</form>
-				<div className="mt-3 flex flex-wrap items-center gap-2 text-caption">
-					<span className="mr-1 font-medium">Popular searches:</span>
-					{popularSearches.map((item) => (
-						<button
-							key={item}
-							type="button"
-							onClick={() => submitSearch(item)}
-							className="rounded bg-surface-container px-2.5 py-1 text-on-surface-variant hover:text-primary"
-						>
-							{item}
-						</button>
-					))}
-				</div>
-			</search>
+			<SearchWithCategories
+				initialQuery={initialQuery}
+				initialCategory={category}
+				onSearch={(value) => {
+					setSearch(value)
+					setVisibleCount(4)
+					onQueryChange(value || undefined)
+				}}
+				onCategoryChange={(value) => {
+					setCategory(value)
+					setVisibleCount(4)
+				}}
+			/>
 			<div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
 				<aside
 					aria-label="Talent filters"
