@@ -1,11 +1,10 @@
-import uuid
 
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.core.config import settings
 from app.core.security import get_password_hash
-from app.models import BudgetType, ITSkill, JobStatus, UserRole
+from app.models import UserRole
 from tests.utils.user import create_random_user, user_authentication_headers
 from tests.utils.utils import random_lower_string
 
@@ -42,6 +41,7 @@ def test_create_job_by_client(client: TestClient, db: Session) -> None:
         "budget_type": "fixed",
         "budget": 1500.0,
         "location": "Remote",
+        "category": "Web Mobile & Software Dev",
         "skills": ["FastAPI", "Python", "PostgreSQL"],
     }
     response = client.post(f"{settings.API_V1_STR}/jobs/", headers=headers, json=data)
@@ -51,6 +51,7 @@ def test_create_job_by_client(client: TestClient, db: Session) -> None:
     assert content["description"] == data["description"]
     assert content["budget_type"] == "fixed"
     assert content["budget"] == 1500.0
+    assert content["category"] == "Web Mobile & Software Dev"
     assert content["status"] == "open"
     assert content["client_id"] == str(user.id)
     assert content["client_name"] == user.full_name
@@ -131,6 +132,7 @@ def test_read_jobs_feed_filters(client: TestClient, db: Session) -> None:
             "description": "Develop modern UI with React and TypeScript",
             "budget_type": "fixed",
             "budget": 2500.0,
+            "category": "Web Mobile & Software Dev",
             "skills": ["React", "TypeScript"],
         },
     )
@@ -142,16 +144,23 @@ def test_read_jobs_feed_filters(client: TestClient, db: Session) -> None:
             "description": "Setup Kubernetes cluster on AWS",
             "budget_type": "hourly",
             "budget": 75.0,
+            "category": "IT & Networking",
             "skills": ["Docker", "Kubernetes", "AWS"],
         },
     )
 
-    # Filter by skill
-    r_skill = client.get(f"{settings.API_V1_STR}/jobs/?skill=React")
+    # Search by skill via keyword q (without needing skill query param)
+    r_skill = client.get(f"{settings.API_V1_STR}/jobs/?q=Docker")
     assert r_skill.status_code == 200
-    for job in r_skill.json()["data"]:
-        skill_names = [s["name"] for s in job["skills"]]
-        assert "React" in skill_names
+    docker_jobs = r_skill.json()["data"]
+    assert len(docker_jobs) >= 1
+    assert any("Docker" in [s["name"] for s in j["skills"]] for j in docker_jobs)
+
+    # Filter by category
+    r_cat = client.get(f"{settings.API_V1_STR}/jobs/?category=IT%20%26%20Networking")
+    assert r_cat.status_code == 200
+    for job in r_cat.json()["data"]:
+        assert job["category"] == "IT & Networking"
 
     # Filter by budget_type
     r_type = client.get(f"{settings.API_V1_STR}/jobs/?budget_type=hourly")

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
+    categories,
     client_profiles,
     jobs,
     login,
@@ -8,6 +9,7 @@ from app.api.routes import (
     profiles,
     proposals,
     reviews,
+    searches,
     skills,
     users,
     utils,
@@ -22,6 +24,8 @@ api_router.include_router(profiles.router)
 api_router.include_router(client_profiles.router)
 api_router.include_router(reviews.router)
 api_router.include_router(skills.router)
+api_router.include_router(categories.router)
+api_router.include_router(searches.router)
 api_router.include_router(jobs.router)
 api_router.include_router(proposals.router)
 

@@ -1,16 +1,17 @@
 import uuid
 from datetime import UTC, datetime
-from typing import Annotated, Any
+from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
+from sqlalchemy import String, cast
 from sqlalchemy.orm import joinedload, selectinload
 from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, CurrentUserOptional, SessionDep
+from app.api.routes.searches import record_recent_search
 from app.models import (
     BudgetType,
     ClientProfilePublic,
-    ITSkill,
     JobPost,
     JobPostCreate,
     JobPostDetailPublic,
@@ -41,7 +42,7 @@ def read_jobs(
     skip: int = 0,
     limit: int = 100,
     q: str | None = None,
-    skill: Annotated[list[ITSkill] | None, Query()] = None,
+    category: str | None = None,
     budget_type: BudgetType | None = None,
     min_budget: float | None = None,
     max_budget: float | None = None,
@@ -51,26 +52,27 @@ def read_jobs(
 ) -> Any:
     """
     Search and list jobs (Job Feed). Public endpoint with optional authentication.
-    Supports filtering by keyword search, skills, budget type, budget range, location, and status.
+    Supports filtering by keyword search (title, description, and skills), category, budget type, budget range, location, and status.
     Populates proposals_count, is_saved, and has_applied for authenticated freelancers.
     """
     statement = select(JobPost).join(User, col(JobPost.client_id) == User.id)
 
     if q:
+        skill_subquery = (
+            select(JobSkillLink.job_post_id)
+            .join(Skill, col(JobSkillLink.skill_id) == Skill.id)
+            .where(cast(Skill.name, String).ilike(f"%{q}%"))
+        )
         statement = statement.where(
             col(JobPost.title).ilike(f"%{q}%")
             | col(JobPost.description).ilike(f"%{q}%")
+            | JobPost.id.in_(skill_subquery)
         )
+        if current_user:
+            record_recent_search(session, current_user.id, q)
 
-    if skill:
-        for s in skill:
-            statement = statement.where(
-                JobPost.id.in_(  # type: ignore
-                    select(JobSkillLink.job_post_id)
-                    .join(Skill, col(JobSkillLink.skill_id) == Skill.id)
-                    .where(Skill.name == s)
-                )
-            )
+    if category:
+        statement = statement.where(col(JobPost.category).ilike(category))
 
     if budget_type is not None:
         statement = statement.where(JobPost.budget_type == budget_type)

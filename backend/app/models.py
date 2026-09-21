@@ -105,6 +105,25 @@ class ITSkill(StrEnum):
     CYBERSECURITY = "Cybersecurity"
 
 
+class JobCategory(StrEnum):
+    ACCOUNTING_CONSULTING = "Accounting & Consulting"
+    CUSTOMER_SERVICE = "Customer Service"
+    DATA_SCIENCE_ANALYTICS = "Data Science & Analytics"
+    DESIGN_CREATIVE = "Design & Creative"
+    ENGINEERING_ARCHITECTURE = "Engineering & Architecture"
+    SALES_MARKETING = "Sales & Marketing"
+    WEB_MOBILE_SOFTWARE_DEV = "Web Mobile & Software Dev"
+    AI_AUTOMATIONS = "Ai & Automations"
+    IT_NETWORKING = "IT & Networking"
+    WRITING = "Writing"
+    LEGAL = "Legal"
+
+
+class CategoriesPublic(SQLModel):
+    data: list[str]
+    count: int
+
+
 # ==============================================================================
 # User Models
 # ==============================================================================
@@ -246,6 +265,11 @@ class User(UserBase, table=True):
         back_populates="freelancer",
         cascade_delete=True,
         sa_relationship_kwargs={"foreign_keys": "[SavedJob.freelancer_id]"},
+    )
+    recent_searches: list["RecentSearch"] = Relationship(
+        back_populates="user",
+        cascade_delete=True,
+        sa_relationship_kwargs={"foreign_keys": "[RecentSearch.user_id]"},
     )
 
 
@@ -1014,6 +1038,7 @@ class JobPostBase(SQLModel):
     budget_type: BudgetType = Field(default=BudgetType.FIXED)
     budget: float = Field(ge=0)
     location: str | None = Field(default=None, max_length=255)
+    category: str | None = Field(default=None, max_length=100, index=True)
     status: JobStatus = Field(default=JobStatus.OPEN)
 
 
@@ -1027,6 +1052,7 @@ class JobPostUpdate(SQLModel):
     budget_type: BudgetType | None = None
     budget: float | None = Field(default=None, ge=0)
     location: str | None = Field(default=None, max_length=255)
+    category: str | None = Field(default=None, max_length=100)
     status: JobStatus | None = None
     skills: list[ITSkill] | None = None
 
@@ -1232,3 +1258,41 @@ class DeepHealthCheck(SQLModel):
     uptime_seconds: float
     environment: str
     services: dict[str, ServiceHealth]
+
+
+# ==============================================================================
+# Recent Search Models
+# ==============================================================================
+
+
+class RecentSearchBase(SQLModel):
+    query: str = Field(min_length=1, max_length=255)
+
+
+class RecentSearchCreate(RecentSearchBase):
+    pass
+
+
+class RecentSearch(RecentSearchBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+
+    user: Optional["User"] = Relationship(back_populates="recent_searches")
+
+
+class RecentSearchPublic(SQLModel):
+    id: uuid.UUID
+    query: str
+    created_at: datetime | None = None
+
+
+class RecentSearchesPublic(SQLModel):
+    data: list[str]
+    count: int
+

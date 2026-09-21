@@ -1,6 +1,6 @@
 import uuid
 from datetime import UTC, datetime
-from typing import Annotated, Any
+from typing import Any
 
 import httpx
 from fastapi import (
@@ -9,16 +9,17 @@ from fastapi import (
     File,
     Form,
     HTTPException,
-    Query,
     Request,
     UploadFile,
 )
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
+from sqlalchemy import String, cast
 from sqlalchemy.orm import selectinload
 from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, CurrentUserOptional, SessionDep
+from app.api.routes.searches import record_recent_search
 from app.claudinary import claudinary_delete_media, claudinary_upload_media
 from app.models import (
     AvatarResponse,
@@ -36,6 +37,7 @@ from app.models import (
     FreelancerProfilePublic,
     FreelancerProfilesPublic,
     FreelancerProfileUpdate,
+    FreelancerSkillLink,
     LikedFreelancer,
     MediaPublic,
     Message,
@@ -165,7 +167,6 @@ def read_profiles(
     skip: int = 0,
     limit: int = 100,
     q: str | None = None,
-    skill: Annotated[list[str] | None, Query()] = None,
     category: str | None = None,
     min_rate: float | None = None,
     max_rate: float | None = None,
@@ -176,7 +177,7 @@ def read_profiles(
 ) -> Any:
     """
     Search and list freelancer cards. Public endpoint (optional auth).
-    Supports filtering by text query (title, bio, location, name), skills, hourly rate range, category, and availability.
+    Supports filtering by text query (title, bio, location, name, skills), hourly rate range, category, and availability.
     Populates is_saved if called by an authenticated user.
     """
     statement = select(FreelancerProfile).join(
@@ -184,12 +185,20 @@ def read_profiles(
     )
 
     if q:
+        skill_subquery = (
+            select(FreelancerSkillLink.freelancer_profile_id)
+            .join(Skill, col(FreelancerSkillLink.skill_id) == Skill.id)
+            .where(cast(Skill.name, String).ilike(f"%{q}%"))
+        )
         statement = statement.where(
             col(FreelancerProfile.title).ilike(f"%{q}%")
             | col(FreelancerProfile.bio).ilike(f"%{q}%")
             | col(FreelancerProfile.location).ilike(f"%{q}%")
             | col(User.full_name).ilike(f"%{q}%")
+            | FreelancerProfile.id.in_(skill_subquery)
         )
+        if current_user:
+            record_recent_search(session, current_user.id, q)
 
     if category:
         statement = statement.where(col(FreelancerProfile.category).ilike(category))
@@ -201,12 +210,6 @@ def read_profiles(
         statement = statement.where(FreelancerProfile.finished == finished)
     elif not (current_user and current_user.is_superuser):
         statement = statement.where(FreelancerProfile.finished)
-
-    if skill:
-        for s in skill:
-            statement = statement.where(
-                FreelancerProfile.skills.any(col(Skill.name).ilike(s))
-            )
 
     if min_rate is not None:
         statement = statement.where(FreelancerProfile.hourly_rate >= min_rate)

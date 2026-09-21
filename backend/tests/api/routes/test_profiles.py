@@ -7,7 +7,6 @@ from sqlmodel import Session
 from app.core.config import settings
 from app.models import (
     Education,
-    Experience,
     FreelancerProfile,
     PortfolioItem,
     UserRole,
@@ -866,6 +865,25 @@ def test_talent_search_filters(client: TestClient, db: Session) -> None:
     avail_ids = [p["id"] for p in resp_avail.json()["data"]]
     assert str(p1.id) in avail_ids
     assert str(p2.id) not in avail_ids
+
+    # Search by skill via keyword q
+    from sqlmodel import select
+
+    from app.models import FreelancerSkillLink, Skill
+    skill = db.exec(select(Skill).where(Skill.name == "Figma")).first()
+    if not skill:
+        skill = Skill(name="Figma")
+        db.add(skill)
+        db.commit()
+        db.refresh(skill)
+    link = FreelancerSkillLink(freelancer_profile_id=p1.id, skill_id=skill.id)
+    db.add(link)
+    db.commit()
+
+    resp_skill = client.get(f"{settings.API_V1_STR}/profiles/?q=Figma")
+    assert resp_skill.status_code == 200
+    skill_ids = [p["id"] for p in resp_skill.json()["data"]]
+    assert str(p1.id) in skill_ids
 
 
 def test_draft_profile_privacy(client: TestClient, db: Session) -> None:
