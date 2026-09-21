@@ -5,6 +5,8 @@ services:
     ports:
       - "${PROXY_PORT:-80}:80"
       - "8090:8080"
+    volumes:
+      - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro"
     # Duplicate the command from compose.yml to add --api.insecure=true
     command:
       # Enable Docker in Traefik, so that it reads labels from Docker services
