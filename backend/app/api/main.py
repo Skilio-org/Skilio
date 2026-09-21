@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
+    chat,
     client_profiles,
     jobs,
     login,
@@ -24,6 +25,7 @@ api_router.include_router(reviews.router)
 api_router.include_router(skills.router)
 api_router.include_router(jobs.router)
 api_router.include_router(proposals.router)
+api_router.include_router(chat.router)
 
 
 if settings.FASTAPI_ENV == "development":

@@ -7,6 +7,7 @@ from pydantic import EmailStr, model_validator
 from sqlalchemy import DateTime, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
+from pydantic import BaseModel
 
 def get_datetime_utc() -> datetime:
     return datetime.now(UTC)
@@ -967,7 +968,7 @@ class ChatMessage(ChatMessageBase, table=True):
         back_populates="sent_messages",
         sa_relationship_kwargs={"foreign_keys": "[ChatMessage.sender_id]"},
     )
-    attachment: Media | None = Relationship()
+    # attachment: Media | None = Relationship()
 
 
 class ChatMessagePublic(ChatMessageBase):
@@ -975,9 +976,13 @@ class ChatMessagePublic(ChatMessageBase):
     conversation_id: uuid.UUID
     sender_id: uuid.UUID
     attachment_id: uuid.UUID | None = None
-    attachment: MediaPublic | None = None
+    # attachment: MediaPublic | None = None
     is_read: bool
     created_at: datetime | None = None
+
+
+class ChatMessagePost(ChatMessageBase):
+    attachment_id: uuid.UUID | None = None
 
 
 class ChatMessagesPublic(SQLModel):
@@ -993,6 +998,11 @@ class ConversationPublic(SQLModel):
     updated_at: datetime | None = None
     last_message: ChatMessagePublic | None = None
     unread_count: int = 0
+    other_user: UserPublic | None = None
+
+
+class ConversationDetailPublic(ConversationPublic):
+    messages: list[ChatMessagePublic] = []
 
 
 class ConversationsPublic(SQLModel):
@@ -1229,3 +1239,13 @@ class DeepHealthCheck(SQLModel):
     uptime_seconds: float
     environment: str
     services: dict[str, ServiceHealth]
+
+class UserPresence(BaseModel):
+    user_id: uuid.UUID
+    is_online: bool
+
+
+class InjectPayload(BaseModel):
+    user_id: uuid.UUID | None = None
+    event_type: str = "notification"
+    payload: Any

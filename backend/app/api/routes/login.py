@@ -172,7 +172,6 @@ def linkedin_callback(request: Request, code: str, session: SessionDep):
         session.add(user)
         session.commit()
     else:
-        # Create new user record
         user = User(
             email=linkedin_user["email"],
             full_name=linkedin_user.get("name"),

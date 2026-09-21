@@ -11,6 +11,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
 from app.core.config import settings
+from app.core.redis import start_redis_listener, stop_redis_listener
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
 
@@ -48,6 +49,7 @@ CLOUDINARY_TIMEOUTS = httpx.Timeout(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await start_redis_listener()
     async with httpx.AsyncClient(
         limits=CLOUDINARY_LIMITS,
         timeout=CLOUDINARY_TIMEOUTS,
@@ -56,6 +58,7 @@ async def lifespan(app: FastAPI):
     ) as client:
         app.state.http_client = client
         yield
+    await stop_redis_listener()
 
 
 app = FastAPI(

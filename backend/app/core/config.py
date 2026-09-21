@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None
     DATABASE_URL: PostgresDsn
+    REDIS_URL: str = "redis://localhost:6379/0"
 
     CLOUDINARY_CLOUD_NAME: str
     CLOUDINARY_API_KEY: str
