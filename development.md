@@ -99,9 +99,18 @@ docker compose watch
 
 ## The `.env` File
 
-The tracked `.env` file contains local development defaults, passwords, and other configuration. Its hostnames use `localhost` for processes running on your machine. Docker Compose overrides hostnames such as the database and SMTP server with their Compose service names.
+The project integrates with **HashiCorp Cloud Platform (HCP) Vault** to manage and distribute secrets across developers and environments. 
 
-Do not store deployment secrets in `.env`. Configure them as described in the [FastAPI Cloud deployment guide](./deployment.md) or the [Docker Compose deployment guide](./deployment-docker-compose.md).
+To pull secrets directly from Vault into your local `.env`:
+```bash
+make env-dev  # Pull secrets with safe local fallback defaults
+# Or start the entire stack directly:
+make dev      # Pull secrets and start all containers
+```
+
+For complete documentation on authentication, issuing tokens, pushing secrets, and running a local Vault dev server, refer to the [Vault Secrets Management Guide](devops/vault/README.md).
+
+Do not store production secrets in git. Configure them via Vault or as described in the [FastAPI Cloud deployment guide](./deployment.md) or the [Docker Compose deployment guide](./deployment-docker-compose.md).
 
 ## Pre-commit Hooks and Code Linting
 
