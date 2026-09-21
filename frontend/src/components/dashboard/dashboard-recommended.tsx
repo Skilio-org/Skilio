@@ -1,12 +1,19 @@
+import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { ArrowRight } from "lucide-react"
+import { ProfilesService } from "@/client"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
-import { freelancers } from "@/data/freelancers"
+import { talentCardFromApi } from "@/components/talent/talent-api"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 
-const matches = freelancers.filter((person) => ["maya-laurent", "noah-williams", "amara-okafor"].includes(person.id))
-
 export const RecommendedFreelancers = () => {
+	const { data: matches = [], isPending, isError, refetch } = useQuery({
+		queryKey: ["talent-profiles", { limit: 4 }],
+		queryFn: async ({ signal }) => {
+			const { data } = await ProfilesService.readProfiles({ query: { skip: 0, limit: 4 }, signal })
+			return data.data.slice(0, 4).map(talentCardFromApi)
+		},
+	})
 	const { savedIds, toggleSaved } = useSavedTalent()
 	return (
 		<section aria-labelledby="recommended-talent-heading" className="min-w-0">
@@ -26,6 +33,18 @@ export const RecommendedFreelancers = () => {
 				</Link>
 			</div>
 			<div className="flex flex-col gap-3.5">
+				{isPending && <p role="status">Loading professionals…</p>}
+				{isError && (
+					<p role="alert">
+						Couldn’t load professionals.{" "}
+						<button type="button" onClick={() => void refetch()} className="text-primary hover:underline">
+							Try again
+						</button>
+					</p>
+				)}
+				{!isPending && !isError && matches.length === 0 && (
+					<p role="status">No professionals available yet.</p>
+				)}
 				{matches.map((person) => (
 					<FreelancerCard
 						key={person.id}

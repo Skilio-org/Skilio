@@ -1,3 +1,12 @@
+export type MessageContact = {
+	id: string
+	name: string
+	initials: string
+	title: string
+	skills: string[]
+	avatarUrl?: string
+}
+
 export type InboxFilter = "all" | "unread" | "archived"
 export type MessageToolDialog = "brief" | null
 export type ConversationSummary = {
@@ -61,4 +70,3 @@ export function getClientTheme(id: string): ClientTheme {
 			}
 	}
 }
-

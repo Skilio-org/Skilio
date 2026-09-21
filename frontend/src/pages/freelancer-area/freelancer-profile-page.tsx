@@ -1,16 +1,17 @@
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Eye, Plus, Trash2, Upload, X } from "lucide-react"
-import { useEffect, useState } from "react"
-import { UsersService } from "@/client"
+import { useRef, useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useBlocker } from "@tanstack/react-router"
+import { profileFromApi, profileToApi } from "@/components/freelancer/freelancer-profile-api"
+import { ProfilesService, UsersService, type FreelancerProfileDetailPublic } from "@/client"
 import { Avatar, EntryDialog, ProfilePreview } from "@/components/freelancer/freelancer-profile-components"
 import {
 	completion,
 	descriptions,
 	type Entry,
-	empty,
 	fieldClass,
 	type Profile,
 	primary,
-	restoreProfile,
 	secondary,
 	steps,
 	suggested,
@@ -18,11 +19,24 @@ import {
 import { accountAvatarUrl, markAccountAvatarUpdated } from "@/hooks/useAccountAvatar"
 import useAuth from "@/hooks/useAuth"
 
-const FreelancerProfilePage = () => {
+const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetailPublic }) => {
 	const { user } = useAuth()
-	const key = `freelancer-profile-v1:${user?.id ?? "preview"}`
-	const [profile, setProfile] = useState<Profile>(empty)
-	const [loadedKey, setLoadedKey] = useState("")
+	const queryClient = useQueryClient()
+	const [serverProfile, setServerProfile] = useState(initial)
+	const [profile, setProfile] = useState<Profile>(() => ({
+		...profileFromApi(initial),
+		photo: accountAvatarUrl(initial.user_id),
+	}))
+	const [savedProfile, setSavedProfile] = useState(profile)
+	const [saving, setSaving] = useState(false)
+	const saveLock = useRef(false)
+	const [uploading, setUploading] = useState(false)
+	const dirty = JSON.stringify(profile) !== JSON.stringify(savedProfile)
+	useBlocker({
+		shouldBlockFn: () =>
+			saving || uploading || (dirty && !window.confirm("Leave without saving your profile changes?")),
+		enableBeforeUnload: dirty || saving || uploading,
+	})
 	const [view, setView] = useState<"home" | "edit" | "preview">("home")
 	const [step, setStep] = useState(0)
 	const [error, setError] = useState("")
@@ -32,35 +46,38 @@ const FreelancerProfilePage = () => {
 		kind: "experience" | "education" | "portfolio"
 		entry: Entry
 	} | null>(null)
-	useEffect(() => {
+	async function save(finished = profile.finished) {
+		if (saveLock.current || uploading) return false
+		if (profile.rate.trim() && (!Number.isFinite(Number(profile.rate)) || Number(profile.rate) < 0)) {
+			setSaveError("Enter a valid hourly rate before saving.")
+			return false
+		}
+		saveLock.current = true
+		setSaving(true)
+		setSaveError("")
 		try {
-			const stored = localStorage.getItem(key)
-			const parsed = restoreProfile(stored ? JSON.parse(stored) : null)
-			setProfile({
-				...empty,
-				...parsed,
-				name: parsed.name || user?.full_name || "",
+			const { data } = await ProfilesService.updateProfileMe({
+				body: profileToApi({ ...profile, finished }, serverProfile),
 			})
+			const saved = { ...profileFromApi(data), photo: profile.photo }
+			setServerProfile(data)
+			setProfile(saved)
+			setSavedProfile(saved)
+			queryClient.setQueryData(["freelancer-profile", initial.user_id], data)
+			void queryClient.invalidateQueries({ queryKey: ["currentUser"] })
+			void queryClient.invalidateQueries({ queryKey: ["message-contacts"] })
+			return true
 		} catch {
-			setSaveError("We couldn’t restore this draft. You can start again here.")
+			setSaveError(
+				"Your profile couldn’t be saved. Your changes are still here. Check your connection and try Save changes again.",
+			)
+			return false
+		} finally {
+			saveLock.current = false
+			setSaving(false)
 		}
-		setLoadedKey(key)
-	}, [key, user?.full_name])
-	useEffect(() => {
-		if (loadedKey !== key) return
-		try {
-			localStorage.setItem(key, JSON.stringify(profile))
-			setSaveError("")
-		} catch {
-			setSaveError("Your latest changes couldn’t be saved on this device. Free up browser storage and try again.")
-		}
-	}, [profile, loadedKey, key])
-	const update = <K extends keyof Profile>(name: K, value: Profile[K]) =>
-		setProfile((p) => ({
-			...p,
-			[name]: value,
-			finished: name === "finished" ? Boolean(value) : false,
-		}))
+	}
+	const update = <K extends keyof Profile>(name: K, value: Profile[K]) => setProfile((p) => ({ ...p, [name]: value }))
 	const done = completion(profile)
 	const percent = Math.round((done.filter(Boolean).length / done.length) * 100)
 	function edit(index: number) {
@@ -68,7 +85,7 @@ const FreelancerProfilePage = () => {
 		setError("")
 		setView("edit")
 	}
-	function next() {
+	async function next() {
 		if ([0, 1, 2, 5].includes(step) && !done[step]) {
 			setError(
 				step === 2
@@ -78,7 +95,7 @@ const FreelancerProfilePage = () => {
 			return
 		}
 		setError("")
-		setStep((s) => Math.min(s + 1, 6))
+		if (await save()) setStep((s) => Math.min(s + 1, 6))
 	}
 	function addSkill(value: string) {
 		const text = value.trim()
@@ -97,14 +114,19 @@ const FreelancerProfilePage = () => {
 			setError("Choose a JPG, PNG or WebP image under 2 MB.")
 			return
 		}
+		setUploading(true)
 		try {
 			const response = await UsersService.uploadAvatar({ body: { file } })
 			if (response.data.status !== "Ok") throw new Error("Upload failed")
 			const version = markAccountAvatarUpdated(user.id)
-			update("photo", accountAvatarUrl(user.id, version))
+			const photo = accountAvatarUrl(user.id, version)
+			update("photo", photo)
+			setSavedProfile((previous) => ({ ...previous, photo }))
 			setError("")
 		} catch {
 			setError("This image couldn’t be uploaded. Try again.")
+		} finally {
+			setUploading(false)
 		}
 	}
 	const input = (
@@ -139,7 +161,7 @@ const FreelancerProfilePage = () => {
 	)
 
 	return (
-		<div className="mx-auto max-w-6xl">
+		<fieldset disabled={saving || uploading} className="mx-auto min-w-0 max-w-6xl">
 			<header className="mb-8 flex flex-wrap items-end justify-between gap-4 border-border border-b pb-6">
 				<div>
 					<p className="mb-2 text-muted-foreground text-sm">Freelancer workspace</p>
@@ -156,9 +178,21 @@ const FreelancerProfilePage = () => {
 							: "Make it easy for the right clients to find you."}
 					</p>
 				</div>
-				<div className="flex gap-2">
+				<div className="flex flex-wrap items-center gap-2">
+					<span role="status" className="text-muted-foreground text-sm">
+						{saving ? "Saving…" : uploading ? "Uploading…" : dirty ? "Unsaved changes" : "Saved to your account"}
+					</span>
+					<button type="button" className={primary} onClick={() => void save()}>
+						Save changes
+					</button>
 					{view !== "home" && (
-						<button className={secondary} onClick={() => setView("home")} type="button">
+						<button
+							className={secondary}
+							onClick={async () => {
+								if (await save()) setView("home")
+							}}
+							type="button"
+						>
 							<ArrowLeft className="size-4" /> Workspace
 						</button>
 					)}
@@ -183,7 +217,7 @@ const FreelancerProfilePage = () => {
 						<section className="rounded-xl border border-border bg-card p-6 sm:p-8">
 							<div className="flex flex-wrap items-center justify-between gap-3">
 								<span className="font-medium text-sm">
-									{profile.finished ? "Profile draft complete" : "Make a strong first impression"}
+									{profile.finished ? "Profile published" : "Make a strong first impression"}
 								</span>
 								<span className="text-muted-foreground text-sm">{done.filter(Boolean).length} of 6 sections</span>
 							</div>
@@ -246,14 +280,14 @@ const FreelancerProfilePage = () => {
 					<aside className="space-y-5">
 						<section className="rounded-xl border border-border bg-card p-6">
 							<p className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">Profile status</p>
-							<h2 className="mt-3 font-semibold text-lg">
-								{profile.finished ? "Ready for publishing" : "Private draft"}
-							</h2>
+							<h2 className="mt-3 font-semibold text-lg">{profile.finished ? "Published" : "Private draft"}</h2>
 							<p className="mt-2 text-muted-foreground text-sm leading-6">
-								Your profile is only visible to you. Publishing and identity review aren’t available yet.
+								{profile.finished
+									? "Clients can find your profile and start a conversation with you."
+									: "Save your draft, then publish it when you’re ready for clients to find you."}
 							</p>
 							<p className="mt-4 border-border border-t pt-4 text-muted-foreground text-xs leading-5">
-								Drafts are saved in this browser. Use the same device to pick up where you left off.
+								Saved details are stored in your account and available when you sign in on another device.
 							</p>
 						</section>
 						<section className="p-2">
@@ -296,7 +330,7 @@ const FreelancerProfilePage = () => {
 							))}
 						</nav>
 						<p className="mt-6 hidden text-muted-foreground text-xs leading-5 lg:block">
-							Your progress is saved as you go.
+							Save changes or continue to save your progress.
 							<br />
 							You can finish this later.
 						</p>
@@ -326,15 +360,6 @@ const FreelancerProfilePage = () => {
 												/>
 											</label>
 											<p className="mt-2 text-muted-foreground text-xs">Optional · JPG, PNG or WebP, up to 2 MB</p>
-											{profile.photo && (
-												<button
-													type="button"
-													className="mt-2 text-destructive text-xs underline"
-													onClick={() => update("photo", "")}
-												>
-													Remove photo
-												</button>
-											)}
 										</div>
 									</div>
 									{input("Full name *", "name", "Your name")}
@@ -512,6 +537,12 @@ const FreelancerProfilePage = () => {
 										This is the starting rate shown on your profile. Agree on the final scope and price with each
 										client.
 									</p>
+									{select("Weekly hours *", "hours", [
+										"Less than 10 hours",
+										"10–20 hours",
+										"20–30 hours",
+										"More than 30 hours",
+									])}
 									{select("Availability *", "availability", [
 										"Available now",
 										"Available this week",
@@ -527,7 +558,7 @@ const FreelancerProfilePage = () => {
 								<>
 									<ProfilePreview profile={profile} compact />
 									<div className="rounded-lg bg-muted p-4 text-muted-foreground text-sm leading-6">
-										Finishing saves your profile draft. It won’t publish it or submit an identity review.
+										Publishing makes your profile visible to clients so they can contact you.
 									</div>
 									{[0, 1, 2, 5]
 										.filter((i) => !done[i])
@@ -550,12 +581,19 @@ const FreelancerProfilePage = () => {
 							</p>
 						)}
 						<footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-border border-t pt-6">
-							<button type="button" className={secondary} onClick={() => (step ? edit(step - 1) : setView("home"))}>
+							<button
+								type="button"
+								className={secondary}
+								onClick={async () => {
+									if (step) edit(step - 1)
+									else if (await save()) setView("home")
+								}}
+							>
 								<ArrowLeft className="size-4" />
 								{step ? "Back" : "Save & exit"}
 							</button>
 							{step < 6 ? (
-								<button type="button" className={primary} onClick={next}>
+								<button type="button" className={primary} onClick={() => void next()}>
 									{(step === 3 || step === 4) && !done[step] ? "Skip for now" : "Continue"}
 									<ArrowRight className="size-4" />
 								</button>
@@ -563,17 +601,16 @@ const FreelancerProfilePage = () => {
 								<button
 									type="button"
 									className={primary}
-									onClick={() => {
+									onClick={async () => {
 										if ([0, 1, 2, 5].some((i) => !done[i])) {
 											setError("Complete the required sections before finishing.")
 											return
 										}
-										update("finished", true)
-										setView("home")
+										if (await save(true)) setView("home")
 									}}
 								>
 									<CheckCircle2 className="size-4" />
-									Finish profile
+									{profile.finished ? "Save published profile" : "Publish profile"}
 								</button>
 							)}
 						</footer>
@@ -595,8 +632,31 @@ const FreelancerProfilePage = () => {
 					}}
 				/>
 			)}
-		</div>
+		</fieldset>
 	)
 }
 
-export default FreelancerProfilePage
+export default function FreelancerProfilePage() {
+	const { user, isPending: userPending } = useAuth()
+	const query = useQuery({
+		queryKey: ["freelancer-profile", user?.id],
+		enabled: !!user,
+		queryFn: async ({ signal }) => (await ProfilesService.readProfileMe({ signal })).data,
+	})
+	if (userPending || (user && query.isPending)) return <p role="status">Loading your profile…</p>
+	if (!user || !query.data)
+		return (
+			<div className="flex flex-col gap-4 p-6">
+				<p role="alert">Your profile couldn’t be loaded. Please try again before editing.</p>
+				<button
+					type="button"
+					className={secondary}
+					onClick={() => void query.refetch()}
+					disabled={!user || query.isFetching}
+				>
+					Try again
+				</button>
+			</div>
+		)
+	return <FreelancerProfileEditor key={user.id} initial={query.data} />
+}

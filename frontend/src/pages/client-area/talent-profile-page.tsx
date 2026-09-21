@@ -2,11 +2,15 @@ import { Link } from "@tanstack/react-router"
 import { ArrowLeft, ArrowUpRight, Bookmark, Check } from "lucide-react"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view"
-import type { Freelancer } from "@/data/freelancers"
+import type { FreelancerProfileDetailPublic } from "@/client"
+import { profileFromApi } from "@/components/freelancer/freelancer-profile-api"
+import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
+import { getInitials } from "@/utils"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 
-export function TalentProfilePage({ person }: { person: Freelancer }) {
-	const firstName = person.name.split(" ")[0]
+export function TalentProfilePage({ person }: { person: FreelancerProfileDetailPublic }) {
+	const profile = profileFromApi(person)
+	const firstName = profile.name.split(" ")[0]
 	const { savedIds, toggleSaved } = useSavedTalent()
 	const saved = savedIds.includes(person.id)
 
@@ -15,34 +19,26 @@ export function TalentProfilePage({ person }: { person: Freelancer }) {
 			<FreelancerProfileView
 				nameHeadingLevel="h1"
 				profile={{
-					name: person.name,
-					initials: person.initials,
-					title: person.title,
-					location: person.location,
-					summary: person.bio,
-					about: person.about,
-					skills: person.skills,
-					rate: person.rate,
-					availability: person.availability,
-					memberSince: person.memberSince,
-					rating: person.rating,
-					reviews: person.reviews,
-					background: person.background,
-					foreground: person.foreground,
-					portfolio: person.portfolio.map((entry) => ({
-						id: entry.title,
-						title: entry.title,
-						category: entry.category,
-						color: entry.color,
-						detail: `This ${entry.category.toLowerCase()} project is part of ${person.name}’s demo portfolio. Original project files and a full case study aren’t included in this preview.`,
-					})),
-					languages: person.languages,
-					education: [
-						{
-							id: "education",
-							title: person.education,
-						},
-					],
+					name: profile.name,
+					initials: getInitials(profile.name),
+					avatarUrl: accountAvatarUrl(person.user_id),
+					title: profile.title,
+					location: profile.location,
+					summary: profile.bio,
+					about: profile.bio ? [profile.bio] : [],
+					skills: profile.skills,
+					rate: profile.rate,
+					availability: profile.availability,
+					weeklyCapacity: profile.hours,
+					rating: person.average_rating ?? undefined,
+					reviews: person.reviews_count,
+					portfolio: profile.portfolio.map((entry) => ({ ...entry, category: entry.organization })),
+					languages: profile.languages
+						.split(",")
+						.map((name) => ({ name: name.trim(), level: "" }))
+						.filter((language) => language.name),
+					education: profile.education,
+					experience: profile.experience,
 				}}
 				backLink={
 					<Link
@@ -56,7 +52,11 @@ export function TalentProfilePage({ person }: { person: Freelancer }) {
 				}
 				contactActions={
 					<>
-						<Link to="/messages" search={{ with: person.id }} className={`${workspaceStyles.primaryAction} w-full`}>
+						<Link
+							to="/messages"
+							search={{ userId: person.user_id }}
+							className={`${workspaceStyles.primaryAction} w-full`}
+						>
 							Message {firstName}
 							<ArrowUpRight className="size-4" />
 						</Link>
@@ -73,7 +73,6 @@ export function TalentProfilePage({ person }: { person: Freelancer }) {
 				}
 				contactFooter={
 					<>
-						<p className="mt-4 text-center text-muted-foreground text-xs leading-5">{person.responseTime}</p>
 						{saved && (
 							<p role="status" className="mt-2 text-center text-muted-foreground text-xs">
 								Available in your Saved talent list.
@@ -81,15 +80,6 @@ export function TalentProfilePage({ person }: { person: Freelancer }) {
 						)}
 					</>
 				}
-				feedback={{
-					rating: person.rating,
-					quote:
-						"Thoughtful work, clear communication, and a practical approach from the first conversation through delivery.",
-					reviewerInitials: "AR",
-					reviewerName: "Alex Rivera",
-					reviewerMeta: "Product lead · Sample review",
-				}}
-				portfolioDialogEyebrow="Sample portfolio entry"
 				portfolioDialogAction={
 					<>
 						<div>
@@ -98,7 +88,7 @@ export function TalentProfilePage({ person }: { person: Freelancer }) {
 								Start a conversation about your goals, scope, and timeline.
 							</p>
 						</div>
-						<Link to="/messages" search={{ with: person.id }} className={workspaceStyles.primaryAction}>
+						<Link to="/messages" search={{ userId: person.user_id }} className={workspaceStyles.primaryAction}>
 							Discuss a project
 							<ArrowUpRight className="size-4" />
 						</Link>

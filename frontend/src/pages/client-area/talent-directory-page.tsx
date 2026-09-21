@@ -5,7 +5,8 @@ import { FreelancerCard } from "@/components/talent/freelancer-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
-import { freelancers } from "@/data/freelancers"
+import { useQuery } from "@tanstack/react-query"
+import { loadTalentCards } from "@/components/talent/talent-api"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 import { SearchWithCategories } from "@/components/common/search-with-categories"
 
@@ -31,6 +32,15 @@ export function TalentDirectoryPage({
 	initialQuery?: string
 	onQueryChange: (query?: string) => void
 }) {
+	const {
+		data: freelancers = [],
+		isPending,
+		isError,
+		refetch,
+	} = useQuery({
+		queryKey: ["talent-profiles"],
+		queryFn: ({ signal }) => loadTalentCards(signal),
+	})
 	const [search, setSearch] = useState(initialQuery ?? "")
 	const [category, setCategory] = useState("all")
 	const [availability, setAvailability] = useState<string[]>([])
@@ -74,7 +84,7 @@ export function TalentDirectoryPage({
 					.toLowerCase()
 				return (
 					terms.every((term) => (searchAliases[term] ?? [term]).some((candidate) => content.includes(candidate))) &&
-					(category === "all" || person.title === category) &&
+					(category === "all" || person.category === category) &&
 					(!availability.length || availability.includes(person.availability)) &&
 					person.rate >= hourlyRate[0] &&
 					(hourlyRate[1] === 120 || person.rate <= hourlyRate[1]) &&
@@ -88,13 +98,9 @@ export function TalentDirectoryPage({
 				)
 			})
 			.sort((a, b) =>
-				sort === "highest-rated"
-					? b.rating - a.rating
-					: sort === "lowest-rate"
-						? a.rate - b.rate
-						: b.successRate - a.successRate || b.rating - a.rating,
+				sort === "highest-rated" ? b.rating - a.rating : sort === "lowest-rate" ? a.rate - b.rate : b.rating - a.rating,
 			)
-	}, [search, category, availability, hourlyRate, highlyRated, location, sort])
+	}, [freelancers, search, category, availability, hourlyRate, highlyRated, location, sort])
 	const chips = [
 		...availability.map((label) => ({ label, remove: () => toggleAvailability(label) })),
 		...(search ? [{ label: search, remove: () => submitSearch("") }] : []),
@@ -303,7 +309,16 @@ export function TalentDirectoryPage({
 							/>
 						))}
 					</div>
-					{!results.length && (
+					{isPending && <p role="status">Loading professionals…</p>}
+					{isError && (
+						<div role="alert">
+							Couldn’t load professionals.{" "}
+							<button type="button" onClick={() => void refetch()}>
+								Try again
+							</button>
+						</div>
+					)}
+					{!isPending && !isError && !results.length && (
 						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
 							<Search className="mx-auto mb-4 size-6 text-outline" />
 							<h2 className="font-semibold text-headline-md">No matching profiles</h2>

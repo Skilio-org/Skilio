@@ -1,3 +1,6 @@
+import { useMessageContacts } from "@/hooks/useMessageContacts"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import { useNavigate } from "@tanstack/react-router"
 import { freelancers } from "@/data/freelancers"
 import { useAccountRole } from "@/hooks/useAccountRole"
@@ -12,44 +15,11 @@ import { MessageThread } from "@/components/messages/message-thread"
 import type { InboxFilter, ThreadMessage } from "@/components/messages/message-types"
 import { clientConversations, clientIntroductions, demoClients } from "@/data/freelancer-demo"
 
-const talentConversations = [
-	{
-		id: "maya-laurent",
-		preview: "Could you send the main user flow and the screens you want prioritized?",
-		time: "10:31",
-		unread: 2,
-	},
-	{
-		id: "noah-williams",
-		preview: "The architecture notes are ready for your review.",
-		time: "Yesterday",
-		unread: 0,
-	},
-	{
-		id: "amara-okafor",
-		preview: "Your positioning brief gives me a clear direction.",
-		time: "Mon",
-		unread: 1,
-	},
-	{
-		id: "elias-chen",
-		preview: "I've outlined the automation and evaluation flow.",
-		time: "Sep 4",
-		unread: 0,
-	},
-]
-
-const talentIntroductions: Record<string, string> = {
-	"maya-laurent":
-		"Thanks for reaching out. I’d love to hear more about your product and the experience you want to improve.",
-	"noah-williams": "Hi! Let’s walk through the scope, technical requirements, and timeline for your project.",
-	"amara-okafor": "Thanks for sharing your brief. I’d love to learn more about your audience and goals.",
-	"elias-chen": "Happy to discuss your automation needs and the outcomes you’re looking for.",
-}
+const emptyConversations: typeof clientConversations = []
 
 function sampleThread(
 	id: string,
-	meta: typeof talentConversations,
+	meta: typeof clientConversations,
 	introductions: Record<string, string>,
 ): ThreadMessage[] {
 	const conversation = meta.find((item) => item.id === id)
@@ -104,9 +74,10 @@ export function MessagesPage({
 }) {
 	const navigate = useNavigate()
 	const clientMode = useAccountRole() === "client"
-	const people = clientMode ? freelancers : demoClients
-	const meta = clientMode ? talentConversations : clientConversations
-	const introductions = clientMode ? talentIntroductions : clientIntroductions
+	const contacts = useMessageContacts(clientMode)
+	const people = clientMode ? [...(contacts.data ?? []), ...freelancers] : demoClients
+	const meta = clientMode ? emptyConversations : clientConversations
+	const introductions = clientIntroductions
 	const selected = people.find((person) => person.id === selectedContact)
 	const selectedId = selected?.id ?? ""
 	const [newMessageOpen, setNewMessageOpen] = useState(false)
@@ -298,7 +269,7 @@ export function MessagesPage({
 				<ConversationList
 					people={people}
 					conversations={conversations}
-					selectedId={selectedId}
+					selectedId={clientMode ? (selectedContact ?? "") : selectedId}
 					query={query}
 					filter={filter}
 					unreadCount={unreadCount}
@@ -306,31 +277,67 @@ export function MessagesPage({
 					onFilterChange={setFilter}
 					onSelect={select}
 				/>
-				<MessageThread
-					key={selectedId}
-					selected={selected}
-					messages={messages}
-					draft={draft}
-					archived={archived.includes(selectedId)}
-					onBack={() => select("")}
-					onOpenLatest={() => select(meta[0].id)}
-					onOpenBrief={() => {}}
-					onDetails={() => {
-						if (clientMode && selected)
-							void navigate({
-								to: "/talent/$freelancerId",
-								params: { freelancerId: selected.id },
-								search: { q: undefined },
-							})
-					}}
-					onArchive={archive}
-					onMarkUnread={() => {
-						setUnread((current) => ({ ...current, [selectedId]: 1 }))
-						select("")
-					}}
-					onDraftChange={updateDraft}
-					onSend={send}
-				/>
+				{clientMode && selectedContact && !selected ? (
+					<section className="flex flex-col gap-4 p-6" aria-live="polite">
+						<Alert>
+							<AlertTitle>
+								{contacts.isPending
+									? "Loading freelancer…"
+									: contacts.isError
+										? "Couldn’t load freelancer"
+										: "Freelancer unavailable"}
+							</AlertTitle>
+							<AlertDescription>
+								{contacts.isPending
+									? "Getting their profile details."
+									: contacts.isError
+										? "Please try loading the profile again."
+										: contacts.data?.length === 0
+											? "No public freelancer profiles are available yet. Once this freelancer’s profile is available, reload to start your conversation."
+											: "This freelancer’s public profile could not be found. Check the contact link or try again later."}
+							</AlertDescription>
+						</Alert>
+						{!contacts.isPending && (
+							<Button variant="outline" disabled={contacts.isFetching} onClick={() => void contacts.refetch()}>
+								{contacts.isFetching ? "Loading…" : "Reload profile"}
+							</Button>
+						)}
+						<Button variant="outline" onClick={() => select("")}>
+							Back to conversations
+						</Button>
+					</section>
+				) : (
+					<MessageThread
+						key={selectedId}
+						selected={selected}
+						messages={messages}
+						draft={draft}
+						archived={archived.includes(selectedId)}
+						onBack={() => select("")}
+						onOpenLatest={() => {
+							if (all[0]) select(all[0].id)
+							else setNewMessageOpen(true)
+						}}
+						hasConversations={all.length > 0}
+						canViewProfile={clientMode && freelancers.some((person) => person.id === selectedId)}
+						onOpenBrief={() => {}}
+						onDetails={() => {
+							if (clientMode && selected && freelancers.some((person) => person.id === selected.id))
+								void navigate({
+									to: "/talent/$freelancerId",
+									params: { freelancerId: selected.id },
+									search: { q: undefined },
+								})
+						}}
+						onArchive={archive}
+						onMarkUnread={() => {
+							setUnread((current) => ({ ...current, [selectedId]: 1 }))
+							select("")
+						}}
+						onDraftChange={updateDraft}
+						onSend={send}
+					/>
+				)}
 			</div>
 		</div>
 	)

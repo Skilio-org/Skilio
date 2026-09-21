@@ -1,0 +1,44 @@
+import { ProfilesService, type FreelancerProfilePublic } from "@/client"
+import type { Freelancer } from "@/data/freelancers"
+import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
+
+export type TalentCard = Pick<
+	Freelancer,
+	"id" | "name" | "title" | "location" | "rate" | "rating" | "reviews" | "availability" | "bio" | "skills"
+> & {
+	userId?: string
+	avatarUrl?: string | null
+	category?: string
+}
+
+export function talentCardFromApi(profile: FreelancerProfilePublic): TalentCard {
+	return {
+		id: profile.id,
+		userId: profile.user_id,
+		name: profile.full_name?.trim() || "Freelancer",
+		title: profile.title ?? "Freelancer",
+		location: profile.location ?? "",
+		rate: profile.hourly_rate ?? 0,
+		rating: profile.average_rating ?? 0,
+		reviews: profile.reviews_count ?? 0,
+		availability: profile.availability ?? "",
+		bio: profile.bio ?? "",
+		skills: profile.skill_names ?? profile.skills?.map((skill) => skill.name) ?? [],
+		category: profile.category ?? "",
+		avatarUrl: accountAvatarUrl(profile.user_id),
+	}
+}
+
+export async function loadTalentCards(signal?: AbortSignal) {
+	const cards: TalentCard[] = []
+	while (true) {
+		const { data: page } = await ProfilesService.readProfiles({ query: { skip: cards.length, limit: 100 }, signal })
+		cards.push(...page.data.map(talentCardFromApi))
+		if (!page.data.length || cards.length >= page.count) return cards
+	}
+}
+
+export async function loadTalentProfile(id: string) {
+	const { data } = await ProfilesService.readProfile({ path: { id } })
+	return data
+}

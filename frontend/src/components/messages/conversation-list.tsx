@@ -1,7 +1,7 @@
 import { Archive, MessageSquare, Search, X } from "lucide-react"
 import { getClientTheme } from "@/components/messages/message-types"
 import type { ConversationSummary, InboxFilter } from "@/components/messages/message-types"
-import type { Freelancer } from "@/data/freelancers"
+import type { MessageContact } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
 
 export function ConversationList({
@@ -15,7 +15,7 @@ export function ConversationList({
 	onFilterChange,
 	onSelect,
 }: {
-	people: Freelancer[]
+	people: MessageContact[]
 	conversations: ConversationSummary[]
 	selectedId: string
 	query: string
@@ -37,7 +37,7 @@ export function ConversationList({
 				<div className="flex items-center justify-between gap-3">
 					<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Direct Threads</h2>
 					<span className="rounded bg-surface-container px-2 py-0.5 font-caption text-caption text-on-surface-variant font-medium">
-						{people.length} Total
+						{conversations.length} Total
 					</span>
 				</div>
 				<label className="mt-3.5 flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-body-sm text-body-sm text-on-surface transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20">
@@ -188,14 +188,18 @@ export function ConversationList({
 								? "No matching conversations"
 								: filter === "unread"
 									? "You're all caught up"
-									: "Nothing archived yet"}
+									: filter === "archived"
+										? "Nothing archived yet"
+										: "No conversations yet"}
 						</h3>
 						<p className="mt-1.5 font-body-sm text-body-sm text-on-surface-variant">
 							{query
 								? "Try a different name, skill, or message."
 								: filter === "unread"
 									? "New messages will appear here."
-									: "Conversations you archive will live here."}
+									: filter === "archived"
+										? "Conversations you archive will live here."
+										: "Choose a freelancer to start a conversation."}
 						</p>
 						<button
 							type="button"

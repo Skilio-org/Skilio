@@ -10,10 +10,12 @@ import { FreelancerProfileView } from "@/components/freelancer/freelancer-profil
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 export function Avatar({ profile }: { profile: Profile }) {
-	return profile.photo ? (
+	const [failedPhoto, setFailedPhoto] = useState("")
+	return profile.photo && failedPhoto !== profile.photo ? (
 		<img
 			className="size-20 shrink-0 rounded-full object-cover"
 			src={profile.photo}
+			onError={() => setFailedPhoto(profile.photo)}
 			alt={profile.name || "Profile photo"}
 		/>
 	) : (

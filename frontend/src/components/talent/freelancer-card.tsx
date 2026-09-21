@@ -2,20 +2,16 @@ import { Link } from "@tanstack/react-router"
 import { Bookmark, MapPin, Star } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import type { Freelancer } from "@/data/freelancers"
+import type { TalentCard } from "./talent-api"
 import { cn } from "@/lib/utils"
 import { getInitials } from "@/utils"
-
-type FreelancerWithAvatar = Freelancer & {
-	avatarUrl?: string | null
-}
 
 export function FreelancerCard({
 	freelancer,
 	saved,
 	onToggleSaved,
 }: {
-	freelancer: FreelancerWithAvatar
+	freelancer: TalentCard
 	saved: boolean
 	onToggleSaved: () => void
 }) {
@@ -151,7 +147,7 @@ export function FreelancerCard({
 
 					<Link
 						to="/messages"
-						search={{ with: freelancer.id }}
+						search={{ userId: freelancer.userId ?? freelancer.id }}
 						className="inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
 					>
 						Message

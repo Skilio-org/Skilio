@@ -183,7 +183,7 @@ export function SavedTalentRow({
 						</Link>
 						<Link
 							to="/messages"
-							search={{ with: freelancer.id }}
+							search={{ userId: freelancer.id }}
 							className={`${workspaceStyles.secondaryAction} min-h-11 w-full px-4`}
 						>
 							<MessageCircle className="size-4" />

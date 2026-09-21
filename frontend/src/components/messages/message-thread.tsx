@@ -1,10 +1,10 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Archive, ArrowLeft, ArrowUpRight, Mail, MessageSquare, MoreHorizontal, Search, Send, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { MessageBubble } from "@/components/messages/message-bubble"
-import { getClientTheme } from "@/components/messages/message-types"
 import type { ThreadMessage } from "@/components/messages/message-types"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import type { Freelancer } from "@/data/freelancers"
+import type { MessageContact } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
 
 const iconButton =
@@ -22,8 +22,10 @@ export function MessageThread({
 	onDraftChange,
 	onSend,
 	onOpenLatest,
+	hasConversations,
+	canViewProfile,
 }: {
-	selected?: Freelancer
+	selected?: MessageContact
 	messages: ThreadMessage[]
 	draft: string
 	archived: boolean
@@ -34,6 +36,8 @@ export function MessageThread({
 	onMarkUnread: () => void
 	onDraftChange: (draft: string) => void
 	onSend: () => void
+	canViewProfile: boolean
+	hasConversations: boolean
 	onOpenLatest: () => void
 }) {
 	const [searchOpen, setSearchOpen] = useState(false)
@@ -88,13 +92,13 @@ export function MessageThread({
 					onClick={onOpenLatest}
 					className="mt-6 inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 font-label-md text-label-md font-medium text-on-surface transition-colors hover:bg-surface-container-low"
 				>
-					Open latest conversation <ArrowUpRight className="size-4 text-outline" />
+					{hasConversations ? "Open latest conversation" : "Start a conversation"}{" "}
+					<ArrowUpRight className="size-4 text-outline" />
 				</button>
 			</section>
 		)
 
 	const companyOrName = selected.title.split(" · ")[1] || selected.name
-	const theme = getClientTheme(selected.id)
 
 	return (
 		<section
@@ -110,32 +114,23 @@ export function MessageThread({
 				>
 					<ArrowLeft className="size-4" />
 				</button>
-				<span
-					className={cn(
-						"hidden size-10 shrink-0 place-items-center rounded-lg border font-label-sm font-semibold shadow-2xs sm:grid",
-						theme.bg,
-						theme.text,
-						theme.border,
-					)}
-				>
-					{companyOrName
-						.split(" ")
-						.map((word) => word[0])
-						.slice(0, 2)
-						.join("")}
-				</span>
+				<Avatar className="size-10 rounded-lg">
+					<AvatarImage src={selected.avatarUrl} alt={selected.name} />
+					<AvatarFallback>{selected.initials}</AvatarFallback>
+				</Avatar>
 				<div className="min-w-0 flex-1">
 					<div className="flex flex-wrap items-center gap-2">
 						<button
 							type="button"
 							onClick={onDetails}
+							disabled={!canViewProfile}
 							className="block max-w-full truncate text-left font-headline-sm font-semibold text-headline-sm text-on-surface hover:text-primary transition-colors"
 						>
 							{companyOrName}
 						</button>
 					</div>
 					<p className="mt-0.5 truncate font-caption text-caption text-on-surface-variant">
-						{`${selected.name} · ${selected.skills.join(" · ")}`}
+						{[selected.title, ...selected.skills].filter(Boolean).join(" · ")}
 					</p>
 				</div>
 				<button
@@ -224,12 +219,17 @@ export function MessageThread({
 				className="message-history min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#f0f2f5] dark:bg-[#131518] px-4 py-6 sm:px-8"
 			>
 				<div className="mx-auto w-full max-w-3xl">
-					{!term && (
+					{!term && messages.length > 0 && (
 						<div className="mb-6 text-center">
 							<span className="rounded-full border border-outline-variant/80 bg-surface-container-lowest px-3.5 py-1 font-caption text-caption font-medium text-on-surface-variant shadow-xs">
 								Project conversation
 							</span>
 						</div>
+					)}
+					{!term && messages.length === 0 && (
+						<p role="status" className="py-12 text-center text-muted-foreground">
+							Start a conversation with {selected.name}. Say hello and share a little about your project.
+						</p>
 					)}
 					<div
 						role="log"

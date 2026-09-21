@@ -40,40 +40,6 @@ export const empty: Profile = {
 	finished: false,
 }
 
-export function restoreProfile(value: unknown): Profile {
-	if (!value || typeof value !== "object") return { ...empty }
-	const source = value as Record<string, unknown>
-	const result = { ...empty }
-	for (const name of [
-		"name",
-		"title",
-		"location",
-		"photo",
-		"category",
-		"bio",
-		"languages",
-		"rate",
-		"availability",
-		"hours",
-	] as const) {
-		result[name] = typeof source[name] === "string" ? source[name] : ""
-	}
-	result.skills = Array.isArray(source.skills)
-		? source.skills.filter((s): s is string => typeof s === "string").slice(0, 15)
-		: []
-	for (const name of ["experience", "education", "portfolio"] as const) {
-		result[name] = Array.isArray(source[name])
-			? source[name].filter(
-					(entry): entry is Entry =>
-						!!entry &&
-						typeof entry === "object" &&
-						["id", "title", "organization", "detail", "url"].every((key) => typeof entry[key] === "string"),
-				)
-			: []
-	}
-	result.finished = source.finished === true
-	return result
-}
 export const steps = [
 	"The basics",
 	"Your expertise",
