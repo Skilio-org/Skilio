@@ -85,17 +85,11 @@ export function AppLayout() {
 		<div className="workspace-shell flex min-h-svh flex-col bg-background">
 			<TopNav />
 			<main id="main-content" tabIndex={-1} className="flex-1 outline-none">
-				<div
-					className={
-						isMessages
-							? "mx-auto max-w-370 px-3 py-3 sm:px-6 sm:py-6"
-							: "mx-auto max-w-330 px-4 py-7 sm:px-6 sm:py-10 lg:px-8"
-					}
-				>
+				<div className="mx-auto max-w-330 px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
 					<Outlet />
 				</div>
 			</main>
-			{!isMessages && <Footer />}
+			{(!isMessages || path === "/freelancer-messages") && <Footer />}
 		</div>
 	)
 }

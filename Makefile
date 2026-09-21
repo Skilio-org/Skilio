@@ -1,4 +1,4 @@
-.PHONY: help dev up down env push logs status clean backup restore
+.PHONY: help dev up down env env-dev push push-dry token logs status clean backup restore backup-logs dr-test
 
 # Default target — show available commands
 help:
@@ -15,11 +15,16 @@ help:
 	@echo ""
 	@echo "  HCP Vault:"
 	@echo "    make env          Pull secrets from HCP Vault → generate .env"
+	@echo "    make env-dev      Pull secrets (use fallback defaults for missing values)"
 	@echo "    make push         Upload local .env secrets to HCP Vault"
+	@echo "    make push-dry     Preview what will be pushed (no writes)"
+	@echo "    make token        Create a read-only token (make token NAME=dev1 [TTL=720h])"
 	@echo ""
-	@echo "  Database:"
+	@echo "  Database & Disaster Recovery:"
 	@echo "    make backup       Dump the Postgres database to a .sql.gz file"
 	@echo "    make restore      Restore the database from the latest (or given) backup"
+	@echo "    make backup-logs  View live logs from the automated backup daemon"
+	@echo "    make dr-test      Run automated Disaster Recovery (DR) verification drill"
 	@echo ""
 	@echo "  Cleanup:"
 	@echo "    make clean        Backup DB → stop everything → remove containers & volumes"
@@ -52,9 +57,21 @@ status:
 env:
 	@bash devops/vault/scripts/vault-pull.sh
 
+# Pull secrets with fallback defaults for local development
+env-dev:
+	@bash devops/vault/scripts/vault-pull.sh --allow-fallbacks
+
 # Upload local .env secrets up to HCP Vault
 push:
 	@bash devops/vault/scripts/vault-push.sh
+
+# Preview what will be pushed without writing
+push-dry:
+	@bash devops/vault/scripts/vault-push.sh --dry-run
+
+# Create a developer read-only token in HCP Vault
+token:
+	@bash devops/vault/scripts/vault-create-token.sh $(NAME) $(TTL)
 
 # ─── Database ───────────────────────────────────────────────
 
@@ -65,6 +82,14 @@ backup:
 # Restore the database from the latest (or given) backup
 restore:
 	@bash devops/backup/restore.sh $(FILE)
+
+# Tail logs from the automated backup daemon
+backup-logs:
+	docker compose logs -f backup-daemon
+
+# Run automated Disaster Recovery (DR) verification drill
+dr-test:
+	@bash devops/backup/dr-drill.sh
 
 # ─── Cleanup ────────────────────────────────────────────────
 

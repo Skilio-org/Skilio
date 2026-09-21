@@ -1,0 +1,281 @@
+import { ArrowRight, Banknote, Bookmark, Building2, CircleCheck, Clock3, Globe2, Send } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
+import { SheetDescription, SheetTitle } from "@/components/ui/sheet"
+import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
+import { useSavedJobs } from "@/hooks/useSavedJobs"
+import type { FreelancerJob } from "@/types/job"
+
+export const JobDetails = ({
+	job,
+	projectType,
+	initiallyApplying = false,
+}: {
+	job: FreelancerJob
+	projectType: string
+	initiallyApplying?: boolean
+}) => {
+	const { saved: savedIds, toggleSaved: toggleBookmark } = useSavedJobs()
+	const saved = savedIds.includes(job.id)
+	const { isSubmitted, getProposal, saveProposal } = useFreelancerProposals()
+	const submitted = isSubmitted(job.id)
+	const existingProposal = getProposal(job.id)
+
+	const [applying, setApplying] = useState(() => initiallyApplying && !submitted)
+	const coverInput = useRef<HTMLTextAreaElement>(null)
+
+	useEffect(() => {
+		if (applying) coverInput.current?.focus()
+	}, [applying])
+
+	const [cover, setCover] = useState(() => (!submitted && existingProposal ? existingProposal.cover : ""))
+
+	useEffect(() => {
+		if (submitted) {
+			setApplying(false)
+		}
+	}, [submitted])
+
+	const toggleSaved = () => {
+		if (!toggleBookmark(job.id)) toast.error("Couldn't update saved jobs.")
+	}
+
+	const handleSaveDraft = () => {
+		if (submitted) {
+			toast.error("You have already submitted a proposal for this job.")
+			setApplying(false)
+			return
+		}
+		const result = saveProposal(job, cover, "Drafts")
+		if (!result.success) {
+			if (result.reason === "already_submitted") {
+				toast.error("You have already submitted a proposal for this job.")
+			} else {
+				toast.error("Couldn't save your draft.")
+			}
+			return
+		}
+		setApplying(false)
+		toast.success("Draft saved", { description: "You can review it in Proposals." })
+	}
+
+	const handleApplyNow = () => {
+		if (submitted) {
+			toast.error("You have already submitted a proposal for this job.")
+			setApplying(false)
+			return
+		}
+		if (cover.trim().length < 40) {
+			toast.error("Add a cover letter of at least 40 characters before submitting.")
+			coverInput.current?.focus()
+			return
+		}
+		const result = saveProposal(job, cover, "Submitted")
+		if (!result.success) {
+			if (result.reason === "already_submitted") {
+				toast.error("You have already submitted a proposal for this job.")
+			} else {
+				toast.error("Couldn't submit your proposal.")
+			}
+			return
+		}
+		setApplying(false)
+		toast.success("Proposal submitted")
+	}
+	const primary =
+		"flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container dark:bg-on-surface dark:text-background dark:hover:bg-white"
+	return (
+		<div className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest text-on-surface">
+			<div className="grid min-h-full md:grid-cols-[minmax(0,1fr)_260px]">
+				<div className="min-w-0">
+					<section className="border-outline-variant/60 border-b px-6 py-7 sm:px-8">
+						<p className="mb-3 font-caption font-medium text-caption text-primary uppercase tracking-wider">
+							{job.category} · Opportunity
+						</p>
+						<SheetTitle className="max-w-2xl font-headline-lg font-semibold text-2xl text-on-surface leading-8 tracking-tight">
+							{job.title}
+						</SheetTitle>
+						<SheetDescription className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 font-caption text-caption text-on-surface-variant">
+							<span>{job.posted}</span>
+							<span className="inline-flex items-center gap-1.5">
+								<Globe2 className="size-3.5" />
+								Worldwide · Remote
+							</span>
+						</SheetDescription>
+					</section>
+					<section className="border-outline-variant/60 border-b px-6 py-6 sm:px-8">
+						<h3 className="font-semibold text-headline-sm">About the project</h3>
+						<p className="mt-3 whitespace-pre-line font-body-sm text-body-sm text-on-surface-variant leading-6">
+							{job.description}
+						</p>
+					</section>
+					<section className="grid grid-cols-2 gap-6 border-outline-variant/60 border-b px-6 py-6 sm:px-8">
+						<div>
+							<Banknote className="mb-3 size-5 text-outline" />
+							<p className="font-semibold text-body-md">{job.budget.split(" · ")[0]}</p>
+							<p className="mt-1 text-caption text-on-surface-variant">
+								{projectType === "Hourly" ? "Hourly rate" : "Project budget"}
+							</p>
+						</div>
+						<div>
+							<Clock3 className="mb-3 size-5 text-outline" />
+							<p className="font-semibold text-body-md">{projectType}</p>
+							<p className="mt-1 text-caption text-on-surface-variant">
+								{job.budget.split(" · ")[1] !== "Fixed price"
+									? job.budget.split(" · ")[1] || "Project-based engagement"
+									: "Project-based engagement"}
+							</p>
+						</div>
+					</section>
+					<section className="px-6 py-6 sm:px-8">
+						<h3 className="font-semibold text-headline-sm">Skills and expertise</h3>
+						<div className="mt-3 flex flex-wrap gap-1.5">
+							{job.skills.map((skill) => (
+								<span
+									key={skill}
+									className="rounded border border-transparent bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant dark:border-border-subtle dark:text-on-surface-soft"
+								>
+									{skill}
+								</span>
+							))}
+						</div>
+					</section>
+					{submitted && (
+						<section className="border-outline-variant/60 border-t px-6 py-6 sm:px-8">
+							<div className="flex items-center gap-2 font-medium text-body-sm text-primary">
+								<CircleCheck className="size-4" />
+								<span>You have already submitted a proposal for this project.</span>
+							</div>
+							{existingProposal?.cover && (
+								<div className="mt-3 rounded-lg border border-outline-variant/60 bg-surface-container-low/50 p-4">
+									<p className="font-caption font-medium text-caption text-on-surface-variant">
+										Your submitted introduction
+									</p>
+									<p className="mt-2 whitespace-pre-line text-body-sm text-on-surface-variant leading-relaxed">
+										{existingProposal.cover}
+									</p>
+								</div>
+							)}
+						</section>
+					)}
+					{applying && !submitted && (
+						<section className="border-outline-variant/60 border-t px-6 py-6 sm:px-8">
+							<h3 className="font-semibold text-headline-sm">Make your introduction</h3>
+							<p className="mt-1 text-body-sm text-on-surface-variant">
+								A thoughtful proposal is the start of a great collaboration.
+							</p>
+							<form
+								onSubmit={(event) => {
+									event.preventDefault()
+								}}
+								className="mt-4 space-y-4"
+							>
+								<label className="block text-label-sm">
+									Cover letter
+									<textarea
+										ref={coverInput}
+										required
+										minLength={40}
+										maxLength={5000}
+										rows={5}
+										value={cover}
+										onChange={(event) => setCover(event.target.value)}
+										placeholder="Introduce yourself and explain your approach…"
+										className="mt-2 w-full rounded-lg border border-outline-variant bg-background p-3 text-body-sm outline-none focus:border-primary"
+									/>
+									<span className="mt-1.5 block text-caption text-outline">
+										At least 40 characters ({cover.length.toLocaleString()} / 5,000)
+									</span>
+								</label>
+								<div className="flex items-center justify-between gap-3 pt-2">
+									<button
+										type="button"
+										onClick={() => {
+											setApplying(false)
+											setCover("")
+										}}
+										className="inline-flex h-10 items-center justify-center rounded-lg px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
+									>
+										Cancel
+									</button>
+									<div className="flex items-center gap-2.5">
+										<button
+											type="button"
+											onClick={handleSaveDraft}
+											className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low"
+										>
+											Save as draft
+										</button>
+										<button
+											type="button"
+											disabled={cover.trim().length < 40 || cover.length > 5000}
+											onClick={handleApplyNow}
+											className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container disabled:opacity-50 dark:bg-on-surface dark:text-background dark:hover:bg-white"
+										>
+											<Send className="size-4" />
+											Apply now
+										</button>
+									</div>
+								</div>
+							</form>
+						</section>
+					)}
+				</div>
+				<aside className="border-outline-variant/60 border-t bg-surface-container-low/40 p-6 md:border-t-0 md:border-l">
+					<div className="space-y-2.5">
+						{submitted ? (
+							<div className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 font-label-md text-label-md text-primary dark:border-border-subtle dark:bg-surface-container">
+								<CircleCheck className="size-4 text-primary" />
+								<span>Proposal submitted</span>
+							</div>
+						) : (
+							<button
+								type="button"
+								className={primary}
+								onClick={() => {
+									if (existingProposal?.cover && !cover) setCover(existingProposal.cover)
+									setApplying(true)
+								}}
+							>
+								{existingProposal ? "Continue proposal" : "Apply now"}
+								<ArrowRight className="size-4" />
+							</button>
+						)}
+						<button
+							type="button"
+							onClick={toggleSaved}
+							aria-pressed={saved}
+							className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest text-label-md text-on-surface hover:bg-surface-container"
+						>
+							<Bookmark className={`size-4 ${saved ? "fill-current" : ""}`} />
+							{saved ? "Saved job" : "Save job"}
+						</button>
+					</div>
+					<section className="mt-7 border-outline-variant/60 border-t pt-6">
+						<h3 className="font-semibold text-headline-sm">About the client</h3>
+						<div className="mt-4 flex items-center gap-3">
+							<span className="grid size-9 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-primary">
+								<Building2 className="size-4" />
+							</span>
+							<div>
+								<p className="font-medium text-body-sm">{job.company}</p>
+								<p className="mt-0.5 text-caption text-on-surface-variant">Project owner</p>
+							</div>
+						</div>
+						<p className="mt-4 text-body-sm text-on-surface-variant leading-5">
+							Hiring for {job.category.toLowerCase()}.
+						</p>
+					</section>
+					<section className="mt-6 border-outline-variant/60 border-t pt-5">
+						<h3 className="font-medium text-label-sm">Your next step</h3>
+						<p className="mt-2 text-body-sm text-on-surface-variant leading-5">
+							{submitted
+								? "You have already submitted a proposal for this project. Track its progress in Proposals."
+								: "Share relevant work and how you would approach this project. You can apply directly or save your proposal as a draft."}
+						</p>
+					</section>
+				</aside>
+			</div>
+		</div>
+	)
+}

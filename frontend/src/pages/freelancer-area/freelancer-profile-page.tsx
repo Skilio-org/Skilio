@@ -18,7 +18,7 @@ import {
 import { accountAvatarUrl, markAccountAvatarUpdated } from "@/hooks/useAccountAvatar"
 import useAuth from "@/hooks/useAuth"
 
-export function FreelancerProfilePage() {
+const FreelancerProfilePage = () => {
 	const { user } = useAuth()
 	const key = `freelancer-profile-v1:${user?.id ?? "preview"}`
 	const [profile, setProfile] = useState<Profile>(empty)
@@ -598,3 +598,5 @@ export function FreelancerProfilePage() {
 		</div>
 	)
 }
+
+export default FreelancerProfilePage

@@ -29,11 +29,9 @@ export function LoginPage({ error, onErrorHandled }: { error?: string; onErrorHa
 						Welcome back. Enter your details to continue to your account.
 					</p>
 				</div>
-
 				<LoginForm />
 				<Divider text="Or continue with" />
 				<SocialAuth />
-
 				<div className="mt-7 text-center text-muted-foreground text-sm">
 					Don't have an account yet?{" "}
 					<RouterLink

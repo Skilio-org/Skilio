@@ -3,181 +3,227 @@ set -euo pipefail
 
 # Pulls secrets from hosted HCP Vault (HashiCorp Cloud Platform) and generates .env
 # Usage:
-#   export VAULT_ADDR="https://your-hcp-cluster.hashicorp.cloud:8200"
 #   export VAULT_TOKEN="your-hcp-vault-token"
-#   export VAULT_NAMESPACE="admin"
 #   bash devops/vault/scripts/vault-pull.sh
+#
+# Options:
+#   --allow-fallbacks   Use default fallback values for missing secrets (for local dev)
 
-# Load local .env.vault file if present
-if [ -f ".env.vault" ]; then
-  set -a
-  source ".env.vault"
-  set +a
-elif [ -f "devops/vault/.credentials/vault.env" ]; then
-  set -a
-  source "devops/vault/.credentials/vault.env"
-  set +a
-fi
+# ─── Parse flags ────────────────────────────────────────────
+ALLOW_FALLBACKS=false
+for arg in "$@"; do
+  case "$arg" in
+    --allow-fallbacks) ALLOW_FALLBACKS=true ;;
+    -h|--help)
+      echo "Usage: bash devops/vault/scripts/vault-pull.sh [--allow-fallbacks]"
+      echo ""
+      echo "Pulls secrets from HCP Vault and generates a .env file."
+      echo ""
+      echo "Options:"
+      echo "  --allow-fallbacks   Use default values for missing secrets (local dev only)"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $arg" >&2
+      exit 1
+      ;;
+  esac
+done
 
-VAULT_ADDR="${VAULT_ADDR:-https://vault-cluster-public-vault-f91a1ccc.eecb9a06.z1.hashicorp.cloud:8200}"
-VAULT_TOKEN="${VAULT_TOKEN:?VAULT_TOKEN must be set as an environment variable or defined in .env.vault}"
-VAULT_NAMESPACE="${VAULT_NAMESPACE:-admin}"
+# ─── Load shared utilities ──────────────────────────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/vault-common.sh"
+
+# ─── Initialize ─────────────────────────────────────────────
+vault_load_credentials
+vault_configure
+
 ENV_FILE=".env"
+SECRETS_OK=0
+SECRETS_FAILED=0
+WARNINGS=()
 
-VAULT_ADDR="${VAULT_ADDR%/}"
+echo ""
 
-# Look up who this token belongs to
-TOKEN_INFO=$(curl -s \
-  -H "X-Vault-Token: ${VAULT_TOKEN}" \
-  -H "X-Vault-Namespace: ${VAULT_NAMESPACE}" \
-  "${VAULT_ADDR}/v1/auth/token/lookup-self" 2>/dev/null || echo "")
-
-if [ -n "$TOKEN_INFO" ] && command -v jq >/dev/null 2>&1; then
-  TOKEN_DISPLAY_NAME=$(echo "$TOKEN_INFO" | jq -r '.data.display_name // empty')
-  TOKEN_POLICIES=$(echo "$TOKEN_INFO" | jq -r '.data.policies // [] | join(", ")')
-elif [ -n "$TOKEN_INFO" ] && command -v python3 >/dev/null 2>&1; then
-  TOKEN_DISPLAY_NAME=$(echo "$TOKEN_INFO" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('data', {}).get('display_name', ''))" 2>/dev/null || echo "")
-  TOKEN_POLICIES=$(echo "$TOKEN_INFO" | python3 -c "import sys, json; data=json.load(sys.stdin); print(', '.join(data.get('data', {}).get('policies', [])))" 2>/dev/null || echo "")
+# ─── Pre-flight: verify connectivity and token ──────────────
+if ! vault_check_connection; then
+  echo "" >&2
+  echo -e "${RED}Cannot proceed — Vault connectivity check failed.${NC}" >&2
+  exit 1
 fi
 
-TOKEN_DISPLAY_NAME="${TOKEN_DISPLAY_NAME:-unknown}"
-TOKEN_POLICIES="${TOKEN_POLICIES:-unknown}"
-
-echo "Connecting to HCP Vault at $VAULT_ADDR"
-echo "  Namespace: $VAULT_NAMESPACE"
-echo "  Token identity: $TOKEN_DISPLAY_NAME (policies: $TOKEN_POLICIES)"
-
-# Helper function to query KV-v2 secrets via HTTP REST API
-get_secret_json() {
-  local path="$1"
-  local url="${VAULT_ADDR}/v1/secret/data/production/${path}"
-
-  local response
-  response=$(curl -s -f \
-    -H "X-Vault-Token: ${VAULT_TOKEN}" \
-    -H "X-Vault-Namespace: ${VAULT_NAMESPACE}" \
-    "${url}" 2>/dev/null || echo "")
-
-  if [ -z "$response" ]; then
-    echo "Warning: Could not fetch secret at 'secret/production/${path}'. Ensure path exists and token has access." >&2
-  fi
-  echo "$response"
-}
-
-# Helper function to extract a field value from JSON
-json_field() {
-  local json="$1"
-  local field="$2"
-  if [ -z "$json" ]; then
-    echo ""
-    return
-  fi
-
-  if command -v jq >/dev/null 2>&1; then
-    echo "$json" | jq -r ".data.data.\"$field\" // empty"
-  elif command -v python3 >/dev/null 2>&1; then
-    echo "$json" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('data', {}).get('data', {}).get('$field', ''))"
-  else
-    echo "Error: Neither jq nor python3 is installed." >&2
-    exit 1
-  fi
-}
-
+echo ""
 echo "Pulling secrets from HCP Vault..."
+echo ""
 
-APP_JSON=$(get_secret_json "app")
-DB_JSON=$(get_secret_json "database")
-EMAIL_JSON=$(get_secret_json "email")
-CLOUDINARY_JSON=$(get_secret_json "cloudinary")
-GOOGLE_JSON=$(get_secret_json "google")
-LINKEDIN_JSON=$(get_secret_json "linkedin")
+# ─── Fetch all secret groups ────────────────────────────────
+# Each fetch either succeeds (stores JSON) or fails (stores empty, prints warning)
+# We avoid $() subshells for the counters to persist correctly.
 
-SECRET_KEY=$(json_field "$APP_JSON" secret_key)
-FIRST_SUPERUSER=$(json_field "$APP_JSON" first_superuser)
-FIRST_SUPERUSER_PASSWORD=$(json_field "$APP_JSON" first_superuser_password)
+_vault_fetch() {
+  local name="$1"
+  local var_name="$2"
+  local result
+  if result=$(vault_kv_get "$name"); then
+    SECRETS_OK=$((SECRETS_OK + 1))
+    eval "$var_name=\$result"
+  else
+    SECRETS_FAILED=$((SECRETS_FAILED + 1))
+    WARNINGS+=("secret/production/${name}")
+    eval "$var_name=''"
+  fi
+}
 
-POSTGRES_PASSWORD=$(json_field "$DB_JSON" password)
-DB_HOST=$(json_field "$DB_JSON" host)
-DB_PORT=$(json_field "$DB_JSON" port)
-DB_NAME=$(json_field "$DB_JSON" name)
+_vault_fetch "app" APP_JSON
+_vault_fetch "database" DB_JSON
+_vault_fetch "email" EMAIL_JSON
+_vault_fetch "cloudinary" CLOUDINARY_JSON
+_vault_fetch "google" GOOGLE_JSON
+_vault_fetch "linkedin" LINKEDIN_JSON
 
-SMTP_HOST=$(json_field "$EMAIL_JSON" smtp_host)
-SMTP_PORT=$(json_field "$EMAIL_JSON" smtp_port)
-SMTP_TLS=$(json_field "$EMAIL_JSON" smtp_tls)
-EMAILS_FROM_EMAIL=$(json_field "$EMAIL_JSON" from_email)
+# ─── Extract individual fields ──────────────────────────────
+SECRET_KEY=$(kv2_field "$APP_JSON" "secret_key")
+FIRST_SUPERUSER=$(kv2_field "$APP_JSON" "first_superuser")
+FIRST_SUPERUSER_PASSWORD=$(kv2_field "$APP_JSON" "first_superuser_password")
 
-CLOUDINARY_CLOUD_NAME=$(json_field "$CLOUDINARY_JSON" cloud_name)
-CLOUDINARY_API_KEY=$(json_field "$CLOUDINARY_JSON" api_key)
-CLOUDINARY_API_SECRET=$(json_field "$CLOUDINARY_JSON" api_secret)
+POSTGRES_PASSWORD=$(kv2_field "$DB_JSON" "password")
+DB_HOST=$(kv2_field "$DB_JSON" "host")
+DB_PORT=$(kv2_field "$DB_JSON" "port")
+DB_NAME=$(kv2_field "$DB_JSON" "name")
 
-GOOGLE_CLIENT_ID=$(json_field "$GOOGLE_JSON" client_id)
-GOOGLE_CLIENT_SECRET=$(json_field "$GOOGLE_JSON" client_secret)
-GOOGLE_REDIRECT_URI=$(json_field "$GOOGLE_JSON" redirect_uri)
-GOOGLE_TOKEN_URI=$(json_field "$GOOGLE_JSON" token_uri)
-GOOGLE_AUTH_URI=$(json_field "$GOOGLE_JSON" auth_uri)
-GOOGLE_USERINFO_URL=$(json_field "$GOOGLE_JSON" userinfo_url)
+SMTP_HOST=$(kv2_field "$EMAIL_JSON" "smtp_host")
+SMTP_PORT=$(kv2_field "$EMAIL_JSON" "smtp_port")
+SMTP_TLS=$(kv2_field "$EMAIL_JSON" "smtp_tls")
+EMAILS_FROM_EMAIL=$(kv2_field "$EMAIL_JSON" "from_email")
 
-LINKEDIN_CLIENT_ID=$(json_field "$LINKEDIN_JSON" client_id)
-LINKEDIN_CLIENT_SECRET=$(json_field "$LINKEDIN_JSON" client_secret)
-LINKEDIN_REDIRECT_URI=$(json_field "$LINKEDIN_JSON" redirect_uri)
-LINKEDIN_AUTH_URI=$(json_field "$LINKEDIN_JSON" auth_uri)
-LINKEDIN_TOKEN_URI=$(json_field "$LINKEDIN_JSON" token_uri)
-LINKEDIN_USERINFO_URL=$(json_field "$LINKEDIN_JSON" userinfo_url)
+CLOUDINARY_CLOUD_NAME=$(kv2_field "$CLOUDINARY_JSON" "cloud_name")
+CLOUDINARY_API_KEY=$(kv2_field "$CLOUDINARY_JSON" "api_key")
+CLOUDINARY_API_SECRET=$(kv2_field "$CLOUDINARY_JSON" "api_secret")
 
-# Fallbacks for missing values
-SECRET_KEY="${SECRET_KEY:-changethis}"
-FIRST_SUPERUSER="${FIRST_SUPERUSER:-admin@example.com}"
-FIRST_SUPERUSER_PASSWORD="${FIRST_SUPERUSER_PASSWORD:-changethis}"
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-changethis}"
-DB_HOST="${DB_HOST:-db}"
-DB_PORT="${DB_PORT:-5432}"
-DB_NAME="${DB_NAME:-app}"
-SMTP_HOST="${SMTP_HOST:-mailpit}"
-SMTP_PORT="${SMTP_PORT:-1025}"
-SMTP_TLS="${SMTP_TLS:-false}"
-EMAILS_FROM_EMAIL="${EMAILS_FROM_EMAIL:-info@example.com}"
+GOOGLE_CLIENT_ID=$(kv2_field "$GOOGLE_JSON" "client_id")
+GOOGLE_CLIENT_SECRET=$(kv2_field "$GOOGLE_JSON" "client_secret")
+GOOGLE_REDIRECT_URI=$(kv2_field "$GOOGLE_JSON" "redirect_uri")
+GOOGLE_TOKEN_URI=$(kv2_field "$GOOGLE_JSON" "token_uri")
+GOOGLE_AUTH_URI=$(kv2_field "$GOOGLE_JSON" "auth_uri")
+GOOGLE_USERINFO_URL=$(kv2_field "$GOOGLE_JSON" "userinfo_url")
 
-# Write .env file
+LINKEDIN_CLIENT_ID=$(kv2_field "$LINKEDIN_JSON" "client_id")
+LINKEDIN_CLIENT_SECRET=$(kv2_field "$LINKEDIN_JSON" "client_secret")
+LINKEDIN_REDIRECT_URI=$(kv2_field "$LINKEDIN_JSON" "redirect_uri")
+LINKEDIN_AUTH_URI=$(kv2_field "$LINKEDIN_JSON" "auth_uri")
+LINKEDIN_TOKEN_URI=$(kv2_field "$LINKEDIN_JSON" "token_uri")
+LINKEDIN_USERINFO_URL=$(kv2_field "$LINKEDIN_JSON" "userinfo_url")
+
+# ─── Apply fallbacks (only if --allow-fallbacks was passed) ─
+FALLBACK_USED=false
+
+apply_fallback() {
+  local var_name="$1"
+  local fallback_value="$2"
+  local current_value="${!var_name}"
+
+  if [ -z "$current_value" ]; then
+    if [ "$ALLOW_FALLBACKS" = true ]; then
+      eval "$var_name=\"$fallback_value\""
+      FALLBACK_USED=true
+    fi
+  fi
+}
+
+apply_fallback SECRET_KEY "changethis"
+apply_fallback FIRST_SUPERUSER "admin@example.com"
+apply_fallback FIRST_SUPERUSER_PASSWORD "changethis"
+apply_fallback POSTGRES_PASSWORD "changethis"
+apply_fallback DB_HOST "db"
+apply_fallback DB_PORT "5432"
+apply_fallback DB_NAME "app"
+apply_fallback SMTP_HOST "mailpit"
+apply_fallback SMTP_PORT "1025"
+apply_fallback SMTP_TLS "false"
+apply_fallback EMAILS_FROM_EMAIL "info@example.com"
+
+# ─── Check for empty critical values ────────────────────────
+EMPTY_CRITICAL=()
+[ -z "$SECRET_KEY" ] && EMPTY_CRITICAL+=("SECRET_KEY")
+[ -z "$POSTGRES_PASSWORD" ] && EMPTY_CRITICAL+=("POSTGRES_PASSWORD")
+[ -z "$FIRST_SUPERUSER" ] && EMPTY_CRITICAL+=("FIRST_SUPERUSER")
+[ -z "$FIRST_SUPERUSER_PASSWORD" ] && EMPTY_CRITICAL+=("FIRST_SUPERUSER_PASSWORD")
+
+if [ ${#EMPTY_CRITICAL[@]} -gt 0 ] && [ "$ALLOW_FALLBACKS" = false ]; then
+  echo ""
+  echo -e "${RED}✗ Critical secrets are empty and --allow-fallbacks was not set:${NC}" >&2
+  for var in "${EMPTY_CRITICAL[@]}"; do
+    echo -e "  ${RED}• ${var}${NC}" >&2
+  done
+  echo "" >&2
+  echo -e "  To use default dev values, re-run with: ${BOLD}--allow-fallbacks${NC}" >&2
+  echo -e "  To fix, ensure the secrets exist in HCP Vault under secret/production/" >&2
+  exit 1
+fi
+
+# ─── Write .env file (all values quoted for safety) ─────────
 cat > "$ENV_FILE" <<EOF
 FASTAPI_ENV=development
 
 PROJECT_NAME="Freelancer"
 
-SECRET_KEY=$SECRET_KEY
-FIRST_SUPERUSER=$FIRST_SUPERUSER
-FIRST_SUPERUSER_PASSWORD=$FIRST_SUPERUSER_PASSWORD
+SECRET_KEY="${SECRET_KEY}"
+FIRST_SUPERUSER="${FIRST_SUPERUSER}"
+FIRST_SUPERUSER_PASSWORD="${FIRST_SUPERUSER_PASSWORD}"
 
 # Emails
-SMTP_HOST=$SMTP_HOST
-EMAILS_FROM_EMAIL=$EMAILS_FROM_EMAIL
-SMTP_TLS=$SMTP_TLS
-SMTP_PORT=$SMTP_PORT
+SMTP_HOST="${SMTP_HOST}"
+EMAILS_FROM_EMAIL="${EMAILS_FROM_EMAIL}"
+SMTP_TLS="${SMTP_TLS}"
+SMTP_PORT="${SMTP_PORT}"
 
 # Postgres
-POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
 
 # Cloudinary
-CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME
-CLOUDINARY_API_KEY=$CLOUDINARY_API_KEY
-CLOUDINARY_API_SECRET=$CLOUDINARY_API_SECRET
+CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME}"
+CLOUDINARY_API_KEY="${CLOUDINARY_API_KEY}"
+CLOUDINARY_API_SECRET="${CLOUDINARY_API_SECRET}"
 
 # Google OAuth 2
-GOOGLE_USERINFO_URL=$GOOGLE_USERINFO_URL
-GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
-GOOGLE_REDIRECT_URI=$GOOGLE_REDIRECT_URI
-GOOGLE_TOKEN_URI=$GOOGLE_TOKEN_URI
-GOOGLE_AUTH_URI=$GOOGLE_AUTH_URI
+GOOGLE_USERINFO_URL="${GOOGLE_USERINFO_URL}"
+GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}"
+GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}"
+GOOGLE_REDIRECT_URI="${GOOGLE_REDIRECT_URI}"
+GOOGLE_TOKEN_URI="${GOOGLE_TOKEN_URI}"
+GOOGLE_AUTH_URI="${GOOGLE_AUTH_URI}"
 
 # LinkedIn OAuth 2
-LINKEDIN_CLIENT_ID=$LINKEDIN_CLIENT_ID
-LINKEDIN_CLIENT_SECRET=$LINKEDIN_CLIENT_SECRET
-LINKEDIN_REDIRECT_URI=$LINKEDIN_REDIRECT_URI
-LINKEDIN_AUTH_URI=$LINKEDIN_AUTH_URI
-LINKEDIN_TOKEN_URI=$LINKEDIN_TOKEN_URI
-LINKEDIN_USERINFO_URL=$LINKEDIN_USERINFO_URL
+LINKEDIN_CLIENT_ID="${LINKEDIN_CLIENT_ID}"
+LINKEDIN_CLIENT_SECRET="${LINKEDIN_CLIENT_SECRET}"
+LINKEDIN_REDIRECT_URI="${LINKEDIN_REDIRECT_URI}"
+LINKEDIN_AUTH_URI="${LINKEDIN_AUTH_URI}"
+LINKEDIN_TOKEN_URI="${LINKEDIN_TOKEN_URI}"
+LINKEDIN_USERINFO_URL="${LINKEDIN_USERINFO_URL}"
 EOF
 
+# ─── Summary ────────────────────────────────────────────────
 echo ""
-echo "✔ .env file generated successfully from HCP Vault."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+if [ $SECRETS_FAILED -eq 0 ]; then
+  echo -e "  ${GREEN}✔ .env generated successfully${NC} — ${SECRETS_OK}/${SECRETS_OK} secret groups fetched"
+else
+  echo -e "  ${YELLOW}⚠ .env generated with warnings${NC} — ${SECRETS_OK} fetched, ${SECRETS_FAILED} failed"
+  echo ""
+  echo -e "  ${YELLOW}Failed secret paths:${NC}"
+  for w in "${WARNINGS[@]}"; do
+    echo -e "    ${YELLOW}• ${w}${NC}"
+  done
+fi
+
+if [ "$FALLBACK_USED" = true ]; then
+  echo ""
+  echo -e "  ${YELLOW}⚠ Some values used dev fallback defaults (--allow-fallbacks)${NC}"
+fi
+
+echo ""
+echo -e "  Output: ${BOLD}${ENV_FILE}${NC}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""

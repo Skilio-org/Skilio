@@ -1,15 +1,4 @@
-// Demo workspace records used by the freelancer route-level pages.
-export type FreelancerJob = {
-	id: string
-	title: string
-	company: string
-	category: string
-	budget: string
-	projectType: "Fixed price" | "Hourly"
-	posted: string
-	description: string
-	skills: string[]
-}
+import type { FreelancerJob } from "@/types/job"
 
 export type ProposalDraft = {
 	job: FreelancerJob

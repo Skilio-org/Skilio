@@ -21,6 +21,9 @@ export function LandingFooter() {
 						<Link to="/login" className="hover:text-foreground">
 							Log in
 						</Link>
+						<Link to="/status" className="hover:text-foreground">
+							System Status
+						</Link>
 					</nav>
 				</div>
 				<div className="flex flex-col gap-3 pt-7 text-muted-foreground text-xs sm:flex-row sm:items-center sm:justify-between">
