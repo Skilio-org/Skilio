@@ -8,9 +8,22 @@ set -euo pipefail
 
 BACKUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dumps"
 
-# Determine which backup to restore
-if [ "${1:-}" != "" ]; then
-  BACKUP_FILE="$1"
+CONFIRM_FLAG=false
+BACKUP_ARG=""
+
+for arg in "$@"; do
+  case "$arg" in
+    -y|--yes)
+      CONFIRM_FLAG=true
+      ;;
+    *)
+      BACKUP_ARG="$arg"
+      ;;
+  esac
+done
+
+if [ -n "$BACKUP_ARG" ]; then
+  BACKUP_FILE="$BACKUP_ARG"
 else
   # Find the most recent backup
   BACKUP_FILE=$(ls -1t "${BACKUP_DIR}"/*.sql.gz 2>/dev/null | head -n1 || echo "")
@@ -22,6 +35,7 @@ if [ -z "$BACKUP_FILE" ] || [ ! -f "$BACKUP_FILE" ]; then
   echo "Usage:"
   echo "  bash devops/backup/restore.sh                     # restore latest"
   echo "  bash devops/backup/restore.sh path/to/backup.sql.gz  # restore specific file"
+  echo "  bash devops/backup/restore.sh -y                   # non-interactive restore"
   echo ""
   if ls -1 "${BACKUP_DIR}"/*.sql.gz &>/dev/null; then
     echo "Available backups:"
@@ -40,11 +54,13 @@ echo "⚠️  This will OVERWRITE the current database with:"
 echo "   File: $(basename "$BACKUP_FILE") (${SIZE})"
 echo ""
 
-# Prompt for confirmation
-read -p "Are you sure? Type 'yes' to continue: " CONFIRM
-if [ "$CONFIRM" != "yes" ]; then
-  echo "Aborted."
-  exit 0
+# Prompt for confirmation unless -y or FORCE=1
+if [ "$CONFIRM_FLAG" = false ] && [ "${FORCE:-0}" != "1" ]; then
+  read -p "Are you sure? Type 'yes' to continue: " CONFIRM
+  if [ "$CONFIRM" != "yes" ]; then
+    echo "Aborted."
+    exit 0
+  fi
 fi
 
 # Check that the db container is running

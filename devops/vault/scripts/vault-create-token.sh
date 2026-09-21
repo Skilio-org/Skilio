@@ -38,7 +38,22 @@ RESPONSE=$(curl -s -f -X POST \
   -d "{\"policies\": [\"developer-readonly\"], \"ttl\": \"${TTL}\", \"display_name\": \"${NAME}\"}" \
   "${VAULT_ADDR}/v1/auth/token/create")
 
-CLIENT_TOKEN=$(echo "$RESPONSE" | jq -r '.auth.client_token // empty')
+CLIENT_TOKEN=""
+if command -v jq >/dev/null 2>&1; then
+  CLIENT_TOKEN=$(echo "$RESPONSE" | jq -r '.auth.client_token // empty' 2>/dev/null || echo "")
+fi
+
+if [ -z "$CLIENT_TOKEN" ] && command -v python3 >/dev/null 2>&1; then
+  CLIENT_TOKEN=$(echo "$RESPONSE" | python3 -c 'import sys, json; data=json.load(sys.stdin); print(data.get("auth", {}).get("client_token", ""))' 2>/dev/null || echo "")
+fi
+
+if [ -z "$CLIENT_TOKEN" ] && command -v python >/dev/null 2>&1; then
+  CLIENT_TOKEN=$(echo "$RESPONSE" | python -c 'import sys, json; data=json.load(sys.stdin); print(data.get("auth", {}).get("client_token", ""))' 2>/dev/null || echo "")
+fi
+
+if [ -z "$CLIENT_TOKEN" ]; then
+  CLIENT_TOKEN=$(echo "$RESPONSE" | grep -o '"client_token":"[^"]*' | head -n1 | cut -d'"' -f4 || echo "")
+fi
 
 if [ -z "$CLIENT_TOKEN" ]; then
   echo -e "${RED}Error: Failed to create token. Response:${NC}" >&2
