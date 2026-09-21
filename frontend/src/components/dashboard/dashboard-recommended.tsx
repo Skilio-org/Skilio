@@ -9,14 +9,11 @@ const matches = freelancers.filter((person) => ["maya-laurent", "noah-williams",
 export const RecommendedFreelancers = () => {
 	const { savedIds, toggleSaved } = useSavedTalent()
 	return (
-		<section
-			aria-labelledby="recommended-talent-heading"
-			className="min-w-0 overflow-hidden rounded-xl border border-border bg-card"
-		>
-			<div className="flex flex-col gap-3 border-border border-b p-5 sm:flex-row sm:items-end sm:justify-between sm:p-7">
+		<section aria-labelledby="recommended-talent-heading" className="min-w-0">
+			<div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 				<div>
 					<p className="font-medium text-muted-foreground text-xs">Recommended for you</p>
-					<h2 id="recommended-talent-heading" className="mt-2 font-medium text-2xl tracking-tight">
+					<h2 id="recommended-talent-heading" className="mt-2 font-semibold text-headline-md tracking-tight">
 						People worth getting to know
 					</h2>
 				</div>
@@ -28,7 +25,7 @@ export const RecommendedFreelancers = () => {
 					View all <ArrowRight className="size-4" />
 				</Link>
 			</div>
-			<div className="divide-y divide-border">
+			<div className="flex flex-col gap-3.5">
 				{matches.map((person) => (
 					<FreelancerCard
 						key={person.id}

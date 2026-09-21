@@ -1,36 +1,22 @@
-import { ArrowDownWideNarrow, Banknote, Clock3, MapPin, Search, SlidersHorizontal, X } from "lucide-react"
+import { Link } from "@tanstack/react-router"
+import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
-
-import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
+import CategorySelect from "@/components/common/category-select"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Slider } from "@/components/ui/slider"
 import { freelancers } from "@/data/freelancers"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 
-const popularSearches = ["Product designer", "React developer", "AI engineer"]
-
-const rateOptions = [
-	{ value: "any", label: "Any hourly rate" },
-	{ value: "under-50", label: "Under $50/hr" },
-	{ value: "50-100", label: "$50–$99/hr" },
-	{ value: "100-plus", label: "$100+/hr" },
-]
-
-const availabilityOptions = [
-	{ value: "any", label: "Any availability" },
-	{ value: "now", label: "Available now" },
-	{ value: "week", label: "Available this week" },
-	{ value: "next-week", label: "Available next week" },
-]
-
-const locationOptions = [
-	{ value: "worldwide", label: "Worldwide" },
-	{ value: "europe", label: "Europe" },
-	{ value: "north-america", label: "North America" },
-	{ value: "asia-pacific", label: "Asia Pacific" },
-]
-
+const popularSearches = ["Product design", "React", "Brand strategy", "Design systems", "AI"]
+const categories = [...new Set(freelancers.map((person) => person.title))]
+const availabilityOptions = ["Available now", "Available this week", "Available next week"]
+const locationOptions = ["Worldwide", "Europe", "North America", "Asia Pacific"]
+const primaryAction =
+	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
+const secondaryAction =
+	"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface hover:bg-surface-container-low"
 const searchAliases: Record<string, string[]> = {
 	developer: ["developer", "engineer"],
 	engineer: ["engineer", "developer"],
@@ -46,353 +32,343 @@ export function TalentDirectoryPage({
 	initialQuery?: string
 	onQueryChange: (query?: string) => void
 }) {
-	const q = initialQuery
-	const [query, setQuery] = useState(q ?? "")
-	useEffect(() => setQuery(q ?? ""), [q])
-	const { savedIds, toggleSaved } = useSavedTalent()
-	const [savedOnly, setSavedOnly] = useState(false)
-	const [filtersOpen, setFiltersOpen] = useState(false)
-	const [rate, setRate] = useState("any")
-	const [availability, setAvailability] = useState("any")
-	const [location, setLocation] = useState("worldwide")
+	const [query, setQuery] = useState(initialQuery ?? "")
+	const [search, setSearch] = useState(initialQuery ?? "")
+	const [category, setCategory] = useState("all")
+	const [availability, setAvailability] = useState<string[]>([])
+	const [location, setLocation] = useState("Worldwide")
+	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
+	const [highlyRated, setHighlyRated] = useState(false)
 	const [sort, setSort] = useState("best-match")
-
-	const activeFilterCount = [rate !== "any", availability !== "any", location !== "worldwide"].filter(Boolean).length
-
-	const results = useMemo(() => {
-		const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean)
-
-		const filtered = freelancers.filter((person) => {
-			const haystack = [person.name, person.title, person.location, person.bio, ...person.skills]
-				.join(" ")
-				.toLowerCase()
-
-			const matchesSearch =
-				searchTerms.length === 0 ||
-				searchTerms.every((term) => (searchAliases[term] ?? [term]).some((candidate) => haystack.includes(candidate)))
-			const matchesRate =
-				rate === "any" ||
-				(rate === "under-50" && person.rate < 50) ||
-				(rate === "50-100" && person.rate >= 50 && person.rate < 100) ||
-				(rate === "100-plus" && person.rate >= 100)
-			const matchesAvailability =
-				availability === "any" ||
-				(availability === "now" && person.availability === "Available now") ||
-				(availability === "week" && person.availability === "Available this week") ||
-				(availability === "next-week" && person.availability === "Available next week")
-			const matchesLocation =
-				location === "worldwide" ||
-				(location === "europe" &&
-					["France", "Portugal", "United Kingdom"].some((country) => person.location.includes(country))) ||
-				(location === "north-america" &&
-					["Canada", "United States"].some((country) => person.location.includes(country))) ||
-				(location === "asia-pacific" && person.location === "Singapore")
-
-			return (
-				matchesSearch &&
-				matchesRate &&
-				matchesAvailability &&
-				matchesLocation &&
-				(!savedOnly || savedIds.includes(person.id))
-			)
-		})
-
-		return filtered.sort((first, second) => {
-			if (sort === "highest-rated") return second.rating - first.rating
-			if (sort === "lowest-rate") return first.rate - second.rate
-			return second.successRate - first.successRate || second.rating - first.rating
-		})
-	}, [availability, location, query, rate, sort, savedOnly, savedIds])
-
-	const resetFilters = () => {
-		setRate("any")
-		setAvailability("any")
-		setLocation("worldwide")
+	const [filtersOpen, setFiltersOpen] = useState(false)
+	const [visibleCount, setVisibleCount] = useState(4)
+	const { savedIds, toggleSaved } = useSavedTalent()
+	useEffect(() => {
+		setQuery(initialQuery ?? "")
+		setSearch(initialQuery ?? "")
+		setVisibleCount(4)
+	}, [initialQuery])
+	useEffect(() => setVisibleCount(4), [category, availability, location, hourlyRate, highlyRated, sort])
+	const submitSearch = (value: string) => {
+		setQuery(value)
+		setSearch(value.trim())
+		setVisibleCount(4)
+		onQueryChange(value.trim() || undefined)
 	}
-
 	const clearAll = () => {
-		setQuery("")
-		setSavedOnly(false)
-		resetFilters()
-		onQueryChange()
+		submitSearch("")
+		setCategory("all")
+		setAvailability([])
+		setLocation("Worldwide")
+		setHourlyRate([0, 120])
+		setHighlyRated(false)
 	}
-	const hasFilters = !!query || activeFilterCount > 0 || savedOnly
-	const filterFields = (group: string) => (
-		<div className="space-y-7">
-			<fieldset>
-				<legend className="mb-3 flex items-center gap-2 font-medium text-sm">
-					<Banknote className="size-4 text-muted-foreground" />
-					Hourly rate
-				</legend>
-				<div className="space-y-1">
-					{rateOptions.map((option) => (
-						<label
-							key={option.value}
-							className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 text-sm hover:bg-muted"
-						>
-							<input
-								type="radio"
-								name={group}
-								value={option.value}
-								checked={rate === option.value}
-								onChange={() => setRate(option.value)}
-								className="size-4 accent-primary"
-							/>
-							{option.label}
-						</label>
-					))}
-				</div>
-			</fieldset>
-			<FilterSelect
-				label="Availability"
-				icon={Clock3}
-				value={availability}
-				onValueChange={setAvailability}
-				options={availabilityOptions}
-			/>
-			<FilterSelect
-				label="Location"
-				icon={MapPin}
-				value={location}
-				onValueChange={setLocation}
-				options={locationOptions}
-			/>
-			{activeFilterCount > 0 && (
-				<button
-					type="button"
-					onClick={resetFilters}
-					className="min-h-11 font-medium text-primary text-sm hover:underline"
-				>
-					Clear filters
+	const toggleAvailability = (value: string) =>
+		setAvailability((current) =>
+			current.includes(value) ? current.filter((item) => item !== value) : [...current, value],
+		)
+	const results = useMemo(() => {
+		const terms = search.toLowerCase().trim().split(/\s+/).filter(Boolean)
+		return freelancers
+			.filter((person) => {
+				const content = [person.name, person.title, person.location, person.bio, ...person.skills]
+					.join(" ")
+					.toLowerCase()
+				return (
+					terms.every((term) => (searchAliases[term] ?? [term]).some((candidate) => content.includes(candidate))) &&
+					(category === "all" || person.title === category) &&
+					(!availability.length || availability.includes(person.availability)) &&
+					person.rate >= hourlyRate[0] &&
+					(hourlyRate[1] === 120 || person.rate <= hourlyRate[1]) &&
+					(!highlyRated || person.rating >= 4.9) &&
+					(location === "Worldwide" ||
+						(location === "Europe" &&
+							["France", "Portugal", "United Kingdom"].some((country) => person.location.includes(country))) ||
+						(location === "North America" &&
+							["Canada", "United States"].some((country) => person.location.includes(country))) ||
+						(location === "Asia Pacific" && person.location === "Singapore"))
+				)
+			})
+			.sort((a, b) =>
+				sort === "highest-rated"
+					? b.rating - a.rating
+					: sort === "lowest-rate"
+						? a.rate - b.rate
+						: b.successRate - a.successRate || b.rating - a.rating,
+			)
+	}, [search, category, availability, hourlyRate, highlyRated, location, sort])
+	const chips = [
+		...availability.map((label) => ({ label, remove: () => toggleAvailability(label) })),
+		...(search ? [{ label: search, remove: () => submitSearch("") }] : []),
+		...(category !== "all" ? [{ label: category, remove: () => setCategory("all") }] : []),
+		...(location !== "Worldwide" ? [{ label: location, remove: () => setLocation("Worldwide") }] : []),
+		...(highlyRated ? [{ label: "4.9+ rating", remove: () => setHighlyRated(false) }] : []),
+		...(hourlyRate[0] !== 0 || hourlyRate[1] !== 120
+			? [
+					{
+						label: `$${hourlyRate[0]}–$${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr`,
+						remove: () => setHourlyRate([0, 120]),
+					},
+				]
+			: []),
+	]
+	const check = (label: string, checked: boolean, onChange: () => void) => (
+		<label
+			key={label}
+			className="flex cursor-pointer items-center gap-2 font-body-sm text-body-sm text-on-surface-variant"
+		>
+			<input type="checkbox" checked={checked} onChange={onChange} className="size-3.5 shrink-0 accent-primary" />
+			{label}
+		</label>
+	)
+	const filters = (group: string) => (
+		<div className="divide-y divide-outline-variant/50">
+			<div className="flex items-center justify-between gap-2 pb-4">
+				<h2 className="flex items-center gap-2 font-semibold text-body-md">
+					<Filter className="size-4 text-primary" />
+					Refine search
+				</h2>
+				<button type="button" onClick={clearAll} className="text-caption text-primary hover:underline">
+					Clear all
 				</button>
-			)}
+			</div>
+			<fieldset className="space-y-2.5 py-4">
+				<legend className="sr-only">Availability</legend>
+				<p className="mb-3 font-medium text-label-sm">Availability</p>
+				{check("Any availability", !availability.length, () => setAvailability([]))}
+				{availabilityOptions.map((option) =>
+					check(option, availability.includes(option), () => toggleAvailability(option)),
+				)}
+			</fieldset>
+			<fieldset className="space-y-2.5 py-4">
+				<legend className="sr-only">Location</legend>
+				<p className="mb-3 font-medium text-label-sm">Location</p>
+				{locationOptions.map((option) => (
+					<label key={option} className="flex cursor-pointer items-center gap-2 text-body-sm text-on-surface-variant">
+						<input
+							type="radio"
+							name={`${group}-location`}
+							checked={location === option}
+							onChange={() => setLocation(option)}
+							className="size-3.5 accent-primary"
+						/>
+						{option}
+					</label>
+				))}
+			</fieldset>
+			<fieldset className="py-4">
+				<legend className="sr-only">Hourly Rate</legend>
+				<div className="mb-4 flex items-center justify-between">
+					<span className="font-medium text-label-sm">Hourly Rate</span>
+					<span className="text-caption text-outline">
+						${hourlyRate[0]} – ${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr
+					</span>
+				</div>
+				<Slider
+					min={0}
+					max={120}
+					step={5}
+					value={hourlyRate}
+					onValueChange={(value) => setHourlyRate(value as [number, number])}
+				/>
+			</fieldset>
+			<fieldset className="space-y-2.5 pt-4">
+				<legend className="sr-only">Client Reviews</legend>
+				<p className="mb-3 font-medium text-label-sm">Client Reviews</p>
+				{check("Rated 4.9 and above", highlyRated, () => setHighlyRated(!highlyRated))}
+			</fieldset>
 		</div>
 	)
 	return (
-		<div className="space-y-6">
-			<WorkspacePageHeader
-				eyebrow="Find talent"
-				title="Good people for your next project."
-				description="Explore experience, compare skills, and find someone you’d like to work with."
-			/>
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
+			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
+				<div className="flex max-w-2xl flex-col gap-4">
+					<div className="flex flex-wrap items-center gap-2">
+						<span className="font-caption font-semibold text-caption text-on-surface-variant uppercase tracking-wider">
+							Client workspace
+						</span>
+						<span className="size-1 rounded-full bg-outline-variant" />
+						<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary">
+							<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
+							Discover independent talent
+						</span>
+					</div>
+					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">
+						Find your next collaborator.
+					</h1>
+					<p className="font-body-md text-body-md text-on-surface-variant">
+						Discover freelance professionals for your project, budget, and timeline.
+					</p>
+				</div>
+				<div className="flex shrink-0 items-center self-start md:self-auto">
+					<Link
+						to="/saved"
+						className="group inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md font-medium text-label-md text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
+					>
+						<Bookmark className="size-4 text-current transition-colors" />
+						<span>Saved</span>
+						<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption text-[10px] text-on-surface-variant transition-colors group-hover:text-on-surface">
+							{savedIds.length}
+						</span>
+					</Link>
+				</div>
+			</header>
 			<search className="block">
 				<form
 					onSubmit={(event) => {
 						event.preventDefault()
-						onQueryChange(query.trim() || undefined)
+						submitSearch(query)
 					}}
-					className="flex gap-2"
+					className="flex min-h-16 items-center gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-3 shadow-sm"
 				>
-					<label className="flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-xl border border-input bg-card px-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
-						<Search className="size-5 shrink-0 text-muted-foreground" />
-						<span className="sr-only">Search professionals</span>
-						<input
-							type="search"
-							value={query}
-							onChange={(event) => setQuery(event.target.value)}
-							placeholder="Try a role, skill, or name"
-							className="min-w-0 flex-1 bg-transparent text-base outline-none [&::-webkit-search-cancel-button]:hidden"
-						/>
-						{query && (
-							<button
-								type="button"
-								onClick={() => {
-									setQuery("")
-									onQueryChange()
-								}}
-								aria-label="Clear search"
-								className="grid size-10 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
-							>
-								<X className="size-4" />
-							</button>
-						)}
-					</label>
-					<button
-						type="submit"
-						className="hidden min-h-14 rounded-xl bg-primary px-7 font-medium text-primary-foreground text-sm hover:opacity-90 sm:block"
-					>
+					<Search className="ml-2 size-4 shrink-0 text-outline" />
+					<input
+						aria-label="Search professionals"
+						type="search"
+						value={query}
+						onChange={(event) => setQuery(event.target.value)}
+						placeholder="Search by title, skill, or name"
+						className="min-w-0 flex-1 bg-transparent text-body-sm outline-none"
+					/>
+					<CategorySelect value={category} categories={categories} onValueChange={setCategory} />
+					<button type="submit" className={primaryAction}>
 						Search
 					</button>
-					<button
-						type="button"
-						aria-label="Open talent filters"
-						aria-expanded={filtersOpen}
-						onClick={() => setFiltersOpen(true)}
-						className="relative grid min-h-14 w-14 shrink-0 place-items-center rounded-xl border border-border bg-card lg:hidden"
-					>
-						<SlidersHorizontal className="size-5" />
-						{activeFilterCount > 0 && (
-							<span className="absolute top-1 right-1 rounded-full bg-primary px-1.5 text-[10px] text-primary-foreground">
-								{activeFilterCount}
-							</span>
-						)}
-					</button>
 				</form>
-				<div className="mt-1 flex flex-wrap items-center gap-x-3 text-muted-foreground text-xs">
-					<span>Try:</span>
+				<div className="mt-3 flex flex-wrap items-center gap-2 text-caption">
+					<span className="mr-1 font-medium">Popular searches:</span>
 					{popularSearches.map((item) => (
 						<button
 							key={item}
 							type="button"
-							onClick={() => {
-								setQuery(item)
-								onQueryChange(item)
-							}}
-							className="min-h-11 font-medium text-foreground underline decoration-border underline-offset-4 hover:text-primary"
+							onClick={() => submitSearch(item)}
+							className="rounded bg-surface-container px-2.5 py-1 text-on-surface-variant hover:text-primary"
 						>
 							{item}
 						</button>
 					))}
 				</div>
 			</search>
-			<div className="grid items-start gap-6 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
-				<aside aria-label="Talent filters" className="sticky top-24 hidden lg:block">
-					<h2 className="mb-6 font-semibold text-base">Refine your search</h2>
-					{filterFields("desktop-rate")}
+			<div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
+				<aside
+					aria-label="Talent filters"
+					className="hidden rounded-lg border border-outline-variant bg-surface-container-lowest p-5 lg:block"
+				>
+					{filters("desktop")}
 				</aside>
 				<section aria-label="Talent results" className="min-w-0">
-					<div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-						<p role="status" className="text-muted-foreground text-sm">
-							<strong className="font-semibold text-foreground">{results.length}</strong>{" "}
-							{results.length === 1 ? "professional" : "professionals"}
-							{query ? ` matching “${query}”` : " to explore"}
-						</p>
+					<div className="mb-5 flex flex-wrap items-center justify-between gap-3">
 						<div className="flex flex-wrap items-center gap-2">
-							<Select value={sort} onValueChange={setSort}>
-								<SelectTrigger aria-label="Sort talent" className="h-11 w-44 rounded-lg border-border bg-card text-xs">
-									<ArrowDownWideNarrow className="size-3.5 text-muted-foreground" />
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent align="end">
-									<SelectItem value="best-match">Recommended</SelectItem>
-									<SelectItem value="highest-rated">Highest rated</SelectItem>
-									<SelectItem value="lowest-rate">Lowest rate</SelectItem>
-								</SelectContent>
-							</Select>
+							<p role="status" className="font-medium text-body-sm">
+								Showing {results.length} {results.length === 1 ? "professional" : "professionals"}
+							</p>
+							{chips.map((chip) => (
+								<button
+									type="button"
+									key={chip.label}
+									onClick={chip.remove}
+									aria-label={`Remove ${chip.label} filter`}
+									className="inline-flex items-center gap-1 rounded-full border border-outline-variant bg-surface-container-lowest px-2 py-0.5 text-caption"
+								>
+									{chip.label}
+									<X className="size-3" />
+								</button>
+							))}
 						</div>
-					</div>
-					{hasFilters && (
-						<div className="mb-4 flex flex-wrap gap-2">
-							{rate !== "any" && (
-								<FilterChip
-									label={rateOptions.find((option) => option.value === rate)?.label ?? rate}
-									onRemove={() => setRate("any")}
-								/>
-							)}
-							{availability !== "any" && (
-								<FilterChip
-									label={availabilityOptions.find((option) => option.value === availability)?.label ?? availability}
-									onRemove={() => setAvailability("any")}
-								/>
-							)}
-							{location !== "worldwide" && (
-								<FilterChip
-									label={locationOptions.find((option) => option.value === location)?.label ?? location}
-									onRemove={() => setLocation("worldwide")}
-								/>
-							)}
+						<div className="flex items-center gap-2">
 							<button
 								type="button"
-								onClick={clearAll}
-								className="min-h-9 px-2 font-medium text-primary text-xs hover:underline"
+								aria-label="Open talent filters"
+								onClick={() => setFiltersOpen(true)}
+								className={`${secondaryAction} lg:hidden`}
 							>
-								Clear all
+								<SlidersHorizontal className="size-4" />
+								Filters
+							</button>
+							<div className="flex items-center gap-2">
+								<span className="font-caption text-caption text-outline">Sort:</span>
+								<Select value={sort} onValueChange={setSort}>
+									<SelectTrigger
+										size="sm"
+										aria-label="Sort talent"
+										className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] leading-4 text-on-surface shadow-none hover:border-outline dark:bg-surface-card dark:hover:bg-surface-container data-[state=open]:border-primary [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+									>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent
+										align="end"
+										sideOffset={6}
+										className="w-[var(--radix-select-trigger-width)] min-w-0 rounded-lg border-outline-variant bg-surface-container-lowest p-1 text-on-surface shadow-md [&_[data-radix-select-viewport]]:min-w-0"
+									>
+										{[
+											["best-match", "Best match"],
+											["highest-rated", "Highest rated"],
+											["lowest-rate", "Lowest rate"],
+										].map(([value, label]) => (
+											<SelectItem
+												key={value}
+												value={value}
+												className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+											>
+												{label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+						</div>
+					</div>
+					<div className="flex flex-col gap-3.5">
+						{results.slice(0, visibleCount).map((person) => (
+							<FreelancerCard
+								key={person.id}
+								freelancer={person}
+								saved={savedIds.includes(person.id)}
+								onToggleSaved={() => toggleSaved(person.id)}
+							/>
+						))}
+					</div>
+					{!results.length && (
+						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
+							<Search className="mx-auto mb-4 size-6 text-outline" />
+							<h2 className="font-semibold text-headline-md">No matching profiles</h2>
+							<p className="mt-2 text-body-sm text-on-surface-variant">
+								Try a broader skill, another location, or a different hourly rate.
+							</p>
+							<button type="button" onClick={clearAll} className={`${secondaryAction} mt-5`}>
+								Clear filters
 							</button>
 						</div>
 					)}
-					{results.length ? (
-						<div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
-							{results.map((person) => (
-								<FreelancerCard
-									key={person.id}
-									freelancer={person}
-									saved={savedIds.includes(person.id)}
-									onToggleSaved={() => toggleSaved(person.id)}
-								/>
-							))}
-						</div>
-					) : (
-						<div className="rounded-xl border border-border bg-card px-6 py-16 text-center">
-							<Search className="mx-auto size-7 text-muted-foreground" />
-							<h2 className="mt-5 font-medium text-xl tracking-tight">
-								{savedOnly && !savedIds.length ? "Start your shortlist" : "No matching profiles"}
-							</h2>
-							<p className="mx-auto mt-3 max-w-sm text-muted-foreground text-sm leading-6">
-								{savedOnly && !savedIds.length
-									? "Use the bookmark on a profile to add it to Saved talent."
-									: "Try a broader skill, another location, or a different hourly rate."}
-							</p>
-							<button type="button" onClick={clearAll} className={`${workspaceStyles.secondaryAction} mt-6`}>
-								Browse all talent
+					{results.length > 0 && (
+						<div className="flex justify-center pt-8 pb-6">
+							<button
+								type="button"
+								disabled={visibleCount >= results.length}
+								onClick={() => setVisibleCount((count) => count + 4)}
+								className={`${secondaryAction} px-6 disabled:opacity-60`}
+							>
+								{visibleCount >= results.length ? "All professionals loaded" : "Load more professionals"}
+								<ChevronDown className="size-4 text-outline" />
 							</button>
 						</div>
 					)}
 				</section>
 			</div>
 			<Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-				<SheetContent side="right" className="flex w-full flex-col gap-0 sm:max-w-sm">
-					<SheetHeader className="border-border border-b">
-						<SheetTitle>Refine your search</SheetTitle>
-						<SheetDescription>Choose the experience, rate, and availability you need.</SheetDescription>
+				<SheetContent side="left" className="overflow-y-auto">
+					<SheetHeader>
+						<SheetTitle>Refine search</SheetTitle>
+						<SheetDescription>Choose the professionals who fit your project.</SheetDescription>
 					</SheetHeader>
-					<div className="flex-1 overflow-y-auto p-6">{filtersOpen && filterFields("mobile-rate")}</div>
-					<div className="border-border border-t p-5">
-						<button
-							type="button"
-							onClick={() => setFiltersOpen(false)}
-							className={`${workspaceStyles.primaryAction} w-full`}
-						>
+					<div className="p-5">
+						{filters("mobile")}
+						<button type="button" onClick={() => setFiltersOpen(false)} className={`${primaryAction} mt-6 w-full`}>
 							Show {results.length} {results.length === 1 ? "professional" : "professionals"}
 						</button>
 					</div>
 				</SheetContent>
 			</Sheet>
-		</div>
-	)
-}
-function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
-	return (
-		<button
-			type="button"
-			onClick={onRemove}
-			aria-label={`Remove ${label} filter`}
-			className="inline-flex min-h-9 items-center gap-2 rounded-md bg-accent px-3 text-accent-foreground text-xs"
-		>
-			{label}
-			<X className="size-3" />
-		</button>
-	)
-}
-function FilterSelect({
-	label,
-	icon: Icon,
-	value,
-	onValueChange,
-	options,
-}: {
-	label: string
-	icon: typeof MapPin
-	value: string
-	onValueChange: (value: string) => void
-	options: { value: string; label: string }[]
-}) {
-	return (
-		<div>
-			<span className="mb-2 flex items-center gap-2 font-semibold text-muted-foreground text-xs">
-				<Icon className="size-3.5 text-brand-600" /> {label}
-			</span>
-			<Select value={value} onValueChange={onValueChange}>
-				<SelectTrigger aria-label={label} className="h-12 w-full rounded-lg bg-card">
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent>
-					{options.map((option) => (
-						<SelectItem key={option.value} value={option.value}>
-							{option.label}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
 		</div>
 	)
 }

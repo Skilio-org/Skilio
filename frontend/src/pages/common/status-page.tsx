@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "@tanstack/react-router"
 import {
-	Activity,
 	AlertCircle,
 	AlertTriangle,
 	ArrowLeft,
@@ -9,7 +8,6 @@ import {
 	Database,
 	HardDrive,
 	KeyRound,
-	Mail,
 	RefreshCw,
 	Server,
 	ShieldCheck,
@@ -70,7 +68,6 @@ export function StatusPage() {
 	}, [autoRefresh])
 
 	const isOverallHealthy = data?.status === "healthy" && !error
-	const isDegraded = data?.status === "degraded" || (!isOverallHealthy && !error)
 
 	const formatUptime = (seconds?: number) => {
 		if (seconds === undefined) return "N/A"

@@ -61,9 +61,10 @@ export function ConversationList({
 						</button>
 					)}
 				</label>
-				<div className="mt-3 flex items-center gap-1 rounded-lg border border-outline-variant/60 bg-surface-container-low dark:bg-surface-container/60 p-1">
+				<div className="mt-3 flex items-center gap-1 rounded-lg border border-outline-variant bg-surface-container-low p-1 dark:border-border-dark dark:bg-surface-container/60">
 					{(["all", "unread", "archived"] as const).map((value) => {
 						const active = filter === value
+
 						return (
 							<button
 								key={value}
@@ -71,18 +72,21 @@ export function ConversationList({
 								aria-pressed={active}
 								onClick={() => onFilterChange(value)}
 								className={cn(
-									"flex h-7 flex-1 items-center justify-center gap-1.5 rounded-md px-2 font-label-sm text-label-sm font-medium transition-all",
+									"relative flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md px-2 font-label-sm font-medium text-label-sm transition-all duration-150",
 									active
-										? "bg-surface-container-lowest text-on-surface shadow-xs font-semibold"
-										: "text-on-surface-variant hover:text-on-surface",
+										? "bg-primary text-primary-foreground shadow-sm dark:bg-on-surface dark:text-background"
+										: "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
 								)}
 							>
 								<span>{value === "all" ? "All" : value === "unread" ? "Unread" : "Archived"}</span>
+
 								{value === "unread" && unreadCount > 0 && (
 									<span
 										className={cn(
-											"rounded px-1.5 py-0.2 font-caption text-[10px] font-bold",
-											active ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface-variant",
+											"min-w-5 rounded px-1.5 py-0.5 text-center font-caption font-bold text-[10px] leading-none",
+											active
+												? "bg-primary-foreground/15 text-primary-foreground dark:bg-background/10 dark:text-background"
+												: "bg-surface-container-high text-on-surface-variant",
 										)}
 									>
 										{unreadCount}

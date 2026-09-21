@@ -227,7 +227,7 @@ export function MessageThread({
 					{!term && (
 						<div className="mb-6 text-center">
 							<span className="rounded-full border border-outline-variant/80 bg-surface-container-lowest px-3.5 py-1 font-caption text-caption font-medium text-on-surface-variant shadow-xs">
-								Project conversation · Verified client
+								Project conversation
 							</span>
 						</div>
 					)}

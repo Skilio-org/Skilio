@@ -58,14 +58,14 @@ const ChangePassword = () => {
 
 	return (
 		<div className="space-y-5">
-			<section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-				<header className="flex items-start gap-4 border-border border-b p-5 sm:p-7">
-					<span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+			<section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
+				<header className="flex items-start gap-4 border-outline-variant border-b p-5 sm:p-7">
+					<span className="grid size-11 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700">
 						<KeyRound className="size-5" />
 					</span>
 					<div>
 						<p className="font-bold text-brand-700 text-xs uppercase tracking-[0.16em]">Security</p>
-						<h2 className="mt-2 font-display font-semibold text-2xl">Change password</h2>
+						<h2 className="mt-2 font-headline-md font-semibold text-headline-md">Change password</h2>
 						<p className="mt-2 text-muted-foreground text-sm leading-6">
 							Use at least eight characters and avoid passwords you use elsewhere.
 						</p>
@@ -130,7 +130,7 @@ const ChangePassword = () => {
 							)}
 						/>
 
-						<div className="flex flex-col gap-4 border-border border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
+						<div className="flex flex-col gap-4 border-outline-variant border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
 							<LoadingButton type="submit" loading={mutation.isPending} className="self-start sm:self-auto">
 								Update password
 							</LoadingButton>

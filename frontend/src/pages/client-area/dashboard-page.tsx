@@ -9,7 +9,7 @@ export function ClientDashboardPage() {
 	const { user } = useAuth()
 	const firstName = user?.full_name?.trim().split(/\s+/)[0]
 	return (
-		<div className="space-y-8">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			<WorkspacePageHeader
 				eyebrow="Client workspace / Overview"
 				title={firstName ? `Good to see you, ${firstName}.` : "Find your next collaborator."}

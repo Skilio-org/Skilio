@@ -43,9 +43,9 @@ export function NotificationsPage() {
 	const [allRead, setAllRead] = useState(false)
 
 	return (
-		<div className="space-y-7">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			<WorkspacePageHeader
-				eyebrow="Activity"
+				eyebrow="Client workspace / Activity"
 				title="Notifications"
 				description="Updates from your conversations, saved searches, and shortlist."
 				action={
@@ -60,15 +60,15 @@ export function NotificationsPage() {
 					</button>
 				}
 			/>
-			<section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+			<section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
 				{notifications.map((item) => (
 					<Link
 						key={item.title}
 						to={item.href}
-						className="group flex gap-4 border-border border-b p-5 transition-colors last:border-b-0 hover:bg-accent/50 sm:p-6"
+						className="group flex gap-4 border-outline-variant border-b p-5 transition-colors last:border-b-0 hover:bg-accent/50 sm:p-6"
 					>
 						<span
-							className={`grid size-11 shrink-0 place-items-center rounded-full ${item.unread && !allRead ? "bg-brand-100 text-brand-700" : "bg-muted text-muted-foreground"}`}
+							className={`grid size-11 shrink-0 place-items-center rounded-full ${item.unread && !allRead ? "bg-brand-100 text-brand-700" : "bg-muted text-on-surface-variant"}`}
 						>
 							<item.icon className="size-5" />
 						</span>
@@ -79,14 +79,14 @@ export function NotificationsPage() {
 									<span className="mt-1.5 size-2 shrink-0 rounded-full bg-brand-600" aria-hidden="true" />
 								)}
 							</span>
-							<span className="mt-1 block text-muted-foreground text-sm leading-6">{item.detail}</span>
-							<span className="mt-2 block text-muted-foreground text-xs">{item.time}</span>
+							<span className="mt-1 block text-on-surface-variant text-sm leading-6">{item.detail}</span>
+							<span className="mt-2 block text-on-surface-variant text-xs">{item.time}</span>
 						</span>
-						<ChevronRight className="mt-3 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+						<ChevronRight className="mt-3 size-4 shrink-0 text-on-surface-variant transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
 					</Link>
 				))}
 			</section>
-			<div className="flex items-center justify-center gap-2 py-5 text-muted-foreground text-sm">
+			<div className="flex items-center justify-center gap-2 py-5 text-on-surface-variant text-sm">
 				<Bell className="size-4" />
 				You’re all caught up.
 			</div>

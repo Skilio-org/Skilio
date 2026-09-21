@@ -19,7 +19,7 @@ const clientMenu = [
 	["/dashboard", "Overview"],
 	["/talent", "Find talent"],
 	["/client-jobs", "Jobs"],
-	["/saved", "Proposals"],
+	["/saved", "Saved talent"],
 	["/messages", "Messages"],
 ] as const
 
@@ -39,7 +39,10 @@ export function TopNav() {
 			<div className="mx-auto flex h-14 w-full max-w-[1440px] items-center justify-between gap-4 px-4 md:px-6">
 				{/* Left */}
 				<div className="flex h-full min-w-0 items-center gap-7">
-					<Link to="/freelancer-dashboard" className="group flex shrink-0 items-center gap-2">
+					<Link
+						to={role === "freelancer" ? "/freelancer-dashboard" : "/dashboard"}
+						className="group flex shrink-0 items-center gap-2"
+					>
 						<span className="flex size-6 items-center justify-center rounded-lg bg-primary text-surface-bright dark:border dark:border-border-dark dark:bg-surface-container dark:text-primary">
 							<Boxes className="size-4" strokeWidth={2} />
 						</span>
@@ -49,9 +52,12 @@ export function TopNav() {
 						</span>
 					</Link>
 
-					<nav aria-label="Freelancer workspace" className="hidden h-full items-center gap-5 md:flex">
+					<nav
+						aria-label={role === "freelancer" ? "Freelancer workspace" : "Client workspace"}
+						className="hidden h-full items-center gap-5 md:flex"
+					>
 						{menu.map(([to, label]) => {
-							const active = path === to
+							const active = path === to || (to === "/talent" && path.startsWith("/talent/"))
 
 							return (
 								<Link

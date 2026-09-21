@@ -119,7 +119,7 @@ export function PrivacySettings() {
 				</div>
 			</SettingsPanel>
 
-			<section className="rounded-2xl border border-border bg-card p-5 shadow-card sm:p-7">
+			<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-7">
 				<div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
 					<div className="max-w-xl">
 						<h3 className="font-display font-semibold text-lg">Download your account data</h3>
@@ -189,8 +189,8 @@ export function AppearanceSettings() {
 							onClick={() => setTheme(option.value)}
 							aria-pressed={selected}
 							className={cn(
-								"group relative min-h-44 overflow-hidden rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-card focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
-								selected ? "border-brand-500 ring-4 ring-brand-100 dark:ring-brand-950" : "border-border",
+								"group relative min-h-44 overflow-hidden rounded-lg border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-card focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
+								selected ? "border-brand-500 ring-4 ring-brand-100 dark:ring-brand-950" : "border-outline-variant",
 							)}
 						>
 							<span
@@ -255,14 +255,14 @@ function SettingsPanel({
 	children: React.ReactNode
 }) {
 	return (
-		<section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-			<header className="flex items-start gap-4 border-border border-b p-5 sm:p-7">
-				<span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-950/50">
+		<section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
+			<header className="flex items-start gap-4 border-outline-variant border-b p-5 sm:p-7">
+				<span className="grid size-11 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-950/50">
 					<Icon className="size-5" />
 				</span>
 				<div>
 					<p className="font-semibold text-brand-700 text-xs uppercase tracking-[0.16em]">{eyebrow}</p>
-					<h2 className="mt-1 font-display font-semibold text-2xl">{title}</h2>
+					<h2 className="mt-1 font-headline-md font-semibold text-headline-md">{title}</h2>
 					<p className="mt-1 text-muted-foreground text-sm leading-6">{description}</p>
 				</div>
 			</header>
@@ -290,7 +290,7 @@ function ToggleRow({
 }) {
 	return (
 		<div className="flex items-start gap-3 p-5 sm:items-center sm:gap-4 sm:px-7 sm:py-5">
-			<span className="grid size-10 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
+			<span className="grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
 				<Icon className="size-4" />
 			</span>
 			<div className="min-w-0 flex-1">
@@ -327,7 +327,7 @@ function ToggleRow({
 
 function PanelFooter({ label }: { label: string }) {
 	return (
-		<footer className="flex items-center gap-2 border-border border-t bg-muted/30 px-5 py-3 text-muted-foreground text-xs sm:px-7">
+		<footer className="flex items-center gap-2 border-outline-variant border-t bg-muted/30 px-5 py-3 text-muted-foreground text-xs sm:px-7">
 			<Smartphone className="size-3.5" />
 			{label}
 		</footer>

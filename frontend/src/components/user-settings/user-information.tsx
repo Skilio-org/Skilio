@@ -87,12 +87,12 @@ const UserInformation = () => {
 
 	return (
 		<div className="space-y-5">
-			<section className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card sm:p-7">
-				<div className="absolute inset-x-0 top-0 h-20 bg-linear-to-r from-brand-50 via-violet-50/70 to-emerald-50 dark:from-brand-950/50 dark:via-violet-950/20 dark:to-emerald-950/30" />
+			<section className="relative overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-7">
+				<div className="absolute inset-x-0 top-0 h-20 bg-surface-container-low" />
 				<div className="relative flex flex-col justify-between gap-5 pt-7 sm:flex-row sm:items-end">
 					<div className="flex items-end gap-4">
 						<div className="relative">
-							<Monogram className="size-20 overflow-hidden border-4 border-card bg-brand-100 text-brand-800 text-xl shadow-card dark:bg-brand-950 dark:text-brand-200">
+							<Monogram className="size-20 overflow-hidden border-4 border-card bg-brand-100 text-brand-800 text-xl dark:bg-brand-950 dark:text-brand-200">
 								{avatarUrl && !avatarFailed ? (
 									<img
 										src={avatarUrl}
@@ -120,11 +120,11 @@ const UserInformation = () => {
 				</div>
 			</section>
 
-			<section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-				<header className="flex flex-col justify-between gap-4 border-border border-b p-5 sm:flex-row sm:items-start sm:p-7">
+			<section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
+				<header className="flex flex-col justify-between gap-4 border-outline-variant border-b p-5 sm:flex-row sm:items-start sm:p-7">
 					<div>
 						<p className="font-semibold text-brand-700 text-xs uppercase tracking-[0.16em]">Identity</p>
-						<h2 className="mt-1 font-display font-semibold text-2xl">Personal details</h2>
+						<h2 className="mt-1 font-headline-md font-semibold text-headline-md">Personal details</h2>
 						<p className="mt-1 text-muted-foreground text-sm leading-6">
 							Your name and email appear across your workspace.
 						</p>
@@ -184,7 +184,7 @@ const UserInformation = () => {
 						)}
 
 						{editMode && (
-							<footer className="flex flex-col-reverse gap-3 border-border border-t bg-muted/30 p-4 sm:flex-row sm:justify-end sm:px-7">
+							<footer className="flex flex-col-reverse gap-3 border-outline-variant border-t bg-muted/30 p-4 sm:flex-row sm:justify-end sm:px-7">
 								<Button type="button" variant="outline" onClick={onCancel} disabled={mutation.isPending}>
 									Cancel
 								</Button>
@@ -213,7 +213,7 @@ function InformationRow({
 }) {
 	return (
 		<div className="flex items-center gap-4 py-5">
-			<span className="grid size-10 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
+			<span className="grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
 				<Icon className="size-4" />
 			</span>
 			<div className="min-w-0 flex-1">

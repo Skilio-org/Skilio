@@ -28,17 +28,17 @@ export function SavedTalentPage() {
 					: b.successRate - a.successRate,
 		)
 	return (
-		<div className="mx-auto w-full space-y-6 xl:max-w-[912px]">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			<WorkspacePageHeader
-				eyebrow="Your shortlist"
+				eyebrow="Client workspace / Saved talent"
 				title="Saved talent"
 				description="Keep the people you’d like to work with in one place."
 				action=""
 			/>
 			{savedIds.length > 0 && (
 				<div className="flex flex-col gap-3 sm:flex-row">
-					<label className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border border-input bg-card px-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
-						<Search className="size-4 shrink-0 text-muted-foreground" />
+					<label className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+						<Search className="size-4 shrink-0 text-on-surface-variant" />
 						<span className="sr-only">Search saved talent</span>
 						<input
 							type="search"
@@ -59,7 +59,10 @@ export function SavedTalentPage() {
 						)}
 					</label>
 					<Select value={sort} onValueChange={setSort}>
-						<SelectTrigger aria-label="Sort saved talent" className="h-12 w-full rounded-xl bg-card sm:w-48">
+						<SelectTrigger
+							aria-label="Sort saved talent"
+							className="h-12 w-full rounded-lg bg-surface-container-lowest sm:w-48"
+						>
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
@@ -70,24 +73,24 @@ export function SavedTalentPage() {
 					</Select>
 				</div>
 			)}
-			<p role="status" className="text-muted-foreground text-sm">
+			<p role="status" className="text-on-surface-variant text-sm">
 				<strong className="font-semibold text-foreground">{people.length}</strong>{" "}
 				{people.length === 1 ? "professional" : "professionals"}
 				{query ? " matching your search" : " saved"}
 			</p>
 			{people.length > 0 ? (
-				<div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
+				<div className="flex flex-col gap-3.5">
 					{people.map((person) => (
 						<FreelancerCard key={person.id} freelancer={person} saved onToggleSaved={() => toggleSaved(person.id)} />
 					))}
 				</div>
 			) : (
-				<section className="rounded-xl border border-border bg-card px-6 py-16 text-center">
-					<Bookmark className="mx-auto size-8 text-muted-foreground" />
+				<section className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
+					<Bookmark className="mx-auto size-8 text-on-surface-variant" />
 					<h2 className="mt-5 font-medium text-xl tracking-tight">
 						{savedIds.length ? "No matching saved profiles" : "Your shortlist starts here"}
 					</h2>
-					<p className="mx-auto mt-3 max-w-sm text-muted-foreground text-sm leading-6">
+					<p className="mx-auto mt-3 max-w-sm text-on-surface-variant text-sm leading-6">
 						{savedIds.length
 							? "Try another name, skill, or location."
 							: "Save a profile while browsing talent. You’ll find everyone you save right here."}
