@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "@tanstack/react-router"
 import {
-	Activity,
 	AlertCircle,
 	AlertTriangle,
 	ArrowLeft,
@@ -9,7 +8,6 @@ import {
 	Database,
 	HardDrive,
 	KeyRound,
-	Mail,
 	RefreshCw,
 	Server,
 	ShieldCheck,
@@ -70,7 +68,6 @@ export function StatusPage() {
 	}, [autoRefresh])
 
 	const isOverallHealthy = data?.status === "healthy" && !error
-	const isDegraded = data?.status === "degraded" || (!isOverallHealthy && !error)
 
 	const formatUptime = (seconds?: number) => {
 		if (seconds === undefined) return "N/A"
@@ -89,7 +86,10 @@ export function StatusPage() {
 			<header className="border-b border-border bg-card/60 backdrop-blur-md sticky top-0 z-40">
 				<div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
 					<div className="flex items-center gap-4">
-						<Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+						<Link
+							to="/"
+							className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+						>
 							<ArrowLeft className="h-4 w-4" />
 							<span className="text-sm font-medium">Home</span>
 						</Link>
@@ -100,21 +100,10 @@ export function StatusPage() {
 						</div>
 					</div>
 					<div className="flex items-center gap-3">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => setAutoRefresh(!autoRefresh)}
-							className="text-xs"
-						>
+						<Button variant="outline" size="sm" onClick={() => setAutoRefresh(!autoRefresh)} className="text-xs">
 							Auto-refresh: {autoRefresh ? "On (10s)" : "Off"}
 						</Button>
-						<Button
-							variant="default"
-							size="sm"
-							onClick={fetchHealth}
-							disabled={loading}
-							className="gap-1.5"
-						>
+						<Button variant="default" size="sm" onClick={fetchHealth} disabled={loading} className="gap-1.5">
 							<RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
 							<span>Check Now</span>
 						</Button>
@@ -129,8 +118,8 @@ export function StatusPage() {
 						error
 							? "bg-destructive/10 border-destructive/30 text-destructive"
 							: isOverallHealthy
-							? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-							: "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400"
+								? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+								: "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400"
 					}`}
 				>
 					<div className="flex items-center gap-4">
@@ -152,15 +141,15 @@ export function StatusPage() {
 								{error
 									? "System Outage Detected"
 									: isOverallHealthy
-									? "All Systems Operational"
-									: "Partial Service Degradation"}
+										? "All Systems Operational"
+										: "Partial Service Degradation"}
 							</h1>
 							<p className="text-sm opacity-90 mt-1">
 								{error
 									? "Cannot communicate with backend services. Please check network or containers."
 									: isOverallHealthy
-									? "All cluster microservices, databases, and integrations are operating normally."
-									: "One or more internal services reported non-optimal status."}
+										? "All cluster microservices, databases, and integrations are operating normally."
+										: "One or more internal services reported non-optimal status."}
 							</p>
 						</div>
 					</div>
@@ -175,24 +164,16 @@ export function StatusPage() {
 					<Card>
 						<CardHeader className="pb-2">
 							<CardDescription>Environment</CardDescription>
-							<CardTitle className="text-lg uppercase tracking-wide">
-								{data?.environment ?? "Unknown"}
-							</CardTitle>
+							<CardTitle className="text-lg uppercase tracking-wide">{data?.environment ?? "Unknown"}</CardTitle>
 						</CardHeader>
-						<CardContent className="text-xs text-muted-foreground">
-							Active configuration profile
-						</CardContent>
+						<CardContent className="text-xs text-muted-foreground">Active configuration profile</CardContent>
 					</Card>
 					<Card>
 						<CardHeader className="pb-2">
 							<CardDescription>System Uptime</CardDescription>
-							<CardTitle className="text-lg">
-								{formatUptime(data?.uptime_seconds)}
-							</CardTitle>
+							<CardTitle className="text-lg">{formatUptime(data?.uptime_seconds)}</CardTitle>
 						</CardHeader>
-						<CardContent className="text-xs text-muted-foreground">
-							Continuous process running time
-						</CardContent>
+						<CardContent className="text-xs text-muted-foreground">Continuous process running time</CardContent>
 					</Card>
 					<Card>
 						<CardHeader className="pb-2">
@@ -201,9 +182,7 @@ export function StatusPage() {
 								<ShieldCheck className="h-4 w-4" /> Ready
 							</CardTitle>
 						</CardHeader>
-						<CardContent className="text-xs text-muted-foreground">
-							Automated backups & runbooks active
-						</CardContent>
+						<CardContent className="text-xs text-muted-foreground">Automated backups & runbooks active</CardContent>
 					</Card>
 				</div>
 
@@ -224,11 +203,7 @@ export function StatusPage() {
 									</div>
 								</div>
 								<Badge
-									variant={
-										data?.services?.database?.status === "healthy"
-											? "default"
-											: "destructive"
-									}
+									variant={data?.services?.database?.status === "healthy" ? "default" : "destructive"}
 									className="capitalize"
 								>
 									{data?.services?.database?.status ?? "Checking"}
@@ -270,9 +245,7 @@ export function StatusPage() {
 									<span>HTTP Endpoint:</span>
 									<span className="font-mono text-foreground">/api/v1/utils/health</span>
 								</div>
-								<div className="text-xs text-muted-foreground">
-									Handles business logic, auth, and webhooks
-								</div>
+								<div className="text-xs text-muted-foreground">Handles business logic, auth, and webhooks</div>
 							</CardContent>
 						</Card>
 
@@ -289,11 +262,7 @@ export function StatusPage() {
 									</div>
 								</div>
 								<Badge
-									variant={
-										data?.services?.vault?.status === "healthy"
-											? "default"
-											: "secondary"
-									}
+									variant={data?.services?.vault?.status === "healthy" ? "default" : "secondary"}
 									className="capitalize"
 								>
 									{data?.services?.vault?.status ?? "Checking"}
@@ -319,11 +288,7 @@ export function StatusPage() {
 									</div>
 								</div>
 								<Badge
-									variant={
-										data?.services?.disk?.status === "healthy"
-											? "default"
-											: "secondary"
-									}
+									variant={data?.services?.disk?.status === "healthy" ? "default" : "secondary"}
 									className="capitalize"
 								>
 									{data?.services?.disk?.status ?? "Checking"}
@@ -375,10 +340,8 @@ export function StatusPage() {
 							</div>
 						</div>
 						<div className="text-muted-foreground leading-relaxed">
-							In case of database corruption or volume loss, point-in-time recovery is executed using the automated dump engine via{" "}
-							<code className="bg-muted px-1.5 py-0.5 rounded font-mono text-foreground">
-								make restore
-							</code>{" "}
+							In case of database corruption or volume loss, point-in-time recovery is executed using the automated dump
+							engine via <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-foreground">make restore</code>{" "}
 							or the automated drill{" "}
 							<code className="bg-muted px-1.5 py-0.5 rounded font-mono text-foreground">
 								bash devops/backup/dr-drill.sh
