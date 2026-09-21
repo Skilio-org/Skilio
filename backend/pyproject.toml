@@ -28,6 +28,7 @@ dependencies = [
     "requests>=2.34.2",
     "passlib>=1.7.4",
     "redis>=8.1.0",
+    "prometheus-fastapi-instrumentator>=8.1.0",
 ]
 
 [dependency-groups]
