@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { type ClientProfilePublic, ClientProfilesService, UsersService } from "@/client"
 
-import { Monogram, WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { Monogram, WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
 import {
 	Dialog,
@@ -115,26 +115,26 @@ export function ClientProfilePage() {
 	}
 
 	return (
-		<div className="space-y-8">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			<WorkspacePageHeader
-				eyebrow="Your presence"
+				eyebrow="Client workspace / Profile"
 				title="Client profile"
 				description="Help independent professionals understand who you are and what working with you will feel like."
 				action=""
 			/>
 
-			<div className="grid gap-3 lg:grid-cols-[1fr_320px]">
+			<div className="grid items-start gap-6 lg:grid-cols-[1fr_320px]">
 				<form
 					onSubmit={handleSubmit}
-					className="space-y-8 rounded-2xl border border-border bg-card p-5 shadow-card sm:p-8"
+					className="space-y-8 rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-8"
 				>
-					<div className="flex flex-col gap-5 border-border border-b pb-8 sm:flex-row sm:items-center">
+					<div className="flex flex-col gap-5 border-outline-variant border-b pb-8 sm:flex-row sm:items-center">
 						<Monogram className="relative size-24 bg-brand-100 text-2xl text-brand-800">
 							{avatarUrl && !avatarFailed ? (
 								<img
 									src={avatarUrl}
 									alt={displayName}
-									className="absolute inset-0 size-full rounded-xl object-cover"
+									className="absolute inset-0 size-full rounded-lg object-cover"
 									onError={() => setAvatarFailed(true)}
 								/>
 							) : (
@@ -151,7 +151,7 @@ export function ClientProfilePage() {
 						</Monogram>
 						<div>
 							<h2 className="font-display font-semibold text-xl">Profile photo</h2>
-							<p className="mt-1 text-muted-foreground text-sm leading-6">
+							<p className="mt-1 text-on-surface-variant text-sm leading-6">
 								{photoUpdated
 									? "Your new profile image is ready across the workspace."
 									: "A clear photo or company logo makes your messages easier to recognize."}
@@ -161,7 +161,7 @@ export function ClientProfilePage() {
 
 					<div>
 						<h2 className="font-display font-semibold text-xl">About you</h2>
-						<p className="mt-1 text-muted-foreground text-sm">
+						<p className="mt-1 text-on-surface-variant text-sm">
 							The essentials freelancers see when you start a conversation.
 						</p>
 						<div className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -225,7 +225,7 @@ export function ClientProfilePage() {
 										setSaved(false)
 									}}
 								>
-									<SelectTrigger aria-labelledby="company-size-label" className="h-12 w-full">
+									<SelectTrigger aria-labelledby="company-size-label" className="h-10 w-full rounded-lg">
 										<SelectValue placeholder="Select company size" />
 									</SelectTrigger>
 									<SelectContent align="start">
@@ -239,25 +239,38 @@ export function ClientProfilePage() {
 							</div>
 						</div>
 					</div>
-					<div className="flex flex-col-reverse gap-3 border-border border-t pt-6 sm:flex-row sm:items-center sm:justify-end">
+					<div className="flex flex-col-reverse gap-3 border-outline-variant border-t pt-6 sm:flex-row sm:items-center sm:justify-end">
 						{saved && (
 							<span className="mr-auto inline-flex items-center gap-2 text-emerald-700 text-sm">
 								<CheckCircle2 className="size-4" />
 								Changes saved
 							</span>
 						)}
-						<Button type="reset" onClick={handleCancel} variant="outline" className="min-h-11 rounded-full px-5">
+						<Button type="reset" onClick={handleCancel} variant="outline" className="min-h-9 rounded-lg px-5">
 							Cancel
 						</Button>
-						<Button
-							type="submit"
-							disabled={updateMutation.isPending || isLoading}
-							className="min-h-11 rounded-full px-6"
-						>
+						<Button type="submit" disabled={updateMutation.isPending || isLoading} className="min-h-9 rounded-lg px-6">
 							{updateMutation.isPending ? "Saving…" : "Save profile"}
 						</Button>
 					</div>
 				</form>
+				<aside className="space-y-5 lg:sticky lg:top-24">
+					<WorkspaceSurface className="p-5">
+						<p className="font-medium text-caption text-on-surface-variant">Your introduction</p>
+						<h2 className="mt-3 break-words font-semibold text-headline-md">{displayName}</h2>
+						<p className="mt-1 break-words text-body-sm text-on-surface-variant">
+							{[companyRole, company].filter(Boolean).join(" · ") || "Add your role and company"}
+						</p>
+						{location && <p className="mt-3 break-words text-body-sm text-on-surface-variant">{location}</p>}
+						{website && <p className="mt-2 break-all text-body-sm text-on-surface-variant">{website}</p>}
+						<p className="mt-5 border-t border-outline-variant pt-4 text-caption text-on-surface-variant">
+							A quick preview of the details you’re editing. Save your profile to apply your changes.
+						</p>
+					</WorkspaceSurface>
+					<p className="px-1 text-body-sm text-on-surface-variant leading-6">
+						A complete introduction helps freelancers understand your business before the first conversation.
+					</p>
+				</aside>
 			</div>
 
 			<Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
@@ -268,15 +281,15 @@ export function ClientProfilePage() {
 							Choose the image clients and independent professionals see when they review your workspace.
 						</DialogDescription>
 					</DialogHeader>
-					<div className="rounded-2xl border border-brand-200 border-dashed bg-brand-50/45 p-7 text-center dark:border-brand-900 dark:bg-brand-950/25">
-						<span className="mx-auto grid size-12 place-items-center rounded-xl bg-card text-brand-700 shadow-sm">
+					<div className="rounded-lg border border-brand-200 border-dashed bg-brand-50/45 p-7 text-center dark:border-brand-900 dark:bg-brand-950/25">
+						<span className="mx-auto grid size-12 place-items-center rounded-lg bg-surface-container-lowest text-brand-700 shadow-sm">
 							<ImageUp className="size-5" />
 						</span>
 						<p className="mt-3 font-semibold text-sm">Choose a clear headshot or company logo</p>
-						<p className="mt-1 text-muted-foreground text-xs leading-5">JPG or PNG, at least 400px square.</p>
+						<p className="mt-1 text-on-surface-variant text-xs leading-5">JPG or PNG, at least 400px square.</p>
 						<label
 							htmlFor="client-photo-upload"
-							className="mt-5 inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-card px-5 font-semibold text-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+							className="mt-5 inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-5 font-semibold text-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
 						>
 							<Camera className="size-4" />
 							Choose image
@@ -346,7 +359,11 @@ function Field({ label, id, ...props }: { label: string; id: string } & React.Co
 	return (
 		<div className="space-y-2">
 			<Label htmlFor={id}>{label}</Label>
-			<Input id={id} {...props} />
+			<Input
+				id={id}
+				className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+				{...props}
+			/>
 		</div>
 	)
 }

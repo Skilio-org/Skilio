@@ -5,18 +5,18 @@ import DeleteConfirmation from "./delete-confirmation"
 const DeleteAccount = () => {
 	const savedItems = useAccountRole() === "freelancer" ? "saved jobs" : "saved talent"
 	return (
-		<section className="overflow-hidden rounded-2xl border border-destructive/20 bg-card shadow-card">
+		<section className="overflow-hidden rounded-lg border border-destructive/20 bg-surface-container-lowest">
 			<header className="border-destructive/15 border-b p-5 sm:p-7">
 				<p className="font-bold text-destructive text-xs uppercase tracking-[0.16em]">Danger zone</p>
-				<h2 className="mt-1 font-display font-semibold text-2xl">Delete account</h2>
+				<h2 className="mt-1 font-headline-md font-semibold text-headline-md">Delete account</h2>
 				<p className="mt-1 max-w-2xl text-muted-foreground text-sm leading-6">
 					Permanently close your Freelancer account and remove its associated information.
 				</p>
 			</header>
 			<div className="p-5 sm:p-7">
-				<div className="flex flex-col gap-5 rounded-2xl border border-destructive/30 bg-danger-soft p-5 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex flex-col gap-5 rounded-lg border border-destructive/30 bg-danger-soft p-5 sm:flex-row sm:items-center sm:justify-between">
 					<div className="flex gap-3">
-						<span className="grid size-10 shrink-0 place-items-center rounded-xl bg-card text-destructive shadow-sm ring-1 ring-destructive/15">
+						<span className="grid size-10 shrink-0 place-items-center rounded-lg bg-surface-container-lowest text-destructive shadow-sm ring-1 ring-destructive/15">
 							<TriangleAlert className="size-4" />
 						</span>
 						<div>

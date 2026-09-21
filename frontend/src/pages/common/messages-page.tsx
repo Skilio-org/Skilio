@@ -1,3 +1,6 @@
+import { useNavigate } from "@tanstack/react-router"
+import { freelancers } from "@/data/freelancers"
+import { useAccountRole } from "@/hooks/useAccountRole"
 import { useEffect, useState } from "react"
 import { Search, SquarePen } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -36,6 +39,14 @@ const talentConversations = [
 	},
 ]
 
+const talentIntroductions: Record<string, string> = {
+	"maya-laurent":
+		"Thanks for reaching out. I’d love to hear more about your product and the experience you want to improve.",
+	"noah-williams": "Hi! Let’s walk through the scope, technical requirements, and timeline for your project.",
+	"amara-okafor": "Thanks for sharing your brief. I’d love to learn more about your audience and goals.",
+	"elias-chen": "Happy to discuss your automation needs and the outcomes you’re looking for.",
+}
+
 function sampleThread(
 	id: string,
 	meta: typeof talentConversations,
@@ -51,7 +62,7 @@ function sampleThread(
 					? "Morning! We just reviewed the interactive prototype for the new user onboarding sequence. Overall, the typography hierarchy feels significantly crisper than our last iteration."
 					: introductions[id],
 			feedback:
-				 id === "olivia-bennett"
+				id === "olivia-bennett"
 					? [
 							"Step 2 progress bar: The completion interaction is much more intuitive. Keep that easing curve.",
 							"Contrast adjustment: Could we increase contrast on the secondary button? It looks washed out in bright light.",
@@ -91,9 +102,11 @@ export function MessagesPage({
 	selectedContact?: string
 	onSelectContact: (id: string) => void
 }) {
-	const people = demoClients
-	const meta = clientConversations 
-	const introductions = clientIntroductions 
+	const navigate = useNavigate()
+	const clientMode = useAccountRole() === "client"
+	const people = clientMode ? freelancers : demoClients
+	const meta = clientMode ? talentConversations : clientConversations
+	const introductions = clientMode ? talentIntroductions : clientIntroductions
 	const selected = people.find((person) => person.id === selectedContact)
 	const selectedId = selected?.id ?? ""
 	const [newMessageOpen, setNewMessageOpen] = useState(false)
@@ -147,10 +160,7 @@ export function MessagesPage({
 		})
 	const messages = selectedId
 		? [
-				...sampleThread(selectedId, meta, introductions).slice(
-					0,
-					selectedId === "olivia-bennett" ? 2 : 3,
-				),
+				...sampleThread(selectedId, meta, introductions).slice(0, selectedId === "olivia-bennett" ? 2 : 3),
 				...(sent[selectedId] ?? []),
 			]
 		: []
@@ -189,7 +199,9 @@ export function MessagesPage({
 			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
 				<div className="flex max-w-2xl flex-col gap-4">
 					<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
-						<span className="font-semibold text-on-surface-variant uppercase tracking-wider">Freelancer workspace</span>
+						<span className="font-semibold text-on-surface-variant uppercase tracking-wider">
+							{clientMode ? "Client workspace" : "Freelancer workspace"}
+						</span>
 						<span className="size-1 rounded-full bg-outline-variant" />
 						<span className="flex items-center gap-1 font-medium text-primary">
 							<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
@@ -200,7 +212,9 @@ export function MessagesPage({
 					</div>
 					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">Messages</h1>
 					<p className="font-body-md text-body-md text-on-surface-variant">
-						Manage client conversations, share design artifacts, and collaborate on active contracts.
+						{clientMode
+							? "Connect with freelancers, discuss your brief, and keep your projects moving."
+							: "Manage client conversations, share design artifacts, and collaborate on active contracts."}
 					</p>
 				</div>
 				<div className="flex shrink-0 flex-wrap items-center gap-2.5">
@@ -221,7 +235,7 @@ export function MessagesPage({
 							New message
 						</DialogTitle>
 						<DialogDescription className="font-body-sm text-body-sm text-on-surface-variant">
-							Choose a client to start or continue a conversation.
+							Choose a {clientMode ? "freelancer" : "client"} to start or continue a conversation.
 						</DialogDescription>
 					</DialogHeader>
 					<div className="relative mt-2">
@@ -230,7 +244,7 @@ export function MessagesPage({
 							aria-label="Find a recipient"
 							value={recipientQuery}
 							onChange={(e) => setRecipientQuery(e.target.value)}
-							placeholder="Search clients…"
+							placeholder={clientMode ? "Search freelancers…" : "Search clients…"}
 							className="h-10 w-full rounded-lg border border-outline-variant bg-surface-container-low pl-9 pr-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-outline focus:ring-1 focus:ring-outline"
 						/>
 					</div>
@@ -274,7 +288,7 @@ export function MessagesPage({
 							`${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()),
 						) && (
 							<p className="py-6 text-center font-body-sm text-body-sm text-on-surface-variant">
-								No matching clients.
+								No matching {clientMode ? "freelancers" : "clients"}.
 							</p>
 						)}
 					</div>
@@ -301,7 +315,14 @@ export function MessagesPage({
 					onBack={() => select("")}
 					onOpenLatest={() => select(meta[0].id)}
 					onOpenBrief={() => {}}
-					onDetails={() => {}}
+					onDetails={() => {
+						if (clientMode && selected)
+							void navigate({
+								to: "/talent/$freelancerId",
+								params: { freelancerId: selected.id },
+								search: { q: undefined },
+							})
+					}}
 					onArchive={archive}
 					onMarkUnread={() => {
 						setUnread((current) => ({ ...current, [selectedId]: 1 }))

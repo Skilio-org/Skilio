@@ -25,7 +25,7 @@ export function ClientJobEditor({
 }: ClientJobEditorProps) {
 	return (
 		<Sheet open={!!job} onOpenChange={(open) => !open && onClose()}>
-			<SheetContent className="w-full gap-0 bg-card p-0 sm:max-w-180">
+			<SheetContent className="w-full gap-0 bg-surface-container-lowest p-0 sm:max-w-180">
 				<SheetHeader className="border-b px-6 py-6 pr-12 sm:px-8 sm:pr-14">
 					<p className="font-semibold text-primary text-xs">{editing ? "FIND YOUR NEXT COLLABORATOR" : "YOUR JOB"}</p>
 					<SheetTitle className="mt-1 font-semibold text-2xl tracking-tight">
@@ -81,14 +81,14 @@ export function ClientJobEditor({
 												}
 												placeholder={"We’re looking for someone to…\nThe main deliverables are…"}
 											/>
-											<span className="mt-2 flex justify-between gap-3 font-normal text-muted-foreground text-xs">
+											<span className="mt-2 flex justify-between gap-3 font-normal text-on-surface-variant text-xs">
 												<span>At least 80 characters</span>
 												<span>{job.description.length.toLocaleString()} / 5,000</span>
 											</span>
 										</label>
 									</JobFormSection>
 
-									<div className="border-border border-t" />
+									<div className="border-outline-variant border-t" />
 									<JobFormSection title="Find the right expertise" description="Choose the skills your project needs.">
 										<label className="block font-medium text-sm">
 											Skills
@@ -102,11 +102,11 @@ export function ClientJobEditor({
 												placeholder="React, TypeScript, Accessibility"
 											/>
 										</label>
-										<p className="text-muted-foreground text-xs">
+										<p className="text-on-surface-variant text-xs">
 											Separate skills with commas, for example: React, TypeScript.
 										</p>
 									</JobFormSection>
-									<div className="border-border border-t" />
+									<div className="border-outline-variant border-t" />
 									<JobFormSection
 										title="Set a budget"
 										description="Give freelancers a clear starting point for their proposal."
@@ -115,7 +115,7 @@ export function ClientJobEditor({
 											<div className="font-medium text-sm">
 												<label htmlFor="job-payment-type">Payment type</label>
 												<Select value={job.type} onValueChange={(type) => onJobChange({ ...job, type })}>
-													<SelectTrigger id="job-payment-type" className="mt-2 min-h-12 w-full rounded-xl">
+													<SelectTrigger id="job-payment-type" className="mt-2 min-h-12 w-full rounded-lg">
 														<SelectValue />
 													</SelectTrigger>
 													<SelectContent>
@@ -140,7 +140,7 @@ export function ClientJobEditor({
 										</div>
 									</JobFormSection>
 								</div>
-								<footer className="shrink-0 border-border border-t px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8">
+								<footer className="shrink-0 border-outline-variant border-t px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8">
 									<div className="flex flex-wrap items-center justify-between gap-3">
 										<button
 											type="button"
@@ -178,7 +178,7 @@ function ClientJobDetails({
 		<div className="space-y-7">
 			<section>
 				<h3 className="font-semibold">Project brief</h3>
-				<p className="wrap-break-word mt-3 whitespace-pre-wrap text-muted-foreground text-sm leading-7">
+				<p className="wrap-break-word mt-3 whitespace-pre-wrap text-on-surface-variant text-sm leading-7">
 					{job.description || "No description yet."}
 				</p>
 			</section>
@@ -203,7 +203,7 @@ function ClientJobDetails({
 			</section>
 			<section className="border-t pt-6">
 				<h3 className="font-semibold">Proposals</h3>
-				<p className="mt-2 text-muted-foreground text-sm">
+				<p className="mt-2 text-on-surface-variant text-sm">
 					Proposals will be available when live job posting is connected.
 				</p>
 			</section>

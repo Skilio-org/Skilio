@@ -2,6 +2,8 @@ import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
 export function WorkspacePageHeader({
+	eyebrow,
+	className,
 	title,
 	description,
 	action,
@@ -13,17 +15,22 @@ export function WorkspacePageHeader({
 	className?: string
 }) {
 	return (
-		<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
+		<header
+			className={cn(
+				"flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between",
+				className,
+			)}
+		>
 			<div className="flex max-w-2xl flex-col gap-4">
 				<div className="flex flex-wrap items-center gap-2">
 					<span className="font-caption font-semibold text-caption text-on-surface-variant uppercase tracking-wider">
-						Freelancer workspace
+						{eyebrow}
 					</span>
 				</div>
 				<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">{title}</h1>
 				<p className="font-body-md text-body-md text-on-surface-variant">{description}</p>
 			</div>
-			{action && <div className="flex items-center gap-2.5 self-start md:self-auto">{action}</div>}
+			{action && <div className="flex items-center gap-2.5 flex-wrap self-start md:self-auto">{action}</div>}
 		</header>
 	)
 }
@@ -67,17 +74,17 @@ export function SkillTag({ children, className }: { children: ReactNode; classNa
 
 export const workspaceStyles = {
 	primaryAction:
-		"inline-flex h-9 items-center justify-center gap-2 rounded bg-primary px-4 font-label-md text-label-md font-medium text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+		"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md font-medium text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
 
 	secondaryAction:
-		"inline-flex h-9 items-center justify-center gap-2 rounded border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+		"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
 
 	iconButton:
-		"grid size-8 shrink-0 place-items-center rounded border border-outline-variant bg-surface-container-lowest text-outline transition-colors hover:bg-surface-container hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+		"grid size-8 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-outline transition-colors hover:bg-surface-container hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
 
 	inputShell:
-		"flex h-9 items-center rounded border border-outline-variant bg-surface-container-lowest px-3 font-body-sm text-body-sm text-on-surface transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary",
+		"flex h-9 items-center rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-body-sm text-body-sm text-on-surface transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary",
 
 	select:
-		"h-9 rounded border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md font-medium text-on-surface outline-none transition-colors hover:border-outline focus:border-primary focus:ring-1 focus:ring-primary",
+		"h-9 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md font-medium text-on-surface outline-none transition-colors hover:border-outline focus:border-primary focus:ring-1 focus:ring-primary",
 } as const

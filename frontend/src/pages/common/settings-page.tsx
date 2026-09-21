@@ -1,3 +1,5 @@
+import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { useAccountRole } from "@/hooks/useAccountRole"
 import { Bell, Eye, KeyRound, Palette, Trash2, UserRound } from "lucide-react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -60,8 +62,14 @@ export function SettingsPage({
 	section: SettingsSection
 	onSectionChange: (value: SettingsSection) => void
 }) {
+	const role = useAccountRole()
 	return (
-		<div className="space-y-7">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
+			<WorkspacePageHeader
+				eyebrow={`${role === "client" ? "Client" : "Freelancer"} workspace / Settings`}
+				title="Account settings"
+				description="Manage your account, preferences, and privacy."
+			/>
 			<Tabs
 				value={section}
 				onValueChange={(value) => onSectionChange(value as SettingsSection)}
@@ -72,14 +80,14 @@ export function SettingsPage({
 					<div className="mb-3 hidden px-2 lg:block">
 						<p className="font-semibold text-muted-foreground text-xs uppercase tracking-[0.16em]">Settings</p>
 					</div>
-					<TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl border border-border bg-card p-2 shadow-card lg:flex-col lg:overflow-visible">
+					<TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-lg border border-border bg-card p-2 lg:flex-col lg:overflow-visible">
 						{settingsSections.map((section) => {
 							const Icon = section.icon
 							return (
 								<TabsTrigger
 									key={section.value}
 									value={section.value}
-									className={`group h-auto min-h-12 min-w-fit justify-start rounded-xl border-0 px-3 py-2.5 text-left shadow-none data-[state=active]:bg-brand-50 data-[state=active]:text-brand-800 data-[state=active]:shadow-none lg:w-full dark:data-[state=active]:bg-brand-950/50 dark:data-[state=active]:text-brand-200 ${
+									className={`group h-auto min-h-12 min-w-fit justify-start rounded-lg border-0 px-3 py-2.5 text-left shadow-none data-[state=active]:bg-brand-50 data-[state=active]:text-brand-800 data-[state=active]:shadow-none lg:w-full dark:data-[state=active]:bg-brand-950/50 dark:data-[state=active]:text-brand-200 ${
 										section.destructive
 											? "text-destructive data-[state=active]:bg-danger-soft data-[state=active]:text-destructive"
 											: ""
