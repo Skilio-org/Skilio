@@ -167,15 +167,10 @@ export function NotificationDropdown() {
 									markAsRead(notification.id)
 								}}
 								className={cn(
-									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 my-1 outline-none transition-colors focus:bg-surface-container",
+									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
 									!notification.read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
 								)}
 							>
-								{/* Unread marker */}
-								{!notification.read && (
-									<span aria-hidden="true" className="absolute top-3 bottom-3 left-0 w-0.5 rounded-full bg-primary" />
-								)}
-
 								{/* Icon */}
 								<span
 									className={cn(

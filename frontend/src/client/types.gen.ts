@@ -102,6 +102,54 @@ export type CategoriesPublic = {
 };
 
 /**
+ * ChatMessagePost
+ */
+export type ChatMessagePost = {
+    /**
+     * Content
+     */
+    content: string;
+    /**
+     * Attachment Id
+     */
+    attachment_id?: string | null;
+};
+
+/**
+ * ChatMessagePublic
+ */
+export type ChatMessagePublic = {
+    /**
+     * Content
+     */
+    content: string;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Conversation Id
+     */
+    conversation_id: string;
+    /**
+     * Sender Id
+     */
+    sender_id: string;
+    /**
+     * Attachment Id
+     */
+    attachment_id?: string | null;
+    /**
+     * Is Read
+     */
+    is_read: boolean;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+};
+
+/**
  * ClientProfileDetailPublic
  */
 export type ClientProfileDetailPublic = {
@@ -260,6 +308,98 @@ export type ClientProfileUpdate = {
      * Optional update to user's full name in the same request
      */
     full_name?: string | null;
+};
+
+/**
+ * ConversationCreate
+ */
+export type ConversationCreate = {
+    /**
+     * Freelancer Id
+     */
+    freelancer_id: string;
+};
+
+/**
+ * ConversationDetailPublic
+ */
+export type ConversationDetailPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Client Id
+     */
+    client_id: string;
+    /**
+     * Freelancer Id
+     */
+    freelancer_id: string;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+    last_message?: ChatMessagePublic | null;
+    /**
+     * Unread Count
+     */
+    unread_count?: number;
+    other_user?: UserPublic | null;
+    /**
+     * Messages
+     */
+    messages?: Array<ChatMessagePublic>;
+};
+
+/**
+ * ConversationPublic
+ */
+export type ConversationPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Client Id
+     */
+    client_id: string;
+    /**
+     * Freelancer Id
+     */
+    freelancer_id: string;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+    last_message?: ChatMessagePublic | null;
+    /**
+     * Unread Count
+     */
+    unread_count?: number;
+    other_user?: UserPublic | null;
+};
+
+/**
+ * ConversationsPublic
+ */
+export type ConversationsPublic = {
+    /**
+     * Data
+     */
+    data: Array<ConversationPublic>;
+    /**
+     * Count
+     */
+    count: number;
 };
 
 /**
@@ -523,6 +663,32 @@ export type ExperienceUpdate = {
 };
 
 /**
+ * FreelancerAvailabilityPublic
+ */
+export type FreelancerAvailabilityPublic = {
+    /**
+     * Is Available
+     */
+    is_available: boolean;
+    /**
+     * Availability
+     */
+    availability?: string | null;
+};
+
+/**
+ * FreelancerAvailabilityUpdate
+ */
+export type FreelancerAvailabilityUpdate = {
+    /**
+     * Is Available
+     *
+     * Availability toggle status
+     */
+    is_available: boolean;
+};
+
+/**
  * FreelancerProfileCreate
  */
 export type FreelancerProfileCreate = {
@@ -655,7 +821,7 @@ export type FreelancerProfileDetailPublic = {
     /**
      * Skills
      */
-    skills?: Array<SkillPublic>;
+    skills?: Array<string>;
     /**
      * Skill Names
      */
@@ -770,7 +936,7 @@ export type FreelancerProfilePublic = {
     /**
      * Skills
      */
-    skills?: Array<SkillPublic>;
+    skills?: Array<string>;
     /**
      * Skill Names
      */
@@ -888,9 +1054,22 @@ export type HTTPValidationError = {
 };
 
 /**
- * ITSkill
+ * InjectPayload
  */
-export type ITSkill = 'Python' | 'FastAPI' | 'Django' | 'JavaScript' | 'TypeScript' | 'React' | 'Next.js' | 'Vue.js' | 'Angular' | 'Node.js' | 'Go' | 'Java' | 'Spring Boot' | '.NET' | 'PHP' | 'Laravel' | 'Rust' | 'C++' | 'React Native' | 'Flutter' | 'Swift' | 'Kotlin' | 'PostgreSQL' | 'MySQL' | 'MongoDB' | 'Redis' | 'Docker' | 'Kubernetes' | 'AWS' | 'Azure' | 'GCP' | 'Terraform' | 'CI/CD' | 'Linux' | 'Machine Learning' | 'Deep Learning' | 'Data Analysis' | 'PyTorch' | 'TensorFlow' | 'UI/UX Design' | 'Figma' | 'QA & Automated Testing' | 'Cybersecurity';
+export type InjectPayload = {
+    /**
+     * User Id
+     */
+    user_id?: string | null;
+    /**
+     * Event Type
+     */
+    event_type?: string;
+    /**
+     * Payload
+     */
+    payload: unknown;
+};
 
 /**
  * JobPostCreate
@@ -921,7 +1100,7 @@ export type JobPostCreate = {
     /**
      * Skills
      */
-    skills?: Array<ITSkill>;
+    skills?: Array<string>;
 };
 
 /**
@@ -977,7 +1156,7 @@ export type JobPostDetailPublic = {
     /**
      * Skills
      */
-    skills?: Array<SkillPublic>;
+    skills?: Array<string>;
     /**
      * Proposals Count
      */
@@ -990,6 +1169,10 @@ export type JobPostDetailPublic = {
      * Has Applied
      */
     has_applied?: boolean;
+    /**
+     * Has Draft
+     */
+    has_draft?: boolean;
     client?: UserPublic | null;
     client_profile?: ClientProfilePublic | null;
 };
@@ -1047,7 +1230,7 @@ export type JobPostPublic = {
     /**
      * Skills
      */
-    skills?: Array<SkillPublic>;
+    skills?: Array<string>;
     /**
      * Proposals Count
      */
@@ -1060,6 +1243,10 @@ export type JobPostPublic = {
      * Has Applied
      */
     has_applied?: boolean;
+    /**
+     * Has Draft
+     */
+    has_draft?: boolean;
 };
 
 /**
@@ -1091,7 +1278,7 @@ export type JobPostUpdate = {
     /**
      * Skills
      */
-    skills?: Array<ITSkill> | null;
+    skills?: Array<string> | null;
 };
 
 /**
@@ -1341,6 +1528,7 @@ export type ProposalCreate = {
      * Job Post Id
      */
     job_post_id: string;
+    status?: ProposalStatus;
 };
 
 /**
@@ -1374,18 +1562,30 @@ export type ProposalPublic = {
     updated_at?: string | null;
     freelancer?: UserPublic | null;
     freelancer_profile?: FreelancerProfilePublic | null;
+    job_post?: JobPostPublic | null;
 };
 
 /**
  * ProposalStatus
  */
-export type ProposalStatus = 'pending' | 'accepted' | 'rejected';
+export type ProposalStatus = 'draft' | 'pending' | 'accepted' | 'rejected';
 
 /**
  * ProposalStatusUpdate
  */
 export type ProposalStatusUpdate = {
     status: ProposalStatus;
+};
+
+/**
+ * ProposalUpdate
+ */
+export type ProposalUpdate = {
+    /**
+     * Cover Letter
+     */
+    cover_letter?: string | null;
+    status?: ProposalStatus | null;
 };
 
 /**
@@ -1519,6 +1719,16 @@ export type ReviewsPublic = {
 };
 
 /**
+ * SavedJobCreate
+ */
+export type SavedJobCreate = {
+    /**
+     * Job Post Id
+     */
+    job_post_id: string;
+};
+
+/**
  * SavedJobPublic
  */
 export type SavedJobPublic = {
@@ -1567,34 +1777,6 @@ export type ServiceHealth = {
      * Details
      */
     details?: string | null;
-};
-
-/**
- * SkillPublic
- */
-export type SkillPublic = {
-    /**
-     * Name
-     */
-    name: string;
-    /**
-     * Id
-     */
-    id: string;
-};
-
-/**
- * SkillsPublic
- */
-export type SkillsPublic = {
-    /**
-     * Data
-     */
-    data: Array<SkillPublic>;
-    /**
-     * Count
-     */
-    count: number;
 };
 
 /**
@@ -1657,6 +1839,20 @@ export type UserCreate = {
      * Password
      */
     password: string;
+};
+
+/**
+ * UserPresence
+ */
+export type UserPresence = {
+    /**
+     * User Id
+     */
+    user_id: string;
+    /**
+     * Is Online
+     */
+    is_online: boolean;
 };
 
 /**
@@ -2542,6 +2738,47 @@ export type profilesUpdateProfileMeResponses = {
 
 export type profilesUpdateProfileMeResponse = profilesUpdateProfileMeResponses[keyof profilesUpdateProfileMeResponses];
 
+export type profilesReadAvailabilityMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/profiles/me/availability';
+};
+
+export type profilesReadAvailabilityMeResponses = {
+    /**
+     * Successful Response
+     */
+    200: FreelancerAvailabilityPublic;
+};
+
+export type profilesReadAvailabilityMeResponse = profilesReadAvailabilityMeResponses[keyof profilesReadAvailabilityMeResponses];
+
+export type profilesUpdateAvailabilityMeData = {
+    body: FreelancerAvailabilityUpdate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/profiles/me/availability';
+};
+
+export type profilesUpdateAvailabilityMeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type profilesUpdateAvailabilityMeError = profilesUpdateAvailabilityMeErrors[keyof profilesUpdateAvailabilityMeErrors];
+
+export type profilesUpdateAvailabilityMeResponses = {
+    /**
+     * Successful Response
+     */
+    200: FreelancerAvailabilityPublic;
+};
+
+export type profilesUpdateAvailabilityMeResponse = profilesUpdateAvailabilityMeResponses[keyof profilesUpdateAvailabilityMeResponses];
+
 export type profilesCreateExperienceData = {
     body: ExperienceCreate;
     path?: never;
@@ -3308,74 +3545,6 @@ export type reviewsUpdateReviewResponses = {
 
 export type reviewsUpdateReviewResponse = reviewsUpdateReviewResponses[keyof reviewsUpdateReviewResponses];
 
-export type skillsReadSkillsData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Skip
-         */
-        skip?: number;
-        /**
-         * Limit
-         */
-        limit?: number;
-        /**
-         * Q
-         */
-        q?: string | null;
-    };
-    url: '/api/v1/skills/';
-};
-
-export type skillsReadSkillsErrors = {
-    /**
-     * Validation Error
-     */
-    422: HTTPValidationError;
-};
-
-export type skillsReadSkillsError = skillsReadSkillsErrors[keyof skillsReadSkillsErrors];
-
-export type skillsReadSkillsResponses = {
-    /**
-     * Successful Response
-     */
-    200: SkillsPublic;
-};
-
-export type skillsReadSkillsResponse = skillsReadSkillsResponses[keyof skillsReadSkillsResponses];
-
-export type skillsReadSkillData = {
-    body?: never;
-    path: {
-        /**
-         * Id
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/api/v1/skills/{id}';
-};
-
-export type skillsReadSkillErrors = {
-    /**
-     * Validation Error
-     */
-    422: HTTPValidationError;
-};
-
-export type skillsReadSkillError = skillsReadSkillErrors[keyof skillsReadSkillErrors];
-
-export type skillsReadSkillResponses = {
-    /**
-     * Successful Response
-     */
-    200: SkillPublic;
-};
-
-export type skillsReadSkillResponse = skillsReadSkillResponses[keyof skillsReadSkillResponses];
-
 export type categoriesReadCategoriesData = {
     body?: never;
     path?: never;
@@ -3590,6 +3759,18 @@ export type jobsReadSavedJobsData = {
          * Limit
          */
         limit?: number;
+        /**
+         * Q
+         */
+        q?: string | null;
+        /**
+         * Category
+         */
+        category?: string | null;
+        /**
+         * Sort By
+         */
+        sort_by?: string | null;
     };
     url: '/api/v1/jobs/saved';
 };
@@ -3611,6 +3792,91 @@ export type jobsReadSavedJobsResponses = {
 };
 
 export type jobsReadSavedJobsResponse = jobsReadSavedJobsResponses[keyof jobsReadSavedJobsResponses];
+
+export type jobsCreateSavedJobData = {
+    body: SavedJobCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/jobs/saved';
+};
+
+export type jobsCreateSavedJobErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type jobsCreateSavedJobError = jobsCreateSavedJobErrors[keyof jobsCreateSavedJobErrors];
+
+export type jobsCreateSavedJobResponses = {
+    /**
+     * Successful Response
+     */
+    200: SavedJobPublic;
+};
+
+export type jobsCreateSavedJobResponse = jobsCreateSavedJobResponses[keyof jobsCreateSavedJobResponses];
+
+export type jobsDeleteSavedJobItemData = {
+    body?: never;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/jobs/saved/{id}';
+};
+
+export type jobsDeleteSavedJobItemErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type jobsDeleteSavedJobItemError = jobsDeleteSavedJobItemErrors[keyof jobsDeleteSavedJobItemErrors];
+
+export type jobsDeleteSavedJobItemResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type jobsDeleteSavedJobItemResponse = jobsDeleteSavedJobItemResponses[keyof jobsDeleteSavedJobItemResponses];
+
+export type jobsReadSavedJobItemData = {
+    body?: never;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/jobs/saved/{id}';
+};
+
+export type jobsReadSavedJobItemErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type jobsReadSavedJobItemError = jobsReadSavedJobItemErrors[keyof jobsReadSavedJobItemErrors];
+
+export type jobsReadSavedJobItemResponses = {
+    /**
+     * Successful Response
+     */
+    200: SavedJobPublic;
+};
+
+export type jobsReadSavedJobItemResponse = jobsReadSavedJobItemResponses[keyof jobsReadSavedJobItemResponses];
 
 export type jobsDeleteJobData = {
     body?: never;
@@ -3831,6 +4097,10 @@ export type proposalsReadMyProposalsData = {
     path?: never;
     query?: {
         /**
+         * Status
+         */
+        status?: ProposalStatus | null;
+        /**
          * Skip
          */
         skip?: number;
@@ -3920,6 +4190,36 @@ export type proposalsReadProposalResponses = {
 
 export type proposalsReadProposalResponse = proposalsReadProposalResponses[keyof proposalsReadProposalResponses];
 
+export type proposalsUpdateProposalData = {
+    body: ProposalUpdate;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/proposals/{id}';
+};
+
+export type proposalsUpdateProposalErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type proposalsUpdateProposalError = proposalsUpdateProposalErrors[keyof proposalsUpdateProposalErrors];
+
+export type proposalsUpdateProposalResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProposalPublic;
+};
+
+export type proposalsUpdateProposalResponse = proposalsUpdateProposalResponses[keyof proposalsUpdateProposalResponses];
+
 export type proposalsUpdateProposalStatusData = {
     body: ProposalStatusUpdate;
     path: {
@@ -3949,6 +4249,162 @@ export type proposalsUpdateProposalStatusResponses = {
 };
 
 export type proposalsUpdateProposalStatusResponse = proposalsUpdateProposalStatusResponses[keyof proposalsUpdateProposalStatusResponses];
+
+export type chatGetMyConversationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/chat/me';
+};
+
+export type chatGetMyConversationsResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConversationsPublic;
+};
+
+export type chatGetMyConversationsResponse = chatGetMyConversationsResponses[keyof chatGetMyConversationsResponses];
+
+export type chatGetConversationDetailsData = {
+    body?: never;
+    path: {
+        /**
+         * Conversation Id
+         */
+        conversation_id: string;
+    };
+    query?: never;
+    url: '/api/v1/chat/conversation/{conversation_id}';
+};
+
+export type chatGetConversationDetailsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type chatGetConversationDetailsError = chatGetConversationDetailsErrors[keyof chatGetConversationDetailsErrors];
+
+export type chatGetConversationDetailsResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConversationDetailPublic;
+};
+
+export type chatGetConversationDetailsResponse = chatGetConversationDetailsResponses[keyof chatGetConversationDetailsResponses];
+
+export type chatCreateOrGetConversationData = {
+    body: ConversationCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/chat/conversation';
+};
+
+export type chatCreateOrGetConversationErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type chatCreateOrGetConversationError = chatCreateOrGetConversationErrors[keyof chatCreateOrGetConversationErrors];
+
+export type chatCreateOrGetConversationResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConversationPublic;
+};
+
+export type chatCreateOrGetConversationResponse = chatCreateOrGetConversationResponses[keyof chatCreateOrGetConversationResponses];
+
+export type chatSendMessageRestData = {
+    body: ChatMessagePost;
+    path: {
+        /**
+         * Conversation Id
+         */
+        conversation_id: string;
+    };
+    query?: never;
+    url: '/api/v1/chat/conversation/{conversation_id}/messages';
+};
+
+export type chatSendMessageRestErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type chatSendMessageRestError = chatSendMessageRestErrors[keyof chatSendMessageRestErrors];
+
+export type chatSendMessageRestResponses = {
+    /**
+     * Successful Response
+     */
+    200: ChatMessagePublic;
+};
+
+export type chatSendMessageRestResponse = chatSendMessageRestResponses[keyof chatSendMessageRestResponses];
+
+export type chatCheckUserPresenceData = {
+    body?: never;
+    path: {
+        /**
+         * User Id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v1/chat/presence/{user_id}';
+};
+
+export type chatCheckUserPresenceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type chatCheckUserPresenceError = chatCheckUserPresenceErrors[keyof chatCheckUserPresenceErrors];
+
+export type chatCheckUserPresenceResponses = {
+    /**
+     * Successful Response
+     */
+    200: UserPresence;
+};
+
+export type chatCheckUserPresenceResponse = chatCheckUserPresenceResponses[keyof chatCheckUserPresenceResponses];
+
+export type chatInjectEventData = {
+    body: InjectPayload;
+    path?: never;
+    query?: never;
+    url: '/api/v1/chat/inject';
+};
+
+export type chatInjectEventErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type chatInjectEventError = chatInjectEventErrors[keyof chatInjectEventErrors];
+
+export type chatInjectEventResponses = {
+    /**
+     * Response Chat-Inject Event
+     *
+     * Successful Response
+     */
+    200: unknown;
+};
 
 export type privateCreateUserData = {
     body: PrivateUserCreate;

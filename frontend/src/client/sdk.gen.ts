@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { categoriesReadCategoriesData, categoriesReadCategoriesResponses, clientProfilesReadClientProfileByUserIdData, clientProfilesReadClientProfileByUserIdErrors, clientProfilesReadClientProfileByUserIdResponses, clientProfilesReadClientProfileData, clientProfilesReadClientProfileErrors, clientProfilesReadClientProfileMeData, clientProfilesReadClientProfileMeResponses, clientProfilesReadClientProfileResponses, clientProfilesUpdateClientProfileMeData, clientProfilesUpdateClientProfileMeErrors, clientProfilesUpdateClientProfileMeResponses, jobsCreateJobData, jobsCreateJobErrors, jobsCreateJobResponses, jobsDeleteJobData, jobsDeleteJobErrors, jobsDeleteJobResponses, jobsReadJobData, jobsReadJobErrors, jobsReadJobResponses, jobsReadJobsData, jobsReadJobsErrors, jobsReadJobsResponses, jobsReadMyJobsData, jobsReadMyJobsErrors, jobsReadMyJobsResponses, jobsReadSavedJobsData, jobsReadSavedJobsErrors, jobsReadSavedJobsResponses, jobsSaveJobData, jobsSaveJobErrors, jobsSaveJobResponses, jobsUnsaveJobData, jobsUnsaveJobErrors, jobsUnsaveJobResponses, jobsUpdateJobData, jobsUpdateJobErrors, jobsUpdateJobResponses, loginGoogleCallbackData, loginGoogleCallbackErrors, loginGoogleCallbackResponses, loginLinkedinCallbackData, loginLinkedinCallbackErrors, loginLinkedinCallbackResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginGoogleData, loginLoginGoogleResponses, loginLoginLinkedinData, loginLoginLinkedinResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, profilesCreateEducationData, profilesCreateEducationErrors, profilesCreateEducationResponses, profilesCreateExperienceData, profilesCreateExperienceErrors, profilesCreateExperienceResponses, profilesCreatePortfolioItemData, profilesCreatePortfolioItemErrors, profilesCreatePortfolioItemResponses, profilesCreateProfileData, profilesCreateProfileErrors, profilesCreateProfileResponses, profilesDeleteEducationData, profilesDeleteEducationErrors, profilesDeleteEducationResponses, profilesDeleteExperienceData, profilesDeleteExperienceErrors, profilesDeleteExperienceResponses, profilesDeletePortfolioItemData, profilesDeletePortfolioItemErrors, profilesDeletePortfolioItemResponses, profilesDeleteProfileData, profilesDeleteProfileErrors, profilesDeleteProfileResponses, profilesProxyPortfolioImageData, profilesProxyPortfolioImageErrors, profilesProxyPortfolioImageResponses, profilesProxyResumeData, profilesProxyResumeErrors, profilesProxyResumeResponses, profilesReadProfileData, profilesReadProfileErrors, profilesReadProfileMeData, profilesReadProfileMeResponses, profilesReadProfileResponses, profilesReadProfilesData, profilesReadProfilesErrors, profilesReadProfilesResponses, profilesSaveProfileData, profilesSaveProfileErrors, profilesSaveProfileResponses, profilesUnsaveProfileData, profilesUnsaveProfileErrors, profilesUnsaveProfileResponses, profilesUpdateEducationData, profilesUpdateEducationErrors, profilesUpdateEducationResponses, profilesUpdateExperienceData, profilesUpdateExperienceErrors, profilesUpdateExperienceResponses, profilesUpdatePortfolioItemData, profilesUpdatePortfolioItemErrors, profilesUpdatePortfolioItemResponses, profilesUpdateProfileData, profilesUpdateProfileErrors, profilesUpdateProfileMeData, profilesUpdateProfileMeErrors, profilesUpdateProfileMeResponses, profilesUpdateProfileResponses, profilesUploadPortfolioItemData, profilesUploadPortfolioItemErrors, profilesUploadPortfolioItemResponses, profilesUploadResumeData, profilesUploadResumeErrors, profilesUploadResumeResponses, proposalsReadMyProposalsData, proposalsReadMyProposalsErrors, proposalsReadMyProposalsResponses, proposalsReadProposalData, proposalsReadProposalErrors, proposalsReadProposalResponses, proposalsReadProposalsForJobData, proposalsReadProposalsForJobErrors, proposalsReadProposalsForJobResponses, proposalsSubmitProposalData, proposalsSubmitProposalErrors, proposalsSubmitProposalResponses, proposalsUpdateProposalStatusData, proposalsUpdateProposalStatusErrors, proposalsUpdateProposalStatusResponses, proposalsWithdrawProposalData, proposalsWithdrawProposalErrors, proposalsWithdrawProposalResponses, reviewsCreateReviewData, reviewsCreateReviewErrors, reviewsCreateReviewResponses, reviewsDeleteReviewData, reviewsDeleteReviewErrors, reviewsDeleteReviewResponses, reviewsListReviewsForFreelancerData, reviewsListReviewsForFreelancerErrors, reviewsListReviewsForFreelancerResponses, reviewsReadReviewData, reviewsReadReviewErrors, reviewsReadReviewResponses, reviewsUpdateReviewData, reviewsUpdateReviewErrors, reviewsUpdateReviewResponses, searchesClearRecentSearchesData, searchesClearRecentSearchesResponses, searchesReadRecentSearchesData, searchesReadRecentSearchesResponses, searchesSaveRecentSearchData, searchesSaveRecentSearchErrors, searchesSaveRecentSearchResponses, skillsReadSkillData, skillsReadSkillErrors, skillsReadSkillResponses, skillsReadSkillsData, skillsReadSkillsErrors, skillsReadSkillsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersProxyMediaData, usersProxyMediaErrors, usersProxyMediaResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSwitchRoleData, usersSwitchRoleErrors, usersSwitchRoleResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, usersUploadAvatarData, usersUploadAvatarErrors, usersUploadAvatarResponses, utilsDeepHealthCheckData, utilsDeepHealthCheckResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
+import type { categoriesReadCategoriesData, categoriesReadCategoriesResponses, chatCheckUserPresenceData, chatCheckUserPresenceErrors, chatCheckUserPresenceResponses, chatCreateOrGetConversationData, chatCreateOrGetConversationErrors, chatCreateOrGetConversationResponses, chatGetConversationDetailsData, chatGetConversationDetailsErrors, chatGetConversationDetailsResponses, chatGetMyConversationsData, chatGetMyConversationsResponses, chatInjectEventData, chatInjectEventErrors, chatInjectEventResponses, chatSendMessageRestData, chatSendMessageRestErrors, chatSendMessageRestResponses, clientProfilesReadClientProfileByUserIdData, clientProfilesReadClientProfileByUserIdErrors, clientProfilesReadClientProfileByUserIdResponses, clientProfilesReadClientProfileData, clientProfilesReadClientProfileErrors, clientProfilesReadClientProfileMeData, clientProfilesReadClientProfileMeResponses, clientProfilesReadClientProfileResponses, clientProfilesUpdateClientProfileMeData, clientProfilesUpdateClientProfileMeErrors, clientProfilesUpdateClientProfileMeResponses, jobsCreateJobData, jobsCreateJobErrors, jobsCreateJobResponses, jobsCreateSavedJobData, jobsCreateSavedJobErrors, jobsCreateSavedJobResponses, jobsDeleteJobData, jobsDeleteJobErrors, jobsDeleteJobResponses, jobsDeleteSavedJobItemData, jobsDeleteSavedJobItemErrors, jobsDeleteSavedJobItemResponses, jobsReadJobData, jobsReadJobErrors, jobsReadJobResponses, jobsReadJobsData, jobsReadJobsErrors, jobsReadJobsResponses, jobsReadMyJobsData, jobsReadMyJobsErrors, jobsReadMyJobsResponses, jobsReadSavedJobItemData, jobsReadSavedJobItemErrors, jobsReadSavedJobItemResponses, jobsReadSavedJobsData, jobsReadSavedJobsErrors, jobsReadSavedJobsResponses, jobsSaveJobData, jobsSaveJobErrors, jobsSaveJobResponses, jobsUnsaveJobData, jobsUnsaveJobErrors, jobsUnsaveJobResponses, jobsUpdateJobData, jobsUpdateJobErrors, jobsUpdateJobResponses, loginGoogleCallbackData, loginGoogleCallbackErrors, loginGoogleCallbackResponses, loginLinkedinCallbackData, loginLinkedinCallbackErrors, loginLinkedinCallbackResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginGoogleData, loginLoginGoogleResponses, loginLoginLinkedinData, loginLoginLinkedinResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, profilesCreateEducationData, profilesCreateEducationErrors, profilesCreateEducationResponses, profilesCreateExperienceData, profilesCreateExperienceErrors, profilesCreateExperienceResponses, profilesCreatePortfolioItemData, profilesCreatePortfolioItemErrors, profilesCreatePortfolioItemResponses, profilesCreateProfileData, profilesCreateProfileErrors, profilesCreateProfileResponses, profilesDeleteEducationData, profilesDeleteEducationErrors, profilesDeleteEducationResponses, profilesDeleteExperienceData, profilesDeleteExperienceErrors, profilesDeleteExperienceResponses, profilesDeletePortfolioItemData, profilesDeletePortfolioItemErrors, profilesDeletePortfolioItemResponses, profilesDeleteProfileData, profilesDeleteProfileErrors, profilesDeleteProfileResponses, profilesProxyPortfolioImageData, profilesProxyPortfolioImageErrors, profilesProxyPortfolioImageResponses, profilesProxyResumeData, profilesProxyResumeErrors, profilesProxyResumeResponses, profilesReadAvailabilityMeData, profilesReadAvailabilityMeResponses, profilesReadProfileData, profilesReadProfileErrors, profilesReadProfileMeData, profilesReadProfileMeResponses, profilesReadProfileResponses, profilesReadProfilesData, profilesReadProfilesErrors, profilesReadProfilesResponses, profilesSaveProfileData, profilesSaveProfileErrors, profilesSaveProfileResponses, profilesUnsaveProfileData, profilesUnsaveProfileErrors, profilesUnsaveProfileResponses, profilesUpdateAvailabilityMeData, profilesUpdateAvailabilityMeErrors, profilesUpdateAvailabilityMeResponses, profilesUpdateEducationData, profilesUpdateEducationErrors, profilesUpdateEducationResponses, profilesUpdateExperienceData, profilesUpdateExperienceErrors, profilesUpdateExperienceResponses, profilesUpdatePortfolioItemData, profilesUpdatePortfolioItemErrors, profilesUpdatePortfolioItemResponses, profilesUpdateProfileData, profilesUpdateProfileErrors, profilesUpdateProfileMeData, profilesUpdateProfileMeErrors, profilesUpdateProfileMeResponses, profilesUpdateProfileResponses, profilesUploadPortfolioItemData, profilesUploadPortfolioItemErrors, profilesUploadPortfolioItemResponses, profilesUploadResumeData, profilesUploadResumeErrors, profilesUploadResumeResponses, proposalsReadMyProposalsData, proposalsReadMyProposalsErrors, proposalsReadMyProposalsResponses, proposalsReadProposalData, proposalsReadProposalErrors, proposalsReadProposalResponses, proposalsReadProposalsForJobData, proposalsReadProposalsForJobErrors, proposalsReadProposalsForJobResponses, proposalsSubmitProposalData, proposalsSubmitProposalErrors, proposalsSubmitProposalResponses, proposalsUpdateProposalData, proposalsUpdateProposalErrors, proposalsUpdateProposalResponses, proposalsUpdateProposalStatusData, proposalsUpdateProposalStatusErrors, proposalsUpdateProposalStatusResponses, proposalsWithdrawProposalData, proposalsWithdrawProposalErrors, proposalsWithdrawProposalResponses, reviewsCreateReviewData, reviewsCreateReviewErrors, reviewsCreateReviewResponses, reviewsDeleteReviewData, reviewsDeleteReviewErrors, reviewsDeleteReviewResponses, reviewsListReviewsForFreelancerData, reviewsListReviewsForFreelancerErrors, reviewsListReviewsForFreelancerResponses, reviewsReadReviewData, reviewsReadReviewErrors, reviewsReadReviewResponses, reviewsUpdateReviewData, reviewsUpdateReviewErrors, reviewsUpdateReviewResponses, searchesClearRecentSearchesData, searchesClearRecentSearchesResponses, searchesReadRecentSearchesData, searchesReadRecentSearchesResponses, searchesSaveRecentSearchData, searchesSaveRecentSearchErrors, searchesSaveRecentSearchResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersProxyMediaData, usersProxyMediaErrors, usersProxyMediaResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSwitchRoleData, usersSwitchRoleErrors, usersSwitchRoleResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, usersUploadAvatarData, usersUploadAvatarErrors, usersUploadAvatarResponses, utilsDeepHealthCheckData, utilsDeepHealthCheckResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -473,6 +473,40 @@ export class ProfilesService {
     }
     
     /**
+     * Read Availability Me
+     *
+     * Get current user's freelancer availability toggle status.
+     * Auto-creates a draft profile if none exists yet.
+     */
+    public static readAvailabilityMe<ThrowOnError extends boolean = true>(options?: Options<profilesReadAvailabilityMeData, ThrowOnError>) {
+        return (options?.client ?? client).get<profilesReadAvailabilityMeResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/profiles/me/availability',
+            ...options
+        });
+    }
+    
+    /**
+     * Update Availability Me
+     *
+     * Update current user's freelancer availability toggle.
+     * Auto-creates a draft profile if none exists yet.
+     */
+    public static updateAvailabilityMe<ThrowOnError extends boolean = true>(options: Options<profilesUpdateAvailabilityMeData, ThrowOnError>) {
+        return (options.client ?? client).patch<profilesUpdateAvailabilityMeResponses, profilesUpdateAvailabilityMeErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/profiles/me/availability',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
      * Create Experience
      *
      * Add an experience entry to current user's freelancer profile.
@@ -909,34 +943,6 @@ export class ReviewsService {
     }
 }
 
-export class SkillsService {
-    /**
-     * Read Skills
-     *
-     * Retrieve available IT skills. Optionally filter by name substring.
-     */
-    public static readSkills<ThrowOnError extends boolean = true>(options?: Options<skillsReadSkillsData, ThrowOnError>) {
-        return (options?.client ?? client).get<skillsReadSkillsResponses, skillsReadSkillsErrors, ThrowOnError>({
-            responseType: 'json',
-            url: '/api/v1/skills/',
-            ...options
-        });
-    }
-    
-    /**
-     * Read Skill
-     *
-     * Get skill by ID.
-     */
-    public static readSkill<ThrowOnError extends boolean = true>(options: Options<skillsReadSkillData, ThrowOnError>) {
-        return (options.client ?? client).get<skillsReadSkillResponses, skillsReadSkillErrors, ThrowOnError>({
-            responseType: 'json',
-            url: '/api/v1/skills/{id}',
-            ...options
-        });
-    }
-}
-
 export class CategoriesService {
     /**
      * Read Categories
@@ -1054,12 +1060,60 @@ export class JobsService {
      * Read Saved Jobs
      *
      * List jobs saved / bookmarked by the current freelancer.
+     * Supports search query 'q', 'category', and 'sort_by'.
      */
     public static readSavedJobs<ThrowOnError extends boolean = true>(options?: Options<jobsReadSavedJobsData, ThrowOnError>) {
         return (options?.client ?? client).get<jobsReadSavedJobsResponses, jobsReadSavedJobsErrors, ThrowOnError>({
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/jobs/saved',
+            ...options
+        });
+    }
+    
+    /**
+     * Create Saved Job
+     *
+     * Bookmark / save a job post for the current authenticated freelancer.
+     */
+    public static createSavedJob<ThrowOnError extends boolean = true>(options: Options<jobsCreateSavedJobData, ThrowOnError>) {
+        return (options.client ?? client).post<jobsCreateSavedJobResponses, jobsCreateSavedJobErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/jobs/saved',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Delete Saved Job Item
+     *
+     * Remove a job post from saved jobs by saved record ID or job post ID.
+     */
+    public static deleteSavedJobItem<ThrowOnError extends boolean = true>(options: Options<jobsDeleteSavedJobItemData, ThrowOnError>) {
+        return (options.client ?? client).delete<jobsDeleteSavedJobItemResponses, jobsDeleteSavedJobItemErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/jobs/saved/{id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Saved Job Item
+     *
+     * Get a single saved job record by saved job ID or job post ID.
+     * Only the saving freelancer or superuser can access.
+     */
+    public static readSavedJobItem<ThrowOnError extends boolean = true>(options: Options<jobsReadSavedJobItemData, ThrowOnError>) {
+        return (options.client ?? client).get<jobsReadSavedJobItemResponses, jobsReadSavedJobItemErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/jobs/saved/{id}',
             ...options
         });
     }
@@ -1179,6 +1233,7 @@ export class ProposalsService {
      * Read My Proposals
      *
      * List all proposals submitted by the current authenticated freelancer.
+     * Supports filtering by status (e.g. ?status=draft or ?status=pending).
      */
     public static readMyProposals<ThrowOnError extends boolean = true>(options?: Options<proposalsReadMyProposalsData, ThrowOnError>) {
         return (options?.client ?? client).get<proposalsReadMyProposalsResponses, proposalsReadMyProposalsErrors, ThrowOnError>({
@@ -1209,6 +1264,7 @@ export class ProposalsService {
      *
      * Get single proposal details.
      * Only the proposing freelancer, the job owner client, or a superuser can access.
+     * Clients cannot access draft proposals.
      */
     public static readProposal<ThrowOnError extends boolean = true>(options: Options<proposalsReadProposalData, ThrowOnError>) {
         return (options.client ?? client).get<proposalsReadProposalResponses, proposalsReadProposalErrors, ThrowOnError>({
@@ -1216,6 +1272,26 @@ export class ProposalsService {
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/proposals/{id}',
             ...options
+        });
+    }
+    
+    /**
+     * Update Proposal
+     *
+     * Update a proposal or draft (cover letter and/or status).
+     * Only the proposing freelancer or a superuser can update it.
+     * Accepted or rejected proposals cannot be edited.
+     */
+    public static updateProposal<ThrowOnError extends boolean = true>(options: Options<proposalsUpdateProposalData, ThrowOnError>) {
+        return (options.client ?? client).put<proposalsUpdateProposalResponses, proposalsUpdateProposalErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/proposals/{id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
         });
     }
     
@@ -1230,6 +1306,106 @@ export class ProposalsService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/proposals/{id}/status',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+}
+
+export class ChatService {
+    /**
+     * Get My Conversations
+     *
+     * Get all conversations for the authenticated user (as client or freelancer).
+     */
+    public static getMyConversations<ThrowOnError extends boolean = true>(options?: Options<chatGetMyConversationsData, ThrowOnError>) {
+        return (options?.client ?? client).get<chatGetMyConversationsResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/chat/me',
+            ...options
+        });
+    }
+    
+    /**
+     * Get Conversation Details
+     *
+     * Get a specific conversation and all its messages.
+     * Automatically marks unread incoming messages as read.
+     */
+    public static getConversationDetails<ThrowOnError extends boolean = true>(options: Options<chatGetConversationDetailsData, ThrowOnError>) {
+        return (options.client ?? client).get<chatGetConversationDetailsResponses, chatGetConversationDetailsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/chat/conversation/{conversation_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Create Or Get Conversation
+     *
+     * Create a new conversation or retrieve an existing one between current user and target user.
+     */
+    public static createOrGetConversation<ThrowOnError extends boolean = true>(options: Options<chatCreateOrGetConversationData, ThrowOnError>) {
+        return (options.client ?? client).post<chatCreateOrGetConversationResponses, chatCreateOrGetConversationErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/chat/conversation',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Send Message Rest
+     *
+     * Send a message in a conversation via REST.
+     * Persists to DB and dispatches in real time to the recipient via Redis / WebSockets.
+     */
+    public static sendMessageRest<ThrowOnError extends boolean = true>(options: Options<chatSendMessageRestData, ThrowOnError>) {
+        return (options.client ?? client).post<chatSendMessageRestResponses, chatSendMessageRestErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/chat/conversation/{conversation_id}/messages',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Check User Presence
+     *
+     * Check if a given user currently has active WebSocket connections.
+     */
+    public static checkUserPresence<ThrowOnError extends boolean = true>(options: Options<chatCheckUserPresenceData, ThrowOnError>) {
+        return (options.client ?? client).get<chatCheckUserPresenceResponses, chatCheckUserPresenceErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/chat/presence/{user_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Inject Event
+     *
+     * Inject any notification, message, or custom payload to a specific user or broadcast to all.
+     * Available to superusers or internal system callers.
+     */
+    public static injectEvent<ThrowOnError extends boolean = true>(options: Options<chatInjectEventData, ThrowOnError>) {
+        return (options.client ?? client).post<chatInjectEventResponses, chatInjectEventErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/chat/inject',
             ...options,
             headers: {
                 'Content-Type': 'application/json',

@@ -26,7 +26,7 @@ export function useMessageContacts(enabled: boolean) {
 						name,
 						initials: getInitials(name),
 						title: profile.title || "Freelancer",
-						skills: profile.skill_names ?? profile.skills?.map((skill) => skill.name) ?? [],
+						skills: profile.skill_names ?? profile.skills ?? [],
 						avatarUrl: accountAvatarUrl(profile.user_id),
 					})
 				}

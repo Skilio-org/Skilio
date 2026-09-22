@@ -8,7 +8,7 @@ export function profileFromApi(data: FreelancerProfileDetailPublic): Profile {
 		title: data.title ?? "",
 		location: data.location ?? "",
 		category: data.category ?? "",
-		skills: data.skill_names ?? data.skills?.map((skill) => skill.name) ?? [],
+		skills: data.skill_names ?? data.skills ?? [],
 		bio: data.bio ?? "",
 		languages: data.languages ?? "",
 		rate: data.hourly_rate == null ? "" : String(data.hourly_rate),
