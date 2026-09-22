@@ -1,6 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from typing import Any
-
+import random
+import string
 import jwt
 from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
@@ -35,7 +36,6 @@ def verify_password(
 
 def get_password_hash(password: str) -> str:
     return password_hash.hash(password)
-
 
 def generate_random_password(length: int = 8) -> str:
     """

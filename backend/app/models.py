@@ -7,6 +7,7 @@ from pydantic import EmailStr, model_validator
 from sqlalchemy import DateTime, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
+from pydantic import BaseModel
 
 def get_datetime_utc() -> datetime:
     return datetime.now(UTC)
@@ -589,11 +590,9 @@ class PortfolioItemPublic(PortfolioItemBase):
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
-
 # ==============================================================================
 # Freelancer Profile Models
 # ==============================================================================
-
 
 class FreelancerProfileBase(SQLModel):
     title: str | None = Field(default=None, max_length=255)
@@ -632,7 +631,6 @@ class FreelancerProfileUpdate(SQLModel):
     experiences: list[ExperienceCreate] | None = None
     educations: list[EducationCreate] | None = None
     portfolio: list[PortfolioItemCreate] | None = None
-
 
 class FreelancerProfile(FreelancerProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -994,7 +992,7 @@ class ChatMessage(ChatMessageBase, table=True):
         back_populates="sent_messages",
         sa_relationship_kwargs={"foreign_keys": "[ChatMessage.sender_id]"},
     )
-    attachment: Media | None = Relationship()
+    # attachment: Media | None = Relationship()
 
 
 class ChatMessagePublic(ChatMessageBase):
@@ -1002,9 +1000,13 @@ class ChatMessagePublic(ChatMessageBase):
     conversation_id: uuid.UUID
     sender_id: uuid.UUID
     attachment_id: uuid.UUID | None = None
-    attachment: MediaPublic | None = None
+    # attachment: MediaPublic | None = None
     is_read: bool
     created_at: datetime | None = None
+
+
+class ChatMessagePost(ChatMessageBase):
+    attachment_id: uuid.UUID | None = None
 
 
 class ChatMessagesPublic(SQLModel):
@@ -1020,6 +1022,11 @@ class ConversationPublic(SQLModel):
     updated_at: datetime | None = None
     last_message: ChatMessagePublic | None = None
     unread_count: int = 0
+    other_user: UserPublic | None = None
+
+
+class ConversationDetailPublic(ConversationPublic):
+    messages: list[ChatMessagePublic] = []
 
 
 class ConversationsPublic(SQLModel):
@@ -1259,6 +1266,15 @@ class DeepHealthCheck(SQLModel):
     environment: str
     services: dict[str, ServiceHealth]
 
+class UserPresence(BaseModel):
+    user_id: uuid.UUID
+    is_online: bool
+
+
+class InjectPayload(BaseModel):
+    user_id: uuid.UUID | None = None
+    event_type: str = "notification"
+    payload: Any
 
 # ==============================================================================
 # Recent Search Models
@@ -1295,4 +1311,3 @@ class RecentSearchPublic(SQLModel):
 class RecentSearchesPublic(SQLModel):
     data: list[str]
     count: int
-
