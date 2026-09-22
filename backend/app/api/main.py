@@ -11,7 +11,6 @@ from app.api.routes import (
     proposals,
     reviews,
     searches,
-    skills,
     users,
     utils,
 )
@@ -24,7 +23,6 @@ api_router.include_router(utils.router)
 api_router.include_router(profiles.router)
 api_router.include_router(client_profiles.router)
 api_router.include_router(reviews.router)
-api_router.include_router(skills.router)
 api_router.include_router(categories.router)
 api_router.include_router(searches.router)
 api_router.include_router(jobs.router)

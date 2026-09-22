@@ -867,17 +867,8 @@ def test_talent_search_filters(client: TestClient, db: Session) -> None:
     assert str(p2.id) not in avail_ids
 
     # Search by skill via keyword q
-    from sqlmodel import select
-
-    from app.models import FreelancerSkillLink, Skill
-    skill = db.exec(select(Skill).where(Skill.name == "Figma")).first()
-    if not skill:
-        skill = Skill(name="Figma")
-        db.add(skill)
-        db.commit()
-        db.refresh(skill)
-    link = FreelancerSkillLink(freelancer_profile_id=p1.id, skill_id=skill.id)
-    db.add(link)
+    p1.skills = ["Figma"]
+    db.add(p1)
     db.commit()
 
     resp_skill = client.get(f"{settings.API_V1_STR}/profiles/?q=Figma")

@@ -18,15 +18,12 @@ from app.models import (
     JobPostPublic,
     JobPostsPublic,
     JobPostUpdate,
-    JobSkillLink,
     JobStatus,
     Message,
     Proposal,
     SavedJob,
     SavedJobPublic,
     SavedJobsPublic,
-    Skill,
-    SkillPublic,
     User,
     UserPublic,
     UserRole,
@@ -58,15 +55,10 @@ def read_jobs(
     statement = select(JobPost).join(User, col(JobPost.client_id) == User.id)
 
     if q:
-        skill_subquery = (
-            select(JobSkillLink.job_post_id)
-            .join(Skill, col(JobSkillLink.skill_id) == Skill.id)
-            .where(cast(Skill.name, String).ilike(f"%{q}%"))
-        )
         statement = statement.where(
             col(JobPost.title).ilike(f"%{q}%")
             | col(JobPost.description).ilike(f"%{q}%")
-            | JobPost.id.in_(skill_subquery)
+            | cast(JobPost.skills, String).ilike(f"%{q}%")
         )
         if current_user:
             record_recent_search(session, current_user.id, q)
@@ -103,7 +95,6 @@ def read_jobs(
 
     statement = (
         statement.options(
-            selectinload(JobPost.required_skills),  # type: ignore[arg-type]
             selectinload(JobPost.client).selectinload(User.client_profile),  # type: ignore[arg-type]
         )
         .offset(skip)
@@ -145,9 +136,7 @@ def read_jobs(
     jobs_public = []
     for job in jobs:
         proposals_count = proposal_counts.get(job.id, 0)
-        skills_public = [
-            SkillPublic.model_validate(skill) for skill in job.required_skills
-        ]
+        skills = job.skills or []
 
         client_company = (
             job.client.client_profile.company
@@ -160,7 +149,7 @@ def read_jobs(
             update={
                 "client_name": job.client.full_name if job.client else None,
                 "client_company": client_company,
-                "skills": skills_public,
+                "skills": skills,
                 "proposals_count": proposals_count,
                 "is_saved": job.id in saved_job_ids,
                 "has_applied": job.id in applied_job_ids,
@@ -191,8 +180,7 @@ def read_my_jobs(
     count = session.exec(count_statement).one()
 
     statement = (
-        statement.options(selectinload(JobPost.required_skills))  # type: ignore[arg-type]
-        .order_by(col(JobPost.created_at).desc())
+        statement.order_by(col(JobPost.created_at).desc())
         .offset(skip)
         .limit(limit)
     )
@@ -219,16 +207,14 @@ def read_my_jobs(
     jobs_public = []
     for job in jobs:
         proposals_count = proposal_counts.get(job.id, 0)
-        skills_public = [
-            SkillPublic.model_validate(skill) for skill in job.required_skills
-        ]
+        skills = job.skills or []
 
         job_data = JobPostPublic.model_validate(
             job,
             update={
                 "client_name": current_user.full_name,
                 "client_company": client_company,
-                "skills": skills_public,
+                "skills": skills,
                 "proposals_count": proposals_count,
                 "is_saved": False,
                 "has_applied": False,
@@ -264,7 +250,6 @@ def read_saved_jobs(
         select(SavedJob)
         .where(SavedJob.freelancer_id == current_user.id)
         .options(
-            joinedload(SavedJob.job_post).selectinload(JobPost.required_skills),  # type: ignore[arg-type]
             joinedload(SavedJob.job_post).selectinload(JobPost.client),  # type: ignore[arg-type]
         )
         .order_by(col(SavedJob.created_at).desc())
@@ -299,15 +284,13 @@ def read_saved_jobs(
         job_public = None
         if job:
             proposals_count = proposal_counts.get(job.id, 0)
-            skills_public = [
-                SkillPublic.model_validate(skill) for skill in job.required_skills
-            ]
+            skills = job.skills or []
 
             job_public = JobPostPublic.model_validate(
                 job,
                 update={
                     "client_name": job.client.full_name if job.client else None,
-                    "skills": skills_public,
+                    "skills": skills,
                     "proposals_count": proposals_count,
                     "is_saved": True,
                     "has_applied": job.id in applied_job_ids,
@@ -343,39 +326,18 @@ def create_job(
             detail="Only clients can post jobs",
         )
 
-    # Resolve skills
-    skill_objects = []
-    for skill_name in job_in.skills:
-        skill = session.exec(select(Skill).where(Skill.name == skill_name)).first()
-        if not skill:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Skill '{skill_name}' not found",
-            )
-        skill_objects.append(skill)
-
+    skills = [s.strip() for s in job_in.skills if s.strip()]
     job_data = job_in.model_dump(exclude={"skills"})
-    job = JobPost(**job_data, client_id=current_user.id)
+    job = JobPost(**job_data, skills=skills, client_id=current_user.id)
     session.add(job)
     session.commit()
     session.refresh(job)
-
-    # Link skills
-    for skill in skill_objects:
-        link = JobSkillLink(job_post_id=job.id, skill_id=skill.id)
-        session.add(link)
-    session.commit()
-    session.refresh(job)
-
-    skills_public = [
-        SkillPublic.model_validate(skill) for skill in job.required_skills
-    ]
 
     return JobPostPublic.model_validate(
         job,
         update={
             "client_name": current_user.full_name,
-            "skills": skills_public,
+            "skills": job.skills or [],
             "proposals_count": 0,
             "is_saved": False,
             "has_applied": False,
@@ -418,9 +380,7 @@ def read_job(
         ).first()
         has_applied = applied_row is not None
 
-    skills_public = [
-        SkillPublic.model_validate(skill) for skill in job.required_skills
-    ]
+    skills = job.skills or []
     client_public = UserPublic.model_validate(job.client) if job.client else None
     client_company = (
         job.client.client_profile.company
@@ -442,7 +402,7 @@ def read_job(
         update={
             "client_name": job.client.full_name if job.client else None,
             "client_company": client_company,
-            "skills": skills_public,
+            "skills": skills,
             "proposals_count": proposals_count,
             "is_saved": is_saved,
             "has_applied": has_applied,
@@ -477,23 +437,8 @@ def update_job(
 
     # Update skills if provided
     if job_in.skills is not None:
-        # Clear existing links
-        existing_links = session.exec(
-            select(JobSkillLink).where(JobSkillLink.job_post_id == job.id)
-        ).all()
-        for link in existing_links:
-            session.delete(link)
-
-        # Add new links
-        for skill_name in job_in.skills:
-            skill = session.exec(select(Skill).where(Skill.name == skill_name)).first()
-            if not skill:
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"Skill '{skill_name}' not found",
-                )
-            new_link = JobSkillLink(job_post_id=job.id, skill_id=skill.id)
-            session.add(new_link)
+        job.skills = [s.strip() for s in job_in.skills if s.strip()]
+        session.add(job)
 
     session.commit()
     session.refresh(job)
@@ -501,15 +446,11 @@ def update_job(
     proposals_count_stmt = select(func.count()).where(Proposal.job_post_id == job.id)
     proposals_count = session.exec(proposals_count_stmt).one()
 
-    skills_public = [
-        SkillPublic.model_validate(skill) for skill in job.required_skills
-    ]
-
     return JobPostPublic.model_validate(
         job,
         update={
             "client_name": job.client.full_name if job.client else None,
-            "skills": skills_public,
+            "skills": job.skills or [],
             "proposals_count": proposals_count,
             "is_saved": False,
             "has_applied": False,
