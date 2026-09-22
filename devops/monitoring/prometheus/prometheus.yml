@@ -17,3 +17,13 @@ scrape_configs:
         labels:
           app: "freelancer-backend"
           environment: "development"
+
+  # Collect PostgreSQL database metrics via postgres-exporter
+  - job_name: "postgres"
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+        labels:
+          app: "freelancer-postgres"
+          environment: "development"
+
