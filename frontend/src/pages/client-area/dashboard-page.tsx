@@ -4,16 +4,19 @@ import { ProfileProgress } from "@/components/dashboard/dashboard-profile-progre
 import { RecommendedFreelancers } from "@/components/dashboard/dashboard-recommended"
 import { TalentSearch } from "@/components/dashboard/dashboard-talent-search"
 import useAuth from "@/hooks/useAuth"
+import QuickSavedSearch from "../common/quick-search"
 
 export function ClientDashboardPage() {
 	const { user } = useAuth()
 	const firstName = user?.full_name?.trim().split(/\s+/)[0]
+	const activeJobsCount = 4 // hardcoded for now
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			<WorkspacePageHeader
-				eyebrow="Client workspace / Overview"
+				eyebrow="Client workspace"
 				title={firstName ? `Good to see you, ${firstName}.` : "Find your next collaborator."}
 				description="Continue your search or review professionals selected for you."
+				meta={<span className="font-medium text-primary">{activeJobsCount} active jobs</span>}
 				action={
 					<Link to="/client-jobs" className={workspaceStyles.primaryAction}>
 						Post a job
@@ -26,6 +29,7 @@ export function ClientDashboardPage() {
 
 				<aside className="space-y-6">
 					<ProfileProgress />
+					<QuickSavedSearch />
 				</aside>
 			</section>
 		</div>

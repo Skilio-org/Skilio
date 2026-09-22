@@ -1,19 +1,23 @@
 import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
-export function WorkspacePageHeader({
-	eyebrow,
-	className,
-	title,
-	description,
-	action,
-}: {
+type WorkspacePageHeaderProps = {
 	eyebrow: string
-	title: string
-	description: string
+	title: ReactNode
+	description: ReactNode
+	meta?: ReactNode
 	action?: ReactNode
 	className?: string
-}) {
+}
+
+export function WorkspacePageHeader({
+	eyebrow,
+	title,
+	description,
+	meta,
+	action,
+	className,
+}: WorkspacePageHeaderProps) {
 	return (
 		<header
 			className={cn(
@@ -22,15 +26,23 @@ export function WorkspacePageHeader({
 			)}
 		>
 			<div className="flex max-w-2xl flex-col gap-4">
-				<div className="flex flex-wrap items-center gap-2">
-					<span className="font-caption font-semibold text-caption text-on-surface-variant uppercase tracking-wider">
-						{eyebrow}
-					</span>
+				<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
+					<span className="font-semibold text-on-surface-variant uppercase tracking-wider">{eyebrow}</span>
+
+					{meta && (
+						<>
+							<span className="size-1 rounded-full bg-outline-variant" />
+							{meta}
+						</>
+					)}
 				</div>
+
 				<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">{title}</h1>
+
 				<p className="font-body-md text-body-md text-on-surface-variant">{description}</p>
 			</div>
-			{action && <div className="flex items-center gap-2.5 flex-wrap self-start md:self-auto">{action}</div>}
+
+			{action && <div className="flex shrink-0 flex-wrap items-center gap-2.5 self-start md:self-auto">{action}</div>}
 		</header>
 	)
 }

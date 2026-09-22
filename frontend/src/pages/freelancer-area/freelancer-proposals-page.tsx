@@ -16,7 +16,7 @@ import { toast } from "sonner"
 
 import { JobDetails } from "@/components/freelancer/freelancer-job-details"
 import { JobFormSection, jobFormField } from "@/components/common/job-form-section"
-import { WorkspaceSurface } from "@/components/dashboard/dashboard-header"
+import { WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet"
 import { type ProposalDraft as Draft, seedProposals } from "@/data/freelancer-workspace"
@@ -172,11 +172,7 @@ const FreelancerProposalsPage = () => {
 			toast.error("You have already submitted a proposal for this job.")
 			return
 		}
-		if (
-			status === "Submitted" &&
-			proposal &&
-			proposal.cover.trim().length < 40
-		) {
+		if (status === "Submitted" && proposal && proposal.cover.trim().length < 40) {
 			toast.error("Add a cover letter of at least 40 characters before submitting.")
 			openProposal(proposal.job, proposal)
 			return
@@ -253,34 +249,26 @@ const FreelancerProposalsPage = () => {
 
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
-			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
-				<div className="flex max-w-2xl flex-col gap-4">
-					<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
-						<span className="font-semibold text-on-surface-variant uppercase tracking-wider">Freelancer workspace</span>
-						<span className="size-1 rounded-full bg-outline-variant" />
-						<span className="flex items-center gap-1 font-medium text-primary">
-							<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
-							{counts("Drafts")} {counts("Drafts") === 1 ? "draft" : "drafts"} to make your own
-						</span>
+			<WorkspacePageHeader
+				eyebrow="Freelancer workspace"
+				title="Your proposals"
+				description="From a thoughtful introduction to your next collaboration. Keep every opportunity moving."
+				meta={
+					<span className="font-medium text-primary">{counts("Drafts")} {counts("Drafts") === 1 ? "draft" : "drafts"} to make your own</span>
+				}
+				action={
+					<div className="flex shrink-0 flex-wrap items-center gap-2.5">
+						<Link to="/freelancer-saved-jobs" className={workspaceStyles.secondaryAction}>
+							<Bookmark className="size-4" />
+							Saved jobs
+						</Link>
+						<Link to="/freelancer-jobs" className={workspaceStyles.primaryAction}>
+							<Search className="size-4" />
+							Find opportunities
+						</Link>
 					</div>
-					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">
-						Your proposals.
-					</h1>
-					<p className="font-body-md text-body-md text-on-surface-variant">
-						From a thoughtful introduction to your next collaboration. Keep every opportunity moving.
-					</p>
-				</div>
-				<div className="flex shrink-0 flex-wrap items-center gap-2.5">
-					<Link to="/freelancer-saved-jobs" className={workspaceStyles.secondaryAction}>
-						<Bookmark className="size-4" />
-						Saved jobs
-					</Link>
-					<Link to="/freelancer-jobs" className={workspaceStyles.primaryAction}>
-						<Search className="size-4" />
-						Find opportunities
-					</Link>
-				</div>
-			</header>
+				}
+			/>
 			{error && (
 				<p role="alert" className="text-body-sm text-destructive">
 					{error}
@@ -623,7 +611,6 @@ const ProposalEditor = ({
 	readOnly?: boolean
 	onSend: () => void
 }) => {
-
 	return (
 		<section className="flex min-h-0 flex-1 flex-col">
 			<div className="border-border border-b px-6 py-6 sm:px-8">

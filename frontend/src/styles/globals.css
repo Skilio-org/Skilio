@@ -7,8 +7,13 @@
 );
 
 /* =========================================================
-   REFERENCE DESIGN SYSTEM
-   Ported from the supplied Tailwind configuration.
+   FREELANCE THE WORLD — GRAPHITE + ACID LIME
+   Inspired by the supplied reference artwork.
+   Palette anchors:
+   graphite  #1f2125
+   charcoal  #2b2e32
+   concrete  #a8aaae
+   acid lime #b8ef0d
    ========================================================= */
 
 @theme inline {
@@ -32,7 +37,7 @@
 	--font-body-lg: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
 	--font-caption: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
 
-	/* Exact reference type scale */
+	/* Type scale */
 	--text-label-sm: 12px;
 	--text-label-sm--line-height: 16px;
 	--text-label-sm--letter-spacing: 0.01em;
@@ -93,7 +98,7 @@
 	--text-headline-lg--letter-spacing: -0.02em;
 	--text-headline-lg--font-weight: 600;
 
-	/* Exact reference spacing aliases */
+	/* Spacing */
 	--spacing-space-xs: 0.25rem;
 	--spacing-space-sm: 0.5rem;
 	--spacing-space-md: 0.75rem;
@@ -104,7 +109,7 @@
 	--spacing-margin: 1.5rem;
 	--spacing-space-xl: 1.75rem;
 
-	/* Exact reference radius values */
+	/* Radius */
 	--radius-xs: 0.125rem;
 	--radius-sm: 0.125rem;
 	--radius-md: 0.25rem;
@@ -112,7 +117,7 @@
 	--radius-xl: 0.5rem;
 	--radius-2xl: 0.5rem;
 
-	/* Reference colors */
+	/* Design tokens */
 	--color-primary-fixed: var(--primary-fixed);
 	--color-surface-variant: var(--surface-variant);
 	--color-error-container: var(--error-container);
@@ -161,7 +166,7 @@
 	--color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
 	--color-on-tertiary-fixed: var(--on-tertiary-fixed);
 
-	/* Dark reference extensions */
+	/* Extended tokens */
 	--color-surface-raised: var(--surface-raised);
 	--color-surface-panel: var(--surface-panel);
 	--color-surface-well: var(--surface-well);
@@ -173,6 +178,7 @@
 	--color-primary-hover: var(--primary-hover);
 	--color-primary-glow: var(--primary-glow);
 	--color-accent-cyan: var(--accent-cyan);
+	--color-accent-lime: var(--accent-lime);
 	--color-emerald-well: var(--emerald-well);
 	--color-emerald-border: var(--emerald-border);
 	--color-emerald-text: var(--emerald-text);
@@ -185,7 +191,7 @@
 	--color-border-hover: var(--border-hover);
 	--color-surface-footer: var(--surface-footer);
 
-	/* Existing app/shadcn compatibility */
+	/* shadcn compatibility */
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
 	--color-card-foreground: var(--card-foreground);
@@ -202,7 +208,7 @@
 	--color-input: var(--input);
 	--color-ring: var(--ring);
 
-	/* Brand compatibility */
+	/* Brand */
 	--color-brand-50: var(--brand-50);
 	--color-brand-100: var(--brand-100);
 	--color-brand-200: var(--brand-200);
@@ -215,7 +221,7 @@
 	--color-brand-900: var(--brand-900);
 	--color-brand-950: var(--brand-950);
 
-	/* Status compatibility */
+	/* Status */
 	--color-success: var(--success);
 	--color-success-foreground: var(--success-foreground);
 	--color-success-soft: var(--success-soft);
@@ -247,82 +253,100 @@
 	--shadow-floating: var(--elevation-floating);
 }
 
+/* =========================================================
+   LIGHT THEME
+   Cool concrete neutrals + graphite + acid-lime highlights.
+   ========================================================= */
+
 :root {
-	/* Exact colors from the reference Tailwind config */
-	--primary-fixed: #dbe1ff;
-	--surface-variant: #d3e4fe;
-	--error-container: #ffdad6;
-	--inverse-surface: #213145;
-	--on-primary-fixed: #051846;
-	--tertiary: #001d31;
-	--on-error: #ffffff;
-	--tertiary-container: #003351;
-	--on-secondary-fixed-variant: #004395;
-	--inverse-primary: #b5c5fc;
-	--secondary-container: #2170e4;
-	--primary-fixed-dim: #b5c5fc;
-	--on-surface: #0b1c30;
-	--error: #ba1a1a;
-	--tertiary-fixed: #cce5ff;
-	--outline: #757680;
-	--outline-variant: #c5c6d0;
+	--accent-lime: #b8ef0d;
+	--accent-lime-hover: #a5d80b;
+	--accent-lime-deep: #7fa600;
+	--graphite: #1f2125;
+	--graphite-raised: #2b2e32;
+	--concrete: #a8aaae;
+
+	--background: #f3f4f4;
+	--surface: #f3f4f4;
 	--surface-container-lowest: #ffffff;
-	--secondary-fixed-dim: #adc6ff;
-	--primary-container: #1e2e5c;
-	--surface-bright: #f8f9ff;
-	--on-error-container: #93000a;
-	--on-secondary-container: #fefcff;
-	--secondary: #0058be;
-	--surface-container-highest: #d3e4fe;
+	--surface-container-low: #eceeef;
+	--surface-container: #e4e6e7;
+	--surface-container-high: #d9dcde;
+	--surface-container-highest: #cdd0d2;
+	--surface-bright: #ffffff;
+	--surface-dim: #d7d9db;
+	--surface-variant: #e5e7e8;
+	--surface-card: #ffffff;
+	--surface-panel: #ffffff;
+	--surface-raised: #f8f9f9;
+	--surface-well: #eceeef;
+	--surface-footer: #eceeef;
+
+	--on-background: #1f2125;
+	--on-surface: #1f2125;
+	--on-surface-strong: #17191c;
+	--on-surface-variant: #55595e;
+	--on-surface-soft: #666a70;
+	--on-surface-muted: #7a7f85;
+	--on-surface-faint: #979ba0;
+	--inverse-on-surface: #f7f8f8;
+
+	--outline: #777b80;
+	--outline-variant: #d2d5d7;
+	--border-dark: #d2d5d7;
+	--border-subtle: #dde0e2;
+	--border-input: #b8bdc1;
+	--border-hover: #9da2a7;
+
+	/* Structural primary is graphite. Acid lime is used as a high-energy accent. */
+	--primary: #1f2125;
+	--primary-hover: #2d3034;
+	--primary-container: #7fa600;
 	--on-primary: #ffffff;
-	--on-tertiary: #ffffff;
-	--surface-container: #e5eeff;
-	--surface: #f8f9ff;
-	--on-tertiary-fixed-variant: #004b73;
-	--on-primary-container: #8797cb;
-	--inverse-on-surface: #eaf1ff;
-	--surface-container-low: #eff4ff;
-	--surface-tint: #4d5c8d;
-	--secondary-fixed: #d8e2ff;
-	--surface-dim: #cbdbf5;
-	--on-secondary-fixed: #001a42;
-	--background: #f8f9ff;
-	--primary: #051846;
+	--on-primary-container: #1f2125;
+	--inverse-primary: #b8ef0d;
+	--surface-tint: #1f2125;
+	--primary-glow: rgb(184 239 13 / 0.18);
+	--primary-fixed: #edf9c5;
+	--primary-fixed-dim: #d9f27e;
+	--on-primary-fixed: #252a18;
+	--on-primary-fixed-variant: #4f6500;
+
+	--secondary: #5d6267;
+	--secondary-container: #e4e6e7;
+	--secondary-fixed: #eceeef;
+	--secondary-fixed-dim: #d9dcde;
 	--on-secondary: #ffffff;
-	--on-tertiary-container: #3c9fe4;
-	--on-surface-variant: #45464f;
-	--tertiary-fixed-dim: #93ccff;
-	--surface-container-high: #dce9ff;
-	--on-background: #0b1c30;
-	--on-primary-fixed-variant: #354574;
-	--on-tertiary-fixed: #001d31;
+	--on-secondary-container: #1f2125;
+	--on-secondary-fixed: #1f2125;
+	--on-secondary-fixed-variant: #55595e;
+	--accent-cyan: #6f7d85;
 
-	/* Extended surface/status tokens.
-	   These map to the light reference until :where(.dark, [data-theme="dark"], [data-mode="dark"]) overrides them. */
-	--surface-raised: var(--surface-container-low);
-	--surface-panel: var(--surface-container-lowest);
-	--surface-well: var(--surface-container);
-	--surface-card: var(--surface-container-lowest);
-	--border-dark: var(--outline-variant);
-	--border-subtle: var(--outline-variant);
-	--border-input: var(--outline-variant);
-	--on-surface-muted: var(--outline);
-	--primary-hover: var(--primary-container);
-	--primary-glow: rgb(30 46 92 / 0.1);
-	--accent-cyan: var(--on-tertiary-container);
-	--emerald-well: rgb(0 51 81 / 0.08);
-	--emerald-border: rgb(0 75 115 / 0.24);
-	--emerald-text: var(--tertiary-container);
-	--amber-well: rgb(77 92 141 / 0.08);
-	--amber-border: rgb(77 92 141 / 0.24);
-	--amber-text: var(--surface-tint);
-	--on-surface-strong: var(--on-surface);
-	--on-surface-soft: var(--on-surface-variant);
-	--on-surface-faint: var(--outline);
-	--border-hover: var(--outline);
-	--surface-footer: var(--surface-container-low);
+	/* Lime plays the role of tertiary/highlight. */
+	--tertiary: #7fa600;
+	--tertiary-container: #b8ef0d;
+	--tertiary-fixed: #edf9c5;
+	--tertiary-fixed-dim: #d9f27e;
+	--on-tertiary: #1f2125;
+	--on-tertiary-container: #1f2125;
+	--on-tertiary-fixed: #252a18;
+	--on-tertiary-fixed-variant: #4f6500;
 
-	/* Existing app/shadcn semantic aliases */
+	--emerald-well: #eef8e7;
+	--emerald-border: #c9e8bc;
+	--emerald-text: #3e7b3d;
+	--amber-well: #f7f3dc;
+	--amber-border: #e5d99b;
+	--amber-text: #806d16;
+
+	--error: #c64d4d;
+	--error-container: #fdeaea;
+	--on-error: #ffffff;
+	--on-error-container: #8f2f2f;
+
+	--inverse-surface: #1f2125;
+
+	/* shadcn */
 	--foreground: var(--on-surface);
 	--card: var(--surface-container-lowest);
 	--card-foreground: var(--on-surface);
@@ -336,53 +360,57 @@
 	--accent-foreground: var(--on-surface);
 	--destructive: var(--error);
 	--danger-soft: var(--error-container);
-	--success: var(--tertiary-container);
+	--success: #5f9b52;
 	--success-foreground: #ffffff;
-	--success-soft: var(--tertiary-fixed);
-	--warning: var(--surface-tint);
+	--success-soft: #edf7e9;
+	--warning: #9c7a1d;
 	--warning-foreground: #ffffff;
-	--warning-soft: var(--primary-fixed);
+	--warning-soft: #fbf4dc;
 	--border: var(--outline-variant);
-	--input: var(--outline-variant);
-	--ring: var(--primary-container);
+	--input: var(--border-input);
+	--ring: var(--accent-lime-deep);
 
-	/* Brand aliases made only from supplied reference colors */
-	--brand-50: var(--surface-bright);
-	--brand-100: var(--surface-container-low);
-	--brand-200: var(--primary-fixed);
-	--brand-300: var(--primary-fixed-dim);
-	--brand-400: var(--on-primary-container);
-	--brand-500: var(--surface-tint);
-	--brand-600: var(--on-primary-fixed-variant);
-	--brand-700: var(--primary-container);
-	--brand-800: #152243;
-	--brand-900: var(--on-surface);
-	--brand-950: var(--primary);
+	/* Brand */
+	--brand-50: #f9fde9;
+	--brand-100: #f0facb;
+	--brand-200: #e2f695;
+	--brand-300: #d2f05b;
+	--brand-400: #c2ec2b;
+	--brand-500: #b8ef0d;
+	--brand-600: #9bca08;
+	--brand-700: #789b09;
+	--brand-800: #5e780d;
+	--brand-900: #4c6211;
+	--brand-950: #283705;
 
 	/* Sidebar */
-	--sidebar: var(--surface-container-lowest);
-	--sidebar-foreground: var(--on-surface-variant);
-	--sidebar-primary: var(--primary);
-	--sidebar-primary-foreground: var(--on-primary);
-	--sidebar-accent: var(--surface-container);
-	--sidebar-accent-foreground: var(--on-surface);
-	--sidebar-border: var(--outline-variant);
-	--sidebar-ring: var(--primary-container);
+	--sidebar: #ffffff;
+	--sidebar-foreground: #55595e;
+	--sidebar-primary: #1f2125;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #eef4d8;
+	--sidebar-accent-foreground: #1f2125;
+	--sidebar-border: #d2d5d7;
+	--sidebar-ring: #7fa600;
 
-	/* Charts use the supplied blue / cyan family */
-	--chart-1: var(--secondary);
-	--chart-2: var(--tertiary-container);
-	--chart-3: var(--surface-tint);
-	--chart-4: var(--on-tertiary-container);
-	--chart-5: var(--error);
+	/* Charts */
+	--chart-1: #b8ef0d;
+	--chart-2: #1f2125;
+	--chart-3: #7f858a;
+	--chart-4: #5f9b52;
+	--chart-5: #c64d4d;
 
-	/* Reference is intentionally flat */
+	/* Elevation */
 	--elevation-card: none;
 	--elevation-card-hover: none;
-	--elevation-floating: 0 8px 24px rgb(5 24 70 / 0.08);
+	--elevation-floating: 0 12px 30px rgb(31 33 37 / 0.12);
 }
 
-/* Match :root's specificity so the light defaults cannot override dark tokens. */
+/* =========================================================
+   DARK THEME
+   Reference-matching graphite panels with acid-lime accents.
+   ========================================================= */
+
 :root:where(.dark, [data-theme="dark"], [data-mode="dark"]),
 :where(.dark, [data-theme="dark"], [data-mode="dark"]),
 :root:has(body.dark),
@@ -391,167 +419,136 @@
 :root:has(#root.dark),
 :root:has(#root[data-theme="dark"]),
 :root:has(#root[data-mode="dark"]) {
-	/* =====================================================
-	   EXACT DARK REFERENCE PALETTE
-	   ===================================================== */
+	--background: #17191c;
+	--surface: #17191c;
+	--surface-card: #1f2125;
+	--surface-raised: #2a2d31;
+	--surface-panel: #1b1d20;
+	--surface-well: #25282c;
+	--surface-container-lowest: #1f2125;
+	--surface-container-low: #1b1d20;
+	--surface-container: #25282c;
+	--surface-container-high: #2d3034;
+	--surface-container-highest: #34383d;
+	--surface-bright: #2a2d31;
+	--surface-dim: #151719;
+	--surface-variant: #25282c;
+	--surface-footer: #1b1d20;
 
-	/* Canvas / surfaces */
-	--background: #0d0f12;
-	--surface: #0d0f12;
-	--surface-card: #181b20;
-	--surface-raised: #1f232b;
-	--surface-panel: #12151a;
-	--surface-well: #1f232b;
+	--border-dark: #34383d;
+	--border-subtle: #303338;
+	--border-input: #484d53;
+	--border-hover: #5e646b;
+	--outline-variant: #34383d;
+	--outline: #737a82;
 
-	/* Existing reference surface aliases */
-	--surface-container-lowest: #181b20;
-	--surface-container-low: #12151a;
-	--surface-container: #1f232b;
-	--surface-container-high: #282d37;
-	--surface-container-highest: #282d37;
-	--surface-bright: #1f232b;
-	--surface-dim: #0d0f12;
-	--surface-variant: #1f232b;
+	--on-background: #f7f8f8;
+	--on-surface: #f7f8f8;
+	--on-surface-variant: #b2b6ba;
+	--on-surface-muted: #81878d;
+	--on-surface-strong: #ffffff;
+	--on-surface-soft: #b2b6ba;
+	--on-surface-faint: #777d83;
+	--inverse-on-surface: #1f2125;
 
-	/* Borders */
-	--border-dark: #282d37;
-	--border-subtle: #282d37;
-	--border-input: #3b4251;
-	--outline-variant: #282d37;
-	--outline: #626d7f;
+	--primary: #b8ef0d;
+	--primary-hover: #c8ff23;
+	--primary-container: #d1ff42;
+	--on-primary: #17191c;
+	--on-primary-container: #17191c;
+	--inverse-primary: #7fa600;
+	--primary-glow: rgb(184 239 13 / 0.16);
+	--primary-fixed: rgb(184 239 13 / 0.14);
+	--primary-fixed-dim: rgb(184 239 13 / 0.28);
+	--on-primary-fixed: #d1ff42;
+	--on-primary-fixed-variant: #b8ef0d;
+	--surface-tint: #b8ef0d;
 
-	/* Foreground */
-	--on-background: #f4f6f8;
-	--on-surface: #f4f6f8;
-	--on-surface-variant: #9aa3b2;
-	--on-surface-muted: #626d7f;
-	--on-surface-strong: #f4f6f8;
-	--on-surface-soft: #9aa3b2;
-	--on-surface-faint: #626d7f;
-	--inverse-on-surface: #0d0f12;
+	--secondary: #a8aaae;
+	--secondary-container: #25282c;
+	--secondary-fixed: #25282c;
+	--secondary-fixed-dim: #303338;
+	--on-secondary: #17191c;
+	--on-secondary-container: #f7f8f8;
+	--on-secondary-fixed: #f7f8f8;
+	--on-secondary-fixed-variant: #b2b6ba;
+	--accent-cyan: #a8aaae;
 
-	/* Direct reference-only surfaces / borders */
-	--border-hover: #3b4251;
-	--surface-footer: #12151a;
+	--tertiary: #b8ef0d;
+	--tertiary-container: #b8ef0d;
+	--tertiary-fixed: rgb(184 239 13 / 0.12);
+	--tertiary-fixed-dim: rgb(184 239 13 / 0.25);
+	--on-tertiary: #17191c;
+	--on-tertiary-container: #17191c;
+	--on-tertiary-fixed: #d1ff42;
+	--on-tertiary-fixed-variant: #b8ef0d;
 
-	/* Blue accent system */
-	--primary: #4f75ff;
-	--primary-hover: #7b99ff;
-	--primary-container: #7b99ff;
-	--on-primary: #ffffff;
-	--on-primary-container: #7b99ff;
-	--inverse-primary: #7b99ff;
-	--primary-glow: rgb(79 117 255 / 0.15);
-	--primary-fixed: rgb(79 117 255 / 0.15);
-	--primary-fixed-dim: rgb(79 117 255 / 0.3);
-	--on-primary-fixed: #7b99ff;
-	--on-primary-fixed-variant: #7b99ff;
+	--emerald-well: rgb(95 155 82 / 0.13);
+	--emerald-border: rgb(95 155 82 / 0.3);
+	--emerald-text: #8dd37d;
+	--amber-well: rgb(184 239 13 / 0.1);
+	--amber-border: rgb(184 239 13 / 0.24);
+	--amber-text: #c8ff23;
 
-	/* Secondary / cyan */
-	--secondary: #38bdf8;
-	--secondary-container: #1f232b;
-	--secondary-fixed: #1f232b;
-	--secondary-fixed-dim: #282d37;
-	--on-secondary: #0d0f12;
-	--on-secondary-container: #e0f2fe;
-	--on-secondary-fixed: #f4f6f8;
-	--on-secondary-fixed-variant: #9aa3b2;
-	--accent-cyan: #38bdf8;
+	--error: #f16d6d;
+	--error-container: rgb(241 109 109 / 0.13);
+	--on-error: #17191c;
+	--on-error-container: #ffc1c1;
+	--inverse-surface: #f7f8f8;
 
-	/* Emerald status */
-	--tertiary: #10b981;
-	--tertiary-container: #10b981;
-	--tertiary-fixed: rgb(16 185 129 / 0.12);
-	--tertiary-fixed-dim: rgb(16 185 129 / 0.28);
-	--on-tertiary: #06120e;
-	--on-tertiary-container: #34d399;
-	--on-tertiary-fixed: #34d399;
-	--on-tertiary-fixed-variant: #6ee7b7;
-	--emerald-well: rgb(16 185 129 / 0.12);
-	--emerald-border: rgb(16 185 129 / 0.28);
-	--emerald-text: #34d399;
+	--foreground: #f7f8f8;
+	--card: #1f2125;
+	--card-foreground: #f7f8f8;
+	--popover: #25282c;
+	--popover-foreground: #f7f8f8;
+	--primary-foreground: #17191c;
+	--secondary-foreground: #f7f8f8;
+	--muted: #25282c;
+	--muted-foreground: #b2b6ba;
+	--accent: #25282c;
+	--accent-foreground: #f7f8f8;
+	--destructive: #f16d6d;
+	--danger-soft: rgb(241 109 109 / 0.13);
+	--success: #79c769;
+	--success-foreground: #17191c;
+	--success-soft: rgb(121 199 105 / 0.13);
+	--warning: #c8ff23;
+	--warning-foreground: #17191c;
+	--warning-soft: rgb(184 239 13 / 0.12);
+	--border: #34383d;
+	--input: #484d53;
+	--ring: #b8ef0d;
 
-	/* Amber status */
-	--amber-well: rgb(245 158 11 / 0.12);
-	--amber-border: rgb(245 158 11 / 0.28);
-	--amber-text: #fbbf24;
+	--brand-50: #1f2125;
+	--brand-100: #25282c;
+	--brand-200: #303338;
+	--brand-300: #4e6012;
+	--brand-400: #7fa600;
+	--brand-500: #b8ef0d;
+	--brand-600: #c8ff23;
+	--brand-700: #d1ff42;
+	--brand-800: #dcff70;
+	--brand-900: #e9ffad;
+	--brand-950: #f7ffd9;
 
-	/* Error */
-	--error: #ef4444;
-	--error-container: rgb(239 68 68 / 0.12);
-	--on-error: #ffffff;
-	--on-error-container: #fecaca;
+	--sidebar: #17191c;
+	--sidebar-foreground: #b2b6ba;
+	--sidebar-primary: #b8ef0d;
+	--sidebar-primary-foreground: #17191c;
+	--sidebar-accent: #25282c;
+	--sidebar-accent-foreground: #f7f8f8;
+	--sidebar-border: #34383d;
+	--sidebar-ring: #b8ef0d;
 
-	/* Legacy tint */
-	--surface-tint: #4f75ff;
-	--inverse-surface: #f4f6f8;
+	--chart-1: #b8ef0d;
+	--chart-2: #a8aaae;
+	--chart-3: #79c769;
+	--chart-4: #f0d75d;
+	--chart-5: #f16d6d;
 
-	/* =====================================================
-	   SHADCN / APP SEMANTICS
-	   ===================================================== */
-	--foreground: #f4f6f8;
-	--card: #181b20;
-	--card-foreground: #f4f6f8;
-	--popover: #1f232b;
-	--popover-foreground: #f4f6f8;
-
-	--primary-foreground: #ffffff;
-	--secondary-foreground: #f4f6f8;
-
-	--muted: #1f232b;
-	--muted-foreground: #9aa3b2;
-	--accent: #1f232b;
-	--accent-foreground: #f4f6f8;
-
-	--destructive: #ef4444;
-	--danger-soft: rgb(239 68 68 / 0.12);
-
-	--success: #10b981;
-	--success-foreground: #06120e;
-	--success-soft: rgb(16 185 129 / 0.12);
-
-	--warning: #f59e0b;
-	--warning-foreground: #0d0f12;
-	--warning-soft: rgb(245 158 11 / 0.12);
-
-	--border: #282d37;
-	--input: #3b4251;
-	--ring: #4f75ff;
-
-	/* Brand compatibility */
-	--brand-50: #181b20;
-	--brand-100: #1f232b;
-	--brand-200: #1f232b;
-	--brand-300: #282d37;
-	--brand-400: #7b99ff;
-	--brand-500: #4f75ff;
-	--brand-600: #4f75ff;
-	--brand-700: #7b99ff;
-	--brand-800: #7b99ff;
-	--brand-900: #7b99ff;
-	--brand-950: #f4f6f8;
-
-	/* Sidebar */
-	--sidebar: #0d0f12;
-	--sidebar-foreground: #9aa3b2;
-	--sidebar-primary: #4f75ff;
-	--sidebar-primary-foreground: #ffffff;
-	--sidebar-accent: #1f232b;
-	--sidebar-accent-foreground: #f4f6f8;
-	--sidebar-border: #282d37;
-	--sidebar-ring: #4f75ff;
-
-	/* Charts */
-	--chart-1: #4f75ff;
-	--chart-2: #10b981;
-	--chart-3: #f59e0b;
-	--chart-4: #38bdf8;
-	--chart-5: #ef4444;
-
-	/* Elevation */
-	--elevation-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-	--elevation-card-hover: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-	--elevation-floating: 0 12px 24px rgb(0 0 0 / 0.28), 0 28px 64px rgb(0 0 0 / 0.32);
+	--elevation-card: 0 1px 2px rgb(0 0 0 / 0.16);
+	--elevation-card-hover: 0 2px 8px rgb(0 0 0 / 0.22);
+	--elevation-floating: 0 16px 34px rgb(0 0 0 / 0.34), 0 30px 70px rgb(0 0 0 / 0.26);
 }
 
 /* =========================================================
@@ -564,6 +561,8 @@
 	*::after {
 		@apply border-border outline-ring/50;
 		box-sizing: border-box;
+		border-style: solid;
+		border-width: 0;
 	}
 
 	html,
@@ -644,12 +643,12 @@
 	}
 
 	::selection {
-		background: var(--primary-fixed);
-		color: var(--on-primary-fixed);
+		background: #dff57c;
+		color: #1f2125;
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) ::selection {
-		background: rgb(59 130 246 / 0.3);
+		background: rgb(184 239 13 / 0.28);
 		color: #ffffff;
 	}
 }
@@ -670,8 +669,7 @@
 }
 
 /* =========================================================
-   EXACT REFERENCE RADIUS OVERRIDES
-   Tailwind's rounded/full defaults are otherwise much larger.
+   RADIUS
    ========================================================= */
 
 @layer utilities {
@@ -693,7 +691,7 @@
 }
 
 /* =========================================================
-   TYPOGRAPHY COMPATIBILITY
+   TYPOGRAPHY
    ========================================================= */
 
 @layer utilities {
@@ -744,7 +742,7 @@
 	}
 
 	.surface-interactive:hover {
-		border-color: var(--outline);
+		border-color: var(--border-hover);
 		background: var(--surface-container-lowest);
 	}
 
@@ -754,11 +752,11 @@
 	}
 
 	.brand-gradient {
-		background: var(--primary);
+		background: var(--graphite);
 	}
 
 	.brand-gradient-hover {
-		background: #152243;
+		background: var(--graphite-raised);
 	}
 
 	.brand-gradient-text {
@@ -767,7 +765,7 @@
 	}
 
 	.brand-glow {
-		background: var(--surface-container-low);
+		background: rgb(184 239 13 / 0.12);
 	}
 
 	.brand-surface {
@@ -801,7 +799,7 @@
 	}
 
 	.marketplace-row:hover {
-		background: var(--surface-container-lowest);
+		background: #fbfcf9;
 	}
 
 	.marketplace-tag {
@@ -809,10 +807,10 @@
 		align-items: center;
 		min-height: 1.25rem;
 		padding: 0.125rem 0.5rem;
-		border: 0;
+		border: 1px solid #e1e5d7;
 		border-radius: 0.125rem;
-		background: var(--surface-container);
-		color: var(--on-secondary-fixed-variant);
+		background: #f5f8eb;
+		color: #485230;
 		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
 		font-size: 12px;
 		font-weight: 500;
@@ -821,8 +819,9 @@
 	}
 
 	.marketplace-tag-active {
-		background: var(--primary);
-		color: var(--surface-container-lowest);
+		border-color: var(--accent-lime);
+		background: var(--accent-lime);
+		color: #1f2125;
 	}
 
 	.marketplace-filter {
@@ -848,15 +847,16 @@
 	}
 
 	.marketplace-filter:hover {
+		border-color: var(--border-hover);
 		background: var(--surface-container-low);
 		color: var(--on-surface);
 	}
 
 	.marketplace-filter[aria-pressed="true"],
 	.marketplace-filter[data-state="active"] {
-		border-color: var(--primary);
-		background: var(--primary);
-		color: var(--surface-container-lowest);
+		border-color: var(--graphite);
+		background: var(--graphite);
+		color: #ffffff;
 	}
 
 	.marketplace-search {
@@ -874,12 +874,12 @@
 	}
 
 	.marketplace-search:hover {
-		border-color: var(--outline);
+		border-color: var(--border-hover);
 	}
 
 	.marketplace-search:focus-within {
-		border-color: var(--primary-container);
-		box-shadow: 0 0 0 1px var(--primary-container);
+		border-color: var(--accent-lime-deep);
+		box-shadow: 0 0 0 1px var(--accent-lime-deep);
 	}
 
 	.app-primary-action {
@@ -890,38 +890,41 @@
 		min-height: 2.25rem;
 		padding-inline: 1rem;
 		border-radius: 0.25rem;
-		background: var(--primary);
-		color: var(--surface-container-lowest);
+		background: var(--graphite);
+		color: #ffffff;
 		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
 		font-size: 13px;
 		font-weight: 500;
 		line-height: 16px;
 		letter-spacing: 0.005em;
-		transition: background-color 150ms ease;
+		transition:
+			background-color 150ms ease,
+			color 150ms ease;
 	}
 
 	.app-primary-action:hover {
-		background: #152243;
+		background: var(--graphite-raised);
 	}
 
 	.app-link {
-		color: var(--primary);
+		color: var(--graphite);
 		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
 		font-size: 12px;
-		font-weight: 500;
+		font-weight: 600;
 		line-height: 16px;
 		letter-spacing: 0.01em;
 		text-decoration: none;
+		text-underline-offset: 3px;
 		transition: color 150ms ease;
 	}
 
 	.app-link:hover {
-		color: var(--primary-container);
+		color: var(--accent-lime-deep);
 	}
 }
 
 /* =========================================================
-   SCROLLBAR — exact reference behavior
+   SCROLLBAR
    ========================================================= */
 
 @layer base {
@@ -954,7 +957,7 @@
 	input:focus-visible,
 	select:focus-visible,
 	textarea:focus-visible {
-		outline: 1px solid var(--primary-container);
+		outline: 1px solid var(--ring);
 		outline-offset: 2px;
 	}
 
@@ -982,7 +985,6 @@
 		}
 	}
 
-	/* Landing page kept compatible, but now uses the same Geist system. */
 	.landing-container {
 		@apply mx-auto w-full max-w-330 px-5 sm:px-8 lg:px-12;
 	}
@@ -1003,8 +1005,8 @@
 		gap: 0.5rem;
 		padding-inline: 1rem;
 		border-radius: 0.25rem;
-		background: var(--primary);
-		color: var(--surface-container-lowest);
+		background: var(--graphite);
+		color: #ffffff;
 		font-size: 13px;
 		font-weight: 500;
 		line-height: 16px;
@@ -1012,7 +1014,7 @@
 	}
 
 	.landing-primary:hover {
-		background: #152243;
+		background: var(--graphite-raised);
 	}
 
 	.landing-text-link,
@@ -1056,11 +1058,11 @@
 		left: 0;
 		width: 2px;
 		border-radius: 0 0.75rem 0.75rem 0;
-		background: var(--primary-container);
+		background: var(--accent-lime);
 	}
 
 	.workspace-shell > header {
-		background: rgb(255 255 255 / 0.95);
+		background: rgb(255 255 255 / 0.96);
 		border-bottom: 1px solid var(--outline-variant);
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
@@ -1077,7 +1079,7 @@
 	}
 
 	.workspace-shell > header nav a[aria-current="page"] {
-		color: var(--primary);
+		color: var(--graphite);
 	}
 
 	.workspace-shell > header nav a[aria-current="page"]::after {
@@ -1087,7 +1089,7 @@
 		bottom: -1px;
 		left: 0;
 		height: 2px;
-		background: var(--primary);
+		background: var(--accent-lime);
 	}
 
 	.workspace-divider {
@@ -1115,9 +1117,7 @@
 }
 
 /* =========================================================
-   DARK REFERENCE COMPONENT OVERRIDES
-   The dark reference intentionally uses blue for links/focus,
-   dark navy for selected filters, and white for primary CTAs.
+   DARK COMPONENT OVERRIDES
    ========================================================= */
 
 @layer utilities {
@@ -1139,26 +1139,23 @@
 		background: var(--surface-raised);
 	}
 
-	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-gradient {
-		background: #ffffff;
-	}
-
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-gradient,
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-gradient-hover {
-		background: #f1f5f9;
+		background: var(--accent-lime);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-gradient-text {
-		color: var(--primary);
+		color: var(--accent-lime);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-glow {
-		background: var(--surface-raised);
+		background: rgb(184 239 13 / 0.12);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .brand-surface {
-		border-color: rgb(59 130 246 / 0.3);
-		background: var(--primary-glow);
-		color: #93c5fd;
+		border-color: rgb(184 239 13 / 0.28);
+		background: rgb(184 239 13 / 0.1);
+		color: #d1ff42;
 	}
 }
 
@@ -1174,13 +1171,19 @@
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-row:hover {
-		background: var(--surface-card);
+		background: #24272b;
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-tag {
 		border: 1px solid var(--border-subtle);
 		background: var(--surface-well);
 		color: var(--on-surface-variant);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-tag-active {
+		border-color: var(--accent-lime);
+		background: var(--accent-lime);
+		color: #17191c;
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-filter {
@@ -1197,9 +1200,9 @@
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-filter[aria-pressed="true"],
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-filter[data-state="active"] {
-		border-color: #f4f6f8;
-		background: #f4f6f8;
-		color: #101216;
+		border-color: var(--accent-lime);
+		background: var(--accent-lime);
+		color: #17191c;
 		box-shadow: none;
 	}
 
@@ -1214,25 +1217,25 @@
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-search:focus-within {
-		border-color: var(--primary);
-		box-shadow: 0 0 0 1px var(--primary);
+		border-color: var(--accent-lime);
+		box-shadow: 0 0 0 1px var(--accent-lime);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .app-primary-action,
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .landing-primary {
-		background: #f4f6f8;
-		color: #101216;
+		background: var(--accent-lime);
+		color: #17191c;
 		font-weight: 600;
 		box-shadow: none;
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .app-primary-action:hover,
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .landing-primary:hover {
-		background: #ffffff;
+		background: var(--primary-hover);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .app-link {
-		color: var(--primary);
+		color: var(--accent-lime);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .app-link:hover {
@@ -1241,7 +1244,7 @@
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-shell > header {
 		border-bottom-color: var(--border-dark);
-		background: rgb(18 21 26 / 0.95);
+		background: rgb(27 29 32 / 0.95);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-shell > header nav a {
@@ -1254,7 +1257,7 @@
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-shell > header nav a[aria-current="page"]::after {
-		background: var(--primary);
+		background: var(--accent-lime);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-divider {
@@ -1271,8 +1274,9 @@
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-metric::before {
-		background: var(--primary);
+		background: var(--accent-lime);
 	}
+
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .workspace-shell > footer,
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .landing-page > footer {
 		border-top-color: var(--border-dark);
@@ -1280,9 +1284,82 @@
 	}
 }
 
-/* Direct Tailwind classes used by the freelancer workspace page. */
+/* =========================================================
+   DIRECT WORKSPACE TAILWIND OVERRIDES
+   These keep your existing components usable without rewrites.
+   ========================================================= */
+
 @layer utilities {
-	/* Job cards */
+	/* Light job cards stay crisp white. */
+	article.border-outline-variant.bg-surface-container-lowest {
+		background: var(--surface-card);
+	}
+
+	article.border-outline-variant.bg-surface-container-lowest:hover {
+		border-color: var(--border-hover);
+	}
+
+	/* Existing bg-primary CTAs are graphite in light mode. */
+	article button.bg-primary,
+	a.bg-primary:not([aria-current="page"]),
+	search button[type="submit"].bg-primary {
+		background: var(--graphite);
+		color: #ffffff;
+		box-shadow: none;
+	}
+
+	article button.bg-primary:hover,
+	a.bg-primary:not([aria-current="page"]):hover,
+	search button[type="submit"].bg-primary:hover {
+		background: var(--graphite-raised);
+	}
+
+	/* Important marketplace CTAs can opt into lime simply by using primary-container. */
+	.bg-primary-container.text-on-primary-container {
+		background: var(--accent-lime);
+		color: #1f2125;
+	}
+
+	/* Selected filter pills remain dark, matching the reference category panel. */
+	button.bg-primary:has(> span:nth-child(2)) {
+		border-color: var(--graphite);
+		background: var(--graphite);
+		color: #ffffff;
+	}
+
+	button.bg-primary:has(> span:nth-child(2)) > span:last-child {
+		background: rgb(255 255 255 / 0.13);
+		color: #ffffff;
+	}
+
+	/* The profile callout uses the reference's concrete + lime energy without turning neon. */
+	aside section.bg-gradient-to-b {
+		border-color: #d7dcc8;
+		background: linear-gradient(180deg, #f3f6e9 0%, #ffffff 100%);
+		box-shadow: none;
+	}
+
+	/* Skill tags */
+	.bg-surface-container.text-on-secondary-fixed-variant {
+		border: 1px solid #e0e3d6;
+		background: #f5f7ef;
+		color: #4d5442;
+	}
+
+	/* Proposal status */
+	.bg-primary-fixed.text-on-primary-fixed {
+		border: 1px solid #d9e5ad;
+		background: #f0f8d7;
+		color: #526b00;
+	}
+
+	/* Slightly darker hover title/link lime for readable contrast on white. */
+	.hover\:text-primary-container:hover,
+	.group:hover .group-hover\:text-primary-container {
+		color: var(--accent-lime-deep);
+	}
+
+	/* Dark cards */
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) article.border-outline-variant.bg-surface-container-lowest {
 		border-color: var(--border-dark);
 		background: var(--surface-card);
@@ -1300,12 +1377,12 @@
 		border-color: var(--border-dark);
 	}
 
-	/* White action buttons used by the dark reference. */
+	/* In dark mode, primary actions become the reference lime. */
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) article button.bg-primary,
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) a.bg-primary:not([aria-current="page"]),
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) search button[type="submit"].bg-primary {
-		background: #f4f6f8;
-		color: #101216;
+		background: var(--accent-lime);
+		color: #17191c;
 		font-weight: 600;
 		box-shadow: none;
 	}
@@ -1313,30 +1390,26 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) article button.bg-primary:hover,
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) a.bg-primary:not([aria-current="page"]):hover,
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) search button[type="submit"].bg-primary:hover {
-		background: #ffffff;
+		background: var(--primary-hover);
 	}
 
-	/* Selected filters use the same light surface as primary actions. */
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) button.bg-primary:has(> span:nth-child(2)) {
-		border-color: #f4f6f8;
-		background: #f4f6f8;
-		color: #101216;
-		box-shadow: none;
+		border-color: var(--accent-lime);
+		background: var(--accent-lime);
+		color: #17191c;
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) button.bg-primary:has(> span:nth-child(2)) > span:last-child {
-		background: rgb(16 18 22 / 0.15);
-		color: #101216;
+		background: rgb(23 25 28 / 0.16);
+		color: #17191c;
 	}
 
-	/* Charcoal profile panel with the reference's subtle blue border. */
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) aside section.bg-gradient-to-b {
-		border-color: rgb(79 117 255 / 0.25);
-		background: var(--surface-card);
+		border-color: rgb(184 239 13 / 0.18);
+		background: linear-gradient(180deg, #252a21 0%, #1f2125 100%);
 		box-shadow: var(--elevation-card);
 	}
 
-	/* Cards and saved-search widgets in the right rail. */
 	:where(.dark, [data-theme="dark"], [data-mode="dark"])
 		aside
 		section.border-outline-variant.bg-surface-container-lowest {
@@ -1349,21 +1422,18 @@
 		background: var(--surface-raised);
 	}
 
-	/* Skill tags */
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .bg-surface-container.text-on-secondary-fixed-variant {
 		border: 1px solid var(--border-subtle);
 		background: var(--surface-well);
 		color: var(--on-surface-variant);
 	}
 
-	/* Proposal status chip */
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .bg-primary-fixed.text-on-primary-fixed {
-		border: 1px solid rgb(79 117 255 / 0.3);
-		background: var(--primary-glow);
-		color: #7b99ff;
+		border: 1px solid rgb(184 239 13 / 0.25);
+		background: rgb(184 239 13 / 0.1);
+		color: #c8ff23;
 	}
 
-	/* Muted borders and search inputs */
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .border-outline-variant {
 		border-color: var(--border-dark);
 	}
@@ -1372,10 +1442,9 @@
 		border-color: var(--border-input);
 	}
 
-	/* The reference uses brighter blue on hover for links/titles. */
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .hover\:text-primary-container:hover,
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .group:hover .group-hover\:text-primary-container {
-		color: var(--primary-hover);
+		color: var(--accent-lime);
 	}
 }
 
@@ -1383,7 +1452,6 @@
    MOTION
    ========================================================= */
 
-/* Theme changes are atomic; only the complete page snapshots crossfade. */
 html[data-theme-transition],
 html[data-theme-transition] *,
 html[data-theme-transition] *::before,
@@ -1445,7 +1513,6 @@ html[data-theme-transition] *::after {
 			opacity: 0;
 			transform: translateY(10px);
 		}
-
 		to {
 			opacity: 1;
 			transform: translateY(0);
@@ -1470,7 +1537,6 @@ html[data-theme-transition] *::after {
 
 /* =========================================================
    THEME ACTIVATION BRIDGE
-   Supports class-based and attribute-based theme providers.
    ========================================================= */
 
 @layer base {
@@ -1510,173 +1576,3 @@ html[data-theme-transition] *::after {
 	}
 }
 
-/* Freelancer inbox: separate thread panels, using the workspace color system. */
-.freelancer-inbox {
-	padding: 12px 0 24px;
-}
-.freelancer-inbox .messages-workspace {
-	height: auto;
-	min-height: 760px;
-	align-items: start;
-	gap: 24px;
-	border: 0;
-	border-radius: 0;
-	background: transparent;
-	grid-template-columns: minmax(280px, 32%) minmax(0, 1fr);
-	overflow: visible;
-}
-.freelancer-inbox aside[aria-label="Conversations"] {
-	overflow: hidden;
-	border: 1px solid var(--color-border);
-	border-radius: 10px;
-}
-.freelancer-inbox aside > div:first-child {
-	padding: 20px 16px 12px;
-}
-.freelancer-inbox aside label {
-	margin-top: 16px;
-	background: var(--color-surface-container-low);
-	min-height: 38px;
-}
-.freelancer-inbox aside fieldset {
-	border: 0;
-	background: var(--color-surface-container-low);
-	padding: 4px;
-	border-radius: 6px;
-	margin-top: 12px;
-}
-.freelancer-inbox aside fieldset button {
-	min-height: 28px;
-	border: 0;
-	border-radius: 5px;
-}
-.freelancer-inbox aside fieldset button[aria-pressed="true"] {
-	background: var(--color-card);
-	box-shadow: 0 1px 3px #0000000a;
-}
-.freelancer-inbox aside > div:nth-child(2) {
-	padding: 0;
-}
-.freelancer-inbox aside > div:nth-child(2) > button {
-	border: 0;
-	border-bottom: 1px solid var(--color-border);
-	border-left: 3px solid transparent;
-	border-radius: 0;
-	padding: 18px 16px;
-	margin: 0;
-	min-height: 98px;
-}
-.freelancer-inbox aside > div:nth-child(2) > button[aria-pressed="true"] {
-	border-left-color: var(--color-primary);
-	background: var(--color-surface-container-low);
-}
-.freelancer-inbox aside > div:nth-child(2) > button .line-clamp-2 {
-	-webkit-line-clamp: 1;
-}
-.freelancer-inbox aside > div:last-child {
-	display: none;
-}
-.freelancer-inbox .message-thread {
-	overflow: hidden;
-	border: 1px solid var(--color-border);
-	border-radius: 10px;
-	min-height: 760px;
-	background: var(--color-surface-container-lowest);
-}
-.freelancer-inbox .message-thread > header {
-	border: 0;
-	min-height: 82px;
-}
-.freelancer-inbox .message-history {
-	background: color-mix(in srgb, var(--color-surface-container-low) 35%, var(--color-surface-container-lowest));
-	padding: 28px 20px;
-	max-height: 720px;
-}
-.freelancer-inbox .message-bubble {
-	max-width: 94%;
-}
-.freelancer-inbox .message-bubble > div:last-child {
-	border: 0;
-	box-shadow: 0 1px 2px #00000008;
-	padding: 18px;
-	font-size: 14px;
-	line-height: 1.75;
-}
-.freelancer-inbox .own-message > div:last-child {
-	background: var(--color-primary);
-	color: var(--color-primary-foreground);
-}
-.dark .freelancer-inbox .own-message > div:last-child {
-	background: var(--color-surface-container);
-	color: var(--color-on-surface);
-	border: 1px solid var(--color-border);
-}
-.freelancer-inbox .message-thread > footer {
-	border: 0;
-	padding: 18px;
-}
-.freelancer-inbox .message-thread form {
-	background: var(--color-surface-container-low);
-	border-color: transparent;
-	border-radius: 8px;
-}
-.freelancer-inbox .message-thread textarea {
-	min-height: 110px;
-}
-@media (max-width: 1023px) {
-	.freelancer-inbox .messages-workspace {
-		display: flex;
-		flex-direction: column;
-		min-height: 600px;
-	}
-	.freelancer-inbox .messages-workspace > aside,
-	.freelancer-inbox .message-thread {
-		width: 100%;
-	}
-	.freelancer-inbox .message-thread {
-		min-height: 600px;
-	}
-	.freelancer-inbox .message-history {
-		max-height: 55dvh;
-		padding: 20px 12px;
-	}
-	.freelancer-inbox .message-bubble {
-		max-width: 100%;
-	}
-	.freelancer-inbox .message-thread > footer {
-		padding: 12px;
-	}
-}
-.freelancer-inbox {
-	padding-top: 68px;
-}
-.freelancer-inbox .message-bubble > div:nth-child(2) {
-	border-radius: 0 18px 18px 18px;
-}
-.freelancer-inbox .own-message > div:nth-child(2) {
-	border-radius: 18px 3px 18px 18px;
-	background: var(--color-primary);
-	color: var(--color-primary-foreground);
-	padding: 20px;
-}
-.freelancer-inbox .own-message > .message-attachment {
-	background: var(--color-card);
-	color: var(--color-foreground);
-	box-shadow: 0 1px 2px #00000008;
-}
-.dark .freelancer-inbox .own-message > div:nth-child(2) {
-	background: var(--color-surface-container);
-	color: var(--color-on-surface);
-}
-.freelancer-inbox .own-message > div.message-attachment {
-	background: var(--color-card);
-	color: var(--color-foreground);
-	border: 1px solid var(--color-border);
-}
-.freelancer-inbox .message-thread > header > span,
-.freelancer-inbox aside button > span:first-child:not(.min-w-0) {
-	border-radius: 10px;
-}
-.freelancer-inbox .message-bubble > div:first-of-type {
-	font-size: 12px;
-}
