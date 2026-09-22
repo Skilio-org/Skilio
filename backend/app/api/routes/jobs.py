@@ -12,6 +12,7 @@ from app.api.routes.searches import record_recent_search
 from app.models import (
     BudgetType,
     ClientProfilePublic,
+    JobCategory,
     JobPost,
     JobPostCreate,
     JobPostDetailPublic,
@@ -21,7 +22,9 @@ from app.models import (
     JobStatus,
     Message,
     Proposal,
+    ProposalStatus,
     SavedJob,
+    SavedJobCreate,
     SavedJobPublic,
     SavedJobsPublic,
     User,
@@ -102,9 +105,10 @@ def read_jobs(
     )
     jobs = session.exec(statement).all()
 
-    # Pre-fetch saved and applied job IDs for current user to avoid N+1 queries
+    # Pre-fetch saved, applied, and draft job IDs for current user to avoid N+1 queries
     saved_job_ids: set[uuid.UUID] = set()
     applied_job_ids: set[uuid.UUID] = set()
+    draft_job_ids: set[uuid.UUID] = set()
 
     if current_user:
         saved_rows = session.exec(
@@ -114,20 +118,27 @@ def read_jobs(
         ).all()
         saved_job_ids = set(saved_rows)
 
-        applied_rows = session.exec(
-            select(Proposal.job_post_id).where(
+        user_proposals = session.exec(
+            select(Proposal.job_post_id, Proposal.status).where(
                 Proposal.freelancer_id == current_user.id
             )
         ).all()
-        applied_job_ids = set(applied_rows)
+        for j_id, p_stat in user_proposals:
+            if p_stat == ProposalStatus.DRAFT:
+                draft_job_ids.add(j_id)
+            else:
+                applied_job_ids.add(j_id)
 
-    # Pre-fetch proposal counts for all returned jobs in a single batch query
+    # Pre-fetch proposal counts for all returned jobs in a single batch query (excluding drafts)
     job_ids = [job.id for job in jobs]
     proposal_counts: dict[uuid.UUID, int] = {}
     if job_ids:
         prop_stats_stmt = (
             select(Proposal.job_post_id, func.count(col(Proposal.id)))
-            .where(col(Proposal.job_post_id).in_(job_ids))
+            .where(
+                col(Proposal.job_post_id).in_(job_ids),
+                Proposal.status != ProposalStatus.DRAFT,
+            )
             .group_by(col(Proposal.job_post_id))
         )
         for j_id, p_cnt in session.exec(prop_stats_stmt).all():
@@ -153,6 +164,7 @@ def read_jobs(
                 "proposals_count": proposals_count,
                 "is_saved": job.id in saved_job_ids,
                 "has_applied": job.id in applied_job_ids,
+                "has_draft": job.id in draft_job_ids,
             },
         )
         jobs_public.append(job_data)
@@ -231,9 +243,13 @@ def read_saved_jobs(
     current_user: CurrentUser,
     skip: int = 0,
     limit: int = 100,
+    q: str | None = None,
+    category: str | None = None,
+    sort_by: str | None = "newest",
 ) -> Any:
     """
     List jobs saved / bookmarked by the current freelancer.
+    Supports search query 'q', 'category', and 'sort_by'.
     """
     if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
         raise HTTPException(
@@ -241,38 +257,70 @@ def read_saved_jobs(
             detail="Only freelancers can view saved jobs",
         )
 
-    count_statement = select(func.count()).where(
-        SavedJob.freelancer_id == current_user.id
+    base_query = (
+        select(SavedJob)
+        .join(JobPost, SavedJob.job_post_id == JobPost.id)
+        .where(SavedJob.freelancer_id == current_user.id)
     )
+
+    if category:
+        base_query = base_query.where(JobPost.category == category)
+
+    if q:
+        search_pattern = f"%{q.strip()}%"
+        base_query = base_query.where(
+            col(JobPost.title).ilike(search_pattern)
+            | col(JobPost.description).ilike(search_pattern)
+            | cast(JobPost.skills, String).ilike(search_pattern)
+        )
+
+    count_statement = select(func.count()).select_from(base_query.subquery())
     count = session.exec(count_statement).one()
 
+    # Apply sorting
+    if sort_by == "oldest":
+        statement = base_query.order_by(col(SavedJob.created_at).asc())
+    elif sort_by == "budget_high":
+        statement = base_query.order_by(col(JobPost.budget).desc())
+    elif sort_by == "budget_low":
+        statement = base_query.order_by(col(JobPost.budget).asc())
+    else:  # "newest" or default
+        statement = base_query.order_by(col(SavedJob.created_at).desc())
+
     statement = (
-        select(SavedJob)
-        .where(SavedJob.freelancer_id == current_user.id)
+        statement
         .options(
-            joinedload(SavedJob.job_post).selectinload(JobPost.client),  # type: ignore[arg-type]
+            joinedload(SavedJob.job_post).selectinload(JobPost.client).selectinload(User.client_profile),  # type: ignore[arg-type]
         )
-        .order_by(col(SavedJob.created_at).desc())
         .offset(skip)
         .limit(limit)
     )
     saved_jobs = session.exec(statement).all()
 
-    # Pre-fetch applied job IDs
-    applied_rows = session.exec(
-        select(Proposal.job_post_id).where(
+    # Pre-fetch applied and draft job IDs
+    applied_job_ids: set[uuid.UUID] = set()
+    draft_job_ids: set[uuid.UUID] = set()
+    user_proposals = session.exec(
+        select(Proposal.job_post_id, Proposal.status).where(
             Proposal.freelancer_id == current_user.id
         )
     ).all()
-    applied_job_ids = set(applied_rows)
+    for j_id, p_stat in user_proposals:
+        if p_stat == ProposalStatus.DRAFT:
+            draft_job_ids.add(j_id)
+        else:
+            applied_job_ids.add(j_id)
 
-    # Pre-fetch proposal counts in a single batch query
+    # Pre-fetch proposal counts in a single batch query (excluding drafts)
     job_ids = [saved.job_post_id for saved in saved_jobs if saved.job_post]
     proposal_counts: dict[uuid.UUID, int] = {}
     if job_ids:
         prop_stats_stmt = (
             select(Proposal.job_post_id, func.count(col(Proposal.id)))
-            .where(col(Proposal.job_post_id).in_(job_ids))
+            .where(
+                col(Proposal.job_post_id).in_(job_ids),
+                Proposal.status != ProposalStatus.DRAFT,
+            )
             .group_by(col(Proposal.job_post_id))
         )
         for j_id, p_cnt in session.exec(prop_stats_stmt).all():
@@ -285,15 +333,22 @@ def read_saved_jobs(
         if job:
             proposals_count = proposal_counts.get(job.id, 0)
             skills = job.skills or []
+            client_company = (
+                job.client.client_profile.company
+                if job.client and job.client.client_profile
+                else None
+            )
 
             job_public = JobPostPublic.model_validate(
                 job,
                 update={
                     "client_name": job.client.full_name if job.client else None,
+                    "client_company": client_company,
                     "skills": skills,
                     "proposals_count": proposals_count,
                     "is_saved": True,
                     "has_applied": job.id in applied_job_ids,
+                    "has_draft": job.id in draft_job_ids,
                 },
             )
 
@@ -307,6 +362,189 @@ def read_saved_jobs(
         )
 
     return SavedJobsPublic(data=saved_public, count=count)
+
+
+@router.post("/saved", response_model=SavedJobPublic)
+def create_saved_job(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    saved_in: SavedJobCreate,
+) -> Any:
+    """
+    Bookmark / save a job post for the current authenticated freelancer.
+    """
+    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Only freelancers can save jobs",
+        )
+
+    job = session.get(JobPost, saved_in.job_post_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job post not found")
+
+    existing = session.exec(
+        select(SavedJob).where(
+            SavedJob.freelancer_id == current_user.id,
+            SavedJob.job_post_id == job.id,
+        )
+    ).first()
+
+    if not existing:
+        existing = SavedJob(freelancer_id=current_user.id, job_post_id=job.id)
+        session.add(existing)
+        session.commit()
+        session.refresh(existing)
+
+    client_company = (
+        job.client.client_profile.company
+        if job.client and job.client.client_profile
+        else None
+    )
+
+    user_proposal = session.exec(
+        select(Proposal).where(
+            Proposal.freelancer_id == current_user.id,
+            Proposal.job_post_id == job.id,
+        )
+    ).first()
+    has_applied = user_proposal is not None and user_proposal.status != ProposalStatus.DRAFT
+    has_draft = user_proposal is not None and user_proposal.status == ProposalStatus.DRAFT
+
+    prop_stats_stmt = select(func.count(col(Proposal.id))).where(
+        col(Proposal.job_post_id) == job.id,
+        Proposal.status != ProposalStatus.DRAFT,
+    )
+    proposals_count = session.exec(prop_stats_stmt).one()
+
+    job_public = JobPostPublic.model_validate(
+        job,
+        update={
+            "client_name": job.client.full_name if job.client else None,
+            "client_company": client_company,
+            "skills": job.skills or [],
+            "proposals_count": proposals_count,
+            "is_saved": True,
+            "has_applied": has_applied,
+            "has_draft": has_draft,
+        },
+    )
+
+    return SavedJobPublic(
+        id=existing.id,
+        job_post_id=existing.job_post_id,
+        created_at=existing.created_at,
+        job_post=job_public,
+    )
+
+
+@router.get("/saved/{id}", response_model=SavedJobPublic)
+def read_saved_job_item(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID,
+) -> Any:
+    """
+    Get a single saved job record by saved job ID or job post ID.
+    Only the saving freelancer or superuser can access.
+    """
+    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Only freelancers can view saved jobs",
+        )
+
+    saved = session.exec(
+        select(SavedJob)
+        .where(
+            SavedJob.freelancer_id == current_user.id,
+            (SavedJob.id == id) | (SavedJob.job_post_id == id),
+        )
+        .options(
+            joinedload(SavedJob.job_post).selectinload(JobPost.client).selectinload(User.client_profile),  # type: ignore[arg-type]
+        )
+    ).first()
+
+    if not saved:
+        raise HTTPException(status_code=404, detail="Saved job not found")
+
+    job = saved.job_post
+    job_public = None
+    if job:
+        client_company = (
+            job.client.client_profile.company
+            if job.client and job.client.client_profile
+            else None
+        )
+        user_proposal = session.exec(
+            select(Proposal).where(
+                Proposal.freelancer_id == current_user.id,
+                Proposal.job_post_id == job.id,
+            )
+        ).first()
+        has_applied = user_proposal is not None and user_proposal.status != ProposalStatus.DRAFT
+        has_draft = user_proposal is not None and user_proposal.status == ProposalStatus.DRAFT
+
+        prop_stats_stmt = select(func.count(col(Proposal.id))).where(
+            col(Proposal.job_post_id) == job.id,
+            Proposal.status != ProposalStatus.DRAFT,
+        )
+        proposals_count = session.exec(prop_stats_stmt).one()
+
+        job_public = JobPostPublic.model_validate(
+            job,
+            update={
+                "client_name": job.client.full_name if job.client else None,
+                "client_company": client_company,
+                "skills": job.skills or [],
+                "proposals_count": proposals_count,
+                "is_saved": True,
+                "has_applied": has_applied,
+                "has_draft": has_draft,
+            },
+        )
+
+    return SavedJobPublic(
+        id=saved.id,
+        job_post_id=saved.job_post_id,
+        created_at=saved.created_at,
+        job_post=job_public,
+    )
+
+
+@router.delete("/saved/{id}", response_model=Message)
+def delete_saved_job_item(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID,
+) -> Message:
+    """
+    Remove a job post from saved jobs by saved record ID or job post ID.
+    """
+    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Only freelancers can save or unsave jobs",
+        )
+
+    saved = session.exec(
+        select(SavedJob)
+        .where(
+            SavedJob.freelancer_id == current_user.id,
+            (SavedJob.id == id) | (SavedJob.job_post_id == id),
+        )
+    ).first()
+
+    if not saved:
+        raise HTTPException(status_code=404, detail="Saved job not found")
+
+    session.delete(saved)
+    session.commit()
+
+    return Message(message="Job post removed from saved")
 
 
 @router.post("/", response_model=JobPostPublic)
@@ -358,11 +596,15 @@ def read_job(
     if not job:
         raise HTTPException(status_code=404, detail="Job post not found")
 
-    proposals_count_stmt = select(func.count()).where(Proposal.job_post_id == job.id)
+    proposals_count_stmt = select(func.count()).where(
+        Proposal.job_post_id == job.id,
+        Proposal.status != ProposalStatus.DRAFT,
+    )
     proposals_count = session.exec(proposals_count_stmt).one()
 
     is_saved = False
     has_applied = False
+    has_draft = False
     if current_user:
         saved_row = session.exec(
             select(SavedJob).where(
@@ -372,13 +614,19 @@ def read_job(
         ).first()
         is_saved = saved_row is not None
 
-        applied_row = session.exec(
+        user_proposal = session.exec(
             select(Proposal).where(
                 Proposal.freelancer_id == current_user.id,
                 Proposal.job_post_id == job.id,
             )
         ).first()
-        has_applied = applied_row is not None
+        if user_proposal:
+            if user_proposal.status == ProposalStatus.DRAFT:
+                has_draft = True
+                has_applied = False
+            else:
+                has_draft = False
+                has_applied = True
 
     skills = job.skills or []
     client_public = UserPublic.model_validate(job.client) if job.client else None
@@ -406,6 +654,7 @@ def read_job(
             "proposals_count": proposals_count,
             "is_saved": is_saved,
             "has_applied": has_applied,
+            "has_draft": has_draft,
             "client": client_public,
             "client_profile": client_profile_public,
         },
@@ -443,7 +692,10 @@ def update_job(
     session.commit()
     session.refresh(job)
 
-    proposals_count_stmt = select(func.count()).where(Proposal.job_post_id == job.id)
+    proposals_count_stmt = select(func.count()).where(
+        Proposal.job_post_id == job.id,
+        Proposal.status != ProposalStatus.DRAFT,
+    )
     proposals_count = session.exec(proposals_count_stmt).one()
 
     return JobPostPublic.model_validate(
@@ -454,6 +706,7 @@ def update_job(
             "proposals_count": proposals_count,
             "is_saved": False,
             "has_applied": False,
+            "has_draft": False,
         },
     )
 

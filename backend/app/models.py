@@ -41,6 +41,7 @@ class JobStatus(StrEnum):
 
 
 class ProposalStatus(StrEnum):
+    DRAFT = "draft"
     PENDING = "pending"
     ACCEPTED = "accepted"
     REJECTED = "rejected"
@@ -982,6 +983,7 @@ class JobPostPublic(JobPostBase):
     proposals_count: int = 0
     is_saved: bool = False
     has_applied: bool = False
+    has_draft: bool = False
 
 
 class JobPostDetailPublic(JobPostPublic):
@@ -1005,6 +1007,12 @@ class ProposalBase(SQLModel):
 
 class ProposalCreate(ProposalBase):
     job_post_id: uuid.UUID
+    status: ProposalStatus = ProposalStatus.PENDING
+
+
+class ProposalUpdate(SQLModel):
+    cover_letter: str | None = Field(default=None, max_length=3000)
+    status: ProposalStatus | None = None
 
 
 class ProposalStatusUpdate(SQLModel):
@@ -1051,6 +1059,7 @@ class ProposalPublic(ProposalBase):
     updated_at: datetime | None = None
     freelancer: UserPublic | None = None
     freelancer_profile: Optional[FreelancerProfilePublic] = None
+    job_post: Optional[JobPostPublic] = None
 
 
 class ProposalsPublic(SQLModel):
