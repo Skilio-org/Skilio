@@ -37,7 +37,6 @@ from app.models import (
     FreelancerProfilePublic,
     FreelancerProfilesPublic,
     FreelancerProfileUpdate,
-    FreelancerSkillLink,
     LikedFreelancer,
     MediaPublic,
     Message,
@@ -47,8 +46,6 @@ from app.models import (
     PortfolioItemUpdate,
     Review,
     ReviewPublic,
-    Skill,
-    SkillPublic,
     User,
     UserPublic,
     UserRole,
@@ -57,15 +54,6 @@ from app.models import (
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
 def get_http_client(request: Request) -> httpx.AsyncClient: return request.app.state.http_client
-
-def get_or_create_skill(session: SessionDep, name: str) -> Skill:
-    clean_name = name.strip()
-    skill = session.exec(select(Skill).where(col(Skill.name).ilike(clean_name))).first()
-    if not skill:
-        skill = Skill(name=clean_name)
-        session.add(skill)
-        session.flush()
-    return skill
 
 
 def _build_profile_detail_public(
@@ -100,8 +88,8 @@ def _build_profile_detail_public(
     portfolio_items_public = [
         PortfolioItemPublic.model_validate(item) for item in profile.portfolio_items
     ]
-    skills_public = [SkillPublic.model_validate(s) for s in profile.skills]
-    skill_names = [s.name for s in profile.skills]
+    skills = profile.skills or []
+    skill_names = profile.skills or []
 
     user_obj = profile.user or current_user
     user_public = UserPublic.model_validate(user_obj) if user_obj else None
@@ -112,7 +100,7 @@ def _build_profile_detail_public(
             "full_name": user_obj.full_name if user_obj else None,
             "average_rating": float(avg_rating) if avg_rating else None,
             "reviews_count": reviews_count,
-            "skills": skills_public,
+            "skills": skills,
             "skill_names": skill_names,
             "portfolio_media": portfolio_media_public,
             "portfolio": portfolio_items_public,
@@ -142,8 +130,8 @@ def _build_profile_public(
         reviews_count = session.exec(reviews_count_stmt).one()
         avg_rating = float(raw_avg) if raw_avg is not None else None
 
-    skills_public = [SkillPublic.model_validate(s) for s in profile.skills]
-    skill_names = [s.name for s in profile.skills]
+    skills = profile.skills or []
+    skill_names = profile.skills or []
 
     user_obj = profile.user or current_user
 
@@ -153,7 +141,7 @@ def _build_profile_public(
             "full_name": user_obj.full_name if user_obj else None,
             "average_rating": avg_rating,
             "reviews_count": reviews_count,
-            "skills": skills_public,
+            "skills": skills,
             "skill_names": skill_names,
             "is_saved": is_saved,
         },
@@ -185,17 +173,12 @@ def read_profiles(
     )
 
     if q:
-        skill_subquery = (
-            select(FreelancerSkillLink.freelancer_profile_id)
-            .join(Skill, col(FreelancerSkillLink.skill_id) == Skill.id)
-            .where(cast(Skill.name, String).ilike(f"%{q}%"))
-        )
         statement = statement.where(
             col(FreelancerProfile.title).ilike(f"%{q}%")
             | col(FreelancerProfile.bio).ilike(f"%{q}%")
             | col(FreelancerProfile.location).ilike(f"%{q}%")
             | col(User.full_name).ilike(f"%{q}%")
-            | FreelancerProfile.id.in_(skill_subquery)
+            | cast(FreelancerProfile.skills, String).ilike(f"%{q}%")
         )
         if current_user:
             record_recent_search(session, current_user.id, q)
@@ -243,7 +226,6 @@ def read_profiles(
 
     statement = (
         statement.options(
-            selectinload(FreelancerProfile.skills),  # type: ignore[arg-type]
             selectinload(FreelancerProfile.user),  # type: ignore[arg-type]
         )
         .offset(skip)
@@ -368,12 +350,7 @@ def update_profile_me(
         session.add(profile)
 
     if profile_in.skills is not None:
-        skill_objs = [
-            get_or_create_skill(session, s)
-            for s in profile_in.skills
-            if s.strip()
-        ]
-        profile.skills = skill_objs
+        profile.skills = [s.strip() for s in profile_in.skills if s.strip()]
         session.add(profile)
 
     if profile_in.experiences is not None:
@@ -1027,9 +1004,8 @@ def create_profile(
             detail="Freelancer profile already exists for this user",
         )
 
-    # Resolve skills
-    skill_objects = [
-        get_or_create_skill(session, skill_name)
+    skills = [
+        skill_name.strip()
         for skill_name in profile_in.skills
         if skill_name.strip()
     ]
@@ -1046,7 +1022,7 @@ def create_profile(
     else:
         profile = FreelancerProfile(**profile_data, user_id=current_user.id)
 
-    profile.skills = skill_objects
+    profile.skills = skills
     session.add(profile)
 
     # Auto-switch user's active role to freelancer
@@ -1093,11 +1069,7 @@ def update_profile(
 
     # Update skills if provided
     if profile_in.skills is not None:
-        profile.skills = [
-            get_or_create_skill(session, s)
-            for s in profile_in.skills
-            if s.strip()
-        ]
+        profile.skills = [s.strip() for s in profile_in.skills if s.strip()]
         session.add(profile)
 
     session.commit()

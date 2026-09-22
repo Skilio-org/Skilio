@@ -4,7 +4,7 @@ from enum import StrEnum
 from typing import Any, Optional, Self
 
 from pydantic import EmailStr, model_validator
-from sqlalchemy import DateTime, UniqueConstraint
+from sqlalchemy import JSON, DateTime, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -44,65 +44,6 @@ class ProposalStatus(StrEnum):
     PENDING = "pending"
     ACCEPTED = "accepted"
     REJECTED = "rejected"
-
-
-class ITSkill(StrEnum):
-    # Programming Languages & Frameworks
-    PYTHON = "Python"
-    FASTAPI = "FastAPI"
-    DJANGO = "Django"
-    JAVASCRIPT = "JavaScript"
-    TYPESCRIPT = "TypeScript"
-    REACT = "React"
-    NEXTJS = "Next.js"
-    VUE = "Vue.js"
-    ANGULAR = "Angular"
-    NODEJS = "Node.js"
-    GO = "Go"
-    JAVA = "Java"
-    SPRING_BOOT = "Spring Boot"
-    DOTNET = ".NET"
-    PHP = "PHP"
-    LARAVEL = "Laravel"
-    RUST = "Rust"
-    C_PLUS_PLUS = "C++"
-
-    # Mobile Development
-    REACT_NATIVE = "React Native"
-    FLUTTER = "Flutter"
-    SWIFT = "Swift"
-    KOTLIN = "Kotlin"
-
-    # Databases & Storage
-    POSTGRESQL = "PostgreSQL"
-    MYSQL = "MySQL"
-    MONGODB = "MongoDB"
-    REDIS = "Redis"
-
-    # DevOps, Cloud & Systems
-    DOCKER = "Docker"
-    KUBERNETES = "Kubernetes"
-    AWS = "AWS"
-    AZURE = "Azure"
-    GCP = "GCP"
-    TERRAFORM = "Terraform"
-    CI_CD = "CI/CD"
-    LINUX = "Linux"
-
-    # Data, AI & Machine Learning
-    MACHINE_LEARNING = "Machine Learning"
-    DEEP_LEARNING = "Deep Learning"
-    DATA_ANALYSIS = "Data Analysis"
-    PYTORCH = "PyTorch"
-    TENSORFLOW = "TensorFlow"
-
-    # UI/UX & Design
-    UI_UX_DESIGN = "UI/UX Design"
-    FIGMA = "Figma"
-
-    # Quality Assurance & Security
-    QA_AUTOMATION = "QA & Automated Testing"
-    CYBERSECURITY = "Cybersecurity"
 
 
 class JobCategory(StrEnum):
@@ -345,64 +286,6 @@ class MediaPublic(MediaBase):
 
 class MediasPublic(SQLModel):
     data: list[MediaPublic]
-    count: int
-
-
-# ==============================================================================
-# Skill Models & FreelancerSkillLink
-# ==============================================================================
-
-
-class FreelancerSkillLink(SQLModel, table=True):
-    freelancer_profile_id: uuid.UUID = Field(
-        foreign_key="freelancerprofile.id", primary_key=True, ondelete="CASCADE"
-    )
-    skill_id: uuid.UUID = Field(
-        foreign_key="skill.id", primary_key=True, ondelete="CASCADE"
-    )
-
-
-class JobSkillLink(SQLModel, table=True):
-    job_post_id: uuid.UUID = Field(
-        foreign_key="jobpost.id", primary_key=True, ondelete="CASCADE"
-    )
-    skill_id: uuid.UUID = Field(
-        foreign_key="skill.id", primary_key=True, ondelete="CASCADE"
-    )
-
-
-class SkillBase(SQLModel):
-    name: str = Field(unique=True, index=True, max_length=100)
-
-
-class SkillCreate(SkillBase):
-    pass
-
-
-class SkillUpdate(SQLModel):
-    name: str | None = Field(default=None, max_length=100)
-
-
-class Skill(SkillBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    created_at: datetime | None = Field(
-        default_factory=get_datetime_utc,
-        sa_type=DateTime(timezone=True),  # type: ignore
-    )
-    freelancer_profiles: list["FreelancerProfile"] = Relationship(
-        back_populates="skills", link_model=FreelancerSkillLink
-    )
-    job_posts: list["JobPost"] = Relationship(
-        back_populates="required_skills", link_model=JobSkillLink
-    )
-
-
-class SkillPublic(SkillBase):
-    id: uuid.UUID
-
-
-class SkillsPublic(SQLModel):
-    data: list[SkillPublic]
     count: int
 
 
@@ -667,8 +550,9 @@ class FreelancerProfile(FreelancerProfileBase, table=True):
         back_populates="freelancer_profile",
         cascade_delete=True,
     )
-    skills: list[Skill] = Relationship(
-        back_populates="freelancer_profiles", link_model=FreelancerSkillLink
+    skills: list[str] = Field(
+        default_factory=list,
+        sa_type=JSON,  # type: ignore
     )
     reviews: list["Review"] = Relationship(
         back_populates="freelancer", cascade_delete=True
@@ -684,7 +568,7 @@ class FreelancerProfilePublic(FreelancerProfileBase):
     full_name: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
-    skills: list[SkillPublic] = Field(default_factory=list)
+    skills: list[str] = Field(default_factory=list)
     skill_names: list[str] = Field(default_factory=list)
     average_rating: float | None = None
     reviews_count: int = 0
@@ -1043,7 +927,7 @@ class JobPostBase(SQLModel):
 
 
 class JobPostCreate(JobPostBase):
-    skills: list[ITSkill] = Field(default_factory=list)
+    skills: list[str] = Field(default_factory=list)
 
 
 class JobPostUpdate(SQLModel):
@@ -1054,7 +938,7 @@ class JobPostUpdate(SQLModel):
     location: str | None = Field(default=None, max_length=255)
     category: str | None = Field(default=None, max_length=100)
     status: JobStatus | None = None
-    skills: list[ITSkill] | None = None
+    skills: list[str] | None = None
 
 
 class JobPost(JobPostBase, table=True):
@@ -1075,8 +959,9 @@ class JobPost(JobPostBase, table=True):
         back_populates="job_posts",
         sa_relationship_kwargs={"foreign_keys": "[JobPost.client_id]"},
     )
-    required_skills: list[Skill] = Relationship(
-        back_populates="job_posts", link_model=JobSkillLink
+    skills: list[str] = Field(
+        default_factory=list,
+        sa_type=JSON,  # type: ignore
     )
     proposals: list["Proposal"] = Relationship(
         back_populates="job_post", cascade_delete=True
@@ -1093,7 +978,7 @@ class JobPostPublic(JobPostBase):
     client_company: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
-    skills: list[SkillPublic] = Field(default_factory=list)
+    skills: list[str] = Field(default_factory=list)
     proposals_count: int = 0
     is_saved: bool = False
     has_applied: bool = False

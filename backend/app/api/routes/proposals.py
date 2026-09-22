@@ -21,7 +21,6 @@ from app.models import (
     ProposalStatus,
     ProposalStatusUpdate,
     Review,
-    SkillPublic,
     User,
     UserPublic,
     UserRole,
@@ -48,9 +47,7 @@ def _build_freelancer_profile_public(
         reviews_count = session.exec(reviews_count_stmt).one()
         avg_rating = float(raw_avg) if raw_avg is not None else None
 
-    skills_public = [
-        SkillPublic.model_validate(skill) for skill in profile.skills
-    ]
+    skills = profile.skills or []
 
     return FreelancerProfilePublic.model_validate(
         profile,
@@ -58,7 +55,8 @@ def _build_freelancer_profile_public(
             "full_name": profile.user.full_name if profile.user else None,
             "average_rating": avg_rating,
             "reviews_count": reviews_count,
-            "skills": skills_public,
+            "skills": skills,
+            "skill_names": skills,
             "is_saved": False,
         },
     )
@@ -171,8 +169,7 @@ def read_proposals_for_job(
         .where(Proposal.job_post_id == job_id)
         .options(
             joinedload(Proposal.freelancer)  # type: ignore[arg-type]
-            .joinedload(User.freelancer_profile)  # type: ignore[arg-type]
-            .selectinload(FreelancerProfile.skills),  # type: ignore[arg-type]
+            .joinedload(User.freelancer_profile),  # type: ignore[arg-type]
         )
         .order_by(col(Proposal.created_at).desc())
         .offset(skip)

@@ -59,7 +59,7 @@ def test_create_job_by_client(client: TestClient, db: Session) -> None:
     assert content["is_saved"] is False
     assert content["has_applied"] is False
 
-    skills = [s["name"] for s in content["skills"]]
+    skills = content["skills"]
     assert "FastAPI" in skills
     assert "Python" in skills
     assert "PostgreSQL" in skills
@@ -154,7 +154,7 @@ def test_read_jobs_feed_filters(client: TestClient, db: Session) -> None:
     assert r_skill.status_code == 200
     docker_jobs = r_skill.json()["data"]
     assert len(docker_jobs) >= 1
-    assert any("Docker" in [s["name"] for s in j["skills"]] for j in docker_jobs)
+    assert any("Docker" in j["skills"] for j in docker_jobs)
 
     # Filter by category
     r_cat = client.get(f"{settings.API_V1_STR}/jobs/?category=IT%20%26%20Networking")
@@ -282,8 +282,9 @@ def test_update_job(client: TestClient, db: Session) -> None:
     assert content["title"] == "Updated Job Title"
     assert content["budget"] == 75.0
     assert content["status"] == "closed"
-    skills = [s["name"] for s in content["skills"]]
+    skills = content["skills"]
     assert "FastAPI" in skills
+    assert "Python" in skills
 
 
 def test_delete_job(client: TestClient, db: Session) -> None:
@@ -314,3 +315,25 @@ def test_delete_job(client: TestClient, db: Session) -> None:
     # Check 404
     get_resp = client.get(f"{settings.API_V1_STR}/jobs/{job_id}")
     assert get_resp.status_code == 404
+
+
+def test_create_job_with_custom_skills(client: TestClient, db: Session) -> None:
+    client_headers, _ = _make_client_headers(client, db)
+    data = {
+        "title": "AI Agent Developer",
+        "description": "Need an engineer skilled in prompt engineering and arbitrary tools.",
+        "budget_type": "fixed",
+        "budget": 3000.0,
+        "skills": ["Prompt Engineering", "Custom Agentic AI", "FastAPI"],
+    }
+    response = client.post(f"{settings.API_V1_STR}/jobs/", headers=client_headers, json=data)
+    assert response.status_code == 200
+    content = response.json()
+    assert content["skills"] == ["Prompt Engineering", "Custom Agentic AI", "FastAPI"]
+
+    # Keyword search finding custom skill
+    search_resp = client.get(f"{settings.API_V1_STR}/jobs/?q=Prompt%20Engineering")
+    assert search_resp.status_code == 200
+    found_jobs = search_resp.json()["data"]
+    assert any(content["id"] == j["id"] for j in found_jobs)
+

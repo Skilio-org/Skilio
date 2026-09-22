@@ -2,7 +2,7 @@ from sqlmodel import Session, create_engine, select
 
 from app import crud
 from app.core.config import settings
-from app.models import ITSkill, Skill, User, UserCreate
+from app.models import User, UserCreate
 
 engine = create_engine(str(settings.DATABASE_URL))
 
@@ -10,35 +10,6 @@ engine = create_engine(str(settings.DATABASE_URL))
 # make sure all SQLModel models are imported (app.models) before initializing DB
 # otherwise, SQLModel might fail to initialize relationships properly
 # for more details: https://github.com/fastapi/full-stack-fastapi-template/issues/28
-
-
-SUGGESTED_SKILLS = [
-    "Product design",
-    "UX research",
-    "Figma",
-    "React",
-    "TypeScript",
-    "Python",
-    "Brand strategy",
-    "Copywriting",
-    "SEO",
-    "Video editing",
-    "AI automation",
-    "Webflow",
-]
-
-
-def init_skills(session: Session) -> None:
-    existing_skills = set(session.exec(select(Skill.name)).all())
-    initial_skills = [str(skill) for skill in ITSkill] + SUGGESTED_SKILLS
-    new_skills = [
-        Skill(name=skill)
-        for skill in dict.fromkeys(initial_skills)
-        if skill not in existing_skills
-    ]
-    if new_skills:
-        session.add_all(new_skills)
-        session.commit()
 
 
 def init_db(session: Session) -> None:
@@ -49,8 +20,6 @@ def init_db(session: Session) -> None:
 
     # This works because the models are already imported and registered from app.models
     # SQLModel.metadata.create_all(engine)
-
-    init_skills(session)
 
     user = session.exec(
         select(User).where(User.email == settings.FIRST_SUPERUSER)
