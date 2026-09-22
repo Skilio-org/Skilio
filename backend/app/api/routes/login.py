@@ -4,7 +4,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from app.core.security import get_password_hash
+from app.core.security import generate_random_password
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
@@ -88,7 +88,7 @@ def google_callback(request: Request, code: str, session: SessionDep):
             google_id=google_user["sub"],
             refresh_token=refresh_token,
             is_active=True,
-            hashed_password=get_password_hash("placeolder")  # Placeholder password for OAuth users
+            hashed_password=generate_random_password(12)
         )
         session.add(user)
         session.commit()
@@ -179,7 +179,7 @@ def linkedin_callback(request: Request, code: str, session: SessionDep):
             avatar_url=linkedin_user.get("picture"),
             linkedin_id=linkedin_user["sub"],
             is_active=True,
-            hashed_password=get_password_hash("placeolder")
+            hashed_password=generate_random_password(12)
         )
         session.add(user)
         session.commit()
