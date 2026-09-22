@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query"
 import { loadTalentCards } from "@/components/talent/talent-api"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 import { SearchWithCategories } from "@/components/common/search-with-categories"
+import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 
 const availabilityOptions = ["Available now", "Available this week", "Available next week"]
 const locationOptions = ["Worldwide", "Europe", "North America", "Asia Pacific"]
@@ -185,26 +186,12 @@ export function TalentDirectoryPage({
 	)
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
-			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
-				<div className="flex max-w-2xl flex-col gap-4">
-					<div className="flex flex-wrap items-center gap-2">
-						<span className="font-caption font-semibold text-caption text-on-surface-variant uppercase tracking-wider">
-							Client workspace
-						</span>
-						<span className="size-1 rounded-full bg-outline-variant" />
-						<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary">
-							<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
-							Discover independent talent
-						</span>
-					</div>
-					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">
-						Find your next collaborator.
-					</h1>
-					<p className="font-body-md text-body-md text-on-surface-variant">
-						Discover freelance professionals for your project, budget, and timeline.
-					</p>
-				</div>
-				<div className="flex shrink-0 items-center self-start md:self-auto">
+			<WorkspacePageHeader
+				eyebrow="Client workspace"
+				title="Find your next collaborator."
+				description="Discover freelance professionals for your project, budget, and timeline."
+				meta={<span className="font-medium text-primary">Discover independent talent</span>}
+				action={
 					<Link
 						to="/saved"
 						className="group inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md font-medium text-label-md text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
@@ -215,8 +202,8 @@ export function TalentDirectoryPage({
 							{savedIds.length}
 						</span>
 					</Link>
-				</div>
-			</header>
+				}
+			/>
 			<SearchWithCategories
 				initialQuery={initialQuery}
 				initialCategory={category}

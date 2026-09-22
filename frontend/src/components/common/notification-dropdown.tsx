@@ -235,13 +235,6 @@ export function NotificationDropdown() {
 
 						<div className="flex items-center justify-between px-4 py-2.5">
 							<span className="font-caption text-caption text-outline">Showing recent activity</span>
-
-							<button
-								type="button"
-								className="font-label-sm font-medium text-label-sm text-primary transition-colors hover:text-primary-container"
-							>
-								View all
-							</button>
 						</div>
 					</>
 				)}

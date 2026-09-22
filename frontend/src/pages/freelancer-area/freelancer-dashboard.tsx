@@ -6,6 +6,8 @@ import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { type ProposalDraft as Draft, freelancerJobs, seedProposals } from "@/data/freelancer-workspace"
 import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
+import QuickSavedSearch from "../common/quick-search"
+import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 
 const FreelancerDashboardPage = () => {
 	const { user } = useAuth()
@@ -18,7 +20,6 @@ const FreelancerDashboardPage = () => {
 	const [drafts, setDrafts] = useState<Draft[]>([])
 	const [error, setError] = useState("")
 
-	const [query, setQuery] = useState("")
 	const [filter, setFilter] = useState("All work")
 
 	useEffect(() => {
@@ -65,12 +66,7 @@ const FreelancerDashboardPage = () => {
 
 	const filteredJobs = jobs.filter((job) => {
 		const matchesCategory = filter === "All work" || job.category === filter
-
-		const matchesSearch = `${job.title} ${job.company} ${job.skills.join(" ")}`
-			.toLowerCase()
-			.includes(query.toLowerCase())
-
-		return matchesCategory && matchesSearch
+		return matchesCategory
 	})
 
 	const submittedProposals = drafts.filter((draft) => (draft.status ?? "Drafts") === "Submitted")
@@ -81,59 +77,48 @@ const FreelancerDashboardPage = () => {
 
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
-			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
-				<div className="flex max-w-2xl flex-col gap-4">
-					<div className="flex flex-wrap items-center gap-2">
-						<span className="font-caption font-semibold text-caption text-on-surface-variant uppercase tracking-wider">
-							Freelancer workspace
-						</span>
-
-						<span className="size-1 rounded-full bg-outline-variant" />
-
-						<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary">
-							<span
-								className={`size-1.5 rounded-full ${available ? "bg-primary-container dark:bg-primary" : "bg-outline"}`}
-							/>
-							{available === undefined
-								? "Availability not loaded"
-								: available
-									? "Available for new contracts"
-									: "Not taking new contracts"}
-						</span>
-					</div>
-
-					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">
-						Good to see you, {firstName}.
-					</h1>
-
-					<p className="font-body-md text-body-md text-on-surface-variant">
-						Keep your profile current and discover verified opportunities curated specifically for your skill stack.
-					</p>
-				</div>
-
-				<div className="flex items-center gap-2.5 self-start md:self-auto">
-					<Link
-						to="/freelancer-saved-jobs"
-						className="group inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md font-medium text-label-md text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
+			<WorkspacePageHeader
+				eyebrow="Freelancer workspace"
+				title={firstName ? `Good to see you, ${firstName}.` : "Find your next collaborator."}
+				description="Keep your profile current and discover verified opportunities curated specifically for your skill stack."
+				meta={
+					<span
+						className={`flex items-center gap-1 font-caption font-medium text-caption ${available ? "text-primary" : "text-secondary"}`}
 					>
-						<Bookmark className="size-4 text-current transition-colors" />
+						<span
+							className={`size-1.5 rounded-full ${available ? "bg-primary-container dark:bg-primary" : "bg-outline"}`}
+						/>
+						{available === undefined
+							? "Availability not loaded"
+							: available
+								? "Available for new contracts"
+								: "Not taking new contracts"}
+					</span>
+				}
+				action={
+					<>
+						<Link
+							to="/freelancer-saved-jobs"
+							className="group inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md font-medium text-label-md text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
+						>
+							<Bookmark className="size-4 text-current transition-colors" />
 
-						<span>Saved</span>
+							<span>Saved</span>
 
-						<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption text-[10px] text-on-surface-variant transition-colors group-hover:text-on-surface">
-							{/* {savedCount} */}0
-						</span>
-					</Link>
-					<Link
-						to="/freelancer-jobs"
-						className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
-					>
-						<Search className="size-4" />
-						Browse all jobs
-					</Link>
-				</div>
-			</header>
-
+							<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption text-[10px] text-on-surface-variant transition-colors group-hover:text-on-surface">
+								{/* {savedCount} */}0
+							</span>
+						</Link>
+						<Link
+							to="/freelancer-jobs"
+							className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
+						>
+							<Search className="size-4" />
+							Browse all jobs
+						</Link>
+					</>
+				}
+			/>
 			{error && (
 				<p role="alert" className="text-destructive text-sm">
 					{error}
@@ -329,41 +314,7 @@ const FreelancerDashboardPage = () => {
 						</div>
 					</section>
 
-					<section className="flex flex-col gap-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
-						<h3 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Quick searches</h3>
-
-						<div className="flex flex-col gap-2">
-							{["Product design", "React & Design Systems"].map((search) => (
-								<button
-									key={search}
-									type="button"
-									onClick={() => {
-										setQuery(search)
-										setFilter("All work")
-									}}
-									className="group flex items-center justify-between rounded p-2 text-left transition-colors hover:bg-surface-container"
-								>
-									<span className="flex items-center gap-2">
-										<Search className="size-4 text-outline" />
-
-										<span className="font-body-sm text-body-sm text-on-surface transition-colors group-hover:text-primary-container">
-											{search}
-										</span>
-									</span>
-
-									<ArrowRight className="size-3.5 text-outline" />
-								</button>
-							))}
-						</div>
-
-						<div className="flex items-center justify-between border-outline-variant border-t pt-3 font-caption text-caption text-on-surface-variant">
-							<span>Use these to jump back into common searches.</span>
-
-							<Link to="/freelancer-jobs" className="font-medium text-primary hover:underline">
-								Browse
-							</Link>
-						</div>
-					</section>
+					<QuickSavedSearch />
 				</aside>
 			</div>
 		</div>

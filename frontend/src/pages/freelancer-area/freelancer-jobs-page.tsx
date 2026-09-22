@@ -1,4 +1,5 @@
 import SearchWithCategories from "@/components/common/search-with-categories"
+import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -68,13 +69,7 @@ export default function FreelancerJobsPage() {
 		.filter((job) => {
 			const rate = Number(job.budget.replace(/,/g, "").match(/[\d.]+/)?.[0] || 0)
 
-			const searchableContent = [
-				job.title,
-				job.company,
-				job.category,
-				job.description,
-				...job.skills,
-			]
+			const searchableContent = [job.title, job.company, job.category, job.description, ...job.skills]
 				.join(" ")
 				.toLowerCase()
 
@@ -84,18 +79,14 @@ export default function FreelancerJobsPage() {
 
 			const matchesType = !types.length || types.includes(job.projectType)
 
-			const matchesTopRated =
-				!credentials.includes("Top rated") || (job.clientRating ?? 0) >= 4.5
+			const matchesTopRated = !credentials.includes("Top rated") || (job.clientRating ?? 0) >= 4.5
 
-			const matchesPreviousHires =
-				!credentials.includes("Has hired previously") || (job.previousHires ?? 0) > 0
+			const matchesPreviousHires = !credentials.includes("Has hired previously") || (job.previousHires ?? 0) > 0
 
-			const matchesExperience =
-				!experience.length || experience.includes(job.experience ?? "")
+			const matchesExperience = !experience.length || experience.includes(job.experience ?? "")
 
 			const matchesHourlyRate =
-				job.projectType !== "Hourly" ||
-				(rate >= hourlyRate[0] && (hourlyRate[1] === 120 || rate <= hourlyRate[1]))
+				job.projectType !== "Hourly" || (rate >= hourlyRate[0] && (hourlyRate[1] === 120 || rate <= hourlyRate[1]))
 
 			const matchesCommitment =
 				!commitment ||
@@ -193,9 +184,7 @@ export default function FreelancerJobsPage() {
 		...(hourlyRate[0] !== 0 || hourlyRate[1] !== 120
 			? [
 					{
-						label: `$${hourlyRate[0]}–${
-							hourlyRate[1] === 120 ? "120+" : hourlyRate[1]
-						}/hr`,
+						label: `$${hourlyRate[0]}–${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr`,
 						remove: () => {
 							setHourlyRate([0, 120])
 							setVisibleCount(4)
@@ -210,12 +199,7 @@ export default function FreelancerJobsPage() {
 			key={label}
 			className="flex cursor-pointer items-center gap-2 font-body-sm text-body-sm text-on-surface-variant"
 		>
-			<input
-				type="checkbox"
-				checked={checked}
-				onChange={onChange}
-				className="size-3.5 shrink-0 accent-primary"
-			/>
+			<input type="checkbox" checked={checked} onChange={onChange} className="size-3.5 shrink-0 accent-primary" />
 
 			{label}
 		</label>
@@ -229,11 +213,7 @@ export default function FreelancerJobsPage() {
 					Refine search
 				</h2>
 
-				<button
-					type="button"
-					onClick={clear}
-					className="text-caption text-primary hover:underline"
-				>
+				<button type="button" onClick={clear} className="text-caption text-primary hover:underline">
 					Clear all
 				</button>
 			</div>
@@ -241,59 +221,36 @@ export default function FreelancerJobsPage() {
 			<fieldset className="space-y-2.5 py-4">
 				<legend className="sr-only">Project Type</legend>
 
-				<p className="mb-3 font-medium text-label-sm">
-					Project Type
-				</p>
+				<p className="mb-3 font-medium text-label-sm">Project Type</p>
 
 				{check("All project types", !types.length, () => {
 					setTypes([])
 					setVisibleCount(4)
 				})}
 
-				{check(
-					"Fixed price contracts",
-					types.includes("Fixed price"),
-					() => toggle(types, "Fixed price", setTypes),
-				)}
+				{check("Fixed price contracts", types.includes("Fixed price"), () => toggle(types, "Fixed price", setTypes))}
 
-				{check(
-					"Hourly rates",
-					types.includes("Hourly"),
-					() => toggle(types, "Hourly", setTypes),
-				)}
+				{check("Hourly rates", types.includes("Hourly"), () => toggle(types, "Hourly", setTypes))}
 			</fieldset>
 
 			<fieldset className="space-y-2.5 py-4">
-				<legend className="sr-only">
-					Experience Level
-				</legend>
+				<legend className="sr-only">Experience Level</legend>
 
-				<p className="mb-3 font-medium text-label-sm">
-					Experience Level
-				</p>
+				<p className="mb-3 font-medium text-label-sm">Experience Level</p>
 
 				{["Entry level", "Intermediate", "Expert / Principal"].map((label) =>
-					check(
-						label,
-						experience.includes(label),
-						() => toggle(experience, label, setExperience),
-					),
+					check(label, experience.includes(label), () => toggle(experience, label, setExperience)),
 				)}
 			</fieldset>
 
 			<fieldset className="py-4">
-				<legend className="sr-only">
-					Hourly Rate
-				</legend>
+				<legend className="sr-only">Hourly Rate</legend>
 
 				<div className="mb-4 flex items-center justify-between">
-					<span className="font-medium text-label-sm">
-						Hourly Rate
-					</span>
+					<span className="font-medium text-label-sm">Hourly Rate</span>
 
 					<span className="text-caption text-outline">
-						${hourlyRate[0]} – $
-						{hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr
+						${hourlyRate[0]} – ${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr
 					</span>
 				</div>
 
@@ -310,19 +267,12 @@ export default function FreelancerJobsPage() {
 			</fieldset>
 
 			<fieldset className="space-y-2.5 pt-4">
-				<legend className="sr-only">
-					Weekly Commitment
-				</legend>
+				<legend className="sr-only">Weekly Commitment</legend>
 
-				<p className="mb-3 font-medium text-label-sm">
-					Weekly Commitment
-				</p>
+				<p className="mb-3 font-medium text-label-sm">Weekly Commitment</p>
 
 				{["Under 15 hrs/wk", "15–30 hrs/wk", "30+ hrs/wk"].map((label) => (
-					<label
-						key={label}
-						className="flex cursor-pointer items-center gap-2 text-body-sm text-on-surface-variant"
-					>
+					<label key={label} className="flex cursor-pointer items-center gap-2 text-body-sm text-on-surface-variant">
 						<input
 							type="radio"
 							name={`${group}-hours`}
@@ -343,31 +293,12 @@ export default function FreelancerJobsPage() {
 
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
-			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
-				<div className="flex max-w-2xl flex-col gap-4">
-					<div className="flex flex-wrap items-center gap-2">
-						<span className="font-caption font-semibold text-caption text-on-surface-variant uppercase tracking-wider">
-							Freelancer workspace
-						</span>
-
-						<span className="size-1 rounded-full bg-outline-variant" />
-
-						<span className="flex items-center gap-1 font-caption font-medium text-caption text-primary">
-							<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
-							Discover verified contracts
-						</span>
-					</div>
-
-					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">
-						Find your next project.
-					</h1>
-
-					<p className="font-body-md text-body-md text-on-surface-variant">
-						Discover freelance opportunities curated for your skill set and contract preferences.
-					</p>
-				</div>
-
-				<div className="flex shrink-0 items-center self-start md:self-auto">
+			<WorkspacePageHeader
+				eyebrow="Freelancer workspace"
+				title="Find your next project."
+				description="Discover freelance opportunities curated for your skill set and contract preferences."
+				meta={<span className="font-medium text-primary">Discover verified contracts</span>}
+				action={
 					<Link
 						to="/freelancer-saved-jobs"
 						className="group inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md font-medium text-label-md text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low dark:border-border-subtle dark:hover:border-border-input"
@@ -380,8 +311,8 @@ export default function FreelancerJobsPage() {
 							{savedCount}
 						</span>
 					</Link>
-				</div>
-			</header>
+				}
+			/>
 
 			<SearchWithCategories
 				key={searchResetKey}
@@ -407,18 +338,11 @@ export default function FreelancerJobsPage() {
 					{filters("desktop")}
 				</aside>
 
-				<section
-					aria-label="Job results"
-					className="min-w-0"
-				>
+				<section aria-label="Job results" className="min-w-0">
 					<div className="mb-5 flex flex-wrap items-center justify-between gap-3">
 						<div className="flex flex-wrap items-center gap-2">
-							<p
-								role="status"
-								className="font-medium text-body-sm"
-							>
-								Showing {filtered.length}{" "}
-								{filtered.length === 1 ? "opportunity" : "opportunities"}
+							<p role="status" className="font-medium text-body-sm">
+								Showing {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}
 							</p>
 
 							{chips.map((chip) => (
@@ -448,14 +372,9 @@ export default function FreelancerJobsPage() {
 							</button>
 
 							<div className="flex items-center gap-2">
-								<span className="font-caption text-caption text-outline">
-									Sort:
-								</span>
+								<span className="font-caption text-caption text-outline">Sort:</span>
 
-								<Select
-									value={sort}
-									onValueChange={setSort}
-								>
+								<Select value={sort} onValueChange={setSort}>
 									<SelectTrigger
 										size="sm"
 										aria-label="Sort jobs"
@@ -490,10 +409,7 @@ export default function FreelancerJobsPage() {
 
 					<div className="flex flex-col gap-3.5">
 						{filtered.slice(0, visibleCount).map((job) => (
-							<FreelancerJobCard
-								key={job.id}
-								{...job}
-							/>
+							<FreelancerJobCard key={job.id} {...job} />
 						))}
 					</div>
 
@@ -501,19 +417,13 @@ export default function FreelancerJobsPage() {
 						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
 							<Search className="mx-auto mb-4 size-6 text-outline" />
 
-							<h2 className="font-semibold text-headline-md">
-								No matching projects
-							</h2>
+							<h2 className="font-semibold text-headline-md">No matching projects</h2>
 
 							<p className="mt-2 text-body-sm text-on-surface-variant">
 								Try a broader search, another category, or fewer filters.
 							</p>
 
-							<button
-								type="button"
-								onClick={clear}
-								className={`${secondaryAction} mt-5`}
-							>
+							<button type="button" onClick={clear} className={`${secondaryAction} mt-5`}>
 								Clear filters
 							</button>
 						</div>
@@ -524,14 +434,10 @@ export default function FreelancerJobsPage() {
 							<button
 								type="button"
 								disabled={visibleCount >= filtered.length}
-								onClick={() =>
-									setVisibleCount((count) => count + 4)
-								}
+								onClick={() => setVisibleCount((count) => count + 4)}
 								className={`${secondaryAction} px-6 disabled:opacity-60`}
 							>
-								{visibleCount >= filtered.length
-									? "All opportunities loaded"
-									: "Load more opportunities"}
+								{visibleCount >= filtered.length ? "All opportunities loaded" : "Load more opportunities"}
 
 								<ChevronDown className="size-4 text-outline" />
 							</button>
@@ -540,34 +446,19 @@ export default function FreelancerJobsPage() {
 				</section>
 			</div>
 
-			<Sheet
-				open={filtersOpen}
-				onOpenChange={setFiltersOpen}
-			>
-				<SheetContent
-					side="left"
-					className="overflow-y-auto"
-				>
+			<Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+				<SheetContent side="left" className="overflow-y-auto">
 					<SheetHeader>
-						<SheetTitle>
-							Refine search
-						</SheetTitle>
+						<SheetTitle>Refine search</SheetTitle>
 
-						<SheetDescription>
-							Choose the projects that fit your preferences.
-						</SheetDescription>
+						<SheetDescription>Choose the projects that fit your preferences.</SheetDescription>
 					</SheetHeader>
 
 					<div className="p-5">
 						{filters("mobile")}
 
-						<button
-							type="button"
-							onClick={() => setFiltersOpen(false)}
-							className={`${primaryAction} mt-6 w-full`}
-						>
-							Show {filtered.length}{" "}
-							{filtered.length === 1 ? "opportunity" : "opportunities"}
+						<button type="button" onClick={() => setFiltersOpen(false)} className={`${primaryAction} mt-6 w-full`}>
+							Show {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}
 						</button>
 					</div>
 				</SheetContent>
