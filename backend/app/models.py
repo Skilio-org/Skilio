@@ -3,11 +3,10 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Optional, Self
 
-from pydantic import EmailStr, model_validator
+from pydantic import BaseModel, EmailStr, model_validator
 from sqlalchemy import JSON, DateTime, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
-from pydantic import BaseModel
 
 def get_datetime_utc() -> datetime:
     return datetime.now(UTC)
@@ -81,8 +80,6 @@ class UserBase(SQLModel):
     is_superuser: bool = False
     full_name: str | None = Field(default=None, max_length=255)
     active_role: UserRole = Field(default=UserRole.CLIENT)
-
-
 
 
 class AvatarResponse(SQLModel):
@@ -474,9 +471,11 @@ class PortfolioItemPublic(PortfolioItemBase):
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
+
 # ==============================================================================
 # Freelancer Profile Models
 # ==============================================================================
+
 
 class FreelancerProfileBase(SQLModel):
     title: str | None = Field(default=None, max_length=255)
@@ -515,6 +514,20 @@ class FreelancerProfileUpdate(SQLModel):
     experiences: list[ExperienceCreate] | None = None
     educations: list[EducationCreate] | None = None
     portfolio: list[PortfolioItemCreate] | None = None
+
+
+class FreelancerAvailabilityUpdate(SQLModel):
+    is_available: bool = Field(description="Availability toggle status")
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_alias(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "is_available" not in data and "available" in data:
+                data = dict(data)
+                data["is_available"] = data["available"]
+        return data
+
 
 class FreelancerProfile(FreelancerProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -586,6 +599,11 @@ class FreelancerProfileDetailPublic(FreelancerProfilePublic):
 class FreelancerProfilesPublic(SQLModel):
     data: list[FreelancerProfilePublic]
     count: int
+
+
+class FreelancerAvailabilityPublic(SQLModel):
+    is_available: bool
+    availability: str | None = None
 
 
 # ==============================================================================
@@ -1160,6 +1178,7 @@ class DeepHealthCheck(SQLModel):
     environment: str
     services: dict[str, ServiceHealth]
 
+
 class UserPresence(BaseModel):
     user_id: uuid.UUID
     is_online: bool
@@ -1169,6 +1188,7 @@ class InjectPayload(BaseModel):
     user_id: uuid.UUID | None = None
     event_type: str = "notification"
     payload: Any
+
 
 # ==============================================================================
 # Recent Search Models

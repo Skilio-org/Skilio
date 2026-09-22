@@ -31,6 +31,8 @@ from app.models import (
     ExperienceCreate,
     ExperiencePublic,
     ExperienceUpdate,
+    FreelancerAvailabilityPublic,
+    FreelancerAvailabilityUpdate,
     FreelancerProfile,
     FreelancerProfileCreate,
     FreelancerProfileDetailPublic,
@@ -53,7 +55,9 @@ from app.models import (
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
-def get_http_client(request: Request) -> httpx.AsyncClient: return request.app.state.http_client
+
+def get_http_client(request: Request) -> httpx.AsyncClient:
+    return request.app.state.http_client
 
 
 def _build_profile_detail_public(
@@ -125,7 +129,9 @@ def _build_profile_public(
         avg_rating_stmt = select(func.avg(Review.rating)).where(
             Review.freelancer_id == profile.id
         )
-        reviews_count_stmt = select(func.count()).where(Review.freelancer_id == profile.id)
+        reviews_count_stmt = select(func.count()).where(
+            Review.freelancer_id == profile.id
+        )
         raw_avg = session.exec(avg_rating_stmt).one()
         reviews_count = session.exec(reviews_count_stmt).one()
         avg_rating = float(raw_avg) if raw_avg is not None else None
@@ -187,7 +193,9 @@ def read_profiles(
         statement = statement.where(col(FreelancerProfile.category).ilike(category))
 
     if availability:
-        statement = statement.where(col(FreelancerProfile.availability).ilike(availability))
+        statement = statement.where(
+            col(FreelancerProfile.availability).ilike(availability)
+        )
 
     if finished is not None:
         statement = statement.where(FreelancerProfile.finished == finished)
@@ -327,7 +335,10 @@ def update_profile_me(
         session.add(profile)
         session.flush()
 
-    if profile_in.full_name is not None and profile_in.full_name != current_user.full_name:
+    if (
+        profile_in.full_name is not None
+        and profile_in.full_name != current_user.full_name
+    ):
         current_user.full_name = profile_in.full_name
         session.add(current_user)
 
@@ -389,6 +400,86 @@ def update_profile_me(
 
     return _build_profile_detail_public(
         session, profile, current_user=current_user, is_saved=False
+    )
+
+
+@router.patch("/me/availability", response_model=FreelancerAvailabilityPublic)
+def update_availability_me(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    availability_in: FreelancerAvailabilityUpdate,
+) -> Any:
+    """
+    Update current user's freelancer availability toggle.
+    Auto-creates a draft profile if none exists yet.
+    """
+    profile = session.exec(
+        select(FreelancerProfile).where(FreelancerProfile.user_id == current_user.id)
+    ).first()
+
+    if not profile:
+        profile = FreelancerProfile(
+            user_id=current_user.id,
+            is_available=availability_in.is_available,
+            availability=(
+                "Available now"
+                if availability_in.is_available
+                else "Not currently available"
+            ),
+            finished=False,
+        )
+        session.add(profile)
+    else:
+        profile.is_available = availability_in.is_available
+        if profile.is_available:
+            if (
+                profile.availability == "Not currently available"
+                or not profile.availability
+            ):
+                profile.availability = "Available now"
+        else:
+            if profile.availability == "Available now" or not profile.availability:
+                profile.availability = "Not currently available"
+        profile.updated_at = datetime.now(UTC)
+        session.add(profile)
+
+    session.commit()
+    session.refresh(profile)
+
+    return FreelancerAvailabilityPublic(
+        is_available=profile.is_available,
+        availability=profile.availability,
+    )
+
+
+@router.get("/me/availability", response_model=FreelancerAvailabilityPublic)
+def read_availability_me(
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> Any:
+    """
+    Get current user's freelancer availability toggle status.
+    Auto-creates a draft profile if none exists yet.
+    """
+    profile = session.exec(
+        select(FreelancerProfile).where(FreelancerProfile.user_id == current_user.id)
+    ).first()
+
+    if not profile:
+        profile = FreelancerProfile(
+            user_id=current_user.id,
+            is_available=True,
+            availability="Available now",
+            finished=False,
+        )
+        session.add(profile)
+        session.commit()
+        session.refresh(profile)
+
+    return FreelancerAvailabilityPublic(
+        is_available=profile.is_available,
+        availability=profile.availability,
     )
 
 
@@ -551,6 +642,7 @@ def update_education(
     session.refresh(education)
     return education
 
+
 @router.delete("/me/educations/{education_id}", response_model=Message)
 def delete_education(
     *,
@@ -575,9 +667,11 @@ def delete_education(
     session.commit()
     return Message(message="Education entry deleted successfully")
 
+
 # ==============================================================================
 # Portfolio profile upload and download.
 # ==============================================================================
+
 
 @router.post("/resume", response_model=AvatarResponse)
 async def upload_resume(
@@ -588,9 +682,7 @@ async def upload_resume(
 ) -> AvatarResponse:
     """Uploads resume asynchronously without blocking the event loop."""
     if file.content_type != "application/pdf":
-        raise HTTPException(
-            status_code=400, detail="Only PDF files are allowed"
-        )
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
     # if not file.filename.lower().endswith(".pdf"):
     #     raise HTTPException(
     #         status_code=400, detail="File must have a .pdf extension"
@@ -600,10 +692,7 @@ async def upload_resume(
         claudinary_upload_media, current_user.id, contents, media_type="pdf"
     )
     if not url:
-        raise HTTPException(
-            status_code=500, detail="Failed to upload avatar image"
-        )
-
+        raise HTTPException(status_code=500, detail="Failed to upload avatar image")
 
     if not current_user.freelancer_profile:
         profile = FreelancerProfile(
@@ -635,7 +724,9 @@ async def proxy_resume(
     user = session.get(User, uuid)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    cloudinary_url = user.freelancer_profile.resume_url if user.freelancer_profile else None
+    cloudinary_url = (
+        user.freelancer_profile.resume_url if user.freelancer_profile else None
+    )
     if not cloudinary_url:
         raise HTTPException(status_code=404, detail="resume not found")
     headers = {}
@@ -666,6 +757,7 @@ async def proxy_resume(
         headers=passthrough_headers,
         media_type=response.headers.get("content-type"),
     )
+
 
 # @router.get("/resume/me")
 # async def proxy_me(
@@ -713,6 +805,7 @@ async def proxy_resume(
 # ==============================================================================
 # Portfolio Item Sub-resources
 # ==============================================================================
+
 
 @router.post("/me/portfolio", response_model=PortfolioItemPublic)
 def create_portfolio_item(
@@ -1005,13 +1098,14 @@ def create_profile(
         )
 
     skills = [
-        skill_name.strip()
-        for skill_name in profile_in.skills
-        if skill_name.strip()
+        skill_name.strip() for skill_name in profile_in.skills if skill_name.strip()
     ]
 
     profile_data = profile_in.model_dump(exclude={"skills"})
-    if "availability" in profile_data and "is_available" not in profile_in.model_fields_set:
+    if (
+        "availability" in profile_data
+        and "is_available" not in profile_in.model_fields_set
+    ):
         profile_data["is_available"] = (
             profile_data["availability"] != "Not currently available"
         )
@@ -1057,7 +1151,10 @@ def update_profile(
         exclude_unset=True,
         exclude={"skills", "full_name", "experiences", "educations", "portfolio"},
     )
-    if "availability" in update_data and "is_available" not in profile_in.model_fields_set:
+    if (
+        "availability" in update_data
+        and "is_available" not in profile_in.model_fields_set
+    ):
         update_data["is_available"] = (
             update_data["availability"] != "Not currently available"
         )
