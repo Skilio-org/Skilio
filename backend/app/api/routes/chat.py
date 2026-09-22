@@ -184,19 +184,12 @@ def create_or_get_conversation(
     Create a new conversation or retrieve an existing one between current user and target user.
     """
     target_id = conversation_in.freelancer_id
-<<<<<<< HEAD
     if current_user.active_role != "client" or target_id == current_user.id:
-=======
-    if target_id == current_user.id:
->>>>>>> 9ac07b25d3665ad48eeb587b6f0b38045ea08c5b
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot start a conversation with yourself",
         )
-<<<<<<< HEAD
-=======
 
->>>>>>> 9ac07b25d3665ad48eeb587b6f0b38045ea08c5b
     target_user = session.get(User, target_id)
     if not target_user:
         raise HTTPException(
@@ -204,7 +197,6 @@ def create_or_get_conversation(
             detail="Target user not found",
         )
 
-    # Check if conversation already exists (either client-freelancer or vice-versa)
     existing_stmt = select(Conversation).where(
         or_(
             and_(
@@ -538,10 +530,6 @@ async def websocket_chat_endpoint(
 
     except WebSocketDisconnect:
         connection_manager.disconnect(user_id, websocket)
-<<<<<<< HEAD
-        print("here")
-=======
->>>>>>> 9ac07b25d3665ad48eeb587b6f0b38045ea08c5b
     except Exception as e:
         logger.error("WebSocket unexpected error for user %s: %s", user_id, e)
         connection_manager.disconnect(user_id, websocket)
