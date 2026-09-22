@@ -1,6 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from typing import Any
-
+import random
+import string
 import jwt
 from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
@@ -35,3 +36,33 @@ def verify_password(
 
 def get_password_hash(password: str) -> str:
     return password_hash.hash(password)
+
+def generate_random_password(length: int = 8) -> str:
+    """
+    Generate a random password with a mix of uppercase, lowercase, digits, and special characters.
+
+    Args:
+        length (int): Length of the password. Default is 12.
+
+    Returns:
+        str: The generated random password.
+    """
+    if length < 8:
+        raise ValueError("Password length must be at least 8 characters.")
+    lower = string.ascii_lowercase
+    upper = string.ascii_uppercase
+    digits = string.digits
+    special = string.punctuation
+
+    # Ensure the password has at least one character from each pool
+    all_characters = lower + upper + digits + special
+    password = [
+        random.choice(lower),
+        random.choice(upper),
+        random.choice(digits),
+        random.choice(special),
+    ]
+
+    password += random.choices(all_characters, k=length - 4)
+    random.shuffle(password)
+    return ''.join(password)
