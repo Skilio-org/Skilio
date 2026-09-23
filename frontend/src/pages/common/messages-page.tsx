@@ -1,10 +1,11 @@
+import { useWebSocket } from "@/context/websocket-context"
 import { useMessageContacts } from "@/hooks/useMessageContacts"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "@tanstack/react-router"
 import { freelancers } from "@/data/freelancers"
 import { useAccountRole } from "@/hooks/useAccountRole"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Search, SquarePen } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { toast } from "sonner"
@@ -12,58 +13,87 @@ import { getClientTheme } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { MessageThread } from "@/components/messages/message-thread"
-import type { InboxFilter, ThreadMessage } from "@/components/messages/message-types"
-import { clientConversations, clientIntroductions, demoClients } from "@/data/freelancer-demo"
+import type { InboxFilter } from "@/components/messages/message-types"
+import {
+	ClientProfilesService,
+	ConversationsPublic,
+	ProfilesService,
+	UserPublic,
+	type ClientProfileDetailPublic,
+	type FreelancerProfilePublic,
+} from "@/client"
+import { all } from "axios"
+import { ChatService } from "@/client"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 
-const emptyConversations: typeof clientConversations = []
+const conversationQueryKey = ["chat", "conversations"]
 
-function sampleThread(
-	id: string,
-	meta: typeof clientConversations,
-	introductions: Record<string, string>,
-): ThreadMessage[] {
-	const conversation = meta.find((item) => item.id === id)
-	if (!conversation) return []
-	return [
-		{
-			id: `${id}-intro`,
-			body:
-				id === "olivia-bennett"
-					? "Morning! We just reviewed the interactive prototype for the new user onboarding sequence. Overall, the typography hierarchy feels significantly crisper than our last iteration."
-					: introductions[id],
-			feedback:
-				id === "olivia-bennett"
-					? [
-							"Step 2 progress bar: The completion interaction is much more intuitive. Keep that easing curve.",
-							"Contrast adjustment: Could we increase contrast on the secondary button? It looks washed out in bright light.",
-							"Animation timing: Let's check the tooltip animation on slower connections before sign-off.",
-						]
-					: undefined,
-			time: "10:24 AM",
-			own: false,
+type ConversationProfile = ClientProfileDetailPublic | FreelancerProfilePublic
+
+export function useConversationProfiles(conversations: ConversationsPublic, enabled: boolean) {
+	const userIds = conversations.data
+		.map((conversation) => conversation.other_user)
+		.filter((user): user is UserPublic => Boolean(user))
+		.map((user) => `${user.id}:${user.active_role}`)
+		.sort()
+
+	return useQuery({
+		queryKey: ["chat", "conversation-profiles", userIds],
+		enabled: enabled && userIds.length > 0,
+		queryFn: async ({ signal }) => {
+			const users = conversations.data
+				.map((conversation) => conversation.other_user)
+				.filter((user): user is UserPublic => Boolean(user))
+
+			const freelancerProfiles: FreelancerProfilePublic[] = []
+			if (users.some((user) => user.active_role === "freelancer")) {
+				let skip = 0
+				while (true) {
+					const { data: page } = await ProfilesService.readProfiles({
+						query: { skip, limit: 100 },
+						signal,
+					})
+					freelancerProfiles.push(...page.data)
+					skip += page.data.length
+					if (!page.data.length || skip >= page.count) break
+				}
+			}
+
+			const clientProfiles = await Promise.all(
+				users
+					.filter((user) => user.active_role !== "freelancer")
+					.map(async (user) => {
+						const { data } = await ClientProfilesService.profilesReadClientProfileByUserId({
+							path: { user_id: user.id },
+							signal,
+						})
+						return [user.id, data] as const
+					}),
+			)
+
+			const profiles = new Map<string, ConversationProfile>()
+			for (const profile of freelancerProfiles) {
+				profiles.set(profile.user_id, profile)
+			}
+			for (const [userId, profile] of clientProfiles) {
+				profiles.set(userId, profile)
+			}
+
+			return profiles
 		},
-		{
-			id: `${id}-reply`,
-			// attachment:
-			// 	clientMode && id === "olivia-bennett"
-			// 		? {
-			// 				name: "onboarding-handoff-notes.txt",
-			// 				content:
-			// 					"Onboarding handoff\n\nReview secondary button contrast.\nCheck tooltip animation on slower connections.\nPrepare the next prototype iteration for Thursday's review.",
-			// 			}
-			// 		: undefined,
-			body: "Thanks for the notes! That aligns with my thinking. I’ll refine the secondary buttons, check the animation timing, and share the updated prototype for your review.",
-			time: "10:28 AM",
-			own: true,
-		},
-		{
-			id: `${id}-latest`,
-			body: conversation.preview,
-			time: "10:31 AM",
-			own: false,
-		},
-	]
+	})
 }
+
+export function useConversations() {
+    return useQuery({
+        queryKey: ["chat", "conversations"],
+        queryFn: async ({ signal }) => {
+            const response = await ChatService.getMyConversations({ signal })
+            return response.data
+        },
+    })
+}
+
 
 export function MessagesPage({
 	selectedContact,
@@ -72,99 +102,158 @@ export function MessagesPage({
 	selectedContact?: string
 	onSelectContact: (id: string) => void
 }) {
+	const queryClient = useQueryClient()
+	const {
+		data: conversations = { count: 0, data: [] },
+		isPending: conversationsPending,
+	} = useConversations()
+	const { data: conversationProfiles = new Map() } = useConversationProfiles(
+		conversations,
+		!conversationsPending,
+	)
+	void conversationProfiles
+
+	// const { sendMessage } = useWebSocket()
+	// const { sendMessage } = useWebSocket()
+	const { sendMessage, subscribe } = useWebSocket()
 	const navigate = useNavigate()
 	const clientMode = useAccountRole() === "client"
 	const contacts = useMessageContacts(clientMode)
-	const people = clientMode ? [...(contacts.data ?? []), ...freelancers] : demoClients
-	const meta = clientMode ? emptyConversations : clientConversations
-	const introductions = clientIntroductions
-	const selected = people.find((person) => person.id === selectedContact)
+	// const people = ;
+
+	const [selected, setSelected] = useState<UserPublic | undefined>(undefined)
+	const hasInitializedSelection = useRef(false)
+	// const selected = people.find((person) => person.id === selectedContact)
 	const selectedId = selected?.id ?? ""
 	const [newMessageOpen, setNewMessageOpen] = useState(false)
 	const [recipientQuery, setRecipientQuery] = useState("")
 	const [query, setQuery] = useState("")
 	const [filter, setFilter] = useState<InboxFilter>("all")
 	const [drafts, setDrafts] = useState<Record<string, string>>({})
-	const [sent, setSent] = useState<Record<string, ThreadMessage[]>>({})
-	const [unread, setUnread] = useState<Record<string, number>>(() =>
-		Object.fromEntries(meta.map((item) => [item.id, item.unread])),
-	)
+	
+	const [unreadCount, setUnread] = useState<number>(0)
 	const [archived, setArchived] = useState<string[]>([])
-	const [addedIds, setAddedIds] = useState<string[]>([])
-	useEffect(() => {
-		if (!selectedId) return
-		setUnread((current) => ({ ...current, [selectedId]: 0 }))
-		if (!meta.some((item) => item.id === selectedId))
-			setAddedIds((current) => (current.includes(selectedId) ? current : [...current, selectedId]))
-	}, [selectedId, meta])
-	const all = [
-		...meta,
-		...addedIds.map((id) => ({
-			id,
-			preview: "Start a conversation",
-			time: "",
-			unread: 0,
-		})),
-	]
-	const unreadCount = all.reduce((count, item) => count + (archived.includes(item.id) ? 0 : (unread[item.id] ?? 0)), 0)
-	const conversations = all
-		.map((item) => {
-			const outgoing = sent[item.id] ?? []
-			const last = outgoing[outgoing.length - 1]
-			const draft = drafts[item.id]?.trim()
-			return {
-				...item,
-				preview: draft || (last ? `You: ${last.body}` : item.preview),
-				time: last?.time ?? item.time,
-				unread: unread[item.id] ?? 0,
-				hasDraft: !!draft,
-			}
-		})
-		.filter((item) => {
-			const person = people.find((candidate) => candidate.id === item.id)
-			if (!person) return false
-			const matches = `${person.name} ${person.title} ${item.preview}`
-				.toLowerCase()
-				.includes(query.trim().toLowerCase())
-			const isArchived = archived.includes(item.id)
-			return matches && (filter === "archived" ? isArchived : !isArchived && (filter === "all" || item.unread > 0))
-		})
-	const messages = selectedId
-		? [
-				...sampleThread(selectedId, meta, introductions).slice(0, selectedId === "olivia-bennett" ? 2 : 3),
-				...(sent[selectedId] ?? []),
-			]
-		: []
+
 	const draft = drafts[selectedId] ?? ""
 	const select = (id: string) => {
 		onSelectContact(id)
 	}
 	const updateDraft = (value: string) => setDrafts((current) => ({ ...current, [selectedId]: value }))
+	
 	const send = () => {
 		if (!selectedId || !draft.trim()) return
-		const message: ThreadMessage = {
-			id: crypto.randomUUID(),
-			body: draft.trim(),
-			time: new Date().toLocaleTimeString([], {
-				hour: "numeric",
-				minute: "2-digit",
-			}),
-			own: true,
-			local: true,
+		const sentSuccessfully = sendMessage({
+			type: "chat_message",
+			conversation_id: selectedId,
+			content: draft.trim(),
+		})
+		if (!sentSuccessfully) {
+			toast.error("You are offline. Please try again when the connection is restored.")
+			return
 		}
-		setSent((current) => ({
-			...current,
-			[selectedId]: [...(current[selectedId] ?? []), message],
-		}))
+
 		updateDraft("")
 		setArchived((current) => current.filter((id) => id !== selectedId))
 	}
+
 	const archive = () => {
 		const restoring = archived.includes(selectedId)
 		setArchived((current) => (restoring ? current.filter((id) => id !== selectedId) : [...current, selectedId]))
 		select("")
 		toast.success(restoring ? "Conversation moved to inbox" : "Conversation archived")
 	}
+
+	useEffect(() => {
+		if (hasInitializedSelection.current || conversationsPending) return
+
+		const conversation = selectedContact
+			? conversations.data.find((item) => item.other_user?.id === selectedContact)
+			: conversations.data[0]
+
+		if (conversation?.other_user) {
+			hasInitializedSelection.current = true
+			setSelected(conversation.other_user)
+			if (selectedContact !== conversation.other_user.id) onSelectContact(conversation.other_user.id)
+			return
+		}
+
+		if (!selectedContact) return
+
+		hasInitializedSelection.current = true
+		void ChatService.createOrGetConversation({
+			body: { freelancer_id: selectedContact },
+		})
+			.then(({ data: createdConversation }) => {
+				if (!createdConversation.other_user) return
+
+				queryClient.setQueryData<ConversationsPublic>(conversationQueryKey, (current) => {
+					if (!current) return { count: 1, data: [createdConversation] }
+
+					const alreadyExists = current.data.some((item) => item.id === createdConversation.id)
+					if (alreadyExists) return current
+
+					return {
+						count: current.count + 1,
+						data: [createdConversation, ...current.data],
+					}
+				})
+				setSelected(createdConversation.other_user)
+				onSelectContact(createdConversation.other_user.id)
+			})
+			.catch((error) => {
+				hasInitializedSelection.current = false
+				toast.error(error instanceof Error ? error.message : "Unable to create conversation")
+			})
+	}, [conversations.data, conversationsPending, onSelectContact, queryClient, selectedContact])
+
+
+    useEffect(() => {
+        return subscribe("chat_message", (message) => {
+            queryClient.setQueryData<ConversationsPublic>(
+                conversationQueryKey,
+                (current: any) => {
+                    if (!current) return current
+
+                    const conversation = current.data.find(
+                        (item: any) => item.id === message.conversation_id,
+                    )
+
+                    // The conversation is not loaded locally.
+                    // A refetch is needed because we do not have the other user's data.
+                    if (!conversation) {
+                        void queryClient.invalidateQueries({
+                            queryKey: conversationQueryKey,
+                        })
+                        return current
+                    }
+
+                    const unreadIncrement =
+                        message.conversation_id === selectedContact ? 0 : 1
+
+                    const updatedConversation = {
+                        ...conversation,
+                        last_message: {
+                            ...conversation.last_message,
+                            content: message.content,
+                        },
+						unread_count:
+							(conversation.unread_count ?? 0) + unreadIncrement,
+                    }
+
+                    return {
+                        ...current,
+                        data: [
+                            updatedConversation,
+                            ...current.data.filter(
+                                (item: any) => item.id !== message.conversation_id,
+                            ),
+                        ],
+                    }
+                },
+            )
+        })
+    }, [queryClient, selectedContact, subscribe])
+
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
@@ -267,7 +356,6 @@ export function MessagesPage({
 			</Dialog>
 			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] h-[calc(100vh-14.5rem)] min-h-[640px] max-h-[880px]">
 				<ConversationList
-					people={people}
 					conversations={conversations}
 					selectedId={clientMode ? (selectedContact ?? "") : selectedId}
 					query={query}

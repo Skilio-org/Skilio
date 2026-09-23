@@ -354,7 +354,6 @@ async def websocket_chat_endpoint(
     await connection_manager.connect(user_id, websocket)
 
     try:
-        # Welcome event on connect
         await websocket.send_text(
             json.dumps(
                 {
@@ -381,6 +380,7 @@ async def websocket_chat_endpoint(
 
             # 2. Chat Message frame
             if event_type == "chat_message":
+                print("Received chat_message event:", data)
                 conv_id_raw = data.get("conversation_id")
                 content = (data.get("content") or "").strip()
                 if not conv_id_raw or not content:
@@ -441,8 +441,6 @@ async def websocket_chat_endpoint(
                     payload={"type": "chat_message", "data": msg_dict},
                 )
                 continue
-
-            # 3. Typing indicator
             if event_type == "typing":
                 conv_id_raw = data.get("conversation_id")
                 if not conv_id_raw:

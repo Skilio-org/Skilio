@@ -1,11 +1,10 @@
 import { Archive, MessageSquare, Search, X } from "lucide-react"
 import { getClientTheme } from "@/components/messages/message-types"
-import type { ConversationSummary, InboxFilter } from "@/components/messages/message-types"
-import type { MessageContact } from "@/components/messages/message-types"
+import type { InboxFilter } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
+import { ConversationsPublic, UserPublic } from "@/client/types.gen"
 
 export function ConversationList({
-	people,
 	conversations,
 	selectedId,
 	query,
@@ -15,8 +14,7 @@ export function ConversationList({
 	onFilterChange,
 	onSelect,
 }: {
-	people: MessageContact[]
-	conversations: ConversationSummary[]
+	conversations: ConversationsPublic
 	selectedId: string
 	query: string
 	filter: InboxFilter
@@ -37,7 +35,7 @@ export function ConversationList({
 				<div className="flex items-center justify-between gap-3">
 					<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Direct Threads</h2>
 					<span className="rounded bg-surface-container px-2 py-0.5 font-caption text-caption text-on-surface-variant font-medium">
-						{conversations.length} Total
+						{conversations.count} Total
 					</span>
 				</div>
 				<label className="mt-3.5 flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-body-sm text-body-sm text-on-surface transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20">
@@ -98,12 +96,12 @@ export function ConversationList({
 				</div>
 			</div>
 			<div className="min-h-0 flex-1 overflow-y-auto p-2.5 space-y-1.5">
-				{conversations.map((conversation) => {
-					const person = people.find((item) => item.id === conversation.id)
+				{conversations.data.map((conversation) => {
+					let person: UserPublic | null | undefined = conversation.other_user; 
 					if (!person) return null
 					const active = selectedId === person.id
-					const companyOrName = person.title.split(" · ")[1] || person.name
-					const roleAndLocation = `${person.name} · ${person.title.split(" · ")[0]}`
+					// const companyOrName = person.full_name;
+					const roleAndLocation = `${person.full_name} · ${person.active_role}`;
 					const theme = getClientTheme(person.id)
 
 					return (
@@ -111,7 +109,7 @@ export function ConversationList({
 							key={person.id}
 							type="button"
 							aria-pressed={active}
-							aria-label={person.name + (conversation.unread ? `, ${conversation.unread} unread messages` : "")}
+							aria-label={person.full_name + ((conversation.unread_count && conversation.unread_count > 0) ? `, ${conversation.unread_count} unread messages` : "")}
 							onClick={() => onSelect(person.id)}
 							className={cn(
 								"group relative flex min-h-20 w-full items-start gap-3 rounded-lg border p-3 text-left transition-all",
@@ -129,24 +127,27 @@ export function ConversationList({
 									theme.border,
 								)}
 							>
-								{companyOrName
+								{/* {companyOrName
 									.split(" ")
 									.map((word) => word[0])
 									.slice(0, 2)
-									.join("")}
+									.join("")} */}
 							</span>
 							<span className="min-w-0 flex-1">
 								<span className="flex items-baseline justify-between gap-2">
 									<span
 										className={cn(
 											"truncate font-label-md text-label-md text-on-surface",
-											conversation.unread || active ? "font-semibold" : "font-medium",
+											conversation.unread_count && conversation.unread_count > 0 || active ? "font-semibold" : "font-medium",
 										)}
 									>
-										{companyOrName}
+										{/* {companyOrName} */}
 									</span>
 									<span className="shrink-0 font-caption text-caption text-on-surface-variant">
-										{conversation.time}
+										{conversation.created_at && new Date(conversation.created_at).toLocaleDateString(undefined, {
+											month: "short",
+											day: "numeric",
+										})}
 									</span>
 								</span>
 								<span className="mt-0.5 block truncate font-caption text-caption text-on-surface-variant">
@@ -156,15 +157,15 @@ export function ConversationList({
 									<span
 										className={cn(
 											"line-clamp-2 min-w-0 flex-1 break-words font-body-sm text-body-sm leading-5",
-											conversation.unread ? "font-medium text-on-surface" : "text-on-surface-variant",
+											conversation.unread_count && conversation.unread_count > 0 ? "font-medium text-on-surface" : "text-on-surface-variant",
 										)}
 									>
-										{conversation.hasDraft && <span className="font-semibold text-primary">Draft: </span>}
-										{conversation.preview}
+										{/* {conversation.last_message && <span className="font-semibold text-primary">Draft: </span>} */}
+										{conversation.last_message?.content || "No messages yet"}
 									</span>
-									{conversation.unread > 0 && (
+									{conversation.unread_count && conversation.unread_count > 0 && (
 										<span className="mt-0.5 grid min-w-5 h-5 place-items-center rounded-full bg-primary px-1.5 font-caption text-[10px] font-bold text-on-primary leading-none shadow-xs">
-											{conversation.unread}
+											{conversation.unread_count}
 										</span>
 									)}
 								</span>
@@ -172,7 +173,7 @@ export function ConversationList({
 						</button>
 					)
 				})}
-				{conversations.length === 0 && (
+				{conversations.count === 0 && (
 					<div className="px-4 py-12 text-center">
 						<span className="mx-auto grid size-12 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant">
 							{filter === "archived" ? (

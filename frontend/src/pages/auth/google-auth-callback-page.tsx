@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
+import { AUTH_TOKEN_CHANGED_EVENT } from "@/context/websocket-context"
 
 export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?: string }) {
 	const navigate = useNavigate()
@@ -35,6 +36,7 @@ export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?:
 				const data = await res.json()
 
 				localStorage.setItem("access_token", data.access_token)
+				window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
 
 				navigate({
 					to: "/dashboard",

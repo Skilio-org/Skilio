@@ -6,6 +6,7 @@ import ReactDOM from "react-dom/client"
 import { client } from "./client/client.gen"
 import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "./components/ui/sonner"
+import { WebSocketProvider } from "./context/websocket-context"
 import { routeTree } from "./routeTree.gen"
 import "./styles/globals-freelancetheworld.css"
 
@@ -40,8 +41,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 	<StrictMode>
 		<ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
 			<QueryClientProvider client={queryClient}>
-				<RouterProvider router={router} />
-				<Toaster richColors closeButton />
+				<WebSocketProvider>
+					<RouterProvider router={router} />
+					<Toaster richColors closeButton />
+				</WebSocketProvider>
 			</QueryClientProvider>
 		</ThemeProvider>
 	</StrictMode>,
