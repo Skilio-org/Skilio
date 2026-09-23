@@ -2,7 +2,7 @@ import uuid
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.core.config import settings
 from app.models import (
@@ -138,7 +138,9 @@ def test_create_profile_duplicate(client: TestClient, db: Session) -> None:
     assert content["detail"] == "Freelancer profile already exists for this user"
 
 
-def test_create_profile_as_client_auto_switches_role(client: TestClient, db: Session) -> None:
+def test_create_profile_as_client_auto_switches_role(
+    client: TestClient, db: Session
+) -> None:
     """Any user can create a freelancer profile. Active role auto-switches to freelancer."""
     user = create_random_user(db)
     user.active_role = UserRole.CLIENT
@@ -850,7 +852,9 @@ def test_talent_search_filters(client: TestClient, db: Session) -> None:
     db.commit()
 
     # Filter by category
-    resp_cat = client.get(f"{settings.API_V1_STR}/profiles/?category=Design%20%26%20Creative")
+    resp_cat = client.get(
+        f"{settings.API_V1_STR}/profiles/?category=Design%20%26%20Creative"
+    )
     assert resp_cat.status_code == 200
     cat_ids = [p["id"] for p in resp_cat.json()["data"]]
     assert str(p1.id) in cat_ids
@@ -902,3 +906,112 @@ def test_draft_profile_privacy(client: TestClient, db: Session) -> None:
     assert resp_owner.status_code == 200
     assert resp_owner.json()["id"] == str(profile_a.id)
 
+
+def test_update_availability_me_success(client: TestClient, db: Session) -> None:
+    user, profile, headers = create_authenticated_freelancer(client, db)
+    assert profile.is_available is True
+
+    # 1. Toggle off
+    response = client.patch(
+        f"{settings.API_V1_STR}/profiles/me/availability",
+        headers=headers,
+        json={"is_available": False},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["is_available"] is False
+    assert data["availability"] == "Not currently available"
+
+    db.refresh(profile)
+    assert profile.is_available is False
+    assert profile.availability == "Not currently available"
+
+    # 2. Toggle on
+    response = client.patch(
+        f"{settings.API_V1_STR}/profiles/me/availability",
+        headers=headers,
+        json={"is_available": True},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["is_available"] is True
+    assert data["availability"] == "Available now"
+
+    db.refresh(profile)
+    assert profile.is_available is True
+    assert profile.availability == "Available now"
+
+
+def test_update_availability_me_alias(client: TestClient, db: Session) -> None:
+    _, profile, headers = create_authenticated_freelancer(client, db)
+
+    # Use "available" key alias instead of "is_available"
+    response = client.patch(
+        f"{settings.API_V1_STR}/profiles/me/availability",
+        headers=headers,
+        json={"available": False},
+    )
+    assert response.status_code == 200
+    assert response.json()["is_available"] is False
+
+    db.refresh(profile)
+    assert profile.is_available is False
+
+
+def test_update_availability_me_creates_profile_if_not_exists(
+    client: TestClient, db: Session
+) -> None:
+    user = create_random_user(db)
+    user.active_role = UserRole.FREELANCER
+    db.add(user)
+    db.commit()
+
+    password = random_lower_string()
+    from app.core.security import get_password_hash
+
+    user.hashed_password = get_password_hash(password)
+    db.add(user)
+    db.commit()
+
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/profiles/me/availability",
+        headers=headers,
+        json={"is_available": False},
+    )
+    assert response.status_code == 200
+    assert response.json()["is_available"] is False
+
+    profile = db.exec(
+        select(FreelancerProfile).where(FreelancerProfile.user_id == user.id)
+    ).first()
+    assert profile is not None
+    assert profile.is_available is False
+
+
+def test_update_availability_me_unauthorized(client: TestClient) -> None:
+    response = client.patch(
+        f"{settings.API_V1_STR}/profiles/me/availability",
+        json={"is_available": True},
+    )
+    assert response.status_code in (401, 403)
+
+
+def test_read_availability_me(client: TestClient, db: Session) -> None:
+    _, profile, headers = create_authenticated_freelancer(client, db)
+    profile.is_available = True
+    profile.availability = "Available now"
+    db.add(profile)
+    db.commit()
+
+    response = client.get(
+        f"{settings.API_V1_STR}/profiles/me/availability",
+        headers=headers,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["is_available"] is True
+    assert data["availability"] == "Available now"

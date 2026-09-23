@@ -12,11 +12,13 @@ from app.models import (
     FreelancerProfile,
     FreelancerProfilePublic,
     JobPost,
+    JobPostPublic,
     JobStatus,
     Message,
     Proposal,
     ProposalCreate,
     ProposalPublic,
+    ProposalUpdate,
     ProposalsPublic,
     ProposalStatus,
     ProposalStatusUpdate,
@@ -27,6 +29,24 @@ from app.models import (
 )
 
 router = APIRouter(prefix="/proposals", tags=["proposals"])
+
+
+def _build_job_post_public(job: JobPost | None) -> JobPostPublic | None:
+    if not job:
+        return None
+    client_company = (
+        job.client.client_profile.company
+        if job.client and job.client.client_profile
+        else None
+    )
+    return JobPostPublic.model_validate(
+        job,
+        update={
+            "client_name": job.client.full_name if job.client else None,
+            "client_company": client_company,
+            "skills": job.skills or [],
+        },
+    )
 
 
 def _build_freelancer_profile_public(
@@ -96,6 +116,8 @@ def submit_proposal(
             detail="You cannot submit a proposal to your own job",
         )
 
+    target_status = proposal_in.status or ProposalStatus.PENDING
+
     existing = session.exec(
         select(Proposal).where(
             Proposal.job_post_id == proposal_in.job_post_id,
@@ -103,38 +125,49 @@ def submit_proposal(
         )
     ).first()
     if existing:
-        raise HTTPException(
-            status_code=409,
-            detail="You have already submitted a proposal for this job",
+        if existing.status == ProposalStatus.DRAFT:
+            existing.cover_letter = proposal_in.cover_letter
+            existing.status = target_status
+            existing.updated_at = datetime.now(UTC)
+            session.add(existing)
+            session.commit()
+            session.refresh(existing)
+            proposal = existing
+        else:
+            raise HTTPException(
+                status_code=409,
+                detail="You have already submitted a proposal for this job",
+            )
+    else:
+        proposal = Proposal(
+            job_post_id=proposal_in.job_post_id,
+            freelancer_id=current_user.id,
+            cover_letter=proposal_in.cover_letter,
+            status=target_status,
         )
-
-    proposal = Proposal(
-        job_post_id=proposal_in.job_post_id,
-        freelancer_id=current_user.id,
-        cover_letter=proposal_in.cover_letter,
-        status=ProposalStatus.PENDING,
-    )
-    session.add(proposal)
-    try:
-        session.commit()
-    except IntegrityError:
-        session.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail="You have already submitted a proposal for this job",
-        )
-    session.refresh(proposal)
+        session.add(proposal)
+        try:
+            session.commit()
+        except IntegrityError:
+            session.rollback()
+            raise HTTPException(
+                status_code=409,
+                detail="You have already submitted a proposal for this job",
+            )
+        session.refresh(proposal)
 
     freelancer_public = UserPublic.model_validate(current_user)
     freelancer_profile_public = _build_freelancer_profile_public(
         session, current_user.freelancer_profile
     )
+    job_post_public = _build_job_post_public(job)
 
     return ProposalPublic.model_validate(
         proposal,
         update={
             "freelancer": freelancer_public,
             "freelancer_profile": freelancer_profile_public,
+            "job_post": job_post_public,
         },
     )
 
@@ -161,12 +194,18 @@ def read_proposals_for_job(
             detail="Not enough permissions to view proposals for this job",
         )
 
-    count_statement = select(func.count()).where(Proposal.job_post_id == job_id)
+    count_statement = select(func.count()).where(
+        Proposal.job_post_id == job_id,
+        Proposal.status != ProposalStatus.DRAFT,
+    )
     count = session.exec(count_statement).one()
 
     statement = (
         select(Proposal)
-        .where(Proposal.job_post_id == job_id)
+        .where(
+            Proposal.job_post_id == job_id,
+            Proposal.status != ProposalStatus.DRAFT,
+        )
         .options(
             joinedload(Proposal.freelancer)  # type: ignore[arg-type]
             .joinedload(User.freelancer_profile),  # type: ignore[arg-type]
@@ -238,20 +277,27 @@ def read_proposals_for_job(
 def read_my_proposals(
     session: SessionDep,
     current_user: CurrentUser,
+    status: ProposalStatus | None = None,
     skip: int = 0,
     limit: int = 100,
 ) -> Any:
     """
     List all proposals submitted by the current authenticated freelancer.
+    Supports filtering by status (e.g. ?status=draft or ?status=pending).
     """
-    count_statement = select(func.count()).where(
-        Proposal.freelancer_id == current_user.id
-    )
+    base_filters = [Proposal.freelancer_id == current_user.id]
+    if status is not None:
+        base_filters.append(Proposal.status == status)
+
+    count_statement = select(func.count()).where(*base_filters)
     count = session.exec(count_statement).one()
 
     statement = (
         select(Proposal)
-        .where(Proposal.freelancer_id == current_user.id)
+        .where(*base_filters)
+        .options(
+            joinedload(Proposal.job_post).joinedload(JobPost.client).joinedload(User.client_profile)  # type: ignore[arg-type]
+        )
         .order_by(col(Proposal.created_at).desc())
         .offset(skip)
         .limit(limit)
@@ -269,6 +315,7 @@ def read_my_proposals(
             update={
                 "freelancer": freelancer_public,
                 "freelancer_profile": freelancer_profile_public,
+                "job_post": _build_job_post_public(prop.job_post),
             },
         )
         for prop in proposals
@@ -286,6 +333,7 @@ def read_proposal(
     """
     Get single proposal details.
     Only the proposing freelancer, the job owner client, or a superuser can access.
+    Clients cannot access draft proposals.
     """
     proposal = session.get(Proposal, id)
     if not proposal:
@@ -298,6 +346,10 @@ def read_proposal(
 
     if not (is_freelancer or is_client_owner or current_user.is_superuser):
         raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    if is_client_owner and not is_freelancer and not current_user.is_superuser:
+        if proposal.status == ProposalStatus.DRAFT:
+            raise HTTPException(status_code=404, detail="Proposal not found")
 
     freelancer_user = proposal.freelancer
     freelancer_public = (
@@ -316,6 +368,76 @@ def read_proposal(
         update={
             "freelancer": freelancer_public,
             "freelancer_profile": freelancer_profile_public,
+            "job_post": _build_job_post_public(proposal.job_post),
+        },
+    )
+
+
+@router.put("/{id}", response_model=ProposalPublic)
+def update_proposal(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID,
+    proposal_in: ProposalUpdate,
+) -> Any:
+    """
+    Update a proposal or draft (cover letter and/or status).
+    Only the proposing freelancer or a superuser can update it.
+    Accepted or rejected proposals cannot be edited.
+    """
+    proposal = session.get(Proposal, id)
+    if not proposal:
+        raise HTTPException(status_code=404, detail="Proposal not found")
+
+    if proposal.freelancer_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Only the proposing freelancer can update this proposal",
+        )
+
+    if proposal.status in (ProposalStatus.ACCEPTED, ProposalStatus.REJECTED):
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot update an accepted or rejected proposal",
+        )
+
+    if proposal_in.cover_letter is not None:
+        proposal.cover_letter = proposal_in.cover_letter
+    if proposal_in.status is not None:
+        if (
+            proposal_in.status in (ProposalStatus.ACCEPTED, ProposalStatus.REJECTED)
+            and not current_user.is_superuser
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="Freelancers cannot accept or reject proposals",
+            )
+        proposal.status = proposal_in.status
+
+    proposal.updated_at = datetime.now(UTC)
+    session.add(proposal)
+    session.commit()
+    session.refresh(proposal)
+
+    freelancer_user = proposal.freelancer
+    freelancer_public = (
+        UserPublic.model_validate(freelancer_user) if freelancer_user else None
+    )
+    freelancer_profile_public = (
+        _build_freelancer_profile_public(
+            session, freelancer_user.freelancer_profile
+        )
+        if freelancer_user
+        else None
+    )
+
+    return ProposalPublic.model_validate(
+        proposal,
+        update={
+            "freelancer": freelancer_public,
+            "freelancer_profile": freelancer_profile_public,
+            "job_post": _build_job_post_public(proposal.job_post),
         },
     )
 
@@ -368,6 +490,7 @@ def update_proposal_status(
         update={
             "freelancer": freelancer_public,
             "freelancer_profile": freelancer_profile_public,
+            "job_post": _build_job_post_public(proposal.job_post),
         },
     )
 

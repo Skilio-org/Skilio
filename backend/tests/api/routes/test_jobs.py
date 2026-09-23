@@ -337,3 +337,165 @@ def test_create_job_with_custom_skills(client: TestClient, db: Session) -> None:
     found_jobs = search_resp.json()["data"]
     assert any(content["id"] == j["id"] for j in found_jobs)
 
+
+def test_saved_jobs_crud_and_filters(client: TestClient, db: Session) -> None:
+    client_headers, _ = _make_client_headers(client, db)
+    freelancer_headers, freelancer = _make_freelancer_headers(client, db)
+
+    # Create two jobs in different categories
+    job1_resp = client.post(
+        f"{settings.API_V1_STR}/jobs/",
+        headers=client_headers,
+        json={
+            "title": "UI/UX Mobile App Designer",
+            "description": "Figma design for iOS app",
+            "budget_type": "fixed",
+            "budget": 1200.0,
+            "category": "Design & Creative",
+        },
+    )
+    job1_id = job1_resp.json()["id"]
+
+    job2_resp = client.post(
+        f"{settings.API_V1_STR}/jobs/",
+        headers=client_headers,
+        json={
+            "title": "SEO Marketing Specialist",
+            "description": "Improve organic search rankings",
+            "budget_type": "fixed",
+            "budget": 800.0,
+            "category": "Sales & Marketing",
+        },
+    )
+    job2_id = job2_resp.json()["id"]
+
+    # Save job 1 via POST /jobs/saved
+    save1 = client.post(
+        f"{settings.API_V1_STR}/jobs/saved",
+        headers=freelancer_headers,
+        json={"job_post_id": job1_id},
+    )
+    assert save1.status_code == 200
+    saved1_data = save1.json()
+    assert saved1_data["job_post_id"] == job1_id
+    assert saved1_data["job_post"]["title"] == "UI/UX Mobile App Designer"
+    saved1_id = saved1_data["id"]
+
+    # Save job 2 via POST /jobs/{id}/save
+    save2 = client.post(
+        f"{settings.API_V1_STR}/jobs/{job2_id}/save",
+        headers=freelancer_headers,
+    )
+    assert save2.status_code == 200
+
+    # Retrieve single saved job by saved record ID
+    get_saved1 = client.get(f"{settings.API_V1_STR}/jobs/saved/{saved1_id}", headers=freelancer_headers)
+    assert get_saved1.status_code == 200
+    assert get_saved1.json()["job_post_id"] == job1_id
+
+    # Retrieve single saved job by job post ID
+    get_saved2 = client.get(f"{settings.API_V1_STR}/jobs/saved/{job2_id}", headers=freelancer_headers)
+    assert get_saved2.status_code == 200
+    assert get_saved2.json()["job_post_id"] == job2_id
+
+    # Filter saved jobs by category
+    cat_resp = client.get(
+        f"{settings.API_V1_STR}/jobs/saved?category=Design%20%26%20Creative",
+        headers=freelancer_headers,
+    )
+    assert cat_resp.status_code == 200
+    assert cat_resp.json()["count"] == 1
+    assert cat_resp.json()["data"][0]["job_post_id"] == job1_id
+
+    # Filter saved jobs by search query
+    q_resp = client.get(
+        f"{settings.API_V1_STR}/jobs/saved?q=Marketing",
+        headers=freelancer_headers,
+    )
+    assert q_resp.status_code == 200
+    assert q_resp.json()["count"] == 1
+    assert q_resp.json()["data"][0]["job_post_id"] == job2_id
+
+    # Sort saved jobs by budget high
+    sort_resp = client.get(
+        f"{settings.API_V1_STR}/jobs/saved?sort_by=budget_high",
+        headers=freelancer_headers,
+    )
+    assert sort_resp.status_code == 200
+    assert sort_resp.json()["count"] == 2
+    assert sort_resp.json()["data"][0]["job_post_id"] == job1_id  # 1200 > 800
+
+    # Delete saved job 1 by saved_id
+    del1 = client.delete(f"{settings.API_V1_STR}/jobs/saved/{saved1_id}", headers=freelancer_headers)
+    assert del1.status_code == 200
+    assert del1.json()["message"] == "Job post removed from saved"
+
+    # Delete saved job 2 by job_post_id
+    del2 = client.delete(f"{settings.API_V1_STR}/jobs/saved/{job2_id}", headers=freelancer_headers)
+    assert del2.status_code == 200
+    assert del2.json()["message"] == "Job post removed from saved"
+
+    # Verify list is empty
+    empty_resp = client.get(f"{settings.API_V1_STR}/jobs/saved", headers=freelancer_headers)
+    assert empty_resp.json()["count"] == 0
+
+
+def test_job_detail_has_draft_and_proposals_count(client: TestClient, db: Session) -> None:
+    client_headers, _ = _make_client_headers(client, db)
+    freelancer_headers, _ = _make_freelancer_headers(client, db)
+
+    create_resp = client.post(
+        f"{settings.API_V1_STR}/jobs/",
+        headers=client_headers,
+        json={
+            "title": "Fullstack Cloud Engineer",
+            "description": "AWS and Docker setup",
+            "budget_type": "fixed",
+            "budget": 2500.0,
+        },
+    )
+    job_id = create_resp.json()["id"]
+
+    # Save job to bookmarks
+    client.post(f"{settings.API_V1_STR}/jobs/{job_id}/save", headers=freelancer_headers)
+
+    # Freelancer writes a draft
+    draft = client.post(
+        f"{settings.API_V1_STR}/proposals/",
+        headers=freelancer_headers,
+        json={"job_post_id": job_id, "cover_letter": "Draft AWS notes", "status": "draft"},
+    )
+    draft_id = draft.json()["id"]
+
+    # In detail: has_draft=True, has_applied=False, proposals_count=0
+    detail1 = client.get(f"{settings.API_V1_STR}/jobs/{job_id}", headers=freelancer_headers)
+    assert detail1.json()["has_draft"] is True
+    assert detail1.json()["has_applied"] is False
+    assert detail1.json()["proposals_count"] == 0
+
+    # In saved jobs list: nested job has has_draft=True, has_applied=False, proposals_count=0
+    saved_resp1 = client.get(f"{settings.API_V1_STR}/jobs/saved", headers=freelancer_headers)
+    assert saved_resp1.json()["data"][0]["job_post"]["has_draft"] is True
+    assert saved_resp1.json()["data"][0]["job_post"]["has_applied"] is False
+    assert saved_resp1.json()["data"][0]["job_post"]["proposals_count"] == 0
+
+    # Promote draft to pending
+    client.put(
+        f"{settings.API_V1_STR}/proposals/{draft_id}",
+        headers=freelancer_headers,
+        json={"status": "pending"},
+    )
+
+    # In detail: has_draft=False, has_applied=True, proposals_count=1
+    detail2 = client.get(f"{settings.API_V1_STR}/jobs/{job_id}", headers=freelancer_headers)
+    assert detail2.json()["has_draft"] is False
+    assert detail2.json()["has_applied"] is True
+    assert detail2.json()["proposals_count"] == 1
+
+    # In saved jobs list: nested job has has_draft=False, has_applied=True, proposals_count=1
+    saved_resp2 = client.get(f"{settings.API_V1_STR}/jobs/saved", headers=freelancer_headers)
+    assert saved_resp2.json()["data"][0]["job_post"]["has_draft"] is False
+    assert saved_resp2.json()["data"][0]["job_post"]["has_applied"] is True
+    assert saved_resp2.json()["data"][0]["job_post"]["proposals_count"] == 1
+
+

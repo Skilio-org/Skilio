@@ -59,9 +59,10 @@ export function ClientJobsPage() {
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			<WorkspacePageHeader
-				eyebrow="Client workspace / Jobs"
+				eyebrow="Client workspace"
 				title="Your next great hire starts here."
 				description="Create a clear brief and keep your hiring in one place."
+				meta={<span className="font-medium text-primary">Hiring activity</span>}
 				action={
 					<button
 						type="button"

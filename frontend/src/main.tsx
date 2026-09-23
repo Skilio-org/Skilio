@@ -8,7 +8,7 @@ import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "./components/ui/sonner"
 import { WebSocketProvider } from "./context/websocket-context"
 import { routeTree } from "./routeTree.gen"
-import "./styles/globals-freelancetheworld.css"
+import "./styles/globals.css"
 
 client.setConfig({
 	baseURL: import.meta.env.VITE_API_URL ?? "",
@@ -39,7 +39,7 @@ declare module "@tanstack/react-router" {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<StrictMode>
-		<ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+		<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
 			<QueryClientProvider client={queryClient}>
 				<WebSocketProvider>
 					<RouterProvider router={router} />

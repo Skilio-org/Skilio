@@ -56,9 +56,6 @@ export function ClientJobsList({
 					className="min-w-0 flex-1 bg-transparent text-sm outline-none"
 				/>
 			</label>
-			<p role="status" className="text-on-surface-variant text-sm">
-				{results.length} {results.length === 1 ? "job" : "jobs"}
-			</p>
 			{results.length ? (
 				<div className="divide-y divide-border overflow-hidden rounded-lg border border-outline-variant">
 					{results.map((job) => (
