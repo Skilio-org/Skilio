@@ -6,6 +6,8 @@ import ReactDOM from "react-dom/client"
 import { client } from "./client/client.gen"
 import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "./components/ui/sonner"
+import { ChatProvider } from "./context/chat-context"
+import { WebSocketProvider } from "./context/websocket-context"
 import { routeTree } from "./routeTree.gen"
 import "./styles/globals.css"
 
@@ -40,8 +42,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 	<StrictMode>
 		<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
 			<QueryClientProvider client={queryClient}>
-				<RouterProvider router={router} />
-				<Toaster richColors closeButton />
+				<WebSocketProvider>
+					<ChatProvider>
+						<RouterProvider router={router} />
+						<Toaster richColors closeButton />
+					</ChatProvider>
+				</WebSocketProvider>
 			</QueryClientProvider>
 		</ThemeProvider>
 	</StrictMode>,

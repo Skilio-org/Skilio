@@ -1298,7 +1298,7 @@ export type JobPostsPublic = {
 /**
  * JobStatus
  */
-export type JobStatus = 'open' | 'closed';
+export type JobStatus = 'draft' | 'open' | 'closed';
 
 /**
  * MediaPublic
@@ -3139,6 +3139,52 @@ export type profilesProxyPortfolioImageResponses = {
      */
     200: unknown;
 };
+
+export type profilesReadSavedProfilesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+        /**
+         * Q
+         */
+        q?: string | null;
+        /**
+         * Category
+         */
+        category?: string | null;
+        /**
+         * Sort By
+         */
+        sort_by?: string | null;
+    };
+    url: '/api/v1/profiles/saved';
+};
+
+export type profilesReadSavedProfilesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type profilesReadSavedProfilesError = profilesReadSavedProfilesErrors[keyof profilesReadSavedProfilesErrors];
+
+export type profilesReadSavedProfilesResponses = {
+    /**
+     * Successful Response
+     */
+    200: FreelancerProfilesPublic;
+};
+
+export type profilesReadSavedProfilesResponse = profilesReadSavedProfilesResponses[keyof profilesReadSavedProfilesResponses];
 
 export type profilesDeleteProfileData = {
     body?: never;

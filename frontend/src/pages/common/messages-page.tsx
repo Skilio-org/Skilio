@@ -1,69 +1,17 @@
+import { isClientProfile, useChat } from "@/context/chat-context"
 import { useMessageContacts } from "@/hooks/useMessageContacts"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "@tanstack/react-router"
-import { freelancers } from "@/data/freelancers"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { useEffect, useState } from "react"
 import { Search, SquarePen } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { toast } from "sonner"
 import { getClientTheme } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { MessageThread } from "@/components/messages/message-thread"
-import type { InboxFilter, ThreadMessage } from "@/components/messages/message-types"
-import { clientConversations, clientIntroductions, demoClients } from "@/data/freelancer-demo"
-
-const emptyConversations: typeof clientConversations = []
-
-function sampleThread(
-	id: string,
-	meta: typeof clientConversations,
-	introductions: Record<string, string>,
-): ThreadMessage[] {
-	const conversation = meta.find((item) => item.id === id)
-	if (!conversation) return []
-	return [
-		{
-			id: `${id}-intro`,
-			body:
-				id === "olivia-bennett"
-					? "Morning! We just reviewed the interactive prototype for the new user onboarding sequence. Overall, the typography hierarchy feels significantly crisper than our last iteration."
-					: introductions[id],
-			feedback:
-				id === "olivia-bennett"
-					? [
-							"Step 2 progress bar: The completion interaction is much more intuitive. Keep that easing curve.",
-							"Contrast adjustment: Could we increase contrast on the secondary button? It looks washed out in bright light.",
-							"Animation timing: Let's check the tooltip animation on slower connections before sign-off.",
-						]
-					: undefined,
-			time: "10:24 AM",
-			own: false,
-		},
-		{
-			id: `${id}-reply`,
-			// attachment:
-			// 	clientMode && id === "olivia-bennett"
-			// 		? {
-			// 				name: "onboarding-handoff-notes.txt",
-			// 				content:
-			// 					"Onboarding handoff\n\nReview secondary button contrast.\nCheck tooltip animation on slower connections.\nPrepare the next prototype iteration for Thursday's review.",
-			// 			}
-			// 		: undefined,
-			body: "Thanks for the notes! That aligns with my thinking. I’ll refine the secondary buttons, check the animation timing, and share the updated prototype for your review.",
-			time: "10:28 AM",
-			own: true,
-		},
-		{
-			id: `${id}-latest`,
-			body: conversation.preview,
-			time: "10:31 AM",
-			own: false,
-		},
-	]
-}
+import type { InboxFilter } from "@/components/messages/message-types"
 
 export function MessagesPage({
 	selectedContact,
@@ -72,99 +20,62 @@ export function MessagesPage({
 	selectedContact?: string
 	onSelectContact: (id: string) => void
 }) {
+	const [recipientQuery, setRecipientQuery] = useState("")
+	const chat = useChat()
+	const {
+		conversations,
+		conversationsPending,
+		conversationProfiles,
+		selected,
+		selectedProfile,
+		messages,
+		draft,
+		archived,
+		presence: selectedPresence,
+		presencePending,
+		updateDraft,
+		send,
+		archive: archiveConversation,
+		markUnread,
+	} = chat
+	const matchingProfiles = Array.from(conversationProfiles.entries()).filter(([, profile]) =>
+		checkProfile(profile, recipientQuery),
+	)
 	const navigate = useNavigate()
 	const clientMode = useAccountRole() === "client"
 	const contacts = useMessageContacts(clientMode)
-	const people = clientMode ? [...(contacts.data ?? []), ...freelancers] : demoClients
-	const meta = clientMode ? emptyConversations : clientConversations
-	const introductions = clientIntroductions
-	const selected = people.find((person) => person.id === selectedContact)
-	const selectedId = selected?.id ?? ""
+	const selectedId = selectedContact ?? ""
 	const [newMessageOpen, setNewMessageOpen] = useState(false)
-	const [recipientQuery, setRecipientQuery] = useState("")
 	const [query, setQuery] = useState("")
 	const [filter, setFilter] = useState<InboxFilter>("all")
-	const [drafts, setDrafts] = useState<Record<string, string>>({})
-	const [sent, setSent] = useState<Record<string, ThreadMessage[]>>({})
-	const [unread, setUnread] = useState<Record<string, number>>(() =>
-		Object.fromEntries(meta.map((item) => [item.id, item.unread])),
+	const unreadCount = conversations.data.reduce(
+		(total, conversation) => total + (conversation.unread_count ?? 0),
+		0,
 	)
-	const [archived, setArchived] = useState<string[]>([])
-	const [addedIds, setAddedIds] = useState<string[]>([])
+
 	useEffect(() => {
-		if (!selectedId) return
-		setUnread((current) => ({ ...current, [selectedId]: 0 }))
-		if (!meta.some((item) => item.id === selectedId))
-			setAddedIds((current) => (current.includes(selectedId) ? current : [...current, selectedId]))
-	}, [selectedId, meta])
-	const all = [
-		...meta,
-		...addedIds.map((id) => ({
-			id,
-			preview: "Start a conversation",
-			time: "",
-			unread: 0,
-		})),
-	]
-	const unreadCount = all.reduce((count, item) => count + (archived.includes(item.id) ? 0 : (unread[item.id] ?? 0)), 0)
-	const conversations = all
-		.map((item) => {
-			const outgoing = sent[item.id] ?? []
-			const last = outgoing[outgoing.length - 1]
-			const draft = drafts[item.id]?.trim()
-			return {
-				...item,
-				preview: draft || (last ? `You: ${last.body}` : item.preview),
-				time: last?.time ?? item.time,
-				unread: unread[item.id] ?? 0,
-				hasDraft: !!draft,
-			}
-		})
-		.filter((item) => {
-			const person = people.find((candidate) => candidate.id === item.id)
-			if (!person) return false
-			const matches = `${person.name} ${person.title} ${item.preview}`
-				.toLowerCase()
-				.includes(query.trim().toLowerCase())
-			const isArchived = archived.includes(item.id)
-			return matches && (filter === "archived" ? isArchived : !isArchived && (filter === "all" || item.unread > 0))
-		})
-	const messages = selectedId
-		? [
-				...sampleThread(selectedId, meta, introductions).slice(0, selectedId === "olivia-bennett" ? 2 : 3),
-				...(sent[selectedId] ?? []),
-			]
-		: []
-	const draft = drafts[selectedId] ?? ""
+		chat.selectConversation(selectedContact)
+		if (!selectedContact && !conversationsPending && conversations.data[0]?.other_user?.id) {
+			onSelectContact(conversations.data[0].other_user.id)
+		}
+	}, [chat.selectConversation, conversations.data, conversationsPending, onSelectContact, selectedContact])
+
 	const select = (id: string) => {
+		chat.selectConversation(id || undefined)
 		onSelectContact(id)
 	}
-	const updateDraft = (value: string) => setDrafts((current) => ({ ...current, [selectedId]: value }))
-	const send = () => {
-		if (!selectedId || !draft.trim()) return
-		const message: ThreadMessage = {
-			id: crypto.randomUUID(),
-			body: draft.trim(),
-			time: new Date().toLocaleTimeString([], {
-				hour: "numeric",
-				minute: "2-digit",
-			}),
-			own: true,
-			local: true,
-		}
-		setSent((current) => ({
-			...current,
-			[selectedId]: [...(current[selectedId] ?? []), message],
-		}))
-		updateDraft("")
-		setArchived((current) => current.filter((id) => id !== selectedId))
-	}
 	const archive = () => {
-		const restoring = archived.includes(selectedId)
-		setArchived((current) => (restoring ? current.filter((id) => id !== selectedId) : [...current, selectedId]))
+		archiveConversation()
 		select("")
-		toast.success(restoring ? "Conversation moved to inbox" : "Conversation archived")
 	}
+
+	function checkProfile(profile: Parameters<typeof isClientProfile>[0], search: string) {
+		const text = isClientProfile(profile)
+			? `${profile.company ?? ""} ${profile.full_name ?? ""}`
+			: `${profile.title ?? ""} ${profile.full_name ?? ""}`
+		return text.toLowerCase().includes(search.toLowerCase())
+	}
+
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
@@ -220,46 +131,46 @@ export function MessagesPage({
 						/>
 					</div>
 					<div className="max-h-64 space-y-1 overflow-y-auto pt-2">
-						{people
-							.filter((person) => `${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()))
-							.map((person) => {
-								const theme = getClientTheme(person.id)
-								return (
-									<button
-										key={person.id}
-										type="button"
-										onClick={() => {
-											select(person.id)
-											setNewMessageOpen(false)
-										}}
-										className="flex w-full items-center gap-3 rounded-lg border border-transparent p-2.5 text-left transition-colors hover:border-outline-variant hover:bg-surface-container-low"
+						{matchingProfiles.map(([id, profile]) => {
+							const theme = getClientTheme(id)
+							const name = profile.full_name ?? "Unknown user"
+							const subtitle = isClientProfile(profile)
+								? profile.company ?? profile.company_role ?? "Client"
+								: profile.title ?? "Freelancer"
+							return (
+								<button
+									key={id}
+									type="button"
+									onClick={() => {
+										select(id)
+										setNewMessageOpen(false)
+									}}
+									className="flex w-full items-center gap-3 rounded-lg border border-transparent p-2.5 text-left transition-colors hover:border-outline-variant hover:bg-surface-container-low"
+								>
+									<span
+										className={cn(
+											"grid size-9 shrink-0 place-items-center rounded-lg border font-label-sm font-semibold shadow-2xs",
+											theme.bg,
+											theme.text,
+											theme.border,
+										)}
 									>
-										<span
-											className={cn(
-												"grid size-9 shrink-0 place-items-center rounded-lg border font-label-sm font-semibold shadow-2xs",
-												theme.bg,
-												theme.text,
-												theme.border,
-											)}
-										>
-											{person.initials}
+										{name.slice(0, 2).toUpperCase()}
+									</span>
+									<div className="min-w-0 flex-1">
+										<span className="block truncate font-label-md font-semibold text-label-md text-on-surface">
+											{name}
 										</span>
-										<div className="min-w-0 flex-1">
-											<span className="block truncate font-label-md font-semibold text-label-md text-on-surface">
-												{person.name}
-											</span>
-											<span className="block truncate font-caption text-caption text-on-surface-variant">
-												{person.title}
-											</span>
-										</div>
-									</button>
-								)
-							})}
-						{!people.some((person) =>
-							`${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()),
-						) && (
+										<span className="block truncate font-caption text-caption text-on-surface-variant">
+											{subtitle}
+										</span>
+									</div>
+								</button>
+							)
+						})}
+						{matchingProfiles.length === 0 && (
 							<p className="py-6 text-center font-body-sm text-body-sm text-on-surface-variant">
-								No matching {clientMode ? "freelancers" : "clients"}.
+								No matching users.
 							</p>
 						)}
 					</div>
@@ -267,9 +178,8 @@ export function MessagesPage({
 			</Dialog>
 			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] h-[calc(100vh-14.5rem)] min-h-[640px] max-h-[880px]">
 				<ConversationList
-					people={people}
 					conversations={conversations}
-					selectedId={clientMode ? (selectedContact ?? "") : selectedId}
+					selectedId={selectedId}
 					query={query}
 					filter={filter}
 					unreadCount={unreadCount}
@@ -277,7 +187,7 @@ export function MessagesPage({
 					onFilterChange={setFilter}
 					onSelect={select}
 				/>
-				{clientMode && selectedContact && !selected ? (
+				{selectedContact && !selected ? (
 					<section className="flex flex-col gap-4 p-6" aria-live="polite">
 						<Alert>
 							<AlertTitle>
@@ -307,22 +217,24 @@ export function MessagesPage({
 						</Button>
 					</section>
 				) : (
+					selected != undefined &&
 					<MessageThread
 						key={selectedId}
-						selected={selected}
+						selected={selectedProfile}
+						isOnline={selectedPresence?.is_online}
+						presencePending={presencePending}
 						messages={messages}
 						draft={draft}
-						archived={archived.includes(selectedId)}
+						archived={archived}
 						onBack={() => select("")}
 						onOpenLatest={() => {
-							if (all[0]) select(all[0].id)
+							if (conversations.data[0]?.other_user?.id) select(conversations.data[0].other_user.id)
 							else setNewMessageOpen(true)
 						}}
-						hasConversations={all.length > 0}
-						canViewProfile={clientMode && freelancers.some((person) => person.id === selectedId)}
-						onOpenBrief={() => {}}
+						hasConversations={conversations.data.length > 0}
+						canViewProfile={clientMode && selected?.active_role === "freelancer"}
 						onDetails={() => {
-							if (clientMode && selected && freelancers.some((person) => person.id === selected.id))
+							if (clientMode && selected?.active_role === "freelancer")
 								void navigate({
 									to: "/talent/$freelancerId",
 									params: { freelancerId: selected.id },
@@ -331,7 +243,7 @@ export function MessagesPage({
 						}}
 						onArchive={archive}
 						onMarkUnread={() => {
-							setUnread((current) => ({ ...current, [selectedId]: 1 }))
+							markUnread()
 							select("")
 						}}
 						onDraftChange={updateDraft}

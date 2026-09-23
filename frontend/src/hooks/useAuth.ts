@@ -8,6 +8,7 @@ import {
 	type UserRegister,
 	UsersService,
 } from "@/client"
+import { AUTH_TOKEN_CHANGED_EVENT } from "@/context/websocket-context"
 import { handleError } from "@/utils"
 import useCustomToast from "./useCustomToast"
 
@@ -56,6 +57,7 @@ const useAuth = () => {
 			body: data,
 		})
 		localStorage.setItem("access_token", response.data.access_token)
+		window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
 		try {
 			const { data: account } = await UsersService.readUserMe()
 			queryClient.setQueryData(["currentUser"], account)
@@ -89,6 +91,7 @@ const useAuth = () => {
 
 	const logout = () => {
 		localStorage.removeItem("access_token")
+		window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
 		queryClient.clear()
 		navigate({ to: "/login" })
 	}
