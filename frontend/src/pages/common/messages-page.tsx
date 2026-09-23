@@ -1,99 +1,17 @@
-import { useWebSocket } from "@/context/websocket-context"
+import { isClientProfile, useChat } from "@/context/chat-context"
 import { useMessageContacts } from "@/hooks/useMessageContacts"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "@tanstack/react-router"
-import { freelancers } from "@/data/freelancers"
 import { useAccountRole } from "@/hooks/useAccountRole"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { Search, SquarePen } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { toast } from "sonner"
 import { getClientTheme } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { MessageThread } from "@/components/messages/message-thread"
 import type { InboxFilter } from "@/components/messages/message-types"
-import {
-	ClientProfilesService,
-	ConversationsPublic,
-	ProfilesService,
-	UserPublic,
-	type ClientProfileDetailPublic,
-	type FreelancerProfilePublic,
-} from "@/client"
-import { all } from "axios"
-import { ChatService } from "@/client"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-
-const conversationQueryKey = ["chat", "conversations"]
-
-type ConversationProfile = ClientProfileDetailPublic | FreelancerProfilePublic
-
-export function useConversationProfiles(conversations: ConversationsPublic, enabled: boolean) {
-	const userIds = conversations.data
-		.map((conversation) => conversation.other_user)
-		.filter((user): user is UserPublic => Boolean(user))
-		.map((user) => `${user.id}:${user.active_role}`)
-		.sort()
-
-	return useQuery({
-		queryKey: ["chat", "conversation-profiles", userIds],
-		enabled: enabled && userIds.length > 0,
-		queryFn: async ({ signal }) => {
-			const users = conversations.data
-				.map((conversation) => conversation.other_user)
-				.filter((user): user is UserPublic => Boolean(user))
-
-			const freelancerProfiles: FreelancerProfilePublic[] = []
-			if (users.some((user) => user.active_role === "freelancer")) {
-				let skip = 0
-				while (true) {
-					const { data: page } = await ProfilesService.readProfiles({
-						query: { skip, limit: 100 },
-						signal,
-					})
-					freelancerProfiles.push(...page.data)
-					skip += page.data.length
-					if (!page.data.length || skip >= page.count) break
-				}
-			}
-
-			const clientProfiles = await Promise.all(
-				users
-					.filter((user) => user.active_role !== "freelancer")
-					.map(async (user) => {
-						const { data } = await ClientProfilesService.profilesReadClientProfileByUserId({
-							path: { user_id: user.id },
-							signal,
-						})
-						return [user.id, data] as const
-					}),
-			)
-
-			const profiles = new Map<string, ConversationProfile>()
-			for (const profile of freelancerProfiles) {
-				profiles.set(profile.user_id, profile)
-			}
-			for (const [userId, profile] of clientProfiles) {
-				profiles.set(userId, profile)
-			}
-
-			return profiles
-		},
-	})
-}
-
-export function useConversations() {
-    return useQuery({
-        queryKey: ["chat", "conversations"],
-        queryFn: async ({ signal }) => {
-            const response = await ChatService.getMyConversations({ signal })
-            return response.data
-        },
-    })
-}
-
 
 export function MessagesPage({
 	selectedContact,
@@ -102,157 +20,61 @@ export function MessagesPage({
 	selectedContact?: string
 	onSelectContact: (id: string) => void
 }) {
-	const queryClient = useQueryClient()
+	const [recipientQuery, setRecipientQuery] = useState("")
+	const chat = useChat()
 	const {
-		data: conversations = { count: 0, data: [] },
-		isPending: conversationsPending,
-	} = useConversations()
-	const { data: conversationProfiles = new Map() } = useConversationProfiles(
 		conversations,
-		!conversationsPending,
+		conversationsPending,
+		conversationProfiles,
+		selected,
+		selectedProfile,
+		messages,
+		draft,
+		archived,
+		presence: selectedPresence,
+		presencePending,
+		updateDraft,
+		send,
+		archive: archiveConversation,
+		markUnread,
+	} = chat
+	const matchingProfiles = Array.from(conversationProfiles.entries()).filter(([, profile]) =>
+		checkProfile(profile, recipientQuery),
 	)
-	void conversationProfiles
-
-	// const { sendMessage } = useWebSocket()
-	// const { sendMessage } = useWebSocket()
-	const { sendMessage, subscribe } = useWebSocket()
 	const navigate = useNavigate()
 	const clientMode = useAccountRole() === "client"
 	const contacts = useMessageContacts(clientMode)
-	// const people = ;
-
-	const [selected, setSelected] = useState<UserPublic | undefined>(undefined)
-	const hasInitializedSelection = useRef(false)
-	// const selected = people.find((person) => person.id === selectedContact)
-	const selectedId = selected?.id ?? ""
+	const selectedId = selectedContact ?? ""
 	const [newMessageOpen, setNewMessageOpen] = useState(false)
-	const [recipientQuery, setRecipientQuery] = useState("")
 	const [query, setQuery] = useState("")
 	const [filter, setFilter] = useState<InboxFilter>("all")
-	const [drafts, setDrafts] = useState<Record<string, string>>({})
-	
-	const [unreadCount, setUnread] = useState<number>(0)
-	const [archived, setArchived] = useState<string[]>([])
-
-	const draft = drafts[selectedId] ?? ""
-	const select = (id: string) => {
-		onSelectContact(id)
-	}
-	const updateDraft = (value: string) => setDrafts((current) => ({ ...current, [selectedId]: value }))
-	
-	const send = () => {
-		if (!selectedId || !draft.trim()) return
-		const sentSuccessfully = sendMessage({
-			type: "chat_message",
-			conversation_id: selectedId,
-			content: draft.trim(),
-		})
-		if (!sentSuccessfully) {
-			toast.error("You are offline. Please try again when the connection is restored.")
-			return
-		}
-
-		updateDraft("")
-		setArchived((current) => current.filter((id) => id !== selectedId))
-	}
-
-	const archive = () => {
-		const restoring = archived.includes(selectedId)
-		setArchived((current) => (restoring ? current.filter((id) => id !== selectedId) : [...current, selectedId]))
-		select("")
-		toast.success(restoring ? "Conversation moved to inbox" : "Conversation archived")
-	}
+	const unreadCount = conversations.data.reduce(
+		(total, conversation) => total + (conversation.unread_count ?? 0),
+		0,
+	)
 
 	useEffect(() => {
-		if (hasInitializedSelection.current || conversationsPending) return
-
-		const conversation = selectedContact
-			? conversations.data.find((item) => item.other_user?.id === selectedContact)
-			: conversations.data[0]
-
-		if (conversation?.other_user) {
-			hasInitializedSelection.current = true
-			setSelected(conversation.other_user)
-			if (selectedContact !== conversation.other_user.id) onSelectContact(conversation.other_user.id)
-			return
+		chat.selectConversation(selectedContact)
+		if (!selectedContact && !conversationsPending && conversations.data[0]?.other_user?.id) {
+			onSelectContact(conversations.data[0].other_user.id)
 		}
+	}, [chat.selectConversation, conversations.data, conversationsPending, onSelectContact, selectedContact])
 
-		if (!selectedContact) return
+	const select = (id: string) => {
+		chat.selectConversation(id || undefined)
+		onSelectContact(id)
+	}
+	const archive = () => {
+		archiveConversation()
+		select("")
+	}
 
-		hasInitializedSelection.current = true
-		void ChatService.createOrGetConversation({
-			body: { freelancer_id: selectedContact },
-		})
-			.then(({ data: createdConversation }) => {
-				if (!createdConversation.other_user) return
-
-				queryClient.setQueryData<ConversationsPublic>(conversationQueryKey, (current) => {
-					if (!current) return { count: 1, data: [createdConversation] }
-
-					const alreadyExists = current.data.some((item) => item.id === createdConversation.id)
-					if (alreadyExists) return current
-
-					return {
-						count: current.count + 1,
-						data: [createdConversation, ...current.data],
-					}
-				})
-				setSelected(createdConversation.other_user)
-				onSelectContact(createdConversation.other_user.id)
-			})
-			.catch((error) => {
-				hasInitializedSelection.current = false
-				toast.error(error instanceof Error ? error.message : "Unable to create conversation")
-			})
-	}, [conversations.data, conversationsPending, onSelectContact, queryClient, selectedContact])
-
-
-    useEffect(() => {
-        return subscribe("chat_message", (message) => {
-            queryClient.setQueryData<ConversationsPublic>(
-                conversationQueryKey,
-                (current: any) => {
-                    if (!current) return current
-
-                    const conversation = current.data.find(
-                        (item: any) => item.id === message.conversation_id,
-                    )
-
-                    // The conversation is not loaded locally.
-                    // A refetch is needed because we do not have the other user's data.
-                    if (!conversation) {
-                        void queryClient.invalidateQueries({
-                            queryKey: conversationQueryKey,
-                        })
-                        return current
-                    }
-
-                    const unreadIncrement =
-                        message.conversation_id === selectedContact ? 0 : 1
-
-                    const updatedConversation = {
-                        ...conversation,
-                        last_message: {
-                            ...conversation.last_message,
-                            content: message.content,
-                        },
-						unread_count:
-							(conversation.unread_count ?? 0) + unreadIncrement,
-                    }
-
-                    return {
-                        ...current,
-                        data: [
-                            updatedConversation,
-                            ...current.data.filter(
-                                (item: any) => item.id !== message.conversation_id,
-                            ),
-                        ],
-                    }
-                },
-            )
-        })
-    }, [queryClient, selectedContact, subscribe])
+	function checkProfile(profile: Parameters<typeof isClientProfile>[0], search: string) {
+		const text = isClientProfile(profile)
+			? `${profile.company ?? ""} ${profile.full_name ?? ""}`
+			: `${profile.title ?? ""} ${profile.full_name ?? ""}`
+		return text.toLowerCase().includes(search.toLowerCase())
+	}
 
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
@@ -309,46 +131,46 @@ export function MessagesPage({
 						/>
 					</div>
 					<div className="max-h-64 space-y-1 overflow-y-auto pt-2">
-						{people
-							.filter((person) => `${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()))
-							.map((person) => {
-								const theme = getClientTheme(person.id)
-								return (
-									<button
-										key={person.id}
-										type="button"
-										onClick={() => {
-											select(person.id)
-											setNewMessageOpen(false)
-										}}
-										className="flex w-full items-center gap-3 rounded-lg border border-transparent p-2.5 text-left transition-colors hover:border-outline-variant hover:bg-surface-container-low"
+						{matchingProfiles.map(([id, profile]) => {
+							const theme = getClientTheme(id)
+							const name = profile.full_name ?? "Unknown user"
+							const subtitle = isClientProfile(profile)
+								? profile.company ?? profile.company_role ?? "Client"
+								: profile.title ?? "Freelancer"
+							return (
+								<button
+									key={id}
+									type="button"
+									onClick={() => {
+										select(id)
+										setNewMessageOpen(false)
+									}}
+									className="flex w-full items-center gap-3 rounded-lg border border-transparent p-2.5 text-left transition-colors hover:border-outline-variant hover:bg-surface-container-low"
+								>
+									<span
+										className={cn(
+											"grid size-9 shrink-0 place-items-center rounded-lg border font-label-sm font-semibold shadow-2xs",
+											theme.bg,
+											theme.text,
+											theme.border,
+										)}
 									>
-										<span
-											className={cn(
-												"grid size-9 shrink-0 place-items-center rounded-lg border font-label-sm font-semibold shadow-2xs",
-												theme.bg,
-												theme.text,
-												theme.border,
-											)}
-										>
-											{person.initials}
+										{name.slice(0, 2).toUpperCase()}
+									</span>
+									<div className="min-w-0 flex-1">
+										<span className="block truncate font-label-md font-semibold text-label-md text-on-surface">
+											{name}
 										</span>
-										<div className="min-w-0 flex-1">
-											<span className="block truncate font-label-md font-semibold text-label-md text-on-surface">
-												{person.name}
-											</span>
-											<span className="block truncate font-caption text-caption text-on-surface-variant">
-												{person.title}
-											</span>
-										</div>
-									</button>
-								)
-							})}
-						{!people.some((person) =>
-							`${person.name} ${person.title}`.toLowerCase().includes(recipientQuery.toLowerCase()),
-						) && (
+										<span className="block truncate font-caption text-caption text-on-surface-variant">
+											{subtitle}
+										</span>
+									</div>
+								</button>
+							)
+						})}
+						{matchingProfiles.length === 0 && (
 							<p className="py-6 text-center font-body-sm text-body-sm text-on-surface-variant">
-								No matching {clientMode ? "freelancers" : "clients"}.
+								No matching users.
 							</p>
 						)}
 					</div>
@@ -357,7 +179,7 @@ export function MessagesPage({
 			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] h-[calc(100vh-14.5rem)] min-h-[640px] max-h-[880px]">
 				<ConversationList
 					conversations={conversations}
-					selectedId={clientMode ? (selectedContact ?? "") : selectedId}
+					selectedId={selectedId}
 					query={query}
 					filter={filter}
 					unreadCount={unreadCount}
@@ -365,7 +187,7 @@ export function MessagesPage({
 					onFilterChange={setFilter}
 					onSelect={select}
 				/>
-				{clientMode && selectedContact && !selected ? (
+				{selectedContact && !selected ? (
 					<section className="flex flex-col gap-4 p-6" aria-live="polite">
 						<Alert>
 							<AlertTitle>
@@ -395,22 +217,24 @@ export function MessagesPage({
 						</Button>
 					</section>
 				) : (
+					selected != undefined &&
 					<MessageThread
 						key={selectedId}
-						selected={selected}
+						selected={selectedProfile}
+						isOnline={selectedPresence?.is_online}
+						presencePending={presencePending}
 						messages={messages}
 						draft={draft}
-						archived={archived.includes(selectedId)}
+						archived={archived}
 						onBack={() => select("")}
 						onOpenLatest={() => {
-							if (all[0]) select(all[0].id)
+							if (conversations.data[0]?.other_user?.id) select(conversations.data[0].other_user.id)
 							else setNewMessageOpen(true)
 						}}
-						hasConversations={all.length > 0}
-						canViewProfile={clientMode && freelancers.some((person) => person.id === selectedId)}
-						onOpenBrief={() => {}}
+						hasConversations={conversations.data.length > 0}
+						canViewProfile={clientMode && selected?.active_role === "freelancer"}
 						onDetails={() => {
-							if (clientMode && selected && freelancers.some((person) => person.id === selected.id))
+							if (clientMode && selected?.active_role === "freelancer")
 								void navigate({
 									to: "/talent/$freelancerId",
 									params: { freelancerId: selected.id },
@@ -419,7 +243,7 @@ export function MessagesPage({
 						}}
 						onArchive={archive}
 						onMarkUnread={() => {
-							setUnread((current) => ({ ...current, [selectedId]: 1 }))
+							markUnread()
 							select("")
 						}}
 						onDraftChange={updateDraft}

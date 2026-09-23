@@ -5,17 +5,23 @@ import { MessageBubble } from "@/components/messages/message-bubble"
 import type { ThreadMessage } from "@/components/messages/message-types"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-
+import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import {	
 	type ClientProfileDetailPublic,
 	type FreelancerProfilePublic,
-} from "@/client";
+} from "@/client"
 const iconButton =
 	"grid size-8.5 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 type ConversationProfile = ClientProfileDetailPublic | FreelancerProfilePublic
 
+function isClientProfile(profile: ConversationProfile): profile is ClientProfileDetailPublic {
+	return "company" in profile
+}
+
 export function MessageThread({
 	selected,
+	isOnline,
+	presencePending,
 	messages,
 	draft,
 	archived,
@@ -29,12 +35,13 @@ export function MessageThread({
 	hasConversations,
 	canViewProfile,
 }: {
-	selected: ConversationProfile
+	selected: ConversationProfile | undefined
+	isOnline?: boolean
+	presencePending: boolean
 	messages: ThreadMessage[]
 	draft: string
 	archived: boolean
 	onBack: () => void
-	onOpenBrief: () => void
 	onDetails: () => void
 	onArchive: () => void
 	onMarkUnread: () => void
@@ -51,6 +58,7 @@ export function MessageThread({
 	const searchRef = useRef<HTMLInputElement>(null)
 	const count = messages.length
 	const selectedId = selected?.id
+	const selectedAvatarUrl = useAccountAvatarUrl(selected?.user_id)
 	useEffect(() => {
 		if (query || !selectedId || !count) return
 		const scroller = scrollRef.current
@@ -104,7 +112,19 @@ export function MessageThread({
 	
 	
 	
-	const companyOrName = selected. || selected.full_name || "Unknown"
+	let companyOrName = selected.full_name || "Unknown"
+	let subtitle = "Client"
+	if (isClientProfile(selected)) {
+		companyOrName = selected.company || selected.full_name || "Unknown"
+		subtitle = selected.company_role || selected.location || "Client"
+	} else {
+		subtitle = [selected.title, ...(selected.skills ?? [])].filter(Boolean).join(" · ")
+	}
+	const initials = (selected.full_name || "?")
+		.split(" ")
+		.map((part) => part[0])
+		.slice(0, 2)
+		.join("")
 	
 	return (
 		<section
@@ -121,8 +141,12 @@ export function MessageThread({
 					<ArrowLeft className="size-4" />
 				</button>
 				<Avatar className="size-10 rounded-lg">
-					<AvatarImage src={selected.avatarUrl} alt={selected.full_name} />
-					<AvatarFallback>{selected.initials}</AvatarFallback>
+					<AvatarImage
+						src={selectedAvatarUrl}
+						alt={selected.full_name ?? ""}
+						aria-hidden="true"
+					/>
+					<AvatarFallback>{initials}</AvatarFallback>
 				</Avatar>
 				<div className="min-w-0 flex-1">
 					<div className="flex flex-wrap items-center gap-2">
@@ -136,8 +160,22 @@ export function MessageThread({
 						</button>
 					</div>
 					<p className="mt-0.5 truncate font-caption text-caption text-on-surface-variant">
-						{[selected.title, ...selected.skills].filter(Boolean).join(" · ")}
+						{subtitle}
 					</p>
+					<div className="mt-0.5 flex items-center gap-1.5 font-caption text-caption text-on-surface-variant">
+						<span
+							aria-hidden="true"
+							className={cn(
+								"size-1.5 rounded-full",
+								presencePending
+									? "bg-outline animate-pulse"
+									: isOnline
+										? "bg-emerald-500"
+										: "bg-outline",
+							)}
+						/>
+						<span>{presencePending ? "Checking status" : isOnline ? "Online" : "Offline"}</span>
+					</div>
 				</div>
 				<button
 					type="button"
@@ -245,7 +283,12 @@ export function MessageThread({
 						className="space-y-5"
 					>
 						{visible.map((message) => (
-							<MessageBubble key={message.id} message={message} name={selected.full_name?} highlight={term} />
+							<MessageBubble
+								key={message.id}
+								message={message}
+								name={selected.full_name ?? companyOrName ?? "Unknown"}
+								highlight={term}
+							/>
 						))}
 					</div>
 					{term && !visible.length && (

@@ -362,9 +362,12 @@ async def websocket_chat_endpoint(
                 }
             )
         )
+        print("Connection established for user:", user_id)
 
         while True:
             text = await websocket.receive_text()
+            print("Received message from user:", user_id, ":", text)
+
             try:
                 data = json.loads(text)
             except Exception:

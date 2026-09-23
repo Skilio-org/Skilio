@@ -3,6 +3,7 @@ import { getClientTheme } from "@/components/messages/message-types"
 import type { InboxFilter } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
 import { ConversationsPublic, UserPublic } from "@/client/types.gen"
+import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 
 export function ConversationList({
 	conversations,
@@ -100,7 +101,6 @@ export function ConversationList({
 					let person: UserPublic | null | undefined = conversation.other_user; 
 					if (!person) return null
 					const active = selectedId === person.id
-					// const companyOrName = person.full_name;
 					const roleAndLocation = `${person.full_name} · ${person.active_role}`;
 					const theme = getClientTheme(person.id)
 
@@ -109,17 +109,19 @@ export function ConversationList({
 							key={person.id}
 							type="button"
 							aria-pressed={active}
-							aria-label={person.full_name + ((conversation.unread_count && conversation.unread_count > 0) ? `, ${conversation.unread_count} unread messages` : "")}
+							aria-label={`${person.full_name ?? "Unknown user"}${(conversation.unread_count ?? 0) > 0 ? `, ${conversation.unread_count} unread messages` : ""}`}
 							onClick={() => onSelect(person.id)}
 							className={cn(
-								"group relative flex min-h-20 w-full items-start gap-3 rounded-lg border p-3 text-left transition-all",
+								"group relative flex min-h-20 w-full items-start gap-3 border p-2 text-left transition-all",
 								active
 									? "border-outline-variant bg-surface-container-lowest text-on-surface shadow-xs dark:bg-surface-container dark:border-outline/70"
 									: "border-transparent text-on-surface-variant hover:border-outline-variant/60 hover:bg-surface-container-lowest/80 dark:hover:bg-surface-container/40 hover:text-on-surface",
 							)}
 						>
-							{active && <span className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r bg-primary" />}
-							<span
+							{active && <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary" />}
+							<img
+								src={accountAvatarUrl(person.id)}
+								alt=""
 								className={cn(
 									"mt-0.5 grid size-10 shrink-0 place-items-center rounded-lg border font-label-sm font-semibold shadow-2xs transition-transform group-hover:scale-105",
 									theme.bg,
@@ -127,21 +129,16 @@ export function ConversationList({
 									theme.border,
 								)}
 							>
-								{/* {companyOrName
-									.split(" ")
-									.map((word) => word[0])
-									.slice(0, 2)
-									.join("")} */}
-							</span>
+							</img>
 							<span className="min-w-0 flex-1">
 								<span className="flex items-baseline justify-between gap-2">
 									<span
 										className={cn(
 											"truncate font-label-md text-label-md text-on-surface",
-											conversation.unread_count && conversation.unread_count > 0 || active ? "font-semibold" : "font-medium",
+											(conversation.unread_count ?? 0) > 0 || active ? "font-semibold" : "font-medium",
 										)}
 									>
-										{/* {companyOrName} */}
+										{person.full_name ?? "Unknown user"}
 									</span>
 									<span className="shrink-0 font-caption text-caption text-on-surface-variant">
 										{conversation.created_at && new Date(conversation.created_at).toLocaleDateString(undefined, {
@@ -157,13 +154,13 @@ export function ConversationList({
 									<span
 										className={cn(
 											"line-clamp-2 min-w-0 flex-1 break-words font-body-sm text-body-sm leading-5",
-											conversation.unread_count && conversation.unread_count > 0 ? "font-medium text-on-surface" : "text-on-surface-variant",
+											(conversation.unread_count ?? 0) > 0 ? "font-medium text-on-surface" : "text-on-surface-variant",
 										)}
 									>
 										{/* {conversation.last_message && <span className="font-semibold text-primary">Draft: </span>} */}
 										{conversation.last_message?.content || "No messages yet"}
 									</span>
-									{conversation.unread_count && conversation.unread_count > 0 && (
+									{(conversation.unread_count ?? 0) > 0 && (
 										<span className="mt-0.5 grid min-w-5 h-5 place-items-center rounded-full bg-primary px-1.5 font-caption text-[10px] font-bold text-on-primary leading-none shadow-xs">
 											{conversation.unread_count}
 										</span>
