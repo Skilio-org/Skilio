@@ -36,6 +36,7 @@ class BudgetType(StrEnum):
 
 
 class JobStatus(StrEnum):
+    DRAFT = "draft"
     OPEN = "open"
     CLOSED = "closed"
 

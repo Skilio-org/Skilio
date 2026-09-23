@@ -993,6 +993,96 @@ async def proxy_portfolio_image(
     )
 
 
+@router.get("/saved", response_model=FreelancerProfilesPublic)
+def read_saved_profiles(
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = 0,
+    limit: int = 100,
+    q: str | None = None,
+    category: str | None = None,
+    sort_by: str | None = None,
+) -> Any:
+    """
+    List freelancer profiles saved / bookmarked by the current user.
+    Supports text query 'q' (title, bio, skills, name, location), category filter, and sorting.
+    """
+    statement = (
+        select(FreelancerProfile)
+        .join(LikedFreelancer, LikedFreelancer.freelancer_id == FreelancerProfile.id)
+        .join(User, col(FreelancerProfile.user_id) == User.id)
+        .where(LikedFreelancer.client_id == current_user.id)
+    )
+
+    if q:
+        statement = statement.where(
+            col(FreelancerProfile.title).ilike(f"%{q}%")
+            | col(FreelancerProfile.bio).ilike(f"%{q}%")
+            | col(FreelancerProfile.location).ilike(f"%{q}%")
+            | col(User.full_name).ilike(f"%{q}%")
+            | cast(FreelancerProfile.skills, String).ilike(f"%{q}%")
+        )
+
+    if category:
+        statement = statement.where(col(FreelancerProfile.category).ilike(category))
+
+    count_statement = select(func.count()).select_from(statement.subquery())
+    count = session.exec(count_statement).one()
+
+    if sort_by == "rate_asc":
+        statement = statement.order_by(
+            col(FreelancerProfile.hourly_rate).asc().nulls_last()
+        )
+    elif sort_by == "rate_desc":
+        statement = statement.order_by(
+            col(FreelancerProfile.hourly_rate).desc().nulls_last()
+        )
+    elif sort_by == "newest":
+        statement = statement.order_by(col(LikedFreelancer.created_at).desc())
+    else:
+        statement = statement.order_by(col(LikedFreelancer.created_at).desc())
+
+    statement = (
+        statement.options(
+            selectinload(FreelancerProfile.user),
+        )
+        .offset(skip)
+        .limit(limit)
+    )
+    profiles = session.exec(statement).all()
+
+    profile_ids = [p.id for p in profiles]
+    stats_map: dict[uuid.UUID, tuple[float | None, int]] = {}
+    if profile_ids:
+        review_stats_stmt = (
+            select(
+                Review.freelancer_id,
+                func.avg(Review.rating),
+                func.count(col(Review.id)),
+            )
+            .where(col(Review.freelancer_id).in_(profile_ids))
+            .group_by(col(Review.freelancer_id))
+        )
+        for f_id, raw_avg, r_cnt in session.exec(review_stats_stmt).all():
+            stats_map[f_id] = (
+                float(raw_avg) if raw_avg is not None else None,
+                r_cnt,
+            )
+
+    profiles_public = [
+        _build_profile_public(
+            session,
+            profile,
+            is_saved=True,
+            avg_rating=stats_map.get(profile.id, (None, 0))[0],
+            reviews_count=stats_map.get(profile.id, (None, 0))[1],
+        )
+        for profile in profiles
+    ]
+
+    return FreelancerProfilesPublic(data=profiles_public, count=count)
+
+
 @router.get("/{id}", response_model=FreelancerProfileDetailPublic)
 def read_profile(
     session: SessionDep,
