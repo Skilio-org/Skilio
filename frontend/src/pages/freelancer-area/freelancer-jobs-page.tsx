@@ -1,22 +1,15 @@
 import SearchWithCategories from "@/components/common/search-with-categories"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
+import { loadFreelancerJobs, type BackendSearchJob } from "@/components/freelancer/freelancer-jobs-api"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
-import { freelancerJobs } from "@/data/freelancer-workspace"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
-import type { FreelancerJob } from "@/types/job"
 import { Link } from "@tanstack/react-router"
+import { useQuery } from "@tanstack/react-query"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useState } from "react"
-
-type SearchJob = FreelancerJob & {
-	clientRating?: number
-	previousHires?: number
-	experience?: string
-	weeklyHours?: number
-}
 
 const popularSearches = ["Product design", "React", "Content strategy", "Design systems", "Mobile app"]
 
@@ -47,6 +40,28 @@ export default function FreelancerJobsPage() {
 	 * Incrementing this forces it to reset when "Clear all" is used.
 	 */
 	const [searchResetKey, setSearchResetKey] = useState(0)
+	const budgetType = types.length === 1 ? (types[0] === "Hourly" ? "hourly" : "fixed") : undefined
+	const sortBy = sort === "budget" ? "budget_desc" : "newest"
+	const {
+		data: jobs = [],
+		isPending,
+		isError,
+		refetch,
+	} = useQuery({
+		queryKey: ["freelancer-jobs", search, category, budgetType, hourlyRate, sortBy],
+		queryFn: ({ signal }) =>
+			loadFreelancerJobs(
+				{
+					q: search,
+					category: category === "all" ? undefined : category,
+					budgetType,
+					minBudget: hourlyRate[0] || undefined,
+					maxBudget: hourlyRate[1] === 120 ? undefined : hourlyRate[1],
+					sortBy,
+				},
+				signal,
+			),
+	})
 
 	const toggle = (values: string[], value: string, update: (values: string[]) => void) => {
 		update(values.includes(value) ? values.filter((item) => item !== value) : [...values, value])
@@ -65,63 +80,9 @@ export default function FreelancerJobsPage() {
 		setSearchResetKey((current) => current + 1)
 	}
 
-	const filtered = (freelancerJobs as SearchJob[])
-		.filter((job) => {
-			const rate = Number(job.budget.replace(/,/g, "").match(/[\d.]+/)?.[0] || 0)
-
-			const searchableContent = [job.title, job.company, job.category, job.description, ...job.skills]
-				.join(" ")
-				.toLowerCase()
-
-			const matchesSearch = !search || searchableContent.includes(search.toLowerCase())
-
-			const matchesCategory = category === "all" || job.category === category
-
-			const matchesType = !types.length || types.includes(job.projectType)
-
-			const matchesTopRated = !credentials.includes("Top rated") || (job.clientRating ?? 0) >= 4.5
-
-			const matchesPreviousHires = !credentials.includes("Has hired previously") || (job.previousHires ?? 0) > 0
-
-			const matchesExperience = !experience.length || experience.includes(job.experience ?? "")
-
-			const matchesHourlyRate =
-				job.projectType !== "Hourly" || (rate >= hourlyRate[0] && (hourlyRate[1] === 120 || rate <= hourlyRate[1]))
-
-			const matchesCommitment =
-				!commitment ||
-				(job.weeklyHours !== undefined &&
-					(commitment === "Under 15 hrs/wk"
-						? job.weeklyHours < 15
-						: commitment === "15–30 hrs/wk"
-							? job.weeklyHours >= 15 && job.weeklyHours <= 30
-							: job.weeklyHours > 30))
-
-			return (
-				matchesSearch &&
-				matchesCategory &&
-				matchesType &&
-				matchesTopRated &&
-				matchesPreviousHires &&
-				matchesExperience &&
-				matchesHourlyRate &&
-				matchesCommitment
-			)
-		})
-		.sort((a, b) => {
-			if (sort === "title") {
-				return a.title.localeCompare(b.title)
-			}
-
-			if (sort === "budget") {
-				const aBudget = Number(a.budget.replace(/,/g, "").match(/[\d.]+/)?.[0] || 0)
-				const bBudget = Number(b.budget.replace(/,/g, "").match(/[\d.]+/)?.[0] || 0)
-
-				return bBudget - aBudget
-			}
-
-			return Number(a.id) - Number(b.id)
-		})
+	const filtered = [...(jobs as BackendSearchJob[])].sort((a, b) =>
+		sort === "title" ? a.title.localeCompare(b.title) : 0,
+	)
 
 	const removeSearch = () => {
 		setSearch("")
@@ -413,7 +374,17 @@ export default function FreelancerJobsPage() {
 						))}
 					</div>
 
-					{!filtered.length && (
+					{isPending && <p role="status">Loading opportunities...</p>}
+					{isError && (
+						<p role="alert">
+							Could not load opportunities. {" "}
+							<button type="button" onClick={() => void refetch()} className="text-primary hover:underline">
+								Try again
+							</button>
+						</p>
+					)}
+
+					{!isPending && !isError && !filtered.length && (
 						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
 							<Search className="mx-auto mb-4 size-6 text-outline" />
 
