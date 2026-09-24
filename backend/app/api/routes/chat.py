@@ -341,6 +341,7 @@ async def websocket_chat_endpoint(
         )
         token_data = TokenPayload(**payload)
     except (InvalidTokenError, ValidationError):
+        print("Invalid token for WebSocket connection")
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
