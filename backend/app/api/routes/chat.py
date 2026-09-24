@@ -189,6 +189,7 @@ def create_or_get_conversation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot start a conversation with yourself",
         )
+
     target_user = session.get(User, target_id)
     if not target_user:
         raise HTTPException(
@@ -196,7 +197,6 @@ def create_or_get_conversation(
             detail="Target user not found",
         )
 
-    # Check if conversation already exists (either client-freelancer or vice-versa)
     existing_stmt = select(Conversation).where(
         or_(
             and_(
@@ -341,6 +341,7 @@ async def websocket_chat_endpoint(
         )
         token_data = TokenPayload(**payload)
     except (InvalidTokenError, ValidationError):
+        print("Invalid token for WebSocket connection")
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
@@ -354,7 +355,6 @@ async def websocket_chat_endpoint(
     await connection_manager.connect(user_id, websocket)
 
     try:
-        # Welcome event on connect
         await websocket.send_text(
             json.dumps(
                 {
@@ -363,9 +363,12 @@ async def websocket_chat_endpoint(
                 }
             )
         )
+        print("Connection established for user:", user_id)
 
         while True:
             text = await websocket.receive_text()
+            print("Received message from user:", user_id, ":", text)
+
             try:
                 data = json.loads(text)
             except Exception:
@@ -381,6 +384,7 @@ async def websocket_chat_endpoint(
 
             # 2. Chat Message frame
             if event_type == "chat_message":
+                print("Received chat_message event:", data)
                 conv_id_raw = data.get("conversation_id")
                 content = (data.get("content") or "").strip()
                 if not conv_id_raw or not content:
@@ -441,8 +445,6 @@ async def websocket_chat_endpoint(
                     payload={"type": "chat_message", "data": msg_dict},
                 )
                 continue
-
-            # 3. Typing indicator
             if event_type == "typing":
                 conv_id_raw = data.get("conversation_id")
                 if not conv_id_raw:
@@ -530,7 +532,6 @@ async def websocket_chat_endpoint(
 
     except WebSocketDisconnect:
         connection_manager.disconnect(user_id, websocket)
-        print("here")
     except Exception as e:
         logger.error("WebSocket unexpected error for user %s: %s", user_id, e)
         connection_manager.disconnect(user_id, websocket)

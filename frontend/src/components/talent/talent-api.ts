@@ -23,7 +23,7 @@ export function talentCardFromApi(profile: FreelancerProfilePublic): TalentCard 
 		reviews: profile.reviews_count ?? 0,
 		availability: profile.availability ?? "",
 		bio: profile.bio ?? "",
-		skills: profile.skill_names ?? profile.skills ?? [],
+		skills: profile.skills ?? [],
 		category: profile.category ?? "",
 		avatarUrl: accountAvatarUrl(profile.user_id),
 	}

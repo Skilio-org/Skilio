@@ -12,7 +12,6 @@ from app.api.routes.searches import record_recent_search
 from app.models import (
     BudgetType,
     ClientProfilePublic,
-    JobCategory,
     JobPost,
     JobPostCreate,
     JobPostDetailPublic,
@@ -82,7 +81,14 @@ def read_jobs(
         statement = statement.where(col(JobPost.location).ilike(f"%{location}%"))
 
     if status is not None:
+        if status == JobStatus.DRAFT:
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot filter public feed by draft status",
+            )
         statement = statement.where(JobPost.status == status)
+    else:
+        statement = statement.where(JobPost.status != JobStatus.DRAFT)
 
     count_statement = select(func.count()).select_from(statement.subquery())
     count = session.exec(count_statement).one()
@@ -192,9 +198,7 @@ def read_my_jobs(
     count = session.exec(count_statement).one()
 
     statement = (
-        statement.order_by(col(JobPost.created_at).desc())
-        .offset(skip)
-        .limit(limit)
+        statement.order_by(col(JobPost.created_at).desc()).offset(skip).limit(limit)
     )
     jobs = session.exec(statement).all()
 
@@ -211,9 +215,7 @@ def read_my_jobs(
             proposal_counts[j_id] = p_cnt
 
     client_company = (
-        current_user.client_profile.company
-        if current_user.client_profile
-        else None
+        current_user.client_profile.company if current_user.client_profile else None
     )
 
     jobs_public = []
@@ -251,7 +253,10 @@ def read_saved_jobs(
     List jobs saved / bookmarked by the current freelancer.
     Supports search query 'q', 'category', and 'sort_by'.
     """
-    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+    if (
+        current_user.active_role != UserRole.FREELANCER
+        and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can view saved jobs",
@@ -288,9 +293,10 @@ def read_saved_jobs(
         statement = base_query.order_by(col(SavedJob.created_at).desc())
 
     statement = (
-        statement
-        .options(
-            joinedload(SavedJob.job_post).selectinload(JobPost.client).selectinload(User.client_profile),  # type: ignore[arg-type]
+        statement.options(
+            joinedload(SavedJob.job_post)
+            .selectinload(JobPost.client)
+            .selectinload(User.client_profile),  # type: ignore[arg-type]
         )
         .offset(skip)
         .limit(limit)
@@ -374,7 +380,10 @@ def create_saved_job(
     """
     Bookmark / save a job post for the current authenticated freelancer.
     """
-    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+    if (
+        current_user.active_role != UserRole.FREELANCER
+        and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can save jobs",
@@ -409,8 +418,12 @@ def create_saved_job(
             Proposal.job_post_id == job.id,
         )
     ).first()
-    has_applied = user_proposal is not None and user_proposal.status != ProposalStatus.DRAFT
-    has_draft = user_proposal is not None and user_proposal.status == ProposalStatus.DRAFT
+    has_applied = (
+        user_proposal is not None and user_proposal.status != ProposalStatus.DRAFT
+    )
+    has_draft = (
+        user_proposal is not None and user_proposal.status == ProposalStatus.DRAFT
+    )
 
     prop_stats_stmt = select(func.count(col(Proposal.id))).where(
         col(Proposal.job_post_id) == job.id,
@@ -450,7 +463,10 @@ def read_saved_job_item(
     Get a single saved job record by saved job ID or job post ID.
     Only the saving freelancer or superuser can access.
     """
-    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+    if (
+        current_user.active_role != UserRole.FREELANCER
+        and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can view saved jobs",
@@ -463,7 +479,9 @@ def read_saved_job_item(
             (SavedJob.id == id) | (SavedJob.job_post_id == id),
         )
         .options(
-            joinedload(SavedJob.job_post).selectinload(JobPost.client).selectinload(User.client_profile),  # type: ignore[arg-type]
+            joinedload(SavedJob.job_post)
+            .selectinload(JobPost.client)
+            .selectinload(User.client_profile),  # type: ignore[arg-type]
         )
     ).first()
 
@@ -484,8 +502,12 @@ def read_saved_job_item(
                 Proposal.job_post_id == job.id,
             )
         ).first()
-        has_applied = user_proposal is not None and user_proposal.status != ProposalStatus.DRAFT
-        has_draft = user_proposal is not None and user_proposal.status == ProposalStatus.DRAFT
+        has_applied = (
+            user_proposal is not None and user_proposal.status != ProposalStatus.DRAFT
+        )
+        has_draft = (
+            user_proposal is not None and user_proposal.status == ProposalStatus.DRAFT
+        )
 
         prop_stats_stmt = select(func.count(col(Proposal.id))).where(
             col(Proposal.job_post_id) == job.id,
@@ -524,15 +546,17 @@ def delete_saved_job_item(
     """
     Remove a job post from saved jobs by saved record ID or job post ID.
     """
-    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+    if (
+        current_user.active_role != UserRole.FREELANCER
+        and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can save or unsave jobs",
         )
 
     saved = session.exec(
-        select(SavedJob)
-        .where(
+        select(SavedJob).where(
             SavedJob.freelancer_id == current_user.id,
             (SavedJob.id == id) | (SavedJob.job_post_id == id),
         )
@@ -594,6 +618,12 @@ def read_job(
     """
     job = session.get(JobPost, id)
     if not job:
+        raise HTTPException(status_code=404, detail="Job post not found")
+
+    if job.status == JobStatus.DRAFT and (
+        not current_user
+        or (current_user.id != job.client_id and not current_user.is_superuser)
+    ):
         raise HTTPException(status_code=404, detail="Job post not found")
 
     proposals_count_stmt = select(func.count()).where(
@@ -736,7 +766,10 @@ def save_job(
     """
     Bookmark / save a job post for the current authenticated freelancer.
     """
-    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+    if (
+        current_user.active_role != UserRole.FREELANCER
+        and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can save jobs",
@@ -768,7 +801,10 @@ def unsave_job(
     """
     Remove a job post from bookmarks / saved jobs.
     """
-    if current_user.active_role != UserRole.FREELANCER and not current_user.is_superuser:
+    if (
+        current_user.active_role != UserRole.FREELANCER
+        and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="Only freelancers can save or unsave jobs",

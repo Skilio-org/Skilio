@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
 from app.core.config import settings
+from app.core.security import get_password_hash
 from app.models import (
     Education,
     FreelancerProfile,
@@ -427,6 +428,24 @@ def create_authenticated_freelancer(client: TestClient, db: Session):
         client=client, email=user.email, password=password
     )
     return user, profile, headers
+
+
+def create_authenticated_client(client: TestClient, db: Session):
+    user = create_random_user(db)
+    user.active_role = UserRole.CLIENT
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    password = random_lower_string()
+    user.hashed_password = get_password_hash(password)
+    db.add(user)
+    db.commit()
+
+    headers = user_authentication_headers(
+        client=client, email=user.email, password=password
+    )
+    return user, headers
 
 
 def test_create_education_me(client: TestClient, db: Session) -> None:
@@ -1015,3 +1034,97 @@ def test_read_availability_me(client: TestClient, db: Session) -> None:
     data = response.json()
     assert data["is_available"] is True
     assert data["availability"] == "Available now"
+
+
+def test_read_saved_profiles_empty(client: TestClient, db: Session) -> None:
+    _, headers = create_authenticated_client(client, db)
+
+    response = client.get(f"{settings.API_V1_STR}/profiles/saved", headers=headers)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["count"] == 0
+    assert data["data"] == []
+
+
+def test_read_saved_profiles_after_saving(client: TestClient, db: Session) -> None:
+    _, headers = create_authenticated_client(client, db)
+
+    profile1 = create_random_profile(db)
+    profile2 = create_random_profile(db)
+
+    # Save profile1
+    client.post(
+        f"{settings.API_V1_STR}/profiles/{profile1.id}/save",
+        headers=headers,
+    )
+
+    # Call /profiles/saved
+    resp = client.get(f"{settings.API_V1_STR}/profiles/saved", headers=headers)
+    assert resp.status_code == 200
+    content = resp.json()
+    assert content["count"] == 1
+    assert len(content["data"]) == 1
+    assert content["data"][0]["id"] == str(profile1.id)
+    assert content["data"][0]["is_saved"] is True
+
+    # Save profile2
+    client.post(
+        f"{settings.API_V1_STR}/profiles/{profile2.id}/save",
+        headers=headers,
+    )
+    resp2 = client.get(f"{settings.API_V1_STR}/profiles/saved", headers=headers)
+    assert resp2.json()["count"] == 2
+    saved_ids = [p["id"] for p in resp2.json()["data"]]
+    assert str(profile1.id) in saved_ids
+    assert str(profile2.id) in saved_ids
+
+    # Unsave profile1
+    client.delete(
+        f"{settings.API_V1_STR}/profiles/{profile1.id}/save",
+        headers=headers,
+    )
+    resp3 = client.get(f"{settings.API_V1_STR}/profiles/saved", headers=headers)
+    assert resp3.json()["count"] == 1
+    assert resp3.json()["data"][0]["id"] == str(profile2.id)
+
+
+def test_read_saved_profiles_filtering(client: TestClient, db: Session) -> None:
+    _, headers = create_authenticated_client(client, db)
+
+    profile = create_random_profile(db)
+    profile.title = "Unique Rust Architect"
+    profile.category = "Engineering & Architecture"
+    profile.hourly_rate = 150.0
+    db.add(profile)
+    db.commit()
+    db.refresh(profile)
+
+    # Save profile
+    client.post(f"{settings.API_V1_STR}/profiles/{profile.id}/save", headers=headers)
+
+    # Filter with q matching
+    resp_match = client.get(
+        f"{settings.API_V1_STR}/profiles/saved",
+        headers=headers,
+        params={"q": "Rust Architect"},
+    )
+    assert resp_match.status_code == 200
+    assert resp_match.json()["count"] == 1
+
+    # Filter with q non-matching
+    resp_nomatch = client.get(
+        f"{settings.API_V1_STR}/profiles/saved",
+        headers=headers,
+        params={"q": "NonexistentKeyword123"},
+    )
+    assert resp_nomatch.status_code == 200
+    assert resp_nomatch.json()["count"] == 0
+
+    # Filter with category matching
+    resp_cat = client.get(
+        f"{settings.API_V1_STR}/profiles/saved",
+        headers=headers,
+        params={"category": "Engineering & Architecture"},
+    )
+    assert resp_cat.status_code == 200
+    assert resp_cat.json()["count"] == 1

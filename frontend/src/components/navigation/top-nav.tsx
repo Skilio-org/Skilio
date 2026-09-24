@@ -6,6 +6,7 @@ import { useTheme } from "@/components/theme-provider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import useAuth from "@/hooks/useAuth"
 import { User } from "../sidebar/user"
+import { useChat } from "@/context/chat-context"
 
 const freelancerMenu = [
 	["/freelancer-dashboard", "Overview"],
@@ -34,6 +35,12 @@ export function TopNav() {
 
 	const role = useAccountRole()
 	const menu = role === "freelancer" ? freelancerMenu : clientMenu
+	const { conversations } = useChat()
+	const unreadMessages = conversations.data.reduce(
+		(total, conversation) => total + (conversation.unread_count ?? 0),
+		0,
+	)
+	const unreadLabel = unreadMessages > 99 ? "99+" : String(unreadMessages)
 	return (
 		<header className="fixed top-0 right-0 left-0 z-50 w-full border-outline-variant border-b bg-surface-container-lowest/95 backdrop-blur-md dark:bg-surface-panel/95">
 			<div className="mx-auto flex h-14 w-full max-w-[1440px] items-center justify-between gap-4 px-4 md:px-6">
@@ -70,7 +77,17 @@ export function TopNav() {
 											: "flex h-full items-center whitespace-nowrap border-transparent border-b-2 px-0 font-label-md font-medium text-label-md text-on-surface-variant transition-colors hover:text-on-surface"
 									}
 								>
-									{label}
+									<span className="flex items-center gap-2">
+										{label}
+										{to.includes("messages") && unreadMessages > 0 && (
+											<span
+												aria-label={`${unreadMessages} unread messages`}
+												className="min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-center font-caption text-[10px] font-bold text-on-primary leading-none"
+											>
+												{unreadLabel}
+											</span>
+										)}
+									</span>
 								</Link>
 							)
 						})}
@@ -133,8 +150,16 @@ export function TopNav() {
 						>
 							{menu.map(([to, label]) => (
 								<DropdownMenuItem key={to} asChild>
-									<Link to={to} className="min-h-9 font-label-md text-label-md">
-										{label}
+									<Link to={to} className="flex min-h-9 items-center justify-between gap-3 font-label-md text-label-md">
+										<span>{label}</span>
+										{to.includes("messages") && unreadMessages > 0 && (
+											<span
+												aria-label={`${unreadMessages} unread messages`}
+												className="min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-center font-caption text-[10px] font-bold text-on-primary leading-none"
+											>
+												{unreadLabel}
+											</span>
+										)}
 									</Link>
 								</DropdownMenuItem>
 							))}

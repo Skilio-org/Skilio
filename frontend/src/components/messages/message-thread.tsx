@@ -4,14 +4,18 @@ import { useEffect, useRef, useState } from "react"
 import { MessageBubble } from "@/components/messages/message-bubble"
 import type { ThreadMessage } from "@/components/messages/message-types"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import type { MessageContact } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
+import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
+import { type ConversationProfile, isClientProfile } from "@/hooks/isClientProfile"
 
 const iconButton =
 	"grid size-8.5 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 
+
 export function MessageThread({
 	selected,
+	isOnline,
+	presencePending,
 	messages,
 	draft,
 	archived,
@@ -25,12 +29,13 @@ export function MessageThread({
 	hasConversations,
 	canViewProfile,
 }: {
-	selected?: MessageContact
+	selected: ConversationProfile | undefined
+	isOnline?: boolean
+	presencePending: boolean
 	messages: ThreadMessage[]
 	draft: string
 	archived: boolean
 	onBack: () => void
-	onOpenBrief: () => void
 	onDetails: () => void
 	onArchive: () => void
 	onMarkUnread: () => void
@@ -47,6 +52,7 @@ export function MessageThread({
 	const searchRef = useRef<HTMLInputElement>(null)
 	const count = messages.length
 	const selectedId = selected?.id
+	const selectedAvatarUrl = useAccountAvatarUrl(selected?.user_id)
 	useEffect(() => {
 		if (query || !selectedId || !count) return
 		const scroller = scrollRef.current
@@ -97,12 +103,26 @@ export function MessageThread({
 				</button>
 			</section>
 		)
-
-	const companyOrName = selected.title.split(" · ")[1] || selected.name
-
+	
+	
+	
+	let companyOrName = selected.full_name || "Unknown"
+	let subtitle = "Client"
+	if (isClientProfile(selected)) {
+		companyOrName = selected.company || selected.full_name || "Unknown"
+		subtitle = selected.company_role || selected.location || "Client"
+	} else {
+		subtitle = [selected.title, ...(selected.skills ?? [])].filter(Boolean).join(" · ")
+	}
+	const initials = (selected.full_name || "?")
+		.split(" ")
+		.map((part) => part[0])
+		.slice(0, 2)
+		.join("")
+	
 	return (
 		<section
-			aria-label={`Conversation with ${selected.name}`}
+			aria-label={`Conversation with ${selected.full_name}`}
 			className="message-thread flex min-h-0 min-w-0 flex-1 flex-col bg-surface-container-lowest"
 		>
 			<header className="flex h-16 shrink-0 items-center gap-3 border-b border-outline-variant bg-surface-container-lowest dark:bg-[#181a1d] px-4 sm:px-6">
@@ -115,8 +135,12 @@ export function MessageThread({
 					<ArrowLeft className="size-4" />
 				</button>
 				<Avatar className="size-10 rounded-lg">
-					<AvatarImage src={selected.avatarUrl} alt={selected.name} />
-					<AvatarFallback>{selected.initials}</AvatarFallback>
+					<AvatarImage
+						src={selectedAvatarUrl}
+						alt={selected.full_name ?? ""}
+						aria-hidden="true"
+					/>
+					<AvatarFallback>{initials}</AvatarFallback>
 				</Avatar>
 				<div className="min-w-0 flex-1">
 					<div className="flex flex-wrap items-center gap-2">
@@ -130,8 +154,22 @@ export function MessageThread({
 						</button>
 					</div>
 					<p className="mt-0.5 truncate font-caption text-caption text-on-surface-variant">
-						{[selected.title, ...selected.skills].filter(Boolean).join(" · ")}
+						{subtitle}
 					</p>
+					<div className="mt-0.5 flex items-center gap-1.5 font-caption text-caption text-on-surface-variant">
+						<span
+							aria-hidden="true"
+							className={cn(
+								"size-1.5 rounded-full",
+								presencePending
+									? "bg-outline animate-pulse"
+									: isOnline
+										? "bg-emerald-500"
+										: "bg-outline",
+							)}
+						/>
+						<span>{presencePending ? "Checking status" : isOnline ? "Online" : "Offline"}</span>
+					</div>
 				</div>
 				<button
 					type="button"
@@ -228,7 +266,7 @@ export function MessageThread({
 					)}
 					{!term && messages.length === 0 && (
 						<p role="status" className="py-12 text-center text-muted-foreground">
-							Start a conversation with {selected.name}. Say hello and share a little about your project.
+							Start a conversation with {selected.full_name}. Say hello and share a little about your project.
 						</p>
 					)}
 					<div
@@ -239,7 +277,12 @@ export function MessageThread({
 						className="space-y-5"
 					>
 						{visible.map((message) => (
-							<MessageBubble key={message.id} message={message} name={selected.name} highlight={term} />
+							<MessageBubble
+								key={message.id}
+								message={message}
+								name={selected.full_name ?? companyOrName ?? "Unknown"}
+								highlight={term}
+							/>
 						))}
 					</div>
 					{term && !visible.length && (
@@ -279,8 +322,8 @@ export function MessageThread({
 						}}
 						rows={3}
 						maxLength={10000}
-						aria-label={`Message ${selected.name}`}
-						placeholder={`Write a message to ${selected.name}…`}
+						aria-label={`Message ${selected.full_name}`}
+						placeholder={`Write a message to ${selected.full_name}…`}
 						className="block max-h-36 min-h-16 w-full resize-none bg-transparent px-3.5 pt-3 pb-1 font-body-sm text-body-sm leading-6 text-on-surface outline-none placeholder:text-outline"
 					/>
 					<div className="flex items-center justify-between gap-2 px-3 pb-2.5 pt-1">
