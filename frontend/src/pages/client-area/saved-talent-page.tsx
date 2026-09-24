@@ -55,7 +55,7 @@ export function SavedTalentPage() {
 								<span className="sr-only">Search saved talent</span>
 
 								<input
-									type="search"
+									type="text"
 									value={query}
 									onChange={(event) => setQuery(event.target.value)}
 									placeholder="Search by name, skill, or location"
@@ -152,7 +152,11 @@ export function SavedTalentPage() {
 									Clear search
 								</button>
 							) : (
-								<Link to="/talent" search={{ q: undefined }} className={`${workspaceStyles.primaryAction} mt-6`}>
+								<Link
+									to="/talent"
+									search={{ q: undefined, category: undefined }}
+									className={`${workspaceStyles.primaryAction} mt-6`}
+								>
 									Explore talent
 									<ArrowUpRight className="size-4" />
 								</Link>

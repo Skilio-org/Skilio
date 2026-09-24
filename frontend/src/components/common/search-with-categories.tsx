@@ -92,7 +92,7 @@ export const SearchWithCategories = ({
 
 				<input
 					aria-label="Search professionals"
-					type="search"
+					type="text"
 					value={query}
 					onChange={(event) => setQuery(event.target.value)}
 					placeholder={placeholder}

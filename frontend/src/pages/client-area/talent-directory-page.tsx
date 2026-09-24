@@ -28,10 +28,14 @@ const searchAliases: Record<string, string[]> = {
 
 export function TalentDirectoryPage({
 	initialQuery,
+	initialCategory,
 	onQueryChange,
+	onCategoryChange,
 }: {
 	initialQuery?: string
+	initialCategory?: string
 	onQueryChange: (query?: string) => void
+	onCategoryChange: (category: string) => void
 }) {
 	const {
 		data: freelancers = [],
@@ -43,7 +47,7 @@ export function TalentDirectoryPage({
 		queryFn: ({ signal }) => loadTalentCards(signal),
 	})
 	const [search, setSearch] = useState(initialQuery ?? "")
-	const [category, setCategory] = useState("all")
+	const [category, setCategory] = useState(initialCategory ?? "all")
 	const [availability, setAvailability] = useState<string[]>([])
 	const [location, setLocation] = useState("Worldwide")
 	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
@@ -56,6 +60,9 @@ export function TalentDirectoryPage({
 		setSearch(initialQuery ?? "")
 		setVisibleCount(4)
 	}, [initialQuery])
+	useEffect(() => {
+		setCategory(initialCategory ?? "all")
+	}, [initialCategory])
 	useEffect(() => setVisibleCount(4), [category, availability, location, hourlyRate, highlyRated, sort])
 	const submitSearch = (value: string) => {
 		const trimmedValue = value.trim()
@@ -67,6 +74,7 @@ export function TalentDirectoryPage({
 	const clearAll = () => {
 		submitSearch("")
 		setCategory("all")
+		onCategoryChange("all")
 		setAvailability([])
 		setLocation("Worldwide")
 		setHourlyRate([0, 120])
@@ -215,6 +223,7 @@ export function TalentDirectoryPage({
 				onCategoryChange={(value) => {
 					setCategory(value)
 					setVisibleCount(4)
+					onCategoryChange(value)
 				}}
 			/>
 			<div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">

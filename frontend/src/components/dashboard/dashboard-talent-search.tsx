@@ -34,6 +34,7 @@ export const TalentSearch = () => {
 						to: "/talent",
 						search: {
 							q: query || undefined,
+							category: category === "all" ? undefined : category,
 						},
 					})
 				}}

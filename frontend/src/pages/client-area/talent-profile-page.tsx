@@ -43,7 +43,7 @@ export function TalentProfilePage({ person }: { person: FreelancerProfileDetailP
 				backLink={
 					<Link
 						to="/talent"
-						search={{ q: undefined }}
+						search={{ q: undefined, category: undefined }}
 						className="inline-flex min-h-11 items-center gap-2 font-medium text-muted-foreground text-sm hover:text-primary"
 					>
 						<ArrowLeft className="size-4" />
