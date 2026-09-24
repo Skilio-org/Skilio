@@ -37,7 +37,7 @@ export const JobDetails = ({
 	}, [submitted])
 
 	const toggleSaved = () => {
-		if (!toggleBookmark(job.id)) toast.error("Couldn't update saved jobs.")
+		toggleBookmark(job.id)
 	}
 
 	const handleSaveDraft = () => {

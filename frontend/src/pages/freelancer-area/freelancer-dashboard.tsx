@@ -3,7 +3,9 @@ import { ArrowRight, Bookmark, BriefcaseBusiness, CheckCircle2, ChevronDown, Cir
 import { useEffect, useState } from "react"
 
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
-import { type ProposalDraft as Draft, freelancerJobs, seedProposals } from "@/data/freelancer-workspace"
+import { loadFreelancerJobs } from "@/components/freelancer/freelancer-jobs-api"
+import { type ProposalDraft as Draft, seedProposals } from "@/data/freelancer-workspace"
+import { useQuery } from "@tanstack/react-query"
 import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
 import QuickSavedSearch from "../common/quick-search"
@@ -13,7 +15,10 @@ const FreelancerDashboardPage = () => {
 	const { user } = useAuth()
 	const { available } = useFreelancerAvailability()
 
-	const jobs = freelancerJobs
+	const { data: jobs = [], isPending: jobsPending } = useQuery({
+		queryKey: ["freelancer-jobs", "dashboard"],
+		queryFn: ({ signal }) => loadFreelancerJobs({ sortBy: "newest" }, signal),
+	})
 
 	const storageKey = `freelancer-work-v2:${user?.id ?? "preview"}`
 
@@ -179,7 +184,9 @@ const FreelancerDashboardPage = () => {
 						</Link>
 					</div>
 
-					{filteredJobs.length > 0 ? (
+					{jobsPending ? (
+						<p role="status">Loading opportunities...</p>
+					) : filteredJobs.length > 0 ? (
 						<div className="flex flex-col gap-3.5">
 							{filteredJobs.slice(0, 4).map((job) => (
 								<FreelancerJobCard key={job.id} {...job} />
