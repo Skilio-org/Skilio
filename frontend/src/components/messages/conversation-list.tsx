@@ -2,7 +2,7 @@ import { Archive, MessageSquare, Search, X } from "lucide-react"
 import { getClientTheme } from "@/components/messages/message-types"
 import type { InboxFilter } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
-import { ConversationsPublic, UserPublic } from "@/client/types.gen"
+import type { ConversationsPublic } from "@/client/types.gen"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "@/hooks/isClientProfile"
 import { useChat } from "@/context/chat-context"
@@ -25,8 +25,8 @@ export function ConversationList({
 	onFilterChange: (filter: InboxFilter) => void
 	onSelect: (id: string) => void
 }) {
-	const { conversationProfiles  } = useChat();
- 
+	const { conversationProfiles } = useChat()
+
 	return (
 		<aside
 			aria-label="Conversations"
@@ -101,19 +101,16 @@ export function ConversationList({
 			</div>
 			<div className="min-h-0 flex-1 overflow-y-auto p-2.5 space-y-1.5">
 				{conversations.data.map((conversation) => {
-					
-					if (conversation.other_user == undefined) return ;
-					let person = conversationProfiles.get(conversation.other_user.id)
+					if (conversation.other_user == undefined) return
+					const person = conversationProfiles.get(conversation.other_user.id)
 					console.log(person)
 					if (!person) return null
 					const theme = getClientTheme(person.user_id)
 					const active = selected?.user_id === person.user_id
-					let roleAndLocation = person.full_name;
+					let roleAndLocation = person.full_name
 
-					if (isClientProfile(person))
-						roleAndLocation = `${person.company} . ${person.company_role}`;
-					else if (isFreelancerProfile(person))
-						roleAndLocation = `${person.category} . ${person.title}`;
+					if (isClientProfile(person)) roleAndLocation = `${person.company} . ${person.company_role}`
+					else if (isFreelancerProfile(person)) roleAndLocation = `${person.category} . ${person.title}`
 					return (
 						<button
 							key={person.user_id}
@@ -138,8 +135,7 @@ export function ConversationList({
 									theme.text,
 									theme.border,
 								)}
-							>
-							</img>
+							></img>
 							<span className="min-w-0 flex-1">
 								<span className="flex items-center justify-between gap-2">
 									<span
@@ -151,10 +147,11 @@ export function ConversationList({
 										{person.full_name ?? "Unknown user"}
 									</span>
 									<span className="shrink-0 font-caption text-caption text-on-surface-variant">
-										{conversation.created_at && new Date(conversation.created_at).toLocaleDateString(undefined, {
-											month: "short",
-											day: "numeric",
-										})}
+										{conversation.created_at &&
+											new Date(conversation.created_at).toLocaleDateString(undefined, {
+												month: "short",
+												day: "numeric",
+											})}
 									</span>
 								</span>
 								<span className="block truncate font-caption text-caption text-on-surface-variant">
