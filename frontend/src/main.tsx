@@ -7,7 +7,7 @@ import { client } from "./client/client.gen"
 import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "./components/ui/sonner"
 import { ChatProvider } from "./context/chat-context"
-import { WebSocketProvider } from "./context/websocket-context"
+import { AUTH_TOKEN_CHANGED_EVENT, WebSocketProvider } from "./context/websocket-context"
 import { routeTree } from "./routeTree.gen"
 import "./styles/globals.css"
 
@@ -16,13 +16,16 @@ client.setConfig({
 	auth: () => localStorage.getItem("access_token") || "",
 })
 
+let queryClient: QueryClient
 const handleApiError = (error: Error) => {
 	if (error instanceof AxiosError && [401, 403].includes(error.response?.status ?? 0)) {
 		localStorage.removeItem("access_token")
+		window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+		queryClient.clear()
 		window.location.href = "/login"
 	}
 }
-const queryClient = new QueryClient({
+queryClient = new QueryClient({
 	queryCache: new QueryCache({
 		onError: handleApiError,
 	}),

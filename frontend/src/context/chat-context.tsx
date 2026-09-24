@@ -10,7 +10,7 @@ import {
 } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { useWebSocket } from "@/context/websocket-context"
+import { AUTH_TOKEN_CHANGED_EVENT, useWebSocket } from "@/context/websocket-context"
 import {
 	ChatService,
 	ClientProfilesService,
@@ -130,14 +130,26 @@ function useConversationProfiles(
 export function ChatProvider({ children }: { children: ReactNode }) {
 	const queryClient = useQueryClient()
 	const { isConnected, sendMessage, subscribe } = useWebSocket()
+	const [hasAccessToken, setHasAccessToken] = useState(() => Boolean(localStorage.getItem("access_token")))
 	const [activeUserId, setActiveUserId] = useState<string>()
 	const [drafts, setDrafts] = useState<Record<string, string>>({})
 	const [archivedIds, setArchivedIds] = useState<string[]>([])
 	const creatingConversationFor = useRef<string | undefined>(undefined)
 	const readReceiptSentFor = useRef<string | undefined>(undefined)
 
+	useEffect(() => {
+		const updateAuthState = () => setHasAccessToken(Boolean(localStorage.getItem("access_token")))
+		window.addEventListener("storage", updateAuthState)
+		window.addEventListener(AUTH_TOKEN_CHANGED_EVENT, updateAuthState)
+		return () => {
+			window.removeEventListener("storage", updateAuthState)
+			window.removeEventListener(AUTH_TOKEN_CHANGED_EVENT, updateAuthState)
+		}
+	}, [])
+
 	const { data: conversations = { count: 0, data: [] }, isPending: conversationsPending } = useQuery({
 		queryKey: conversationQueryKey,
+		enabled: hasAccessToken,
 		queryFn: async ({ signal }) => {
 			const response = await ChatService.getMyConversations({ signal })
 			return response.data
