@@ -169,6 +169,14 @@ services:
     depends_on:
       - prometheus
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /sys:/sys:ro
+      - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro"
+
 volumes:
   app-db-data:
   prometheus-data:
