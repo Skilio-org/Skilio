@@ -11,7 +11,7 @@ import {
 	Send,
 	X,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 
 import { JobDetails } from "@/components/freelancer/freelancer-job-details"
@@ -19,8 +19,7 @@ import { JobFormSection, jobFormField } from "@/components/common/job-form-secti
 import { WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet"
-import { type ProposalDraft as Draft, seedProposals } from "@/data/freelancer-workspace"
-import useAuth from "@/hooks/useAuth"
+import { type BackendProposal, useFreelancerProposals } from "@/hooks/useFreelancerProposals"
 import type { FreelancerJob } from "@/types/job"
 
 type ProposalTab = "Drafts" | "Submitted" | "Archived"
@@ -52,13 +51,7 @@ const proposalStatuses = [
 ]
 
 const FreelancerProposalsPage = () => {
-	const { user } = useAuth()
-
-	const storageKey = `freelancer-work-v2:${user?.id ?? "preview"}`
-
-	const [drafts, setDrafts] = useState<Draft[]>([])
-	const [loadedKey, setLoadedKey] = useState("")
-	const [error, setError] = useState("")
+	const { drafts, error, saveProposal, withdrawProposal } = useFreelancerProposals()
 
 	const [tab, setTab] = useState<ProposalTab>("Drafts")
 	const [query, setQuery] = useState("")
@@ -73,7 +66,6 @@ const FreelancerProposalsPage = () => {
 	const [compose, setCompose] = useState(false)
 
 	const [cover, setCover] = useState("")
-	const [rate, setRate] = useState("")
 
 	const visibleProposals = drafts
 		.filter(
@@ -90,84 +82,9 @@ const FreelancerProposalsPage = () => {
 	const selectedProjectType =
 		selected?.projectType ?? (selected?.budget.toLowerCase().includes("fixed") ? "Fixed price" : "Hourly")
 
-	useEffect(() => {
-		try {
-			const stored = localStorage.getItem(storageKey)
-
-			if (!stored) {
-				setDrafts(seedProposals)
-				setLoadedKey(storageKey)
-				return
-			}
-
-			const data = JSON.parse(stored)
-
-			const validDrafts = Array.isArray(data.drafts)
-				? data.drafts.filter(
-						(draft: Draft) =>
-							draft?.job &&
-							[
-								draft.job.id,
-								draft.job.title,
-								draft.job.company,
-								draft.job.category,
-								draft.job.budget,
-								draft.job.description,
-							].every((value) => typeof value === "string") &&
-							Array.isArray(draft.job.skills) &&
-							draft.job.skills.every((value) => typeof value === "string") &&
-							typeof draft.cover === "string" &&
-							typeof draft.rate === "string",
-					)
-				: seedProposals
-
-			setDrafts(validDrafts)
-		} catch {
-			setDrafts(seedProposals)
-			setError("Your saved proposals couldn't be restored. Showing demo proposals.")
-		}
-
-		setLoadedKey(storageKey)
-	}, [storageKey])
-
-	useEffect(() => {
-		if (loadedKey !== storageKey) return
-
-		try {
-			const stored = localStorage.getItem(storageKey)
-			const existing = stored ? JSON.parse(stored) : {}
-
-			localStorage.setItem(
-				storageKey,
-				JSON.stringify({
-					...existing,
-					drafts,
-				}),
-			)
-			window.dispatchEvent(new Event("freelancer-proposals-changed"))
-		} catch {
-			setError("Proposal changes couldn't be saved on this device.")
-		}
-	}, [drafts, loadedKey, storageKey])
-
-	useEffect(() => {
-		const handleSync = () => {
-			try {
-				const stored = localStorage.getItem(storageKey)
-				if (stored) {
-					const data = JSON.parse(stored)
-					if (Array.isArray(data.drafts)) {
-						setDrafts(data.drafts)
-					}
-				}
-			} catch {}
-		}
-		window.addEventListener("freelancer-proposals-changed", handleSync)
-		return () => window.removeEventListener("freelancer-proposals-changed", handleSync)
-	}, [storageKey])
-
-	const changeProposal = (id: string, status: ProposalTab) => {
+	const changeProposal = async (id: string, status: ProposalTab) => {
 		const proposal = drafts.find((draft) => draft.job.id === id)
+		if (!proposal) return
 		if (status === "Submitted" && proposal?.status === "Submitted") {
 			toast.error("You have already submitted a proposal for this job.")
 			return
@@ -177,52 +94,46 @@ const FreelancerProposalsPage = () => {
 			openProposal(proposal.job, proposal)
 			return
 		}
-		setDrafts((items) =>
-			items.map((item) =>
-				item.job.id === id
-					? {
-							...item,
-							status,
-						}
-					: item,
-			),
-		)
-
-		if (status === "Submitted") {
-			toast.success("Proposal submitted")
-			return
-		}
-
 		if (status === "Archived") {
-			toast.success("Proposal archived")
+			try {
+				await withdrawProposal(proposal.proposalId)
+				toast.success("Proposal withdrawn")
+			} catch {
+				toast.error("Couldn't withdraw the proposal.")
+			}
 			return
 		}
-
-		toast.success("Proposal restored to drafts")
+		if (proposal.status === "Archived") {
+			toast.error("Archived proposals cannot be restored.")
+			return
+		}
+		try {
+			await saveProposal(proposal.job, proposal.cover, status)
+			toast.success(status === "Submitted" ? "Proposal submitted" : "Proposal restored to drafts")
+		} catch {
+			toast.error("Couldn't update the proposal.")
+		}
 	}
 
-	const openProposal = (job: FreelancerJob, draft: Draft) => {
+	const openProposal = (job: FreelancerJob, draft: BackendProposal) => {
 		setSelected(job)
 		setCompose(true)
 		setCover(draft.cover)
-		setRate(draft.rate)
 	}
 
 	const openJob = (job: FreelancerJob) => {
 		setSelected(job)
 		setCompose(false)
 		setCover("")
-		setRate("")
 	}
 
 	const closeSheet = () => {
 		setSelected(null)
 		setCompose(false)
 		setCover("")
-		setRate("")
 	}
 
-	const saveDraft = () => {
+	const saveDraft = async () => {
 		if (!selected) return
 
 		const existing = drafts.find((draft) => draft.job.id === selected.id)
@@ -232,19 +143,13 @@ const FreelancerProposalsPage = () => {
 			return
 		}
 
-		setDrafts((items) => [
-			...items.filter((draft) => draft.job.id !== selected.id),
-			{
-				job: selected,
-				cover: cover.trim(),
-				rate,
-				status: "Drafts",
-			},
-		])
-
-		closeSheet()
-
-		toast.success("Proposal draft saved")
+		try {
+			await saveProposal(selected, cover, "Drafts")
+			closeSheet()
+			toast.success("Proposal draft saved")
+		} catch {
+			toast.error("Couldn't save the proposal draft.")
+		}
 	}
 
 	return (
@@ -568,17 +473,15 @@ const FreelancerProposalsPage = () => {
 									cover={cover}
 									onCoverChange={setCover}
 									readOnly={selectedReadOnly}
-									onSend={() => {
-										setDrafts((items) =>
-											items.map((item) =>
-												item.job.id === selected.id
-													? { ...item, cover: cover.trim(), rate, status: "Submitted" }
-													: item,
-											),
-										)
-										closeSheet()
-										setTab("Submitted")
-										toast.success("Proposal submitted")
+									onSend={async () => {
+										try {
+											await saveProposal(selected, cover, "Submitted")
+											closeSheet()
+											setTab("Submitted")
+											toast.success("Proposal submitted")
+										} catch {
+											toast.error("Couldn't submit the proposal.")
+										}
 									}}
 									onCancel={closeSheet}
 									onSubmit={saveDraft}

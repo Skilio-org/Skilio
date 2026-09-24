@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Bookmark, BriefcaseBusiness, CheckCircle2, ChevronDown, Circle, Search } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
-import { type ProposalDraft as Draft, freelancerJobs, seedProposals } from "@/data/freelancer-workspace"
+import { loadFreelancerJobs } from "@/components/freelancer/freelancer-jobs-api"
+import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
+import { useQuery } from "@tanstack/react-query"
 import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
 import QuickSavedSearch from "../common/quick-search"
@@ -12,57 +14,14 @@ import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 const FreelancerDashboardPage = () => {
 	const { user } = useAuth()
 	const { available } = useFreelancerAvailability()
+	const { drafts, error } = useFreelancerProposals()
 
-	const jobs = freelancerJobs
-
-	const storageKey = `freelancer-work-v2:${user?.id ?? "preview"}`
-
-	const [drafts, setDrafts] = useState<Draft[]>([])
-	const [error, setError] = useState("")
+	const { data: jobs = [], isPending: jobsPending } = useQuery({
+		queryKey: ["freelancer-jobs", "dashboard"],
+		queryFn: ({ signal }) => loadFreelancerJobs({ sortBy: "newest" }, signal),
+	})
 
 	const [filter, setFilter] = useState("All work")
-
-	useEffect(() => {
-		try {
-			const stored = localStorage.getItem(storageKey)
-
-			if (!stored) {
-				setDrafts(seedProposals)
-				return
-			}
-
-			const data = JSON.parse(stored)
-
-			// setSaved(
-			// 	Array.isArray(data.saved) ? data.saved.filter((id: unknown): id is string => typeof id === "string") : [],
-			// )
-
-			setDrafts(
-				Array.isArray(data.drafts)
-					? data.drafts.filter(
-							(draft: Draft) =>
-								draft?.job &&
-								[
-									draft.job.id,
-									draft.job.title,
-									draft.job.company,
-									draft.job.category,
-									draft.job.budget,
-									draft.job.description,
-								].every((value) => typeof value === "string") &&
-								Array.isArray(draft.job.skills) &&
-								draft.job.skills.every((value) => typeof value === "string") &&
-								typeof draft.cover === "string" &&
-								typeof draft.rate === "string",
-						)
-					: seedProposals,
-			)
-		} catch {
-			setDrafts(seedProposals)
-
-			setError("Your saved workspace data couldn't be restored. Showing demo data.")
-		}
-	}, [storageKey])
 
 	const filteredJobs = jobs.filter((job) => {
 		const matchesCategory = filter === "All work" || job.category === filter
@@ -179,7 +138,9 @@ const FreelancerDashboardPage = () => {
 						</Link>
 					</div>
 
-					{filteredJobs.length > 0 ? (
+					{jobsPending ? (
+						<p role="status">Loading opportunities...</p>
+					) : filteredJobs.length > 0 ? (
 						<div className="flex flex-col gap-3.5">
 							{filteredJobs.slice(0, 4).map((job) => (
 								<FreelancerJobCard key={job.id} {...job} />

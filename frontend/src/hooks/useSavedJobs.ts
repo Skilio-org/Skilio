@@ -1,67 +1,71 @@
-import { useCallback, useEffect, useState } from "react"
+import { JobsService, type SavedJobPublic, type SavedJobsPublic } from "@/client"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import useAuth from "@/hooks/useAuth"
-
-const changed = "freelancer-saved-jobs-changed"
 
 export function useSavedJobs() {
 	const { user } = useAuth()
-	const storageKey = `freelancer-work-v2:${user?.id ?? "preview"}`
-	const [state, setState] = useState<{ key: string; saved: string[]; savedAt: Record<string, string> }>({
-		key: "",
-		saved: [],
-		savedAt: {},
-	})
-	const [error, setError] = useState("")
-	const read = useCallback(() => {
-		try {
-			const data = JSON.parse(localStorage.getItem(storageKey) || "{}")
-			setState({
-				key: storageKey,
-				saved: Array.isArray(data.saved)
-					? data.saved.filter((id: unknown): id is string => typeof id === "string")
-					: [],
-				savedAt: data.savedAt ?? {},
+	const queryClient = useQueryClient()
+	const savedQuery = useQuery({
+		queryKey: ["saved-jobs"],
+		enabled: Boolean(user),
+		queryFn: async ({ signal }) => {
+			const { data } = await JobsService.readSavedJobs({
+				query: { skip: 0, limit: 100, sort_by: "newest" },
+				signal,
 			})
-			setError("")
-		} catch {
-			setError("Your saved jobs couldn't be restored on this device.")
-		}
-	}, [storageKey])
-	useEffect(() => {
-		read()
-		window.addEventListener(changed, read)
-		window.addEventListener("storage", read)
-		return () => {
-			window.removeEventListener(changed, read)
-			window.removeEventListener("storage", read)
-		}
-	}, [read])
+			return data
+		},
+	})
+	const saveMutation = useMutation({
+		mutationFn: async ({ id, saved }: { id: string; saved: boolean }) => {
+			if (saved) {
+				await JobsService.deleteSavedJobItem({ path: { id } })
+				return
+			}
+			await JobsService.createSavedJob({ body: { job_post_id: id } })
+		},
+		onMutate: async ({ id, saved }) => {
+			await queryClient.cancelQueries({ queryKey: ["saved-jobs"] })
+			const previous = queryClient.getQueryData<SavedJobsPublic>(["saved-jobs"])
+
+			if (previous) {
+				const nextData = saved
+					? previous.data.filter((item) => item.job_post_id !== id)
+					: [...previous.data, { id, job_post_id: id } as SavedJobPublic]
+				queryClient.setQueryData<SavedJobsPublic>(["saved-jobs"], {
+					...previous,
+					data: nextData,
+					count: saved ? Math.max(0, previous.count - 1) : previous.count + 1,
+				})
+			}
+
+			return { previous }
+		},
+		onSuccess: async (_, { saved }) => {
+			await queryClient.invalidateQueries({ queryKey: ["saved-jobs"] })
+			await queryClient.invalidateQueries({ queryKey: ["freelancer-jobs"] })
+			toast.success(saved ? "Removed from saved jobs" : "Added to saved jobs")
+		},
+		onError: (_error, _variables, context) => {
+			if (context?.previous) queryClient.setQueryData(["saved-jobs"], context.previous)
+			toast.error("Could not update saved jobs. Please try again.")
+		},
+	})
+	const saved = savedQuery.data?.data ?? []
 	const toggleSaved = (id: string) => {
-		try {
-			const data = JSON.parse(localStorage.getItem(storageKey) || "{}")
-			const ids: string[] = Array.isArray(data.saved)
-				? data.saved.filter((value: unknown) => typeof value === "string")
-				: []
-			const savedAt = { ...data.savedAt }
-			const removing = ids.includes(id)
-			if (removing) delete savedAt[id]
-			else savedAt[id] = new Date().toISOString()
-			localStorage.setItem(
-				storageKey,
-				JSON.stringify({ ...data, saved: removing ? ids.filter((value) => value !== id) : [...ids, id], savedAt }),
-			)
-			window.dispatchEvent(new Event(changed))
-			return true
-		} catch {
-			setError("Saved jobs couldn't be updated on this device.")
-			return false
+		if (!user) {
+			toast.error("Sign in to save jobs.")
+			return
 		}
+		saveMutation.mutate({ id, saved: saved.some((item) => item.job_post_id === id) })
 	}
 	return {
-		saved: state.key === storageKey ? state.saved : [],
-		savedAt: state.key === storageKey ? state.savedAt : {},
-		loaded: state.key === storageKey || !!error,
-		error,
+		saved: saved.map((item) => item.job_post_id),
+		savedJobs: saved.flatMap((item) => (item.job_post ? [item.job_post] : [])),
+		savedAt: Object.fromEntries(saved.map((item) => [item.job_post_id, item.created_at ?? ""])),
+		loaded: !savedQuery.isPending,
+		error: savedQuery.isError ? "Could not load saved jobs." : "",
 		toggleSaved,
 	}
 }

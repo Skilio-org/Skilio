@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router"
 import { Bookmark, Search, Upload, X } from "lucide-react"
 import { useState } from "react"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
+import { jobFromApi } from "@/components/freelancer/freelancer-jobs-api"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { freelancerJobs } from "@/data/freelancer-workspace"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
 import QuickSavedSearch from "../common/quick-search"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
@@ -15,12 +15,12 @@ const secondaryAction =
 const panel = "rounded-lg border border-outline-variant bg-surface-container-lowest p-5"
 
 export default function FreelancerSavedJobsPage() {
-	const { saved, savedAt, loaded, error } = useSavedJobs()
+	const { saved, savedJobs, savedAt, loaded, error } = useSavedJobs()
 	const [category, setCategory] = useState("all")
 	const [query, setQuery] = useState("")
 	const [sort, setSort] = useState("recent")
 
-	const allSaved = freelancerJobs.filter((job) => saved.includes(job.id))
+	const allSaved = savedJobs.map(jobFromApi)
 	const filtered = allSaved
 		.filter(
 			(job) =>
