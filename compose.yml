@@ -141,6 +141,7 @@ services:
       - "--web.enable-lifecycle"
     volumes:
       - ./devops/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./devops/monitoring/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
       - prometheus-data:/prometheus
     depends_on:
       - backend
