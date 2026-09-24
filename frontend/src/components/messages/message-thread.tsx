@@ -6,17 +6,11 @@ import type { ThreadMessage } from "@/components/messages/message-types"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
-import {	
-	type ClientProfileDetailPublic,
-	type FreelancerProfilePublic,
-} from "@/client"
+import { type ConversationProfile, isClientProfile } from "@/hooks/isClientProfile"
+
 const iconButton =
 	"grid size-8.5 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-type ConversationProfile = ClientProfileDetailPublic | FreelancerProfilePublic
 
-function isClientProfile(profile: ConversationProfile): profile is ClientProfileDetailPublic {
-	return "company" in profile
-}
 
 export function MessageThread({
 	selected,

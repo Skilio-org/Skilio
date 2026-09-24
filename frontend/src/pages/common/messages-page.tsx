@@ -179,7 +179,7 @@ export function MessagesPage({
 			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] h-[calc(100vh-14.5rem)] min-h-[640px] max-h-[880px]">
 				<ConversationList
 					conversations={conversations}
-					selectedId={selectedId}
+					selected={selectedProfile}
 					query={query}
 					filter={filter}
 					unreadCount={unreadCount}

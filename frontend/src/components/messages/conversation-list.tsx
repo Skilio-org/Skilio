@@ -4,10 +4,11 @@ import type { InboxFilter } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
 import { ConversationsPublic, UserPublic } from "@/client/types.gen"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
-
+import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "@/hooks/isClientProfile"
+import { useChat } from "@/context/chat-context"
 export function ConversationList({
 	conversations,
-	selectedId,
+	selected,
 	query,
 	filter,
 	unreadCount,
@@ -16,7 +17,7 @@ export function ConversationList({
 	onSelect,
 }: {
 	conversations: ConversationsPublic
-	selectedId: string
+	selected: ConversationProfile | undefined
 	query: string
 	filter: InboxFilter
 	unreadCount: number
@@ -24,12 +25,14 @@ export function ConversationList({
 	onFilterChange: (filter: InboxFilter) => void
 	onSelect: (id: string) => void
 }) {
+	const { conversationProfiles  } = useChat();
+ 
 	return (
 		<aside
 			aria-label="Conversations"
 			className={cn(
 				"min-h-0 min-w-0 flex-col border-outline-variant bg-surface-container-low/50 dark:bg-[#181a1d] lg:flex lg:border-r",
-				selectedId ? "hidden" : "flex",
+				selected?.id ? "hidden" : "flex",
 			)}
 		>
 			<div className="border-b border-outline-variant/60 bg-surface-container-lowest/60 dark:bg-[#181a1d] p-4 pb-3 sm:p-5 sm:pb-3.5">
@@ -98,32 +101,39 @@ export function ConversationList({
 			</div>
 			<div className="min-h-0 flex-1 overflow-y-auto p-2.5 space-y-1.5">
 				{conversations.data.map((conversation) => {
-					let person: UserPublic | null | undefined = conversation.other_user; 
+					
+					if (conversation.other_user == undefined) return ;
+					let person = conversationProfiles.get(conversation.other_user.id)
+					console.log(person)
 					if (!person) return null
-					const active = selectedId === person.id
-					const roleAndLocation = `${person.full_name} · ${person.active_role}`;
-					const theme = getClientTheme(person.id)
+					const theme = getClientTheme(person.user_id)
+					const active = selected?.user_id === person.user_id
+					let roleAndLocation = person.full_name;
 
+					if (isClientProfile(person))
+						roleAndLocation = `${person.company} . ${person.company_role}`;
+					else if (isFreelancerProfile(person))
+						roleAndLocation = `${person.category} . ${person.title}`;
 					return (
 						<button
-							key={person.id}
+							key={person.user_id}
 							type="button"
 							aria-pressed={active}
 							aria-label={`${person.full_name ?? "Unknown user"}${(conversation.unread_count ?? 0) > 0 ? `, ${conversation.unread_count} unread messages` : ""}`}
-							onClick={() => onSelect(person.id)}
+							onClick={() => onSelect(person.user_id)}
 							className={cn(
-								"group relative flex min-h-20 w-full items-start gap-3 border p-2 text-left transition-all",
+								"group relative flex w-full items-start gap-3 border px-[12px] py-2 text-left transition-all",
 								active
 									? "border-outline-variant bg-surface-container-lowest text-on-surface shadow-xs dark:bg-surface-container dark:border-outline/70"
 									: "border-transparent text-on-surface-variant hover:border-outline-variant/60 hover:bg-surface-container-lowest/80 dark:hover:bg-surface-container/40 hover:text-on-surface",
 							)}
 						>
-							{active && <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary" />}
+							{active && <span className="absolute left-0 top-3 bottom-3 w-[5px] rounded-ee rounded-se bg-primary" />}
 							<img
-								src={accountAvatarUrl(person.id)}
+								src={accountAvatarUrl(person.user_id)}
 								alt=""
 								className={cn(
-									"mt-0.5 grid size-10 shrink-0 place-items-center rounded-lg border font-label-sm font-semibold shadow-2xs transition-transform group-hover:scale-105",
+									"mt-0.5 grid size-12 shrink-0 place-items-center rounded-sm border font-label-sm font-semibold shadow-2xs transition-transform group-hover:scale-105",
 									theme.bg,
 									theme.text,
 									theme.border,
@@ -131,7 +141,7 @@ export function ConversationList({
 							>
 							</img>
 							<span className="min-w-0 flex-1">
-								<span className="flex items-baseline justify-between gap-2">
+								<span className="flex items-center justify-between gap-2">
 									<span
 										className={cn(
 											"truncate font-label-md text-label-md text-on-surface",
@@ -147,21 +157,20 @@ export function ConversationList({
 										})}
 									</span>
 								</span>
-								<span className="mt-0.5 block truncate font-caption text-caption text-on-surface-variant">
+								<span className="block truncate font-caption text-caption text-on-surface-variant">
 									{roleAndLocation}
 								</span>
-								<span className="mt-1.5 flex items-start gap-2">
+								<span className="flex items-between justify-between gap-2">
 									<span
 										className={cn(
-											"line-clamp-2 min-w-0 flex-1 break-words font-body-sm text-body-sm leading-5",
+											"line-clamp-2 min-w-0 break-words font-body-sm text-body-sm leading-5",
 											(conversation.unread_count ?? 0) > 0 ? "font-medium text-on-surface" : "text-on-surface-variant",
 										)}
 									>
-										{/* {conversation.last_message && <span className="font-semibold text-primary">Draft: </span>} */}
 										{conversation.last_message?.content || "No messages yet"}
 									</span>
 									{(conversation.unread_count ?? 0) > 0 && (
-										<span className="mt-0.5 grid min-w-5 h-5 place-items-center rounded-full bg-primary px-1.5 font-caption text-[10px] font-bold text-on-primary leading-none shadow-xs">
+										<span className="mt-0.5 grid  place-items-center rounded-full bg-primary p-1 font-caption text-[8px] font-bold text-on-primary leading-none shadow-xs">
 											{conversation.unread_count}
 										</span>
 									)}
