@@ -40,26 +40,22 @@ export const JobDetails = ({
 		toggleBookmark(job.id)
 	}
 
-	const handleSaveDraft = () => {
+	const handleSaveDraft = async () => {
 		if (submitted) {
 			toast.error("You have already submitted a proposal for this job.")
 			setApplying(false)
 			return
 		}
-		const result = saveProposal(job, cover, "Drafts")
-		if (!result.success) {
-			if (result.reason === "already_submitted") {
-				toast.error("You have already submitted a proposal for this job.")
-			} else {
-				toast.error("Couldn't save your draft.")
-			}
-			return
+		try {
+			await saveProposal(job, cover, "Drafts")
+			setApplying(false)
+			toast.success("Draft saved", { description: "You can review it in Proposals." })
+		} catch {
+			toast.error("Couldn't save your draft.")
 		}
-		setApplying(false)
-		toast.success("Draft saved", { description: "You can review it in Proposals." })
 	}
 
-	const handleApplyNow = () => {
+	const handleApplyNow = async () => {
 		if (submitted) {
 			toast.error("You have already submitted a proposal for this job.")
 			setApplying(false)
@@ -70,17 +66,13 @@ export const JobDetails = ({
 			coverInput.current?.focus()
 			return
 		}
-		const result = saveProposal(job, cover, "Submitted")
-		if (!result.success) {
-			if (result.reason === "already_submitted") {
-				toast.error("You have already submitted a proposal for this job.")
-			} else {
-				toast.error("Couldn't submit your proposal.")
-			}
-			return
+		try {
+			await saveProposal(job, cover, "Submitted")
+			setApplying(false)
+			toast.success("Proposal submitted")
+		} catch {
+			toast.error("Couldn't submit your proposal.")
 		}
-		setApplying(false)
-		toast.success("Proposal submitted")
 	}
 	const primary =
 		"flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container dark:bg-on-surface dark:text-background dark:hover:bg-white"

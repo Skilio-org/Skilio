@@ -1,7 +1,10 @@
 import { JobFormSection, jobFormField } from "@/components/common/job-form-section"
+import CategorySelect from "@/components/common/category-select"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { CategoriesService } from "@/client"
+import { useQuery } from "@tanstack/react-query"
 import type { ClientJob } from "./client-job-types"
 
 type ClientJobEditorProps = {
@@ -12,6 +15,7 @@ type ClientJobEditorProps = {
 	onEditingChange: (editing: boolean) => void
 	onJobChange: (job: ClientJob) => void
 	onSave: (job: ClientJob) => void
+	onDelete: (job: ClientJob) => void
 }
 
 export function ClientJobEditor({
@@ -22,7 +26,13 @@ export function ClientJobEditor({
 	onEditingChange,
 	onJobChange,
 	onSave,
+	onDelete,
 }: ClientJobEditorProps) {
+	const { data: categories = [] } = useQuery({
+		queryKey: ["categories"],
+		queryFn: async () => (await CategoriesService.readCategories()).data.data,
+		staleTime: 1000 * 60 * 30,
+	})
 	return (
 		<Sheet open={!!job} onOpenChange={(open) => !open && onClose()}>
 			<SheetContent className="w-full gap-0 bg-surface-container-lowest p-0 sm:max-w-180">
@@ -88,6 +98,20 @@ export function ClientJobEditor({
 										</label>
 									</JobFormSection>
 
+									<div className="border-outline-variant border-t" />
+									<JobFormSection title="Choose a category" description="Help the right freelancers find your project.">
+										<div className="mt-2">
+											<CategorySelect
+												value={job.category}
+												categories={categories}
+												onValueChange={(category) => onJobChange({ ...job, category })}
+												showAllCategories={false}
+												align="start"
+												contentClassName="w-80"
+												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-outline-variant px-3 hover:border-primary sm:flex"
+											/>
+										</div>
+									</JobFormSection>
 									<div className="border-outline-variant border-t" />
 									<JobFormSection title="Find the right expertise" description="Choose the skills your project needs.">
 										<label className="block font-medium text-sm">
@@ -156,7 +180,7 @@ export function ClientJobEditor({
 								</footer>
 							</form>
 						) : (
-							<ClientJobDetails job={job} onEdit={() => onEditingChange(true)} onSave={onSave} />
+							<ClientJobDetails job={job} onEdit={() => onEditingChange(true)} onSave={onSave} onDelete={onDelete} />
 						)}
 					</div>
 				)}
@@ -169,10 +193,12 @@ function ClientJobDetails({
 	job,
 	onEdit,
 	onSave,
+	onDelete,
 }: {
 	job: ClientJob
 	onEdit: () => void
 	onSave: (job: ClientJob) => void
+	onDelete: (job: ClientJob) => void
 }) {
 	return (
 		<div className="space-y-7">
@@ -225,6 +251,13 @@ function ClientJobDetails({
 						Review and reopen
 					</button>
 				)}
+				<button
+					type="button"
+					onClick={() => onDelete(job)}
+					className="inline-flex h-9 items-center justify-center rounded-lg px-3 text-destructive text-sm hover:bg-destructive/10"
+				>
+					Delete job
+				</button>
 			</div>
 		</div>
 	)
