@@ -24,13 +24,11 @@ from app.models import (
 MAX_ACCOUNTS = 500
 DEFAULT_PASSWORD = "SeededAccount123!"
 AVATAR_URLS = (
-    "https://res.cloudinary.com/vrreelhh/image/upload/eaa34905a9b18546812e6e6c729d4b77.webp",
-    "https://res.cloudinary.com/vrreelhh/image/upload/e19690c013fdffd2b62b1d56c9692b36.webp",
-    "https://res.cloudinary.com/vrreelhh/image/upload/63ca93463518b1e3ca68a6c1ce7d89e8.webp",
-    "https://res.cloudinary.com/vrreelhh/image/upload/20250908_213228.webp",
-    "https://res.cloudinary.com/vrreelhh/image/upload/44e08ddeed5b2542dccd5a262f3310c1.webp",
-    "https://res.cloudinary.com/vrreelhh/image/upload/9069f57cd63df82f730b06313c16f7ce.webp",
+    "https://res.cloudinary.com/vrreelhh/image/upload/070fa03c-8a3a-4b6b-b012-81ab0f0c3f4b.png"
+    # "https://res.cloudinary.com/vrreelhh/image/upload/94c196f4-f747-4652-b228-b1e6a38e27cb.jpg",
+    # "https://res.cloudinary.com/vrreelhh/image/upload/c_pad,g_north_west,w_1000/ar_1:1,c_auto/8b2a507e-7ccc-44a2-bfbd-9891c318d628.jpg"
 )
+
 JOB_POST_TEMPLATES = (
     (
         "Build a responsive marketplace dashboard",
