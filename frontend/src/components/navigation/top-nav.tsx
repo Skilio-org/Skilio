@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import useAuth from "@/hooks/useAuth"
 import { User } from "../sidebar/user"
 import { useChat } from "@/context/chat-context"
+import { useConversations } from "@/hooks/useConversations"
 
 const freelancerMenu = [
 	["/freelancer-dashboard", "Overview"],
@@ -35,8 +36,8 @@ export function TopNav() {
 
 	const role = useAccountRole()
 	const menu = role === "freelancer" ? freelancerMenu : clientMenu
-	const { conversations } = useChat()
-	const unreadMessages = conversations.data.reduce(
+	const { data: conversations, isPending } = useConversations()
+	const unreadMessages: any = conversations?.data.reduce(
 		(total, conversation) => total + (conversation.unread_count ?? 0),
 		0,
 	)

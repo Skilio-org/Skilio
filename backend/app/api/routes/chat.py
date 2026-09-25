@@ -271,7 +271,6 @@ async def send_message_rest(
 
     msg_public = ChatMessagePublic.model_validate(new_msg)
 
-    # Deliver to recipient via Redis Pub/Sub / WebSocket
     recipient_id = (
         conversation.freelancer_id
         if current_user.id == conversation.client_id
@@ -389,7 +388,6 @@ async def websocket_chat_endpoint(
                 content = (data.get("content") or "").strip()
                 if not conv_id_raw or not content:
                     continue
-
                 try:
                     conv_id = uuid.UUID(str(conv_id_raw))
                 except ValueError:

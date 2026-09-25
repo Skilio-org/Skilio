@@ -1,5 +1,4 @@
-import { isClientProfile, useChat } from "@/context/chat-context"
-import { useMessageContacts } from "@/hooks/useMessageContacts"
+import { isClientProfile } from "@/context/chat-context"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "@tanstack/react-router"
@@ -12,64 +11,79 @@ import { cn } from "@/lib/utils"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { MessageThread } from "@/components/messages/message-thread"
 import type { InboxFilter } from "@/components/messages/message-types"
+import { useChatData } from "@/hooks/useChatData"
+import { useConversation } from "@/hooks/userConversation"
+import { useUserOnlineStatus } from "@/hooks/useUserOnlineStatus"
+import { useCreateConversation, useCreateConversation } from "@/hooks/useCreateConversation"
+import { useConversations } from "@/hooks/useConversations"
+import { ConversationPublic } from "@/client"
+import { useProfiles } from "@/hooks/useProfiles"
+import { ConversationProfile } from "@/hooks/isClientProfile"
+import { UseQueryResult } from "@tanstack/react-query"
 
 export function MessagesPage({
-	selectedContact,
+	SelectedUserId,
 	onSelectContact,
 }: {
-	selectedContact?: string
+	SelectedUserId: string
 	onSelectContact: (id: string) => void
 }) {
+	// TODO: What if the conversations does not even exist.. yet...
+	// 1. check if the conversation exists.
+	let conversations = useConversations()
+	var selectedConversationId : string|undefined = undefined;
+	var selectedProfile;
+	var profiles: UseQueryResult<NoInfer<Map<string, ConversationProfile>>, Error>;
+	var selectedConversation: ConversationPublic|undefined;
+
+	if (conversations.isPending)
+		return (
+			<>
+				Still loading conversations!
+			</>
+		)
+
+	if (SelectedUserId) {
+		selectedConversation = conversations.data?.data
+			.find((c) => c.other_user?.id === SelectedUserId) ?? undefined;
+		if (!selectedConversation) {
+			useCreateConversation(SelectedUserId)
+			.then(conv => {
+				selectedConversation   = conv;
+				selectedConversationId = conv.id;
+			})			 
+		} else {
+			selectedConversationId = selectedConversation.id;
+		}
+	} else {
+		selectedConversationId = conversations.data?.data[0]?.id;
+		selectedConversation   = conversations.data?.data[0];
+	}
+	profiles = useProfiles();
+	if (profiles.isPending)
+		return (
+			<>
+				Still loading profiles!
+			</>
+		)
 	const [recipientQuery, setRecipientQuery] = useState("")
-	const chat = useChat()
-	const {
-		conversations,
-		conversationsPending,
-		conversationProfiles,
-		selected,
-		selectedProfile,
-		messages,
-		draft,
-		archived,
-		presence: selectedPresence,
-		presencePending,
-		updateDraft,
-		send,
-		archive: archiveConversation,
-		markUnread,
-	} = chat
-	const matchingProfiles = Array.from(conversationProfiles.entries()).filter(([, profile]) =>
+	const matchingProfiles = Array.from(profiles.data?.entries() ?? []).filter(([, profile]) =>
 		checkProfile(profile, recipientQuery),
 	)
-	const navigate = useNavigate()
+	selectedProfile = profiles.data?.get(selectedConversation?.other_user?.id ?? "")
+	const { isOnline, isPending: presencePending, } = useUserOnlineStatus(selectedProfile?.user_id);
+	const navigate   = useNavigate()
 	const clientMode = useAccountRole() === "client"
-	const contacts = useMessageContacts(clientMode)
-	const selectedId = selectedContact ?? ""
 	const [newMessageOpen, setNewMessageOpen] = useState(false)
 	const [query, setQuery] = useState("")
 	const [filter, setFilter] = useState<InboxFilter>("all")
-	const unreadCount = conversations.data.reduce(
+	const unreadCount = conversations.data?.data.reduce(
 		(total, conversation) => total + (conversation.unread_count ?? 0),
 		0,
 	)
 
-	useEffect(() => {
-		chat.selectConversation(selectedContact)
-		if (!selectedContact && !conversationsPending && conversations.data[0]?.other_user?.id) {
-			onSelectContact(conversations.data[0].other_user.id)
-		}
-	}, [chat.selectConversation, conversations.data, conversationsPending, onSelectContact, selectedContact])
-
-	const select = (id: string) => {
-		chat.selectConversation(id || undefined)
-		onSelectContact(id)
-	}
-	const archive = () => {
-		archiveConversation()
-		select("")
-	}
-
 	function checkProfile(profile: Parameters<typeof isClientProfile>[0], search: string) {
+		if (search.trim() === "") return true
 		const text = isClientProfile(profile)
 			? `${profile.company ?? ""} ${profile.full_name ?? ""}`
 			: `${profile.title ?? ""} ${profile.full_name ?? ""}`
@@ -87,9 +101,7 @@ export function MessagesPage({
 						<span className="size-1 rounded-full bg-outline-variant" />
 						<span className="flex items-center gap-1 font-medium text-primary">
 							<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
-							{unreadCount > 0
-								? `${unreadCount} unread ${unreadCount === 1 ? "message" : "messages"}`
-								: "Active communications"}
+							{unreadCount ?? 0} unread {unreadCount === 1 ? "message" : "messages"}
 						</span>
 					</div>
 					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">Messages</h1>
@@ -142,7 +154,7 @@ export function MessagesPage({
 									key={id}
 									type="button"
 									onClick={() => {
-										select(id)
+										onSelectContact(id)
 										setNewMessageOpen(false)
 									}}
 									className="flex w-full items-center gap-3 rounded-lg border border-transparent p-2.5 text-left transition-colors hover:border-outline-variant hover:bg-surface-container-low"
@@ -178,75 +190,76 @@ export function MessagesPage({
 			</Dialog>
 			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] h-[calc(100vh-14.5rem)] min-h-[640px] max-h-[880px]">
 				<ConversationList
-					conversations={conversations}
 					selected={selectedProfile}
 					query={query}
 					filter={filter}
-					unreadCount={unreadCount}
+					unreadCount={unreadCount ?? 0}
 					onQueryChange={setQuery}
 					onFilterChange={setFilter}
-					onSelect={select}
+					onSelect={onSelectContact}
 				/>
-				{selectedContact && !selected ? (
+				{selectedConversationId ? (
 					<section className="flex flex-col gap-4 p-6" aria-live="polite">
 						<Alert>
 							<AlertTitle>
-								{contacts.isPending
+								{profiles.isPending
 									? "Loading freelancer…"
-									: contacts.isError
+									: profiles.isError
 										? "Couldn’t load freelancer"
 										: "Freelancer unavailable"}
 							</AlertTitle>
 							<AlertDescription>
-								{contacts.isPending
+								{profiles.isPending
 									? "Getting their profile details."
-									: contacts.isError
+									: profiles.isError
 										? "Please try loading the profile again."
-										: contacts.data?.length === 0
+										: profiles.data?.size === 0
 											? "No public freelancer profiles are available yet. Once this freelancer’s profile is available, reload to start your conversation."
 											: "This freelancer’s public profile could not be found. Check the contact link or try again later."}
 							</AlertDescription>
 						</Alert>
-						{!contacts.isPending && (
-							<Button variant="outline" disabled={contacts.isFetching} onClick={() => void contacts.refetch()}>
-								{contacts.isFetching ? "Loading…" : "Reload profile"}
+						{!profiles.isPending && (
+							<Button variant="outline" disabled={profiles.isFetching} onClick={() => void profiles.refetch()}>
+								{profiles.isFetching ? "Loading…" : "Reload profile"}
 							</Button>
 						)}
-						<Button variant="outline" onClick={() => select("")}>
+						<Button variant="outline" onClick={() => onSelectContact("")}>
 							Back to conversations
 						</Button>
 					</section>
 				) : (
-					selected != undefined &&
+					selectedConversationId !== undefined &&
 					<MessageThread
-						key={selectedId}
+						key={selectedProfile?.}
 						selected={selectedProfile}
-						isOnline={selectedPresence?.is_online}
+						isOnline={isOnline}
 						presencePending={presencePending}
-						messages={messages}
-						draft={draft}
-						archived={archived}
-						onBack={() => select("")}
+						messages={selectedConversation != undefined ? selectedConversation.data.messages : []}
+						draft={""}
+						archived={false}
+						onBack={() => onSelectContact(selectedConversationId)}
 						onOpenLatest={() => {
-							if (conversations.data[0]?.other_user?.id) select(conversations.data[0].other_user.id)
+							if (conversations.data?.data[0]?.other_user?.id) 
+								onSelectContact(conversations.data?.data[0].id)
 							else setNewMessageOpen(true)
 						}}
-						hasConversations={conversations.data.length > 0}
-						canViewProfile={clientMode && selected?.active_role === "freelancer"}
+						hasConversations={conversations.data?.count == undefined ? false : conversations.data?.count > 0}
+						canViewProfile={true}
 						onDetails={() => {
-							if (clientMode && selected?.active_role === "freelancer")
+							if (clientMode && selectedConversation === "freelancer")
 								void navigate({
 									to: "/talent/$freelancerId",
 									params: { freelancerId: selected.id },
 									search: { q: undefined },
 								})
 						}}
-						onArchive={archive}
+						onArchive={() => {}}
 						onMarkUnread={() => {
-							markUnread()
-							select("")
+							// markUnread()
+							// select("")
+							() => {}
 						}}
-						onDraftChange={updateDraft}
+						onDraftChange={() => {}}
 						onSend={send}
 					/>
 				)}

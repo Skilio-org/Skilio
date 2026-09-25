@@ -6,7 +6,6 @@ import ReactDOM from "react-dom/client"
 import { client } from "./client/client.gen"
 import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "./components/ui/sonner"
-import { ChatProvider } from "./context/chat-context"
 import { AUTH_TOKEN_CHANGED_EVENT, WebSocketProvider } from "./context/websocket-context"
 import { routeTree } from "./routeTree.gen"
 import "./styles/globals.css"
@@ -46,10 +45,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 		<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
 			<QueryClientProvider client={queryClient}>
 				<WebSocketProvider>
-					<ChatProvider>
-						<RouterProvider router={router} />
-						<Toaster richColors closeButton />
-					</ChatProvider>
+					<RouterProvider router={router} />
+					<Toaster richColors closeButton />
 				</WebSocketProvider>
 			</QueryClientProvider>
 		</ThemeProvider>
