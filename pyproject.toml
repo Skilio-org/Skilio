@@ -14,7 +14,7 @@ members = ["backend"]
 
 [tool.typos.files]
 extend-exclude = [
-    "img/",
+    "docs/img/",
     "uv.lock",
     "bun.lock",
     "backend/coverage/",
