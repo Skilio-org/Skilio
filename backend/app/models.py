@@ -1165,21 +1165,6 @@ class NewPassword(SQLModel):
     new_password: str = Field(min_length=8, max_length=128)
 
 
-# Health check models
-class ServiceHealth(SQLModel):
-    status: str  # "healthy", "degraded", "unhealthy"
-    latency_ms: float | None = None
-    details: str | None = None
-
-
-class DeepHealthCheck(SQLModel):
-    status: str  # "healthy", "degraded", "unhealthy"
-    timestamp: datetime
-    uptime_seconds: float
-    environment: str
-    services: dict[str, ServiceHealth]
-
-
 class UserPresence(BaseModel):
     user_id: uuid.UUID
     is_online: bool

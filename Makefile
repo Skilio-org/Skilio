@@ -90,19 +90,6 @@ re: clean setup
 
 
 
-# ─── Database & Disaster Recovery (Disabled for now) ────────
-# backup:
-# 	@bash devops/backup/backup.sh
-#
-# restore:
-# 	@bash devops/backup/restore.sh $(FILE)
-#
-# backup-logs:
-# 	docker compose logs -f backup-daemon
-#
-# dr-test:
-# 	@bash devops/backup/dr-drill.sh
-
 # ─── HCP Vault (Temporarily Disabled) ───────────────────────
 # env:
 # 	@bash devops/vault/scripts/vault-pull.sh
