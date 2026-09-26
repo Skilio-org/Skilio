@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "@tanstack/react-router"
 import { useAccountRole } from "@/hooks/useAccountRole"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Search, SquarePen } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getClientTheme } from "@/components/messages/message-types"
@@ -14,67 +14,75 @@ import type { InboxFilter } from "@/components/messages/message-types"
 import { useUserOnlineStatus } from "@/hooks/useUserOnlineStatus"
 import { useCreateConversation } from "@/hooks/useCreateConversation"
 import { useConversations } from "@/hooks/useConversations"
-import { ConversationPublic } from "@/client"
 import { useProfiles } from "@/hooks/useProfiles"
-import { ConversationProfile } from "@/hooks/isClientProfile"
-import { UseQueryResult } from "@tanstack/react-query"
+import { useWebSocket } from "@/context/websocket-context"
+import { toast } from "sonner"
+import { useConversation } from "@/hooks/userConversation"
 
 export function MessagesPage({
 	SelectedUserId,
 	onSelectContact,
 }: {
-	SelectedUserId: string
+	SelectedUserId: string | undefined
 	onSelectContact: (id: string) => void
 }) {
 	// TODO: What if the conversations does not even exist.. yet...
 	// 1. check if the conversation exists.
-	let conversations = useConversations()
-	var selectedConversationId : string|undefined = undefined;
-	var selectedProfile: ConversationProfile;
-	var profiles: UseQueryResult<NoInfer<Map<string, ConversationProfile>>, Error>;
-	var selectedConversation: ConversationPublic|undefined;
+	const [recipientQuery, setRecipientQuery] = useState("")
+	const [newMessageOpen, setNewMessageOpen] = useState(false)
+	const [query, setQuery]                   = useState("")
+	const [filter, setFilter]                 = useState<InboxFilter>("all")
+	const [draft, setDraft]                   = useState("")
+	const { sendMessage } = useWebSocket()
+	const conversations = useConversations()
+	const profiles = useProfiles(conversations.data, conversations.isSuccess)
+	const createConversation = useCreateConversation()
+	const selectedConversation = SelectedUserId
+		? conversations.data?.data.find((conversation) => conversation.other_user?.id === SelectedUserId)
+		: conversations.data?.data[0]
+
+	console.log("SelectedUserId:", SelectedUserId)
+	console.log("SelectedConversation:", selectedConversation?.id)
+	const selectedConversationId = selectedConversation?.id
+	const selectedProfile = profiles.data?.get(selectedConversation?.other_user?.id ?? "")
+	const { isOnline, isPending: presencePending } = useUserOnlineStatus(selectedProfile?.user_id)
+	const detailsQuery = useConversation(selectedConversationId ?? "")
+	const navigate = useNavigate()
+	const clientMode = useAccountRole() === "client"
+
+	useEffect(() => {
+		if (
+			conversations.isSuccess &&
+			SelectedUserId &&
+			!selectedConversation &&
+			!createConversation.isPending
+		) {
+			void createConversation.mutateAsync(SelectedUserId)
+			.then((newConversation) => {
+				onSelectContact(newConversation.other_user?.id ?? "")
+			})
+			.catch((error) => {
+				console.error("Error creating conversation:", error)
+				toast.error("Failed to create conversation. Please try again.")
+			})
+		}
+	}, [
+		SelectedUserId,
+		conversations.isSuccess,
+		createConversation,
+		selectedConversation,
+	])
+
 
 	if (conversations.isPending)
-		return (
-			<>
-				Still loading conversations!
-			</>
-		)
+		return <>Still loading conversations!</>
 
-	if (SelectedUserId) {
-		selectedConversation = conversations.data?.data
-			.find((c) => c.other_user?.id === SelectedUserId) ?? undefined;
-		if (!selectedConversation) {
-			useCreateConversation(SelectedUserId)
-			.then(conv => {
-				selectedConversation   = conv;
-				selectedConversationId = conv.id;
-			})			 
-		} else {
-			selectedConversationId = selectedConversation.id;
-		}
-	} else {
-		selectedConversationId = conversations.data?.data[0]?.id;
-		selectedConversation   = conversations.data?.data[0];
-	}
-	profiles = useProfiles();
-	if (profiles.isPending)
-		return (
-			<>
-				Still loading profiles!
-			</>
-		)
-	const [recipientQuery, setRecipientQuery] = useState("")
+	if (profiles.isPending && conversations.data?.data.length !== 0)
+		return <>Still loading profiles!</>
+
 	const matchingProfiles = Array.from(profiles.data?.entries() ?? []).filter(([, profile]) =>
 		checkProfile(profile, recipientQuery),
 	)
-	selectedProfile = profiles.data?.get(selectedConversation?.other_user?.id ?? "")
-	const { isOnline, isPending: presencePending, } = useUserOnlineStatus(selectedProfile?.user_id);
-	const navigate   = useNavigate()
-	const clientMode = useAccountRole() === "client"
-	const [newMessageOpen, setNewMessageOpen] = useState(false)
-	const [query, setQuery] = useState("")
-	const [filter, setFilter] = useState<InboxFilter>("all")
 	const unreadCount = conversations.data?.data.reduce(
 		(total, conversation) => total + (conversation.unread_count ?? 0),
 		0,
@@ -86,6 +94,23 @@ export function MessagesPage({
 			? `${profile.company ?? ""} ${profile.full_name ?? ""}`
 			: `${profile.title ?? ""} ${profile.full_name ?? ""}`
 		return text.toLowerCase().includes(search.toLowerCase())
+	}
+
+	useEffect(() => {
+		console.log("SelectedConversationId: " + selectedConversationId)
+	}, [])
+
+	const send = (message: string) => {
+		const content = message.trim()
+		if (!selectedConversationId || !content) return
+
+		const sent = sendMessage({
+			type: "chat_message",
+			conversation_id: selectedConversationId,
+			content,
+		})
+		if (sent) setDraft("")
+		else toast.error("Failed to send message. Please try again.")
 	}
 
 	return (
@@ -196,7 +221,7 @@ export function MessagesPage({
 					onFilterChange={setFilter}
 					onSelect={onSelectContact}
 				/>
-				{selectedConversationId ? (
+				{selectedConversationId && !selectedConversation ? (
 					<section className="flex flex-col gap-4 p-6" aria-live="polite">
 						<Alert>
 							<AlertTitle>
@@ -228,17 +253,17 @@ export function MessagesPage({
 				) : (
 					selectedConversationId !== undefined &&
 					<MessageThread
-						key={selectedProfile?.}
+						key={selectedProfile?.user_id ?? "no-profile"}
 						selected={selectedProfile}
 						isOnline={isOnline}
 						presencePending={presencePending}
-						messages={selectedConversation != undefined ? selectedConversation.data.messages : []}
-						draft={""}
+						messages={detailsQuery.data?.messages ?? []}
+						draft={draft}
 						archived={false}
-						onBack={() => onSelectContact(selectedConversationId ?? "")}
+						onBack={() => onSelectContact(SelectedUserId ?? "")}
 						onOpenLatest={() => {
 							if (conversations.data?.data[0]?.other_user?.id) 
-								onSelectContact(conversations.data?.data[0].id)
+								onSelectContact(conversations.data?.data[0].other_user?.id)
 							else setNewMessageOpen(true)
 						}}
 						hasConversations={conversations.data?.count == undefined ? false : conversations.data?.count > 0}
@@ -247,7 +272,7 @@ export function MessagesPage({
 							if (clientMode && selectedConversation?.other_user?.active_role === "freelancer")
 								void navigate({
 									to: "/talent/$freelancerId",
-									params: { freelancerId: selectedProfile },
+									params: { freelancerId: selectedProfile?.user_id ?? "" },
 									search: { q: undefined },
 								})
 						}}
@@ -257,8 +282,8 @@ export function MessagesPage({
 							// select("")
 							() => {}
 						}}
-						onDraftChange={() => {}}
-						onSend={send}
+						onDraftChange={setDraft}
+						onSend={() => send(draft)}
 					/>
 				)}
 			</div>

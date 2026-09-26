@@ -1,0 +1,43 @@
+global:
+  scrape_interval: 15s     # Scrape targets every 15 seconds
+  evaluation_interval: 15s # Evaluate alerting rules every 15 seconds
+
+# Load alerting and recording rules periodically evaluated according to evaluation_interval
+rule_files:
+  - "alert_rules.yml"
+
+scrape_configs:
+  # Collect Prometheus's own internal performance metrics
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Collect FastAPI backend metrics exposed by prometheus-fastapi-instrumentator
+  - job_name: "fastapi-backend"
+    metrics_path: "/metrics"
+    scrape_interval: 10s
+    static_configs:
+      - targets: ["backend:8000"]
+        labels:
+          app: "freelancer-backend"
+          environment: "development"
+
+  # Collect PostgreSQL database metrics via postgres-exporter
+  - job_name: "postgres"
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+        labels:
+          app: "freelancer-postgres"
+          environment: "development"
+
+  # Collect Docker container CPU, RAM, and Network metrics via cAdvisor
+  - job_name: "cadvisor"
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["cadvisor:8080"]
+        labels:
+          app: "freelancer-containers"
+          environment: "development"
+
+

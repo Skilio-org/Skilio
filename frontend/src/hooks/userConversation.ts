@@ -3,14 +3,9 @@ import { chatKeys } from "@/data/chat-keys"
 import { useQuery } from "@tanstack/react-query"
 
 export function useConversation(id: string) {
-    if (!id) {
-        return {
-            data: undefined, isPending: false
-        };
-    }
-    
     const data = useQuery({
         queryKey: chatKeys.conversation(id),
+        enabled: Boolean(id),
         queryFn: async ({ signal }) => {
             const response = await ChatService.getConversationDetails({
                 path: {
@@ -23,6 +18,6 @@ export function useConversation(id: string) {
     })
     return {
         data: data.data,
-        isPending: data.isPending
+        isPending: data.isPending,
     };
 }

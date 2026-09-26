@@ -7,6 +7,7 @@ export const Route = createFileRoute("/_layout/freelancer-messages")({
 	component: Messages,
 	head: () => ({ meta: [{ title: "Messages | Freelancer" }] }),
 })
+
 function Messages() {
 	const search = Route.useSearch()
 	const navigate = Route.useNavigate()

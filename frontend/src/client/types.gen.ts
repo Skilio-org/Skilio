@@ -3336,6 +3336,36 @@ export type profilesSaveProfileResponses = {
 
 export type profilesSaveProfileResponse = profilesSaveProfileResponses[keyof profilesSaveProfileResponses];
 
+export type profilesReadProfileByUserIdData = {
+    body?: never;
+    path: {
+        /**
+         * User Id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v1/profiles/user/{user_id}';
+};
+
+export type profilesReadProfileByUserIdErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type profilesReadProfileByUserIdError = profilesReadProfileByUserIdErrors[keyof profilesReadProfileByUserIdErrors];
+
+export type profilesReadProfileByUserIdResponses = {
+    /**
+     * Successful Response
+     */
+    200: FreelancerProfileDetailPublic;
+};
+
+export type profilesReadProfileByUserIdResponse = profilesReadProfileByUserIdResponses[keyof profilesReadProfileByUserIdResponses];
+
 export type clientProfilesReadClientProfileMeData = {
     body?: never;
     path?: never;
@@ -4476,3 +4506,17 @@ export type privateCreateUserResponses = {
 };
 
 export type privateCreateUserResponse = privateCreateUserResponses[keyof privateCreateUserResponses];
+
+export type monitoringMetricsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/metrics';
+};
+
+export type monitoringMetricsResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};

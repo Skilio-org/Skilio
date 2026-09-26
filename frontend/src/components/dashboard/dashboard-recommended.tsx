@@ -26,7 +26,7 @@ export const RecommendedFreelancers = () => {
 				</div>
 				<Link
 					to="/talent"
-					search={{ q: undefined }}
+						search={{ q: undefined, category: undefined }}
 					className="inline-flex min-h-11 shrink-0 items-center gap-2 font-medium text-primary text-sm hover:underline"
 				>
 					View all <ArrowRight className="size-4" />

@@ -7,6 +7,7 @@ import httpx
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
+from prometheus_fastapi_instrumentator import Instrumentator
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
@@ -81,6 +82,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+Instrumentator().instrument(app).expose(app, include_in_schema=True, tags=["monitoring"])
 if FRONTEND_DIR.exists():
     app.frontend("/", directory=FRONTEND_DIR)
 cloudinary_prepare_media_store()

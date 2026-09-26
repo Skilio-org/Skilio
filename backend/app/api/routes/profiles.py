@@ -1264,6 +1264,34 @@ def update_profile(
 
     return _build_profile_public(session, profile)
 
+@router.get("/user/{user_id}", response_model=FreelancerProfileDetailPublic)
+def read_profile_by_user_id(
+    *,
+    session: SessionDep,
+    user_id: uuid.UUID,
+    current_user: CurrentUserOptional = None,
+) -> Any:
+    profile = session.exec(
+        select(FreelancerProfile).where(
+            FreelancerProfile.user_id == user_id
+        )
+    ).first()
+
+    if not profile:
+        raise HTTPException(status_code=404, detail="Freelancer profile not found")
+
+    if not profile.finished:
+        if not current_user or (
+            current_user.id != profile.user_id
+            and not current_user.is_superuser
+        ):
+            raise HTTPException(status_code=404, detail="Freelancer profile not found")
+
+    return _build_profile_detail_public(
+        session,
+        profile,
+        is_saved=False,
+    )
 
 @router.delete("/{id}")
 def delete_profile(

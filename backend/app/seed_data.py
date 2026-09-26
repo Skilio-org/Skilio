@@ -25,8 +25,6 @@ MAX_ACCOUNTS = 500
 DEFAULT_PASSWORD = "SeededAccount123!"
 AVATAR_URLS = (
     "https://res.cloudinary.com/vrreelhh/image/upload/070fa03c-8a3a-4b6b-b012-81ab0f0c3f4b.png"
-    # "https://res.cloudinary.com/vrreelhh/image/upload/94c196f4-f747-4652-b228-b1e6a38e27cb.jpg",
-    # "https://res.cloudinary.com/vrreelhh/image/upload/c_pad,g_north_west,w_1000/ar_1:1,c_auto/8b2a507e-7ccc-44a2-bfbd-9891c318d628.jpg"
 )
 
 JOB_POST_TEMPLATES = (

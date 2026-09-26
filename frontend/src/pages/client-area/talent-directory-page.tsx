@@ -11,52 +11,58 @@ import { useSavedTalent } from "@/hooks/useSavedTalent"
 import { SearchWithCategories } from "@/components/common/search-with-categories"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 
-const availabilityOptions = ["Available now", "Available this week", "Available next week"]
 const locationOptions = ["Worldwide", "Europe", "North America", "Asia Pacific"]
 const primaryAction =
 	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
 const secondaryAction =
 	"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface hover:bg-surface-container-low"
 
-const searchAliases: Record<string, string[]> = {
-	developer: ["developer", "engineer"],
-	engineer: ["engineer", "developer"],
-	designer: ["designer", "design"],
-	design: ["design", "designer"],
-	ai: ["ai", "llm", "automation"],
-}
-
 export function TalentDirectoryPage({
 	initialQuery,
+	initialCategory,
 	onQueryChange,
+	onCategoryChange,
 }: {
 	initialQuery?: string
+	initialCategory?: string
 	onQueryChange: (query?: string) => void
+	onCategoryChange: (category: string) => void
 }) {
-	const {
-		data: freelancers = [],
-		isPending,
-		isError,
-		refetch,
-	} = useQuery({
-		queryKey: ["talent-profiles"],
-		queryFn: ({ signal }) => loadTalentCards(signal),
-	})
 	const [search, setSearch] = useState(initialQuery ?? "")
-	const [category, setCategory] = useState("all")
-	const [availability, setAvailability] = useState<string[]>([])
+	const [category, setCategory] = useState(initialCategory ?? "all")
 	const [location, setLocation] = useState("Worldwide")
 	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
 	const [highlyRated, setHighlyRated] = useState(false)
 	const [sort, setSort] = useState("best-match")
 	const [filtersOpen, setFiltersOpen] = useState(false)
 	const [visibleCount, setVisibleCount] = useState(4)
+	const {
+		data: freelancers = [],
+		isPending,
+		isError,
+		refetch,
+	} = useQuery({
+		queryKey: ["talent-profiles", search, category, hourlyRate],
+		queryFn: ({ signal }) =>
+			loadTalentCards(
+				{
+					q: search,
+					category: category === "all" ? undefined : category,
+					minRate: hourlyRate[0] || undefined,
+					maxRate: hourlyRate[1] === 120 ? undefined : hourlyRate[1],
+				},
+				signal,
+			),
+	})
 	const { savedIds, toggleSaved } = useSavedTalent()
 	useEffect(() => {
 		setSearch(initialQuery ?? "")
 		setVisibleCount(4)
 	}, [initialQuery])
-	useEffect(() => setVisibleCount(4), [category, availability, location, hourlyRate, highlyRated, sort])
+	useEffect(() => {
+		setCategory(initialCategory ?? "all")
+	}, [initialCategory])
+	useEffect(() => setVisibleCount(4), [category, location, hourlyRate, highlyRated, sort])
 	const submitSearch = (value: string) => {
 		const trimmedValue = value.trim()
 
@@ -67,26 +73,15 @@ export function TalentDirectoryPage({
 	const clearAll = () => {
 		submitSearch("")
 		setCategory("all")
-		setAvailability([])
+		onCategoryChange("all")
 		setLocation("Worldwide")
 		setHourlyRate([0, 120])
 		setHighlyRated(false)
 	}
-	const toggleAvailability = (value: string) =>
-		setAvailability((current) =>
-			current.includes(value) ? current.filter((item) => item !== value) : [...current, value],
-		)
 	const results = useMemo(() => {
-		const terms = search.toLowerCase().trim().split(/\s+/).filter(Boolean)
 		return freelancers
 			.filter((person) => {
-				const content = [person.name, person.title, person.location, person.bio, ...person.skills]
-					.join(" ")
-					.toLowerCase()
 				return (
-					terms.every((term) => (searchAliases[term] ?? [term]).some((candidate) => content.includes(candidate))) &&
-					(category === "all" || person.category === category) &&
-					(!availability.length || availability.includes(person.availability)) &&
 					person.rate >= hourlyRate[0] &&
 					(hourlyRate[1] === 120 || person.rate <= hourlyRate[1]) &&
 					(!highlyRated || person.rating >= 4.9) &&
@@ -101,9 +96,8 @@ export function TalentDirectoryPage({
 			.sort((a, b) =>
 				sort === "highest-rated" ? b.rating - a.rating : sort === "lowest-rate" ? a.rate - b.rate : b.rating - a.rating,
 			)
-	}, [freelancers, search, category, availability, hourlyRate, highlyRated, location, sort])
+	}, [freelancers, hourlyRate, highlyRated, location, sort])
 	const chips = [
-		...availability.map((label) => ({ label, remove: () => toggleAvailability(label) })),
 		...(search ? [{ label: search, remove: () => submitSearch("") }] : []),
 		...(category !== "all" ? [{ label: category, remove: () => setCategory("all") }] : []),
 		...(location !== "Worldwide" ? [{ label: location, remove: () => setLocation("Worldwide") }] : []),
@@ -137,14 +131,6 @@ export function TalentDirectoryPage({
 					Clear all
 				</button>
 			</div>
-			<fieldset className="space-y-2.5 py-4">
-				<legend className="sr-only">Availability</legend>
-				<p className="mb-3 font-medium text-label-sm">Availability</p>
-				{check("Any availability", !availability.length, () => setAvailability([]))}
-				{availabilityOptions.map((option) =>
-					check(option, availability.includes(option), () => toggleAvailability(option)),
-				)}
-			</fieldset>
 			<fieldset className="space-y-2.5 py-4">
 				<legend className="sr-only">Location</legend>
 				<p className="mb-3 font-medium text-label-sm">Location</p>
@@ -215,6 +201,7 @@ export function TalentDirectoryPage({
 				onCategoryChange={(value) => {
 					setCategory(value)
 					setVisibleCount(4)
+					onCategoryChange(value)
 				}}
 			/>
 			<div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">

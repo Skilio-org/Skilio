@@ -4,19 +4,32 @@ import { TalentDirectoryPage } from "@/pages/client-area/talent-directory-page"
 export const Route = createFileRoute("/_layout/talent")({
 	validateSearch: (search: Record<string, unknown>) => ({
 		q: typeof search.q === "string" ? search.q : undefined,
+		category: typeof search.category === "string" ? search.category : undefined,
 	}),
 	component: TalentDirectoryRoute,
 	head: () => ({ meta: [{ title: "Find talent | Freelancer" }] }),
 })
 
 function TalentDirectoryRoute() {
-	const { q } = Route.useSearch()
+	const { q, category } = Route.useSearch()
 	const navigate = Route.useNavigate()
 
 	return (
 		<TalentDirectoryPage
 			initialQuery={q}
-			onQueryChange={(query) => void navigate({ search: { q: query }, replace: true })}
+			initialCategory={category}
+			onQueryChange={(query) =>
+				void navigate({ search: (current) => ({ ...current, q: query }), replace: true })
+			}
+			onCategoryChange={(nextCategory) =>
+				void navigate({
+					search: (current) => ({
+						...current,
+						category: nextCategory === "all" ? undefined : nextCategory,
+					}),
+					replace: true,
+				})
+			}
 		/>
 	)
 }

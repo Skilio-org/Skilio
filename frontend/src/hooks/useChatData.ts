@@ -3,7 +3,7 @@ import { useConversations } from "./useConversations";
 
 export function useChatData() {
 	const conversationsQuery = useConversations()
-    const profilesQuery      = useProfiles()
+    const profilesQuery      = useProfiles(conversationsQuery.data, conversationsQuery.isSuccess)
  
 	return {
         profiles: profilesQuery,

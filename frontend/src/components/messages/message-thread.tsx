@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { cn } from "@/lib/utils"
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile } from "@/hooks/isClientProfile"
+import { ChatMessagePublic } from "@/client"
 
 const iconButton =
 	"grid size-8.5 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
@@ -32,7 +33,7 @@ export function MessageThread({
 	selected: ConversationProfile | undefined
 	isOnline?: boolean
 	presencePending: boolean
-	messages: ThreadMessage[]
+	messages: ChatMessagePublic[]|undefined
 	draft: string
 	archived: boolean
 	onBack: () => void
@@ -50,7 +51,7 @@ export function MessageThread({
 	const scrollRef = useRef<HTMLDivElement>(null)
 	const composer = useRef<HTMLTextAreaElement>(null)
 	const searchRef = useRef<HTMLInputElement>(null)
-	const count = messages.length
+	const count = messages?.length ?? 0
 	const selectedId = selected?.id
 	const selectedAvatarUrl = useAccountAvatarUrl(selected?.user_id)
 	useEffect(() => {
@@ -75,7 +76,7 @@ export function MessageThread({
 	}, [selectedId])
 	const term = query.trim()
 	const visible = term
-		? messages.filter((message) => message.body.toLowerCase().includes(term.toLowerCase()))
+		? messages?.filter((message) => message.content.toLowerCase().includes(term.toLowerCase()))
 		: messages
 
 	if (!selected)
@@ -282,6 +283,7 @@ export function MessageThread({
 								message={message}
 								name={selected.full_name ?? companyOrName ?? "Unknown"}
 								highlight={term}
+								own={message.sender_id === selected.user_id}
 							/>
 						))}
 					</div>

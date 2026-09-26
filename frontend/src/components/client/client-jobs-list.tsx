@@ -48,7 +48,7 @@ export function ClientJobsList({
 			<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
 				<Search className="size-4 text-on-surface-variant" />
 				<input
-					type="search"
+					type="text"
 					aria-label="Search your jobs"
 					placeholder="Search your jobs by title or skill"
 					value={query}

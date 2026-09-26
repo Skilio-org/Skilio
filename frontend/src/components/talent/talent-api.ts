@@ -29,10 +29,23 @@ export function talentCardFromApi(profile: FreelancerProfilePublic): TalentCard 
 	}
 }
 
-export async function loadTalentCards(signal?: AbortSignal) {
+export async function loadTalentCards(
+	query: { q?: string; category?: string; minRate?: number; maxRate?: number },
+	signal?: AbortSignal,
+) {
 	const cards: TalentCard[] = []
 	while (true) {
-		const { data: page } = await ProfilesService.readProfiles({ query: { skip: cards.length, limit: 100 }, signal })
+		const { data: page } = await ProfilesService.readProfiles({
+			query: {
+				skip: cards.length,
+				limit: 100,
+				q: query.q || undefined,
+				category: query.category || undefined,
+				min_rate: query.minRate,
+				max_rate: query.maxRate,
+			},
+			signal,
+		})
 		cards.push(...page.data.map(talentCardFromApi))
 		if (!page.data.length || cards.length >= page.count) return cards
 	}
