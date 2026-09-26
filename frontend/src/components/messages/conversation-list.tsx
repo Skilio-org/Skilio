@@ -105,12 +105,10 @@ export function ConversationList({
 					if (!person) return null
 					const theme = getClientTheme(person.user_id)
 					const active = selected?.user_id === person.user_id
-					let roleAndLocation = person.full_name;
+					let roleAndLocation = person.full_name
 
-					if (isClientProfile(person))
-						roleAndLocation = `${person.company} . ${person.company_role}`;
-					else if (isFreelancerProfile(person))
-						roleAndLocation = `${person.category} . ${person.title}`;
+					if (isClientProfile(person)) roleAndLocation = `${person.company} . ${person.company_role}`
+					else if (isFreelancerProfile(person)) roleAndLocation = `${person.category} . ${person.title}`
 					return (
 						<button
 							key={person.user_id}
@@ -135,8 +133,7 @@ export function ConversationList({
 									theme.text,
 									theme.border,
 								)}
-							>
-							</img>
+							></img>
 							<span className="min-w-0 flex-1">
 								<span className="flex items-center justify-between gap-2">
 									<span
@@ -148,10 +145,11 @@ export function ConversationList({
 										{person.full_name ?? "Unknown user"}
 									</span>
 									<span className="shrink-0 font-caption text-caption text-on-surface-variant">
-										{conversation.created_at && new Date(conversation.created_at).toLocaleDateString(undefined, {
-											month: "short",
-											day: "numeric",
-										})}
+										{conversation.created_at &&
+											new Date(conversation.created_at).toLocaleDateString(undefined, {
+												month: "short",
+												day: "numeric",
+											})}
 									</span>
 								</span>
 								<span className="block truncate font-caption text-caption text-on-surface-variant">

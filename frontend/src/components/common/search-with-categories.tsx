@@ -1,11 +1,8 @@
-import { CategoriesService } from "@/client"
+import { CategoriesService, SearchesService } from "@/client"
 import CategorySelect from "@/components/common/category-select"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Search } from "lucide-react"
 import { useEffect, useState } from "react"
-
-const primaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
 
 const defaultPopularSearches = ["Product design", "React", "Brand strategy", "Design systems", "AI"]
 
@@ -44,6 +41,23 @@ export const SearchWithCategories = ({
 		staleTime: 1000 * 60 * 30,
 	})
 
+	const queryClient = useQueryClient()
+
+	const saveRecentSearchMutation = useMutation({
+		mutationFn: async (search: string) => {
+			return SearchesService.saveRecentSearch({
+				body: {
+					query: search,
+				},
+			})
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["recentSearch"],
+			})
+		},
+	})
+
 	useEffect(() => {
 		setQuery(initialQuery)
 	}, [initialQuery])
@@ -54,8 +68,9 @@ export const SearchWithCategories = ({
 
 	const submitSearch = (value: string) => {
 		const trimmedQuery = value.trim()
-
+		if (!trimmedQuery) return
 		setQuery(trimmedQuery)
+		saveRecentSearchMutation.mutate(trimmedQuery)
 		onSearch?.(trimmedQuery)
 	}
 
@@ -77,7 +92,7 @@ export const SearchWithCategories = ({
 
 				<input
 					aria-label="Search professionals"
-					type="search"
+					type="text"
 					value={query}
 					onChange={(event) => setQuery(event.target.value)}
 					placeholder={placeholder}
@@ -92,7 +107,10 @@ export const SearchWithCategories = ({
 					isError={categoriesError}
 				/>
 
-				<button type="submit" className={primaryAction}>
+				<button
+					type="submit"
+					className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
+				>
 					Search
 				</button>
 			</form>

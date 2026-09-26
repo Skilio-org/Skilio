@@ -1,60 +1,59 @@
-import { useCallback, useMemo, useSyncExternalStore } from "react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { freelancers } from "@/data/freelancers"
+import { ProfilesService } from "@/client"
 import useAuth from "@/hooks/useAuth"
 
-const changed = "saved-talent-changed"
-// Combine the former demo lists into one unique list.
-const initialIds = freelancers.map((person) => person.id)
-function read(key: string) {
-	try {
-		return localStorage.getItem(key)
-	} catch {
-		return null
-	}
+type SavedTalentOptions = {
+	query?: string
+	sortBy?: "rate_asc" | "rate_desc" | "newest"
 }
-function parse(raw: string | null): string[] {
-	if (raw === null) return initialIds
-	try {
-		const value: unknown = JSON.parse(raw)
-		return Array.isArray(value)
-			? [...new Set(value.filter((id): id is string => typeof id === "string" && initialIds.includes(id)))]
-			: initialIds
-	} catch {
-		return initialIds
-	}
-}
-export function useSavedTalent() {
+
+export function useSavedTalent(options: SavedTalentOptions = {}) {
 	const { user } = useAuth()
-	const key = `saved-talent-v1:${user?.id ?? "preview"}`
-	const subscribe = useCallback(
-		(notify: () => void) => {
-			const onStorage = (event: StorageEvent) => {
-				if (event.key === key || event.key === null) notify()
-			}
-			window.addEventListener("storage", onStorage)
-			window.addEventListener(changed, notify)
-			return () => {
-				window.removeEventListener("storage", onStorage)
-				window.removeEventListener(changed, notify)
-			}
+	const queryClient = useQueryClient()
+	const savedQuery = useQuery({
+		queryKey: ["saved-talent", options.query ?? "", options.sortBy ?? "newest"],
+		enabled: Boolean(user),
+		queryFn: async ({ signal }) => {
+			const { data } = await ProfilesService.readSavedProfiles({
+				query: {
+					q: options.query || undefined,
+					sort_by: options.sortBy ?? "newest",
+					skip: 0,
+					limit: 100,
+				},
+				signal,
+			})
+			return data
 		},
-		[key],
-	)
-	const snapshot = useCallback(() => read(key), [key])
-	const raw = useSyncExternalStore(subscribe, snapshot, () => null)
-	const savedIds = useMemo(() => parse(raw), [raw])
+	})
+	const saveMutation = useMutation({
+		mutationFn: ({ id, saved }: { id: string; saved: boolean }) =>
+			saved ? ProfilesService.unsaveProfile({ path: { id } }) : ProfilesService.saveProfile({ path: { id } }),
+		onSuccess: async (_, { saved }) => {
+			await queryClient.invalidateQueries({ queryKey: ["saved-talent"] })
+			await queryClient.invalidateQueries({ queryKey: ["talent-profiles"] })
+			await queryClient.invalidateQueries({ queryKey: ["talent-profile"] })
+			toast.success(saved ? "Removed from saved talent" : "Added to saved talent")
+		},
+		onError: () => toast.error("Could not update saved talent. Please try again."),
+	})
+	const savedIds = savedQuery.data?.data.map((profile) => profile.id) ?? []
+
 	const toggleSaved = (id: string) => {
-		const current = parse(read(key))
-		const removing = current.includes(id)
-		const next = removing ? current.filter((item) => item !== id) : [...current, id]
-		try {
-			localStorage.setItem(key, JSON.stringify(next))
-			window.dispatchEvent(new Event(changed))
-			toast.success(removing ? "Removed from saved talent" : "Added to saved talent")
-		} catch {
-			toast.error("Couldn’t save this change on your device. Please try again.")
+		if (!user) {
+			toast.error("Sign in to save talent.")
+			return
 		}
+		saveMutation.mutate({ id, saved: savedIds.includes(id) })
 	}
-	return { savedIds, toggleSaved }
+	return {
+		savedIds,
+		savedProfiles: savedQuery.data?.data ?? [],
+		savedCount: savedQuery.data?.count ?? 0,
+		toggleSaved,
+		isPending: savedQuery.isPending,
+		isError: savedQuery.isError,
+		refetch: savedQuery.refetch,
+	}
 }

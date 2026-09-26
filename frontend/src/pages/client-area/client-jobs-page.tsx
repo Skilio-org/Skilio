@@ -1,53 +1,64 @@
 import { Plus } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { JobsService } from "@/client"
 import { ClientJobEditor } from "@/components/client/client-job-editor"
 import { blankClientJob, type ClientJob } from "@/components/client/client-job-types"
+import { clientJobFromApi, clientJobPayload } from "@/components/client/client-jobs-api"
 import { ClientJobsList } from "@/components/client/client-jobs-list"
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import useAuth from "@/hooks/useAuth"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 export function ClientJobsPage() {
 	const { user } = useAuth()
-	const storageKey = `client-jobs-v1:${user?.id ?? "preview"}`
-	const [jobs, setJobs] = useState<ClientJob[]>([])
-	const [loadedKey, setLoadedKey] = useState("")
-	const [error, setError] = useState("")
+	const queryClient = useQueryClient()
+	const jobsQuery = useQuery({
+		queryKey: ["client-jobs"],
+		enabled: Boolean(user),
+		queryFn: async ({ signal }) => {
+			const { data } = await JobsService.readMyJobs({ query: { skip: 0, limit: 100 }, signal })
+			return data.data.map(clientJobFromApi)
+		},
+	})
+	const saveMutation = useMutation({
+		mutationFn: (job: ClientJob) => {
+			const body = clientJobPayload(job)
+			return job.id ? JobsService.updateJob({ path: { id: job.id }, body }) : JobsService.createJob({ body })
+		},
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ["client-jobs"] })
+			setEditorJob(null)
+			toast.success("Job saved")
+		},
+	})
+	const deleteMutation = useMutation({
+		mutationFn: (id: string) => JobsService.deleteJob({ path: { id } }),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ["client-jobs"] })
+			setEditorJob(null)
+			toast.success("Job deleted")
+		},
+	})
+	const jobs = jobsQuery.data ?? []
+	const error = jobsQuery.isError
+		? "Could not load your jobs."
+		: saveMutation.isError
+			? "Could not save this job."
+			: deleteMutation.isError
+				? "Could not delete this job."
+				: ""
 	const [query, setQuery] = useState("")
 	const [tab, setTab] = useState("All jobs")
 	const [editorJob, setEditorJob] = useState<ClientJob | null>(null)
 	const [isEditing, setIsEditing] = useState(false)
 
-	useEffect(() => {
-		try {
-			const value: unknown = JSON.parse(localStorage.getItem(storageKey) || "[]")
-			if (!Array.isArray(value)) throw new Error()
-			setJobs(value.filter(isClientJob))
-			setError("")
-		} catch {
-			setJobs([])
-			setError("Your jobs couldn’t be restored from this browser. Refresh and try again.")
-		}
-		setLoadedKey(storageKey)
-		setEditorJob(null)
-	}, [storageKey])
-
 	const persistJob = (job: ClientJob) => {
-		if (loadedKey !== storageKey) return
-		const nextJobs = jobs.some((item) => item.id === job.id)
-			? jobs.map((item) => (item.id === job.id ? job : item))
-			: [job, ...jobs]
-		try {
-			localStorage.setItem(storageKey, JSON.stringify(nextJobs))
-			setJobs(nextJobs)
-			setEditorJob(null)
-			setError("")
-		} catch {
-			setError("We couldn’t save your changes. Free up browser storage and try again.")
-		}
+		saveMutation.mutate(job)
 	}
 
 	const startJob = () => {
-		setEditorJob({ ...blankClientJob, id: crypto.randomUUID() })
+		setEditorJob({ ...blankClientJob, id: "" })
 		setIsEditing(true)
 	}
 	const results = jobs.filter(
@@ -66,7 +77,7 @@ export function ClientJobsPage() {
 				action={
 					<button
 						type="button"
-						disabled={loadedKey !== storageKey}
+						disabled={!user || jobsQuery.isPending || saveMutation.isPending}
 						onClick={startJob}
 						className={workspaceStyles.primaryAction}
 					>
@@ -84,7 +95,7 @@ export function ClientJobsPage() {
 				results={results}
 				query={query}
 				tab={tab}
-				disabled={loadedKey !== storageKey}
+				disabled={!user || jobsQuery.isPending}
 				onQueryChange={setQuery}
 				onTabChange={setTab}
 				onOpenJob={(job) => {
@@ -105,18 +116,10 @@ export function ClientJobsPage() {
 				onEditingChange={setIsEditing}
 				onJobChange={setEditorJob}
 				onSave={persistJob}
+				onDelete={(job) => {
+					if (job.id && window.confirm("Delete this job?")) deleteMutation.mutate(job.id)
+				}}
 			/>
 		</div>
-	)
-}
-
-function isClientJob(job: unknown): job is ClientJob {
-	return (
-		!!job &&
-		typeof job === "object" &&
-		["id", "title", "description", "skills", "category", "type", "budget"].every(
-			(name) => typeof (job as Record<string, unknown>)[name] === "string",
-		) &&
-		["Draft", "Open", "Closed"].includes((job as ClientJob).status)
 	)
 }

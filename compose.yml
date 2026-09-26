@@ -130,5 +130,57 @@ services:
       - traefik.http.routers.backend-http.rule=Host(`${DOMAIN:-localhost}`)
       - traefik.http.routers.backend-http.entrypoints=http
 
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./devops/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./devops/monitoring/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - backend
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.16.0
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:${POSTGRES_PASSWORD:?Variable not set}@db:5432/app?sslmode=disable"
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./devops/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /sys:/sys:ro
+      - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro"
+
 volumes:
   app-db-data:
+  prometheus-data:
+  grafana-data:
+
+
