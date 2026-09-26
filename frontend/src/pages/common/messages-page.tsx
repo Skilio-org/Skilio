@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "@tanstack/react-router"
 import { useAccountRole } from "@/hooks/useAccountRole"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Search, SquarePen } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getClientTheme } from "@/components/messages/message-types"
@@ -11,10 +11,8 @@ import { cn } from "@/lib/utils"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { MessageThread } from "@/components/messages/message-thread"
 import type { InboxFilter } from "@/components/messages/message-types"
-import { useChatData } from "@/hooks/useChatData"
-import { useConversation } from "@/hooks/userConversation"
 import { useUserOnlineStatus } from "@/hooks/useUserOnlineStatus"
-import { useCreateConversation, useCreateConversation } from "@/hooks/useCreateConversation"
+import { useCreateConversation } from "@/hooks/useCreateConversation"
 import { useConversations } from "@/hooks/useConversations"
 import { ConversationPublic } from "@/client"
 import { useProfiles } from "@/hooks/useProfiles"
@@ -32,7 +30,7 @@ export function MessagesPage({
 	// 1. check if the conversation exists.
 	let conversations = useConversations()
 	var selectedConversationId : string|undefined = undefined;
-	var selectedProfile;
+	var selectedProfile: ConversationProfile;
 	var profiles: UseQueryResult<NoInfer<Map<string, ConversationProfile>>, Error>;
 	var selectedConversation: ConversationPublic|undefined;
 
@@ -237,7 +235,7 @@ export function MessagesPage({
 						messages={selectedConversation != undefined ? selectedConversation.data.messages : []}
 						draft={""}
 						archived={false}
-						onBack={() => onSelectContact(selectedConversationId)}
+						onBack={() => onSelectContact(selectedConversationId ?? "")}
 						onOpenLatest={() => {
 							if (conversations.data?.data[0]?.other_user?.id) 
 								onSelectContact(conversations.data?.data[0].id)
@@ -246,10 +244,10 @@ export function MessagesPage({
 						hasConversations={conversations.data?.count == undefined ? false : conversations.data?.count > 0}
 						canViewProfile={true}
 						onDetails={() => {
-							if (clientMode && selectedConversation === "freelancer")
+							if (clientMode && selectedConversation?.other_user?.active_role === "freelancer")
 								void navigate({
 									to: "/talent/$freelancerId",
-									params: { freelancerId: selected.id },
+									params: { freelancerId: selectedProfile },
 									search: { q: undefined },
 								})
 						}}
