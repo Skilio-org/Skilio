@@ -114,6 +114,7 @@ export function ConversationList({
 					// return (<h1>{conversation.other_user?.id}</h1>);
 					if (conversation.other_user == undefined) return ;
 					const person = profiles.data?.get(conversation.other_user.id)
+					// console.log("Person:", person)
 					if (!person) return null
 					const theme = getClientTheme(person.user_id)
 					const active = selected?.user_id === person.user_id

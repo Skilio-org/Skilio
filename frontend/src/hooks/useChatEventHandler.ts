@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import type { ChatMessagePublic, ConversationDetailPublic, ConversationsPublic } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
+import { useConversations } from "./useConversations"
 
 type ChatMessageUpdateOptions = {
 	incrementUnread?: boolean
@@ -11,7 +12,7 @@ type ChatMessageUpdateOptions = {
 export function useChatEventHandlers() {
     const queryClient = useQueryClient()
     
-    const handleIncomingMessage = useCallback((
+    const handleIncomingMessage = useCallback(async (
         message: ChatMessagePublic,
 		{ incrementUnread = true, isViewingConversation = false }: ChatMessageUpdateOptions = {},
 	) => {
@@ -23,11 +24,10 @@ export function useChatEventHandlers() {
         // alert("M!!!")
         /// BUG: `useProfiles` takes conversations.. here it does not!!
         if (!current || !conversation) {
-            
-        //     void useConversations()
-        //         .refetch({ throwOnError: false, cancelRefetch: false })
-        //     void useProfiles()
-        //         .refetch({ throwOnError: false, cancelRefetch: false })
+            await queryClient.refetchQueries({
+                queryKey: chatKeys.conversations(),
+                type: "active",
+            })
             return
         }
         // if (isViewingConversation) {

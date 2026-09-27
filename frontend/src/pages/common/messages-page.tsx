@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "@tanstack/react-router"
 import { useAccountRole } from "@/hooks/useAccountRole"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Search, SquarePen } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getClientTheme } from "@/components/messages/message-types"
@@ -20,7 +20,6 @@ import { toast } from "sonner"
 import { useConversation, useConversationUpdate } from "@/hooks/userConversation"
 import { ChatMessagePublic, ConversationDetailPublic } from "@/client/types.gen"
 import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
-import { subscribe } from "diagnostics_channel"
 import { chatKeys } from "@/data/chat-keys"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -39,6 +38,8 @@ export function MessagesPage({
 	const [query, setQuery]                   = useState("")
 	const [filter, setFilter]                 = useState<InboxFilter>("all")
 	const [draft, setDraft]                   = useState("")
+	const creatingForUserRef                  = useRef<string | null>(null)
+
 	const { sendMessage, subscribe } = useWebSocket()
 	const conversations = useConversations()
 	const profiles = useProfiles(conversations.data, conversations.isSuccess)
@@ -60,8 +61,10 @@ export function MessagesPage({
 			conversations.isSuccess &&
 			SelectedUserId &&
 			!selectedConversation &&
-			!createConversation.isPending
+			!createConversation.isPending &&
+			creatingForUserRef.current !== SelectedUserId
 		) {
+			console.log("Creating new conversation with user:", SelectedUserId)
 			void createConversation.mutateAsync(SelectedUserId)
 			.then((newConversation) => {
 				onSelectContact(newConversation.other_user?.id ?? "")
@@ -70,12 +73,15 @@ export function MessagesPage({
 				console.error("Error creating conversation:", error)
 				toast.error("Failed to create conversation. Please try again.")
 			})
+			creatingForUserRef.current = SelectedUserId
 		}
-		if (!SelectedUserId) onSelectContact(conversations.data?.data[0]?.other_user?.id ?? "")
+		if (!SelectedUserId && conversations.data?.data[0]?.other_user?.id) 
+			onSelectContact(conversations.data?.data[0]?.other_user?.id ?? "")
 		}, [
 		SelectedUserId,
 		conversations.isSuccess,
-		createConversation,
+		// creatingForUserRef,
+		createConversation.isPending,
 		selectedConversation,
 	])
 
