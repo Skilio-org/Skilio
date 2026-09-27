@@ -1,3 +1,4 @@
+import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
 import { useQueryClient } from "@tanstack/react-query"
 import React, {
 	createContext,
@@ -51,6 +52,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
 	const queryClient = useQueryClient()
 	const queryClientRef = useRef(queryClient)
+	const { handleIncomingMessage } = useChatEventHandlers()
 
 	// Keep queryClient ref updated to keep connect reference stable
 	useEffect(() => {
@@ -78,6 +80,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 	}, [])
 
 	const connect = useCallback(() => {
+		
 		const token = localStorage.getItem("access_token")
 		if (!token) {
 			setIsConnected(false)
@@ -109,7 +112,12 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 				try {
 					const data = JSON.parse(event.data)
 					const eventType = data.type || "custom"
-
+					if (eventType === "chat_message" && data.data) {
+						handleIncomingMessage(data.data, {
+							incrementUnread: true,
+							isViewingConversation: false,
+						})
+					}
 					// if (eventType === "chat_message") {
 					// 	queryClientRef.current.invalidateQueries({ queryKey: ["chat", "conversations"] })
 					// 	if (data.data?.conversation_id) {

@@ -47,9 +47,6 @@ export function MessagesPage({
 	const selectedConversation = SelectedUserId
 		? conversations.data?.data.find((conversation) => conversation.other_user?.id === SelectedUserId)
 		: conversations.data?.data[0]
-
-	console.log("SelectedUserId:", SelectedUserId)
-	console.log("SelectedConversation:", selectedConversation?.id)
 	const selectedConversationId = selectedConversation?.id
 	const selectedProfile = profiles.data?.get(selectedConversation?.other_user?.id ?? "")
 	const { isOnline, isPending: presencePending } = useUserOnlineStatus(selectedProfile?.user_id)
@@ -57,6 +54,7 @@ export function MessagesPage({
 	const navigate = useNavigate()
 	const clientMode = useAccountRole() === "client"
 	const queryClient = useQueryClient()
+
 	useEffect(() => {
 		if (
 			conversations.isSuccess &&
@@ -73,13 +71,14 @@ export function MessagesPage({
 				toast.error("Failed to create conversation. Please try again.")
 			})
 		}
-	}, [
+		if (!SelectedUserId) onSelectContact(conversations.data?.data[0]?.other_user?.id ?? "")
+		}, [
 		SelectedUserId,
 		conversations.isSuccess,
 		createConversation,
 		selectedConversation,
 	])
-	
+
 	useEffect(() => {
 		if (selectedConversationId == undefined) return ;
 		// mutate the current conversation to mark all messages as read.
@@ -200,7 +199,7 @@ export function MessagesPage({
 							: "Manage client conversations, share design artifacts, and collaborate on active contracts."}
 					</p>
 				</div>
-				<div className="flex shrink-0 flex-wrap items-center gap-2.5">
+				{/* <div className="flex shrink-0 flex-wrap items-center gap-2.5">
 					<button
 						type="button"
 						onClick={() => setNewMessageOpen(true)}
@@ -209,7 +208,7 @@ export function MessagesPage({
 						<SquarePen className="size-4" />
 						New message
 					</button>
-				</div>
+				</div> */}
 			</header>
 			<Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
 				<DialogContent className="max-w-md border-outline-variant bg-surface-container-lowest">

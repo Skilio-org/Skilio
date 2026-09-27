@@ -68,7 +68,7 @@ export function ConversationList({
 					)}
 				</label>
 				<div className="mt-3 flex items-center gap-1 rounded-lg border border-outline-variant bg-surface-container-low p-1 dark:border-border-dark dark:bg-surface-container/60">
-					{(["all", "unread", "archived"] as const).map((value) => {
+					{(["all", "unread"] as const).map((value: string) => {
 						const active = filter === value
 
 						return (
@@ -76,7 +76,7 @@ export function ConversationList({
 								key={value}
 								type="button"
 								aria-pressed={active}
-								onClick={() => onFilterChange(value)}
+								onClick={() => onFilterChange(value as InboxFilter)}
 								className={cn(
 									"relative flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md px-2 font-label-sm font-medium text-label-sm transition-all duration-150",
 									active
@@ -84,7 +84,7 @@ export function ConversationList({
 										: "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
 								)}
 							>
-								<span>{value === "all" ? "All" : value === "unread" ? "Unread" : "Archived"}</span>
+								<span>{value.charAt(0).toUpperCase() + value.slice(1) as string}</span>
 
 								{value === "unread" && unreadCount > 0 && (
 									<span
@@ -104,7 +104,13 @@ export function ConversationList({
 				</div>
 			</div>
 			<div className="min-h-0 flex-1 overflow-y-auto p-2.5 space-y-1.5">
-				{conversations?.data?.data.map((conversation) => {
+				{conversations?.data?.data
+				.filter((conversation) => {
+					if (filter === "unread" && (conversation.unread_count ?? 0) === 0) return false
+					if (query && !conversation.other_user?.full_name?.toLowerCase().includes(query.toLowerCase())) return false
+					return true
+				})
+				.map((conversation) => {
 					// return (<h1>{conversation.other_user?.id}</h1>);
 					if (conversation.other_user == undefined) return ;
 					const person = profiles.data?.get(conversation.other_user.id)
