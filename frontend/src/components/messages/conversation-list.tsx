@@ -28,9 +28,8 @@ export function ConversationList({
 
 	useEffect(() => {
 		// Fetch current selected conversation profile if not already loaded
-		if (selected && !profiles.data?.has(selected.user_id)) {
+		if (selected && !profiles.data?.has(selected.user_id))
 			profiles.refetch()
-		}
 	}, [conversations, profiles])
 	return (
 		<aside

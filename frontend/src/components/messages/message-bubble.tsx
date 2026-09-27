@@ -4,6 +4,7 @@
 import { cn } from "@/lib/utils"
 // import type { ThreadMessage } from "./message-types"
 import { ChatMessagePublic } from "@/client/types.gen"
+import { formatMessageTime } from "@/util/timestampformatter"
 
 export function MessageBubble({
 	message,
@@ -41,11 +42,11 @@ export function MessageBubble({
 				</span>
 			)}
 			<div className="mb-1.5 flex items-baseline gap-2 px-1 font-caption text-caption text-on-surface-variant">
-				<span className={cn("font-semibold", message.own ? "text-primary dark:text-primary" : "text-on-surface")}>
+				<span className={cn("font-semibold", own ? "text-primary dark:text-primary" : "text-on-surface")}>
 					{own ? "You" : name}
 				</span>
 				<span className="text-outline text-[10px]">·</span>
-				<span className="text-outline text-[11px]">{message.created_at}</span>
+				<span className="text-outline text-[11px]">{formatMessageTime(message.created_at)}</span>
 			</div>
 			<div
 				className={cn(

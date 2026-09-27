@@ -17,7 +17,12 @@ import { useConversations } from "@/hooks/useConversations"
 import { useProfiles } from "@/hooks/useProfiles"
 import { useWebSocket } from "@/context/websocket-context"
 import { toast } from "sonner"
-import { useConversation } from "@/hooks/userConversation"
+import { useConversation, useConversationUpdate } from "@/hooks/userConversation"
+import { ChatMessagePublic, ConversationDetailPublic } from "@/client/types.gen"
+import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
+import { subscribe } from "diagnostics_channel"
+import { chatKeys } from "@/data/chat-keys"
+import { useQueryClient } from "@tanstack/react-query"
 
 export function MessagesPage({
 	SelectedUserId,
@@ -28,15 +33,17 @@ export function MessagesPage({
 }) {
 	// TODO: What if the conversations does not even exist.. yet...
 	// 1. check if the conversation exists.
+	const { handleIncomingMessage } = useChatEventHandlers()
 	const [recipientQuery, setRecipientQuery] = useState("")
 	const [newMessageOpen, setNewMessageOpen] = useState(false)
 	const [query, setQuery]                   = useState("")
 	const [filter, setFilter]                 = useState<InboxFilter>("all")
 	const [draft, setDraft]                   = useState("")
-	const { sendMessage } = useWebSocket()
+	const { sendMessage, subscribe } = useWebSocket()
 	const conversations = useConversations()
 	const profiles = useProfiles(conversations.data, conversations.isSuccess)
 	const createConversation = useCreateConversation()
+	const MessageUpdate = useConversationUpdate()
 	const selectedConversation = SelectedUserId
 		? conversations.data?.data.find((conversation) => conversation.other_user?.id === SelectedUserId)
 		: conversations.data?.data[0]
@@ -49,7 +56,7 @@ export function MessagesPage({
 	const detailsQuery = useConversation(selectedConversationId ?? "")
 	const navigate = useNavigate()
 	const clientMode = useAccountRole() === "client"
-
+	const queryClient = useQueryClient()
 	useEffect(() => {
 		if (
 			conversations.isSuccess &&
@@ -72,7 +79,59 @@ export function MessagesPage({
 		createConversation,
 		selectedConversation,
 	])
-
+	
+	useEffect(() => {
+		if (selectedConversationId == undefined) return ;
+		// mutate the current conversation to mark all messages as read.
+		queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(selectedConversationId), (current) => {
+			if (!current) return current
+			// Send receipt to server for all messages in this conversation.
+			sendMessage({
+				type: "read_receipt",
+				conversation_id: selectedConversationId,
+			})
+			return {
+				...current,
+				unread_count: 0,
+				messages: current.messages?.map((message) => ({
+					...message,
+					is_read: true,
+				})),
+			}
+		})
+		// Also update the conversations list to mark this conversation as read..
+		queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
+			if (!current) return current
+			const updatedConversations = current.data.map((conversation: any) => {
+				if (conversation.id === selectedConversationId) {
+					return {
+						...conversation,
+						unread_count: 0,
+						last_message: {
+							...conversation.last_message,
+							is_read: true,
+						},
+					}
+				}
+				return conversation
+			})
+			return {
+				...current,
+				data: updatedConversations,
+			}
+		})
+		return subscribe("chat_message", (message) => {
+				handleIncomingMessage(message, {
+					incrementUnread: true,
+					isViewingConversation: message.conversation_id === selectedConversationId,
+				})
+				// console.log("Received chat_message event:", message)
+		})
+	}, [
+		subscribe,
+		handleIncomingMessage,
+		selectedConversationId,
+	])
 
 	if (conversations.isPending)
 		return <>Still loading conversations!</>
@@ -83,6 +142,7 @@ export function MessagesPage({
 	const matchingProfiles = Array.from(profiles.data?.entries() ?? []).filter(([, profile]) =>
 		checkProfile(profile, recipientQuery),
 	)
+
 	const unreadCount = conversations.data?.data.reduce(
 		(total, conversation) => total + (conversation.unread_count ?? 0),
 		0,
@@ -91,17 +151,22 @@ export function MessagesPage({
 	function checkProfile(profile: Parameters<typeof isClientProfile>[0], search: string) {
 		if (search.trim() === "") return true
 		const text = isClientProfile(profile)
-			? `${profile.company ?? ""} ${profile.full_name ?? ""}`
+		? `${profile.company ?? ""} ${profile.full_name ?? ""}`
 			: `${profile.title ?? ""} ${profile.full_name ?? ""}`
 		return text.toLowerCase().includes(search.toLowerCase())
 	}
 
-	useEffect(() => {
-		console.log("SelectedConversationId: " + selectedConversationId)
-	}, [])
-
 	const send = (message: string) => {
 		const content = message.trim()
+		const rmessage: ChatMessagePublic = {
+			id: crypto.randomUUID(),
+			conversation_id: selectedConversationId ?? "",
+			content,
+			sender_id: "Me",
+			created_at: new Date().toISOString(),
+			is_read: false,
+		};
+
 		if (!selectedConversationId || !content) return
 
 		const sent = sendMessage({
@@ -111,6 +176,7 @@ export function MessagesPage({
 		})
 		if (sent) setDraft("")
 		else toast.error("Failed to send message. Please try again.")
+		MessageUpdate(selectedConversationId, rmessage)
 	}
 
 	return (

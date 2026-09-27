@@ -2,8 +2,6 @@ import { useCallback, useMemo } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import type { ChatMessagePublic, ConversationDetailPublic, ConversationsPublic } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
-import { useConversations } from "@/hooks/useConversations"
-import { useProfiles } from "@/hooks/useProfiles"
 
 type ChatMessageUpdateOptions = {
 	incrementUnread?: boolean
@@ -12,21 +10,29 @@ type ChatMessageUpdateOptions = {
 
 export function useChatEventHandlers() {
     const queryClient = useQueryClient()
-
+    
     const handleIncomingMessage = useCallback((
-		message: ChatMessagePublic,
+        message: ChatMessagePublic,
 		{ incrementUnread = true, isViewingConversation = false }: ChatMessageUpdateOptions = {},
 	) => {
-        const current = queryClient.getQueryData<ConversationsPublic>(chatKeys.conversations())
+        const current      = queryClient.getQueryData<ConversationsPublic>(chatKeys.conversations())
         const conversation = current?.data.find((item) => item.id === message.conversation_id)
 
+        // console.log("handleIncomingMessage called with message
+        // :", message)
+        // alert("M!!!")
+        /// BUG: `useProfiles` takes conversations.. here it does not!!
         if (!current || !conversation) {
-            void useConversations()
-                .refetch({ throwOnError: false, cancelRefetch: false })
-            void useProfiles()
-                .refetch({ throwOnError: false, cancelRefetch: false })
+            
+        //     void useConversations()
+        //         .refetch({ throwOnError: false, cancelRefetch: false })
+        //     void useProfiles()
+        //         .refetch({ throwOnError: false, cancelRefetch: false })
             return
         }
+        // if (isViewingConversation) {
+        //     alert("Viewing conversation, not incrementing unread count")
+        // }
 
         queryClient.setQueryData<ConversationsPublic>(chatKeys.conversations(), {
             ...current,
@@ -53,14 +59,20 @@ export function useChatEventHandlers() {
                 ) {
                     return current
                 }
-                return {
-                    ...current,
-                    last_message: message,
-                    messages: [...(current.messages ?? []), message],
-                }
+                current.last_message = message
+                current.messages?.push(message)
+                current.unread_count =
+                    (current.unread_count ?? 0) +
+                    (incrementUnread && !isViewingConversation ? 1 : 0)
+                // console.log("Updated conversation:", current.unread_count);                
+                // console.log("Last:", current.last_message);
+                return current
             },
         )
+        // alert("Updated conversation: " + (conversation.unread_count ?? 0) + 1);
     }, [queryClient])
 
-    return useMemo(() => ({ handleIncomingMessage }), [handleIncomingMessage])
+    return useMemo(() => { 
+        return { handleIncomingMessage } 
+    }, [handleIncomingMessage])
 }

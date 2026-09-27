@@ -2,7 +2,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Archive, ArrowLeft, ArrowUpRight, Mail, MessageSquare, MoreHorizontal, Search, Send, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { MessageBubble } from "@/components/messages/message-bubble"
-import type { ThreadMessage } from "@/components/messages/message-types"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
@@ -283,7 +282,7 @@ export function MessageThread({
 								message={message}
 								name={selected.full_name ?? companyOrName ?? "Unknown"}
 								highlight={term}
-								own={message.sender_id === selected.user_id}
+								own={message.sender_id !== selected.user_id}
 							/>
 						))}
 					</div>

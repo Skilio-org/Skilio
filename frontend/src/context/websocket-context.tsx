@@ -110,14 +110,14 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 					const data = JSON.parse(event.data)
 					const eventType = data.type || "custom"
 
-					if (eventType === "chat_message") {
-						queryClientRef.current.invalidateQueries({ queryKey: ["chat", "conversations"] })
-						if (data.data?.conversation_id) {
-							queryClientRef.current.invalidateQueries({
-								queryKey: ["chat", "conversation", data.data.conversation_id],
-							})
-						}
-					}
+					// if (eventType === "chat_message") {
+					// 	queryClientRef.current.invalidateQueries({ queryKey: ["chat", "conversations"] })
+					// 	if (data.data?.conversation_id) {
+					// 		queryClientRef.current.invalidateQueries({
+					// 			queryKey: ["chat", "conversation", data.data.conversation_id],
+					// 		})
+					// 	}
+					// }
 
 					if (eventType === "notification" && data.data?.title) {
 						toast.info(data.data.title, {

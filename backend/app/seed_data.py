@@ -23,9 +23,7 @@ from app.models import (
 
 MAX_ACCOUNTS = 500
 DEFAULT_PASSWORD = "SeededAccount123!"
-AVATAR_URLS = (
-    "https://res.cloudinary.com/vrreelhh/image/upload/070fa03c-8a3a-4b6b-b012-81ab0f0c3f4b.png"
-)
+AVATAR_URL = "https://res.cloudinary.com/vrreelhh/image/upload/070fa03c-8a3a-4b6b-b012-81ab0f0c3f4b.png"
 
 JOB_POST_TEMPLATES = (
     (
@@ -124,7 +122,7 @@ def _create_freelancer(session: Session, index: int) -> bool:
         )
     else:
         logger.info("Freelancer user already exists: %s", email)
-    user.avatar_url = random.choice(AVATAR_URLS)
+    user.avatar_url = AVATAR_URL
 
     existing_profile = session.exec(
         select(FreelancerProfile).where(FreelancerProfile.user_id == user.id)
@@ -202,7 +200,7 @@ def _create_client(session: Session, index: int) -> bool:
         )
     else:
         logger.info("Client user already exists: %s", email)
-    user.avatar_url = random.choice(AVATAR_URLS)
+    user.avatar_url = AVATAR_URL
 
     existing_profile = session.exec(
         select(ClientProfile).where(ClientProfile.user_id == user.id)
@@ -314,4 +312,7 @@ def main(argv: Sequence[str] | None = None) -> None:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
+    print("def Password:            ", DEFAULT_PASSWORD)
+    print("mail format[Client]:     seed-client-n@example.com")
+    print("mail format[Freelancer]: seed-freelancer-n@example.com")
     main()
