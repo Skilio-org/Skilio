@@ -23,4 +23,4 @@ function Messages() {
 			onSelectContact={(id) => void navigate({ search: { userId: id || undefined } })}
 		/>
 	)
-}
+}	

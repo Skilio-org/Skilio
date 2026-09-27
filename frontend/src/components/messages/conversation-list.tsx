@@ -108,8 +108,8 @@ export function ConversationList({
 				{conversations?.data?.data.map((conversation) => {
 					// return (<h1>{conversation.other_user?.id}</h1>);
 					if (conversation.other_user == undefined) return ;
-					const person = profiles.data?.get(conversation.other_user.id) 
-					if (!person) return <h1 key={conversation.other_user.id}>Loading...</h1>
+					const person = profiles.data?.get(conversation.other_user.id)
+					if (!person) return null
 					const theme = getClientTheme(person.user_id)
 					const active = selected?.user_id === person.user_id
 					if (active) console.log("Active conversation:", conversation.id)
