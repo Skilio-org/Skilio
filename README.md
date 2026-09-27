@@ -34,7 +34,7 @@ A production-grade, full-stack marketplace connecting independent talent with cl
 | **Frontend** | React 19 • TypeScript 6 • Vite 8 (SWC) • Tailwind CSS v4 • TanStack Router • TanStack Query v5 • Radix UI • shadcn/ui • Sonner • Hey-API OpenAPI Client |
 | **Infrastructure & DevOps** | Docker Compose • Traefik 3.6 Reverse Proxy • HashiCorp HCP Vault • Automated Backup Daemon • Mailpit (SMTP Sandbox) |
 
-For in-depth architectural details, diagrams, and schema documentation, see [architecture.md](./architecture.md).
+For in-depth architectural details, diagrams, and schema documentation, see [architecture.md](./docs/architecture.md).
 
 ---
 
@@ -182,13 +182,15 @@ bash ./scripts/generate-client.sh
 
 ## 📚 Documentation Roadmap
 
-- [System Architecture & Technical Design](./architecture.md) — Comprehensive architecture, ERD diagrams, WebSocket pipelines, and feature matrix.
-- [Development Guide](./development.md) — Step-by-step local development instructions and configuration details.
-- [Docker Compose Deployment](./deployment-docker-compose.md) — Self-hosted deployment setup with Traefik and SSL.
-- [Cloud Deployment](./deployment.md) — Cloud hosting guidance.
+- [System Architecture & Technical Design](./docs/architecture.md) — Comprehensive architecture, ERD diagrams, WebSocket pipelines, and feature matrix.
+- [Development Guide](./docs/development.md) — Step-by-step local development instructions and configuration details.
+- [Docker Compose Deployment](./docs/deployment-docker-compose.md) — Self-hosted deployment setup with Traefik and SSL.
+- [Cloud Deployment](./docs/deployment.md) — Cloud hosting guidance.
+- [Monitoring & Observability Suite](./devops/monitoring/MONITORING.md) — Prometheus, Grafana dashboards, alerting rules, and telemetry.
 - [HCP Vault Guide](./devops/vault/README.md) — Vault secrets engine setup and policies.
 - [Disaster Recovery Runbook](./devops/backup/DISASTER_RECOVERY.md) — Backup schedules, rotation, and restoration procedures.
 - [Frontend UI & Design QA](./frontend/UI-POLISH.md) — Design system decisions, typography, and test verification notes.
+- [42 Subject Specification](./docs/subject/en.subject.pdf) — Official project requirements and evaluation criteria.
 
 ---
 

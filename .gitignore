@@ -13,5 +13,7 @@ devops/vault/backups/
 devops/backup/dumps/
 .env.vault
 uv.lock
-/en.subject.txt
-/en.subject.pdf
+docs/subject/en.subject.txt
+docs/subject/en.subject.pdf
+*.fish
+.DS_Store
