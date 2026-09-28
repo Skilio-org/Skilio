@@ -19,9 +19,10 @@ import { useWebSocket } from "@/context/websocket-context"
 import { toast } from "sonner"
 import { useConversation, useConversationUpdate } from "@/hooks/userConversation"
 import { ChatMessagePublic, ConversationDetailPublic } from "@/client/types.gen"
-import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
+// import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
 import { chatKeys } from "@/data/chat-keys"
 import { useQueryClient } from "@tanstack/react-query"
+import useAuth from "@/hooks/useAuth"
 
 export function MessagesPage({
 	SelectedUserId,
@@ -32,7 +33,7 @@ export function MessagesPage({
 }) {
 	// TODO: What if the conversations does not even exist.. yet...
 	// 1. check if the conversation exists.
-	const { handleIncomingMessage } = useChatEventHandlers()
+	const { user } = useAuth();
 	const [recipientQuery, setRecipientQuery] = useState("")
 	const [newMessageOpen, setNewMessageOpen] = useState(false)
 	const [query, setQuery]                   = useState("")
@@ -40,7 +41,7 @@ export function MessagesPage({
 	const [draft, setDraft]                   = useState("")
 	const creatingForUserRef                  = useRef<string | null>(null)
 
-	const { sendMessage, subscribe } = useWebSocket()
+	const { sendMessage } = useWebSocket()
 	const conversations = useConversations()
 	const profiles = useProfiles(conversations.data, conversations.isSuccess)
 	const createConversation = useCreateConversation()
@@ -125,17 +126,10 @@ export function MessagesPage({
 				data: updatedConversations,
 			}
 		})
-		return subscribe("chat_message", (message) => {
-				handleIncomingMessage(message, {
-					incrementUnread: true,
-					isViewingConversation: message.conversation_id === selectedConversationId,
-				})
-				// console.log("Received chat_message event:", message)
-		})
 	}, [
-		subscribe,
-		handleIncomingMessage,
 		selectedConversationId,
+		detailsQuery.isPending,
+		detailsQuery.data?.unread_count
 	])
 
 	if (conversations.isPending)
@@ -167,10 +161,11 @@ export function MessagesPage({
 			id: crypto.randomUUID(),
 			conversation_id: selectedConversationId ?? "",
 			content,
-			sender_id: "Me",
+			sender_id: user?.id ?? "Me",
 			created_at: new Date().toISOString(),
 			is_read: false,
 		};
+		// console.log("User:", user)
 
 		if (!selectedConversationId || !content) return
 

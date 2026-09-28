@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "@/hooks/isClientProfile"
 import { useChatData } from "@/hooks/useChatData"
-import { useEffect } from "react"
 
 export function ConversationList({
 	selected,
@@ -26,11 +25,6 @@ export function ConversationList({
 }) {
 	const { conversations, profiles } = useChatData()
 
-	useEffect(() => {
-		// Fetch current selected conversation profile if not already loaded
-		if (selected && !profiles.data?.has(selected.user_id))
-			profiles.refetch()
-	}, [conversations, profiles])
 	return (
 		<aside
 			aria-label="Conversations"

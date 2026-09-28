@@ -6,7 +6,7 @@ export function LandingCta() {
 		<section className="landing-container py-16 sm:py-24">
 			<div className="rounded-2xl border border-brand-200 bg-brand-50 px-6 py-12 sm:px-12 sm:py-14">
 				<h2 className="landing-heading max-w-3xl">
-					Make room for
+					Make room for 
 					<br />
 					<span className="text-primary">your next great project.</span>
 				</h2>

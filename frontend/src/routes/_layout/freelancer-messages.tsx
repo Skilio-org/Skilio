@@ -1,8 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { MessagesPage } from "@/pages/common/messages-page"
+
 export const Route = createFileRoute("/_layout/freelancer-messages")({
-	validateSearch: (search: Record<string, unknown>): { with?: string } => ({
-		with: typeof search.with === "string" ? search.with : undefined,
+	validateSearch: (search: Record<string, unknown>): { userId?: string | undefined } => ({
+		userId:
+			typeof search.userId === "string"
+				? search.userId.trim() || undefined
+				: typeof search.with === "string"
+					? search.with.trim() || undefined
+					: undefined,
 	}),
 	component: Messages,
 	head: () => ({ meta: [{ title: "Messages | Freelancer" }] }),
@@ -13,8 +19,8 @@ function Messages() {
 	const navigate = Route.useNavigate()
 	return (
 		<MessagesPage
-			selectedContact={search.with}
-			onSelectContact={(id) => void navigate({ search: { with: id || undefined } })}
+			SelectedUserId={search.userId}
+			onSelectContact={(id) => void navigate({ search: { userId: id || undefined } })}
 		/>
 	)
 }

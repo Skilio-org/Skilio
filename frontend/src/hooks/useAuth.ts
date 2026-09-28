@@ -11,6 +11,7 @@ import {
 import { AUTH_TOKEN_CHANGED_EVENT } from "@/context/websocket-context"
 import { handleError } from "@/utils"
 import useCustomToast from "./useCustomToast"
+import { toast } from "sonner"
 
 const isLoggedIn = () => {
 	return localStorage.getItem("access_token") !== null
@@ -63,6 +64,7 @@ const useAuth = () => {
 			queryClient.setQueryData(["currentUser"], account)
 			return account
 		} catch (error) {
+			toast.error("Failed to fetch user data")
 			localStorage.removeItem("access_token")
 			queryClient.removeQueries({ queryKey: ["currentUser"] })
 			throw error
