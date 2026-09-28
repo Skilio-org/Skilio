@@ -9,6 +9,7 @@ import { chatKeys } from "@/data/chat-keys"
 import type { ConversationProfile } from "@/hooks/isClientProfile"
 
 export async function fetchProfile(user: UserPublic, signal: AbortSignal) {
+    console.log("FETCHING PROFILE", user.id, user.active_role)
     if (user.active_role === "freelancer") {
         const { data } = await ProfilesService.readProfileByUserId({
             path: { user_id: user.id },
@@ -50,7 +51,8 @@ export function useProfiles(
 
     return {
         data: profiles,
-        isPending: profilesQueries.some((query) => query.isPending),
+        isPending: !conversationsLoaded || (users.length > 0 && profiles.size === 0),
+        // isPending: profilesQueries.some((query) => query.isPending),
         isSuccess: profilesQueries.every((query) => query.isSuccess),
         isError: profilesQueries.some((query) => query.isError),
         isFetching: profilesQueries.some((query) => query.isFetching),

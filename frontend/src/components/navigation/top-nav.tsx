@@ -28,7 +28,7 @@ export function TopNav() {
 	const { user } = useAuth()
 	const { resolvedTheme, setTheme } = useTheme()
 	const isDark = resolvedTheme === "dark"
-
+	let unreadMessages: number = 0
 	const path = useRouterState({
 		select: (state) => state.location.pathname,
 	})
@@ -41,10 +41,13 @@ export function TopNav() {
 			<> Loading conversations... </>
 		)
 	}
-	const unreadMessages: any = conversations?.data.reduce(
-		(total, conversation) => total + (conversation.unread_count ?? 0),
-		0,
-	)
+	if (conversations?.data === undefined) {
+		unreadMessages = 0
+	} else
+		unreadMessages = conversations?.data.reduce(
+				(total, conversation) => total + (conversation.unread_count ?? 0),
+				0,
+			)
 	const unreadLabel = unreadMessages > 99 ? "99+" : String(unreadMessages)
 	return (
 		<header className="fixed top-0 right-0 left-0 z-50 w-full border-outline-variant border-b bg-surface-container-lowest/95 backdrop-blur-md dark:bg-surface-panel/95">

@@ -132,11 +132,13 @@ export function MessagesPage({
 		detailsQuery.data?.unread_count
 	])
 
-	if (conversations.isPending)
+	if (conversations.isPending) {
 		return <>Still loading conversations!</>
+	}
 
-	if (profiles.isPending && conversations.data?.data.length !== 0)
-		return <>Still loading profiles!</>
+   	if (profiles.isPending && profiles.data?.size === 0 && conversations.data?.data.length !== 0)
+       	return <>Still loading profiles!</>
+
 
 	const matchingProfiles = Array.from(profiles.data?.entries() ?? []).filter(([, profile]) =>
 		checkProfile(profile, recipientQuery),

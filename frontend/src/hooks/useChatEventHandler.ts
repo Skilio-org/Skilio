@@ -16,6 +16,7 @@ export function useChatEventHandlers() {
         message: ChatMessagePublic,
 		{ incrementUnread = true, isViewingConversation = false }: ChatMessageUpdateOptions = {},
 	) => {
+        console.log("INCOMING CONVERSATION ID", message.conversation_id)
         const current      = queryClient.getQueryData<ConversationsPublic>(chatKeys.conversations())
         if (current == undefined) {
             toast.error("No conversations found in cache for incoming message. reload")
@@ -51,7 +52,7 @@ export function useChatEventHandlers() {
                 updated_at: d.updated_at,
                 last_message: d.last_message,
                 other_user: d.other_user,
-                unread_count: 1,
+                unread_count: d.unread_count,
             };
         }
         // if (isViewingConversation) {
