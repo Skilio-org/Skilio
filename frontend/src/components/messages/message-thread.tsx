@@ -239,7 +239,7 @@ export function MessageThread({
 					</div>
 					{term && (
 						<p role="status" className="pt-1 font-caption text-caption text-on-surface-variant">
-							{visible.length} {visible.length === 1 ? "message" : "messages"} found
+							{visible?.length} {visible?.length === 1 ? "message" : "messages"} found
 						</p>
 					)}
 				</div>
@@ -257,14 +257,14 @@ export function MessageThread({
 				className="message-history min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#f0f2f5] dark:bg-[#131518] px-4 py-6 sm:px-8"
 			>
 				<div className="mx-auto w-full max-w-3xl">
-					{!term && messages.length > 0 && (
+					{!term && (messages?.length != undefined ? messages?.length : 0)  > 0 && (
 						<div className="mb-6 text-center">
 							<span className="rounded-full border border-outline-variant/80 bg-surface-container-lowest px-3.5 py-1 font-caption text-caption font-medium text-on-surface-variant shadow-xs">
 								Project conversation
 							</span>
 						</div>
 					)}
-					{!term && messages.length === 0 && (
+					{!term && (messages?.length != undefined ? messages?.length : 0) === 0 && (
 						<p role="status" className="py-12 text-center text-muted-foreground">
 							Start a conversation with {selected.full_name}. Say hello and share a little about your project.
 						</p>
@@ -276,7 +276,7 @@ export function MessageThread({
 						aria-relevant="additions"
 						className="space-y-5"
 					>
-						{visible.map((message) => (
+						{visible?.map((message) => (
 							<MessageBubble
 								key={message.id}
 								message={message}
@@ -286,7 +286,7 @@ export function MessageThread({
 							/>
 						))}
 					</div>
-					{term && !visible.length && (
+					{term && !visible?.length && (
 						<div className="py-12 text-center">
 							<Search className="mx-auto size-5 text-outline" />
 							<h3 className="mt-3 font-headline-sm font-semibold text-headline-sm text-on-surface">

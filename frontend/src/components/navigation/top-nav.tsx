@@ -6,7 +6,6 @@ import { useTheme } from "@/components/theme-provider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import useAuth from "@/hooks/useAuth"
 import { User } from "../sidebar/user"
-import { useChat } from "@/context/chat-context"
 import { useConversations } from "@/hooks/useConversations"
 
 const freelancerMenu = [
@@ -37,6 +36,11 @@ export function TopNav() {
 	const role = useAccountRole()
 	const menu = role === "freelancer" ? freelancerMenu : clientMenu
 	const { data: conversations, isPending } = useConversations()
+	if (isPending) {
+		return (
+			<> Loading conversations... </>
+		)
+	}
 	const unreadMessages: any = conversations?.data.reduce(
 		(total, conversation) => total + (conversation.unread_count ?? 0),
 		0,
