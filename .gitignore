@@ -17,3 +17,6 @@ docs/subject/en.subject.txt
 docs/subject/en.subject.pdf
 *.fish
 .DS_Store
+.ruff_cache/
+.agents/
+.claude/
