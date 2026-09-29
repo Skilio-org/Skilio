@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, Optional, Self
+from typing import Any, Literal, Optional, Self
 
 from pydantic import BaseModel, EmailStr, model_validator
 from sqlalchemy import JSON, DateTime, UniqueConstraint
@@ -1211,3 +1211,19 @@ class RecentSearchPublic(SQLModel):
 class RecentSearchesPublic(SQLModel):
     data: list[str]
     count: int
+
+
+# ==============================================================================
+# Health Check & Diagnostic Models (DevOps Minor Module)
+# ==============================================================================
+
+class ComponentHealth(SQLModel):
+    status: Literal["healthy", "degraded", "unhealthy"]
+    latency_ms: float | None = None
+    message: str
+
+
+class SystemHealth(SQLModel):
+    status: Literal["healthy", "degraded", "unhealthy"]
+    timestamp: datetime
+    services: dict[str, ComponentHealth]
