@@ -2,11 +2,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Archive, ArrowLeft, ArrowUpRight, Mail, MessageSquare, MoreHorizontal, Search, Send, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { MessageBubble } from "@/components/messages/message-bubble"
-import type { ThreadMessage } from "@/components/messages/message-types"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile } from "@/hooks/isClientProfile"
+import { ChatMessagePublic } from "@/client"
 
 const iconButton =
 	"grid size-8.5 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
@@ -32,7 +32,7 @@ export function MessageThread({
 	selected: ConversationProfile | undefined
 	isOnline?: boolean
 	presencePending: boolean
-	messages: ThreadMessage[]
+	messages: ChatMessagePublic[]|undefined
 	draft: string
 	archived: boolean
 	onBack: () => void
@@ -50,7 +50,7 @@ export function MessageThread({
 	const scrollRef = useRef<HTMLDivElement>(null)
 	const composer = useRef<HTMLTextAreaElement>(null)
 	const searchRef = useRef<HTMLInputElement>(null)
-	const count = messages.length
+	const count = messages?.length ?? 0
 	const selectedId = selected?.id
 	const selectedAvatarUrl = useAccountAvatarUrl(selected?.user_id)
 	useEffect(() => {
@@ -75,7 +75,7 @@ export function MessageThread({
 	}, [selectedId])
 	const term = query.trim()
 	const visible = term
-		? messages.filter((message) => message.body.toLowerCase().includes(term.toLowerCase()))
+		? messages?.filter((message) => message.content.toLowerCase().includes(term.toLowerCase()))
 		: messages
 
 	if (!selected)
@@ -239,7 +239,7 @@ export function MessageThread({
 					</div>
 					{term && (
 						<p role="status" className="pt-1 font-caption text-caption text-on-surface-variant">
-							{visible.length} {visible.length === 1 ? "message" : "messages"} found
+							{visible?.length} {visible?.length === 1 ? "message" : "messages"} found
 						</p>
 					)}
 				</div>
@@ -257,14 +257,14 @@ export function MessageThread({
 				className="message-history min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#f0f2f5] dark:bg-[#131518] px-4 py-6 sm:px-8"
 			>
 				<div className="mx-auto w-full max-w-3xl">
-					{!term && messages.length > 0 && (
+					{!term && (messages?.length != undefined ? messages?.length : 0)  > 0 && (
 						<div className="mb-6 text-center">
 							<span className="rounded-full border border-outline-variant/80 bg-surface-container-lowest px-3.5 py-1 font-caption text-caption font-medium text-on-surface-variant shadow-xs">
 								Project conversation
 							</span>
 						</div>
 					)}
-					{!term && messages.length === 0 && (
+					{!term && (messages?.length != undefined ? messages?.length : 0) === 0 && (
 						<p role="status" className="py-12 text-center text-muted-foreground">
 							Start a conversation with {selected.full_name}. Say hello and share a little about your project.
 						</p>
@@ -276,16 +276,17 @@ export function MessageThread({
 						aria-relevant="additions"
 						className="space-y-5"
 					>
-						{visible.map((message) => (
+						{visible?.map((message) => (
 							<MessageBubble
 								key={message.id}
 								message={message}
 								name={selected.full_name ?? companyOrName ?? "Unknown"}
 								highlight={term}
+								own={message.sender_id !== selected.user_id}
 							/>
 						))}
 					</div>
-					{term && !visible.length && (
+					{term && !visible?.length && (
 						<div className="py-12 text-center">
 							<Search className="mx-auto size-5 text-outline" />
 							<h3 className="mt-3 font-headline-sm font-semibold text-headline-sm text-on-surface">

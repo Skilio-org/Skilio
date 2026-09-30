@@ -13,7 +13,7 @@ from fastapi import (
     status,
 )
 from jwt.exceptions import InvalidTokenError
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 from sqlmodel import Session, and_, col, func, or_, select
 
 from app.api.deps import CurrentUser, SessionDep
@@ -25,17 +25,20 @@ from app.models import (
     ChatMessage,
     ChatMessagePost,
     ChatMessagePublic,
+    Connection,
+    ConnectionStatus,
     Conversation,
     ConversationCreate,
     ConversationDetailPublic,
     ConversationPublic,
     ConversationsPublic,
+    InjectPayload,
     TokenPayload,
     User,
-    UserPublic,
-    get_datetime_utc,
     UserPresence,
-    InjectPayload
+    UserPublic,
+    UserRole,
+    get_datetime_utc,
 )
 from app.services.connection_manager import connection_manager
 
@@ -184,7 +187,7 @@ def create_or_get_conversation(
     Create a new conversation or retrieve an existing one between current user and target user.
     """
     target_id = conversation_in.freelancer_id
-    if current_user.active_role != "client" or target_id == current_user.id:
+    if target_id == current_user.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot start a conversation with yourself",
@@ -196,6 +199,29 @@ def create_or_get_conversation(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Target user not found",
         )
+
+    # Permission check: clients can initiate, or connected users can initiate
+    if current_user.active_role != UserRole.CLIENT and not current_user.is_superuser:
+        conn_stmt = select(Connection).where(
+            or_(
+                and_(
+                    Connection.sender_id == current_user.id,
+                    Connection.receiver_id == target_id,
+                    Connection.status == ConnectionStatus.ACCEPTED,
+                ),
+                and_(
+                    Connection.sender_id == target_id,
+                    Connection.receiver_id == current_user.id,
+                    Connection.status == ConnectionStatus.ACCEPTED,
+                ),
+            )
+        )
+        is_connected = session.exec(conn_stmt).first()
+        if not is_connected:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only clients or connected users can initiate a conversation",
+            )
 
     existing_stmt = select(Conversation).where(
         or_(
@@ -213,9 +239,19 @@ def create_or_get_conversation(
     if existing:
         return _build_conversation_public(existing, current_user.id, session)
 
+    if current_user.active_role == UserRole.CLIENT:
+        conv_client_id = current_user.id
+        conv_freelancer_id = target_id
+    elif target_user.active_role == UserRole.CLIENT:
+        conv_client_id = target_id
+        conv_freelancer_id = current_user.id
+    else:
+        conv_client_id = current_user.id
+        conv_freelancer_id = target_id
+
     new_conv = Conversation(
-        client_id=current_user.id,
-        freelancer_id=target_id,
+        client_id=conv_client_id,
+        freelancer_id=conv_freelancer_id,
         created_at=get_datetime_utc(),
         updated_at=get_datetime_utc(),
     )
@@ -271,7 +307,6 @@ async def send_message_rest(
 
     msg_public = ChatMessagePublic.model_validate(new_msg)
 
-    # Deliver to recipient via Redis Pub/Sub / WebSocket
     recipient_id = (
         conversation.freelancer_id
         if current_user.id == conversation.client_id
@@ -331,6 +366,7 @@ async def websocket_chat_endpoint(
     WebSocket endpoint for real-time messaging, notifications, and custom event streaming.
     Authentication is performed via the 'token' query parameter.
     """
+    print("WebSocket connection attempt with token:", token)
     if not token:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
@@ -389,7 +425,6 @@ async def websocket_chat_endpoint(
                 content = (data.get("content") or "").strip()
                 if not conv_id_raw or not content:
                     continue
-
                 try:
                     conv_id = uuid.UUID(str(conv_id_raw))
                 except ValueError:
@@ -531,6 +566,7 @@ async def websocket_chat_endpoint(
                     pass
 
     except WebSocketDisconnect:
+
         connection_manager.disconnect(user_id, websocket)
     except Exception as e:
         logger.error("WebSocket unexpected error for user %s: %s", user_id, e)

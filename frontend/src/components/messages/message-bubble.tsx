@@ -1,31 +1,35 @@
-import { Download, Eye, FileText, MessageSquareText } from "lucide-react"
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+// import { Download, Eye, FileText, MessageSquareText } from "lucide-react"
+// import { useState } from "react"
+// import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
-import type { ThreadMessage } from "./message-types"
+// import type { ThreadMessage } from "./message-types"
+import { ChatMessagePublic } from "@/client/types.gen"
+import { formatMessageTime } from "@/util/timestampformatter"
 
 export function MessageBubble({
 	message,
 	name,
 	highlight = "",
 	rich = false,
+	own = false,
 }: {
-	message: ThreadMessage
+	message: ChatMessagePublic
 	name: string
 	highlight?: string
 	rich?: boolean
+	own?: boolean
 }) {
-	const [previewOpen, setPreviewOpen] = useState(false)
-	const match = highlight ? message.body.toLowerCase().indexOf(highlight.toLowerCase()) : -1
+	// const [previewOpen, setPreviewOpen] = useState(false)
+	const match = highlight ? message.content.toLowerCase().indexOf(highlight.toLowerCase()) : -1
 	return (
 		<article
 			className={cn(
 				"message-bubble relative flex max-w-[88%] flex-col sm:max-w-[78%]",
-				rich && !message.own && "pl-11",
-				message.own ? "own-message ml-auto items-end" : "items-start",
+				rich && !own && "pl-11",
+				own ? "own-message ml-auto items-end" : "items-start",
 			)}
 		>
-			{rich && !message.own && (
+			{rich && !own && (
 				<span
 					aria-hidden="true"
 					className="absolute left-0 top-0 grid size-8 place-items-center rounded-lg border border-outline-variant/60 bg-surface-container-high font-label-sm font-semibold text-xs text-on-surface"
@@ -38,32 +42,32 @@ export function MessageBubble({
 				</span>
 			)}
 			<div className="mb-1.5 flex items-baseline gap-2 px-1 font-caption text-caption text-on-surface-variant">
-				<span className={cn("font-semibold", message.own ? "text-primary dark:text-primary" : "text-on-surface")}>
-					{message.own ? "You" : name}
+				<span className={cn("font-semibold", own ? "text-primary dark:text-primary" : "text-on-surface")}>
+					{own ? "You" : name}
 				</span>
 				<span className="text-outline text-[10px]">·</span>
-				<span className="text-outline text-[11px]">{message.time}</span>
+				<span className="text-outline text-[11px]">{formatMessageTime(message.created_at)}</span>
 			</div>
 			<div
 				className={cn(
 					"min-w-0 max-w-full whitespace-pre-wrap px-4.5 py-3.5 font-body-sm text-body-sm leading-relaxed [overflow-wrap:anywhere]",
-					message.own
+					own
 						? "rounded-2xl rounded-tr-xs bg-[#1f2125] text-white shadow-sm dark:bg-[#202722] dark:border dark:border-primary/35 dark:text-on-surface"
 						: "rounded-2xl rounded-tl-xs border border-outline-variant/80 bg-surface-container-lowest text-on-surface shadow-xs dark:bg-[#1e2226] dark:border-outline-variant",
 				)}
 			>
 				{match < 0 ? (
-					message.body
+					message.content
 				) : (
 					<>
-						{message.body.slice(0, match)}
+						{message.content.slice(0, match)}
 						<mark className="rounded-xs bg-primary/20 text-on-surface px-1 py-0.5 font-medium">
-							{message.body.slice(match, match + highlight.length)}
+							{message.content.slice(match, match + highlight.length)}
 						</mark>
-						{message.body.slice(match + highlight.length)}
+						{message.content.slice(match + highlight.length)}
 					</>
 				)}
-				{rich && message.feedback && (
+				{/* {rich && message. && (
 					<section className="mt-3 rounded-lg border border-outline-variant bg-surface-container-low p-3.5 text-on-surface">
 						<h4 className="mb-2 flex items-center gap-2 font-label-md font-semibold text-label-md text-on-surface">
 							<MessageSquareText className="size-4 text-primary" />
@@ -77,9 +81,9 @@ export function MessageBubble({
 							))}
 						</ul>
 					</section>
-				)}
+				)} */}
 			</div>
-			{rich && message.attachment && (
+			{/* {rich && message.attachment_id && (
 				<>
 					<div className="message-attachment mt-2 flex w-full flex-wrap items-center gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-3 text-on-surface shadow-xs">
 						<FileText className="size-8 shrink-0 rounded-lg bg-surface-container p-1.5 text-primary" />
@@ -113,7 +117,7 @@ export function MessageBubble({
 						</DialogContent>
 					</Dialog>
 				</>
-			)}
+			)} */}
 		</article>
 	)
 }

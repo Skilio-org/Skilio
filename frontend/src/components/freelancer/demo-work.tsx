@@ -119,7 +119,7 @@ export function DemoProjects() {
 								</button>
 								<Link
 									to="/freelancer-messages"
-									search={{ with: project.client }}
+									search={{ userId: project.client }}
 									className={workspaceStyles.secondaryAction}
 								>
 									Message client

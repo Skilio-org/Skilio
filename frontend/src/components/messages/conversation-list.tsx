@@ -2,12 +2,11 @@ import { Archive, MessageSquare, Search, X } from "lucide-react"
 import { getClientTheme } from "@/components/messages/message-types"
 import type { InboxFilter } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
-import type { ConversationsPublic } from "@/client/types.gen"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "@/hooks/isClientProfile"
-import { useChat } from "@/context/chat-context"
+import { useChatData } from "@/hooks/useChatData"
+
 export function ConversationList({
-	conversations,
 	selected,
 	query,
 	filter,
@@ -16,7 +15,6 @@ export function ConversationList({
 	onFilterChange,
 	onSelect,
 }: {
-	conversations: ConversationsPublic
 	selected: ConversationProfile | undefined
 	query: string
 	filter: InboxFilter
@@ -25,7 +23,7 @@ export function ConversationList({
 	onFilterChange: (filter: InboxFilter) => void
 	onSelect: (id: string) => void
 }) {
-	const { conversationProfiles } = useChat()
+	const { conversations, profiles } = useChatData()
 
 	return (
 		<aside
@@ -39,7 +37,7 @@ export function ConversationList({
 				<div className="flex items-center justify-between gap-3">
 					<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Direct Threads</h2>
 					<span className="rounded bg-surface-container px-2 py-0.5 font-caption text-caption text-on-surface-variant font-medium">
-						{conversations.count} Total
+						{conversations?.data?.count} Total
 					</span>
 				</div>
 				<label className="mt-3.5 flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-body-sm text-body-sm text-on-surface transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20">
@@ -64,7 +62,7 @@ export function ConversationList({
 					)}
 				</label>
 				<div className="mt-3 flex items-center gap-1 rounded-lg border border-outline-variant bg-surface-container-low p-1 dark:border-border-dark dark:bg-surface-container/60">
-					{(["all", "unread", "archived"] as const).map((value) => {
+					{(["all", "unread"] as const).map((value: string) => {
 						const active = filter === value
 
 						return (
@@ -72,7 +70,7 @@ export function ConversationList({
 								key={value}
 								type="button"
 								aria-pressed={active}
-								onClick={() => onFilterChange(value)}
+								onClick={() => onFilterChange(value as InboxFilter)}
 								className={cn(
 									"relative flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md px-2 font-label-sm font-medium text-label-sm transition-all duration-150",
 									active
@@ -80,7 +78,7 @@ export function ConversationList({
 										: "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
 								)}
 							>
-								<span>{value === "all" ? "All" : value === "unread" ? "Unread" : "Archived"}</span>
+								<span>{value.charAt(0).toUpperCase() + value.slice(1) as string}</span>
 
 								{value === "unread" && unreadCount > 0 && (
 									<span
@@ -100,10 +98,15 @@ export function ConversationList({
 				</div>
 			</div>
 			<div className="min-h-0 flex-1 overflow-y-auto p-2.5 space-y-1.5">
-				{conversations.data.map((conversation) => {
-					if (conversation.other_user == undefined) return
-					const person = conversationProfiles.get(conversation.other_user.id)
-					console.log(person)
+				{conversations?.data?.data
+				.filter((conversation) => {
+					if (filter === "unread" && (conversation.unread_count ?? 0) === 0) return false
+					if (query && !conversation.other_user?.full_name?.toLowerCase().includes(query.toLowerCase())) return false
+					return true
+				})
+				.map((conversation) => {
+					if (conversation.other_user == undefined) return ;
+					const person = profiles.data?.get(conversation.other_user.id)
 					if (!person) return null
 					const theme = getClientTheme(person.user_id)
 					const active = selected?.user_id === person.user_id
@@ -176,7 +179,7 @@ export function ConversationList({
 						</button>
 					)
 				})}
-				{conversations.count === 0 && (
+				{conversations.data?.count === 0 && (
 					<div className="px-4 py-12 text-center">
 						<span className="mx-auto grid size-12 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant">
 							{filter === "archived" ? (

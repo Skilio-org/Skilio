@@ -23,14 +23,8 @@ from app.models import (
 
 MAX_ACCOUNTS = 500
 DEFAULT_PASSWORD = "SeededAccount123!"
-AVATAR_URLS = (
-    "https://res.cloudinary.com/vrreelhh/image/upload/eaa34905a9b18546812e6e6c729d4b77.webp",
-    "https://res.cloudinary.com/vrreelhh/image/upload/e19690c013fdffd2b62b1d56c9692b36.webp",
-    "https://res.cloudinary.com/vrreelhh/image/upload/63ca93463518b1e3ca68a6c1ce7d89e8.webp",
-    "https://res.cloudinary.com/vrreelhh/image/upload/20250908_213228.webp",
-    "https://res.cloudinary.com/vrreelhh/image/upload/44e08ddeed5b2542dccd5a262f3310c1.webp",
-    "https://res.cloudinary.com/vrreelhh/image/upload/9069f57cd63df82f730b06313c16f7ce.webp",
-)
+AVATAR_URL = "https://res.cloudinary.com/vrreelhh/image/upload/070fa03c-8a3a-4b6b-b012-81ab0f0c3f4b.png"
+
 JOB_POST_TEMPLATES = (
     (
         "Build a responsive marketplace dashboard",
@@ -128,7 +122,7 @@ def _create_freelancer(session: Session, index: int) -> bool:
         )
     else:
         logger.info("Freelancer user already exists: %s", email)
-    user.avatar_url = random.choice(AVATAR_URLS)
+    user.avatar_url = AVATAR_URL
 
     existing_profile = session.exec(
         select(FreelancerProfile).where(FreelancerProfile.user_id == user.id)
@@ -206,7 +200,7 @@ def _create_client(session: Session, index: int) -> bool:
         )
     else:
         logger.info("Client user already exists: %s", email)
-    user.avatar_url = random.choice(AVATAR_URLS)
+    user.avatar_url = AVATAR_URL
 
     existing_profile = session.exec(
         select(ClientProfile).where(ClientProfile.user_id == user.id)
@@ -318,4 +312,7 @@ def main(argv: Sequence[str] | None = None) -> None:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
+    print("def Password:            ", DEFAULT_PASSWORD)
+    print("mail format[Client]:     seed-client-n@example.com")
+    print("mail format[Freelancer]: seed-freelancer-n@example.com")
     main()

@@ -6,7 +6,7 @@ import { useTheme } from "@/components/theme-provider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import useAuth from "@/hooks/useAuth"
 import { User } from "../sidebar/user"
-import { useChat } from "@/context/chat-context"
+import { useConversations } from "@/hooks/useConversations"
 
 const freelancerMenu = [
 	["/freelancer-dashboard", "Overview"],
@@ -28,18 +28,26 @@ export function TopNav() {
 	const { user } = useAuth()
 	const { resolvedTheme, setTheme } = useTheme()
 	const isDark = resolvedTheme === "dark"
-
+	let unreadMessages: number = 0
 	const path = useRouterState({
 		select: (state) => state.location.pathname,
 	})
 
 	const role = useAccountRole()
 	const menu = role === "freelancer" ? freelancerMenu : clientMenu
-	const { conversations } = useChat()
-	const unreadMessages = conversations.data.reduce(
-		(total, conversation) => total + (conversation.unread_count ?? 0),
-		0,
-	)
+	const { data: conversations, isPending } = useConversations()
+	if (isPending) {
+		return (
+			<> Loading conversations... </>
+		)
+	}
+	if (conversations?.data === undefined) {
+		unreadMessages = 0
+	} else
+		unreadMessages = conversations?.data.reduce(
+				(total, conversation) => total + (conversation.unread_count ?? 0),
+				0,
+			)
 	const unreadLabel = unreadMessages > 99 ? "99+" : String(unreadMessages)
 	return (
 		<header className="fixed top-0 right-0 left-0 z-50 w-full border-outline-variant border-b bg-surface-container-lowest/95 backdrop-blur-md dark:bg-surface-panel/95">

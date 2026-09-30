@@ -48,6 +48,13 @@ class ProposalStatus(StrEnum):
     REJECTED = "rejected"
 
 
+class ConnectionStatus(StrEnum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    DECLINED = "declined"
+    WITHDRAWN = "withdrawn"
+
+
 class JobCategory(StrEnum):
     ACCOUNTING_CONSULTING = "Accounting & Consulting"
     CUSTOMER_SERVICE = "Customer Service"
@@ -211,6 +218,16 @@ class User(UserBase, table=True):
         back_populates="user",
         cascade_delete=True,
         sa_relationship_kwargs={"foreign_keys": "[RecentSearch.user_id]"},
+    )
+    sent_connections: list["Connection"] = Relationship(
+        back_populates="sender",
+        cascade_delete=True,
+        sa_relationship_kwargs={"foreign_keys": "[Connection.sender_id]"},
+    )
+    received_connections: list["Connection"] = Relationship(
+        back_populates="receiver",
+        cascade_delete=True,
+        sa_relationship_kwargs={"foreign_keys": "[Connection.receiver_id]"},
     )
 
 
@@ -1227,3 +1244,92 @@ class SystemHealth(SQLModel):
     status: Literal["healthy", "degraded", "unhealthy"]
     timestamp: datetime
     services: dict[str, ComponentHealth]
+
+
+# ==============================================================================
+# Connection Models
+# ==============================================================================
+
+
+class ConnectionBase(SQLModel):
+    note: str | None = Field(default=None, max_length=500)
+
+
+class ConnectionCreate(ConnectionBase):
+    receiver_id: uuid.UUID
+    job_post_id: uuid.UUID | None = None
+
+
+class Connection(ConnectionBase, table=True):
+    __table_args__ = (
+        UniqueConstraint(
+            "sender_id", "receiver_id", name="uq_sender_receiver_connection"
+        ),
+    )
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    sender_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    receiver_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    job_post_id: uuid.UUID | None = Field(
+        default=None,
+        foreign_key="jobpost.id",
+        nullable=True,
+        ondelete="SET NULL",
+        index=True,
+    )
+    status: ConnectionStatus = Field(
+        default=ConnectionStatus.PENDING, index=True
+    )
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    updated_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    responded_at: datetime | None = Field(
+        default=None,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+
+    sender: Optional["User"] = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "[Connection.sender_id]"},
+        back_populates="sent_connections",
+    )
+    receiver: Optional["User"] = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "[Connection.receiver_id]"},
+        back_populates="received_connections",
+    )
+    job_post: Optional["JobPost"] = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "[Connection.job_post_id]"},
+    )
+
+
+class ConnectionPublic(ConnectionBase):
+    id: uuid.UUID
+    sender_id: uuid.UUID
+    receiver_id: uuid.UUID
+    job_post_id: uuid.UUID | None = None
+    status: ConnectionStatus
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    responded_at: datetime | None = None
+    sender: UserPublic | None = None
+    receiver: UserPublic | None = None
+    job_post: JobPostPublic | None = None
+
+
+class ConnectionsPublic(SQLModel):
+    data: list[ConnectionPublic]
+    count: int
+
+
+class ConnectionStatusPublic(SQLModel):
+    status: Literal["none", "pending_sent", "pending_received", "connected"]
+    connection_id: uuid.UUID | None = None
+

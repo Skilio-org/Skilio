@@ -1,10 +1,11 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
-    chat,
     categories,
+    chat,
     client_profiles,
     health,
+    connections,
     jobs,
     login,
     private,
@@ -30,6 +31,7 @@ api_router.include_router(searches.router)
 api_router.include_router(jobs.router)
 api_router.include_router(proposals.router)
 api_router.include_router(chat.router)
+api_router.include_router(connections.router)
 
 if settings.FASTAPI_ENV == "development":
     api_router.include_router(private.router)
