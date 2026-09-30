@@ -366,6 +366,7 @@ async def websocket_chat_endpoint(
     WebSocket endpoint for real-time messaging, notifications, and custom event streaming.
     Authentication is performed via the 'token' query parameter.
     """
+    print("WebSocket connection attempt with token:", token)
     if not token:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
@@ -565,6 +566,7 @@ async def websocket_chat_endpoint(
                     pass
 
     except WebSocketDisconnect:
+
         connection_manager.disconnect(user_id, websocket)
     except Exception as e:
         logger.error("WebSocket unexpected error for user %s: %s", user_id, e)

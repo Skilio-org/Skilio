@@ -9,6 +9,28 @@ type ChatMessageUpdateOptions = {
 	isViewingConversation?: boolean
 }
 
+// function playBeep(frequency = 440, duration = 150, type = "sine")
+// {
+//       // Reuse or create AudioContext
+//       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      
+//       const oscillator = audioCtx.createOscillator();
+//       const gainNode = audioCtx.createGain();
+
+//       oscillator.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
+//       oscillator.frequency.value = frequency; // Hz (440Hz is standard pitch A)
+
+//       // Smooth volume fade to avoid harsh clicking sounds
+//       gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // Volume (0.0 to 1.0)
+//       gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration / 1000);
+
+//       oscillator.connect(gainNode);
+//       gainNode.connect(audioCtx.destination);
+
+//       oscillator.start();
+//       oscillator.stop(audioCtx.currentTime + duration / 1000);
+// }
+
 export function useChatEventHandlers() {
     const queryClient = useQueryClient()
     
@@ -19,7 +41,7 @@ export function useChatEventHandlers() {
         console.log("INCOMING CONVERSATION ID", message.conversation_id)
         const current      = queryClient.getQueryData<ConversationsPublic>(chatKeys.conversations())
         if (current == undefined) {
-            toast.error("No conversations found in cache for incoming message. reload")
+            // toast.error("No conversations found in cache for incoming message. reload")
             return
         }
         let conversation: ConversationPublic | undefined = current?.data.find((item) => item.id === message.conversation_id)

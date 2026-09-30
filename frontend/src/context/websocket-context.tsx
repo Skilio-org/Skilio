@@ -10,6 +10,21 @@ import React, {
 } from "react"
 import { toast } from "sonner"
 
+const enum WebSocketCloseCodes {
+	NormalClosure = 1000,
+	GoingAway = 1001,
+	ProtocolError = 1002,
+	UnsupportedData = 1003,
+	NoStatusReceived = 1005,
+	AbnormalClosure = 1006,
+	InvalidFramePayloadData = 1007,
+	PolicyViolation = 1008,
+	MessageTooBig = 1009,
+	MandatoryExtensionMissing = 1010,
+	InternalServerError = 1011,
+	TlsHandshakeFailure = 1015,
+};
+
 type WebSocketEventHandler = (data: any) => void
 export const AUTH_TOKEN_CHANGED_EVENT = "auth-token-changed"
 
@@ -80,7 +95,6 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 	}, [])
 
 	const connect = useCallback(() => {
-		
 		const token = localStorage.getItem("access_token")
 		if (!token) {
 			setIsConnected(false)
@@ -92,9 +106,18 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
 		// Clean up active connection/listeners before opening a new one
 		cleanupSocket()
-
 		try {
-			const ws = new WebSocket(url)
+			let ws;
+			ws = new WebSocket(url)
+
+			// ws.addEventListener("error", (event) => {
+			// 	ws.close()
+			// })
+			
+			ws.onerror = () => {
+				// console.error("WebSocket error:", event)
+				ws.close()
+			}
 			wsRef.current = ws
 
 			ws.onopen = () => {
@@ -150,8 +173,25 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 					// Ignore non-JSON or heartbeat response
 				}
 			}
-
-			ws.onclose = () => {
+			ws.onclose = (e) => {
+				console.error("WebSocket error:", e.code)
+				// 1002: Protocol error
+    			// 1006: Abnormal closure (most common when server returns non-101 status)
+    			// 1008: Policy violation (e.g., unauthorized)
+				switch (e.code) {
+					case WebSocketCloseCodes.ProtocolError:
+					case WebSocketCloseCodes.AbnormalClosure:
+					case WebSocketCloseCodes.PolicyViolation: {
+						localStorage.removeItem("access_token")
+						window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+						break
+					}
+					default:
+						// toast.error("WebSocket connection closed. Attempting to reconnect...")
+				}
+				if (isMountedRef.current) {
+					setIsConnected(false)
+					if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
 				if (!isMountedRef.current) return
 				setIsConnected(false)
 				if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
@@ -163,46 +203,48 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 					}, 3000)
 				}
 			}
-
-			ws.onerror = () => {
-				ws.close()
-			}
-		} catch {
+		}
+		} catch (error) {
 			if (isMountedRef.current) {
 				setIsConnected(false)
 			}
 		}
 	}, [cleanupSocket])
 
-	useEffect(() => {
-		isMountedRef.current = true
-		connect()
-
-		const handleStorage = (e: StorageEvent) => {
+	// let handleStorage: (e: StorageEvent) => void
+	const handleStorage = (e: StorageEvent) => {
+		if (e.newValue) {
 			if (e.key === "access_token") {
-				if (e.newValue) {
-					connect()
-				} else {
-					cleanupSocket()
-					setIsConnected(false)
-				}
-			}
-		}
-		const handleAuthTokenChanged = () => {
-			if (localStorage.getItem("access_token")) {
 				connect()
 			} else {
 				cleanupSocket()
 				setIsConnected(false)
 			}
 		}
+	}
+	const handleAuthTokenChanged = () => {
+		if (localStorage.getItem("access_token")) {
+			connect()
+		} else {
+			cleanupSocket()
+			setIsConnected(false)
+		}
+	}
+	const safeConnect = useCallback(() => {
+		isMountedRef.current = true
+		connect()
+
 		window.addEventListener("storage", handleStorage)
 		window.addEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
-
+	}, [connect])
+	
+	useEffect(() => {	
+		window.addEventListener("DOMContentLoaded", safeConnect)
 		return () => {
 			isMountedRef.current = false
 			window.removeEventListener("storage", handleStorage)
 			window.removeEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
+			window.removeEventListener("DOMContentLoaded", safeConnect)
 			cleanupSocket()
 		}
 	}, [connect, cleanupSocket])
