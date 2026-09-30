@@ -1,7 +1,7 @@
 # Freelancer Marketplace Platform
 
-[![Test Backend](../../actions/workflows/test-backend.yml/badge.svg)](../../actions/workflows/test-backend.yml)
-[![Test Docker Compose](../../actions/workflows/test-docker-compose.yml/badge.svg)](../../actions/workflows/test-docker-compose.yml)
+[![Test Backend](https://github.com/Moody-0x01/Freelancer/actions/workflows/test-backend.yml/badge.svg)](https://github.com/Moody-0x01/Freelancer/actions/workflows/test-backend.yml)
+[![Test Docker Compose](https://github.com/Moody-0x01/Freelancer/actions/workflows/test-docker-compose.yml/badge.svg)](https://github.com/Moody-0x01/Freelancer/actions/workflows/test-docker-compose.yml)
 [![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.141+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React 19](https://img.shields.io/badge/React-19.2-61DAFB.svg?logo=react&logoColor=black)](https://react.dev)

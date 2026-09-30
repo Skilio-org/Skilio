@@ -46,22 +46,6 @@ services:
       # Define the port inside of the Docker service to use
       - traefik.http.services.adminer.loadbalancer.server.port=8080
 
-  backup-daemon:
-    image: postgres:18-alpine
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Variable not set}
-      - POSTGRES_DB=app
-      - POSTGRES_USER=postgres
-      - POSTGRES_HOST=db
-      - BACKUP_INTERVAL_SECONDS=${BACKUP_INTERVAL_SECONDS:-3600}
-      - BACKUP_KEEP_LAST=${BACKUP_KEEP_LAST:-10}
-    volumes:
-      - ./devops/backup/dumps:/backups
-      - ./devops/backup/auto-backup.sh:/usr/local/bin/auto-backup.sh:ro
   redis:
     image: redis:7-alpine
     restart: unless-stopped
