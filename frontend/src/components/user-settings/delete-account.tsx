@@ -10,7 +10,7 @@ const DeleteAccount = () => {
 				<p className="font-bold text-destructive text-xs uppercase tracking-[0.16em]">Danger zone</p>
 				<h2 className="mt-1 font-headline-md font-semibold text-headline-md">Delete account</h2>
 				<p className="mt-1 max-w-2xl text-muted-foreground text-sm leading-6">
-					Permanently close your Freelancer account and remove its associated information.
+					Permanently close your Skilio account and remove its associated information.
 				</p>
 			</header>
 			<div className="p-5 sm:p-7">

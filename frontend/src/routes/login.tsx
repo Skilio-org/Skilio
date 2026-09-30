@@ -12,7 +12,7 @@ export const Route = createFileRoute("/login")({
 		if (isLoggedIn()) throw redirect({ to: "/dashboard" })
 	},
 	head: () => ({
-		meta: [{ title: "Log in | Freelancer" }, { name: "description", content: "Log in to your Freelancer account." }],
+		meta: [{ title: "Log in | Skilio" }, { name: "description", content: "Log in to your Skilio account." }],
 	}),
 })
 

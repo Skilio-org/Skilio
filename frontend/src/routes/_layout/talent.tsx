@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_layout/talent")({
 		category: typeof search.category === "string" ? search.category : undefined,
 	}),
 	component: TalentDirectoryRoute,
-	head: () => ({ meta: [{ title: "Find talent | Freelancer" }] }),
+	head: () => ({ meta: [{ title: "Find talent | Skilio" }] }),
 })
 
 function TalentDirectoryRoute() {
@@ -18,9 +18,7 @@ function TalentDirectoryRoute() {
 		<TalentDirectoryPage
 			initialQuery={q}
 			initialCategory={category}
-			onQueryChange={(query) =>
-				void navigate({ search: (current) => ({ ...current, q: query }), replace: true })
-			}
+			onQueryChange={(query) => void navigate({ search: (current) => ({ ...current, q: query }), replace: true })}
 			onCategoryChange={(nextCategory) =>
 				void navigate({
 					search: (current) => ({

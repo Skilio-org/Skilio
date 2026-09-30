@@ -23,11 +23,7 @@ export const TalentSearch = () => {
 			<SearchWithCategories
 				initialCategory={category}
 				placeholder="Try a role, skill, or area of expertise"
-				popularSearches={[
-					"Product designer",
-					"React developer",
-					"AI engineer",
-				]}
+				popularSearches={["Product designer", "React developer", "AI engineer"]}
 				onCategoryChange={setCategory}
 				onSearch={(query) => {
 					void navigate({

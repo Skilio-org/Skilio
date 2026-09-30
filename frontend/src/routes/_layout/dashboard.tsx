@@ -3,5 +3,5 @@ import { ClientDashboardPage } from "@/pages/client-area/dashboard-page"
 
 export const Route = createFileRoute("/_layout/dashboard")({
 	component: ClientDashboardPage,
-	head: () => ({ meta: [{ title: "Overview | Freelancer" }] }),
+	head: () => ({ meta: [{ title: "Overview | Skilio" }] }),
 })

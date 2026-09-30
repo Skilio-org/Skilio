@@ -7,7 +7,12 @@ import { talentCardFromApi } from "@/components/talent/talent-api"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 
 export const RecommendedFreelancers = () => {
-	const { data: matches = [], isPending, isError, refetch } = useQuery({
+	const {
+		data: matches = [],
+		isPending,
+		isError,
+		refetch,
+	} = useQuery({
 		queryKey: ["talent-profiles", { limit: 4 }],
 		queryFn: async ({ signal }) => {
 			const { data } = await ProfilesService.readProfiles({ query: { skip: 0, limit: 4 }, signal })
@@ -26,7 +31,7 @@ export const RecommendedFreelancers = () => {
 				</div>
 				<Link
 					to="/talent"
-						search={{ q: undefined, category: undefined }}
+					search={{ q: undefined, category: undefined }}
 					className="inline-flex min-h-11 shrink-0 items-center gap-2 font-medium text-primary text-sm hover:underline"
 				>
 					View all <ArrowRight className="size-4" />
@@ -42,9 +47,7 @@ export const RecommendedFreelancers = () => {
 						</button>
 					</p>
 				)}
-				{!isPending && !isError && matches.length === 0 && (
-					<p role="status">No professionals available yet.</p>
-				)}
+				{!isPending && !isError && matches.length === 0 && <p role="status">No professionals available yet.</p>}
 				{matches.map((person) => (
 					<FreelancerCard
 						key={person.id}

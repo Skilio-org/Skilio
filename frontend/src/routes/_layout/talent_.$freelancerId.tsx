@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_layout/talent_/$freelancerId")({
 	},
 	component: FreelancerProfileRoute,
 	head: ({ loaderData }) => ({
-		meta: [{ title: `${loaderData?.full_name ?? "Profile"} | Freelancer` }],
+		meta: [{ title: `${loaderData?.full_name ?? "Profile"} | Skilio` }],
 	}),
 })
 

@@ -11,7 +11,6 @@ import { ChatMessagePublic } from "@/client"
 const iconButton =
 	"grid size-8.5 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 
-
 export function MessageThread({
 	selected,
 	isOnline,
@@ -32,7 +31,7 @@ export function MessageThread({
 	selected: ConversationProfile | undefined
 	isOnline?: boolean
 	presencePending: boolean
-	messages: ChatMessagePublic[]|undefined
+	messages: ChatMessagePublic[] | undefined
 	draft: string
 	archived: boolean
 	onBack: () => void
@@ -103,9 +102,7 @@ export function MessageThread({
 				</button>
 			</section>
 		)
-	
-	
-	
+
 	let companyOrName = selected.full_name || "Unknown"
 	let subtitle = "Client"
 	if (isClientProfile(selected)) {
@@ -119,7 +116,7 @@ export function MessageThread({
 		.map((part) => part[0])
 		.slice(0, 2)
 		.join("")
-	
+
 	return (
 		<section
 			aria-label={`Conversation with ${selected.full_name}`}
@@ -135,11 +132,7 @@ export function MessageThread({
 					<ArrowLeft className="size-4" />
 				</button>
 				<Avatar className="size-10 rounded-lg">
-					<AvatarImage
-						src={selectedAvatarUrl}
-						alt={selected.full_name ?? ""}
-						aria-hidden="true"
-					/>
+					<AvatarImage src={selectedAvatarUrl} alt={selected.full_name ?? ""} aria-hidden="true" />
 					<AvatarFallback>{initials}</AvatarFallback>
 				</Avatar>
 				<div className="min-w-0 flex-1">
@@ -153,19 +146,13 @@ export function MessageThread({
 							{companyOrName}
 						</button>
 					</div>
-					<p className="mt-0.5 truncate font-caption text-caption text-on-surface-variant">
-						{subtitle}
-					</p>
+					<p className="mt-0.5 truncate font-caption text-caption text-on-surface-variant">{subtitle}</p>
 					<div className="mt-0.5 flex items-center gap-1.5 font-caption text-caption text-on-surface-variant">
 						<span
 							aria-hidden="true"
 							className={cn(
 								"size-1.5 rounded-full",
-								presencePending
-									? "bg-outline animate-pulse"
-									: isOnline
-										? "bg-emerald-500"
-										: "bg-outline",
+								presencePending ? "bg-outline animate-pulse" : isOnline ? "bg-emerald-500" : "bg-outline",
 							)}
 						/>
 						<span>{presencePending ? "Checking status" : isOnline ? "Online" : "Offline"}</span>
@@ -257,7 +244,7 @@ export function MessageThread({
 				className="message-history min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#f0f2f5] dark:bg-[#131518] px-4 py-6 sm:px-8"
 			>
 				<div className="mx-auto w-full max-w-3xl">
-					{!term && (messages?.length != undefined ? messages?.length : 0)  > 0 && (
+					{!term && (messages?.length != undefined ? messages?.length : 0) > 0 && (
 						<div className="mb-6 text-center">
 							<span className="rounded-full border border-outline-variant/80 bg-surface-container-lowest px-3.5 py-1 font-caption text-caption font-medium text-on-surface-variant shadow-xs">
 								Project conversation

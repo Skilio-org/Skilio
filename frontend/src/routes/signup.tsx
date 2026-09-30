@@ -12,7 +12,7 @@ export const Route = createFileRoute("/signup")({
 	},
 	head: () => ({
 		meta: [
-			{ title: "Create account | Freelancer" },
+			{ title: "Create account | Skilio" },
 			{
 				name: "description",
 				content: "Create your account as a freelancer or client and start working together.",

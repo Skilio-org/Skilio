@@ -5,7 +5,7 @@ import { SettingsPage } from "@/pages/common/settings-page"
 export const Route = createFileRoute("/_layout/freelancer-settings")({
 	component: FreelancerSettings,
 	validateSearch: z.object({ section: settingsSectionSchema.optional() }),
-	head: () => ({ meta: [{ title: "Settings | Freelancer" }] }),
+	head: () => ({ meta: [{ title: "Settings | Skilio" }] }),
 })
 
 function FreelancerSettings() {

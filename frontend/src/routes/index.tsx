@@ -5,7 +5,7 @@ export const Route = createFileRoute("/")({
 	component: LandingPage,
 	head: () => ({
 		meta: [
-			{ title: "Freelancer - Find independent talent" },
+			{ title: "Skilio - Find independent talent" },
 			{
 				name: "description",
 				content: "Search verified freelance profiles, compare expertise, and find the right independent professional.",

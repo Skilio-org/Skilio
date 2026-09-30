@@ -33,13 +33,13 @@ export function MessagesPage({
 }) {
 	// TODO: What if the conversations does not even exist.. yet...
 	// 1. check if the conversation exists.
-	const { user } = useAuth();
+	const { user } = useAuth()
 	const [recipientQuery, setRecipientQuery] = useState("")
 	const [newMessageOpen, setNewMessageOpen] = useState(false)
-	const [query, setQuery]                   = useState("")
-	const [filter, setFilter]                 = useState<InboxFilter>("all")
-	const [draft, setDraft]                   = useState("")
-	const creatingForUserRef                  = useRef<string | null>(null)
+	const [query, setQuery] = useState("")
+	const [filter, setFilter] = useState<InboxFilter>("all")
+	const [draft, setDraft] = useState("")
+	const creatingForUserRef = useRef<string | null>(null)
 
 	const { sendMessage } = useWebSocket()
 	const conversations = useConversations()
@@ -66,19 +66,20 @@ export function MessagesPage({
 			creatingForUserRef.current !== SelectedUserId
 		) {
 			console.log("Creating new conversation with user:", SelectedUserId)
-			void createConversation.mutateAsync(SelectedUserId)
-			.then((newConversation) => {
-				onSelectContact(newConversation.other_user?.id ?? "")
-			})
-			.catch((error) => {
-				console.error("Error creating conversation:", error)
-				toast.error("Failed to create conversation. Please try again.")
-			})
+			void createConversation
+				.mutateAsync(SelectedUserId)
+				.then((newConversation) => {
+					onSelectContact(newConversation.other_user?.id ?? "")
+				})
+				.catch((error) => {
+					console.error("Error creating conversation:", error)
+					toast.error("Failed to create conversation. Please try again.")
+				})
 			creatingForUserRef.current = SelectedUserId
 		}
-		if (!SelectedUserId && conversations.data?.data[0]?.other_user?.id) 
+		if (!SelectedUserId && conversations.data?.data[0]?.other_user?.id)
 			onSelectContact(conversations.data?.data[0]?.other_user?.id ?? "")
-		}, [
+	}, [
 		SelectedUserId,
 		conversations.isSuccess,
 		// creatingForUserRef,
@@ -87,7 +88,7 @@ export function MessagesPage({
 	])
 
 	useEffect(() => {
-		if (selectedConversationId == undefined) return ;
+		if (selectedConversationId == undefined) return
 		// mutate the current conversation to mark all messages as read.
 		queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(selectedConversationId), (current) => {
 			if (!current) return current
@@ -126,19 +127,14 @@ export function MessagesPage({
 				data: updatedConversations,
 			}
 		})
-	}, [
-		selectedConversationId,
-		detailsQuery.isPending,
-		detailsQuery.data?.unread_count
-	])
+	}, [selectedConversationId, detailsQuery.isPending, detailsQuery.data?.unread_count])
 
 	if (conversations.isPending) {
 		return <>Still loading conversations!</>
 	}
 
-   	if (profiles.isPending && profiles.data?.size === 0 && conversations.data?.data.length !== 0)
-       	return <>Still loading profiles!</>
-
+	if (profiles.isPending && profiles.data?.size === 0 && conversations.data?.data.length !== 0)
+		return <>Still loading profiles!</>
 
 	const matchingProfiles = Array.from(profiles.data?.entries() ?? []).filter(([, profile]) =>
 		checkProfile(profile, recipientQuery),
@@ -152,7 +148,7 @@ export function MessagesPage({
 	function checkProfile(profile: Parameters<typeof isClientProfile>[0], search: string) {
 		if (search.trim() === "") return true
 		const text = isClientProfile(profile)
-		? `${profile.company ?? ""} ${profile.full_name ?? ""}`
+			? `${profile.company ?? ""} ${profile.full_name ?? ""}`
 			: `${profile.title ?? ""} ${profile.full_name ?? ""}`
 		return text.toLowerCase().includes(search.toLowerCase())
 	}
@@ -166,7 +162,7 @@ export function MessagesPage({
 			sender_id: user?.id ?? "Me",
 			created_at: new Date().toISOString(),
 			is_read: false,
-		};
+		}
 		// console.log("User:", user)
 
 		if (!selectedConversationId || !content) return
@@ -238,8 +234,8 @@ export function MessagesPage({
 							const theme = getClientTheme(id)
 							const name = profile.full_name ?? "Unknown user"
 							const subtitle = isClientProfile(profile)
-								? profile.company ?? profile.company_role ?? "Client"
-								: profile.title ?? "Freelancer"
+								? (profile.company ?? profile.company_role ?? "Client")
+								: (profile.title ?? "Freelancer")
 							return (
 								<button
 									key={id}
@@ -264,17 +260,13 @@ export function MessagesPage({
 										<span className="block truncate font-label-md font-semibold text-label-md text-on-surface">
 											{name}
 										</span>
-										<span className="block truncate font-caption text-caption text-on-surface-variant">
-											{subtitle}
-										</span>
+										<span className="block truncate font-caption text-caption text-on-surface-variant">{subtitle}</span>
 									</div>
 								</button>
 							)
 						})}
 						{matchingProfiles.length === 0 && (
-							<p className="py-6 text-center font-body-sm text-body-sm text-on-surface-variant">
-								No matching users.
-							</p>
+							<p className="py-6 text-center font-body-sm text-body-sm text-on-surface-variant">No matching users.</p>
 						)}
 					</div>
 				</DialogContent>
@@ -319,40 +311,41 @@ export function MessagesPage({
 						</Button>
 					</section>
 				) : (
-					selectedConversationId !== undefined &&
-					<MessageThread
-						key={selectedProfile?.user_id ?? "no-profile"}
-						selected={selectedProfile}
-						isOnline={isOnline}
-						presencePending={presencePending}
-						messages={detailsQuery.data?.messages ?? []}
-						draft={draft}
-						archived={false}
-						onBack={() => onSelectContact(SelectedUserId ?? "")}
-						onOpenLatest={() => {
-							if (conversations.data?.data[0]?.other_user?.id) 
-								onSelectContact(conversations.data?.data[0].other_user?.id)
-							else setNewMessageOpen(true)
-						}}
-						hasConversations={conversations.data?.count == undefined ? false : conversations.data?.count > 0}
-						canViewProfile={true}
-						onDetails={() => {
-							if (clientMode && selectedConversation?.other_user?.active_role === "freelancer")
-								void navigate({
-									to: "/talent/$freelancerId",
-									params: { freelancerId: selectedProfile?.user_id ?? "" },
-									search: { q: undefined },
-								})
-						}}
-						onArchive={() => {}}
-						onMarkUnread={() => {
-							// markUnread()
-							// select("")
-							() => {}
-						}}
-						onDraftChange={setDraft}
-						onSend={() => send(draft)}
-					/>
+					selectedConversationId !== undefined && (
+						<MessageThread
+							key={selectedProfile?.user_id ?? "no-profile"}
+							selected={selectedProfile}
+							isOnline={isOnline}
+							presencePending={presencePending}
+							messages={detailsQuery.data?.messages ?? []}
+							draft={draft}
+							archived={false}
+							onBack={() => onSelectContact(SelectedUserId ?? "")}
+							onOpenLatest={() => {
+								if (conversations.data?.data[0]?.other_user?.id)
+									onSelectContact(conversations.data?.data[0].other_user?.id)
+								else setNewMessageOpen(true)
+							}}
+							hasConversations={conversations.data?.count == undefined ? false : conversations.data?.count > 0}
+							canViewProfile={true}
+							onDetails={() => {
+								if (clientMode && selectedConversation?.other_user?.active_role === "freelancer")
+									void navigate({
+										to: "/talent/$freelancerId",
+										params: { freelancerId: selectedProfile?.user_id ?? "" },
+										search: { q: undefined },
+									})
+							}}
+							onArchive={() => {}}
+							onMarkUnread={() => {
+								// markUnread()
+								// select("")
+								;() => {}
+							}}
+							onDraftChange={setDraft}
+							onSend={() => send(draft)}
+						/>
+					)
 				)}
 			</div>
 		</div>

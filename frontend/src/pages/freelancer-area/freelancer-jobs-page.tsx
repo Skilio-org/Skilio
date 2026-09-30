@@ -377,7 +377,7 @@ export default function FreelancerJobsPage() {
 					{isPending && <p role="status">Loading opportunities...</p>}
 					{isError && (
 						<p role="alert">
-							Could not load opportunities. {" "}
+							Could not load opportunities.{" "}
 							<button type="button" onClick={() => void refetch()} className="text-primary hover:underline">
 								Try again
 							</button>

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_layout/freelancer-messages")({
 					: undefined,
 	}),
 	component: Messages,
-	head: () => ({ meta: [{ title: "Messages | Freelancer" }] }),
+	head: () => ({ meta: [{ title: "Messages | Skilio" }] }),
 })
 
 function Messages() {

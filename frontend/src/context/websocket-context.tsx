@@ -1,13 +1,6 @@
 import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
 import { useQueryClient } from "@tanstack/react-query"
-import React, {
-	createContext,
-	useCallback,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from "react"
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 const enum WebSocketCloseCodes {
@@ -23,7 +16,7 @@ const enum WebSocketCloseCodes {
 	MandatoryExtensionMissing = 1010,
 	InternalServerError = 1011,
 	TlsHandshakeFailure = 1015,
-};
+}
 
 type WebSocketEventHandler = (data: any) => void
 export const AUTH_TOKEN_CHANGED_EVENT = "auth-token-changed"
@@ -107,13 +100,13 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 		// Clean up active connection/listeners before opening a new one
 		cleanupSocket()
 		try {
-			let ws;
+			let ws
 			ws = new WebSocket(url)
 
 			// ws.addEventListener("error", (event) => {
 			// 	ws.close()
 			// })
-			
+
 			ws.onerror = () => {
 				// console.error("WebSocket error:", event)
 				ws.close()
@@ -176,8 +169,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 			ws.onclose = (e) => {
 				console.error("WebSocket error:", e.code)
 				// 1002: Protocol error
-    			// 1006: Abnormal closure (most common when server returns non-101 status)
-    			// 1008: Policy violation (e.g., unauthorized)
+				// 1006: Abnormal closure (most common when server returns non-101 status)
+				// 1008: Policy violation (e.g., unauthorized)
 				switch (e.code) {
 					case WebSocketCloseCodes.ProtocolError:
 					case WebSocketCloseCodes.AbnormalClosure:
@@ -187,23 +180,23 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 						break
 					}
 					default:
-						// toast.error("WebSocket connection closed. Attempting to reconnect...")
+					// toast.error("WebSocket connection closed. Attempting to reconnect...")
 				}
 				if (isMountedRef.current) {
 					setIsConnected(false)
 					if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
-				if (!isMountedRef.current) return
-				setIsConnected(false)
-				if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
+					if (!isMountedRef.current) return
+					setIsConnected(false)
+					if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
 
-				// Auto-reconnect after 3s if still logged in
-				if (localStorage.getItem("access_token")) {
-					reconnectTimeoutRef.current = setTimeout(() => {
-						connect()
-					}, 3000)
+					// Auto-reconnect after 3s if still logged in
+					if (localStorage.getItem("access_token")) {
+						reconnectTimeoutRef.current = setTimeout(() => {
+							connect()
+						}, 3000)
+					}
 				}
 			}
-		}
 		} catch (error) {
 			if (isMountedRef.current) {
 				setIsConnected(false)
@@ -237,8 +230,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 		window.addEventListener("storage", handleStorage)
 		window.addEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
 	}, [connect])
-	
-	useEffect(() => {	
+
+	useEffect(() => {
 		window.addEventListener("DOMContentLoaded", safeConnect)
 		return () => {
 			isMountedRef.current = false
@@ -270,9 +263,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 	}, [])
 
 	return (
-		<WebSocketContext.Provider value={{ isConnected, sendMessage, subscribe }}>
-			{children}
-		</WebSocketContext.Provider>
+		<WebSocketContext.Provider value={{ isConnected, sendMessage, subscribe }}>{children}</WebSocketContext.Provider>
 	)
 }
 

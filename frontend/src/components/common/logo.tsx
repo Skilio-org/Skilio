@@ -1,63 +1,104 @@
 import { Link } from "@tanstack/react-router"
-
-import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
-import icon from "/assets/images/freelancer-icon.webp"
-import iconLight from "/assets/images/freelancer-icon-light.webp"
-import logo from "/assets/images/freelancer-logo.webp"
-import logoLight from "/assets/images/freelancer-logo-light.webp"
 
-interface LogoProps {
-	variant?: "full" | "icon" | "responsive"
+import skilioIcon from "/assets/images/skilio-icon.svg"
+import skilioLogo from "/assets/images/skilio-logo.svg"
+import skilioTypography from "/assets/images/skilio-typography.svg"
+
+export interface LogoProps {
+	variant?: "full" | "icon" | "typography" | "combined" | "responsive"
 	className?: string
+	iconClassName?: string
+	textClassName?: string
+	gapClassName?: string
 	asLink?: boolean
-	to?: "/" | "/dashboard" | "/freelancer" | "/freelancer-dashboard"
+	to?: "/" | "/dashboard" | "/freelancer" | "/freelancer-dashboard" | string
 }
 
-export function Logo({ variant = "full", className, asLink = true, to = "/" }: LogoProps) {
-	const { resolvedTheme } = useTheme()
+export function Logo({
+	variant = "full",
+	className,
+	iconClassName,
+	textClassName,
+	gapClassName = "gap-2.5",
+	asLink = true,
+	to = "/",
+}: LogoProps) {
+	let content: React.ReactNode
 
-	const isDark = resolvedTheme === "dark"
-
-	const fullLogo = isDark ? logoLight : logo
-	const iconLogo = isDark ? iconLight : icon
-
-	const content =
-		variant === "responsive" ? (
-			<>
-				{/* Full logo */}
+	switch (variant) {
+		case "icon":
+			content = (
 				<img
-					src={fullLogo}
-					width={384}
-					height={128}
-					alt="Freelancer"
+					src={skilioIcon}
+					alt="Skilio"
 					draggable={false}
-					className={cn(`h-9 w-auto select-none object-contain group-data-[collapsible=icon]:hidden`, className)}
+					className={cn("size-8 select-none object-contain", className)}
 				/>
+			)
+			break
 
-				{/* Collapsed sidebar icon */}
+		case "typography":
+			content = (
 				<img
-					src={iconLogo}
-					width={128}
-					height={128}
-					alt="Freelancer"
+					src={skilioTypography}
+					alt="Skilio"
 					draggable={false}
-					className={cn(`hidden size-8 select-none object-contain group-data-[collapsible=icon]:block`, className)}
+					className={cn("h-6 w-auto select-none object-contain", className)}
 				/>
-			</>
-		) : (
-			<img
-				src={variant === "full" ? fullLogo : iconLogo}
-				width={variant === "full" ? 384 : 128}
-				height={128}
-				alt="Freelancer"
-				draggable={false}
-				className={cn(
-					variant === "full" ? `h-9 w-auto select-none object-contain` : `size-8 select-none object-contain`,
-					className,
-				)}
-			/>
-		)
+			)
+			break
+
+		case "combined":
+			content = (
+				<img
+					src={skilioLogo}
+					alt="Skilio"
+					draggable={false}
+					className={cn("h-8 w-auto select-none object-contain", className)}
+				/>
+			)
+			break
+
+		case "responsive":
+			content = (
+				<div className={cn("inline-flex items-center", gapClassName, className)}>
+					<img
+						src={skilioIcon}
+						alt="Skilio"
+						draggable={false}
+						className={cn("size-8 select-none object-contain shrink-0", iconClassName)}
+					/>
+					<img
+						src={skilioTypography}
+						alt="Skilio"
+						draggable={false}
+						className={cn("h-5 w-auto select-none object-contain group-data-[collapsible=icon]:hidden", textClassName)}
+					/>
+				</div>
+			)
+			break
+
+		case "full":
+		default:
+			content = (
+				<div className={cn("inline-flex items-center", gapClassName, className)}>
+					<img
+						src={skilioIcon}
+						alt="Skilio"
+						draggable={false}
+						className={cn("size-8 select-none object-contain shrink-0", iconClassName)}
+					/>
+					<img
+						src={skilioTypography}
+						alt="Skilio"
+						draggable={false}
+						className={cn("h-5 w-auto select-none object-contain", textClassName)}
+					/>
+				</div>
+			)
+			break
+	}
 
 	if (!asLink) {
 		return content
@@ -66,7 +107,7 @@ export function Logo({ variant = "full", className, asLink = true, to = "/" }: L
 	return (
 		<Link
 			to={to}
-			aria-label="Freelancer home"
+			aria-label="Skilio home"
 			className="inline-flex shrink-0 items-center outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 		>
 			{content}

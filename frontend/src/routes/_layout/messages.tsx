@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_layout/messages")({
 					: undefined,
 	}),
 	component: Messages,
-	head: () => ({ meta: [{ title: "Messages | Freelancer" }] }),
+	head: () => ({ meta: [{ title: "Messages | Skilio" }] }),
 })
 
 function Messages() {
@@ -23,4 +23,4 @@ function Messages() {
 			onSelectContact={(id) => void navigate({ search: { userId: id || undefined } })}
 		/>
 	)
-}	
+}

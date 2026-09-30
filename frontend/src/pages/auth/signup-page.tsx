@@ -109,7 +109,7 @@ export function SignupPage({ role }: { role?: "client" | "freelancer" }) {
 								<div className="mb-9 text-center">
 									<h1 className="font-bold font-display text-[42px] text-foreground leading-[0.98] tracking-[-0.045em] sm:text-[46px]">
 										How do you want <br />
-										to use Freelancer?
+										to use Skilio?
 									</h1>
 
 									<p className="mx-auto mt-4 max-w-95 text-muted-foreground text-sm leading-6">

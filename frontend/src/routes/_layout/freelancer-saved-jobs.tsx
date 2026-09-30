@@ -3,5 +3,5 @@ import FreelancerSavedJobsPage from "@/pages/freelancer-area/freelancer-saved-jo
 
 export const Route = createFileRoute("/_layout/freelancer-saved-jobs")({
 	component: FreelancerSavedJobsPage,
-	head: () => ({ meta: [{ title: "Saved jobs | Freelancer" }] }),
+	head: () => ({ meta: [{ title: "Saved jobs | Skilio" }] }),
 })

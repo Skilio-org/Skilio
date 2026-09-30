@@ -11,7 +11,7 @@ export function Footer({ variant = "workspace" }: { variant?: "workspace" | "aut
 				}
 			>
 				<div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
-					<p className="whitespace-nowrap font-medium text-muted-foreground text-xs">© {currentYear} Freelancer</p>
+					<p className="whitespace-nowrap font-medium text-muted-foreground text-xs">© {currentYear} Skilio</p>
 
 					<span aria-hidden="true" className="hidden text-border sm:inline">
 						·

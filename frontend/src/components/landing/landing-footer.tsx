@@ -27,7 +27,7 @@ export function LandingFooter() {
 					</nav>
 				</div>
 				<div className="flex flex-col gap-3 pt-7 text-muted-foreground text-xs sm:flex-row sm:items-center sm:justify-between">
-					<p>© {new Date().getFullYear()} Freelancer. All rights reserved.</p>
+					<p>© {new Date().getFullYear()} Skilio. All rights reserved.</p>
 					<p>Independent work, clearly presented.</p>
 				</div>
 			</div>

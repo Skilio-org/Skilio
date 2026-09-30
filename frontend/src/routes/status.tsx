@@ -5,10 +5,10 @@ export const Route = createFileRoute("/status")({
 	component: StatusPage,
 	head: () => ({
 		meta: [
-			{ title: "System Status | Freelancer" },
+			{ title: "System Status | Skilio" },
 			{
 				name: "description",
-				content: "Live operational status of Freelancer systems, microservices, and databases.",
+				content: "Live operational status of Skilio systems, microservices, and databases.",
 			},
 		],
 	}),

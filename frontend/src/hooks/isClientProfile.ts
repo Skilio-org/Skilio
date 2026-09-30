@@ -1,8 +1,4 @@
-
-import {	
-	type ClientProfileDetailPublic,
-	type FreelancerProfilePublic,
-} from "@/client"
+import { type ClientProfileDetailPublic, type FreelancerProfilePublic } from "@/client"
 
 export type ConversationProfile = ClientProfileDetailPublic | FreelancerProfilePublic
 

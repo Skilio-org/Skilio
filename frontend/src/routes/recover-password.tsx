@@ -9,10 +9,10 @@ export const Route = createFileRoute("/recover-password")({
 	},
 	head: () => ({
 		meta: [
-			{ title: "Recover password | Freelancer" },
+			{ title: "Recover password | Skilio" },
 			{
 				name: "description",
-				content: "Recover access to your Freelancer account by requesting a password reset link.",
+				content: "Recover access to your Skilio account by requesting a password reset link.",
 			},
 		],
 	}),

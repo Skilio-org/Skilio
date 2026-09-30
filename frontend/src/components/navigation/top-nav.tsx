@@ -1,6 +1,7 @@
+import { Logo } from "@/components/common/logo"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { Link, useRouterState } from "@tanstack/react-router"
-import { Boxes, Menu, Moon, Sun } from "lucide-react"
+import { Menu, Moon, Sun } from "lucide-react"
 import { NotificationDropdown } from "@/components/common/notification-dropdown"
 import { useTheme } from "@/components/theme-provider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -37,35 +38,25 @@ export function TopNav() {
 	const menu = role === "freelancer" ? freelancerMenu : clientMenu
 	const { data: conversations, isPending } = useConversations()
 	if (isPending) {
-		return (
-			<> Loading conversations... </>
-		)
+		return <> Loading conversations... </>
 	}
 	if (conversations?.data === undefined) {
 		unreadMessages = 0
 	} else
-		unreadMessages = conversations?.data.reduce(
-				(total, conversation) => total + (conversation.unread_count ?? 0),
-				0,
-			)
+		unreadMessages = conversations?.data.reduce((total, conversation) => total + (conversation.unread_count ?? 0), 0)
 	const unreadLabel = unreadMessages > 99 ? "99+" : String(unreadMessages)
 	return (
 		<header className="fixed top-0 right-0 left-0 z-50 w-full border-outline-variant border-b bg-surface-container-lowest/95 backdrop-blur-md dark:bg-surface-panel/95">
 			<div className="mx-auto flex h-14 w-full max-w-[1440px] items-center justify-between gap-4 px-4 md:px-6">
 				{/* Left */}
 				<div className="flex h-full min-w-0 items-center gap-7">
-					<Link
+					<Logo
+						variant="full"
 						to={role === "freelancer" ? "/freelancer-dashboard" : "/dashboard"}
-						className="group flex shrink-0 items-center gap-2"
-					>
-						<span className="flex size-6 items-center justify-center rounded-lg bg-primary text-surface-bright dark:border dark:border-border-dark dark:bg-surface-container dark:text-primary">
-							<Boxes className="size-4" strokeWidth={2} />
-						</span>
-
-						<span className="font-headline-sm font-semibold text-headline-sm text-on-surface tracking-tight">
-							Freelancer
-						</span>
-					</Link>
+						iconClassName="size-7"
+						textClassName="h-4.5"
+						gapClassName="gap-2.5"
+					/>
 
 					<nav
 						aria-label={role === "freelancer" ? "Freelancer workspace" : "Client workspace"}

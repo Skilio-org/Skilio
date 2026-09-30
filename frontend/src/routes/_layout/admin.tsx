@@ -8,5 +8,5 @@ export const Route = createFileRoute("/_layout/admin")({
 		const { data: user } = await UsersService.readUserMe()
 		if (!user.is_superuser) throw redirect({ to: "/dashboard" })
 	},
-	head: () => ({ meta: [{ title: "User management | Freelancer" }] }),
+	head: () => ({ meta: [{ title: "User management | Skilio" }] }),
 })

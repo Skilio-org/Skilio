@@ -236,7 +236,7 @@ export function AppearanceSettings() {
 					)
 				})}
 			</div>
-			<PanelFooter label="Your theme preference applies across Freelancer." />
+			<PanelFooter label="Your theme preference applies across Skilio." />
 		</SettingsPanel>
 	)
 }

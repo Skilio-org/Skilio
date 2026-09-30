@@ -3,12 +3,10 @@
 // the selected user will be known throwout the whole app,
 // same thing for the selected conversation....
 
-import { ClientProfileDetailPublic, FreelancerProfilePublic } from "@/client";
+import { ClientProfileDetailPublic, FreelancerProfilePublic } from "@/client"
 type ConversationProfile = ClientProfileDetailPublic | FreelancerProfilePublic
 
 // If not then at the chat component only
-export function isClientProfile(
-	profile: ConversationProfile,
-): profile is ClientProfileDetailPublic {
+export function isClientProfile(profile: ConversationProfile): profile is ClientProfileDetailPublic {
 	return "company" in profile
 }

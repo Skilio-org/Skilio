@@ -3,5 +3,5 @@ import FreelancerProfilePage from "@/pages/freelancer-area/freelancer-profile-pa
 
 export const Route = createFileRoute("/_layout/freelancer")({
 	component: FreelancerProfilePage,
-	head: () => ({ meta: [{ title: "Your freelancer profile | Freelancer" }] }),
+	head: () => ({ meta: [{ title: "Your freelancer profile | Skilio" }] }),
 })

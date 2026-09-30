@@ -159,7 +159,9 @@ const FreelancerProposalsPage = () => {
 				title="Your proposals"
 				description="From a thoughtful introduction to your next collaboration. Keep every opportunity moving."
 				meta={
-					<span className="font-medium text-primary">{counts("Drafts")} {counts("Drafts") === 1 ? "draft" : "drafts"} to make your own</span>
+					<span className="font-medium text-primary">
+						{counts("Drafts")} {counts("Drafts") === 1 ? "draft" : "drafts"} to make your own
+					</span>
 				}
 				action={
 					<div className="flex shrink-0 flex-wrap items-center gap-2.5">
