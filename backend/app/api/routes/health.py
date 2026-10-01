@@ -72,40 +72,36 @@ def probe_disk() -> ComponentHealth:
     """
     try:
         usage = shutil.disk_usage("/")
-        free_gb = round(usage.free / (1024**3), 2)
-        free_pct = round((usage.free / usage.total) * 100, 1)
+        free_pct = (usage.free / usage.total) * 100
 
         if free_pct < 5.0:
             return ComponentHealth(
                 status="unhealthy",
                 latency_ms=None,
-                message=f"Critical disk storage shortage: {free_gb} GB free ({free_pct}%)",
+                message="Critical storage capacity shortage",
             )
         if free_pct < 15.0:
             return ComponentHealth(
                 status="degraded",
                 latency_ms=None,
-                message=f"Low disk storage warning: {free_gb} GB free ({free_pct}%)",
+                message="Storage capacity running low",
             )
         return ComponentHealth(
             status="healthy",
             latency_ms=None,
-            message=f"Storage operational: {free_gb} GB free ({free_pct}%)",
+            message="Storage operational",
         )
     except Exception as exc:
         logger.warning("Disk health probe failed: %s", exc)
         return ComponentHealth(
             status="degraded",
             latency_ms=None,
-            message="Unable to inspect disk storage",
+            message="Storage service unreachable",
         )
 
 
 @router.get("", response_model=SystemHealth)
-async def get_system_health(
-    session: SessionDep,
-    response: Response,
-) -> SystemHealth:
+async def get_system_health(session: SessionDep, response: Response) -> SystemHealth:
     """
     Deep diagnostic health check testing PostgreSQL, Redis, and Host Storage.
     Returns HTTP 200 for healthy or degraded states, and HTTP 503 for critical outages.
