@@ -3,6 +3,7 @@ import logging
 import uuid
 from typing import Annotated, Any
 
+from app.api.routes.notifications import push_notification
 import jwt
 from fastapi import (
     APIRouter,
@@ -33,6 +34,7 @@ from app.models import (
     ConversationPublic,
     ConversationsPublic,
     InjectPayload,
+    NotificationEvent,
     TokenPayload,
     User,
     UserPresence,
@@ -475,6 +477,13 @@ async def websocket_chat_endpoint(
                 )
 
                 # Route message to recipient via Redis / WebSocket
+                push_notification(
+                    user_id=recipient_id,
+                    event=NotificationEvent.CHAT_MESSAGE,
+                    title="New Message",
+                    message="You have a new message",
+                    chat_message_id=new_msg.id,
+                )
                 await publish_to_user(
                     recipient_id,
                     payload={"type": "chat_message", "data": msg_dict},
