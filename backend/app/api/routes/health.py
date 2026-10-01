@@ -1,7 +1,7 @@
-from datetime import datetime, timezone
 import logging
 import shutil
 import time
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Response, status
 from sqlmodel import Session, text
@@ -131,6 +131,6 @@ async def get_system_health(session: SessionDep, response: Response) -> SystemHe
 
     return SystemHealth(
         status=overall_status,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         services=services,
     )

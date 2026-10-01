@@ -18,6 +18,9 @@ export function LandingFooter() {
 						<a href="#how-it-works" className="hover:text-foreground">
 							How it works
 						</a>
+						<Link to="/status" className="hover:text-foreground">
+							System Status
+						</Link>
 						<Link to="/login" className="hover:text-foreground">
 							Log in
 						</Link>
