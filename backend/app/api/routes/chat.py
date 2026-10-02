@@ -2,8 +2,8 @@ import json
 import logging
 import uuid
 from typing import Annotated, Any
-
-from app.api.routes.notifications import push_notification
+from app.api.routes.notifications import mark_all_notifications_as_read, mark_notification_as_read, push_notification
+from app.api.routes.message_mods import mark_all_messages_as_read
 import jwt
 from fastapi import (
     APIRouter,
@@ -34,6 +34,7 @@ from app.models import (
     ConversationPublic,
     ConversationsPublic,
     InjectPayload,
+    Notification,
     NotificationEvent,
     TokenPayload,
     User,
@@ -368,8 +369,8 @@ async def websocket_chat_endpoint(
     WebSocket endpoint for real-time messaging, notifications, and custom event streaming.
     Authentication is performed via the 'token' query parameter.
     """
-    print("WebSocket connection attempt with token:", token)
     if not token:
+        await websocket.accept()
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
@@ -379,13 +380,14 @@ async def websocket_chat_endpoint(
         )
         token_data = TokenPayload(**payload)
     except (InvalidTokenError, ValidationError):
-        print("Invalid token for WebSocket connection")
+        await websocket.accept()
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
     with Session(engine) as session:
         user = session.get(User, ident=token_data.sub)
         if not user or not user.is_active:
+            await websocket.accept()
             await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
             return
         user_id = user.id
@@ -476,12 +478,12 @@ async def websocket_chat_endpoint(
                     )
                 )
 
-                # Route message to recipient via Redis / WebSocket
-                push_notification(
+                await push_notification(
                     user_id=recipient_id,
-                    event=NotificationEvent.CHAT_MESSAGE,
+                    event=NotificationEvent.MESSAGE_RECEIVED,
                     title="New Message",
-                    message="You have a new message",
+                    link="bojm3a.com???",
+                    content="You have a new message",
                     chat_message_id=new_msg.id,
                 )
                 await publish_to_user(
@@ -522,47 +524,26 @@ async def websocket_chat_endpoint(
                         )
                 continue
 
-            # 4. Read receipt frame
+            # 4. Read receipt frame..
+            # well what if i send that some notification was read.
             if event_type == "read_receipt":
-                conv_id_raw = data.get("conversation_id")
-                if conv_id_raw:
-                    try:
-                        conv_id = uuid.UUID(str(conv_id_raw))
-                        with Session(engine) as session:
-                            conv = session.get(Conversation, conv_id)
-                            if conv and (
-                                conv.client_id == user_id
-                                or conv.freelancer_id == user_id
-                            ):
-                                unreads = session.exec(
-                                    select(ChatMessage).where(
-                                        ChatMessage.conversation_id == conv_id,
-                                        ChatMessage.sender_id != user_id,
-                                        col(ChatMessage.is_read).is_(False),
-                                    )
-                                ).all()
-                                for m in unreads:
-                                    m.is_read = True
-                                    session.add(m)
-                                if unreads:
-                                    session.commit()
-                                recipient_id = (
-                                    conv.freelancer_id
-                                    if user_id == conv.client_id
-                                    else conv.client_id
-                                )
-                                await publish_to_user(
-                                    recipient_id,
-                                    payload={
-                                        "type": "messages_read",
-                                        "data": {
-                                            "conversation_id": str(conv_id),
-                                            "read_by": str(user_id),
-                                        },
-                                    },
-                                )
-                    except ValueError:
-                        pass
+                if "notification_id" in data:
+                    notification_id_raw = data.get("notification_id")
+                    if notification_id_raw:
+                        if notification_id_raw == "all_notifications":
+                            mark_all_notifications_as_read(user_id)
+                        else:
+                            try:
+                                mark_notification_as_read(user_id, uuid.UUID(str(notification_id_raw)))
+                            except ValueError:
+                                pass
+                if "conversation_id" in data:
+                    conv_id_raw = data.get("conversation_id")
+                    if conv_id_raw:
+                        try:
+                            await mark_all_messages_as_read(user_id, uuid.UUID(str(conv_id_raw)))
+                        except ValueError:
+                            pass
                 continue
 
             # 5. Generic Event forwarding (if recipient_id is provided)

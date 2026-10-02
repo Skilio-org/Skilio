@@ -36,7 +36,9 @@ export function TopNav() {
 
 	const role = useAccountRole()
 	const menu = role === "freelancer" ? freelancerMenu : clientMenu
+	// Load the conversations to get the unread messages count once the page has been loaded.
 	const { data: conversations, isPending } = useConversations()
+
 	if (isPending) {
 		return <> Loading conversations... </>
 	}
