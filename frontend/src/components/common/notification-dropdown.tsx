@@ -1,6 +1,6 @@
-import { useState } from "react"
 import { Bell, BriefcaseBusiness, CheckCheck, FileText, MessageSquare, UserRound } from "lucide-react"
 
+import { useQueryClient } from "@tanstack/react-query"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -9,86 +9,66 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { NotificationEvent, NotificationPublic } from "@/client/types.gen"
+import { useNotifications } from "@/hooks/useNotifications"
+import { chatKeys } from "@/data/chat-keys"
+import { formatMessageTime } from "@/util/timestampformatter"
+import { useWebSocket } from "@/context/websocket-context"
 
-type NotificationType = "message" | "proposal" | "contract" | "profile"
-
-type Notification = {
-	id: number
-	type: NotificationType
-	title: string
-	description: string
-	time: string
-	read: boolean
-}
-
-const initialNotifications: Notification[] = [
-	{
-		id: 1,
-		type: "message",
-		title: "New message from Sarah",
-		description: "She sent you a message about the React dashboard project.",
-		time: "2m",
-		read: false,
-	},
-	{
-		id: 2,
-		type: "contract",
-		title: "Contract offer received",
-		description: "Acme Studio sent you an offer for the Mobile App Redesign project.",
-		time: "1h",
-		read: false,
-	},
-	{
-		id: 3,
-		type: "profile",
-		title: "Your profile is getting noticed",
-		description: "You appeared in 8 client searches this week.",
-		time: "1d",
-		read: true,
-	},
-]
-
-function NotificationIcon({ type }: { type: NotificationType }) {
+function NotificationIcon({ type }: { type: NotificationEvent }) {
 	switch (type) {
-		case "message":
+		case "message_received":
 			return <MessageSquare className="size-4" />
 
-		case "proposal":
+		case "proposal_received":
 			return <FileText className="size-4" />
 
-		case "contract":
+		case "connection_request":
 			return <BriefcaseBusiness className="size-4" />
 
-		case "profile":
+		case "review_received":
 			return <UserRound className="size-4" />
 	}
 }
 
-export function NotificationDropdown() {
-	const [notifications, setNotifications] = useState(initialNotifications)
 
-	const unreadCount = notifications.filter((notification) => !notification.read).length
-
-	const markAsRead = (id: number) => {
-		setNotifications((current) =>
-			current.map((notification) =>
-				notification.id === id
-					? {
-							...notification,
-							read: true,
-						}
-					: notification,
-			),
-		)
+export function NotificationDropdown(
+) {
+	// Load also the notifications because they are essential for the user to see them in the top nav.
+	const { data: notifications, isPending} = useNotifications()
+	// to send read receipt to the server when a notification is read.
+	const { sendMessage } = useWebSocket()
+	const queryClient = useQueryClient()
+	if (!notifications) {
+		return <> Loading Notifications... </>
 	}
+	if ((isPending) || !notifications) {
+		return <> Loading Notifications... </>
+	}
+	// const [notifications, setNotifications] = useState(initialNotifications)
+	const unreadCount = 
+		notifications.filter((notification) => !notification.is_read).length
 
 	const markAllAsRead = () => {
-		setNotifications((current) =>
-			current.map((notification) => ({
-				...notification,
-				read: true,
-			})),
-		)
+		sendMessage({
+			type: "read_receipt",
+			notification_id: "all_notifications"
+		})
+		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), [
+			...notifications.map((notification) => {
+				return { ...notification, is_read: true }
+		})]);
+	}
+	const markAsRead = (notificationId: string) => {
+		sendMessage({
+			type: "read_receipt",
+			notification_id: notificationId
+		})
+		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), [
+			...notifications.map((notification) =>
+				notification.id === notificationId ? { ...notification, is_read: true } : notification
+			),
+		]);
 	}
 
 	return (
@@ -168,19 +148,19 @@ export function NotificationDropdown() {
 								}}
 								className={cn(
 									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
-									!notification.read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
+									!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
 								)}
 							>
 								{/* Icon */}
 								<span
 									className={cn(
 										"grid size-8 shrink-0 place-items-center rounded-lg border transition-colors",
-										notification.read
+										notification.is_read
 											? "border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container"
 											: "border-primary/15 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/10",
 									)}
 								>
-									<NotificationIcon type={notification.type} />
+									<NotificationIcon type={notification.event} />
 								</span>
 
 								{/* Body */}
@@ -189,22 +169,22 @@ export function NotificationDropdown() {
 										<span
 											className={cn(
 												"min-w-0 truncate font-label-sm text-label-sm text-on-surface",
-												notification.read ? "font-medium" : "font-semibold",
+												notification.is_read ? "font-medium" : "font-semibold",
 											)}
 										>
 											{notification.title}
 										</span>
 
-										<span className="mt-0.5 shrink-0 font-caption text-[10px] text-outline">{notification.time}</span>
+										<span className="mt-0.5 shrink-0 font-caption text-[10px] text-outline">{										formatMessageTime(notification.created_at)}</span>
 									</span>
 
 									<span className="mt-1 line-clamp-2 block font-body-sm text-[11px] text-on-surface-variant leading-[17px]">
-										{notification.description}
+										{notification.content}
 									</span>
 								</span>
 
 								{/* Unread dot */}
-								{!notification.read && (
+								{!notification.is_read && (
 									<span aria-label="Unread" className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
 								)}
 							</DropdownMenuItem>

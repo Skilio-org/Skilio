@@ -1,3 +1,5 @@
+import { NotificationPublic } from "@/client"
+import { chatKeys } from "@/data/chat-keys"
 import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
 import { useQueryClient } from "@tanstack/react-query"
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
@@ -100,17 +102,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 		// Clean up active connection/listeners before opening a new one
 		cleanupSocket()
 		try {
-			let ws
-			ws = new WebSocket(url)
+			let ws = new WebSocket(url)
 
 			// ws.addEventListener("error", (event) => {
 			// 	ws.close()
 			// })
-
-			ws.onerror = () => {
-				// console.error("WebSocket error:", event)
-				ws.close()
-			}
 			wsRef.current = ws
 
 			ws.onopen = () => {
@@ -132,6 +128,22 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 						handleIncomingMessage(data.data, {
 							incrementUnread: true,
 							isViewingConversation: false,
+						})
+					}
+					if (eventType === "notification" && data.data) {
+						queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), 
+						(currentNotifications) => {
+							if (!currentNotifications) {
+								return [data.data]
+							}
+							// Check if the notification already exists in the cache
+							const exists = currentNotifications.some(
+								(notification) => notification.id === data.data.id
+							)
+							if (exists) {
+								return currentNotifications
+							}
+							return [data.data, ...currentNotifications]
 						})
 					}
 					// if (eventType === "chat_message") {
@@ -167,25 +179,12 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 				}
 			}
 			ws.onclose = (e) => {
-				console.error("WebSocket error:", e.code)
-				// 1002: Protocol error
-				// 1006: Abnormal closure (most common when server returns non-101 status)
-				// 1008: Policy violation (e.g., unauthorized)
-				switch (e.code) {
-					case WebSocketCloseCodes.ProtocolError:
-					case WebSocketCloseCodes.AbnormalClosure:
-					case WebSocketCloseCodes.PolicyViolation: {
-						localStorage.removeItem("access_token")
-						window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
-						break
-					}
-					default:
-					// toast.error("WebSocket connection closed. Attempting to reconnect...")
+				if (e.code === WebSocketCloseCodes.PolicyViolation) {
+					localStorage.removeItem("access_token")
+					window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+					return
 				}
 				if (isMountedRef.current) {
-					setIsConnected(false)
-					if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
-					if (!isMountedRef.current) return
 					setIsConnected(false)
 					if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
 
