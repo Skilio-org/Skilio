@@ -194,12 +194,21 @@ def test_websocket_messaging_and_presence(
                 ack["data"]["content"] == "Real-time message over WebSocket!"
             )
 
-            # ws2 should receive chat_message
-            delivered = json.loads(ws2.receive_text())
-            assert delivered["type"] == "chat_message"
-            assert (
-                delivered["data"]["content"]
-                == "Real-time message over WebSocket!"
+            # ws2 should receive the chat message and the corresponding notification
+            delivered_events = []
+            for _ in range(2):
+                delivered_events.append(json.loads(ws2.receive_text()))
+
+            assert any(
+                event["type"] == "chat_message"
+                and event["data"]["content"] == "Real-time message over WebSocket!"
+                for event in delivered_events
+            )
+            assert any(
+                event["type"] == "notification"
+                and event["data"]["title"] == "New Message"
+                and event["data"]["content"] == "You have a new message"
+                for event in delivered_events
             )
 
             # User1 sends a typing indicator

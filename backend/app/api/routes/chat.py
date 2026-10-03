@@ -370,7 +370,7 @@ async def websocket_chat_endpoint(
     Authentication is performed via the 'token' query parameter.
     """
     if not token:
-        await websocket.accept()
+        # await websocket.accept()
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
@@ -380,14 +380,14 @@ async def websocket_chat_endpoint(
         )
         token_data = TokenPayload(**payload)
     except (InvalidTokenError, ValidationError):
-        await websocket.accept()
+        # await websocket.accept()
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
     with Session(engine) as session:
         user = session.get(User, ident=token_data.sub)
         if not user or not user.is_active:
-            await websocket.accept()
+            # await websocket.accept()
             await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
             return
         user_id = user.id
