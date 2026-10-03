@@ -311,6 +311,117 @@ export type ClientProfileUpdate = {
 };
 
 /**
+ * ComponentHealth
+ */
+export type ComponentHealth = {
+    /**
+     * Status
+     */
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    /**
+     * Latency Ms
+     */
+    latency_ms?: number | null;
+    /**
+     * Message
+     */
+    message: string;
+};
+
+/**
+ * ConnectionCreate
+ */
+export type ConnectionCreate = {
+    /**
+     * Note
+     */
+    note?: string | null;
+    /**
+     * Receiver Id
+     */
+    receiver_id: string;
+    /**
+     * Job Post Id
+     */
+    job_post_id?: string | null;
+};
+
+/**
+ * ConnectionPublic
+ */
+export type ConnectionPublic = {
+    /**
+     * Note
+     */
+    note?: string | null;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Sender Id
+     */
+    sender_id: string;
+    /**
+     * Receiver Id
+     */
+    receiver_id: string;
+    /**
+     * Job Post Id
+     */
+    job_post_id?: string | null;
+    status: ConnectionStatus;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Updated At
+     */
+    updated_at?: string | null;
+    /**
+     * Responded At
+     */
+    responded_at?: string | null;
+    sender?: UserPublic | null;
+    receiver?: UserPublic | null;
+    job_post?: JobPostPublic | null;
+};
+
+/**
+ * ConnectionStatus
+ */
+export type ConnectionStatus = 'pending' | 'accepted' | 'declined' | 'withdrawn';
+
+/**
+ * ConnectionStatusPublic
+ */
+export type ConnectionStatusPublic = {
+    /**
+     * Status
+     */
+    status: 'none' | 'pending_sent' | 'pending_received' | 'connected';
+    /**
+     * Connection Id
+     */
+    connection_id?: string | null;
+};
+
+/**
+ * ConnectionsPublic
+ */
+export type ConnectionsPublic = {
+    /**
+     * Data
+     */
+    data: Array<ConnectionPublic>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
  * ConversationCreate
  */
 export type ConversationCreate = {
@@ -400,34 +511,6 @@ export type ConversationsPublic = {
      * Count
      */
     count: number;
-};
-
-/**
- * DeepHealthCheck
- */
-export type DeepHealthCheck = {
-    /**
-     * Status
-     */
-    status: string;
-    /**
-     * Timestamp
-     */
-    timestamp: string;
-    /**
-     * Uptime Seconds
-     */
-    uptime_seconds: number;
-    /**
-     * Environment
-     */
-    environment: string;
-    /**
-     * Services
-     */
-    services: {
-        [key: string]: ServiceHealth;
-    };
 };
 
 /**
@@ -1389,6 +1472,43 @@ export type NewPassword = {
 };
 
 /**
+ * NotificationEvent
+ */
+export type NotificationEvent = 'message_received' | 'proposal_received' | 'proposal_accepted' | 'proposal_rejected' | 'connection_request' | 'connection_accepted' | 'connection_declined' | 'review_received' | 'job_closed';
+
+/**
+ * NotificationPublic
+ */
+export type NotificationPublic = {
+    event: NotificationEvent;
+    /**
+     * Content
+     */
+    content: string;
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Is Read
+     */
+    is_read: boolean;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    proposal?: ProposalPublic | null;
+    connection?: ConnectionPublic | null;
+    review?: ReviewPublic | null;
+    chat_message?: ChatMessagePublic | null;
+    job_post?: JobPostPublic | null;
+};
+
+/**
  * PortfolioItemCreate
  */
 export type PortfolioItemCreate = {
@@ -1762,28 +1882,30 @@ export type SavedJobsPublic = {
 };
 
 /**
- * ServiceHealth
- */
-export type ServiceHealth = {
-    /**
-     * Status
-     */
-    status: string;
-    /**
-     * Latency Ms
-     */
-    latency_ms?: number | null;
-    /**
-     * Details
-     */
-    details?: string | null;
-};
-
-/**
  * SwitchRoleRequest
  */
 export type SwitchRoleRequest = {
     role: UserRole;
+};
+
+/**
+ * SystemHealth
+ */
+export type SystemHealth = {
+    /**
+     * Status
+     */
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    /**
+     * Timestamp
+     */
+    timestamp: string;
+    /**
+     * Services
+     */
+    services: {
+        [key: string]: ComponentHealth;
+    };
 };
 
 /**
@@ -1997,6 +2119,22 @@ export type ValidationError = {
         [key: string]: unknown;
     };
 };
+
+export type healthGetSystemHealthData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/health';
+};
+
+export type healthGetSystemHealthResponses = {
+    /**
+     * Successful Response
+     */
+    200: SystemHealth;
+};
+
+export type healthGetSystemHealthResponse = healthGetSystemHealthResponses[keyof healthGetSystemHealthResponses];
 
 export type loginLoginGoogleData = {
     body?: never;
@@ -2589,22 +2727,6 @@ export type utilsHealthCheckResponses = {
 };
 
 export type utilsHealthCheckResponse = utilsHealthCheckResponses[keyof utilsHealthCheckResponses];
-
-export type utilsDeepHealthCheckData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/utils/health/detailed';
-};
-
-export type utilsDeepHealthCheckResponses = {
-    /**
-     * Successful Response
-     */
-    200: DeepHealthCheck;
-};
-
-export type utilsDeepHealthCheckResponse = utilsDeepHealthCheckResponses[keyof utilsDeepHealthCheckResponses];
 
 export type profilesReadProfilesData = {
     body?: never;
@@ -4481,6 +4603,284 @@ export type chatInjectEventResponses = {
      */
     200: unknown;
 };
+
+export type connectionsListConnectionsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Status
+         */
+        status?: ConnectionStatus | null;
+        /**
+         * Type
+         */
+        type?: string;
+        /**
+         * Direction
+         */
+        direction?: string | null;
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/connections/';
+};
+
+export type connectionsListConnectionsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type connectionsListConnectionsError = connectionsListConnectionsErrors[keyof connectionsListConnectionsErrors];
+
+export type connectionsListConnectionsResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConnectionsPublic;
+};
+
+export type connectionsListConnectionsResponse = connectionsListConnectionsResponses[keyof connectionsListConnectionsResponses];
+
+export type connectionsSendConnectionRequestData = {
+    body: ConnectionCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/connections/';
+};
+
+export type connectionsSendConnectionRequestErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type connectionsSendConnectionRequestError = connectionsSendConnectionRequestErrors[keyof connectionsSendConnectionRequestErrors];
+
+export type connectionsSendConnectionRequestResponses = {
+    /**
+     * Successful Response
+     */
+    201: ConnectionPublic;
+};
+
+export type connectionsSendConnectionRequestResponse = connectionsSendConnectionRequestResponses[keyof connectionsSendConnectionRequestResponses];
+
+export type connectionsGetConnectionStatusData = {
+    body?: never;
+    path: {
+        /**
+         * Target User Id
+         */
+        target_user_id: string;
+    };
+    query?: never;
+    url: '/api/v1/connections/status/{target_user_id}';
+};
+
+export type connectionsGetConnectionStatusErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type connectionsGetConnectionStatusError = connectionsGetConnectionStatusErrors[keyof connectionsGetConnectionStatusErrors];
+
+export type connectionsGetConnectionStatusResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConnectionStatusPublic;
+};
+
+export type connectionsGetConnectionStatusResponse = connectionsGetConnectionStatusResponses[keyof connectionsGetConnectionStatusResponses];
+
+export type connectionsAcceptConnectionRequestData = {
+    body?: never;
+    path: {
+        /**
+         * Connection Id
+         */
+        connection_id: string;
+    };
+    query?: never;
+    url: '/api/v1/connections/{connection_id}/accept';
+};
+
+export type connectionsAcceptConnectionRequestErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type connectionsAcceptConnectionRequestError = connectionsAcceptConnectionRequestErrors[keyof connectionsAcceptConnectionRequestErrors];
+
+export type connectionsAcceptConnectionRequestResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConnectionPublic;
+};
+
+export type connectionsAcceptConnectionRequestResponse = connectionsAcceptConnectionRequestResponses[keyof connectionsAcceptConnectionRequestResponses];
+
+export type connectionsDeclineConnectionRequestData = {
+    body?: never;
+    path: {
+        /**
+         * Connection Id
+         */
+        connection_id: string;
+    };
+    query?: never;
+    url: '/api/v1/connections/{connection_id}/decline';
+};
+
+export type connectionsDeclineConnectionRequestErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type connectionsDeclineConnectionRequestError = connectionsDeclineConnectionRequestErrors[keyof connectionsDeclineConnectionRequestErrors];
+
+export type connectionsDeclineConnectionRequestResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConnectionPublic;
+};
+
+export type connectionsDeclineConnectionRequestResponse = connectionsDeclineConnectionRequestResponses[keyof connectionsDeclineConnectionRequestResponses];
+
+export type connectionsWithdrawConnectionRequestData = {
+    body?: never;
+    path: {
+        /**
+         * Connection Id
+         */
+        connection_id: string;
+    };
+    query?: never;
+    url: '/api/v1/connections/{connection_id}/withdraw';
+};
+
+export type connectionsWithdrawConnectionRequestErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type connectionsWithdrawConnectionRequestError = connectionsWithdrawConnectionRequestErrors[keyof connectionsWithdrawConnectionRequestErrors];
+
+export type connectionsWithdrawConnectionRequestResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConnectionPublic;
+};
+
+export type connectionsWithdrawConnectionRequestResponse = connectionsWithdrawConnectionRequestResponses[keyof connectionsWithdrawConnectionRequestResponses];
+
+export type connectionsRemoveConnectionData = {
+    body?: never;
+    path: {
+        /**
+         * Connection Id
+         */
+        connection_id: string;
+    };
+    query?: never;
+    url: '/api/v1/connections/{connection_id}';
+};
+
+export type connectionsRemoveConnectionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type connectionsRemoveConnectionError = connectionsRemoveConnectionErrors[keyof connectionsRemoveConnectionErrors];
+
+export type connectionsRemoveConnectionResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type connectionsRemoveConnectionResponse = connectionsRemoveConnectionResponses[keyof connectionsRemoveConnectionResponses];
+
+export type connectionsListJobConnectionsData = {
+    body?: never;
+    path: {
+        /**
+         * Job Post Id
+         */
+        job_post_id: string;
+    };
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/connections/job/{job_post_id}';
+};
+
+export type connectionsListJobConnectionsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type connectionsListJobConnectionsError = connectionsListJobConnectionsErrors[keyof connectionsListJobConnectionsErrors];
+
+export type connectionsListJobConnectionsResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConnectionsPublic;
+};
+
+export type connectionsListJobConnectionsResponse = connectionsListJobConnectionsResponses[keyof connectionsListJobConnectionsResponses];
+
+export type notificationsGetMyNotificationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/notifications/me';
+};
+
+export type notificationsGetMyNotificationsResponses = {
+    /**
+     * Response Notifications-Get My Notifications
+     *
+     * Successful Response
+     */
+    200: Array<NotificationPublic>;
+};
+
+export type notificationsGetMyNotificationsResponse = notificationsGetMyNotificationsResponses[keyof notificationsGetMyNotificationsResponses];
 
 export type privateCreateUserData = {
     body: PrivateUserCreate;

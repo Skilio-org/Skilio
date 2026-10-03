@@ -6,16 +6,21 @@ from typing import Any, Literal, Optional, Self
 from pydantic import BaseModel, EmailStr, model_validator
 from sqlalchemy import JSON, DateTime, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import CheckConstraint  # add to your sqlalchemy import
 
 
 def get_datetime_utc() -> datetime:
     return datetime.now(UTC)
 
-
 # ==============================================================================
 # Enums
 # ==============================================================================
 
+class NotificationType(StrEnum):
+    INFO = "info"
+    SUCCESS = "success"
+    WARNING = "warning"
+    ERROR = "error"
 
 class UserRole(StrEnum):
     CLIENT = "client"
@@ -1092,7 +1097,6 @@ class Proposal(ProposalBase, table=True):
         sa_relationship_kwargs={"foreign_keys": "[Proposal.freelancer_id]"},
     )
 
-
 class ProposalPublic(ProposalBase):
     id: uuid.UUID
     job_post_id: uuid.UUID
@@ -1323,13 +1327,92 @@ class ConnectionPublic(ConnectionBase):
     receiver: UserPublic | None = None
     job_post: JobPostPublic | None = None
 
-
 class ConnectionsPublic(SQLModel):
     data: list[ConnectionPublic]
     count: int
-
 
 class ConnectionStatusPublic(SQLModel):
     status: Literal["none", "pending_sent", "pending_received", "connected"]
     connection_id: uuid.UUID | None = None
 
+# ==============================================================================
+# Notification Models
+# ==============================================================================
+
+
+class NotificationEvent(StrEnum):
+    MESSAGE_RECEIVED = "message_received"
+    PROPOSAL_RECEIVED = "proposal_received"
+    PROPOSAL_ACCEPTED = "proposal_accepted"
+    PROPOSAL_REJECTED = "proposal_rejected"
+    CONNECTION_REQUEST = "connection_request"
+    CONNECTION_ACCEPTED = "connection_accepted"
+    CONNECTION_DECLINED = "connection_declined"
+    REVIEW_RECEIVED = "review_received"
+    JOB_CLOSED = "job_closed"
+
+
+class NotificationBase(SQLModel):
+    event: NotificationEvent = Field(index=True)
+    content: str = Field(min_length=1, max_length=5000)
+    title: str = Field(default=None, max_length=255)
+    link: str = Field(default=None, max_length=2048)
+
+class Notification(NotificationBase, table=True):
+    __table_args__ = (
+        CheckConstraint(
+            "num_nonnulls(proposal_id, connection_id, review_id, "
+            "job_post_id, chat_message_id) = 1",
+            name="ck_notification_exactly_one_target",
+        ),
+    )
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+
+    proposal_id: uuid.UUID | None = Field(
+        default=None, foreign_key="proposal.id", ondelete="CASCADE", index=True
+    )
+    connection_id: uuid.UUID | None = Field(
+        default=None, foreign_key="connection.id", ondelete="CASCADE", index=True
+    )
+    review_id: uuid.UUID | None = Field(
+        default=None, foreign_key="review.id", ondelete="CASCADE", index=True
+    )
+    chat_message_id: uuid.UUID | None = Field(
+        default=None, foreign_key="chatmessage.id", ondelete="CASCADE", index=True
+    )
+    job_post_id: uuid.UUID | None = Field(
+        default=None, foreign_key="jobpost.id", ondelete="CASCADE", index=True
+    )
+
+    is_read: bool = Field(default=False, index=True)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+
+    proposal: Optional["Proposal"] = Relationship()
+    connection: Optional["Connection"] = Relationship()
+    review: Optional["Review"] = Relationship()
+    chat_message: Optional["ChatMessage"] = Relationship()
+    job_post: Optional["JobPost"] = Relationship()
+
+
+class NotificationPublic(NotificationBase):
+    id: uuid.UUID
+    is_read: bool
+    link: str 
+    created_at: datetime | None = None
+    proposal: ProposalPublic | None = None
+    connection: ConnectionPublic | None = None
+    review: ReviewPublic | None = None
+    chat_message: ChatMessagePublic | None = None
+    job_post: JobPostPublic | None = None
+
+class NotificationsPublic(SQLModel):
+    data: list[NotificationPublic]
+    count: int
+    unread_count: int = 0

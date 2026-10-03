@@ -15,6 +15,7 @@ from app.api.routes import (
     searches,
     users,
     utils,
+    notifications,
 )
 from app.core.config import settings
 
@@ -32,6 +33,8 @@ api_router.include_router(jobs.router)
 api_router.include_router(proposals.router)
 api_router.include_router(chat.router)
 api_router.include_router(connections.router)
+api_router.include_router(notifications.router)
+
 
 if settings.FASTAPI_ENV == "development":
     api_router.include_router(private.router)
