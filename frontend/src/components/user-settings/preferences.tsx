@@ -119,26 +119,6 @@ export function PrivacySettings() {
 					/>
 				</div>
 			</SettingsPanel>
-
-			{/* <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-7">
-				<div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
-					<div className="max-w-xl">
-						<h3 className="font-display font-semibold text-lg">Download your account data</h3>
-						<p className="mt-1 text-muted-foreground text-sm leading-6">
-							Request a portable copy of your profile, saved {freelancer ? "jobs" : "talent"}, and conversation history.
-						</p>
-					</div>
-					<Button type="button" variant="outline" onClick={() => setArchiveRequested(true)} className="self-start">
-						{archiveRequested ? "Archive requested" : "Request archive"}
-					</Button>
-				</div>
-				{archiveRequested && (
-					<p className="mt-4 inline-flex items-center gap-2 font-medium text-emerald-700 text-sm">
-						<Check className="size-4" />
-						We'll notify you when your account archive is ready.
-					</p>
-				)}
-			</section> */}
 		</div>
 	)
 }
