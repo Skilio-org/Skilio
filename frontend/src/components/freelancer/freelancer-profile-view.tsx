@@ -1,5 +1,5 @@
-import { ArrowUpRight, Clock3, FileText, MapPin, Star } from "lucide-react"
-import { type ReactNode, useState } from "react"
+import { ArrowLeft, ArrowRight, ArrowUpRight, Clock3, FileText, MapPin, Star } from "lucide-react"
+import { type ReactNode, useRef, useState } from "react"
 
 import { Monogram, SkillTag } from "@/components/dashboard/dashboard-header"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -73,6 +73,7 @@ export function FreelancerProfileView({
 	portfolioDialogEyebrow?: string
 }) {
 	const [projectId, setProjectId] = useState<string | null>(null)
+	const portfolioTrack = useRef<HTMLDivElement>(null)
 	const NameHeading = nameHeadingLevel
 	const project = profile.portfolio.find((entry) => entry.id === projectId)
 	const firstName = profile.name.split(" ")[0] || "you"
@@ -84,6 +85,14 @@ export function FreelancerProfileView({
 		["background", "Background"],
 		...(feedback ? [["client-feedback", "Feedback"]] : []),
 	]
+	const scrollPortfolio = (direction: -1 | 1) => {
+		const track = portfolioTrack.current
+		if (track) {
+			const cardWidth = track.firstElementChild?.getBoundingClientRect().width ?? track.clientWidth * 0.85
+			const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0
+			track.scrollBy({ left: direction * (cardWidth + gap), behavior: "smooth" })
+		}
+	}
 
 	return (
 		<div className="space-y-6" data-profile-view="freelancer">
@@ -184,32 +193,67 @@ export function FreelancerProfileView({
 					<section id="selected-work" className={`${section} border-border border-t`}>
 						<div className="flex flex-wrap items-baseline justify-between gap-2">
 							<h3 className={heading}>Selected work</h3>
-							<span className="text-muted-foreground text-xs">
-								{profile.portfolio.length} {profile.portfolio.length === 1 ? "project" : "projects"}
-							</span>
+							<div className="flex items-center gap-3">
+								<span className="text-muted-foreground text-xs">
+									{profile.portfolio.length} {profile.portfolio.length === 1 ? "project" : "projects"}
+								</span>
+								{profile.portfolio.length > 1 && (
+									<div className="flex gap-1">
+										<button
+											type="button"
+											aria-label="Show previous projects"
+											onClick={() => scrollPortfolio(-1)}
+											className="grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										>
+											<ArrowLeft className="size-4" />
+										</button>
+										<button
+											type="button"
+											aria-label="Show more projects"
+											onClick={() => scrollPortfolio(1)}
+											className="grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										>
+											<ArrowRight className="size-4" />
+										</button>
+									</div>
+								)}
+							</div>
 						</div>
 						{profile.portfolio.length > 0 ? (
-							<div className="mt-5 space-y-3">
+							<div
+								ref={portfolioTrack}
+								role="region"
+								aria-label="Selected projects"
+								className="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+								tabIndex={0}
+							>
 								{profile.portfolio.map((entry) => (
 									<button
 										key={entry.id}
 										type="button"
 										aria-label={`View ${entry.title}`}
 										onClick={() => setProjectId(entry.id)}
-										className="group flex w-full items-center gap-4 rounded-xl border border-border p-3 text-left transition-colors hover:border-primary/40 hover:bg-muted/30 sm:p-4"
+										className="group flex w-[82%] max-w-[22rem] shrink-0 snap-start flex-col rounded-xl border border-border p-3 text-left transition-colors hover:border-primary/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-[calc((100%_-_1rem)/2)] sm:max-w-none sm:p-4 xl:w-[calc((100%_-_2rem)/3)]"
 									>
 										<span
-											className={`grid size-14 shrink-0 place-items-center rounded-lg text-slate-800 sm:size-16 ${entry.color ?? "bg-brand-100"}`}
+											className={`relative grid h-36 w-full place-items-center overflow-hidden rounded-lg text-slate-800 ${entry.color ?? "bg-brand-100"}`}
 										>
-											<FileText className="size-6" strokeWidth={1.5} />
+											<FileText className="size-10 opacity-80" strokeWidth={1.35} />
+											<span className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-background/75 text-foreground backdrop-blur-sm transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+												<ArrowUpRight className="size-4" />
+											</span>
 										</span>
-										<span className="min-w-0 flex-1">
+										<span className="mt-4 block min-w-0">
 											<span className="block break-words font-medium text-base tracking-tight">{entry.title}</span>
 											<span className="mt-1 block break-words text-muted-foreground text-xs leading-5">
 												{entry.category}
 											</span>
+											{entry.detail && (
+												<span className="mt-3 line-clamp-2 block text-muted-foreground text-sm leading-6">
+													{entry.detail}
+												</span>
+											)}
 										</span>
-										<ArrowUpRight className="mr-1 size-4 shrink-0 text-muted-foreground group-hover:text-primary" />
 									</button>
 								))}
 							</div>
@@ -291,28 +335,38 @@ export function FreelancerProfileView({
 					if (!open) setProjectId(null)
 				}}
 			>
-				<DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-xl">
-					<DialogHeader>
-						<p className="mb-2 text-muted-foreground text-xs">{portfolioDialogEyebrow}</p>
-						<DialogTitle>{project?.title}</DialogTitle>
-						<DialogDescription>{project?.category}</DialogDescription>
-					</DialogHeader>
-					<div className="rounded-xl border border-border bg-muted/40 p-5">
-						<p className="whitespace-pre-wrap break-words text-muted-foreground text-sm leading-7">
-							{project?.detail || `More details about ${project?.title} will appear here.`}
-						</p>
+				<DialogContent className="max-h-[85dvh] gap-0 overflow-hidden p-0 sm:max-w-2xl">
+					<div className="overflow-y-auto">
+						<div className={`relative grid h-44 place-items-center overflow-hidden text-slate-800 sm:h-52 ${project?.color ?? "bg-brand-100"}`}>
+							<div className="absolute -right-8 -top-16 size-64 rounded-full border border-current/10" />
+							<div className="absolute -right-2 -top-10 size-48 rounded-full border border-current/10" />
+							<FileText className="size-16 opacity-80" strokeWidth={1.2} />
+							<span className="absolute bottom-4 left-6 rounded-full bg-background/75 px-3 py-1 font-medium text-foreground text-xs backdrop-blur-sm">
+								{project?.category}
+							</span>
+						</div>
+						<div className="space-y-6 p-6 sm:p-8">
+							<DialogHeader className="gap-2">
+								<p className="text-muted-foreground text-xs">{portfolioDialogEyebrow}</p>
+								<DialogTitle className="pr-8 text-2xl tracking-tight">{project?.title}</DialogTitle>
+								<DialogDescription className="sr-only">{project?.category}</DialogDescription>
+							</DialogHeader>
+							<p className="whitespace-pre-wrap break-words text-muted-foreground text-sm leading-7 sm:text-base">
+								{project?.detail || `More details about ${project?.title} will appear here.`}
+							</p>
+							{project?.url && /^https?:\/\//i.test(project.url) && (
+								<a
+									href={project.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="inline-flex min-h-11 items-center gap-2 font-medium text-primary text-sm underline underline-offset-4"
+								>
+									View project <ArrowUpRight className="size-4" />
+								</a>
+							)}
+							{portfolioDialogAction && <div className="space-y-4 border-border border-t pt-6">{portfolioDialogAction}</div>}
+						</div>
 					</div>
-					{project?.url && /^https?:\/\//i.test(project.url) && (
-						<a
-							href={project.url}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="inline-flex min-h-11 items-center gap-2 font-medium text-primary text-sm underline"
-						>
-							View project <ArrowUpRight className="size-4" />
-						</a>
-					)}
-					{portfolioDialogAction}
 				</DialogContent>
 			</Dialog>
 		</div>
