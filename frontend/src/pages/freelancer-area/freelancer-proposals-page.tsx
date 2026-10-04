@@ -34,19 +34,16 @@ const proposalStatuses = [
 		label: "Drafts" as const,
 		title: "Ready for your next move",
 		description: "Finish your introduction and make it count.",
-		icon: FilePenLine,
 	},
 	{
 		label: "Submitted" as const,
 		title: "Out in the world",
 		description: "Keep track of the proposals you’ve sent.",
-		icon: Send,
 	},
 	{
 		label: "Archived" as const,
 		title: "Filed for later",
 		description: "Past proposals, ready when you need them.",
-		icon: Archive,
 	},
 ]
 
@@ -157,7 +154,7 @@ const FreelancerProposalsPage = () => {
 			<WorkspacePageHeader
 				eyebrow="Freelancer workspace"
 				title="Your proposals"
-				description="From a thoughtful introduction to your next collaboration. Keep every opportunity moving."
+				description="From a thoughtful introduction to your next collaboration."
 				meta={
 					<span className="font-medium text-primary">
 						{counts("Drafts")} {counts("Drafts") === 1 ? "draft" : "drafts"} to make your own
@@ -182,7 +179,7 @@ const FreelancerProposalsPage = () => {
 				</p>
 			)}
 			<section aria-label="Proposal overview" className="grid grid-cols-3 gap-2 sm:gap-3">
-				{proposalStatuses.map(({ label, description, icon: Icon }) => (
+				{proposalStatuses.map(({ label, description }) => (
 					<button
 						key={label}
 						type="button"
@@ -194,7 +191,6 @@ const FreelancerProposalsPage = () => {
 							<span className="font-label-md text-caption text-on-surface-variant sm:text-label-md">
 								{label === "Drafts" ? "In progress" : label}
 							</span>
-							<Icon className={`hidden size-4 sm:block ${tab === label ? "text-primary" : "text-outline"}`} />
 						</div>
 						<div className="mt-3 flex items-end justify-between">
 							<span className="font-headline-xl font-semibold text-headline-xl tabular-nums tracking-tight">
@@ -424,7 +420,6 @@ const FreelancerProposalsPage = () => {
 					</WorkspaceSurface>
 					<WorkspaceSurface className="p-5">
 						<div className="mb-3 flex items-center gap-2">
-							<Bookmark className="size-4 text-primary" />
 							<h2 className="font-headline-sm font-semibold text-headline-sm">Keep the momentum</h2>
 						</div>
 						<p className="text-body-sm text-on-surface-variant leading-relaxed">
