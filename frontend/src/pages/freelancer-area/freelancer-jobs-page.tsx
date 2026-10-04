@@ -30,7 +30,7 @@ export default function FreelancerJobsPage() {
 	const [credentials, setCredentials] = useState<string[]>([])
 	const [experience, setExperience] = useState<string[]>([])
 	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
-	const [commitment, setCommitment] = useState("")
+	// const [commitment, setCommitment] = useState("")
 	const [sort, setSort] = useState("recommended")
 	const [filtersOpen, setFiltersOpen] = useState(false)
 	const [visibleCount, setVisibleCount] = useState(4)
@@ -75,7 +75,7 @@ export default function FreelancerJobsPage() {
 		setCredentials([])
 		setExperience([])
 		setHourlyRate([0, 120])
-		setCommitment("")
+		// setCommitment("")
 		setVisibleCount(4)
 		setSearchResetKey((current) => current + 1)
 	}
@@ -130,17 +130,17 @@ export default function FreelancerJobsPage() {
 				]
 			: []),
 
-		...(commitment
-			? [
-					{
-						label: commitment,
-						remove: () => {
-							setCommitment("")
-							setVisibleCount(4)
-						},
-					},
-				]
-			: []),
+		// ...(commitment
+		// 	? [
+		// 			{
+		// 				label: commitment,
+		// 				remove: () => {
+		// 					setCommitment("")
+		// 					setVisibleCount(4)
+		// 				},
+		// 			},
+		// 		]
+		// 	: []),
 
 		...(hourlyRate[0] !== 0 || hourlyRate[1] !== 120
 			? [
@@ -225,29 +225,6 @@ export default function FreelancerJobsPage() {
 						setVisibleCount(4)
 					}}
 				/>
-			</fieldset>
-
-			<fieldset className="space-y-2.5 pt-4">
-				<legend className="sr-only">Weekly Commitment</legend>
-
-				<p className="mb-3 font-medium text-label-sm">Weekly Commitment</p>
-
-				{["Under 15 hrs/wk", "15–30 hrs/wk", "30+ hrs/wk"].map((label) => (
-					<label key={label} className="flex cursor-pointer items-center gap-2 text-body-sm text-on-surface-variant">
-						<input
-							type="radio"
-							name={`${group}-hours`}
-							checked={commitment === label}
-							onChange={() => {
-								setCommitment(label)
-								setVisibleCount(4)
-							}}
-							className="size-3.5 accent-primary"
-						/>
-
-						{label}
-					</label>
-				))}
 			</fieldset>
 		</div>
 	)

@@ -6,11 +6,12 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { UsersService, type UserUpdateMe } from "@/client"
-import { Monogram } from "@/components/dashboard/dashboard-header"
+import { Monogram, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { SettingsSectionHeader } from "@/components/user-settings/settings-section-header"
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import useAuth from "@/hooks/useAuth"
@@ -121,20 +122,26 @@ const UserInformation = () => {
 			</section>
 
 			<section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
-				<header className="flex flex-col justify-between gap-4 border-outline-variant border-b p-5 sm:flex-row sm:items-start sm:p-7">
-					<div>
-						<p className="font-semibold text-brand-700 text-xs uppercase tracking-[0.16em]">Identity</p>
-						<h2 className="mt-1 font-headline-md font-semibold text-headline-md">Personal details</h2>
-						<p className="mt-1 text-muted-foreground text-sm leading-6">
-							Your name and email appear across your workspace.
-						</p>
-					</div>
-					{!editMode && (
-						<Button type="button" variant="outline" onClick={() => setEditMode(true)} className="self-start">
-							<Pencil className="size-4" /> Edit details
-						</Button>
-					)}
-				</header>
+				<SettingsSectionHeader
+					eyebrow="Identity"
+					title="Personal details"
+					description="Your name and email appear across your workspace."
+					icon={UserRound}
+					className="flex-col justify-between gap-4 sm:flex-row sm:items-start"
+					actions={
+						!editMode && (
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setEditMode(true)}
+								className="min-h-9 rounded-lg px-5"
+							>
+								<Pencil className="size-4" />
+								Edit details
+							</Button>
+						)
+					}
+				/>
 
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
@@ -147,7 +154,12 @@ const UserInformation = () => {
 										<FormItem>
 											<FormLabel>Full name</FormLabel>
 											<FormControl>
-												<Input type="text" autoComplete="name" {...field} />
+												<Input
+													type="text"
+													autoComplete="name"
+													className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+													{...field}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -160,7 +172,12 @@ const UserInformation = () => {
 										<FormItem>
 											<FormLabel>Email address</FormLabel>
 											<FormControl>
-												<Input type="email" autoComplete="email" {...field} />
+												<Input
+													type="email"
+													autoComplete="email"
+													className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+													{...field}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -185,10 +202,21 @@ const UserInformation = () => {
 
 						{editMode && (
 							<footer className="flex flex-col-reverse gap-3 border-outline-variant border-t bg-muted/30 p-4 sm:flex-row sm:justify-end sm:px-7">
-								<Button type="button" variant="outline" onClick={onCancel} disabled={mutation.isPending}>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={onCancel}
+									disabled={mutation.isPending}
+									className={workspaceStyles.secondaryAction}
+								>
 									Cancel
 								</Button>
-								<LoadingButton type="submit" loading={mutation.isPending} disabled={!form.formState.isDirty}>
+								<LoadingButton
+									type="submit"
+									loading={mutation.isPending}
+									disabled={!form.formState.isDirty}
+									className={workspaceStyles.primaryAction}
+								>
 									Save changes
 								</LoadingButton>
 							</footer>

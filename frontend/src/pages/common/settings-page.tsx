@@ -66,9 +66,11 @@ export function SettingsPage({
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
 			<WorkspacePageHeader
-				eyebrow={`${role === "client" ? "Client" : "Freelancer"} workspace / Settings`}
-				title="Account settings"
+				eyebrow={`${role === "client" ? "Client" : "Freelancer"} workspace`}
+				title="Manage your account"
 				description="Manage your account, preferences, and privacy."
+				meta={<span className="font-medium text-primary">Settings</span>}
+				action=""
 			/>
 			<Tabs
 				value={section}
@@ -87,13 +89,15 @@ export function SettingsPage({
 								<TabsTrigger
 									key={section.value}
 									value={section.value}
-									className={`group h-auto min-h-12 min-w-fit justify-start rounded-lg border-0 px-3 py-2.5 text-left shadow-none data-[state=active]:bg-brand-50 data-[state=active]:text-brand-800 data-[state=active]:shadow-none lg:w-full dark:data-[state=active]:bg-brand-950/50 dark:data-[state=active]:text-brand-200 ${
+									className={`group h-auto min-h-12 min-w-fit justify-start rounded-lg border-0 px-3 py-2.5 text-left shadow-none data-[state=active]:bg-brand-50 data-[state=active]:text-brand-800 data-[state=active]:shadow-none lg:w-full dark:data-[state=active]:bg-brand-500/10 dark:data-[state=active]:text-brand-600 ${
 										section.destructive
-											? "text-destructive data-[state=active]:bg-danger-soft data-[state=active]:text-destructive"
+											? "text-destructive data-[state=active]:bg-danger-soft data-[state=active]:text-destructive dark:data-[state=active]:bg-danger-soft dark:data-[state=active]:text-destructive"
 											: ""
 									}`}
 								>
-									<span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground transition group-data-[state=active]:bg-card group-data-[state=active]:text-brand-700">
+									<span
+										className={`grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground transition group-data-[state=active]:bg-card ${section.destructive ? "group-data-[state=active]:text-destructive" : "group-data-[state=active]:text-brand-700"}`}
+									>
 										<Icon className="size-4" />
 									</span>
 									<span className="hidden min-w-0 flex-1 lg:block">

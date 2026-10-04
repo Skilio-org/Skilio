@@ -122,7 +122,6 @@ export function ClientProfilePage() {
 				description="Help independent professionals understand who you are and what working with you will feel like."
 				action=""
 			/>
-
 			<div className="grid items-start gap-6 lg:grid-cols-[1fr_320px]">
 				<form
 					onSubmit={handleSubmit}

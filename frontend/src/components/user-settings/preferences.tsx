@@ -17,6 +17,7 @@ import { useState } from "react"
 
 import { type Theme, useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
+import { SettingsSectionHeader } from "@/components/user-settings/settings-section-header"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { cn } from "@/lib/utils"
 
@@ -119,7 +120,7 @@ export function PrivacySettings() {
 				</div>
 			</SettingsPanel>
 
-			<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-7">
+			{/* <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-7">
 				<div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
 					<div className="max-w-xl">
 						<h3 className="font-display font-semibold text-lg">Download your account data</h3>
@@ -137,7 +138,7 @@ export function PrivacySettings() {
 						We'll notify you when your account archive is ready.
 					</p>
 				)}
-			</section>
+			</section> */}
 		</div>
 	)
 }
@@ -190,7 +191,7 @@ export function AppearanceSettings() {
 							aria-pressed={selected}
 							className={cn(
 								"group relative min-h-44 overflow-hidden rounded-lg border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-card focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
-								selected ? "border-brand-500 ring-4 ring-brand-100 dark:ring-brand-950" : "border-outline-variant",
+								selected ? "border-brand-500 bg-brand-50/30 dark:bg-brand-500/5" : "border-outline-variant",
 							)}
 						>
 							<span
@@ -256,16 +257,7 @@ function SettingsPanel({
 }) {
 	return (
 		<section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
-			<header className="flex items-start gap-4 border-outline-variant border-b p-5 sm:p-7">
-				<span className="grid size-11 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-950/50">
-					<Icon className="size-5" />
-				</span>
-				<div>
-					<p className="font-semibold text-brand-700 text-xs uppercase tracking-[0.16em]">{eyebrow}</p>
-					<h2 className="mt-1 font-headline-md font-semibold text-headline-md">{title}</h2>
-					<p className="mt-1 text-muted-foreground text-sm leading-6">{description}</p>
-				</div>
-			</header>
+			<SettingsSectionHeader eyebrow={eyebrow} title={title} description={description} icon={Icon} />
 			{children}
 		</section>
 	)

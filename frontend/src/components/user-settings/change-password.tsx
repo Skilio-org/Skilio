@@ -8,8 +8,10 @@ import { type UpdatePassword, UsersService } from "@/client"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { PasswordInput } from "@/components/ui/password-input"
+import { SettingsSectionHeader } from "@/components/user-settings/settings-section-header"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
+import { workspaceStyles } from "../dashboard/dashboard-header"
 
 const formSchema = z
 	.object({
@@ -59,18 +61,12 @@ const ChangePassword = () => {
 	return (
 		<div className="space-y-5">
 			<section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
-				<header className="flex items-start gap-4 border-outline-variant border-b p-5 sm:p-7">
-					<span className="grid size-11 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700">
-						<KeyRound className="size-5" />
-					</span>
-					<div>
-						<p className="font-bold text-brand-700 text-xs uppercase tracking-[0.16em]">Security</p>
-						<h2 className="mt-2 font-headline-md font-semibold text-headline-md">Change password</h2>
-						<p className="mt-2 text-muted-foreground text-sm leading-6">
-							Use at least eight characters and avoid passwords you use elsewhere.
-						</p>
-					</div>
-				</header>
+				<SettingsSectionHeader
+					eyebrow="Security"
+					title="Change password"
+					description="Use at least eight characters and avoid passwords you use elsewhere."
+					icon={KeyRound}
+				/>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full flex-col gap-5 p-5 sm:p-7">
 						<FormField
@@ -83,6 +79,7 @@ const ChangePassword = () => {
 										<PasswordInput
 											data-testid="current-password-input"
 											placeholder="••••••••"
+											className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
 											aria-invalid={fieldState.invalid}
 											{...field}
 										/>
@@ -102,6 +99,7 @@ const ChangePassword = () => {
 										<PasswordInput
 											data-testid="new-password-input"
 											placeholder="••••••••"
+											className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
 											aria-invalid={fieldState.invalid}
 											{...field}
 										/>
@@ -121,6 +119,7 @@ const ChangePassword = () => {
 										<PasswordInput
 											data-testid="confirm-password-input"
 											placeholder="••••••••"
+											className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
 											aria-invalid={fieldState.invalid}
 											{...field}
 										/>
@@ -131,7 +130,7 @@ const ChangePassword = () => {
 						/>
 
 						<div className="flex flex-col gap-4 border-outline-variant border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
-							<LoadingButton type="submit" loading={mutation.isPending} className="self-start sm:self-auto">
+							<LoadingButton type="submit" loading={mutation.isPending} className={workspaceStyles.primaryAction}>
 								Update password
 							</LoadingButton>
 						</div>
