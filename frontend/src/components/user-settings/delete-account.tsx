@@ -1,18 +1,20 @@
-import { TriangleAlert } from "lucide-react"
+import { TriangleAlert, Trash2 } from "lucide-react"
 import { useAccountRole } from "@/hooks/useAccountRole"
+import { SettingsSectionHeader } from "@/components/user-settings/settings-section-header"
 import DeleteConfirmation from "./delete-confirmation"
 
 const DeleteAccount = () => {
 	const savedItems = useAccountRole() === "freelancer" ? "saved jobs" : "saved talent"
 	return (
 		<section className="overflow-hidden rounded-lg border border-destructive/20 bg-surface-container-lowest">
-			<header className="border-destructive/15 border-b p-5 sm:p-7">
-				<p className="font-bold text-destructive text-xs uppercase tracking-[0.16em]">Danger zone</p>
-				<h2 className="mt-1 font-headline-md font-semibold text-headline-md">Delete account</h2>
-				<p className="mt-1 max-w-2xl text-muted-foreground text-sm leading-6">
-					Permanently close your Skilio account and remove its associated information.
-				</p>
-			</header>
+			<SettingsSectionHeader
+				eyebrow="Danger zone"
+				title="Delete account"
+				description="Permanently close your Skilio account and remove its associated information."
+				icon={Trash2}
+				tone="destructive"
+				className="border-destructive/15"
+			/>
 			<div className="p-5 sm:p-7">
 				<div className="flex flex-col gap-5 rounded-lg border border-destructive/30 bg-danger-soft p-5 sm:flex-row sm:items-center sm:justify-between">
 					<div className="flex gap-3">
