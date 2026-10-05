@@ -8,4 +8,5 @@ export type FreelancerJob = {
 	posted: string
 	description: string
 	skills: string[]
+	clientId?: string
 }

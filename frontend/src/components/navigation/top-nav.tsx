@@ -14,6 +14,7 @@ const freelancerMenu = [
 	["/freelancer-jobs", "Find Work"],
 	["/freelancer-saved-jobs", "Saved Jobs"],
 	["/freelancer-proposals", "Proposals"],
+	["/connects", "Connections"],
 	["/freelancer-messages", "Messages"],
 ] as const
 
@@ -22,6 +23,7 @@ const clientMenu = [
 	["/talent", "Find talent"],
 	["/client-jobs", "Jobs"],
 	["/saved", "Saved talent"],
+	["/connects", "Connections"],
 	["/messages", "Messages"],
 ] as const
 

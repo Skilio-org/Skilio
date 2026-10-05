@@ -14,13 +14,16 @@ import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as GoogleAuthRouteImport } from './routes/googleAuth'
 import { Route as LinkedinAuthRouteImport } from './routes/linkedinAuth'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StatusRouteImport } from './routes/status'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutClientJobsRouteImport } from './routes/_layout/client-jobs'
 import { Route as LayoutClientProfileRouteImport } from './routes/_layout/client-profile'
+import { Route as LayoutConnectsRouteImport } from './routes/_layout/connects'
 import { Route as LayoutDashboardRouteImport } from './routes/_layout/dashboard'
 import { Route as LayoutFreelancerRouteImport } from './routes/_layout/freelancer'
 import { Route as LayoutFreelancerDashboardRouteImport } from './routes/_layout/freelancer-dashboard'
@@ -60,6 +63,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecoverPasswordRoute = RecoverPasswordRouteImport.update({
   id: '/recover-password',
   path: '/recover-password',
@@ -80,6 +88,11 @@ const StatusRoute = StatusRouteImport.update({
   path: '/status',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LayoutAdminRoute = LayoutAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -93,6 +106,11 @@ const LayoutClientJobsRoute = LayoutClientJobsRouteImport.update({
 const LayoutClientProfileRoute = LayoutClientProfileRouteImport.update({
   id: '/client-profile',
   path: '/client-profile',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutConnectsRoute = LayoutConnectsRouteImport.update({
+  id: '/connects',
+  path: '/connects',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutDashboardRoute = LayoutDashboardRouteImport.update({
@@ -177,13 +195,16 @@ export interface FileRoutesByFullPath {
   '/googleAuth': typeof GoogleAuthRoute
   '/linkedinAuth': typeof LinkedinAuthRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof LayoutAdminRoute
   '/client-jobs': typeof LayoutClientJobsRoute
   '/client-profile': typeof LayoutClientProfileRoute
+  '/connects': typeof LayoutConnectsRoute
   '/dashboard': typeof LayoutDashboardRoute
   '/freelancer': typeof LayoutFreelancerRoute
   '/freelancer-dashboard': typeof LayoutFreelancerDashboardRoute
@@ -204,13 +225,16 @@ export interface FileRoutesByTo {
   '/googleAuth': typeof GoogleAuthRoute
   '/linkedinAuth': typeof LinkedinAuthRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof LayoutAdminRoute
   '/client-jobs': typeof LayoutClientJobsRoute
   '/client-profile': typeof LayoutClientProfileRoute
+  '/connects': typeof LayoutConnectsRoute
   '/dashboard': typeof LayoutDashboardRoute
   '/freelancer': typeof LayoutFreelancerRoute
   '/freelancer-dashboard': typeof LayoutFreelancerDashboardRoute
@@ -233,13 +257,16 @@ export interface FileRoutesById {
   '/googleAuth': typeof GoogleAuthRoute
   '/linkedinAuth': typeof LinkedinAuthRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
   '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/client-jobs': typeof LayoutClientJobsRoute
   '/_layout/client-profile': typeof LayoutClientProfileRoute
+  '/_layout/connects': typeof LayoutConnectsRoute
   '/_layout/dashboard': typeof LayoutDashboardRoute
   '/_layout/freelancer': typeof LayoutFreelancerRoute
   '/_layout/freelancer-dashboard': typeof LayoutFreelancerDashboardRoute
@@ -262,13 +289,16 @@ export interface FileRouteTypes {
     | '/googleAuth'
     | '/linkedinAuth'
     | '/login'
+    | '/privacy'
     | '/recover-password'
     | '/reset-password'
     | '/signup'
     | '/status'
+    | '/terms'
     | '/admin'
     | '/client-jobs'
     | '/client-profile'
+    | '/connects'
     | '/dashboard'
     | '/freelancer'
     | '/freelancer-dashboard'
@@ -289,13 +319,16 @@ export interface FileRouteTypes {
     | '/googleAuth'
     | '/linkedinAuth'
     | '/login'
+    | '/privacy'
     | '/recover-password'
     | '/reset-password'
     | '/signup'
     | '/status'
+    | '/terms'
     | '/admin'
     | '/client-jobs'
     | '/client-profile'
+    | '/connects'
     | '/dashboard'
     | '/freelancer'
     | '/freelancer-dashboard'
@@ -317,13 +350,16 @@ export interface FileRouteTypes {
     | '/googleAuth'
     | '/linkedinAuth'
     | '/login'
+    | '/privacy'
     | '/recover-password'
     | '/reset-password'
     | '/signup'
     | '/status'
+    | '/terms'
     | '/_layout/admin'
     | '/_layout/client-jobs'
     | '/_layout/client-profile'
+    | '/_layout/connects'
     | '/_layout/dashboard'
     | '/_layout/freelancer'
     | '/_layout/freelancer-dashboard'
@@ -346,10 +382,12 @@ export interface RootRouteChildren {
   GoogleAuthRoute: typeof GoogleAuthRoute
   LinkedinAuthRoute: typeof LinkedinAuthRoute
   LoginRoute: typeof LoginRoute
+  PrivacyRoute: typeof PrivacyRoute
   RecoverPasswordRoute: typeof RecoverPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   StatusRoute: typeof StatusRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -389,6 +427,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recover-password': {
       id: '/recover-password'
       path: '/recover-password'
@@ -417,6 +462,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatusRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_layout/admin': {
       id: '/_layout/admin'
       path: '/admin'
@@ -436,6 +488,13 @@ declare module '@tanstack/react-router' {
       path: '/client-profile'
       fullPath: '/client-profile'
       preLoaderRoute: typeof LayoutClientProfileRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/connects': {
+      id: '/_layout/connects'
+      path: '/connects'
+      fullPath: '/connects'
+      preLoaderRoute: typeof LayoutConnectsRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/dashboard': {
@@ -543,6 +602,7 @@ interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutClientJobsRoute: typeof LayoutClientJobsRoute
   LayoutClientProfileRoute: typeof LayoutClientProfileRoute
+  LayoutConnectsRoute: typeof LayoutConnectsRoute
   LayoutDashboardRoute: typeof LayoutDashboardRoute
   LayoutFreelancerRoute: typeof LayoutFreelancerRoute
   LayoutFreelancerDashboardRoute: typeof LayoutFreelancerDashboardRoute
@@ -563,6 +623,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
   LayoutClientJobsRoute: LayoutClientJobsRoute,
   LayoutClientProfileRoute: LayoutClientProfileRoute,
+  LayoutConnectsRoute: LayoutConnectsRoute,
   LayoutDashboardRoute: LayoutDashboardRoute,
   LayoutFreelancerRoute: LayoutFreelancerRoute,
   LayoutFreelancerDashboardRoute: LayoutFreelancerDashboardRoute,
@@ -588,10 +649,12 @@ const rootRouteChildren: RootRouteChildren = {
   GoogleAuthRoute: GoogleAuthRoute,
   LinkedinAuthRoute: LinkedinAuthRoute,
   LoginRoute: LoginRoute,
+  PrivacyRoute: PrivacyRoute,
   RecoverPasswordRoute: RecoverPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   StatusRoute: StatusRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

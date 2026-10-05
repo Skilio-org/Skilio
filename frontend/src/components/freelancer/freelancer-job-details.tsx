@@ -1,7 +1,10 @@
-import { ArrowRight, Banknote, Bookmark, Building2, CircleCheck, Clock3, Globe2, Send } from "lucide-react"
+import { ArrowRight, Banknote, Bookmark, Building2, CircleCheck, Clock3, Globe2, MessageSquare, Send, UserCheck, UserPlus } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
+import { Link } from "@tanstack/react-router"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { SheetDescription, SheetTitle } from "@/components/ui/sheet"
+import { useConnectionStatus, useSendConnectionRequest } from "@/hooks/useConnections"
 import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
 import type { FreelancerJob } from "@/types/job"
@@ -20,6 +23,11 @@ export const JobDetails = ({
 	const { isSubmitted, getProposal, saveProposal } = useFreelancerProposals()
 	const submitted = isSubmitted(job.id)
 	const existingProposal = getProposal(job.id)
+
+	const [connectOpen, setConnectOpen] = useState(false)
+	const [connectNote, setConnectNote] = useState("")
+	const { data: connectionStatus } = useConnectionStatus(job.clientId)
+	const sendConnectionMutation = useSendConnectionRequest()
 
 	const [applying, setApplying] = useState(() => initiallyApplying && !submitted)
 	const coverInput = useRef<HTMLTextAreaElement>(null)
@@ -242,6 +250,34 @@ export const JobDetails = ({
 							<Bookmark className={`size-4 ${saved ? "fill-current" : ""}`} />
 							{saved ? "Saved job" : "Save job"}
 						</button>
+
+						{/* Connect with Client Flow (F4, F5, F6) */}
+						{job.clientId && (
+							connectionStatus?.status === "connected" ? (
+								<Link
+									to="/freelancer-messages"
+									search={{ userId: job.clientId }}
+									className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 font-label-md text-label-md text-primary hover:bg-primary/20"
+								>
+									<MessageSquare className="size-4" />
+									<span>Message client (Connected)</span>
+								</Link>
+							) : connectionStatus?.status === "pending_sent" ? (
+								<div className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 font-label-md text-label-md text-amber-600 dark:text-amber-400">
+									<Clock3 className="size-4" />
+									<span>Connection pending</span>
+								</div>
+							) : (
+								<button
+									type="button"
+									onClick={() => setConnectOpen(true)}
+									className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest font-label-md text-label-md text-on-surface hover:bg-surface-container"
+								>
+									<UserPlus className="size-4 text-primary" />
+									<span>Connect with client</span>
+								</button>
+							)
+						)}
 					</div>
 					<section className="mt-7 border-outline-variant/60 border-t pt-6">
 						<h3 className="font-semibold text-headline-sm">About the client</h3>
@@ -268,6 +304,65 @@ export const JobDetails = ({
 					</section>
 				</aside>
 			</div>
+
+			{/* Connect with Client Dialog (Flowchart F4, F5) */}
+			<Dialog open={connectOpen} onOpenChange={setConnectOpen}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle className="flex items-center gap-2">
+							<UserPlus className="size-5 text-primary" />
+							<span>Connect with {job.company}</span>
+						</DialogTitle>
+						<DialogDescription>
+							Send a connection inquiry regarding "{job.title}". Once accepted, direct chat and collaboration will be unlocked.
+						</DialogDescription>
+					</DialogHeader>
+
+					<form onSubmit={handleSendConnection} className="space-y-4 py-2">
+						<div className="space-y-1.5">
+							<div className="flex items-center justify-between">
+								<label htmlFor="connect-note" className="text-sm font-medium">
+									Introductory Note (Optional)
+								</label>
+								<span
+									className={`text-[11px] ${
+										connectNote.length > 300 ? "text-destructive font-semibold" : "text-muted-foreground"
+									}`}
+								>
+									{connectNote.length}/300
+								</span>
+							</div>
+							<textarea
+								id="connect-note"
+								rows={3}
+								maxLength={300}
+								placeholder="Add a brief note about why you are a great fit for this project..."
+								value={connectNote}
+								onChange={(e) => setConnectNote(e.target.value)}
+								className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+							/>
+						</div>
+
+						<DialogFooter className="mt-4 gap-2">
+							<button
+								type="button"
+								onClick={() => setConnectOpen(false)}
+								className="inline-flex h-9 items-center justify-center rounded-lg border border-outline-variant px-4 text-sm font-medium hover:bg-surface-container"
+							>
+								Cancel
+							</button>
+							<button
+								type="submit"
+								disabled={sendConnectionMutation.isPending || connectNote.length > 300}
+								className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-on-primary hover:bg-primary/90 disabled:opacity-50"
+							>
+								<Send className="size-3.5" />
+								<span>{sendConnectionMutation.isPending ? "Sending..." : "Send Connection Request"}</span>
+							</button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
 }

@@ -24,6 +24,7 @@ export function jobFromApi(job: JobPostPublic): BackendSearchJob {
 		posted: job.created_at ? new Date(job.created_at).toLocaleDateString() : "Recently posted",
 		description: job.description,
 		skills: job.skills ?? [],
+		clientId: job.client_id,
 	}
 }
 

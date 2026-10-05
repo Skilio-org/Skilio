@@ -1,7 +1,11 @@
 import { Link } from "@tanstack/react-router"
-import { Bookmark, MapPin, Star } from "lucide-react"
+import { Bookmark, Clock3, MapPin, Send, Star, UserCheck, UserPlus } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useConnectionStatus, useSendConnectionRequest } from "@/hooks/useConnections"
 import type { TalentCard } from "./talent-api"
 import { cn } from "@/lib/utils"
 import { getInitials } from "@/utils"
@@ -15,6 +19,30 @@ export function FreelancerCard({
 	saved: boolean
 	onToggleSaved: () => void
 }) {
+	const targetUserId = freelancer.userId ?? freelancer.id
+	const { data: connectionStatus } = useConnectionStatus(targetUserId)
+	const sendMutation = useSendConnectionRequest()
+	const [connectOpen, setConnectOpen] = useState(false)
+	const [note, setNote] = useState("")
+
+	const handleSend = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!targetUserId) return
+		if (note.length > 300) {
+			toast.error("Note cannot exceed 300 characters.")
+			return
+		}
+		try {
+			await sendMutation.mutateAsync({
+				receiver_id: targetUserId,
+				note: note.trim() || undefined,
+			})
+			setConnectOpen(false)
+			setNote("")
+		} catch {
+			// handled in mutation
+		}
+	}
 	return (
 		<article
 			aria-label={freelancer.name}
@@ -145,15 +173,91 @@ export function FreelancerCard({
 						View profile
 					</Link>
 
-					<Link
-						to="/messages"
-						search={{ userId: freelancer.userId ?? freelancer.id }}
-						className="inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
-					>
-						Message
-					</Link>
+					{connectionStatus?.status === "connected" ? (
+						<Link
+							to="/messages"
+							search={{ userId: targetUserId }}
+							className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
+						>
+							<UserCheck className="size-3.5 text-success" />
+							<span>Message</span>
+						</Link>
+					) : connectionStatus?.status === "pending_sent" ? (
+						<span className="inline-flex h-8 items-center justify-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 text-caption font-medium text-amber-600 dark:text-amber-400">
+							<Clock3 className="size-3.5" />
+							<span>Pending</span>
+						</span>
+					) : (
+						<button
+							type="button"
+							onClick={() => setConnectOpen(true)}
+							className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
+						>
+							<UserPlus className="size-3.5" />
+							<span>Connect</span>
+						</button>
+					)}
 				</div>
 			</div>
+
+			{/* Connect Dialog (Flowchart C2, C3) */}
+			<Dialog open={connectOpen} onOpenChange={setConnectOpen}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle className="flex items-center gap-2">
+							<UserPlus className="size-5 text-primary" />
+							<span>Connect with {freelancer.name}</span>
+						</DialogTitle>
+						<DialogDescription>
+							Send a connection request. Once accepted, direct messaging and collaboration will be unlocked.
+						</DialogDescription>
+					</DialogHeader>
+
+					<form onSubmit={handleSend} className="space-y-4 py-2">
+						<div className="space-y-1.5">
+							<div className="flex items-center justify-between">
+								<label htmlFor="talent-connect-note" className="text-sm font-medium">
+									Introductory Note (Optional)
+								</label>
+								<span
+									className={`text-[11px] ${
+										note.length > 300 ? "text-destructive font-semibold" : "text-muted-foreground"
+									}`}
+								>
+									{note.length}/300
+								</span>
+							</div>
+							<textarea
+								id="talent-connect-note"
+								rows={3}
+								maxLength={300}
+								placeholder="Add a brief note about your project or why you'd like to collaborate..."
+								value={note}
+								onChange={(e) => setNote(e.target.value)}
+								className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+							/>
+						</div>
+
+						<DialogFooter className="mt-4 gap-2">
+							<button
+								type="button"
+								onClick={() => setConnectOpen(false)}
+								className="inline-flex h-9 items-center justify-center rounded-lg border border-outline-variant px-4 text-sm font-medium hover:bg-surface-container"
+							>
+								Cancel
+							</button>
+							<button
+								type="submit"
+								disabled={sendMutation.isPending || note.length > 300}
+								className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-on-primary hover:bg-primary/90 disabled:opacity-50"
+							>
+								<Send className="size-3.5" />
+								<span>{sendMutation.isPending ? "Sending..." : "Send Request"}</span>
+							</button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
 		</article>
 	)
 }

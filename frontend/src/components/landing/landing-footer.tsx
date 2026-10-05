@@ -21,6 +21,12 @@ export function LandingFooter() {
 						<Link to="/status" className="hover:text-foreground">
 							System Status
 						</Link>
+						<Link to="/privacy" className="hover:text-foreground">
+							Privacy Policy
+						</Link>
+						<Link to="/terms" className="hover:text-foreground">
+							Terms of Service
+						</Link>
 						<Link to="/login" className="hover:text-foreground">
 							Log in
 						</Link>
@@ -28,7 +34,17 @@ export function LandingFooter() {
 				</div>
 				<div className="flex flex-col gap-3 pt-7 text-muted-foreground text-xs sm:flex-row sm:items-center sm:justify-between">
 					<p>© {new Date().getFullYear()} Skilio. All rights reserved.</p>
-					<p>Independent work, clearly presented.</p>
+					<div className="flex items-center gap-4">
+						<Link to="/privacy" className="hover:text-foreground transition-colors">
+							Privacy
+						</Link>
+						<span>·</span>
+						<Link to="/terms" className="hover:text-foreground transition-colors">
+							Terms
+						</Link>
+						<span>·</span>
+						<span>Independent work, clearly presented.</span>
+					</div>
 				</div>
 			</div>
 		</footer>
