@@ -1,4 +1,4 @@
-.PHONY: help setup dev up down build logs status test seed clean fclean re
+.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test
 
 # Default target — show available commands
 help:
@@ -14,6 +14,12 @@ help:
 	@echo "    make build        Rebuild all Docker container images"
 	@echo "    make logs         Tail logs for all Docker services"
 	@echo "    make status       Show running containers"
+	@echo ""
+	@echo "  Backups & Disaster Recovery:"
+	@echo "    make backup       Take compressed live snapshot of PostgreSQL database"
+	@echo "    make backup-list  Show inventory of available database snapshots"
+	@echo "    make restore      Restore database from latest backup (or FILE=...)"
+	@echo "    make dr-test      Run automated disaster recovery verification drill"
 	@echo ""
 	@echo "  Testing & Data:"
 	@echo "    make test         Run backend unit & integration test suite"
@@ -71,6 +77,27 @@ test:
 COUNT ?= 20
 seed:
 	cd backend && uv run python app/seed_data.py $(COUNT)
+
+
+
+
+# =========== Backups & Disaster Recovery ========================
+
+# Create live compressed snapshot of PostgreSQL
+backup:
+	@bash devops/backup/backup.sh
+
+# List available database backup snapshots
+backup-list:
+	@bash devops/backup/backup-list.sh
+
+# Restore database from latest backup (or FILE=...)
+restore:
+	@bash devops/backup/restore.sh $(FILE)
+
+# Run automated disaster recovery verification drill
+dr-test:
+	@bash devops/backup/dr-test.sh
 
 
 

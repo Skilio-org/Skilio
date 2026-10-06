@@ -143,16 +143,16 @@ For configuration guides and Vault policies, see [devops/vault/README.md](./devo
 
 ## 💾 Database Backups & Disaster Recovery
 
-The platform includes a dedicated backup daemon container (`backup-daemon`) and shell automation:
+The platform includes a dedicated backup daemon container (`db-backup`) and shell automation:
 
 ```bash
 make backup       # Create an immediate compressed PostgreSQL dump (.sql.gz)
-make restore      # Restore the database from the latest backup archive
-make backup-logs  # Stream live logs from the automated backup daemon
-make dr-test      # Execute an automated Disaster Recovery (DR) drill in an isolated container
+make backup-list  # List available database backup snapshots with sizes and dates
+make restore      # Restore the database from the latest backup archive (or FILE=...)
+make dr-test      # Execute an automated Disaster Recovery (DR) drill in an isolated sandbox (< 4s)
 ```
 
-For comprehensive disaster recovery protocols and RPO/RTO targets, see [devops/backup/DISASTER_RECOVERY.md](./devops/backup/DISASTER_RECOVERY.md).
+For comprehensive disaster recovery protocols, architecture, and RPO/RTO targets, see [devops/backup/BACKUP.md](./devops/backup/BACKUP.md).
 
 ---
 
@@ -188,7 +188,7 @@ bash ./scripts/generate-client.sh
 - [Cloud Deployment](./docs/deployment.md) — Cloud hosting guidance.
 - [Monitoring & Observability Suite](./devops/monitoring/MONITORING.md) — Prometheus, Grafana dashboards, alerting rules, and telemetry.
 - [HCP Vault Guide](./devops/vault/README.md) — Vault secrets engine setup and policies.
-- [Disaster Recovery Runbook](./devops/backup/DISASTER_RECOVERY.md) — Backup schedules, rotation, and restoration procedures.
+- [Disaster Recovery Runbook & Backup Suite](./devops/backup/BACKUP.md) — Health checks, backup schedules, rotation, and restoration procedures.
 - [Frontend UI & Design QA](./frontend/UI-POLISH.md) — Design system decisions, typography, and test verification notes.
 - [42 Subject Specification](./docs/subject/en.subject.pdf) — Official project requirements and evaluation criteria.
 
