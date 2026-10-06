@@ -50,6 +50,8 @@ services:
     volumes:
       - ./devops/backup/dumps:/dumps
       - ./devops/backup/backup.sh:/usr/local/bin/backup.sh:ro
+      - ./devops/backup/restore.sh:/usr/local/bin/restore.sh:ro
+      - ./devops/backup/dr-test.sh:/usr/local/bin/dr-test.sh:ro
       - ./devops/backup/entrypoint.sh:/entrypoint.sh:ro
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
 

@@ -1,4 +1,4 @@
-.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list
+.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test
 
 # Default target — show available commands
 help:
@@ -18,6 +18,8 @@ help:
 	@echo "  Backups & Disaster Recovery:"
 	@echo "    make backup       Take compressed live snapshot of PostgreSQL database"
 	@echo "    make backup-list  Show inventory of available database snapshots"
+	@echo "    make restore      Restore database from latest backup (or FILE=...)"
+	@echo "    make dr-test      Run automated disaster recovery verification drill"
 	@echo ""
 	@echo "  Testing & Data:"
 	@echo "    make test         Run backend unit & integration test suite"
@@ -88,6 +90,14 @@ backup:
 # List available database backup snapshots
 backup-list:
 	@bash devops/backup/backup-list.sh
+
+# Restore database from latest backup (or FILE=...)
+restore:
+	@bash devops/backup/restore.sh $(FILE)
+
+# Run automated disaster recovery verification drill
+dr-test:
+	@bash devops/backup/dr-test.sh
 
 
 
