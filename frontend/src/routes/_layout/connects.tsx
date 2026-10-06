@@ -43,6 +43,7 @@ import {
   useSendConnectionRequest,
   useWithdrawConnectionRequest,
 } from "@/hooks/useConnections";
+import type { ConnectionPublic } from "@/client";
 import useAuth from "@/hooks/useAuth";
 import { useAccountRole } from "@/hooks/useAccountRole";
 import { getInitials } from "@/utils";
@@ -128,7 +129,7 @@ function ConnectsPage() {
         eyebrow="Network & Collaboration"
         title="Connections"
         description="Connect directly with verified clients and freelancers to discuss opportunities and collaborate."
-        actions={
+        action={
           <Button
             size="sm"
             onClick={() => setIsConnectModalOpen(true)}
@@ -246,7 +247,7 @@ function ConnectsPage() {
             </WorkspaceSurface>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {acceptedConnections.map((conn) => {
+              {acceptedConnections.map((conn: ConnectionPublic) => {
                 const partner = conn.sender_id === user?.id ? conn.receiver : conn.sender;
                 const partnerName = partner?.full_name || "Platform Member";
                 const targetChatUserId = partner?.id || (conn.sender_id === user?.id ? conn.receiver_id : conn.sender_id);
@@ -339,7 +340,7 @@ function ConnectsPage() {
             </WorkspaceSurface>
           ) : (
             <div className="space-y-3">
-              {receivedRequests.map((conn) => {
+              {receivedRequests.map((conn: ConnectionPublic) => {
                 const senderName = conn.sender?.full_name || "Platform Member";
 
                 return (
@@ -426,7 +427,7 @@ function ConnectsPage() {
             </WorkspaceSurface>
           ) : (
             <div className="space-y-3">
-              {sentRequests.map((conn) => {
+              {sentRequests.map((conn: ConnectionPublic) => {
                 const receiverName = conn.receiver?.full_name || "Platform Member";
 
                 return (

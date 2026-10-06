@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 const links = [
 	["#talent", "Find talent"],
 	["#categories", "Categories"],
+	["#testimonials", "Testimonials"],
 	["#how-it-works", "How it works"],
 ]
 

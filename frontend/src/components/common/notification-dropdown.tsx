@@ -69,6 +69,7 @@ export function NotificationDropdown(
 				notification.id === notificationId ? { ...notification, is_read: true } : notification
 			),
 		]);
+		// TODO: navigate to the event page.
 	}
 
 	return (
