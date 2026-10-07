@@ -18,9 +18,6 @@ import useCustomToast from "@/hooks/useCustomToast"
 
 import { handleError } from "@/utils"
 
-/* =========================================================
-   VALIDATION
-   ========================================================= */
 
 const formSchema = z
 	.object({
@@ -44,9 +41,6 @@ const formSchema = z
 
 type FormData = z.infer<typeof formSchema>
 
-/* =========================================================
-   RESET PASSWORD
-   ========================================================= */
 
 export function ResetPasswordPage({ token }: { token: string }) {
 	const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -72,9 +66,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 
 	const passwordsMatch = newPassword.length > 0 && confirmPassword.length > 0 && newPassword === confirmPassword
 
-	/* =======================================================
-     API
-     ======================================================= */
 
 	const mutation = useMutation({
 		mutationFn: (data: { new_password: string; token: string }) =>
@@ -95,9 +86,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 		onError: handleError.bind(showErrorToast),
 	})
 
-	/* =======================================================
-     SUBMIT
-     ======================================================= */
 
 	const onSubmit = (data: FormData) => {
 		if (mutation.isPending) return
@@ -113,9 +101,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 			<div>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
-						{/* =================================================
-                BACK
-                ================================================= */}
 
 						<RouterLink
 							to="/login"
@@ -124,11 +109,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 							<ArrowLeft className="size-4" />
 							Back to login
 						</RouterLink>
-
-						{/* =================================================
-                HEADER
-                ================================================= */}
-
 						<div className="mb-7 text-center">
 							<div className="mx-auto mb-4 flex size-11 items-center justify-center rounded-xl bg-muted text-foreground">
 								<KeyRound className="size-5" />
@@ -142,16 +122,7 @@ export function ResetPasswordPage({ token }: { token: string }) {
 								Choose a strong password that you haven't used before. You'll use it to sign in to your account.
 							</p>
 						</div>
-
-						{/* =================================================
-                FORM FIELDS
-                ================================================= */}
-
 						<div className="flex flex-col gap-5">
-							{/* =================================================
-                  NEW PASSWORD
-                  ================================================= */}
-
 							<FormField
 								control={form.control}
 								name="new_password"
@@ -174,11 +145,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 									</FormItem>
 								)}
 							/>
-
-							{/* =================================================
-                  CONFIRM PASSWORD
-                  ================================================= */}
-
 							<FormField
 								control={form.control}
 								name="confirm_password"
@@ -201,10 +167,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 									</FormItem>
 								)}
 							/>
-
-							{/* =================================================
-                  PASSWORD REQUIREMENTS
-                  ================================================= */}
 
 							<div className="rounded-xl border border-border bg-card/60 p-4">
 								<div className="mb-3 flex items-center gap-2 font-semibold text-[12px] text-foreground">
@@ -246,11 +208,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 									</div>
 								</div>
 							</div>
-
-							{/* =================================================
-                  SUBMIT
-                  ================================================= */}
-
 							<LoadingButton
 								type="submit"
 								loading={mutation.isPending}
@@ -261,11 +218,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 								{!mutation.isPending && <ArrowRight className="size-4" />}
 							</LoadingButton>
 						</div>
-
-						{/* =================================================
-                FOOTER
-                ================================================= */}
-
 						<div className="mt-7 border-border/70 border-t pt-6 text-center text-muted-foreground text-sm">
 							Remember your password?{" "}
 							<RouterLink

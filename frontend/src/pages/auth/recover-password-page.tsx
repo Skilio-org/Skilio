@@ -18,9 +18,6 @@ import useCustomToast from "@/hooks/useCustomToast"
 
 import { handleError } from "@/utils"
 
-/* =========================================================
-   VALIDATION
-   ========================================================= */
 
 const formSchema = z.object({
 	email: z.email({
@@ -30,9 +27,6 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
-/* =========================================================
-   RECOVER PASSWORD
-   ========================================================= */
 
 export function RecoverPasswordPage() {
 	const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -47,9 +41,6 @@ export function RecoverPasswordPage() {
 		},
 	})
 
-	/* =======================================================
-     API
-     ======================================================= */
 
 	const recoverPassword = async (data: FormData) => {
 		await LoginService.recoverPassword({
@@ -71,9 +62,6 @@ export function RecoverPasswordPage() {
 		onError: handleError.bind(showErrorToast),
 	})
 
-	/* =======================================================
-     SUBMIT
-     ======================================================= */
 
 	const onSubmit = (data: FormData) => {
 		if (mutation.isPending) return
@@ -86,9 +74,6 @@ export function RecoverPasswordPage() {
 			<div>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
-						{/* =================================================
-                BACK TO LOGIN
-                ================================================= */}
 
 						<RouterLink
 							to="/login"
@@ -98,9 +83,6 @@ export function RecoverPasswordPage() {
 							Back to login
 						</RouterLink>
 
-						{/* =================================================
-                HEADER
-                ================================================= */}
 
 						<div className="mb-7 text-center">
 							{/* <div
@@ -131,9 +113,6 @@ export function RecoverPasswordPage() {
 							</p>
 						</div>
 
-						{/* =================================================
-                EMAIL
-                ================================================= */}
 
 						<div className="flex flex-col gap-5">
 							<FormField
@@ -164,9 +143,6 @@ export function RecoverPasswordPage() {
 								)}
 							/>
 
-							{/* =================================================
-                  SUBMIT
-                  ================================================= */}
 
 							<LoadingButton
 								type="submit"
@@ -179,9 +155,6 @@ export function RecoverPasswordPage() {
 							</LoadingButton>
 						</div>
 
-						{/* =================================================
-                FOOTER
-                ================================================= */}
 
 						<div className="mt-7 border-border/70 border-t pt-6 text-center text-muted-foreground text-sm">
 							Remember your password?{" "}

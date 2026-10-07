@@ -6,9 +6,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
 
-/* =========================================================
-   CONFIG
-   ========================================================= */
 
 type ThemeOption = {
 	value: Theme
@@ -50,9 +47,6 @@ const LABEL_MAP: Record<Theme, string> = {
 	system: "System",
 }
 
-/* =========================================================
-   THEME OPTION
-   ========================================================= */
 
 interface ThemeOptionItemProps {
 	value: Theme
@@ -74,9 +68,6 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
 					: `border-transparent bg-transparent data-[highlighted]:border-transparent data-[highlighted]:bg-muted/60`
 			} `}
 		>
-			{/* =====================================================
-          ICON
-          ===================================================== */}
 
 			<div
 				className={`flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-150 ${
@@ -88,9 +79,6 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
 				<Icon className="size-[17px]" />
 			</div>
 
-			{/* =====================================================
-          LABEL
-          ===================================================== */}
 
 			<div className="min-w-0 flex-1">
 				<div className="font-medium text-foreground text-sm">{label}</div>
@@ -98,9 +86,6 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
 				<div className="mt-0.5 text-[11px] text-muted-foreground leading-4">{description}</div>
 			</div>
 
-			{/* =====================================================
-          SELECTED INDICATOR
-          ===================================================== */}
 
 			{selected && (
 				<div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
@@ -111,9 +96,6 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
 	)
 }
 
-/* =========================================================
-   SIDEBAR APPEARANCE
-   ========================================================= */
 
 export function SidebarAppearance() {
 	const { isMobile } = useSidebar()
@@ -126,9 +108,6 @@ export function SidebarAppearance() {
 	return (
 		<SidebarMenuItem>
 			<DropdownMenu modal={false}>
-				{/* =================================================
-            TRIGGER
-            ================================================= */}
 
 				<DropdownMenuTrigger asChild>
 					<SidebarMenuButton
@@ -150,9 +129,6 @@ export function SidebarAppearance() {
 					</SidebarMenuButton>
 				</DropdownMenuTrigger>
 
-				{/* =================================================
-            MENU
-            ================================================= */}
 
 				<DropdownMenuContent
 					side={isMobile ? "top" : "right"}

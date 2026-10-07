@@ -6,15 +6,6 @@
 	&:is(:where(.dark, [data-theme="dark"], [data-mode="dark"]) *, [data-theme="dark"] *, [data-mode="dark"] *)
 );
 
-/* =========================================================
-   FREELANCE THE WORLD — GRAPHITE + ACID LIME
-   Inspired by the supplied reference artwork.
-   Palette anchors:
-   graphite  #1f2125
-   charcoal  #2b2e32
-   concrete  #a8aaae
-   acid lime #b8ef0d
-   ========================================================= */
 
 @theme inline {
 	/* Fonts */
@@ -253,10 +244,6 @@
 	--shadow-floating: var(--elevation-floating);
 }
 
-/* =========================================================
-   LIGHT THEME
-   Cool concrete neutrals + graphite + acid-lime highlights.
-   ========================================================= */
 
 :root {
 	--accent-lime: #b8ef0d;
@@ -406,10 +393,6 @@
 	--elevation-floating: 0 12px 30px rgb(31 33 37 / 0.12);
 }
 
-/* =========================================================
-   DARK THEME
-   Reference-matching graphite panels with acid-lime accents.
-   ========================================================= */
 
 :root:where(.dark, [data-theme="dark"], [data-mode="dark"]),
 :where(.dark, [data-theme="dark"], [data-mode="dark"]),
@@ -551,9 +534,6 @@
 	--elevation-floating: 0 16px 34px rgb(0 0 0 / 0.34), 0 30px 70px rgb(0 0 0 / 0.26);
 }
 
-/* =========================================================
-   BASE
-   ========================================================= */
 
 @layer base {
 	*,
@@ -668,9 +648,6 @@
 	}
 }
 
-/* =========================================================
-   RADIUS
-   ========================================================= */
 
 @layer utilities {
 	.rounded {
@@ -690,9 +667,6 @@
 	}
 }
 
-/* =========================================================
-   TYPOGRAPHY
-   ========================================================= */
 
 @layer utilities {
 	.font-display,
@@ -723,9 +697,6 @@
 	}
 }
 
-/* =========================================================
-   SURFACES
-   ========================================================= */
 
 @layer utilities {
 	.surface-card {
@@ -775,9 +746,6 @@
 	}
 }
 
-/* =========================================================
-   MARKETPLACE / PRODUCT UI
-   ========================================================= */
 
 @layer components {
 	.marketplace-list {
@@ -923,9 +891,6 @@
 	}
 }
 
-/* =========================================================
-   SCROLLBAR
-   ========================================================= */
 
 @layer base {
 	* {
@@ -937,9 +902,6 @@
 	}
 }
 
-/* =========================================================
-   INTERACTION
-   ========================================================= */
 
 @layer base {
 	h1,
@@ -970,9 +932,6 @@
 	}
 }
 
-/* =========================================================
-   APPLICATION COMPONENTS
-   ========================================================= */
 
 @layer components {
 	.messages-workspace {
@@ -1116,9 +1075,6 @@
 	}
 }
 
-/* =========================================================
-   DARK COMPONENT OVERRIDES
-   ========================================================= */
 
 @layer utilities {
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .surface-card,
@@ -1284,10 +1240,6 @@
 	}
 }
 
-/* =========================================================
-   DIRECT WORKSPACE TAILWIND OVERRIDES
-   These keep your existing components usable without rewrites.
-   ========================================================= */
 
 @layer utilities {
 	/* Light job cards stay crisp white. */
@@ -1448,9 +1400,6 @@
 	}
 }
 
-/* =========================================================
-   MOTION
-   ========================================================= */
 
 html[data-theme-transition],
 html[data-theme-transition] *,
@@ -1520,9 +1469,6 @@ html[data-theme-transition] *::after {
 	}
 }
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
 
 @media (max-width: 380px) {
 	.landing-page header .landing-container {
@@ -1535,9 +1481,6 @@ html[data-theme-transition] *::after {
 	}
 }
 
-/* =========================================================
-   THEME ACTIVATION BRIDGE
-   ========================================================= */
 
 @layer base {
 	:where(
