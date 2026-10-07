@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider"
 import { useQuery } from "@tanstack/react-query"
 import { loadTalentCards } from "@/components/talent/talent-api"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
+import { useErrorToast } from "@/hooks/useErrorToast"
 import { SearchWithCategories } from "@/components/common/search-with-categories"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 
@@ -40,6 +41,7 @@ export function TalentDirectoryPage({
 		data: freelancers = [],
 		isPending,
 		isError,
+		errorUpdatedAt,
 		refetch,
 	} = useQuery({
 		queryKey: ["talent-profiles", search, category, hourlyRate],
@@ -54,6 +56,7 @@ export function TalentDirectoryPage({
 				signal,
 			),
 	})
+	useErrorToast(isError ? "Couldn’t load professionals." : undefined, "talent-directory-load", errorUpdatedAt, refetch)
 	const { savedIds, toggleSaved } = useSavedTalent()
 	useEffect(() => {
 		setSearch(initialQuery ?? "")
@@ -284,14 +287,6 @@ export function TalentDirectoryPage({
 						))}
 					</div>
 					{isPending && <p role="status">Loading professionals…</p>}
-					{isError && (
-						<div role="alert">
-							Couldn’t load professionals.{" "}
-							<button type="button" onClick={() => void refetch()}>
-								Try again
-							</button>
-						</div>
-					)}
 					{!isPending && !isError && !results.length && (
 						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
 							<Search className="mx-auto mb-4 size-6 text-outline" />

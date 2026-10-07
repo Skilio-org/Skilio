@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { getInitials } from "@/utils"
+import { useErrorToast } from "@/hooks/useErrorToast"
 
 const pageSize = 20
 
@@ -102,6 +103,18 @@ export function ClientJobProposals({ jobId }: { jobId: string }) {
 	})
 	const proposals = proposalsQuery.data?.pages.flatMap((page) => page.data) ?? []
 	const count = proposalsQuery.data?.pages[0]?.count
+	useErrorToast(
+		proposalsQuery.isError && !proposals.length ? "Could not load proposals for this job." : undefined,
+		`client-job-proposals-${jobId}`,
+		proposalsQuery.errorUpdatedAt,
+		proposalsQuery.refetch,
+	)
+	useErrorToast(
+		proposalsQuery.isFetchNextPageError ? "Could not load more proposals." : undefined,
+		`client-job-proposals-more-${jobId}`,
+		proposalsQuery.errorUpdatedAt,
+		proposalsQuery.fetchNextPage,
+	)
 
 	return (
 		<section aria-labelledby="received-proposals-heading" className="border-outline-variant border-b pb-7">
@@ -117,9 +130,6 @@ export function ClientJobProposals({ jobId }: { jobId: string }) {
 				</div>
 			) : proposalsQuery.isError && !proposals.length ? (
 				<div className="mt-4">
-					<p role="alert" className="text-destructive text-sm">
-						Could not load proposals for this job.
-					</p>
 					<button
 						type="button"
 						onClick={() => void proposalsQuery.refetch()}
@@ -133,11 +143,6 @@ export function ClientJobProposals({ jobId }: { jobId: string }) {
 					{proposals.map((proposal) => (
 						<ProposalCard key={proposal.id} proposal={proposal} />
 					))}
-					{proposalsQuery.isFetchNextPageError && (
-						<p role="alert" className="text-destructive text-sm">
-							Could not load more proposals.
-						</p>
-					)}
 					{proposalsQuery.hasNextPage && (
 						<button
 							type="button"

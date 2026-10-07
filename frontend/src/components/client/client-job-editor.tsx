@@ -13,7 +13,6 @@ import { ClientJobProposals } from "./client-job-proposals"
 type ClientJobEditorProps = {
 	job: ClientJob | null
 	editing: boolean
-	error: string
 	onClose: () => void
 	onEditingChange: (editing: boolean) => void
 	onJobChange: (job: ClientJob) => void
@@ -24,7 +23,6 @@ type ClientJobEditorProps = {
 export function ClientJobEditor({
 	job,
 	editing,
-	error,
 	onClose,
 	onEditingChange,
 	onJobChange,
@@ -51,11 +49,6 @@ export function ClientJobEditor({
 				</SheetHeader>
 				{job && (
 					<div className={editing ? "flex min-h-0 flex-1 flex-col" : "min-h-0 flex-1 overflow-y-auto p-6 sm:p-8"}>
-						{error && (
-							<p role="alert" className="shrink-0 px-6 py-3 text-destructive text-sm">
-								{error}
-							</p>
-						)}
 						{editing ? (
 							<form
 								className="flex min-h-0 flex-1 flex-col"

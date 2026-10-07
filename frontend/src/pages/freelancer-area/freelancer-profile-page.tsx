@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, Check, CheckCircle2, Eye, Plus, Trash2, Upload }
 import { useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useBlocker } from "@tanstack/react-router"
+import { toast } from "sonner"
 import { profileFromApi, profileToApi } from "@/components/freelancer/freelancer-profile-api"
 import { SkillsSelect } from "@/components/common/skills-select"
 import { ProfilesService, UsersService, type FreelancerProfileDetailPublic } from "@/client"
@@ -18,6 +19,7 @@ import {
 } from "@/components/freelancer/freelancer-profile-model"
 import { accountAvatarUrl, markAccountAvatarUpdated } from "@/hooks/useAccountAvatar"
 import useAuth from "@/hooks/useAuth"
+import { useErrorToast } from "@/hooks/useErrorToast"
 
 const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetailPublic }) => {
 	const { user } = useAuth()
@@ -39,8 +41,6 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	})
 	const [view, setView] = useState<"home" | "edit" | "preview">("home")
 	const [step, setStep] = useState(0)
-	const [error, setError] = useState("")
-	const [saveError, setSaveError] = useState("")
 	const [editor, setEditor] = useState<{
 		kind: "experience" | "education" | "portfolio"
 		entry: Entry
@@ -48,12 +48,11 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	async function save(finished = profile.finished) {
 		if (saveLock.current || uploading) return false
 		if (profile.rate.trim() && (!Number.isFinite(Number(profile.rate)) || Number(profile.rate) < 0)) {
-			setSaveError("Enter a valid hourly rate before saving.")
+			toast.error("Enter a valid hourly rate before saving.")
 			return false
 		}
 		saveLock.current = true
 		setSaving(true)
-		setSaveError("")
 		try {
 			const { data } = await ProfilesService.updateProfileMe({
 				body: profileToApi({ ...profile, finished }, serverProfile),
@@ -67,7 +66,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			void queryClient.invalidateQueries({ queryKey: ["message-contacts"] })
 			return true
 		} catch {
-			setSaveError(
+			toast.error(
 				"Your profile couldn’t be saved. Your changes are still here. Check your connection and try Save changes again.",
 			)
 			return false
@@ -81,25 +80,23 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	const percent = Math.round((done.filter(Boolean).length / done.length) * 100)
 	function edit(index: number) {
 		setStep(index)
-		setError("")
 		setView("edit")
 	}
 	async function next() {
 		if ([0, 1, 2, 5].includes(step) && !done[step]) {
-			setError(
+			toast.error(
 				step === 2
 					? "Add an introduction of at least 80 characters and your languages."
 					: "Complete the required fields before continuing.",
 			)
 			return
 		}
-		setError("")
 		if (await save()) setStep((s) => Math.min(s + 1, 6))
 	}
 	async function upload(file?: File) {
 		if (!file || !user) return
 		if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) {
-			setError("Choose a JPG, PNG or WebP image under 2 MB.")
+			toast.error("Choose a JPG, PNG or WebP image under 2 MB.")
 			return
 		}
 		setUploading(true)
@@ -110,9 +107,8 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			const photo = accountAvatarUrl(user.id, version)
 			update("photo", photo)
 			setSavedProfile((previous) => ({ ...previous, photo }))
-			setError("")
 		} catch {
-			setError("This image couldn’t be uploaded. Try again.")
+			toast.error("This image couldn’t be uploaded. Try again.")
 		} finally {
 			setUploading(false)
 		}
@@ -191,14 +187,6 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 					)}
 				</div>
 			</header>
-			{saveError && (
-				<p
-					role="alert"
-					className="mb-5 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-destructive text-sm"
-				>
-					{saveError}
-				</p>
-			)}
 			{view === "home" ? (
 				<div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
 					<div className="space-y-6">
@@ -514,11 +502,6 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 								</>
 							)}
 						</div>
-						{error && (
-							<p role="alert" className="mt-5 text-destructive text-sm">
-								{error}
-							</p>
-						)}
 						<footer className="mt-8 flex flex-wrap items-center justify-between gap-3 border-border border-t pt-6">
 							<button
 								type="button"
@@ -542,7 +525,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 									className={primary}
 									onClick={async () => {
 										if ([0, 1, 2, 5].some((i) => !done[i])) {
-											setError("Complete the required sections before finishing.")
+											toast.error("Complete the required sections before finishing.")
 											return
 										}
 										if (await save(true)) setView("home")
@@ -582,11 +565,16 @@ export default function FreelancerProfilePage() {
 		enabled: !!user,
 		queryFn: async ({ signal }) => (await ProfilesService.readProfileMe({ signal })).data,
 	})
+	useErrorToast(
+		query.isError ? "Your profile couldn’t be loaded. Please try again before editing." : undefined,
+		"freelancer-profile-load",
+		query.errorUpdatedAt,
+		query.refetch,
+	)
 	if (userPending || (user && query.isPending)) return <p role="status">Loading your profile…</p>
 	if (!user || !query.data)
 		return (
 			<div className="flex flex-col gap-4 p-6">
-				<p role="alert">Your profile couldn’t be loaded. Please try again before editing.</p>
 				<button
 					type="button"
 					className={secondary}

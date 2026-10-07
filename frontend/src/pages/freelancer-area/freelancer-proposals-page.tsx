@@ -20,6 +20,7 @@ import { WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/da
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet"
 import { type BackendProposal, useFreelancerProposals } from "@/hooks/useFreelancerProposals"
+import { useErrorToast } from "@/hooks/useErrorToast"
 import type { FreelancerJob } from "@/types/job"
 
 type ProposalTab = "Drafts" | "Submitted" | "Archived"
@@ -49,6 +50,7 @@ const proposalStatuses = [
 
 const FreelancerProposalsPage = () => {
 	const { drafts, error, saveProposal, withdrawProposal } = useFreelancerProposals()
+	useErrorToast(error, "freelancer-proposals-load")
 
 	const [tab, setTab] = useState<ProposalTab>("Drafts")
 	const [query, setQuery] = useState("")
@@ -173,11 +175,6 @@ const FreelancerProposalsPage = () => {
 					</div>
 				}
 			/>
-			{error && (
-				<p role="alert" className="text-body-sm text-destructive">
-					{error}
-				</p>
-			)}
 			<section aria-label="Proposal overview" className="grid grid-cols-3 gap-2 sm:gap-3">
 				{proposalStatuses.map(({ label, description }) => (
 					<button

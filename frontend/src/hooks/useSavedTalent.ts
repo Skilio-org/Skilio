@@ -54,6 +54,7 @@ export function useSavedTalent(options: SavedTalentOptions = {}) {
 		toggleSaved,
 		isPending: savedQuery.isPending,
 		isError: savedQuery.isError,
+		errorUpdatedAt: savedQuery.errorUpdatedAt,
 		refetch: savedQuery.refetch,
 	}
 }

@@ -10,11 +10,13 @@ import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
 import QuickSavedSearch from "../common/quick-search"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { useErrorToast } from "@/hooks/useErrorToast"
 
 const FreelancerDashboardPage = () => {
 	const { user } = useAuth()
 	const { available } = useFreelancerAvailability()
 	const { drafts, error } = useFreelancerProposals()
+	useErrorToast(error, "freelancer-proposals-load")
 
 	const { data: jobs = [], isPending: jobsPending } = useQuery({
 		queryKey: ["freelancer-jobs", "dashboard"],
@@ -78,11 +80,6 @@ const FreelancerDashboardPage = () => {
 					</>
 				}
 			/>
-			{error && (
-				<p role="alert" className="text-destructive text-sm">
-					{error}
-				</p>
-			)}
 
 			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
 				<section className="flex flex-col gap-6 lg:col-span-8">

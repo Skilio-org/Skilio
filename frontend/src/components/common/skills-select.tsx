@@ -1,5 +1,6 @@
 import { Plus, X } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 
 const suggestedSkills = [
 	"Product design",
@@ -30,7 +31,6 @@ type SkillsSelectProps = {
 
 export function SkillsSelect({ value, onChange, label, inputId }: SkillsSelectProps) {
 	const [entry, setEntry] = useState("")
-	const [error, setError] = useState("")
 
 	function addSkill(raw: string) {
 		const skill = raw.trim().slice(0, 40)
@@ -40,12 +40,11 @@ export function SkillsSelect({ value, onChange, label, inputId }: SkillsSelectPr
 			return
 		}
 		if (value.length >= 15) {
-			setError("Choose up to 15 skills.")
+			toast.error("Choose up to 15 skills.")
 			return
 		}
 		onChange([...value, skill])
 		setEntry("")
-		setError("")
 	}
 
 	return (
@@ -72,11 +71,6 @@ export function SkillsSelect({ value, onChange, label, inputId }: SkillsSelectPr
 					Add
 				</button>
 			</div>
-			{error && (
-				<p role="alert" className="mt-2 text-destructive text-sm">
-					{error}
-				</p>
-			)}
 			<div className="mt-4 flex flex-wrap gap-2">
 				{value.map((skill) => (
 					<button
@@ -86,7 +80,6 @@ export function SkillsSelect({ value, onChange, label, inputId }: SkillsSelectPr
 						className="flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-primary text-sm"
 						onClick={() => {
 							onChange(value.filter((selected) => selected !== skill))
-							setError("")
 						}}
 					>
 						{skill}

@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
+import { useErrorToast } from "@/hooks/useErrorToast"
 import { Link } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
@@ -46,6 +47,7 @@ export default function FreelancerJobsPage() {
 		data: jobs = [],
 		isPending,
 		isError,
+		errorUpdatedAt,
 		refetch,
 	} = useQuery({
 		queryKey: ["freelancer-jobs", search, category, budgetType, hourlyRate, sortBy],
@@ -62,6 +64,7 @@ export default function FreelancerJobsPage() {
 				signal,
 			),
 	})
+	useErrorToast(isError ? "Could not load opportunities." : undefined, "freelancer-jobs-load", errorUpdatedAt, refetch)
 
 	const toggle = (values: string[], value: string, update: (values: string[]) => void) => {
 		update(values.includes(value) ? values.filter((item) => item !== value) : [...values, value])
@@ -352,14 +355,6 @@ export default function FreelancerJobsPage() {
 					</div>
 
 					{isPending && <p role="status">Loading opportunities...</p>}
-					{isError && (
-						<p role="alert">
-							Could not load opportunities.{" "}
-							<button type="button" onClick={() => void refetch()} className="text-primary hover:underline">
-								Try again
-							</button>
-						</p>
-					)}
 
 					{!isPending && !isError && !filtered.length && (
 						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">

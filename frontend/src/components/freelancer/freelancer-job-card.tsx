@@ -4,6 +4,7 @@ import { JobDetails } from "@/components/freelancer/freelancer-job-details"
 import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet"
 import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
+import { useErrorToast } from "@/hooks/useErrorToast"
 import type { FreelancerJob } from "@/types/job"
 
 const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { savedView?: boolean }) => {
@@ -11,6 +12,7 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 	const [initiallyApplying, setInitiallyApplying] = useState(false)
 	const detailsTrigger = useRef<HTMLButtonElement | null>(null)
 	const { saved, savedAt, toggleSaved, error } = useSavedJobs()
+	useErrorToast(error, "saved-jobs-load")
 	const { isSubmitted } = useFreelancerProposals()
 	const hasApplied = isSubmitted(job.id)
 	const isSaved = saved.includes(job.id)
@@ -67,11 +69,6 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 					</button>
 				</div>
 
-				{error && (
-					<p role="alert" className="mb-3 text-destructive text-sm">
-						{error}
-					</p>
-				)}
 				<div className="mb-3 flex flex-wrap items-center gap-3">
 					<div className="flex items-baseline gap-2 font-numeric-data text-numeric-data">
 						<span className="font-semibold text-[15px] text-on-surface">{job.budget.split(" · ")[0]}</span>
