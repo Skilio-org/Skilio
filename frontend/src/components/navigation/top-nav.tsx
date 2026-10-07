@@ -1,9 +1,9 @@
 import { Logo } from "@/components/common/logo"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { Link, useRouterState } from "@tanstack/react-router"
-import { Menu, Moon, Sun } from "lucide-react"
+import { Menu } from "lucide-react"
 import { NotificationDropdown } from "@/components/common/notification-dropdown"
-import { useTheme } from "@/components/theme-provider"
+import { ThemeToggle } from "@/components/common/theme-toggle"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import useAuth from "@/hooks/useAuth"
 import { User } from "../sidebar/user"
@@ -27,8 +27,6 @@ const clientMenu = [
 
 export function TopNav() {
 	const { user } = useAuth()
-	const { resolvedTheme, setTheme } = useTheme()
-	const isDark = resolvedTheme === "dark"
 	let unreadMessages: number = 0
 	const path = useRouterState({
 		select: (state) => state.location.pathname,
@@ -114,16 +112,7 @@ export function TopNav() {
 					<NotificationDropdown />
 
 					{/* dark/light mode toggle*/}
-					<button
-						type="button"
-						aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-						onClick={() => setTheme(isDark ? "light" : "dark")}
-						className="relative flex size-8 shrink-0 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
-					>
-						<span key={resolvedTheme} className="theme-toggle-icon" aria-hidden="true">
-							{isDark ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
-						</span>
-					</button>
+					<ThemeToggle />
 
 					<div className="hidden h-4 w-px bg-outline-variant sm:block" />
 

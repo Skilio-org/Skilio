@@ -18,27 +18,23 @@ export function LoginPage({ error, onErrorHandled }: { error?: string; onErrorHa
 
 	return (
 		<AuthLayout>
-			<div className="mx-auto w-full max-w-115">
-				<div className="mb-8 space-y-3 text-center">
-					<h1 className="font-bold font-display text-[42px] text-foreground leading-[0.98] tracking-[-0.045em] sm:text-[46px]">
-						Login to your <br />
-						account.
-					</h1>
-
-					<p className="mx-auto max-w-sm text-muted-foreground text-sm leading-6">
-						Welcome back. Enter your details to continue to your account.
+			<div>
+				<div className="mb-7 text-center">
+					<h1 className="font-display font-semibold text-3xl tracking-tight text-foreground">Welcome back</h1>
+					<p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
+						Sign in to continue working with your network.
 					</p>
 				</div>
-				<LoginForm />
-				<Divider text="Or continue with" />
 				<SocialAuth />
-				<div className="mt-7 text-center text-muted-foreground text-sm">
+				<Divider text="Or sign in with email" />
+				<LoginForm />
+				<div className="mt-6 text-center text-muted-foreground text-sm">
 					Don't have an account yet?{" "}
 					<RouterLink
 						to="/signup"
-						className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary hover:decoration-primary/40"
+						className="font-semibold text-foreground underline-offset-4 hover:underline focus-visible:underline"
 					>
-						Sign up
+						Create an account
 					</RouterLink>
 				</div>
 			</div>

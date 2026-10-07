@@ -2,8 +2,6 @@ import { Check, ChevronRight, type LucideIcon, Monitor, Moon, Sun } from "lucide
 
 import { type Theme, useTheme } from "@/components/theme-provider"
 
-import { Button } from "@/components/ui/button"
-
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
@@ -174,58 +172,5 @@ export function SidebarAppearance() {
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</SidebarMenuItem>
-	)
-}
-
-/* =========================================================
-   STANDALONE APPEARANCE
-   Used on auth screens
-   ========================================================= */
-
-export function Appearance() {
-	const { theme, resolvedTheme, setTheme } = useTheme()
-
-	const isDark = resolvedTheme === "dark"
-
-	return (
-		<DropdownMenu modal={false}>
-			{/* ===================================================
-          TRIGGER
-          =================================================== */}
-
-			<DropdownMenuTrigger asChild>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					data-testid="theme-button"
-					className="relative size-9 rounded-lg border border-border bg-card/80 text-muted-foreground shadow-sm backdrop-blur-sm transition-all duration-150 hover:border-foreground/10 hover:bg-muted/60 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/20 data-[state=open]:border-foreground/10 data-[state=open]:bg-muted/60 data-[state=open]:text-foreground"
-				>
-					{isDark ? <Moon className="size-[17px]" /> : <Sun className="size-[17px]" />}
-
-					<span className="sr-only">Change appearance</span>
-				</Button>
-			</DropdownMenuTrigger>
-
-			{/* ===================================================
-          MENU
-          =================================================== */}
-
-			<DropdownMenuContent
-				align="end"
-				sideOffset={8}
-				collisionPadding={12}
-				className="w-[250px] rounded-2xl border border-border bg-popover p-1.5 text-popover-foreground shadow-floating"
-			>
-				{THEME_OPTIONS.map((option) => (
-					<ThemeOptionItem
-						key={option.value}
-						{...option}
-						selected={theme === option.value}
-						onSelect={() => setTheme(option.value)}
-					/>
-				))}
-			</DropdownMenuContent>
-		</DropdownMenu>
 	)
 }
