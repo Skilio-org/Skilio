@@ -84,7 +84,7 @@ This implementation transitions the Skilio platform from an isolated `localhost`
   - Register/claim the free domain (`.tech` / `.me` from GitHub Student Developer Pack).
   - Configure DNS **A Records**:
     - `@` $\rightarrow$ `<SERVER_PUBLIC_IP>` (Apex domain: `skilio.tech`)
-    - `*` $\rightarrow$ `<SERVER_PUBLIC_IP>` (Wildcard subdomains: `api.skilio.tech`, `status.skilio.tech`)
+    - `*` $\rightarrow$ `<SERVER_PUBLIC_IP>` (Wildcard subdomains: `api.skilio.tech`, `status.skilio.tech`, `grafana.skilio.tech`)
 
 ---
 
@@ -94,11 +94,16 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 - [ ] **Step 2.1: Server Bootstrap Script (`devops/scripts/server-init.sh`)**
   - Automates system package updates (`apt-get update && apt-get upgrade -y`).
   - Installs Docker Engine, Docker Compose v2 plugin, Git, `curl`, and `ufw`.
-- [ ] **Step 2.2: Memory & Swap Allocation**
-  - Creates and enables a **2 GB Linux Swap File** (`/swapfile`).
-  - *Engineering rationale*: Small/micro instances can experience Out-Of-Memory (OOM) spikes during Docker container builds. Swap guarantees 100% build stability.
+  - Configures non-root Docker execution: runs `sudo usermod -aG docker ubuntu` so the SSH CI/CD runner executes Docker commands seamlessly without requiring `sudo` or password prompts.
+- [ ] **Step 2.2: Memory & Swap Allocation (Option A: Build-on-Server Architecture)**
+  - Allocates and enables a **2 GB Linux Swap File** (`/swapfile`):
+    - `fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile`
+    - Persists swap across reboots in `/etc/fstab` (`/swapfile none swap sw 0 0`).
+    - Optimizes kernel swappiness: sets `vm.swappiness=10` in `/etc/sysctl.conf`.
+  - *Engineering rationale (Option A)*: Compiling the Vite frontend (`bun run build`) and compiling Python packages spikes memory to ~800 MB. Swap guarantees 100% build stability without triggering the Linux kernel OOM-Killer.
+  - *Architectural Trade-Off Justification for 42 Defense*: Building directly on EC2 with Swap was chosen for this single-node infrastructure to eliminate external registry token management, package rate limits, and third-party dependencies while keeping deployment self-contained. (In a multi-node enterprise environment, building in CI and pushing to GHCR/ECR would be preferred).
 - [ ] **Step 2.3: Application Directory & Permissions**
-  - Sets up `/opt/skilio` directory with proper user ownership.
+  - Sets up `/opt/skilio` directory with ownership assigned to `ubuntu:ubuntu`.
   - Clones repository or prepares git checkout structure.
 
 ---
@@ -107,19 +112,22 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 **Goal**: Configure Traefik 3.6 to automatically handle HTTPS termination, certificate issuance, and domain routing.
 
 - [ ] **Step 3.1: Finalize Production Ingress (`compose.deploy.yml`)**
-  - Review and align [`compose.deploy.yml`](file:///home/aysadeq/Desktop/Freelancer/compose.deploy.yml) with production parameters:
-    - Traefik reverse proxy listening on ports 80 and 443.
-    - Automatic HTTP $\rightarrow$ HTTPS redirection.
+  - Review and align [`compose.deploy.yml`](file:///home/ayman/Desktop/Freelancer/compose.deploy.yml) with production parameters:
+    - Traefik reverse proxy listening on ports 80 and 443 with automatic HTTP $\rightarrow$ HTTPS redirection.
     - Let's Encrypt TLS ACME challenge stored in persistent volume `traefik-certificates:/certificates/acme.json`.
+    - **ACME Registration Compliance**: Configure Let's Encrypt contact email via `--certificatesresolvers.le.acme.email=${ACME_EMAIL:?Variable not set}` to receive automated renewal warnings and prevent CA throttles.
+    - **Monitoring Ingress**: Add HTTPS routing for Grafana (`grafana.${DOMAIN}`) so evaluators can inspect live Prometheus/Grafana monitoring dashboards on the public domain.
 - [ ] **Step 3.2: Connect Traefik to Health Check Probe**
-  - Update Traefik service labels to route traffic based on our deep diagnostic probe:
+  - Update Traefik backend load balancer service labels to route traffic based on our deep diagnostic probe:
     ```yaml
     - traefik.http.services.backend.loadbalancer.healthCheck.path=/api/v1/health
     - traefik.http.services.backend.loadbalancer.healthCheck.interval=10s
     - traefik.http.services.backend.loadbalancer.healthCheck.timeout=5s
     ```
-- [ ] **Step 3.3: Production Environment File Setup**
-  - Create template `.env.production` containing production domains, database credentials, and secrets.
+- [ ] **Step 3.3: Production Environment File Setup & Override Isolation**
+  - Create template `.env.production` containing production domains, database credentials, `ACME_EMAIL`, and secrets.
+  - **Docker Compose Override Isolation**: Explicitly declare `COMPOSE_FILE=compose.yml:compose.deploy.yml` in `.env.production`.
+    - *Security rationale*: By default, Docker Compose automatically merges `compose.override.yml`. Setting `COMPOSE_FILE` prevents local development overrides (insecure Traefik API on 8090, exposed DB port 5432, `fastapi dev` reload mode, and Mailpit) from leaking into production.
 
 ---
 
@@ -140,29 +148,32 @@ This implementation transitions the Skilio platform from an isolated `localhost`
        - If any test fails, deployment immediately halts.
     2. **Deploy Trigger (CD)**:
        - Connects via secure SSH action (`appleboy/ssh-action` or native SSH).
-       - Pulls latest commit on `/opt/skilio`.
+       - Updates repository using clean reset:
+         `git fetch origin master && git reset --hard origin/master`
+         *(Guarantees clean sync and eliminates non-interactive merge conflicts)*.
        - Rebuilds modified containers:
-         `docker compose -f compose.yml -f compose.deploy.yml build`
+         `docker compose build`
        - Runs database migrations:
-         `docker compose -f compose.yml -f compose.deploy.yml run --rm backend bash scripts/prestart.sh`
+         `docker compose run --rm backend bash scripts/prestart.sh`
        - Performs rolling container update:
-         `docker compose -f compose.yml -f compose.deploy.yml up -d --remove-orphans`
-- [ ] **Step 4.3: Automated Deployment Health Smoke Test**
-  - Pipeline executes a post-deploy verification query:
+         `docker compose up -d --remove-orphans`
+       - **Disk Cleanup**: Executes `docker image prune -f` post-deploy to purge dangling layers and safeguard the small cloud EBS disk from `ENOSPC` exhaustion.
+- [ ] **Step 4.3: Resilient Deployment Health Smoke Test**
+  - Pipeline executes a post-deploy verification query with connection retry logic:
     ```bash
-    curl -f -s https://${DOMAIN}/api/v1/health | grep '"status":"healthy"'
+    curl --retry 6 --retry-delay 5 --retry-connrefused -f -s https://${DOMAIN}/api/v1/health | grep '"status":"healthy"'
     ```
-  - Confirms zero-downtime deployment succeeded and services are 100% operational.
+  - *Reliability rationale*: Prevents false-negative 502/503 pipeline failures during the 3–5 second container warm-up window. Confirms zero-downtime deployment succeeded.
 
 ---
 
 ### Phase 5: Developer Tooling & Remote Management CLI
 **Goal**: Integrate production management commands into the local `Makefile`.
 
-- [ ] **Step 5.1: Add Remote Management Targets in [`Makefile`](file:///home/aysadeq/Desktop/Freelancer/Makefile)**
+- [ ] **Step 5.1: Add Remote Management Targets in [`Makefile`](file:///home/ayman/Desktop/Freelancer/Makefile)**
   - `make deploy`: Triggers manual deployment or reports latest deployed commit.
-  - `make deploy-status`: Inspects live container status and resource usage on the cloud server.
-  - `make deploy-logs`: Streams real-time remote production logs directly to local terminal via SSH.
+  - `make deploy-status`: Inspects live container status and resource usage on the cloud server (`docker compose ps` & `docker stats --no-stream`).
+  - `make deploy-logs`: Streams real-time remote production logs directly to local terminal via SSH (`docker compose logs -f`).
 - [ ] **Step 5.2: Verification & Dry-Run**
   - Test the entire pipeline with a minor commit and confirm automated delivery takes $< 2\text{ minutes}$.
 
@@ -174,6 +185,7 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 - [ ] **Step 6.1: Create `devops/DEPLOYMENT.md`**
   - Complete documentation answering the 4 mandatory subject criteria.
   - Full architecture explanation, security model, and disaster recovery on cloud storage.
+  - Detailed justification for Option A (Build-on-Server + Swap) vs Option B (Registry) trade-off.
 - [ ] **Step 6.2: Prepare 3-Minute Live Evaluation Script**
   - **Live Mobile Demo**: Hand evaluator a QR code to open `https://skilio.tech` on their phone.
   - **Live CI/CD Push Demo**: Push a small commit, watch GitHub Actions execute, and verify live cloud site updates automatically with zero downtime.

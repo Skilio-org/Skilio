@@ -113,22 +113,54 @@ How does the server update without kicking active users out of their WebSocket c
  1. GitHub Actions SSH into Server
                      │
                      ▼
- 2. Pull latest git commits ('git pull origin master')
+ 2. Clean Git Reset ('git fetch origin master && git reset --hard origin/master')
                      │
                      ▼
  3. Build new Docker images in parallel ('docker compose build')
                      │
                      ▼
- 4. Run database migrations ('docker compose run --rm backend prestart.sh')
+ 4. Run database migrations ('docker compose run --rm backend bash scripts/prestart.sh')
                      │
                      ▼
- 5. Rolling Container Restart ('docker compose up -d')
+ 5. Rolling Container Restart ('docker compose up -d --remove-orphans')
     • Old containers receive SIGTERM (given grace period to finish requests)
     • New containers start up & pass health check probe
     • Traefik seamlessly switches new HTTP/WebSocket connections
                      │
                      ▼
- 6. Smoke Test (curl -f https://skilio.tech/api/v1/health)
+ 6. Disk Pruning ('docker image prune -f')
+    • Purges dangling layers, safeguarding EBS storage against ENOSPC crashes
+                     │
+                     ▼
+ 7. Resilient Smoke Test (curl with retries to /api/v1/health)
 ```
 
+### 3.4 Production Architectural Trade-Off: Option A vs. Option B
+
+| Dimension | Option A: Build on EC2 with 2GB Swap (Our Chosen Architecture) | Option B: Build in CI & Push to Container Registry (GHCR/ECR) |
+| :--- | :--- | :--- |
+| **How it works** | VPS pulls source code and compiles images directly on host. | CI runner compiles image, pushes to registry; VPS runs `docker pull`. |
+| **Complexity** | 🟢 **Zero extra tokens**: No registry PATs or machine credentials. | 🟡 **Token management**: Requires GHCR read/write scopes and Docker logins. |
+| **Build Stability** | 🟢 **100% stable with Swap**: 2 GB swap prevents OOM-killer. | 🟢 Fast GitHub runner (16 GB RAM). |
+| **Deploy Duration** | ~1.5 to 2 minutes on `t3.micro`. | ~15 to 25 seconds. |
+| **Real-world Context** | Used by modern single-node deployment engines (Kamal, Dokku, Coolify). | Used in multi-node Kubernetes / auto-scaling AWS ECS clusters. |
+
 ---
+
+## Level 4: 42 Evaluation Defense & System Mastery
+
+### 4.1 How to Defend This in the 42 Evaluation
+
+**Evaluator Question**: *"Why did you choose to build directly on the server instead of pushing images to Docker Hub or GitHub Container Registry (GHCR)?"*
+
+> **Model Answer**:  
+> *"For this single-node infrastructure, we deliberately chose Option A (Build-on-Server with a 2 GB Swap file). It keeps our deployment 100% self-contained and avoids brittle third-party registry tokens, credentials expiration, and registry pull rate limits. In our profiling, Vite Bun compilation and Python uv sync peak under 800 MB, well within our 3 GB total virtual memory.  
+> However, we fully recognize the architectural trade-off: in a multi-node enterprise environment with auto-scaling groups or Kubernetes, the industry standard is Option B (building in GitHub Actions runners and pushing to GHCR/ECR) so that worker nodes only perform `docker compose pull` without expending CPU credits on builds."*
+
+**Evaluator Question**: *"What prevents your local dev overrides from running on production?"*
+
+> **Model Answer**:  
+> *"Docker Compose automatically merges `compose.override.yml` by default, which contains development conveniences like `--api.insecure=true` on port 8090, exposed port 5432, and Mailpit. To enforce strict production isolation, our `.env.production` sets `COMPOSE_FILE=compose.yml:compose.deploy.yml`. This explicitly binds Compose to production files only, preventing any dev ports or hot-reload configurations from ever being exposed."*
+
+---
+
