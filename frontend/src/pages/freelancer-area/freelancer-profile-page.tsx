@@ -1,8 +1,9 @@
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Eye, Plus, Trash2, Upload, X } from "lucide-react"
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, Eye, Plus, Trash2, Upload } from "lucide-react"
 import { useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useBlocker } from "@tanstack/react-router"
 import { profileFromApi, profileToApi } from "@/components/freelancer/freelancer-profile-api"
+import { SkillsSelect } from "@/components/common/skills-select"
 import { ProfilesService, UsersService, type FreelancerProfileDetailPublic } from "@/client"
 import { Avatar, EntryDialog, ProfilePreview } from "@/components/freelancer/freelancer-profile-components"
 import {
@@ -14,7 +15,6 @@ import {
 	primary,
 	secondary,
 	steps,
-	suggested,
 } from "@/components/freelancer/freelancer-profile-model"
 import { accountAvatarUrl, markAccountAvatarUpdated } from "@/hooks/useAccountAvatar"
 import useAuth from "@/hooks/useAuth"
@@ -41,7 +41,6 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	const [step, setStep] = useState(0)
 	const [error, setError] = useState("")
 	const [saveError, setSaveError] = useState("")
-	const [skill, setSkill] = useState("")
 	const [editor, setEditor] = useState<{
 		kind: "experience" | "education" | "portfolio"
 		entry: Entry
@@ -96,17 +95,6 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 		}
 		setError("")
 		if (await save()) setStep((s) => Math.min(s + 1, 6))
-	}
-	function addSkill(value: string) {
-		const text = value.trim()
-		if (!text || profile.skills.some((s) => s.toLowerCase() === text.toLowerCase())) return
-		if (profile.skills.length >= 15) {
-			setError("Choose up to 15 skills.")
-			return
-		}
-		update("skills", [...profile.skills, text.slice(0, 40)])
-		setSkill("")
-		setError("")
 	}
 	async function upload(file?: File) {
 		if (!file || !user) return
@@ -378,61 +366,12 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 										"Business & consulting",
 										"AI & automation",
 									])}
-									<div>
-										<label htmlFor="skill-entry" className="font-medium text-sm">
-											Your skills *{" "}
-											<span className="font-normal text-muted-foreground">({profile.skills.length}/15)</span>
-										</label>
-										<div className="mt-2 flex gap-2">
-											<input
-												id="skill-entry"
-												className={fieldClass.replace("mt-2", "")}
-												value={skill}
-												onChange={(e) => setSkill(e.target.value)}
-												maxLength={40}
-												placeholder="Add a skill"
-												onKeyDown={(e) => {
-													if (e.key === "Enter") {
-														e.preventDefault()
-														addSkill(skill)
-													}
-												}}
-											/>
-											<button type="button" className={secondary} onClick={() => addSkill(skill)}>
-												Add
-											</button>
-										</div>
-										<div className="mt-4 flex flex-wrap gap-2">
-											{profile.skills.map((s) => (
-												<button
-													type="button"
-													key={s}
-													aria-label={`Remove ${s}`}
-													className="flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-primary text-sm"
-													onClick={() =>
-														update(
-															"skills",
-															profile.skills.filter((v) => v !== s),
-														)
-													}
-												>
-													{s}
-													<X className="size-3" />
-												</button>
-											))}
-										</div>
-										<p className="mt-6 text-muted-foreground text-xs">Suggestions</p>
-										<div className="mt-2 flex flex-wrap gap-2">
-											{suggested
-												.filter((s) => !profile.skills.includes(s))
-												.map((s) => (
-													<button type="button" className={secondary} key={s} onClick={() => addSkill(s)}>
-														<Plus className="size-3" />
-														{s}
-													</button>
-												))}
-										</div>
-									</div>
+									<SkillsSelect
+										inputId="skill-entry"
+										label="Your skills *"
+										value={profile.skills}
+										onChange={(skills) => update("skills", skills)}
+									/>
 								</>
 							)}
 							{step === 2 && (

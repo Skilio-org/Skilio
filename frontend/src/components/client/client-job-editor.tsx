@@ -1,11 +1,14 @@
 import { JobFormSection, jobFormField } from "@/components/common/job-form-section"
 import CategorySelect from "@/components/common/category-select"
+import { SkillsSelect } from "@/components/common/skills-select"
+import { experienceLevels, jobDescriptionLimit } from "@/components/common/job-experience"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { CategoriesService } from "@/client"
 import { useQuery } from "@tanstack/react-query"
 import type { ClientJob } from "./client-job-types"
+import { ClientJobProposals } from "./client-job-proposals"
 
 type ClientJobEditorProps = {
 	job: ClientJob | null
@@ -28,6 +31,7 @@ export function ClientJobEditor({
 	onSave,
 	onDelete,
 }: ClientJobEditorProps) {
+	const descriptionLimit = jobDescriptionLimit(job?.experienceLevel ?? "")
 	const { data: categories = [] } = useQuery({
 		queryKey: ["categories"],
 		queryFn: async () => (await CategoriesService.readCategories()).data.data,
@@ -79,7 +83,7 @@ export function ClientJobEditor({
 											<textarea
 												required
 												minLength={80}
-												maxLength={5000}
+												maxLength={descriptionLimit}
 												rows={5}
 												className={`${jobFormField} min-h-32 resize-y leading-6`}
 												value={job.description}
@@ -93,7 +97,9 @@ export function ClientJobEditor({
 											/>
 											<span className="mt-2 flex justify-between gap-3 font-normal text-on-surface-variant text-xs">
 												<span>At least 80 characters</span>
-												<span>{job.description.length.toLocaleString()} / 5,000</span>
+												<span>
+													{job.description.length.toLocaleString()} / {descriptionLimit.toLocaleString()}
+												</span>
 											</span>
 										</label>
 									</JobFormSection>
@@ -114,21 +120,38 @@ export function ClientJobEditor({
 									</JobFormSection>
 									<div className="border-outline-variant border-t" />
 									<JobFormSection title="Find the right expertise" description="Choose the skills your project needs.">
-										<label className="block font-medium text-sm">
-											Skills
-											<input
-												required
-												pattern=".*\S.*"
-												maxLength={250}
-												className={jobFormField}
-												value={job.skills}
-												onChange={(event) => onJobChange({ ...job, skills: event.target.value })}
-												placeholder="React, TypeScript, Accessibility"
-											/>
-										</label>
-										<p className="text-on-surface-variant text-xs">
-											Separate skills with commas, for example: React, TypeScript.
-										</p>
+										<SkillsSelect
+											inputId="job-skill-entry"
+											label="Skills"
+											value={job.skills}
+											onChange={(skills) => onJobChange({ ...job, skills })}
+										/>
+									</JobFormSection>
+									<div className="border-outline-variant border-t" />
+									<JobFormSection
+										title="Experience level"
+										description="Choose the level of experience this project needs."
+									>
+										<fieldset className="flex flex-col gap-2">
+											<legend className="mb-2 font-medium text-sm">Select the experience level *</legend>
+											{experienceLevels.map((level) => (
+												<label
+													key={level}
+													className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 text-sm hover:border-primary"
+												>
+													<input
+														type="radio"
+														name="job-experience-level"
+														value={level}
+														checked={job.experienceLevel === level}
+														required
+														onChange={() => onJobChange({ ...job, experienceLevel: level })}
+														className="size-4 accent-primary"
+													/>
+													{level}
+												</label>
+											))}
+										</fieldset>
 									</JobFormSection>
 									<div className="border-outline-variant border-t" />
 									<JobFormSection
@@ -139,7 +162,10 @@ export function ClientJobEditor({
 											<div className="font-medium text-sm">
 												<label htmlFor="job-payment-type">Payment type</label>
 												<Select value={job.type} onValueChange={(type) => onJobChange({ ...job, type })}>
-													<SelectTrigger id="job-payment-type" className="mt-2 min-h-12 w-full rounded-lg">
+													<SelectTrigger
+														id="job-payment-type"
+														className="mt-2 min-h-12 w-full rounded-lg border-outline-variant bg-surface-container-lowest px-3 text-on-surface shadow-none hover:border-primary dark:bg-surface-container-lowest dark:hover:bg-surface-container-lowest"
+													>
 														<SelectValue />
 													</SelectTrigger>
 													<SelectContent>
@@ -202,6 +228,7 @@ function ClientJobDetails({
 }) {
 	return (
 		<div className="space-y-7">
+			{job.id && job.status !== "Draft" && <ClientJobProposals jobId={job.id} />}
 			<section>
 				<h3 className="font-semibold">Project brief</h3>
 				<p className="wrap-break-word mt-3 whitespace-pre-wrap text-on-surface-variant text-sm leading-7">
@@ -217,22 +244,19 @@ function ClientJobDetails({
 			<section>
 				<h3 className="font-semibold">Skills</h3>
 				<div className="mt-3 flex flex-wrap gap-2">
-					{job.skills
-						.split(",")
-						.filter((skill) => skill.trim())
-						.map((skill, index) => (
-							<span key={`${skill}-${index}`} className="rounded-md bg-muted px-3 py-1.5 text-xs">
-								{skill.trim()}
-							</span>
-						))}
+					{job.skills.map((skill) => (
+						<span key={skill} className="rounded-md bg-muted px-3 py-1.5 text-xs">
+							{skill}
+						</span>
+					))}
 				</div>
 			</section>
-			<section className="border-t pt-6">
-				<h3 className="font-semibold">Proposals</h3>
-				<p className="mt-2 text-on-surface-variant text-sm">
-					Proposals will be available when live job posting is connected.
-				</p>
-			</section>
+			{job.experienceLevel && (
+				<section>
+					<h3 className="font-semibold">Experience level</h3>
+					<p className="mt-2 text-sm">{job.experienceLevel}</p>
+				</section>
+			)}
 			<div className="flex flex-wrap gap-3">
 				<button type="button" onClick={onEdit} className={workspaceStyles.primaryAction}>
 					Edit job

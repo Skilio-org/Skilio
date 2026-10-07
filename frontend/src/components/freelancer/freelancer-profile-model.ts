@@ -58,20 +58,6 @@ export const descriptions = [
 	"Set expectations for your next collaboration.",
 	"Take a moment to see your profile as a client would.",
 ]
-export const suggested = [
-	"Product design",
-	"UX research",
-	"Figma",
-	"React",
-	"TypeScript",
-	"Python",
-	"Brand strategy",
-	"Copywriting",
-	"SEO",
-	"Video editing",
-	"AI automation",
-	"Webflow",
-]
 export const fieldClass =
 	"mt-2 min-h-12 w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 export const primary =

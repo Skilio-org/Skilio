@@ -37,18 +37,14 @@ export function TopNav() {
 	const role = useAccountRole()
 	const menu = role === "freelancer" ? freelancerMenu : clientMenu
 	// Load the conversations to get the unread messages count once the page has been loaded.
-	const { data: conversations, isPending } = useConversations()
-
-	if (isPending) {
-		return <> Loading conversations... </>
-	}
+	const { data: conversations } = useConversations()
 	if (conversations?.data === undefined) {
 		unreadMessages = 0
 	} else
 		unreadMessages = conversations?.data.reduce((total, conversation) => total + (conversation.unread_count ?? 0), 0)
 	const unreadLabel = unreadMessages > 99 ? "99+" : String(unreadMessages)
 	return (
-		<header className="fixed top-0 right-0 left-0 z-50 w-full border-outline-variant border-b bg-surface-container-lowest/95 backdrop-blur-md dark:bg-surface-panel/95">
+		<header className="fixed top-0 right-0 left-0 z-50 w-full bg-surface-container-lowest/95 backdrop-blur-md dark:bg-surface-panel/95">
 			<div className="mx-auto flex h-14 w-full max-w-[1440px] items-center justify-between gap-4 px-4 md:px-6">
 				{/* Left */}
 				<div className="flex h-full min-w-0 items-center gap-7">
@@ -74,8 +70,8 @@ export function TopNav() {
 									aria-current={active ? "page" : undefined}
 									className={
 										active
-											? "flex h-full items-center whitespace-nowrap border-primary border-b-2 px-0 font-label-md font-medium text-label-md text-primary transition-colors dark:text-on-surface"
-											: "flex h-full items-center whitespace-nowrap border-transparent border-b-2 px-0 font-label-md font-medium text-label-md text-on-surface-variant transition-colors hover:text-on-surface"
+											? "flex h-full items-center whitespace-nowrap px-0 font-label-md font-medium text-label-md text-primary transition-colors dark:text-on-surface"
+											: "flex h-full items-center whitespace-nowrap px-0 font-label-md font-medium text-label-md text-on-surface-variant transition-colors hover:text-on-surface"
 									}
 								>
 									<span className="flex items-center gap-2">

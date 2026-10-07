@@ -4,6 +4,7 @@ import { JobsService } from "@/client"
 import { ClientJobEditor } from "@/components/client/client-job-editor"
 import { blankClientJob, type ClientJob } from "@/components/client/client-job-types"
 import { clientJobFromApi, clientJobPayload } from "@/components/client/client-jobs-api"
+import { jobDescriptionLimit } from "@/components/common/job-experience"
 import { ClientJobsList } from "@/components/client/client-jobs-list"
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import useAuth from "@/hooks/useAuth"
@@ -54,6 +55,10 @@ export function ClientJobsPage() {
 	const [isEditing, setIsEditing] = useState(false)
 
 	const persistJob = (job: ClientJob) => {
+		if (job.description.trim().length > jobDescriptionLimit(job.experienceLevel)) {
+			toast.error("Shorten the project description before saving this job.")
+			return
+		}
 		saveMutation.mutate(job)
 	}
 
@@ -64,7 +69,7 @@ export function ClientJobsPage() {
 	const results = jobs.filter(
 		(job) =>
 			(tab === "All jobs" || job.status === tab) &&
-			`${job.title} ${job.skills}`.toLowerCase().includes(query.toLowerCase()),
+			`${job.title} ${job.skills.join(" ")}`.toLowerCase().includes(query.toLowerCase()),
 	)
 
 	return (

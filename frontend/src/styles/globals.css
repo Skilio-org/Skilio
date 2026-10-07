@@ -1063,7 +1063,7 @@
 
 	.workspace-shell > header {
 		background: rgb(255 255 255 / 0.96);
-		border-bottom: 1px solid var(--outline-variant);
+		border-bottom: 1px solid transparent;
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
 	}

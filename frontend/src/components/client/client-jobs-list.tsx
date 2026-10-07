@@ -72,7 +72,7 @@ export function ClientJobsList({
 								</p>
 							</div>
 							<button type="button" className={workspaceStyles.secondaryAction} onClick={() => onOpenJob(job)}>
-								View job
+								{job.status === "Draft" ? "View job" : "View job and proposals"}
 							</button>
 						</article>
 					))}

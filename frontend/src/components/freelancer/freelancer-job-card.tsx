@@ -79,6 +79,12 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 					</div>
 					<span className="size-1 rounded-full bg-outline-variant" />
 					<span className="font-caption text-caption text-on-surface-variant">{job.category}</span>
+					{job.experience && (
+						<>
+							<span className="size-1 rounded-full bg-outline-variant" />
+							<span className="font-caption text-caption text-on-surface-variant">{job.experience}</span>
+						</>
+					)}
 				</div>
 
 				<p className="mb-4 line-clamp-2 font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
