@@ -8,6 +8,7 @@ import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
 import { useQuery } from "@tanstack/react-query"
 import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
+import { useSavedJobs } from "@/hooks/useSavedJobs"
 import QuickSavedSearch from "../common/quick-search"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 import { useErrorToast } from "@/hooks/useErrorToast"
@@ -16,6 +17,8 @@ const FreelancerDashboardPage = () => {
 	const { user } = useAuth()
 	const { available } = useFreelancerAvailability()
 	const { drafts, error } = useFreelancerProposals()
+	const { saved } = useSavedJobs()
+	const savedCount = saved.length
 	useErrorToast(error, "freelancer-proposals-load")
 
 	const { data: jobs = [], isPending: jobsPending } = useQuery({
@@ -67,7 +70,7 @@ const FreelancerDashboardPage = () => {
 							<span>Saved</span>
 
 							<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption text-[10px] text-on-surface-variant transition-colors group-hover:text-on-surface">
-								{/* {savedCount} */}0
+								{savedCount}
 							</span>
 						</Link>
 						<Link

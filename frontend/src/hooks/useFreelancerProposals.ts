@@ -1,13 +1,19 @@
 import { ProposalsService, type ProposalPublic, type ProposalStatus } from "@/client"
 import { jobFromApi } from "@/components/freelancer/freelancer-jobs-api"
-import type { ProposalDraft as Draft } from "@/data/freelancer-workspace"
 import useAuth from "@/hooks/useAuth"
 import type { FreelancerJob } from "@/types/job"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-export type BackendProposal = Draft & { proposalId: string }
+type ProposalDraft = {
+	job: FreelancerJob
+	cover: string
+	rate: string
+	status?: "Drafts" | "Submitted" | "Archived"
+}
 
-const proposalStatus = (status: ProposalStatus): Draft["status"] => {
+export type BackendProposal = ProposalDraft & { proposalId: string }
+
+const proposalStatus = (status: ProposalStatus): ProposalDraft["status"] => {
 	if (status === "draft") return "Drafts"
 	if (status === "pending") return "Submitted"
 	return "Archived"
