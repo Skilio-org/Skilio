@@ -1,4 +1,5 @@
 import { Bell, BriefcaseBusiness, CheckCheck, FileText, MessageSquare, UserRound } from "lucide-react"
+import { useNavigate } from "@tanstack/react-router"
 
 import { useQueryClient } from "@tanstack/react-query"
 import {
@@ -21,19 +22,20 @@ function NotificationIcon({ type }: { type: NotificationEvent }) {
 			return <MessageSquare className="size-4" />
 
 		case "proposal_received":
-			return <FileText className="size-4" />
-
-		case "connection_request":
 			return <BriefcaseBusiness className="size-4" />
-
-		case "review_received":
+			
+		case "connection_request":
 			return <UserRound className="size-4" />
+			
+		case "review_received":
+			return <FileText className="size-4" />
 	}
 }
 
 
 export function NotificationDropdown(
 ) {
+	const navigate = useNavigate()
 	// Load also the notifications because they are essential for the user to see them in the top nav.
 	const { data: notifications, isPending} = useNotifications()
 	// to send read receipt to the server when a notification is read.
@@ -143,8 +145,15 @@ export function NotificationDropdown(
 							<DropdownMenuItem
 								key={notification.id}
 								onSelect={(event) => {
-									event.preventDefault()
+									const opensJob = notification.event === "proposal_received" && Boolean(notification.job_post?.id)
+									if (!opensJob) event.preventDefault()
 									markAsRead(notification.id)
+									if (opensJob && notification.job_post?.id) {
+										void navigate({
+											to: "/client-jobs",
+											search: { jobId: notification.job_post.id },
+										})
+									}
 								}}
 								className={cn(
 									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",

@@ -2,6 +2,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+from app.api.routes.notifications import push_notification
 from fastapi import APIRouter, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
@@ -15,6 +16,7 @@ from app.models import (
     JobPostPublic,
     JobStatus,
     Message,
+    NotificationEvent,
     Proposal,
     ProposalCreate,
     ProposalPublic,
@@ -83,7 +85,7 @@ def _build_freelancer_profile_public(
 
 
 @router.post("/", response_model=ProposalPublic)
-def submit_proposal(
+async def submit_proposal(
     *,
     session: SessionDep,
     current_user: CurrentUser,
@@ -161,7 +163,14 @@ def submit_proposal(
         session, current_user.freelancer_profile
     )
     job_post_public = _build_job_post_public(job)
-
+    await push_notification(
+        user_id=job.client_id,
+        event=NotificationEvent.PROPOSAL_RECEIVED,
+        title="New proposal",
+        link="bojm3a.com???",
+        content="You have a new proposal for your job post.",
+        proposal_id=proposal.id,
+    )
     return ProposalPublic.model_validate(
         proposal,
         update={
