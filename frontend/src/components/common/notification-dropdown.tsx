@@ -171,6 +171,24 @@ function NotificationActions({
 				</div>
 			)
 		}
+
+		return (
+			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+				<button
+					type="button"
+					onClick={(e) => {
+						e.stopPropagation()
+						e.preventDefault()
+						onMarkAsRead(notification.id)
+						void navigate({ to: "/connects" })
+					}}
+					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
+				>
+					<UserPlus className="size-3" />
+					View Connections
+				</button>
+			</div>
+		)
 	}
 
 	// 2. Connection Accepted -> Quick Start Message
@@ -274,6 +292,39 @@ function NotificationActions({
 					<Star className="size-3" />
 					View Review
 				</button>
+			</div>
+		)
+	}
+
+	// 7. Proposal Rejected
+	if (notification.event === "proposal_rejected") {
+		return (
+			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+				<Badge variant="outline" className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground">
+					Proposal Declined
+				</Badge>
+			</div>
+		)
+	}
+
+	// 8. Connection Declined
+	if (notification.event === "connection_declined") {
+		return (
+			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+				<Badge variant="outline" className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground">
+					Declined
+				</Badge>
+			</div>
+		)
+	}
+
+	// 9. Job Closed
+	if (notification.event === "job_closed") {
+		return (
+			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+				<Badge variant="outline" className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground">
+					Job Closed
+				</Badge>
 			</div>
 		)
 	}
