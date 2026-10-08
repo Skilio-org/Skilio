@@ -48,7 +48,7 @@ export const LoginForm = () => {
 	})
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" noValidate>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
 				<AuthInput
 					control={form.control}
 					inputName="username"
@@ -62,13 +62,13 @@ export const LoginForm = () => {
 					control={form.control}
 					name="password"
 					render={({ field }) => (
-						<FormItem className="space-y-2">
+						<FormItem className="gap-1.5">
 							<div className="flex items-center justify-between gap-4">
 								<FormLabel className="font-medium text-[13px] text-foreground">Password</FormLabel>
 
 								<RouterLink
 									to="/recover-password"
-									className="font-medium text-muted-foreground text-xs transition-colors hover:text-primary"
+									className="font-medium text-foreground text-xs underline-offset-4 hover:underline"
 								>
 									Forgot your password?
 								</RouterLink>
@@ -80,7 +80,7 @@ export const LoginForm = () => {
 									autoComplete="current-password"
 									placeholder="Enter your password"
 									disabled={loginMutation.isPending}
-									className="h-12 rounded-xl border-input bg-card px-4 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
+									className="h-11 rounded-lg border-input bg-muted/30 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
 									{...field}
 								/>
 							</FormControl>
@@ -93,9 +93,9 @@ export const LoginForm = () => {
 					type="submit"
 					loading={loginMutation.isPending}
 					disabled={loginMutation.isPending}
-					className="mt-1 h-12 w-full rounded-xl bg-primary font-semibold text-primary-foreground text-sm shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-primary/90 hover:shadow-md focus-visible:ring-[3px] focus-visible:ring-ring/30 active:translate-y-0 active:bg-primary/85 disabled:pointer-events-none disabled:opacity-60"
+					className="mt-2 h-11 w-full rounded-lg font-semibold text-sm"
 				>
-					Log in
+					Sign in
 				</LoadingButton>
 			</form>
 		</Form>

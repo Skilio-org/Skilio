@@ -35,7 +35,7 @@ export const SocialAuth = () => {
 						disabled={!isConfigured}
 						onClick={() => handleSocialLogin(href)}
 						title={isConfigured ? label : `${label} is not configured yet`}
-						className="group flex h-12 items-center justify-center gap-2.5 rounded-xl border border-border bg-card px-3 font-medium text-[13px] text-foreground shadow-[0_1px_2px_rgb(16_24_40/0.02)] transition-all duration-200 hover:-translate-y-px hover:border-primary/20 hover:bg-accent/50 hover:shadow-sm focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25 active:translate-y-0 disabled:pointer-events-none disabled:opacity-45"
+						className="group flex h-11 items-center justify-center gap-2.5 rounded-lg border border-border bg-card px-3 font-medium text-[13px] text-foreground shadow-sm transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-45"
 					>
 						<Icon className={`size-4.5 shrink-0 ${id === "linkedin" ? "text-[#0A66C2]" : ""} `} />
 

@@ -105,6 +105,9 @@ export const JobDetails = ({
 					</section>
 					<section className="border-outline-variant/60 border-b px-6 py-6 sm:px-8">
 						<h3 className="font-semibold text-headline-sm">About the project</h3>
+						{job.experience && (
+							<p className="mt-3 font-medium text-body-sm text-on-surface">Experience level: {job.experience}</p>
+						)}
 						<p className="mt-3 whitespace-pre-line font-body-sm text-body-sm text-on-surface-variant leading-6">
 							{job.description}
 						</p>

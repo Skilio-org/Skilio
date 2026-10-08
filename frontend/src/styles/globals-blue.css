@@ -6,10 +6,6 @@
 	&:is(:where(.dark, [data-theme="dark"], [data-mode="dark"]) *, [data-theme="dark"] *, [data-mode="dark"] *)
 );
 
-/* =========================================================
-   REFERENCE DESIGN SYSTEM
-   Ported from the supplied Tailwind configuration.
-   ========================================================= */
 
 @theme inline {
 	/* Fonts */
@@ -391,9 +387,6 @@
 :root:has(#root.dark),
 :root:has(#root[data-theme="dark"]),
 :root:has(#root[data-mode="dark"]) {
-	/* =====================================================
-	   EXACT DARK REFERENCE PALETTE
-	   ===================================================== */
 
 	/* Canvas / surfaces */
 	--background: #0d0f12;
@@ -486,9 +479,6 @@
 	--surface-tint: #4f75ff;
 	--inverse-surface: #f4f6f8;
 
-	/* =====================================================
-	   SHADCN / APP SEMANTICS
-	   ===================================================== */
 	--foreground: #f4f6f8;
 	--card: #181b20;
 	--card-foreground: #f4f6f8;
@@ -554,9 +544,6 @@
 	--elevation-floating: 0 12px 24px rgb(0 0 0 / 0.28), 0 28px 64px rgb(0 0 0 / 0.32);
 }
 
-/* =========================================================
-   BASE
-   ========================================================= */
 
 @layer base {
 	*,
@@ -669,10 +656,6 @@
 	}
 }
 
-/* =========================================================
-   EXACT REFERENCE RADIUS OVERRIDES
-   Tailwind's rounded/full defaults are otherwise much larger.
-   ========================================================= */
 
 @layer utilities {
 	.rounded {
@@ -692,9 +675,6 @@
 	}
 }
 
-/* =========================================================
-   TYPOGRAPHY COMPATIBILITY
-   ========================================================= */
 
 @layer utilities {
 	.font-display,
@@ -725,9 +705,6 @@
 	}
 }
 
-/* =========================================================
-   SURFACES
-   ========================================================= */
 
 @layer utilities {
 	.surface-card {
@@ -777,9 +754,6 @@
 	}
 }
 
-/* =========================================================
-   MARKETPLACE / PRODUCT UI
-   ========================================================= */
 
 @layer components {
 	.marketplace-list {
@@ -920,9 +894,6 @@
 	}
 }
 
-/* =========================================================
-   SCROLLBAR — exact reference behavior
-   ========================================================= */
 
 @layer base {
 	* {
@@ -934,9 +905,6 @@
 	}
 }
 
-/* =========================================================
-   INTERACTION
-   ========================================================= */
 
 @layer base {
 	h1,
@@ -967,9 +935,6 @@
 	}
 }
 
-/* =========================================================
-   APPLICATION COMPONENTS
-   ========================================================= */
 
 @layer components {
 	.messages-workspace {
@@ -1114,11 +1079,6 @@
 	}
 }
 
-/* =========================================================
-   DARK REFERENCE COMPONENT OVERRIDES
-   The dark reference intentionally uses blue for links/focus,
-   dark navy for selected filters, and white for primary CTAs.
-   ========================================================= */
 
 @layer utilities {
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .surface-card,
@@ -1379,9 +1339,6 @@
 	}
 }
 
-/* =========================================================
-   MOTION
-   ========================================================= */
 
 /* Theme changes are atomic; only the complete page snapshots crossfade. */
 html[data-theme-transition],
@@ -1453,9 +1410,6 @@ html[data-theme-transition] *::after {
 	}
 }
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
 
 @media (max-width: 380px) {
 	.landing-page header .landing-container {
@@ -1468,10 +1422,6 @@ html[data-theme-transition] *::after {
 	}
 }
 
-/* =========================================================
-   THEME ACTIVATION BRIDGE
-   Supports class-based and attribute-based theme providers.
-   ========================================================= */
 
 @layer base {
 	:where(

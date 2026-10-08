@@ -8,13 +8,18 @@ import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
 import { useQuery } from "@tanstack/react-query"
 import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
+import { useSavedJobs } from "@/hooks/useSavedJobs"
 import QuickSavedSearch from "../common/quick-search"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { useErrorToast } from "@/hooks/useErrorToast"
 
 const FreelancerDashboardPage = () => {
 	const { user } = useAuth()
 	const { available } = useFreelancerAvailability()
 	const { drafts, error } = useFreelancerProposals()
+	const { saved } = useSavedJobs()
+	const savedCount = saved.length
+	useErrorToast(error, "freelancer-proposals-load")
 
 	const { data: jobs = [], isPending: jobsPending } = useQuery({
 		queryKey: ["freelancer-jobs", "dashboard"],
@@ -65,7 +70,7 @@ const FreelancerDashboardPage = () => {
 							<span>Saved</span>
 
 							<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption text-[10px] text-on-surface-variant transition-colors group-hover:text-on-surface">
-								{/* {savedCount} */}0
+								{savedCount}
 							</span>
 						</Link>
 						<Link
@@ -78,11 +83,6 @@ const FreelancerDashboardPage = () => {
 					</>
 				}
 			/>
-			{error && (
-				<p role="alert" className="text-destructive text-sm">
-					{error}
-				</p>
-			)}
 
 			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
 				<section className="flex flex-col gap-6 lg:col-span-8">

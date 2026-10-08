@@ -16,7 +16,6 @@ import {
 import { useState } from "react"
 
 import { type Theme, useTheme } from "@/components/theme-provider"
-import { Button } from "@/components/ui/button"
 import { SettingsSectionHeader } from "@/components/user-settings/settings-section-header"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { cn } from "@/lib/utils"
@@ -90,8 +89,6 @@ export function PrivacySettings() {
 	const freelancer = useAccountRole() === "freelancer"
 	const [personalization, setPersonalization] = useState(true)
 	const [recentSearches, setRecentSearches] = useState(true)
-	const [archiveRequested, setArchiveRequested] = useState(false)
-
 	return (
 		<div className="space-y-5">
 			<SettingsPanel

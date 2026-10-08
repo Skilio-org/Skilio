@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useSavedJobs } from "@/hooks/useSavedJobs"
 import QuickSavedSearch from "../common/quick-search"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { useErrorToast } from "@/hooks/useErrorToast"
 
 const primaryAction =
 	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
@@ -16,6 +17,7 @@ const panel = "rounded-lg border border-outline-variant bg-surface-container-low
 
 export default function FreelancerSavedJobsPage() {
 	const { saved, savedJobs, savedAt, loaded, error } = useSavedJobs()
+	useErrorToast(error, "saved-jobs-load")
 	const [category, setCategory] = useState("all")
 	const [query, setQuery] = useState("")
 	const [sort, setSort] = useState("recent")
@@ -79,11 +81,6 @@ export default function FreelancerSavedJobsPage() {
 					</div>
 				}
 			/>
-			{error && (
-				<p role="alert" className="text-body-sm text-destructive">
-					{error}
-				</p>
-			)}
 			<div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2.1fr)_minmax(280px,1fr)] lg:gap-8">
 				<section aria-label="Saved opportunities" className="min-w-0 space-y-5">
 					<div className="flex flex-wrap items-center justify-between gap-3">

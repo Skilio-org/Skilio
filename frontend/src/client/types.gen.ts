@@ -1488,7 +1488,11 @@ export type NotificationPublic = {
     /**
      * Title
      */
-    title?: string | null;
+    title?: string;
+    /**
+     * Link
+     */
+    link: string;
     /**
      * Id
      */

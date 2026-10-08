@@ -1,10 +1,10 @@
 import { JobsService, type JobPostPublic } from "@/client"
+import { readJobExperience } from "@/components/common/job-experience"
 import type { FreelancerJob } from "@/types/job"
 
 export type BackendSearchJob = FreelancerJob & {
 	clientRating?: number
 	previousHires?: number
-	experience?: string
 	weeklyHours?: number
 }
 
@@ -14,6 +14,7 @@ function formatBudget(job: JobPostPublic) {
 }
 
 export function jobFromApi(job: JobPostPublic): BackendSearchJob {
+	const { level, description } = readJobExperience(job.description)
 	return {
 		id: job.id,
 		title: job.title,
@@ -22,7 +23,8 @@ export function jobFromApi(job: JobPostPublic): BackendSearchJob {
 		budget: formatBudget(job),
 		projectType: job.budget_type === "hourly" ? "Hourly" : "Fixed price",
 		posted: job.created_at ? new Date(job.created_at).toLocaleDateString() : "Recently posted",
-		description: job.description,
+		description,
+		experience: level || undefined,
 		skills: job.skills ?? [],
 		clientId: job.client_id,
 	}

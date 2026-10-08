@@ -15,9 +15,6 @@ import { useCallback, useEffect, useState } from "react"
 import { LandingFooter } from "@/components/landing/landing-footer"
 import { LandingHeader } from "@/components/landing/landing-header"
 
-// ==============================================================================
-// 1. Route Registration & SEO Metadata
-// ==============================================================================
 
 export const Route = createFileRoute("/status")({
 	component: StatusPage,
@@ -32,9 +29,6 @@ export const Route = createFileRoute("/status")({
 	}),
 })
 
-// ==============================================================================
-// 2. TypeScript Data Contracts
-// ==============================================================================
 
 type HealthState = "healthy" | "degraded" | "unhealthy"
 
@@ -55,9 +49,6 @@ interface SystemHealth {
 	}
 }
 
-// ==============================================================================
-// 3. UI Component
-// ==============================================================================
 
 const REFRESH_INTERVAL_SECONDS = 10
 
@@ -254,9 +245,6 @@ function StatusPage() {
 	)
 }
 
-// ==============================================================================
-// 4. Subsystem Card Component
-// ==============================================================================
 
 function ServiceCard({
 	icon,

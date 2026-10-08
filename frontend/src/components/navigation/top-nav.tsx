@@ -1,9 +1,9 @@
 import { Logo } from "@/components/common/logo"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { Link, useRouterState } from "@tanstack/react-router"
-import { Menu, Moon, Sun } from "lucide-react"
+import { Menu } from "lucide-react"
 import { NotificationDropdown } from "@/components/common/notification-dropdown"
-import { useTheme } from "@/components/theme-provider"
+import { ThemeToggle } from "@/components/common/theme-toggle"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import useAuth from "@/hooks/useAuth"
 import { User } from "../sidebar/user"
@@ -29,8 +29,6 @@ const clientMenu = [
 
 export function TopNav() {
 	const { user } = useAuth()
-	const { resolvedTheme, setTheme } = useTheme()
-	const isDark = resolvedTheme === "dark"
 	let unreadMessages: number = 0
 	const path = useRouterState({
 		select: (state) => state.location.pathname,
@@ -39,18 +37,14 @@ export function TopNav() {
 	const role = useAccountRole()
 	const menu = role === "freelancer" ? freelancerMenu : clientMenu
 	// Load the conversations to get the unread messages count once the page has been loaded.
-	const { data: conversations, isPending } = useConversations()
-
-	if (isPending) {
-		return <> Loading conversations... </>
-	}
+	const { data: conversations } = useConversations()
 	if (conversations?.data === undefined) {
 		unreadMessages = 0
 	} else
 		unreadMessages = conversations?.data.reduce((total, conversation) => total + (conversation.unread_count ?? 0), 0)
 	const unreadLabel = unreadMessages > 99 ? "99+" : String(unreadMessages)
 	return (
-		<header className="fixed top-0 right-0 left-0 z-50 w-full border-outline-variant border-b bg-surface-container-lowest/95 backdrop-blur-md dark:bg-surface-panel/95">
+		<header className="fixed top-0 right-0 left-0 z-50 w-full bg-surface-container-lowest/95 backdrop-blur-md dark:bg-surface-panel/95">
 			<div className="mx-auto flex h-14 w-full max-w-[1440px] items-center justify-between gap-4 px-4 md:px-6">
 				{/* Left */}
 				<div className="flex h-full min-w-0 items-center gap-7">
@@ -76,8 +70,8 @@ export function TopNav() {
 									aria-current={active ? "page" : undefined}
 									className={
 										active
-											? "flex h-full items-center whitespace-nowrap border-primary border-b-2 px-0 font-label-md font-medium text-label-md text-primary transition-colors dark:text-on-surface"
-											: "flex h-full items-center whitespace-nowrap border-transparent border-b-2 px-0 font-label-md font-medium text-label-md text-on-surface-variant transition-colors hover:text-on-surface"
+											? "flex h-full items-center whitespace-nowrap px-0 font-label-md font-medium text-label-md text-primary transition-colors dark:text-on-surface"
+											: "flex h-full items-center whitespace-nowrap px-0 font-label-md font-medium text-label-md text-on-surface-variant transition-colors hover:text-on-surface"
 									}
 								>
 									<span className="flex items-center gap-2">
@@ -120,16 +114,7 @@ export function TopNav() {
 					<NotificationDropdown />
 
 					{/* dark/light mode toggle*/}
-					<button
-						type="button"
-						aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-						onClick={() => setTheme(isDark ? "light" : "dark")}
-						className="relative flex size-8 shrink-0 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
-					>
-						<span key={resolvedTheme} className="theme-toggle-icon" aria-hidden="true">
-							{isDark ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
-						</span>
-					</button>
+					<ThemeToggle />
 
 					<div className="hidden h-4 w-px bg-outline-variant sm:block" />
 
