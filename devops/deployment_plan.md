@@ -68,23 +68,34 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 
 ## 3. Implementation Workflow: Phases & Step-by-Step Tasks
 
-### Phase 1: Cloud Server & Network Provisioning (IaaS)
+### Phase 1: Cloud Server & Network Provisioning (IaaS) (COMPLETED ✅)
 **Goal**: Provision a secure Linux virtual server with a dedicated static IP and domain DNS routing.
 
-- [ ] **Step 1.1: Server Provisioning**
-  - Launch an Ubuntu 24.04 LTS instance (AWS EC2 Free Tier `t3.micro` / `t3.small` or DigitalOcean Droplet via Student Pack).
-  - Allocate and attach a **Static Public IP** (Elastic IP) ensuring the server address never changes across reboots.
-- [ ] **Step 1.2: Firewall & Network Security Group Hardening**
-  - Inbound rules:
-    - `Port 22` (SSH): Restricted to SSH Key authentication only (password authentication disabled in `sshd_config`).
-    - `Port 80` (HTTP): Allowed for Let's Encrypt ACME challenges and automatic HTTPS redirection.
-    - `Port 443` (HTTPS): Allowed for encrypted production traffic.
-  - All database, cache, and internal ports (`5432`, `6379`, `8000`, `9090`) strictly blocked from the public internet.
-- [ ] **Step 1.3: Domain Name & DNS Configuration**
-  - Register/claim the free domain (`.tech` / `.me` from GitHub Student Developer Pack).
-  - Configure DNS **A Records**:
-    - `@` $\rightarrow$ `<SERVER_PUBLIC_IP>` (Apex domain: `skilio.tech`)
-    - `*` $\rightarrow$ `<SERVER_PUBLIC_IP>` (Wildcard subdomains: `api.skilio.tech`, `status.skilio.tech`, `grafana.skilio.tech`)
+- [x] **Step 1.1: Server Provisioning (`skilio-production`)**
+  - **Provider & Region**: AWS Europe Datacenter.
+  - **Operating System**: Ubuntu Server 24.04 LTS (`Linux 6.17.0-1017-aws x86_64`).
+  - **Instance Type**: `t3.small` (2 vCPUs, 2.0 GiB physical RAM) — Burstable general-purpose compute covered by student/trial credits.
+  - **Storage**: 29 GB NVMe SSD (`gp3` General Purpose SSD root volume, ~7% initial usage).
+  - **Static Elastic IP**: Allocated and permanently attached AWS Elastic IP **`16.192.59.166`** (never changes across server reboots, ensuring stable DNS).
+- [x] **Step 1.2: Firewall & Network Security Group Hardening (`skilio-sg`)**
+  - Configured stateful hypervisor-level firewall outside the Linux OS dropping unauthorized packets before reaching the network interface card:
+    - **Port 22 (SSH)**: Allowed from `0.0.0.0/0` (strictly restricted to asymmetric RSA key-pair authentication; password login disabled).
+    - **Port 80 (HTTP)**: Allowed from `0.0.0.0/0` (required for Let's Encrypt ACME domain verification challenges and automatic 301 HTTPS redirection).
+    - **Port 443 (HTTPS)**: Allowed from `0.0.0.0/0` (production encrypted traffic for web app, REST APIs, and WebSockets).
+    - **Database & Internal Ports**: Ports `5432` (PostgreSQL), `6379` (Redis), `8000` (FastAPI), and `9090` (Prometheus) strictly blocked from the public internet.
+- [x] **Step 1.3: Cryptographic Access & SSH Handshake Verification**
+  - Generated RSA key pair: `skilio-key.pem`.
+  - Local private key secured with POSIX permissions: `chmod 400 ~/Downloads/skilio-key.pem` (read-only by owner, 0 permissions for group/others).
+  - Verified live SSH connection from local workstation:
+    ```bash
+    ssh -i ~/Downloads/skilio-key.pem ubuntu@16.192.59.166
+    # Hostname: ip-172-31-5-109 | RAM: 1.9 GiB | Disk: 29 GiB (Status: Online 24/7)
+    ```
+- [x] **Step 1.4: Domain Name & DNS Configuration (`skilio.tech`)**
+  - Target production domain: **`skilio.tech`** (secured via GitHub Student Developer Pack).
+  - Configured DNS **A Records**:
+    - `@` $\rightarrow$ `16.192.59.166` (Apex domain: `https://skilio.tech`)
+    - `*` $\rightarrow$ `16.192.59.166` (Wildcard subdomains: `api.skilio.tech`, `status.skilio.tech`, `grafana.skilio.tech`)
 
 ---
 

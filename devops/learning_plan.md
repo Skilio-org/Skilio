@@ -19,43 +19,234 @@
 
 ## Level 1: Cloud & Linux Infrastructure (IaaS & AWS)
 
-### 1.1 What is Cloud Computing (IaaS)?
-- **Concept**: Instead of buying a physical rack server, you rent virtualized hardware slices on demand through an API or web console.
-- **Why it matters**: AWS manages physical power, cooling, motherboard repairs, and fiber cables. You manage the operating system (Ubuntu 24.04 LTS), Docker, and code.
+### 1.0 Prerequisites: The Mental Shift (Localhost vs. Cloud Server)
+
+Before working with the cloud, understand the fundamental shift from local development to production infrastructure:
+
+* **The Localhost Reality (`127.0.0.1`)**:
+  * Code runs on your laptop's CPU, RAM, and SSD.
+  * Listens exclusively on the internal loopback interface (`127.0.0.1` / `localhost`). Nobody on the internet can reach it.
+  * When your laptop lid closes or sleeps, all processes terminate.
+* **The Server Reality**:
+  * A server is an always-on (24/7) Linux computer in an enterprise datacenter with redundant power, cooling, and high-speed fiber internet.
+  * It has **no monitor, keyboard, or mouse**: It is managed 100% remotely over the network via **SSH**.
+* **The Postal Analogy (IP vs. Ports)**:
+  * **IP Address** (`54.210.80.12`): The physical street address of the building. Directs packets across the global internet.
+  * **Port**: The numbered apartment doors inside that building:
+    * **Port 22**: Administrative entrance (SSH encrypted terminal).
+    * **Port 80**: Public front door (Unencrypted HTTP web traffic).
+    * **Port 443**: Secure revolving door (Encrypted HTTPS web traffic).
+    * **Port 5432**: Internal vault (PostgreSQL database — never exposed publicly).
+
+---
+
+### 1.1 What is Cloud Computing & IaaS?
+
+* **The Cloud Definition**:
+  Computing power (CPU, RAM, storage, networking) delivered as an on-demand, metered utility over the internet—provisioned in seconds via API or web console rather than purchasing physical hardware.
+* **The 3 Cloud Service Models (The Pyramid)**:
+
+```text
+ ┌────────────────────────────────────────────────────────┐
+ │                          SaaS                          │  Software as a Service
+ │             (Gmail, GitHub, Figma, Slack)              │  • End-user software.
+ ├────────────────────────────────────────────────────────┤
+ │                          PaaS                          │  Platform as a Service
+ │               (Vercel, Render, Heroku)                 │  • Provider manages OS, Docker, & SSL.
+ │                                                        │  • You only upload code.
+ ├────────────────────────────────────────────────────────┤
+ │                          IaaS                          │  Infrastructure as a Service
+ │             (AWS EC2, Google Compute Engine)           │  • Provider provisions virtual hardware.
+ │                                                        │  • YOU manage the OS, Docker, & Security.
+ └────────────────────────────────────────────────────────┘
+```
+
+* **The AWS Shared Responsibility Model (IaaS)**:
+
+| Layer | Responsible Entity | Scope & Responsibilities |
+| :--- | :---: | :--- |
+| **Datacenter Infrastructure** | **AWS** | Physical facility security, diesel generators, HVAC cooling, physical servers, fiber switches. |
+| **Virtualization Hypervisor** | **AWS** | AWS Nitro System / KVM slicing physical motherboards into isolated virtual machines. |
+| **Operating System** | **YOU** | Selecting Ubuntu 24.04 LTS, running `apt update`, patching Linux kernel vulnerabilities. |
+| **Firewall & Ingress** | **YOU** | Configuring Security Groups to allow only ports 22, 80, 443 and drop private database ports. |
+| **Runtime & Containers** | **YOU** | Installing Docker Engine, orchestrating Traefik reverse proxy, running PostgreSQL 18. |
+| **Code & Application Data** | **YOU** | Deploying the Skilio codebase, managing database backups, securing user credentials. |
+
+* **Why IaaS is Mandatory for 42 School Evaluation**:
+  * *PaaS (Vercel/Render)*: Evaluators reject it as trivial because the platform automates OS, network routing, and certificates for you.
+  * *IaaS (AWS EC2)*: Evaluators accept it as a **Major Module of Choice (2 Points)** because you personally engineer the entire infrastructure stack: hypervisor firewalls, Linux OS hardening, reverse proxies, and CI/CD pipelines.
+
+---
 
 ### 1.2 AWS EC2 (Elastic Compute Cloud) & Virtualization
-- **What is EC2?**: An EC2 instance is a virtual machine running on AWS's physical hypervisors (AWS Nitro System / KVM).
-- **Instance Sizing**:
-  - `t3.micro`: 2 vCPUs, 1 GB RAM (Free Tier eligible).
-  - `t3.small`: 2 vCPUs, 2 GB RAM (Comfortable for building Docker containers).
-- **42 C Analogy**: Think of an EC2 instance as a dedicated virtual machine running inside an isolated Linux namespace with its own virtual CPU, RAM, and disk controller.
+
+* **What EC2 Stands For**: **E**lastic **C**ompute **C**loud (1 E + 2 C's).
+  * *Elastic*: Can be resized, stopped, restarted, or cloned in seconds.
+  * *Compute*: Raw processing power (virtual CPU cores and RAM).
+  * *Cloud*: Hosted in AWS global datacenters (e.g. Frankfurt, Paris, Ireland).
+
+```text
+ ┌────────────────────────────────────────────────────────┐
+ │            PHYSICAL RACK SERVER IN AWS DATACENTER      │
+ │          (e.g., 128 Physical CPU Cores, 512 GB RAM)    │
+ ├────────────────────────────────────────────────────────┤
+ │              THE HYPERVISOR (AWS Nitro / KVM)          │
+ │    (Hardware virtualization that carves up resources)  │
+ ├──────────────┬──────────────┬───────────┬──────────────┤
+ │  VM 1 (EC2)  │  VM 2 (EC2)  │   ...     │  OUR EC2     │
+ │ (Customer A) │ (Customer B) │           │ (t3.micro)   │
+ │ Ubuntu 22.04 │ Debian 12    │           │ Ubuntu 24.04 │
+ │ 4 vCPU, 8GB  │ 2 vCPU, 4GB  │           │ 2 vCPU, 1GB  │
+ └──────────────┴──────────────┴───────────┴──────────────┘
+```
+
+* **Virtual Machine vs. Docker Container**:
+  * **Virtual Machine (EC2)**: Virtualizes the **hardware layer**. Runs its own independent Linux kernel.
+  * **Docker Container**: Virtualizes the **operating system / user space**. Multiple containers share the *same* host Linux kernel using Linux cgroups and namespaces.
+  * *In our architecture*: We run our Docker containers *inside* our EC2 Virtual Machine.
+* **Decoding EC2 Instance Sizing (`t3.micro`)**:
+  * `t`: **Instance Family** — Burstable general-purpose compute.
+  * `3`: **Generation** — 3rd generation hardware architecture (faster than `t2`).
+  * `micro`: **Size** — 2 vCPUs, 1 GB of RAM (eligible for the 12-Month AWS Free Tier).
+* **CPU Credits & Bursting**:
+  * During idle periods, the instance accumulates **CPU credits**.
+  * When handling user traffic spikes or compiling Docker images, the CPU consumes credits to burst to **100% of full clock speed**.
+* **Compute vs. Persistent Storage (AWS EBS)**:
+  * **EC2**: The processing brain (CPU + RAM).
+  * **AWS EBS (Elastic Block Store)**: High-speed network-attached virtual SSD (30 GB Free Tier).
+  * *Persistence*: Even if the EC2 instance is stopped or rebooted, the EBS volume retains 100% of data (PostgreSQL database, backup archives, Docker image cache).
+
+---
 
 ### 1.3 AWS Networking: VPC, Elastic IPs, and Security Groups
-- **VPC (Virtual Private Cloud)**: An isolated virtual network dedicated to your AWS account. Your server sits in a public subnet with access to an Internet Gateway.
-- **Dynamic vs. Elastic IP**:
-  - *Default Public IP*: Changes every time the EC2 instance stops and starts.
-  - *Elastic IP (Static IP)*: A permanent public IPv4 address allocated to your account. It never changes, which is required for your domain's DNS `A Record`.
-- **Security Groups (Stateful Hypervisor Firewall)**:
-  - Security Groups run at the AWS network hypervisor layer, **outside** your Linux operating system.
-  - *Stateful nature*: If you allow inbound traffic on port 443, the outbound response traffic is automatically allowed regardless of outbound rules.
-  - **Our Rule Matrix**:
-    - Port `22` (SSH): Allowed only with cryptographic keys.
-    - Port `80` (HTTP): Allowed for Let's Encrypt validation & HTTPS redirect.
-    - Port `443` (HTTPS): Allowed for encrypted web traffic.
-    - Ports `5432` (Postgres) / `6379` (Redis): Strictly blocked from the internet.
 
-### 1.4 Linux Memory & The Swap File
-- **The Problem**: Compiling frontend bundles (`bun run build`) and building Docker images can spike memory usage beyond 1 GB. If RAM runs out, the Linux kernel's **OOM Killer (Out-Of-Memory Killer)** abruptly sends `SIGKILL` (-9) to your process, crashing the build.
-- **The Solution (Swap)**:
-  - A 2 GB Swap file (`/swapfile`) acts as virtual memory on the SSD.
-  - When physical RAM fills up, the Linux memory manager pages inactive memory blocks to disk, keeping processes alive and stable.
+```text
+ ┌────────────────────────────────────────────────────────────────────────┐
+ │                    AWS VPC (Virtual Private Cloud)                     │
+ │                                                                        │
+ │  ┌─────────────────────── Public Subnet ────────────────────────────┐  │
+ │  │                                                                  │  │
+ │  │  Internet Gateway (IGW) ──▶ [Elastic IP: 54.210.80.12] (Static)  │  │
+ │  │                                    │                             │  │
+ │  │                                    ▼                             │  │
+ │  │                      ┌───────────────────────────┐               │  │
+ │  │                      │   AWS Security Group      │               │  │
+ │  │                      │   (Hypervisor Firewall)   │               │  │
+ │  │                      │   • Port 22  (SSH)   [✔]  │               │  │
+ │  │                      │   • Port 80  (HTTP)  [✔]  │               │  │
+ │  │                      │   • Port 443 (HTTPS) [✔]  │               │  │
+ │  │                      │   • Port 5432 (DB)   [✖]  │               │  │
+ │  │                      └─────────────┬─────────────┘               │  │
+ │  │                                    │                             │  │
+ │  │                                    ▼                             │  │
+ │  │                           [ EC2 Instance ]                       │  │
+ │  │                       (Ubuntu 24.04 + Docker)                    │  │
+ │  └──────────────────────────────────────────────────────────────────┘  │
+ └────────────────────────────────────────────────────────────────────────┘
+```
+
+* **VPC (Virtual Private Cloud) & Internet Gateway (IGW)**:
+  * An isolated software-defined network dedicated to your AWS account.
+  * The **Internet Gateway (IGW)** acts as the router connecting your VPC's public subnet to the internet.
+* **Dynamic Public IP vs. Elastic IP (Static IP)**:
+  * *Default Public IP*: Changes randomly whenever the EC2 instance stops and starts.
+  * *Elastic IP (EIP)*: A permanent public IPv4 address allocated to your account that never changes across reboots. Mandatory so your domain's DNS `A Record` (`skilio.tech` $\rightarrow$ Elastic IP) remains permanently intact.
+* **Security Groups (Stateful Hypervisor Firewall)**:
+  * Operates at the AWS Nitro hypervisor layer **outside** the Linux OS.
+  * Packets on blocked ports are dropped before they ever reach the server CPU or network card.
+  * **Stateful Property**: Inbound connections automatically permit return response packets without opening high ephemeral ports.
+* **Production Firewall Rule Matrix for Skilio**:
+
+| Port | Protocol | Purpose | Source Allowed | Status |
+| :---: | :---: | :--- | :--- | :---: |
+| **`22`** | **TCP (SSH)** | Administrative terminal access & GitHub Actions deployment. | `0.0.0.0/0` (Key-pair only) | 🟢 **OPEN** |
+| **`80`** | **TCP (HTTP)** | Let's Encrypt domain validation & 301 HTTPS redirection. | `0.0.0.0/0` (Anywhere) | 🟢 **OPEN** |
+| **`443`** | **TCP (HTTPS)**| Production encrypted web traffic, REST APIs, & WebSockets. | `0.0.0.0/0` (Anywhere) | 🟢 **OPEN** |
+| **`5432`**| **TCP (Postgres)** | Database engine (only reachable inside Docker network). | None (Blocked) | 🔴 **BLOCKED** |
+| **`6379`**| **TCP (Redis)** | Cache & message broker. | None (Blocked) | 🔴 **BLOCKED** |
+| **`8000`**| **TCP (FastAPI)**| Backend API service (only Traefik routes to this internally). | None (Blocked) | 🔴 **BLOCKED** |
+
+---
+
+### 1.4 Linux Memory Management & The 2 GB Swap File
+
+* **The 1 GB RAM Ceiling Problem**:
+  * Idle server baseline (Linux + Docker + Traefik + Postgres + Redis): $\approx 400\text{ MB}$.
+  * Deployment build spike (Vite/Bun compilation `bun run build` + Docker image build layers): Spikes to **1.2 GB – 1.5 GB**.
+* **The Linux OOM Killer (Out-Of-Memory Killer)**:
+  * When memory allocation (`malloc()`) fails, the Linux kernel assigns an `oom_score` to processes and terminates the largest consumer with an unconditional **`SIGKILL` (Signal 9)**.
+  * Build abruptly crashes with: `Process completed with exit code 137` ($128 + 9 = 137$).
+* **The Solution: Virtual Memory Paging & Linux Swap**:
+  * **Swap** acts as an emergency memory extension on the SSD (`/swapfile`).
+  * *Paging Mechanism*: When RAM fills up, the Linux kernel writes inactive, "cold" memory pages (e.g., idle background processes) to disk (**Page Out**), freeing physical RAM for active compilation. When needed, data is paged back into RAM (**Page In**).
+* **Automated Swap Setup on Ubuntu 24.04**:
+
+```bash
+# 1. Allocate 2 GB contiguous file on SSD
+sudo fallocate -l 2G /swapfile
+
+# 2. Restrict permissions (ONLY root can read swap to prevent in-memory credential leaks)
+sudo chmod 600 /swapfile
+
+# 3. Format as Linux Swap filesystem
+sudo mkswap /swapfile
+
+# 4. Activate swap
+sudo swapon /swapfile
+
+# 5. Persist across reboots in /etc/fstab
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+* **Kernel Parameter `vm.swappiness=10`**:
+  * Tuning `sysctl vm.swappiness=10` ensures Linux prioritizes ultra-fast physical RAM, only paging to SSD when memory usage exceeds $90\%$.
+
+---
 
 ### 1.5 Asymmetric SSH Key Cryptography
-- **How it works**:
-  - You generate a public/private key pair (`ssh-keygen` or AWS `.pem`).
-  - **Private Key** (e.g., `skilio-key.pem`): Stored securely on your laptop with permissions `chmod 400` (readable only by you). **Never shared.**
-  - **Public Key**: Placed in the server's `~/.ssh/authorized_keys`.
-  - When connecting, the server encrypts a challenge with the public key; only your private key can decrypt and sign it. Passwords are completely disabled (`PasswordAuthentication no`).
+
+* **Why Passwords are Dead in Production**:
+  * Internet bots scan IP ranges 24/7 trying automated brute-force attacks on Port 22.
+  * In our production server config (`/etc/ssh/sshd_config`), passwords are permanently disabled:
+    ```text
+    PasswordAuthentication no
+    ```
+* **Symmetric vs. Asymmetric Cryptography**:
+  * *Symmetric*: Same shared secret encrypts and decrypts (if intercepted, security is broken).
+  * *Asymmetric*: Two mathematically linked keys:
+    * **Private Key (`skilio-key.pem`)**: Secret signature stored **only** on your local machine. Permissions set to `chmod 400`. Never transmitted over the network.
+    * **Public Key (`skilio-key.pub`)**: Shared with the world. Stored on the server in `/home/ubuntu/.ssh/authorized_keys`.
+* **The 4-Step Challenge-Response Handshake**:
+
+```text
+ ┌──────────────────────┐                           ┌──────────────────────┐
+ │    YOUR LAPTOP       │                           │      AWS EC2         │
+ │ (Has Private Key)    │                           │ (Has Public Key)     │
+ └──────────┬───────────┘                           └──────────┬───────────┘
+            │                                                  │
+            │  1. "Hello, I want to log in as user 'ubuntu'"   │
+            │ ───────────────────────────────────────────────▶ │
+            │                                                  │
+            │  2. Server generates random number (Nonce)       │
+            │     and encrypts it with your Public Key         │
+            │ ◀─────────────────────────────────────────────── │
+            │                                                  │
+            │  3. Laptop decrypts challenge with Private Key,  │
+            │     signs it, and sends cryptographic proof back │
+            │ ───────────────────────────────────────────────▶ │
+            │                                                  │
+            │  4. Server verifies signature with Public Key    │
+            │     ✔ MATCH! Access Granted.                    │
+            │ ◀─────────────────────────────────────────────── │
+```
+
+* **Why `chmod 400` is Enforced by OpenSSH**:
+  * `chmod 400`: Read-only by the owner, 0 permissions for group and others.
+  * If a private key is world-readable (`chmod 644` or `777`), OpenSSH aborts with:
+    `WARNING: UNPROTECTED PRIVATE KEY FILE! Permissions 0644 are too open. Load key "skilio-key.pem": bad permissions`.
+* **How CI/CD Uses This**:
+  * The private key is stored inside **GitHub Repository Secrets** (`SERVER_SSH_KEY`).
+  * On every merge to `master`, GitHub Actions loads the key into an ephemeral runner and executes the challenge-response handshake to deploy the platform with zero human intervention.
 
 ---
 
