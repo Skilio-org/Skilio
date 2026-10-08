@@ -2,6 +2,21 @@ import { createFileRoute } from "@tanstack/react-router"
 import { ClientJobsPage } from "@/pages/client-area/client-jobs-page"
 
 export const Route = createFileRoute("/_layout/client-jobs")({
-	component: ClientJobsPage,
+	validateSearch: (search: Record<string, unknown>) => ({
+		jobId: typeof search.jobId === "string" ? search.jobId.trim() || undefined : undefined,
+	}),
+	component: ClientJobsRoute,
 	head: () => ({ meta: [{ title: "Your jobs | Skilio" }] }),
 })
+
+function ClientJobsRoute() {
+	const { jobId } = Route.useSearch()
+	const navigate = Route.useNavigate()
+
+	return (
+		<ClientJobsPage
+			focusedJobId={jobId}
+			onFocusedJobChange={(nextJobId) => void navigate({ search: { jobId: nextJobId }, replace: !nextJobId })}
+		/>
+	)
+}
