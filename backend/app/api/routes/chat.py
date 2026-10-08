@@ -359,6 +359,8 @@ async def inject_event(
 
     return {"status": "ok", "message": "Event injected successfully"}
 
+async def reject_websocket(websocket: WebSocket, code: int = status.WS_1008_POLICY_VIOLATION, reason: str = "Invalid or expired token") -> None:
+    await websocket.close(code=code,reason=reason)
 
 @router.websocket("/ws")
 async def websocket_chat_endpoint(
@@ -369,26 +371,26 @@ async def websocket_chat_endpoint(
     WebSocket endpoint for real-time messaging, notifications, and custom event streaming.
     Authentication is performed via the 'token' query parameter.
     """
+    await websocket.accept()
     if not token:
-        # await websocket.accept()
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        await reject_websocket(websocket)
         return
 
     try:
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+            token,
+            settings.SECRET_KEY,
+            algorithms=[security.ALGORITHM],
         )
         token_data = TokenPayload(**payload)
     except (InvalidTokenError, ValidationError):
-        # await websocket.accept()
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        await reject_websocket(websocket)
         return
 
     with Session(engine) as session:
         user = session.get(User, ident=token_data.sub)
         if not user or not user.is_active:
-            # await websocket.accept()
-            await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+            await reject_websocket(websocket)
             return
         user_id = user.id
 
@@ -561,3 +563,4 @@ async def websocket_chat_endpoint(
     except Exception as e:
         logger.error("WebSocket unexpected error for user %s: %s", user_id, e)
         connection_manager.disconnect(user_id, websocket)
+

@@ -6,6 +6,7 @@ export function LinkedinAuthCallbackPage({ code, error }: { code?: string; error
 	const navigate = useNavigate()
 
 	useEffect(() => {
+		const controller = new AbortController();
 		if (error) {
 			navigate({
 				to: "/login",
@@ -26,34 +27,45 @@ export function LinkedinAuthCallbackPage({ code, error }: { code?: string; error
 
 		const authenticate = async () => {
 			try {
-				const res = await fetch(`http://localhost:8000/api/v1/login/linkedin/callback?code=${encodeURIComponent(code)}`)
-
+				const res = await fetch(
+					`http://localhost:8000/api/v1/login/linkedin/callback?code=${encodeURIComponent(code)}`,
+					{ signal: controller.signal }
+				)
+				
+				console.log(JSON.stringify(res))
 				if (!res.ok) {
 					const errorData = await res.json()
-					alert(JSON.stringify(res))
 					throw new Error(errorData.detail || "Authentication failed")
 				}
 
 				const data = await res.json()
 
+				// alert("LinkedIn authentication successful! Access token: " + data.access_token)
 				localStorage.setItem("access_token", data.access_token)
 				window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
 
 				navigate({
 					to: "/dashboard",
 				})
-			} catch (err) {
-				navigate({
-					to: "/login",
-					search: {
-						error: err instanceof Error ? err.message : "Authentication failed",
-					},
-				})
+			} catch (err: any) {
+				if (err.name !== 'AbortError') {
+					navigate({
+						to: "/login",
+						search: {
+							error: err instanceof Error ? err.message : "Authentication failed",
+						},
+					})
+				}
 			}
 		}
 
 		void authenticate()
-	}, [code, error, navigate])
+		return () => {
+			// Cleanup function to remove the event listener when the component unmounts
+			controller.abort()
+			window.removeEventListener(AUTH_TOKEN_CHANGED_EVENT, () => {})
+		}
+	}, [error, code, navigate])
 
 	return null
 }

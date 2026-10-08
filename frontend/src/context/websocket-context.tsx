@@ -110,20 +110,21 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 			wsRef.current = ws
 
 			ws.onopen = () => {
-				if (!isMountedRef.current) return
-				setIsConnected(true)
-
-				pingIntervalRef.current = setInterval(() => {
-					if (ws.readyState === WebSocket.OPEN) {
-						ws.send(JSON.stringify({ type: "ping" }))
-					}
-				}, 25000)
+				if (!isMountedRef.current) ws.close(1000)
 			}
 
 			ws.onmessage = (event) => {
 				try {
 					const data = JSON.parse(event.data)
 					const eventType = data.type || "custom"
+					if (eventType === "connection_established") {
+						setIsConnected(true)
+						pingIntervalRef.current = setInterval(() => {
+							if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "ping" }))
+						}, 25000)
+						return
+					}
+					
 					if (eventType === "chat_message" && data.data) {
 						handleIncomingMessage(data.data, {
 							incrementUnread: true,
@@ -179,8 +180,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 				}
 			}
 			ws.onclose = (e) => {
+				if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
+				// console.log("WebSocket closed:", e.code, e.reason)
 				if (e.code === WebSocketCloseCodes.PolicyViolation) {
-					localStorage.removeItem("access_token")
+					localStorage.clear()
 					window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
 					return
 				}

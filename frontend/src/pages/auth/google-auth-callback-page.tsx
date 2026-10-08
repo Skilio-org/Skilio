@@ -6,6 +6,7 @@ export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?:
 	const navigate = useNavigate()
 
 	useEffect(() => {
+		const controller = new AbortController();
 		if (error) {
 			navigate({
 				to: "/login",
@@ -26,7 +27,7 @@ export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?:
 
 		const authenticate = async () => {
 			try {
-				const res = await fetch(`http://localhost:8000/api/v1/login/google/callback?code=${encodeURIComponent(code)}`)
+				const res = await fetch(`http://localhost:8000/api/v1/login/google/callback?code=${encodeURIComponent(code)}`, {signal: controller.signal})
 
 				if (!res.ok) {
 					const errorData = await res.json()
@@ -41,17 +42,24 @@ export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?:
 				navigate({
 					to: "/dashboard",
 				})
-			} catch (err) {
-				navigate({
-					to: "/login",
-					search: {
-						error: err instanceof Error ? err.message : "Authentication failed",
-					},
-				})
+			} catch (err: any) {
+				if (err.name !== 'AbortError') {
+					navigate({
+						to: "/login",
+						search: {
+							error: err instanceof Error ? err.message : "Authentication failed",
+						},
+					})
+				}
 			}
 		}
 
 		void authenticate()
+		return () => {
+			// Cleanup function to remove the event listener when the component unmounts
+			controller.abort()
+			window.removeEventListener(AUTH_TOKEN_CHANGED_EVENT, () => {})
+		}
 	}, [code, error, navigate])
 
 	return null
