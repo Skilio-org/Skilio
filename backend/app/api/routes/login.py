@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, Response, Request, logger
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from app.core.security import get_password_hash, generate_random_password
@@ -75,7 +75,7 @@ def google_callback(request: Request, code: str, session: SessionDep):
                 detail="An account with this email already exists. Please log in with your password."
             )
         user.full_name = google_user.get("name")
-        user.avatar_url = google_user.get("picture")
+        user.avatar_url = google_user.get("picture") == None and settings.DEFAULT_AVATAR_URL or google_user.get("picture")
         if refresh_token:
             user.refresh_token = refresh_token
         session.add(user)
@@ -84,7 +84,7 @@ def google_callback(request: Request, code: str, session: SessionDep):
         user = User(
             email=google_user["email"],
             full_name=google_user.get("name"),
-            avatar_url=google_user.get("picture"),
+            avatar_url=google_user.get("picture") == None and settings.DEFAULT_AVATAR_URL or google_user.get("picture"),
             google_id=google_user["sub"],
             refresh_token=refresh_token,
             is_active=True,
@@ -134,7 +134,7 @@ def linkedin_callback(request: Request, code: str, session: SessionDep):
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
-    
+    print("1 >> ", token_response.status_code, token_response.text)
     if token_response.status_code != 200:
         raise HTTPException(status_code=400, detail="Failed to retrieve token from LinkedIn.")
 
@@ -147,15 +147,15 @@ def linkedin_callback(request: Request, code: str, session: SessionDep):
         settings.LINKEDIN_USERINFO_URL,
         headers={"Authorization": f"Bearer {access_token}"}
     )
-    
+    print("2 >> ", userinfo_response.status_code, userinfo_response.text)    
     if userinfo_response.status_code != 200:
         raise HTTPException(status_code=400, detail="Failed to retrieve profile from LinkedIn.")
 
     # linkedin_user contains standard OIDC fields: sub, email, name, picture
     linkedin_user = userinfo_response.json() 
 
-    # 3. Apply exact user lookup and creation logic
     user = crud.get_user_by_email(session=session, email=linkedin_user["email"])
+    print("User found: ", user)
 
     if user:
         if not user.linkedin_id:
@@ -165,17 +165,15 @@ def linkedin_callback(request: Request, code: str, session: SessionDep):
             )
             # If the user registered via password or Google, link the account
             # user.linkedin_id = linkedin_user["sub"]
-        
         user.full_name = linkedin_user.get("name")
-        user.avatar_url = linkedin_user.get("picture")
-        
+        user.avatar_url = linkedin_user.get("picture") == None and settings.DEFAULT_AVATAR_URL or linkedin_user.get("picture")
         session.add(user)
         session.commit()
     else:
         user = User(
             email=linkedin_user["email"],
             full_name=linkedin_user.get("name"),
-            avatar_url=linkedin_user.get("picture"),
+            avatar_url=linkedin_user.get("picture") == None and settings.DEFAULT_AVATAR_URL or linkedin_user.get("picture"),
             linkedin_id=linkedin_user["sub"],
             is_active=True,
             hashed_password=generate_random_password(12)  # Placeholder password for OAuth users
