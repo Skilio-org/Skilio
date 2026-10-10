@@ -250,32 +250,170 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 ---
 
-## Level 2: DNS, Networking, Ingress & Automated SSL/TLS
+## Level 2: DNS, Networking, Ingress & Automated SSL/TLS (COMPLETED ✅)
 
 ### 2.1 How DNS (Domain Name System) Works
-- **Concept**: The phonebook of the internet. Translates human-readable names (`skilio.tech`) into machine IP addresses (`54.210.80.12`).
-- **Core DNS Records**:
-  - **A Record**: Maps a domain name directly to an IPv4 address.
-    - Example: `@` (apex: `skilio.tech`) $\rightarrow$ `54.210.80.12`
-  - **Wildcard Record (`*`)**: Maps all subdomains (`*.skilio.tech`) to the same server so `api.skilio.tech` or `adminer.skilio.tech` work automatically.
-  - **TTL (Time to Live)**: How many seconds DNS resolvers (like Google `8.8.8.8` or Cloudflare `1.1.1.1`) cache the record before asking your authoritative nameserver again.
 
-### 2.2 Reverse Proxy Architecture
-- **Forward Proxy**: Sits in front of clients (e.g. university proxy monitoring outgoing web browsing).
-- **Reverse Proxy**: Sits in front of backend servers. Clients connect to the reverse proxy without knowing what internal services exist behind it.
-- **Why use Traefik instead of exposing ports directly?**:
-  1. *Single Ingress Point*: Only ports 80 and 443 are open to the world.
-  2. *TLS Termination*: Traefik handles heavy cryptographic SSL handshakes in one place; backend containers talk lightweight HTTP internally.
-  3. *Dynamic Routing*: Inspects the HTTP `Host` header to route traffic (`skilio.tech` $\rightarrow$ frontend/backend, `adminer.skilio.tech` $\rightarrow$ database GUI).
+* **The Core Concept**: The Internet's Phonebook.
+  * **Computers and routers** communicate exclusively via numerical IP addresses (`16.192.59.166`).
+  * **Humans** navigate using human-friendly names (`skilio.tech`).
+  * DNS is the globally distributed database that maps:
+    $$\text{"skilio.tech"} \quad \xrightarrow{\text{DNS Lookup}} \quad \mathbf{16.192.59.166}$$
+
+```text
+ [Your Browser / Laptop]
+          │
+          ▼ (1. "Who is skilio.tech?")
+ ┌────────────────────────────────────────────────────────────┐
+ │ DNS Recursive Resolver (ISP, Cloudflare 1.1.1.1, Google)   │
+ └────────┬───────────────────────────────────────────────────┘
+          │
+          ▼ (2. "Who manages the .tech TLD?")
+ ┌────────────────────────────────────────────────────────────┐
+ │ Root & TLD Nameservers (.tech Registry)                    │
+ └────────┬───────────────────────────────────────────────────┘
+          │
+          ▼ (3. "Ask the Authoritative Nameserver")
+ ┌────────────────────────────────────────────────────────────┐
+ │ Authoritative Nameserver (Host where DNS records live)     │
+ └────────┬───────────────────────────────────────────────────┘
+          │
+          ▼ (4. "skilio.tech resolves to 16.192.59.166!")
+ [Browser establishes TCP/TLS handshake with AWS EC2]
+```
+
+* **Core DNS Record Types for DevOps**:
+
+| Record Type | Host | Target Value | Purpose in Skilio Platform |
+| :---: | :---: | :---: | :--- |
+| **`A`** | `@` (Apex) | `16.192.59.166` | Maps the root domain (`https://skilio.tech`) directly to our static AWS Elastic IPv4. |
+| **`A` (Wildcard)** | `*` | `16.192.59.166` | **DevOps Superpower**: Directs **all** subdomains (`api.skilio.tech`, `grafana.skilio.tech`, `status.skilio.tech`) to our host without creating separate DNS records. |
+| **`CNAME`** | `www` | `skilio.tech` | Canonical Name alias: redirects `www.skilio.tech` to apex `skilio.tech`. |
+
+* **TTL (Time-To-Live) & Global Caching**:
+  * **TTL** defines the number of seconds intermediate DNS resolvers cache our DNS answer before querying our authoritative nameserver again.
+  * *Standard Production*: `3600` seconds ($1\text{ hour}$) or `86400` seconds ($24\text{ hours}$).
+  * *Migration / Launch Mode*: `300` seconds ($5\text{ minutes}$) to ensure instant IP propagation if the server address changes.
+* **CLI DNS Verification**:
+  ```bash
+  dig +short skilio.tech
+  # 16.192.59.166
+  nslookup api.skilio.tech
+  # Address: 16.192.59.166
+  ```
+
+---
+
+### 2.2 Reverse Proxy Architecture (Traefik 3.6)
+
+* **Why We Cannot Expose Containers Directly**:
+  * If containers were published directly to the host, visitors would need to memorize ugly ports: `skilio.tech:5173` (React), `skilio.tech:8000` (FastAPI), `skilio.tech:3000` (Grafana).
+  * Opening multiple host ports through the AWS Security Group expands the server's attack surface.
+  * Each container would need its own complex SSL certificate configuration.
+
+* **Forward Proxy vs. Reverse Proxy**:
+
+```text
+ FORWARD PROXY (Protects and hides clients)
+ [Student Laptop] ──▶ [University Proxy] ──▶ [The Public Internet]
+ (Intercepts outbound requests, enforces filtering, logs visited websites).
+
+ REVERSE PROXY (Protects and manages backend servers)
+ [Public Internet User] ──▶ [Traefik 3.6 Proxy] ──▶ [Private Docker Containers]
+ (Single ingress point; routes incoming traffic to internal microservices).
+```
+
+* **The 3 Superpowers of a Reverse Proxy**:
+
+```text
+                             PUBLIC INTERNET
+                                    │
+                         Ports 80 (HTTP) & 443 (HTTPS)
+                                    │
+                                    ▼
+                     ┌─────────────────────────────┐
+                     │     TRAEFIK REVERSE PROXY   │
+                     │  • Handles TLS Termination  │
+                     │  • Inspects Host & Paths    │
+                     └──────────────┬──────────────┘
+                                    │ Internal Docker Bridge Network (100% Private)
+            ┌───────────────────────┼───────────────────────┐
+            │                       │                       │
+            ▼                       ▼                       ▼
+   ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+   │ React Frontend  │     │ FastAPI Backend │     │ Grafana Monitor │
+   │ (skilio.tech/)  │     │ (/api/v1/...)   │     │ (grafana.skilio)│
+   └─────────────────┘     └─────────────────┘     └─────────────────┘
+```
+
+1. **Single Ingress Point (Maximum Security)**:
+   * Only **Port 80 (HTTP)** and **Port 443 (HTTPS)** are exposed to the public internet.
+   * All backend microservices (FastAPI, PostgreSQL, Redis, Prometheus) live on an isolated internal Docker bridge network (`default`), completely unreachable from the outside.
+2. **TLS / SSL Termination**:
+   * Heavy cryptographic encryption/decryption happens once at the Traefik boundary.
+   * Traffic between Traefik and internal containers travels over high-speed, unencrypted internal Linux bridge networking with zero encryption overhead.
+3. **Dynamic Host & Path-Based Routing**:
+   * Traefik inspects incoming HTTP request headers to route traffic to the correct container:
+
+| User Request | Traefik Routing Rule | Target Container |
+| :--- | :--- | :--- |
+| `https://skilio.tech/` | `Host("skilio.tech")` | **Frontend (React / Nginx)** |
+| `https://skilio.tech/api/v1/...` | `Host("skilio.tech") && PathPrefix("/api")` | **Backend (FastAPI)** |
+| `wss://skilio.tech/ws/...` | `Host("skilio.tech") && PathPrefix("/ws")` | **Backend (WebSockets)** |
+| `https://grafana.skilio.tech` | `Host("grafana.skilio.tech")` | **Monitoring (Grafana)** |
+
+* **Why Traefik 3.6 over Classic Nginx?**:
+  * *Classic Nginx*: Relies on static configuration files (`nginx.conf`). Every container change requires updating IP addresses and running `nginx -s reload`.
+  * *Traefik*: **Cloud-Native & Container-Aware**. Connects directly to the Docker daemon socket (`/var/run/docker.sock`). When containers start, Traefik dynamically reads their Docker Compose `labels`, sets up routing rules, and provisions SSL certificates with **zero manual configuration files and zero reloads**.
+
+---
 
 ### 2.3 Automated TLS / HTTPS via Let's Encrypt & ACME
-- **What is TLS/SSL?**: Encrypts the TCP connection between browser and server, preventing eavesdropping and man-in-the-middle (MITM) attacks.
-- **The ACME Protocol (Automated Certificate Management Environment)**:
-  1. Traefik sends a request to Let's Encrypt: *"I want a certificate for skilio.tech"*.
-  2. Let's Encrypt replies with a challenge: *"Prove you control this domain by answering on port 80 or 443"*.
-  3. Traefik fulfills the challenge dynamically (TLS-ALPN-01 or HTTP-01).
-  4. Let's Encrypt verifies it and signs an official X.509 certificate.
-  5. Traefik stores it in `/certificates/acme.json` and auto-renews it 30 days before expiration.
+
+* **HTTP vs. HTTPS**:
+  * **HTTP (Port 80)**: Plaintext transmission. Packets traversing public Wi-Fi or ISP routers can be intercepted via packet sniffing, exposing passwords and JWT authentication tokens.
+  * **HTTPS (Port 443)**: HTTP over TLS 1.3 (Transport Layer Security). Cryptographically encrypts all payloads into scrambled ciphertext, preventing eavesdropping and Man-in-the-Middle (MITM) attacks.
+
+* **The Shift to Let's Encrypt & ACME**:
+  * *Traditional CAs*: Expensive ($100–$500/year), required manual Certificate Signing Requests (CSR), domain verification emails, and manual certificate installations. Expired certificates caused catastrophic production outages.
+  * *Let's Encrypt*: Free, non-profit, automated Certificate Authority governed by the Linux Foundation and Mozilla.
+  * *ACME Protocol*: **A**utomated **C**ertificate **M**anagement **E**nvironment — RFC 8555 standard enabling automated certificate issuance, verification, and renewal.
+
+* **The ACME HTTP-01 Challenge Handshake**:
+
+```text
+  [Traefik 3.6 on AWS]                                      [Let's Encrypt CA]
+           │                                                         │
+           │  1. Request SSL certificate for "skilio.tech"           │
+           │ ──────────────────────────────────────────────────────▶ │
+           │                                                         │
+           │  2. Challenge: "Prove ownership! Serve this token at:   │
+           │     http://skilio.tech/.well-known/acme-challenge/XYZ"  │
+           │ ◀────────────────────────────────────────────────────── │
+           │                                                         │
+           │  3. Traefik dynamically registers temporary HTTP route   │
+           │     and responds: "Challenge ready. Verify it!"         │
+           │ ──────────────────────────────────────────────────────▶ │
+           │                                                         │
+           │  4. Let's Encrypt queries http://skilio.tech/.../XYZ    │
+           │     ✔ Token verified! Domain ownership proven.          │
+           │                                                         │
+           │  5. Issues signed X.509 SSL Certificate                 │
+           │ ◀────────────────────────────────────────────────────── │
+```
+
+* **Storage & Automatic 90-Day Renewal Lifecycle**:
+  * **`acme.json` Storage**: Traefik stores issued certificates and private keys inside `/certificates/acme.json`.
+  * **File Permissions Hardening (`chmod 600`)**: Traefik strictly enforces that `acme.json` must be readable only by its owner (mode `0600`). If permissions are open, Traefik refuses to start for security reasons.
+  * **Persistent Volume Mounting**: The certificate directory is mounted to a named Docker volume (`traefik-certificates`), ensuring certificates survive container restarts and rebuilds.
+  * **Automatic Renewal**: Let's Encrypt certificates are valid for $90\text{ days}$. Traefik automatically initiates renewal at **day 60** ($30\text{ days}$ prior to expiration) in the background with zero downtime.
+
+* **Global HTTP $\rightarrow$ HTTPS Redirection**:
+  * Traefik enforces an automatic global redirect on Port 80:
+    ```text
+    http://skilio.tech (Port 80) ──▶ HTTP 301 Moved Permanently ──▶ https://skilio.tech (Port 443)
+    ```
+  * Guarantees $100\%$ of user traffic is encrypted, eliminating insecure plaintext connections.
 
 ---
 
