@@ -183,46 +183,189 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 ---
 
 ### Phase 3: Production Docker Ingress & SSL Automation (COMPLETED ✅)
-**Goal**: Configure Traefik 3.6 to automatically handle HTTPS termination, certificate issuance, and domain routing.
+**Goal**: Configure Traefik 3.6 to automatically handle HTTPS termination, certificate issuance, and domain routing with zero manual maintenance.
 
-- [x] **Step 3.1: Finalize Production Ingress (`compose.deploy.yml`)**
-  - Configured Traefik 3.6 reverse proxy listening on ports 80 (HTTP) and 443 (HTTPS) with global HTTP $\rightarrow$ HTTPS 308 redirection.
-  - Enabled automated Let's Encrypt TLS ACME challenge with persistent certificate storage in volume `traefik-certificates:/certificates/acme.json` (hardened with `chmod 600`).
-  - Added Let's Encrypt contact email via `--certificatesresolvers.le.acme.email=${ACME_EMAIL:?Variable not set}` for CA compliance.
-  - Added HTTPS routing for Grafana monitoring dashboard at `https://grafana.${DOMAIN}` on port 3000.
-- [x] **Step 3.2: Connect Traefik to Deep Diagnostic Health Check Probe**
-  - Updated Traefik backend load balancer to query the diagnostic probe at `/api/v1/health` (testing PostgreSQL, Redis, and disk storage every 10 seconds).
-- [x] **Step 3.3: Production Environment Setup & Override Isolation**
-  - Created [devops/.env.production.example](file:///home/aysadeq/Desktop/Freelancer/devops/.env.production.example).
-  - Explicitly declared `COMPOSE_FILE=compose.yml:compose.deploy.yml` to lock out `compose.override.yml`, guaranteeing development ports (Postgres 5432, Redis 6379, Traefik debug 8090, Mailpit) never leak into AWS.
-  - Configured instant public wildcard domain: `DOMAIN=16.192.59.166.sslip.io`.
-- [x] **Step 3.4: Live Production Deployment & Verification Drill**
-  - Synced codebase to `/opt/skilio/` on AWS instance `16.192.59.166`.
-  - Built production images (`docker compose build`) with Bun frontend compilation and Python UV backend bytecode caching.
-  - Ran Alembic database migrations: all 26 migrations applied successfully (`alembic upgrade head`) and initial superuser created.
-  - Verified live Let's Encrypt SSL certificates issued:
-    ```text
-    Certificates: ['16.192.59.166.sslip.io', 'grafana.16.192.59.166.sslip.io']
-    ```
-  - Verified live public endpoints:
-    ```bash
-    # 1. Main Web Application (HTTP/2 200 with Valid TLS Padlock)
-    curl -sI https://16.192.59.166.sslip.io
-    # Output: HTTP/2 200 (server: uvicorn)
+- [x] **Step 3.1: Public DNS Wildcard Architecture & Domain Strategy (`sslip.io`)**
+  - **What We Did**:
+    - Configured the public wildcard DNS domain `16.192.59.166.sslip.io` mapping directly to our AWS Elastic IP (`16.192.59.166`).
+  - **Why We Did It (Problem & Rationale)**:
+    - *The Blocker*: Access to the domain registrar for `skilio.tech` was unavailable from the project administrator.
+    - *The Challenge*: Let's Encrypt Certificate Authority strictly refuses to issue SSL/TLS certificates directly to bare IP addresses (e.g., `https://16.192.59.166`), requiring fully qualified domain names (FQDN).
+    - *The Solution*: `sslip.io` is a free, zero-configuration public DNS service that instantly maps any domain containing an embedded IP back to that exact IP. Both `16.192.59.166.sslip.io` and all subdomains like `grafana.16.192.59.166.sslip.io` resolve immediately to `16.192.59.166`.
+    - *Portability*: Zero vendor lock-in. When registrar access for `skilio.tech` is restored, transitioning only requires updating `DOMAIN=skilio.tech` in `/opt/skilio/.env` without touching any application code.
+  - **How We Did It**:
+    - Verified DNS A-record resolution:
+      ```bash
+      dig 16.192.59.166.sslip.io +short
+      # Output: 16.192.59.166
+      ```
 
-    # 2. HTTP to HTTPS 308 Automatic Redirection
-    curl -sI http://16.192.59.166.sslip.io
-    # Output: HTTP/1.1 308 Permanent Redirect -> Location: https://16.192.59.166.sslip.io/
+- [x] **Step 3.2: Production Docker Ingress Hardening (`compose.deploy.yml`)**
+  - **What We Did**:
+    - Polished and hardened [compose.deploy.yml](file:///home/aysadeq/Desktop/Freelancer/compose.deploy.yml) for Traefik 3.6 edge routing, automated ACME TLS certificate generation, and monitoring ingress.
+  - **Why We Did It (Architectural & Security Rationale)**:
+    - *Enforced HTTPS*: Plaintext HTTP (Port 80) transmits credentials, session tokens, and personal data in cleartext vulnerable to man-in-the-middle (MITM) inspection. Traefik automatically redirects all Port 80 traffic to Port 443 with an `HTTP 308 Permanent Redirect`.
+    - *Automated Zero-Touch SSL*: Manual certificate issuance and renewal via certbot creates operational friction. Traefik natively solves the ACME HTTP-01 challenge with Let's Encrypt and automatically triggers renewal 30 days prior to expiration without downtime.
+    - *CA Compliance*: Passing `--certificatesresolvers.le.acme.email=${ACME_EMAIL:?Variable not set}` satisfies Let's Encrypt terms of service and ensures alerts for rate limits or renewal issues are received.
+    - *Monitoring Accessibility*: Added dedicated Traefik router labels for Grafana at `https://grafana.${DOMAIN}` so 42 evaluators can visually inspect live Prometheus server telemetry, memory usage, and container health.
+  - **How We Did It**:
+    - Configured Traefik entrypoints and routers:
+      ```yaml
+      # Global HTTP -> HTTPS Redirection
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
 
-    # 3. Live Diagnostic Health Endpoint
-    curl -s https://16.192.59.166.sslip.io/api/v1/health
-    # Output: {"status":"healthy","services":{"database":{"status":"healthy","latency_ms":0.92},"cache":{"status":"healthy","latency_ms":0.41},"storage":{"status":"healthy"}}}
+      # Let's Encrypt Automated ACME Challenge
+      - --certificatesresolvers.le.acme.httpchallenge=true
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.le.acme.email=${ACME_EMAIL:?Variable not set}
+      - --certificatesresolvers.le.acme.storage=/certificates/acme.json
 
-    # 4. Live Grafana Monitoring Dashboard
-    curl -sI https://grafana.16.192.59.166.sslip.io
-    # Output: HTTP/2 302 -> Location: /login
-    ```
-  - **Result**: Phase 3 is 100% operational. The Skilio application is live on the internet over encrypted HTTPS!
+      # Persistent Volume Mount
+      volumes:
+        - traefik-certificates:/certificates
+      ```
+    - Added Grafana routing labels:
+      ```yaml
+      grafana:
+        labels:
+          - traefik.enable=true
+          - traefik.http.routers.grafana.rule=Host(`grafana.${DOMAIN}`)
+          - traefik.http.routers.grafana.entrypoints=websecure
+          - traefik.http.routers.grafana.tls.certresolver=le
+          - traefik.http.services.grafana.loadbalancer.server.port=3000
+      ```
+
+- [x] **Step 3.3: Connecting Traefik to Deep Diagnostic Health Check Probe**
+  - **What We Did**:
+    - Wired Traefik's internal backend service load balancer health check probe directly to `/api/v1/health`.
+  - **Why We Did It**:
+    - In our earlier Phase 0 implementation, we created a deep diagnostic health endpoint that tests real live database queries (`SELECT 1`), Redis ping-pong latency, and disk write capabilities.
+    - Linking Traefik to `/api/v1/health` ensures Traefik only routes public user traffic to the backend container when the entire database and cache dependency chain is verified healthy.
+  - **How We Did It**:
+    - Added Traefik health check labels in [compose.deploy.yml](file:///home/aysadeq/Desktop/Freelancer/compose.deploy.yml):
+      ```yaml
+      - traefik.http.services.backend.loadbalancer.healthCheck.path=/api/v1/health
+      - traefik.http.services.backend.loadbalancer.healthCheck.interval=10s
+      - traefik.http.services.backend.loadbalancer.healthCheck.timeout=5s
+      ```
+
+- [x] **Step 3.4: Production Environment Isolation & Override Elimination**
+  - **What We Did**:
+    - Created [devops/.env.production.example](file:///home/aysadeq/Desktop/Freelancer/devops/.env.production.example), generated cryptographically secure keys on AWS, and strictly locked out local development overrides.
+  - **Why We Did It (Critical Security Rationale)**:
+    - *The Docker Compose Trap*: By default, Docker Compose automatically merges `compose.override.yml` whenever `docker compose up` is executed.
+    - *The Vulnerability*: In local development, `compose.override.yml` exposes PostgreSQL directly to the host on port `5432:5432`, exposes Redis on port `6379:6379`, opens Traefik's insecure debug API on port `8090`, runs FastAPI in debug reload mode, and runs Mailpit. If merged in production, these debug ports would be directly exposed to the open internet.
+    - *The Defense*: Setting `COMPOSE_FILE=compose.yml:compose.deploy.yml` in `/opt/skilio/.env` strictly restricts Docker Compose to load *only* those two files, isolating and nullifying `compose.override.yml`.
+  - **How We Did It**:
+    - Generated production environment on AWS (`/opt/skilio/.env`):
+      ```bash
+      # 1. Lock compose files to production
+      COMPOSE_FILE=compose.yml:compose.deploy.yml
+      DOMAIN=16.192.59.166.sslip.io
+      ACME_EMAIL=admin@skilio.tech
+
+      # 2. Generate 256-bit cryptographic secrets
+      SECRET_KEY=$(openssl rand -hex 32)
+      FIRST_SUPERUSER_PASSWORD=$(openssl rand -hex 16)
+      POSTGRES_PASSWORD=$(openssl rand -hex 16)
+      ```
+    - Hardened file permissions:
+      ```bash
+      chmod 600 /opt/skilio/.env
+      # Strictly restricts read and write access to the ubuntu user only
+      ```
+    - Resolved FastAPI `Settings` validation requirement by populating non-empty environment variables for external OAuth and Cloudinary integrations.
+
+- [x] **Step 3.5: Codebase Synchronization & Multi-Stage Production Build**
+  - **What We Did**:
+    - Synced repository code to `/opt/skilio/` on AWS and compiled production containers (`docker compose build`).
+  - **Why We Did It**:
+    - Multi-stage builds compile frontend assets into static files and eliminate bulky compilers (Node, Bun, build-essential) from the final runtime container, drastically reducing container size and attack surface.
+    - Addressed build blockers:
+      - Merged upstream commit `a8a025b` from `origin/master` which resolved a TypeScript compiler error (`TS6133: unused variable`).
+      - Verified that physical RAM + 2 GB Swap allocated in Phase 2 handled memory spikes cleanly during `bun run build`.
+  - **How We Did It**:
+    - Synced code cleanly via `rsync`:
+      ```bash
+      rsync -avz --exclude '.git' --exclude 'node_modules' --exclude '.venv' \
+        --exclude '__pycache__' --exclude '.env' \
+        -e "ssh -i ~/Downloads/skilio-key.pem" \
+        ./ ubuntu@16.192.59.166:/opt/skilio/
+      ```
+    - Compiled images on the remote host:
+      ```bash
+      cd /opt/skilio && docker compose build
+      # Frontend SPA compiled with Bun -> backend serves static bundle at /
+      # Backend UV package manager resolved Python dependencies with bytecode caching
+      ```
+
+- [x] **Step 3.6: Database Migration & Initial Administrator Provisioning**
+  - **What We Did**:
+    - Executed all 26 database migrations against PostgreSQL 18 and created initial superuser `admin@skilio.tech`.
+  - **Why We Did It**:
+    - A production application cannot start until its relational database tables, relationships, and schema constraints exist.
+    - Automating migrations through the containerized prestart script guarantees identical schema states between development and production.
+  - **How We Did It**:
+    - Ran migration and seeding script:
+      ```bash
+      docker compose run --rm backend bash scripts/prestart.sh
+      ```
+    - Output verified:
+      ```text
+      INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+      INFO  [alembic.runtime.migration] Will assume transactional DDL.
+      INFO  [alembic.runtime.migration] Running upgrade  -> 1a229104b377, Initial migration
+      ...
+      INFO  [alembic.runtime.migration] Running upgrade e8c9d0a1b2c3 -> 9d1234ef5678, ...
+      INFO: Initial superuser created successfully: admin@skilio.tech
+      ```
+
+- [x] **Step 3.7: Production Stack Launch & Live Multi-Tier Verification Drill**
+  - **What We Did**:
+    - Started all 10 production containers in detached mode (`docker compose up -d`) and performed comprehensive live curl tests across all entrypoints.
+  - **How We Did It & Verification Output**:
+    - Started services:
+      ```bash
+      docker compose up -d
+      docker compose ps
+      ```
+    - Inspected Let's Encrypt certificate issuance:
+      ```bash
+      docker compose exec proxy cat /certificates/acme.json | grep -o '"domain":{[^}]*}'
+      # Output:
+      # "domain":{"main":"16.192.59.166.sslip.io"}
+      # "domain":{"main":"grafana.16.192.59.166.sslip.io"}
+      ```
+    - **Live Public Endpoints Verification**:
+      ```bash
+      # 1. Main Web Application (HTTP/2 200 with Valid TLS Padlock)
+      curl -sI https://16.192.59.166.sslip.io
+      # Output:
+      # HTTP/2 200
+      # content-type: text/html; charset=utf-8
+      # server: uvicorn
+
+      # 2. HTTP to HTTPS 308 Automatic Redirection
+      curl -sI http://16.192.59.166.sslip.io
+      # Output:
+      # HTTP/1.1 308 Permanent Redirect
+      # location: https://16.192.59.166.sslip.io/
+
+      # 3. Deep Diagnostic Health Check Probe
+      curl -s https://16.192.59.166.sslip.io/api/v1/health
+      # Output:
+      # {"status":"healthy","services":{"database":{"status":"healthy","latency_ms":0.92},"cache":{"status":"healthy","latency_ms":0.41},"storage":{"status":"healthy"}}}
+
+      # 4. Live Grafana Monitoring Dashboard
+      curl -sI https://grafana.16.192.59.166.sslip.io
+      # Output:
+      # HTTP/2 302
+      # location: /login
+      ```
+  - **Result**: Phase 3 is 100% operational. The Skilio application is live on the public internet over encrypted HTTPS, with automated Let's Encrypt SSL management, deep health diagnostic monitoring, and isolated production credentials.
 
 ---
 
