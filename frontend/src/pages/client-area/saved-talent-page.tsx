@@ -6,6 +6,7 @@ import { FreelancerCard } from "@/components/talent/freelancer-card"
 import { talentCardFromApi } from "@/components/talent/talent-api"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
+import { useErrorToast } from "@/hooks/useErrorToast"
 import QuickSavedSearch from "../common/quick-search"
 
 type SortOption = "newest" | "rate_asc" | "rate_desc"
@@ -14,7 +15,11 @@ export function SavedTalentPage() {
 	const [query, setQuery] = useState("")
 	const [sort, setSort] = useState<SortOption>("newest")
 	const { savedIds, toggleSaved } = useSavedTalent()
-	const { savedProfiles, savedCount, isPending, isError, refetch } = useSavedTalent({ query, sortBy: sort })
+	const { savedProfiles, savedCount, isPending, isError, errorUpdatedAt, refetch } = useSavedTalent({
+		query,
+		sortBy: sort,
+	})
+	useErrorToast(isError ? "Could not load saved talent." : undefined, "saved-talent-load", errorUpdatedAt, refetch)
 	const people = savedProfiles.map(talentCardFromApi)
 
 	return (
@@ -107,14 +112,6 @@ export function SavedTalentPage() {
 					)}
 
 					{isPending && <p role="status">Loading saved talent...</p>}
-					{isError && (
-						<p role="alert">
-							Could not load saved talent.{" "}
-							<button type="button" onClick={() => void refetch()} className="text-primary hover:underline">
-								Try again
-							</button>
-						</p>
-					)}
 
 					{people.length > 0 ? (
 						<section className="flex flex-col gap-3.5">

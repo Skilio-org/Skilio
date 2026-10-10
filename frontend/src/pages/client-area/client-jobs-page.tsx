@@ -1,16 +1,23 @@
 import { Plus } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { JobsService } from "@/client"
 import { ClientJobEditor } from "@/components/client/client-job-editor"
 import { blankClientJob, type ClientJob } from "@/components/client/client-job-types"
 import { clientJobFromApi, clientJobPayload } from "@/components/client/client-jobs-api"
+import { jobDescriptionLimit } from "@/components/common/job-experience"
 import { ClientJobsList } from "@/components/client/client-jobs-list"
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import useAuth from "@/hooks/useAuth"
+import { useErrorToast } from "@/hooks/useErrorToast"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-export function ClientJobsPage() {
+type ClientJobsPageProps = {
+	focusedJobId?: string
+	onFocusedJobChange: (jobId?: string) => void
+}
+
+export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsPageProps) {
 	const { user } = useAuth()
 	const queryClient = useQueryClient()
 	const jobsQuery = useQuery({
@@ -21,6 +28,11 @@ export function ClientJobsPage() {
 			return data.data.map(clientJobFromApi)
 		},
 	})
+	useErrorToast(
+		jobsQuery.isError ? "Could not load your jobs." : undefined,
+		"client-jobs-load",
+		jobsQuery.errorUpdatedAt,
+	)
 	const saveMutation = useMutation({
 		mutationFn: (job: ClientJob) => {
 			const body = clientJobPayload(job)
@@ -28,43 +40,57 @@ export function ClientJobsPage() {
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ["client-jobs"] })
+			onFocusedJobChange(undefined)
 			setEditorJob(null)
 			toast.success("Job saved")
 		},
+		onError: () => toast.error("Could not save this job."),
 	})
 	const deleteMutation = useMutation({
 		mutationFn: (id: string) => JobsService.deleteJob({ path: { id } }),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ["client-jobs"] })
+			onFocusedJobChange(undefined)
 			setEditorJob(null)
 			toast.success("Job deleted")
 		},
+		onError: () => toast.error("Could not delete this job."),
 	})
 	const jobs = jobsQuery.data ?? []
-	const error = jobsQuery.isError
-		? "Could not load your jobs."
-		: saveMutation.isError
-			? "Could not save this job."
-			: deleteMutation.isError
-				? "Could not delete this job."
-				: ""
 	const [query, setQuery] = useState("")
 	const [tab, setTab] = useState("All jobs")
 	const [editorJob, setEditorJob] = useState<ClientJob | null>(null)
 	const [isEditing, setIsEditing] = useState(false)
 
+	useEffect(() => {
+		if (!focusedJobId || !jobsQuery.isSuccess) return
+		const focusedJob = jobs.find((job) => job.id === focusedJobId)
+		if (focusedJob) {
+			setEditorJob((currentJob) => (currentJob?.id === focusedJob.id ? currentJob : focusedJob))
+			setIsEditing(false)
+			return
+		}
+		onFocusedJobChange(undefined)
+		setEditorJob(null)
+	}, [focusedJobId, jobs, jobsQuery.isSuccess, onFocusedJobChange])
+
 	const persistJob = (job: ClientJob) => {
+		if (job.description.trim().length > jobDescriptionLimit(job.experienceLevel)) {
+			toast.error("Shorten the project description before saving this job.")
+			return
+		}
 		saveMutation.mutate(job)
 	}
 
 	const startJob = () => {
+		onFocusedJobChange(undefined)
 		setEditorJob({ ...blankClientJob, id: "" })
 		setIsEditing(true)
 	}
 	const results = jobs.filter(
 		(job) =>
 			(tab === "All jobs" || job.status === tab) &&
-			`${job.title} ${job.skills}`.toLowerCase().includes(query.toLowerCase()),
+			`${job.title} ${job.skills.join(" ")}`.toLowerCase().includes(query.toLowerCase()),
 	)
 
 	return (
@@ -85,11 +111,6 @@ export function ClientJobsPage() {
 					</button>
 				}
 			/>
-			{error && (
-				<p role="alert" className="text-destructive text-sm">
-					{error}
-				</p>
-			)}
 			<ClientJobsList
 				jobs={jobs}
 				results={results}
@@ -99,6 +120,7 @@ export function ClientJobsPage() {
 				onQueryChange={setQuery}
 				onTabChange={setTab}
 				onOpenJob={(job) => {
+					onFocusedJobChange(job.id)
 					setEditorJob(job)
 					setIsEditing(false)
 				}}
@@ -111,8 +133,10 @@ export function ClientJobsPage() {
 			<ClientJobEditor
 				job={editorJob}
 				editing={isEditing}
-				error={error}
-				onClose={() => setEditorJob(null)}
+				onClose={() => {
+					onFocusedJobChange(undefined)
+					setEditorJob(null)
+				}}
 				onEditingChange={setIsEditing}
 				onJobChange={setEditorJob}
 				onSave={persistJob}

@@ -88,10 +88,7 @@ export function useChatEventHandlers() {
 					unread_count: d.unread_count,
 				}
 			}
-			// if (isViewingConversation) {
-			//     alert("Viewing conversation, not incrementing unread count")
-			// }
-			toast.info(`New message from ${conversation.other_user?.full_name}: "${message.content}"`)
+
 			queryClient.setQueryData<ConversationsPublic>(chatKeys.conversations(), {
 				...current,
 				data: [

@@ -1,4 +1,5 @@
 import { Bell, BriefcaseBusiness, CheckCheck, FileText, MessageSquare, UserRound } from "lucide-react"
+import { useNavigate } from "@tanstack/react-router"
 
 import { useQueryClient } from "@tanstack/react-query"
 import {
@@ -14,6 +15,9 @@ import { useNotifications } from "@/hooks/useNotifications"
 import { chatKeys } from "@/data/chat-keys"
 import { formatMessageTime } from "@/util/timestampformatter"
 import { useWebSocket } from "@/context/websocket-context"
+import { useAccountRole } from "@/hooks/useAccountRole"
+import { toast } from "sonner"
+import { useState } from "react"
 
 function NotificationIcon({ type }: { type: NotificationEvent }) {
 	switch (type) {
@@ -21,23 +25,26 @@ function NotificationIcon({ type }: { type: NotificationEvent }) {
 			return <MessageSquare className="size-4" />
 
 		case "proposal_received":
-			return <FileText className="size-4" />
-
-		case "connection_request":
 			return <BriefcaseBusiness className="size-4" />
-
-		case "review_received":
+			
+		case "connection_request":
 			return <UserRound className="size-4" />
+			
+		case "review_received":
+			return <FileText className="size-4" />
 	}
 }
 
 
 export function NotificationDropdown(
 ) {
+	const navigate = useNavigate()
 	// Load also the notifications because they are essential for the user to see them in the top nav.
 	const { data: notifications, isPending} = useNotifications()
 	// to send read receipt to the server when a notification is read.
 	const { sendMessage } = useWebSocket()
+	const [close, setClose] = useState(false);
+	const role = useAccountRole()
 	const queryClient = useQueryClient()
 	if (!notifications) {
 		return <> Loading Notifications... </>
@@ -71,6 +78,29 @@ export function NotificationDropdown(
 		]);
 	}
 
+	const onSelectNotification = (notification: NotificationPublic) => {
+		return (event: any) => {
+			event.preventDefault()
+			markAsRead(notification.id)
+			setClose(true);
+			switch (notification.event) {
+				case "proposal_received": {
+					void navigate({
+						to: "/client-jobs",
+						search: { jobId: notification.job_post?.id },
+					})
+				} break;
+				case "message_received": {
+					void navigate({
+						to: role == "client" ? "/messages" : "/freelancer-messages",
+						search: { userId: notification.chat_message?.sender_id },
+					})
+				} break;
+				default: toast.error(notification.event + " Was not implemented yet!")
+			}
+		}
+	}
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -90,7 +120,8 @@ export function NotificationDropdown(
 					)}
 				</button>
 			</DropdownMenuTrigger>
-
+			{
+				!close && (
 			<DropdownMenuContent
 				align="end"
 				sideOffset={8}
@@ -142,10 +173,7 @@ export function NotificationDropdown(
 						notifications.map((notification) => (
 							<DropdownMenuItem
 								key={notification.id}
-								onSelect={(event) => {
-									event.preventDefault()
-									markAsRead(notification.id)
-								}}
+								onSelect={onSelectNotification(notification)}
 								className={cn(
 									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
 									!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
@@ -214,6 +242,8 @@ export function NotificationDropdown(
 					</>
 				)}
 			</DropdownMenuContent>
+				)
+			}
 		</DropdownMenu>
 	)
 }

@@ -20,6 +20,7 @@ import { WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/da
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet"
 import { type BackendProposal, useFreelancerProposals } from "@/hooks/useFreelancerProposals"
+import { useErrorToast } from "@/hooks/useErrorToast"
 import type { FreelancerJob } from "@/types/job"
 
 type ProposalTab = "Drafts" | "Submitted" | "Archived"
@@ -49,6 +50,7 @@ const proposalStatuses = [
 
 const FreelancerProposalsPage = () => {
 	const { drafts, error, saveProposal, withdrawProposal } = useFreelancerProposals()
+	useErrorToast(error, "freelancer-proposals-load")
 
 	const [tab, setTab] = useState<ProposalTab>("Drafts")
 	const [query, setQuery] = useState("")
@@ -173,11 +175,6 @@ const FreelancerProposalsPage = () => {
 					</div>
 				}
 			/>
-			{error && (
-				<p role="alert" className="text-body-sm text-destructive">
-					{error}
-				</p>
-			)}
 			<section aria-label="Proposal overview" className="grid grid-cols-3 gap-2 sm:gap-3">
 				{proposalStatuses.map(({ label, description }) => (
 					<button
@@ -393,7 +390,6 @@ const FreelancerProposalsPage = () => {
 					<WorkspaceSurface className="p-5">
 						<div className="mb-4 flex items-center justify-between">
 							<h2 className="font-headline-sm font-semibold text-headline-sm">Make your first impression count</h2>
-							<FilePenLine className="size-4 shrink-0 text-primary" />
 						</div>
 						<p className="text-body-sm text-on-surface-variant leading-relaxed">
 							A little care goes a long way. Give every proposal a personal touch.

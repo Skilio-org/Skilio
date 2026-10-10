@@ -5,12 +5,14 @@ import { ProfilesService } from "@/client"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
 import { talentCardFromApi } from "@/components/talent/talent-api"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
+import { useErrorToast } from "@/hooks/useErrorToast"
 
 export const RecommendedFreelancers = () => {
 	const {
 		data: matches = [],
 		isPending,
 		isError,
+		errorUpdatedAt,
 		refetch,
 	} = useQuery({
 		queryKey: ["talent-profiles", { limit: 4 }],
@@ -19,6 +21,12 @@ export const RecommendedFreelancers = () => {
 			return data.data.slice(0, 4).map(talentCardFromApi)
 		},
 	})
+	useErrorToast(
+		isError ? "Couldn’t load professionals." : undefined,
+		"recommended-talent-load",
+		errorUpdatedAt,
+		refetch,
+	)
 	const { savedIds, toggleSaved } = useSavedTalent()
 	return (
 		<section aria-labelledby="recommended-talent-heading" className="min-w-0">
@@ -39,14 +47,6 @@ export const RecommendedFreelancers = () => {
 			</div>
 			<div className="flex flex-col gap-3.5">
 				{isPending && <p role="status">Loading professionals…</p>}
-				{isError && (
-					<p role="alert">
-						Couldn’t load professionals.{" "}
-						<button type="button" onClick={() => void refetch()} className="text-primary hover:underline">
-							Try again
-						</button>
-					</p>
-				)}
 				{!isPending && !isError && matches.length === 0 && <p role="status">No professionals available yet.</p>}
 				{matches.map((person) => (
 					<FreelancerCard

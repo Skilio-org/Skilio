@@ -1,6 +1,5 @@
-import { Appearance } from "@/components/common/appearance"
 import { Logo } from "@/components/common/logo"
-import artwork from "/assets/images/landing-studio-professional.webp"
+import { ThemeToggle } from "@/components/common/theme-toggle"
 import { Footer } from "./footer"
 
 interface AuthLayoutProps {
@@ -9,40 +8,26 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
 	return (
-		<div className="grid min-h-svh bg-card lg:grid-cols-[1fr_.9fr]">
-			<div className="flex flex-col gap-4 p-6 md:p-10">
-				<div className="flex items-center justify-between">
-					<Logo className="h-8" />
-					<Appearance />
+		<div className="flex min-h-svh flex-col bg-background">
+			<header className="border-b border-border/70 bg-card">
+				<div className="mx-auto grid h-18 w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6">
+					<div />
+					<Logo to="/" className="h-8" />
+					<div className="justify-self-end">
+						<ThemeToggle />
+					</div>
 				</div>
-				<main
-					id="main-content"
-					tabIndex={-1}
-					className="flex flex-1 items-center justify-center py-8 outline-none sm:py-10"
-				>
-					<div className="w-full max-w-115">{children}</div>
-				</main>
-				<Footer variant="auth" />
-			</div>
-			<div className="m-5 ml-0 hidden flex-col overflow-hidden rounded-2xl bg-muted lg:flex">
-				<img
-					src={artwork}
-					alt="Independent professional working at a sunlit studio desk"
-					width={1448}
-					height={1086}
-					className="min-h-0 flex-1 object-cover"
-				/>
-				<div className="border-brand-200 border-t bg-brand-50 p-10 xl:p-12">
-					<h2 className="font-display font-medium text-4xl tracking-[-0.04em]">
-						Good people.
-						<br />
-						<span className="text-primary">Great work.</span>
-					</h2>
-					<p className="mt-4 max-w-sm text-muted-foreground text-sm leading-7">
-						A place to find your next collaborator, build your independent career, and do work you care about.
-					</p>
+			</header>
+			<main
+				id="main-content"
+				tabIndex={-1}
+				className="flex flex-1 items-center justify-center px-4 py-8 outline-none sm:py-12"
+			>
+				<div className="w-full max-w-130 rounded-2xl border border-border/70 bg-card p-6 shadow-sm sm:p-10">
+					{children}
 				</div>
-			</div>
+			</main>
+			<Footer variant="auth" />
 		</div>
 	)
 }

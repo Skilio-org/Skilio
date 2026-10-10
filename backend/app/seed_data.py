@@ -7,6 +7,7 @@ from sqlmodel import Session, select
 
 from app import crud
 from app.core.db import engine
+from app.core.config import settings
 from app.models import (
     BudgetType,
     ClientProfile,
@@ -23,7 +24,7 @@ from app.models import (
 
 MAX_ACCOUNTS = 500
 DEFAULT_PASSWORD = "SeededAccount123!"
-AVATAR_URL = "https://res.cloudinary.com/vrreelhh/image/upload/070fa03c-8a3a-4b6b-b012-81ab0f0c3f4b.png"
+AVATAR_URL = settings.DEFAULT_AVATAR_URL
 
 JOB_POST_TEMPLATES = (
     (

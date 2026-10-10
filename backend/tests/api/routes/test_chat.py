@@ -128,9 +128,14 @@ def test_send_message_rest_and_get_conversation(
 
 
 def test_websocket_unauthorized(client: TestClient) -> None:
-    with pytest.raises(WebSocketDisconnect):
-        with client.websocket_connect(f"{settings.API_V1_STR}/chat/ws?token=badtoken"):
-            pass
+    with client.websocket_connect(
+        f"{settings.API_V1_STR}/chat/ws?token=badtoken"
+    ) as websocket:
+        with pytest.raises(WebSocketDisconnect) as exc_info:
+            websocket.receive_text()
+
+    assert exc_info.value.code == 1008
+    assert exc_info.value.reason == "Invalid or expired token"
 
 
 def test_websocket_messaging_and_presence(

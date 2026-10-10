@@ -7,5 +7,6 @@ export type FreelancerJob = {
 	projectType: "Fixed price" | "Hourly"
 	posted: string
 	description: string
+	experience?: string
 	skills: string[]
 }

@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
+import { useErrorToast } from "@/hooks/useErrorToast"
 import { Link } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
@@ -46,6 +47,7 @@ export default function FreelancerJobsPage() {
 		data: jobs = [],
 		isPending,
 		isError,
+		errorUpdatedAt,
 		refetch,
 	} = useQuery({
 		queryKey: ["freelancer-jobs", search, category, budgetType, hourlyRate, sortBy],
@@ -62,6 +64,7 @@ export default function FreelancerJobsPage() {
 				signal,
 			),
 	})
+	useErrorToast(isError ? "Could not load opportunities." : undefined, "freelancer-jobs-load", errorUpdatedAt, refetch)
 
 	const toggle = (values: string[], value: string, update: (values: string[]) => void) => {
 		update(values.includes(value) ? values.filter((item) => item !== value) : [...values, value])
@@ -80,9 +83,9 @@ export default function FreelancerJobsPage() {
 		setSearchResetKey((current) => current + 1)
 	}
 
-	const filtered = [...(jobs as BackendSearchJob[])].sort((a, b) =>
-		sort === "title" ? a.title.localeCompare(b.title) : 0,
-	)
+	const filtered = (jobs as BackendSearchJob[])
+		.filter((job) => !experience.length || (job.experience && experience.includes(job.experience)))
+		.sort((a, b) => (sort === "title" ? a.title.localeCompare(b.title) : 0))
 
 	const removeSearch = () => {
 		setSearch("")
@@ -166,7 +169,7 @@ export default function FreelancerJobsPage() {
 		</label>
 	)
 
-	const filters = (group: string) => (
+	const filters = () => (
 		<div className="divide-y divide-outline-variant/50">
 			<div className="flex items-center justify-between gap-2 pb-4">
 				<h2 className="flex items-center gap-2 font-semibold text-body-md">
@@ -273,7 +276,7 @@ export default function FreelancerJobsPage() {
 					aria-label="Job filters"
 					className="hidden rounded-lg border border-outline-variant bg-surface-container-lowest p-5 lg:block"
 				>
-					{filters("desktop")}
+					{filters()}
 				</aside>
 
 				<section aria-label="Job results" className="min-w-0">
@@ -316,7 +319,7 @@ export default function FreelancerJobsPage() {
 									<SelectTrigger
 										size="sm"
 										aria-label="Sort jobs"
-										className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] leading-4 text-on-surface shadow-none hover:border-outline dark:bg-surface-card dark:hover:bg-surface-container data-[state=open]:border-primary [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+										className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
 									>
 										<SelectValue />
 									</SelectTrigger>
@@ -352,14 +355,6 @@ export default function FreelancerJobsPage() {
 					</div>
 
 					{isPending && <p role="status">Loading opportunities...</p>}
-					{isError && (
-						<p role="alert">
-							Could not load opportunities.{" "}
-							<button type="button" onClick={() => void refetch()} className="text-primary hover:underline">
-								Try again
-							</button>
-						</p>
-					)}
 
 					{!isPending && !isError && !filtered.length && (
 						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
@@ -403,7 +398,7 @@ export default function FreelancerJobsPage() {
 					</SheetHeader>
 
 					<div className="p-5">
-						{filters("mobile")}
+						{filters()}
 
 						<button type="button" onClick={() => setFiltersOpen(false)} className={`${primaryAction} mt-6 w-full`}>
 							Show {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}

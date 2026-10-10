@@ -18,9 +18,6 @@ import useCustomToast from "@/hooks/useCustomToast"
 
 import { handleError } from "@/utils"
 
-/* =========================================================
-   VALIDATION
-   ========================================================= */
 
 const formSchema = z
 	.object({
@@ -44,9 +41,6 @@ const formSchema = z
 
 type FormData = z.infer<typeof formSchema>
 
-/* =========================================================
-   RESET PASSWORD
-   ========================================================= */
 
 export function ResetPasswordPage({ token }: { token: string }) {
 	const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -72,9 +66,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 
 	const passwordsMatch = newPassword.length > 0 && confirmPassword.length > 0 && newPassword === confirmPassword
 
-	/* =======================================================
-     API
-     ======================================================= */
 
 	const mutation = useMutation({
 		mutationFn: (data: { new_password: string; token: string }) =>
@@ -95,9 +86,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 		onError: handleError.bind(showErrorToast),
 	})
 
-	/* =======================================================
-     SUBMIT
-     ======================================================= */
 
 	const onSubmit = (data: FormData) => {
 		if (mutation.isPending) return
@@ -110,54 +98,36 @@ export function ResetPasswordPage({ token }: { token: string }) {
 
 	return (
 		<AuthLayout>
-			<div className="mx-auto w-full max-w-[460px]">
+			<div>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
-						{/* =================================================
-                BACK
-                ================================================= */}
 
 						<RouterLink
 							to="/login"
-							className="mb-8 inline-flex items-center gap-2 rounded-md font-medium text-muted-foreground text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"
+							className="mb-6 inline-flex items-center gap-2 rounded-md font-medium text-muted-foreground text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"
 						>
 							<ArrowLeft className="size-4" />
 							Back to login
 						</RouterLink>
-
-						{/* =================================================
-                HEADER
-                ================================================= */}
-
-						<div className="mb-8">
-							<div className="mb-5 flex size-12 items-center justify-center rounded-xl border border-primary/20 bg-accent text-accent-foreground shadow-sm">
+						<div className="mb-7 text-center">
+							<div className="mx-auto mb-4 flex size-11 items-center justify-center rounded-xl bg-muted text-foreground">
 								<KeyRound className="size-5" />
 							</div>
 
-							<h1 className="font-bold font-display text-[42px] text-foreground leading-[0.98] tracking-[-0.045em] sm:text-[46px]">
-								Create a new <br />
-								password.
+							<h1 className="font-display font-semibold text-3xl tracking-tight text-foreground">
+								Create a new password
 							</h1>
 
-							<p className="mt-4 max-w-[400px] text-muted-foreground text-sm leading-6">
+							<p className="mx-auto mt-2 max-w-sm text-muted-foreground text-sm leading-6">
 								Choose a strong password that you haven't used before. You'll use it to sign in to your account.
 							</p>
 						</div>
-
-						{/* =================================================
-                FORM FIELDS
-                ================================================= */}
-
-						<div className="space-y-5">
-							{/* =================================================
-                  NEW PASSWORD
-                  ================================================= */}
-
+						<div className="flex flex-col gap-5">
 							<FormField
 								control={form.control}
 								name="new_password"
 								render={({ field }) => (
-									<FormItem className="space-y-2">
+									<FormItem className="gap-1.5">
 										<FormLabel className="font-medium text-[13px] text-foreground">New password</FormLabel>
 
 										<FormControl>
@@ -166,7 +136,7 @@ export function ResetPasswordPage({ token }: { token: string }) {
 												autoComplete="new-password"
 												placeholder="Create a new password"
 												disabled={mutation.isPending}
-												className="h-12 rounded-xl border-input bg-card px-4 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
+												className="h-11 rounded-lg border-input bg-muted/30 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
 												{...field}
 											/>
 										</FormControl>
@@ -175,16 +145,11 @@ export function ResetPasswordPage({ token }: { token: string }) {
 									</FormItem>
 								)}
 							/>
-
-							{/* =================================================
-                  CONFIRM PASSWORD
-                  ================================================= */}
-
 							<FormField
 								control={form.control}
 								name="confirm_password"
 								render={({ field }) => (
-									<FormItem className="space-y-2">
+									<FormItem className="gap-1.5">
 										<FormLabel className="font-medium text-[13px] text-foreground">Confirm password</FormLabel>
 
 										<FormControl>
@@ -193,7 +158,7 @@ export function ResetPasswordPage({ token }: { token: string }) {
 												autoComplete="new-password"
 												placeholder="Confirm your new password"
 												disabled={mutation.isPending}
-												className="h-12 rounded-xl border-input bg-card px-4 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
+												className="h-11 rounded-lg border-input bg-muted/30 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
 												{...field}
 											/>
 										</FormControl>
@@ -202,10 +167,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 									</FormItem>
 								)}
 							/>
-
-							{/* =================================================
-                  PASSWORD REQUIREMENTS
-                  ================================================= */}
 
 							<div className="rounded-xl border border-border bg-card/60 p-4">
 								<div className="mb-3 flex items-center gap-2 font-semibold text-[12px] text-foreground">
@@ -247,26 +208,16 @@ export function ResetPasswordPage({ token }: { token: string }) {
 									</div>
 								</div>
 							</div>
-
-							{/* =================================================
-                  SUBMIT
-                  ================================================= */}
-
 							<LoadingButton
 								type="submit"
 								loading={mutation.isPending}
 								disabled={mutation.isPending}
-								className="h-12 w-full gap-2 rounded-xl bg-primary font-semibold text-primary-foreground text-sm shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-primary/90 hover:shadow-md focus-visible:ring-[3px] focus-visible:ring-ring/30 active:translate-y-0 active:bg-primary/85 disabled:pointer-events-none disabled:opacity-60"
+								className="h-11 w-full gap-2 rounded-lg font-semibold text-sm"
 							>
 								Reset password
 								{!mutation.isPending && <ArrowRight className="size-4" />}
 							</LoadingButton>
 						</div>
-
-						{/* =================================================
-                FOOTER
-                ================================================= */}
-
 						<div className="mt-7 border-border/70 border-t pt-6 text-center text-muted-foreground text-sm">
 							Remember your password?{" "}
 							<RouterLink

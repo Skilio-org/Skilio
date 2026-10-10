@@ -1,8 +1,11 @@
+import type { ExperienceLevel } from "@/components/common/job-experience"
+
 export type ClientJob = {
 	id: string
 	title: string
 	description: string
-	skills: string
+	skills: string[]
+	experienceLevel: ExperienceLevel | ""
 	category: string
 	type: string
 	budget: string
@@ -13,7 +16,8 @@ export const blankClientJob: ClientJob = {
 	id: "",
 	title: "",
 	description: "",
-	skills: "",
+	skills: [],
+	experienceLevel: "",
 	category: "Development",
 	type: "Fixed price",
 	budget: "",
