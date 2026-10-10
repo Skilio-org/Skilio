@@ -41,7 +41,7 @@ export function MessagesPage({
 	const [draft, setDraft] = useState("")
 	const creatingForUserRef = useRef<string | null>(null)
 
-	const { sendMessage } = useWebSocket()
+	const { sendMessage, setMessageSendResult } = useWebSocket()
 	const conversations = useConversations()
 	const profiles = useProfiles(conversations.data, conversations.isSuccess)
 	const createConversation = useCreateConversation()
@@ -92,6 +92,7 @@ export function MessagesPage({
 		// mutate the current conversation to mark all messages as read.
 		queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(selectedConversationId), (current) => {
 			if (!current) return current
+			if (current.unread_count === 0 && current.messages?.every((message) => message.is_read)) return current
 			// Send receipt to server for all messages in this conversation.
 			sendMessage({
 				type: "read_receipt",
@@ -127,8 +128,11 @@ export function MessagesPage({
 				data: updatedConversations,
 			}
 		})
-	}, [selectedConversationId, detailsQuery.isPending, detailsQuery.data?.unread_count])
-
+	}, [selectedConversationId, detailsQuery.isPending, detailsQuery.data?.messages, detailsQuery.data?.unread_count, sendMessage, queryClient, setMessageSendResult])
+	
+	useEffect(() => {
+		detailsQuery.data?.messages?.forEach((message) => setMessageSendResult(message.id, "sent"))
+	}, [selectedConversationId,  detailsQuery.isPending])
 	if (conversations.isPending) {
 		return <>Still loading conversations!</>
 	}
@@ -153,6 +157,7 @@ export function MessagesPage({
 		return text.toLowerCase().includes(search.toLowerCase())
 	}
 
+
 	const send = (message: string) => {
 		const content = message.trim()
 		const rmessage: ChatMessagePublic = {
@@ -163,18 +168,26 @@ export function MessagesPage({
 			created_at: new Date().toISOString(),
 			is_read: false,
 		}
-		// console.log("User:", user)
 
 		if (!selectedConversationId || !content) return
 
-		const sent = sendMessage({
+		let sent = false;
+		MessageUpdate(selectedConversationId, rmessage)
+		setMessageSendResult(rmessage.id, "pending")
+		setDraft("")
+		// setTimeout(() => {
+	
+		sent = sendMessage({
 			type: "chat_message",
 			conversation_id: selectedConversationId,
 			content,
+			client_message_id: rmessage.id,
 		})
-		if (sent) setDraft("")
-		else toast.error("Failed to send message. Please try again.")
-		MessageUpdate(selectedConversationId, rmessage)
+		if (!sent) {
+			setMessageSendResult(rmessage.id, "failed")
+			toast.error("Failed to send message. Please try again.")
+		}
+		// }, 1000) // Simulate a delay for sending the message
 	}
 
 	return (

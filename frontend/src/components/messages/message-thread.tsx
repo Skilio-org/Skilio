@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile } from "@/hooks/isClientProfile"
 import { ChatMessagePublic } from "@/client"
+// import { useWebSocket } from "@/context/websocket-context"
 
 const iconButton =
 	"grid size-8.5 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
@@ -265,6 +266,7 @@ export function MessageThread({
 					>
 						{visible?.map((message) => (
 							<MessageBubble
+								// sentState={messageSendState[message.id]}
 								key={message.id}
 								message={message}
 								name={selected.full_name ?? companyOrName ?? "Unknown"}

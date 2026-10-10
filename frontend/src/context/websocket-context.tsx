@@ -5,6 +5,9 @@ import { useQueryClient } from "@tanstack/react-query"
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
+export type sendState = "sent" | "failed" | "pending";
+
+export type MessageSendState = Record<string, sendState>
 const enum WebSocketCloseCodes {
 	NormalClosure = 1000,
 	GoingAway = 1001,
@@ -26,7 +29,9 @@ export const AUTH_TOKEN_CHANGED_EVENT = "auth-token-changed"
 interface WebSocketContextType {
 	isConnected: boolean
 	sendMessage: (payload: any) => boolean
-	subscribe: (eventType: string, handler: WebSocketEventHandler) => () => void
+	subscribe: (eventType: string, handler: WebSocketEventHandler) => () => void,
+	setMessageSendResult: (messageId: string, success: sendState) => void,
+	messageSendState: MessageSendState
 }
 
 const WebSocketContext = createContext<WebSocketContextType | null>(null)
@@ -53,6 +58,9 @@ function getWebSocketUrl(): string {
 }
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
+	const [messageSendState, setMessageSendState_] = useState<MessageSendState>(() => ({
+		// Initial entries, if any
+	}))
 	const [isConnected, setIsConnected] = useState(false)
 	const wsRef = useRef<WebSocket | null>(null)
 	const subscribersRef = useRef<Map<string, Set<WebSocketEventHandler>>>(new Map())
@@ -63,6 +71,12 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 	const queryClient = useQueryClient()
 	const queryClientRef = useRef(queryClient)
 	const { handleIncomingMessage } = useChatEventHandlers()
+	const setMessageSendResult = useCallback((messageId: string, state: sendState) => {
+		setMessageSendState_((prev) => ({
+			...prev,
+			[messageId]: state,
+		}))
+	}, [])
 
 	// Keep queryClient ref updated to keep connect reference stable
 	useEffect(() => {
@@ -117,49 +131,46 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 				try {
 					const data = JSON.parse(event.data)
 					const eventType = data.type || "custom"
-					if (eventType === "connection_established") {
-						setIsConnected(true)
-						pingIntervalRef.current = setInterval(() => {
-							if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "ping" }))
-						}, 25000)
-						return
-					}
-					
-					if (eventType === "chat_message" && data.data) {
-						handleIncomingMessage(data.data, {
-							incrementUnread: true,
-							isViewingConversation: false,
-						})
-					}
-					if (eventType === "notification" && data.data) {
-						queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), 
-						(currentNotifications) => {
-							if (!currentNotifications) {
-								return [data.data]
-							}
-							// Check if the notification already exists in the cache
-							const exists = currentNotifications.some(
-								(notification) => notification.id === data.data.id
-							)
-							if (exists) {
-								return currentNotifications
-							}
-							return [data.data, ...currentNotifications]
-						})
-					}
-					// if (eventType === "chat_message") {
-					// 	queryClientRef.current.invalidateQueries({ queryKey: ["chat", "conversations"] })
-					// 	if (data.data?.conversation_id) {
-					// 		queryClientRef.current.invalidateQueries({
-					// 			queryKey: ["chat", "conversation", data.data.conversation_id],
-					// 		})
-					// 	}
-					// }
-
-					if (eventType === "notification" && data.data?.title) {
-						toast.info(data.data.title, {
-							description: data.data.content || data.data.body,
-						})
+					switch (eventType) {
+						case "pong":
+							// Ignore pong messages
+							return
+						case "connection_established": {
+							setIsConnected(true)
+							pingIntervalRef.current = setInterval(() => {
+								if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "ping" }))
+							}, 25000)
+							return
+						};
+						case "chat_message": {
+							handleIncomingMessage(data.data, {
+								incrementUnread: true,
+								isViewingConversation: false,
+							})
+						} break;
+						case "notification": {
+							queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(),
+								(currentNotifications) => {
+									if (!currentNotifications) {
+										return [data.data]
+									}
+									// Check if the notification already exists in the cache
+									const exists = currentNotifications.some(
+										(notification) => notification.id === data.data.id
+									)
+									if (exists) {
+										return currentNotifications
+									}
+									return [data.data, ...currentNotifications]
+								})
+							toast.info(data.data.title, {
+								description: data.data.content || data.data.body,
+							})
+						} break;
+						case "message_ack": {
+							const clientMessageId = data.data?.client_message_id
+							if (clientMessageId) setMessageSendResult(clientMessageId, "sent")
+						} break;
 					}
 
 					const handlers = subscribersRef.current.get(eventType)
@@ -204,7 +215,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 				setIsConnected(false)
 			}
 		}
-	}, [cleanupSocket])
+	}, [cleanupSocket, handleIncomingMessage, queryClient, setMessageSendResult])
 
 	// let handleStorage: (e: StorageEvent) => void
 	const handleStorage = (e: StorageEvent) => {
@@ -265,7 +276,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 	}, [])
 
 	return (
-		<WebSocketContext.Provider value={{ isConnected, sendMessage, subscribe }}>{children}</WebSocketContext.Provider>
+		<WebSocketContext.Provider value={{ isConnected, sendMessage, subscribe, setMessageSendResult, messageSendState }}>{children}</WebSocketContext.Provider>
 	)
 }
 

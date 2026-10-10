@@ -15,6 +15,7 @@ import { useNotifications } from "@/hooks/useNotifications"
 import { chatKeys } from "@/data/chat-keys"
 import { formatMessageTime } from "@/util/timestampformatter"
 import { useWebSocket } from "@/context/websocket-context"
+import { useAccountRole } from "@/hooks/useAccountRole"
 
 function NotificationIcon({ type }: { type: NotificationEvent }) {
 	switch (type) {
@@ -71,6 +72,30 @@ export function NotificationDropdown(
 				notification.id === notificationId ? { ...notification, is_read: true } : notification
 			),
 		]);
+	}
+
+	const onSelectNotification = (notification: NotificationPublic) => {
+		return (event: any) => {
+			event.preventDefault()
+			markAsRead(notification.id)
+			
+			switch (notification.event) {
+				case "proposal_received": {
+					void navigate({
+						to: "/client-jobs",
+						search: { jobId: notification.job_post?.id },
+					})
+				} break;
+				case "message_received": {
+					
+					void navigate({
+						to: useAccountRole() == "client" ? "/messages" : "/freelancer-messages",
+						search: { userId: notification.chat_message?.sender_id },
+					})
+				} break;
+				default: alert(notification.event + " Was not implemented yet!")
+			}
+		}
 	}
 
 	return (
@@ -144,17 +169,7 @@ export function NotificationDropdown(
 						notifications.map((notification) => (
 							<DropdownMenuItem
 								key={notification.id}
-								onSelect={(event) => {
-									const opensJob = notification.event === "proposal_received" && Boolean(notification.job_post?.id)
-									if (!opensJob) event.preventDefault()
-									markAsRead(notification.id)
-									if (opensJob && notification.job_post?.id) {
-										void navigate({
-											to: "/client-jobs",
-											search: { jobId: notification.job_post.id },
-										})
-									}
-								}}
+								onSelect={onSelectNotification(notification)}
 								className={cn(
 									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
 									!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
