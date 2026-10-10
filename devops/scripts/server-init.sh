@@ -91,6 +91,12 @@ else
     echo -e "  Installing Docker and Compose from Ubuntu repositories..."
     apt-get install -y --no-install-recommends docker.io docker-compose-v2
 
+    # Configure overlay2 storage driver to ensure cAdvisor container telemetry compatibility
+    mkdir -p /etc/docker
+    if [ ! -f /etc/docker/daemon.json ]; then
+        echo '{"storage-driver": "overlay2"}' > /etc/docker/daemon.json
+    fi
+
     # Enable and start Docker service
     systemctl enable --now docker >/dev/null 2>&1 || true
 
