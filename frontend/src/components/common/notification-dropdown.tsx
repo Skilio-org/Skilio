@@ -16,6 +16,8 @@ import { chatKeys } from "@/data/chat-keys"
 import { formatMessageTime } from "@/util/timestampformatter"
 import { useWebSocket } from "@/context/websocket-context"
 import { useAccountRole } from "@/hooks/useAccountRole"
+import { toast } from "sonner"
+import { useState } from "react"
 
 function NotificationIcon({ type }: { type: NotificationEvent }) {
 	switch (type) {
@@ -41,6 +43,8 @@ export function NotificationDropdown(
 	const { data: notifications, isPending} = useNotifications()
 	// to send read receipt to the server when a notification is read.
 	const { sendMessage } = useWebSocket()
+	const [close, setClose] = useState(false);
+	const role = useAccountRole()
 	const queryClient = useQueryClient()
 	if (!notifications) {
 		return <> Loading Notifications... </>
@@ -78,7 +82,7 @@ export function NotificationDropdown(
 		return (event: any) => {
 			event.preventDefault()
 			markAsRead(notification.id)
-			
+			setClose(true);
 			switch (notification.event) {
 				case "proposal_received": {
 					void navigate({
@@ -87,13 +91,12 @@ export function NotificationDropdown(
 					})
 				} break;
 				case "message_received": {
-					
 					void navigate({
-						to: useAccountRole() == "client" ? "/messages" : "/freelancer-messages",
+						to: role == "client" ? "/messages" : "/freelancer-messages",
 						search: { userId: notification.chat_message?.sender_id },
 					})
 				} break;
-				default: alert(notification.event + " Was not implemented yet!")
+				default: toast.error(notification.event + " Was not implemented yet!")
 			}
 		}
 	}
@@ -117,7 +120,8 @@ export function NotificationDropdown(
 					)}
 				</button>
 			</DropdownMenuTrigger>
-
+			{
+				!close && (
 			<DropdownMenuContent
 				align="end"
 				sideOffset={8}
@@ -238,6 +242,8 @@ export function NotificationDropdown(
 					</>
 				)}
 			</DropdownMenuContent>
+				)
+			}
 		</DropdownMenu>
 	)
 }

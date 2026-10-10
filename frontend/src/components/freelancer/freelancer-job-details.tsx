@@ -227,10 +227,7 @@ export const JobDetails = ({
 							<button
 								type="button"
 								className={primary}
-								onClick={() => {
-									if (existingProposal?.cover && !cover) setCover(existingProposal.cover)
-									setApplying(true)
-								}}
+								onClick={handleApplyNow}
 							>
 								{existingProposal ? "Continue proposal" : "Apply now"}
 								<ArrowRight className="size-4" />

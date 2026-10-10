@@ -7,48 +7,29 @@ import { cn } from "@/lib/utils"
 import { ChatMessagePublic } from "@/client/types.gen"
 import { formatMessageTime } from "@/util/timestampformatter"
 import { useWebSocket } from "@/context/websocket-context"
+import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 
-// import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
-
-function MessageLegend({
-	own = false, name = "", created_at = ""
+function Time({
+	created_at = ""
 }: {
-	own?: boolean 
-	name: string
 	created_at: string
 })
 {
 	return (
-		<div className="mb-1.5 flex items-baseline gap-2 px-1 font-caption text-caption text-on-surface-variant">
-			{
-				own ? (
-					<>
-					<span className="text-outline text-[11px]">{formatMessageTime(created_at)}</span>
-					<span className="text-outline text-[10px]">·</span>
-					<span className={cn("font-semibold", own ? "text-primary dark:text-primary" : "text-on-surface")}>
-						You
-					</span>
-					</>
-				) : (
-					<>
-					<span className={cn("font-semibold", own ? "text-primary dark:text-primary" : "text-on-surface")}>
-						{own ? "You" : name}
-					</span>
-					<span className="text-outline text-[10px]">·</span>
-					<span className="text-outline text-[11px]">{formatMessageTime(created_at)}</span>
-					</>
-				)
-			}
+		<div className=" flex items-baseline gap-2 font-caption text-caption text-on-surface-variant">
+				<span className="text-outline text-[11px]">{formatMessageTime(created_at)}</span>
 		</div>
 	)
 }
 
 function MessageBubbleRepresentation({
-	own = false, message, highlight = ""
+	own = false, message, highlight = "",
+	name = ""
 }:{
 	own?: boolean
 	message: ChatMessagePublic
 	highlight?: string
+	name: string
 	// rich?: boolean
 }) {
 	const { messageSendState } = useWebSocket()
@@ -56,50 +37,96 @@ function MessageBubbleRepresentation({
 	const match = highlight ? message.content.toLowerCase().indexOf(highlight.toLowerCase()) : -1
 	
 	return (
-		<>
-		<div className="flex items-start gap-2.5 group">
-			{/* {!own && (
-			<img
-				src={accountAvatarUrl(message.sender_id)}
-				alt=""
-				className={cn(
-					"size-8 place-items-center border font-label-sm font-semibold group-hover:scale-105 rounded-3xl"
-			)}></img>)} */}
-			<div
-					className={cn(
-						"min-w-0 max-wl-full whitespace-pre-wrap px-3 py-3 font-body-sm text-body-sm leading-reaxed [overflow-wrap:anywhere]",
-						own
-							? "rounded-2xl rounded-tr-none bg-[#1f2125] text-white shadow-sm dark:bg-[#202722] dark:border dark:border-primary/35 dark:text-on-surface"
-							: "rounded-2xl rounded-tl-none border border-outline-variant/80 bg-surface-container-lowest text-on-surface shadow-xs dark:bg-[#1e2226] dark:border-outline-variant",
+		<div className="flex flex-col">
+		
+		<div className="flex items-end justify-items-end gap-2 group w-full">
+			
+			<div className={cn("w-full flex flex-col ", own ? "items-end" : "items-start")}>
+				<div className="flex gap-3 w-full">
+					{!own && (
+						<img
+							src={accountAvatarUrl(message.sender_id)}
+							alt=""
+							className={cn(
+								"size-8 place-items-center border font-label-sm font-semibold shadow-2xs rounded-4xl",
+							)}></img>
+						)
+					}
+					<div className={cn("w-full flex flex-col", own ? "items-end" : "items-start")}>
+
+						<div
+							className={cn(
+								"min-w-0 max-w-full px-3 py-3 font-body-sm text-body-sm leading-reaxed [overflow-wrap:anywhere] word-wrap-break",
+								own
+									? "rounded-2xl rounded-tr-none bg-[#1f2125] text-white shadow-sm dark:bg-[#202722] dark:border dark:border-primary/35 dark:text-on-surface"
+									: "rounded-2xl rounded-tl-none border border-outline-variant/80 bg-surface-container-lowest text-on-surface shadow-xs dark:bg-[#1e2226] dark:border-outline-variant",
+							)}
+						>
+							{match < 0 ? (
+								message.content
+							) : (
+								<>
+									{message.content.slice(0, match)}
+									<mark className="rounded-xs bg-primary/20 text-on-surface px-1 py-0.5 font-medium">
+										{message.content.slice(match, match + highlight.length)}
+									</mark>
+									{message.content.slice(match + highlight.length)}
+								</>
+							)}
+							{/* {rich && message. && (
+								<section className="mt-3 rounded-lg border border-outline-variant bg-surface-container-low p-3.5 text-on-surface">
+									<h4 className="mb-2 flex items-center gap-2 font-label-md font-semibold text-label-md text-on-surface">
+										<MessageSquareText className="size-4 text-primary" />
+										Design critique notes
+									</h4>
+									<ul className="space-y-1.5 font-body-sm text-body-sm text-on-surface-variant">
+										{message.feedback.map((note) => (
+											<li key={note} className="ml-4 list-disc marker:text-primary">
+												<strong className="font-medium text-on-surface">{note.split(": ")[0]}:</strong> {note.split(": ").slice(1).join(": ")}
+											</li>
+										))}
+									</ul>
+								</section>
+							)} */}
+						</div>
+						<span className="py-1 flex justify-around items-center gap-1 text-outline text-[10px]" aria-live="polite">
+							{
+							!own && (
+								
+								<div className="flex items-center justify-center gap-1">
+									<span className={cn("font-semibold truncate font-label-md text-label-md text-on-surface  text-primary dark:text-primary")}>
+										{`${name}`} 
+									</span>
+									<span className="text-outline text-[11px]">
+										•
+									</span>
+								</div>
+							)
+							}
+							<Time created_at={message.created_at ? message.created_at : ""} />
+							{own && (
+								<div className="flex items-center justify-center gap-1">
+								<span className="text-outline text-[11px]">
+									•
+								</span>
+								{sendState}
+								{sendState === "pending" && <LoaderCircle className="size-2 animate-spin" aria-hidden="true" />}
+								</div>
+							)}
+						</span>
+					</div>
+					
+						{own && (
+							<img
+							src={accountAvatarUrl(message.sender_id)}
+							alt=""
+							className={cn(
+								"size-8 place-items-center border font-label-sm font-semibold shadow-2xs rounded-4xl",
+							)}></img>
 					)}
-				>
-					{match < 0 ? (
-						message.content
-					) : (
-						<>
-							{message.content.slice(0, match)}
-							<mark className="rounded-xs bg-primary/20 text-on-surface px-1 py-0.5 font-medium">
-								{message.content.slice(match, match + highlight.length)}
-							</mark>
-							{message.content.slice(match + highlight.length)}
-						</>
-					)}
-					{/* {rich && message. && (
-						<section className="mt-3 rounded-lg border border-outline-variant bg-surface-container-low p-3.5 text-on-surface">
-							<h4 className="mb-2 flex items-center gap-2 font-label-md font-semibold text-label-md text-on-surface">
-								<MessageSquareText className="size-4 text-primary" />
-								Design critique notes
-							</h4>
-							<ul className="space-y-1.5 font-body-sm text-body-sm text-on-surface-variant">
-								{message.feedback.map((note) => (
-									<li key={note} className="ml-4 list-disc marker:text-primary">
-										<strong className="font-medium text-on-surface">{note.split(": ")[0]}:</strong> {note.split(": ").slice(1).join(": ")}
-									</li>
-								))}
-							</ul>
-						</section>
-					)} */}
 				</div>
+			</div>
+
 				{/* State of sending! */}
 				{/* {rich && message.attachment_id && (
 					<>
@@ -136,25 +163,17 @@ function MessageBubbleRepresentation({
 						</Dialog>
 						</>
 				)} */}
-				{/* {own && (
-					<div className="relative">
-						<img
-							src={accountAvatarUrl(message.sender_id)}
-							alt=""
-							className={cn(
-								"grid size-8 place-items-center border font-label-sm font-semibold shadow-2xs transition-transform group-hover:scale-105 rounded-3xl",
-							)}></img>
-					</div>
-				)} */}
 		</div>
-		{own && (
-			<span className="inline-flex items-center gap-1 text-outline text-[10px]" aria-live="polite">
+		{/* 
+		{!own && (
+			<span className="flex justify-around items-center gap-1 text-outline text-[10px]" aria-live="polite">
+				<Time  created_at={message.created_at ? message.created_at : ""} />
 				{sendState}
 				{sendState === "pending" && <LoaderCircle className="size-2 animate-spin" aria-hidden="true" />}
 			</span>
 		)}
-		
-		</>
+		 */}
+		</div>
 	)
 }
 
@@ -200,9 +219,9 @@ export function MessageBubble({
 				</span>
 			)}
 			{/* { Message Legend Date and User.} */}
-			<MessageLegend own={own} name={name} 
-			created_at={message.created_at ? message.created_at : ""} />
+
 			<MessageBubbleRepresentation
+				name={name}
 				own={own}
 				message={message}
 				highlight={highlight}

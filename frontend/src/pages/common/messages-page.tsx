@@ -1,13 +1,9 @@
-import { isClientProfile } from "@/context/chat-context"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "@tanstack/react-router"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { useEffect, useRef, useState } from "react"
-import { Search } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { getClientTheme } from "@/components/messages/message-types"
-import { cn } from "@/lib/utils"
+import { InboxIcon } from "lucide-react"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { MessageThread } from "@/components/messages/message-thread"
 import type { InboxFilter } from "@/components/messages/message-types"
@@ -34,8 +30,8 @@ export function MessagesPage({
 	// TODO: What if the conversations does not even exist.. yet...
 	// 1. check if the conversation exists.
 	const { user } = useAuth()
-	const [recipientQuery, setRecipientQuery] = useState("")
-	const [newMessageOpen, setNewMessageOpen] = useState(false)
+	// const [recipientQuery, setRecipientQuery] = useState("")
+	// const [newMessageOpen, setNewMessageOpen] = useState(false)
 	const [query, setQuery] = useState("")
 	const [filter, setFilter] = useState<InboxFilter>("all")
 	const [draft, setDraft] = useState("")
@@ -48,9 +44,10 @@ export function MessagesPage({
 	const MessageUpdate = useConversationUpdate()
 	const selectedConversation = SelectedUserId
 		? conversations.data?.data.find((conversation) => conversation.other_user?.id === SelectedUserId)
-		: conversations.data?.data[0]
-	const selectedConversationId = selectedConversation?.id
-	const selectedProfile = profiles.data?.get(selectedConversation?.other_user?.id ?? "")
+		: undefined
+	const selectedConversationId = selectedConversation == undefined ? selectedConversation : selectedConversation?.id
+	const selectedProfile = selectedConversation && profiles.data?.get(selectedConversation?.other_user?.id ?? "")
+
 	const { isOnline, isPending: presencePending } = useUserOnlineStatus(selectedProfile?.user_id)
 	const detailsQuery = useConversation(selectedConversationId ?? "")
 	const navigate = useNavigate()
@@ -77,8 +74,8 @@ export function MessagesPage({
 				})
 			creatingForUserRef.current = SelectedUserId
 		}
-		if (!SelectedUserId && conversations.data?.data[0]?.other_user?.id)
-			onSelectContact(conversations.data?.data[0]?.other_user?.id ?? "")
+		// if (!SelectedUserId && conversations.data?.data[0]?.other_user?.id)
+		// 	onSelectContact(conversations.data?.data[0]?.other_user?.id ?? "")
 	}, [
 		SelectedUserId,
 		conversations.isSuccess,
@@ -140,22 +137,18 @@ export function MessagesPage({
 	if (profiles.isPending && profiles.data?.size === 0 && conversations.data?.data.length !== 0)
 		return <>Still loading profiles!</>
 
-	const matchingProfiles = Array.from(profiles.data?.entries() ?? []).filter(([, profile]) =>
-		checkProfile(profile, recipientQuery),
-	)
-
 	const unreadCount = conversations.data?.data.reduce(
 		(total, conversation) => total + (conversation.unread_count ?? 0),
 		0,
 	)
 
-	function checkProfile(profile: Parameters<typeof isClientProfile>[0], search: string) {
-		if (search.trim() === "") return true
-		const text = isClientProfile(profile)
-			? `${profile.company ?? ""} ${profile.full_name ?? ""}`
-			: `${profile.title ?? ""} ${profile.full_name ?? ""}`
-		return text.toLowerCase().includes(search.toLowerCase())
-	}
+	// function checkProfile(profile: Parameters<typeof isClientProfile>[0], search: string) {
+	// 	if (search.trim() === "") return true
+	// 	const text = isClientProfile(profile)
+	// 		? `${profile.company ?? ""} ${profile.full_name ?? ""}`
+	// 		: `${profile.title ?? ""} ${profile.full_name ?? ""}`
+	// 	return text.toLowerCase().includes(search.toLowerCase())
+	// }
 
 
 	const send = (message: string) => {
@@ -222,7 +215,7 @@ export function MessagesPage({
 					</button>
 				</div> */}
 			</header>
-			<Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
+			{/* <Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
 				<DialogContent className="max-w-md border-outline-variant bg-surface-container-lowest">
 					<DialogHeader>
 						<DialogTitle className="font-headline-sm font-semibold text-headline-sm text-on-surface">
@@ -283,7 +276,7 @@ export function MessagesPage({
 						)}
 					</div>
 				</DialogContent>
-			</Dialog>
+			</Dialog> */}
 			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] h-[calc(100vh-14.5rem)] min-h-[640px] max-h-[880px]">
 				<ConversationList
 					selected={selectedProfile}
@@ -324,7 +317,7 @@ export function MessagesPage({
 						</Button>
 					</section>
 				) : (
-					selectedConversationId !== undefined && (
+					selectedConversationId !== undefined ? (
 						<MessageThread
 							key={selectedProfile?.user_id ?? "no-profile"}
 							selected={selectedProfile}
@@ -333,11 +326,13 @@ export function MessagesPage({
 							messages={detailsQuery.data?.messages ?? []}
 							draft={draft}
 							archived={false}
-							onBack={() => onSelectContact(SelectedUserId ?? "")}
+							onBack={() => {
+								onSelectContact("")
+							}}
 							onOpenLatest={() => {
 								if (conversations.data?.data[0]?.other_user?.id)
 									onSelectContact(conversations.data?.data[0].other_user?.id)
-								else setNewMessageOpen(true)
+								// else setNewMessageOpen(true)
 							}}
 							hasConversations={conversations.data?.count == undefined ? false : conversations.data?.count > 0}
 							canViewProfile={true}
@@ -358,6 +353,18 @@ export function MessagesPage({
 							onDraftChange={setDraft}
 							onSend={() => send(draft)}
 						/>
+					) : (
+						<section className="flex flex-col items-center justify-center gap-4 p-6 text-center">
+							<div className="p-4 flex items-center justify-center rounded-full bg-surface-container-lowest dark:bg-surface-panel">
+								<InboxIcon className="size-12 text-on-surface-variant" />
+							</div>
+							<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
+								Select a conversation
+							</h2>
+							<p className="font-body-md text-body-md text-on-surface-variant">
+								Choose a {clientMode ? "freelancer" : "client"} from the list to view your conversation.
+							</p>
+						</section>
 					)
 				)}
 			</div>
