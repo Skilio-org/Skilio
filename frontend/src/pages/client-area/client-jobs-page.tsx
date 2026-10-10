@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { JobsService } from "@/client"
 import { ClientJobEditor } from "@/components/client/client-job-editor"
 import { blankClientJob, type ClientJob } from "@/components/client/client-job-types"
@@ -12,7 +12,12 @@ import { useErrorToast } from "@/hooks/useErrorToast"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-export function ClientJobsPage() {
+type ClientJobsPageProps = {
+	focusedJobId?: string
+	onFocusedJobChange: (jobId?: string) => void
+}
+
+export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsPageProps) {
 	const { user } = useAuth()
 	const queryClient = useQueryClient()
 	const jobsQuery = useQuery({
@@ -35,6 +40,7 @@ export function ClientJobsPage() {
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ["client-jobs"] })
+			onFocusedJobChange(undefined)
 			setEditorJob(null)
 			toast.success("Job saved")
 		},
@@ -44,6 +50,7 @@ export function ClientJobsPage() {
 		mutationFn: (id: string) => JobsService.deleteJob({ path: { id } }),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ["client-jobs"] })
+			onFocusedJobChange(undefined)
 			setEditorJob(null)
 			toast.success("Job deleted")
 		},
@@ -55,6 +62,18 @@ export function ClientJobsPage() {
 	const [editorJob, setEditorJob] = useState<ClientJob | null>(null)
 	const [isEditing, setIsEditing] = useState(false)
 
+	useEffect(() => {
+		if (!focusedJobId || !jobsQuery.isSuccess) return
+		const focusedJob = jobs.find((job) => job.id === focusedJobId)
+		if (focusedJob) {
+			setEditorJob((currentJob) => (currentJob?.id === focusedJob.id ? currentJob : focusedJob))
+			setIsEditing(false)
+			return
+		}
+		onFocusedJobChange(undefined)
+		setEditorJob(null)
+	}, [focusedJobId, jobs, jobsQuery.isSuccess, onFocusedJobChange])
+
 	const persistJob = (job: ClientJob) => {
 		if (job.description.trim().length > jobDescriptionLimit(job.experienceLevel)) {
 			toast.error("Shorten the project description before saving this job.")
@@ -64,6 +83,7 @@ export function ClientJobsPage() {
 	}
 
 	const startJob = () => {
+		onFocusedJobChange(undefined)
 		setEditorJob({ ...blankClientJob, id: "" })
 		setIsEditing(true)
 	}
@@ -100,6 +120,7 @@ export function ClientJobsPage() {
 				onQueryChange={setQuery}
 				onTabChange={setTab}
 				onOpenJob={(job) => {
+					onFocusedJobChange(job.id)
 					setEditorJob(job)
 					setIsEditing(false)
 				}}
@@ -112,7 +133,10 @@ export function ClientJobsPage() {
 			<ClientJobEditor
 				job={editorJob}
 				editing={isEditing}
-				onClose={() => setEditorJob(null)}
+				onClose={() => {
+					onFocusedJobChange(undefined)
+					setEditorJob(null)
+				}}
 				onEditingChange={setIsEditing}
 				onJobChange={setEditorJob}
 				onSave={persistJob}

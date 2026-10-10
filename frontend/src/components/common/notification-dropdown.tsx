@@ -13,7 +13,6 @@ import {
 	Star,
 	UserCheck,
 	UserPlus,
-	UserRound,
 	UserX,
 	X,
 	XCircle,
@@ -69,7 +68,7 @@ function NotificationIcon({ type }: { type: NotificationEvent }) {
 			return <BriefcaseBusiness className="size-4" />
 
 		default:
-			return <UserRound className="size-4" />
+			return <Bell className="size-4" />
 	}
 }
 
@@ -222,7 +221,10 @@ function NotificationActions({
 						e.stopPropagation()
 						e.preventDefault()
 						onMarkAsRead(notification.id)
-						void navigate({ to: role === "freelancer" ? "/freelancer-messages" : "/messages" })
+						void navigate({
+							to: role === "freelancer" ? "/freelancer-messages" : "/messages",
+							search: { userId: notification.chat_message?.sender_id },
+						})
 					}}
 					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
 				>
@@ -243,7 +245,10 @@ function NotificationActions({
 						e.stopPropagation()
 						e.preventDefault()
 						onMarkAsRead(notification.id)
-						void navigate({ to: "/client-jobs" })
+						void navigate({
+							to: "/client-jobs",
+							search: { jobId: notification.job_post?.id },
+						})
 					}}
 					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
 				>
@@ -332,37 +337,10 @@ function NotificationActions({
 	return null
 }
 
-function getNotificationDestination(notification: NotificationEvent, role: string): string | null {
-	switch (notification) {
-		case "connection_request":
-		case "connection_accepted":
-		case "connection_declined":
-			return "/connects"
-
-		case "message_received":
-			return role === "freelancer" ? "/freelancer-messages" : "/messages"
-
-		case "proposal_received":
-			return "/client-jobs"
-
-		case "proposal_accepted":
-		case "proposal_rejected":
-			return "/freelancer-proposals"
-
-		case "review_received":
-			return role === "freelancer" ? "/freelancer" : "/client-profile"
-
-		case "job_closed":
-			return role === "freelancer" ? "/freelancer-jobs" : "/client-jobs"
-
-		default:
-			return null
-	}
-}
-
 export function NotificationDropdown() {
 	const { data: notifications, isPending } = useNotifications()
 	const { sendMessage } = useWebSocket()
+	const [open, setOpen] = useState(false)
 	const queryClient = useQueryClient()
 	const navigate = useNavigate()
 	const role = useAccountRole()
@@ -406,14 +384,42 @@ export function NotificationDropdown() {
 
 	const handleItemClick = (notification: NotificationPublic) => {
 		markAsRead(notification.id)
-		const destination = getNotificationDestination(notification.event, role)
-		if (destination) {
-			void navigate({ to: destination })
+		setOpen(false)
+		switch (notification.event) {
+			case "proposal_received":
+				void navigate({
+					to: "/client-jobs",
+					search: { jobId: notification.job_post?.id },
+				})
+				break
+			case "message_received":
+				void navigate({
+					to: role === "freelancer" ? "/freelancer-messages" : "/messages",
+					search: { userId: notification.chat_message?.sender_id },
+				})
+				break
+			case "connection_request":
+			case "connection_accepted":
+			case "connection_declined":
+				void navigate({ to: "/connects" })
+				break
+			case "proposal_accepted":
+			case "proposal_rejected":
+				void navigate({ to: "/freelancer-proposals" })
+				break
+			case "review_received":
+				void navigate({ to: role === "freelancer" ? "/freelancer" : "/client-profile" })
+				break
+			case "job_closed":
+				void navigate({ to: role === "freelancer" ? "/freelancer-jobs" : "/client-jobs" })
+				break
+			default:
+				break
 		}
 	}
 
 	return (
-		<DropdownMenu>
+		<DropdownMenu open={open} onOpenChange={setOpen}>
 			<DropdownMenuTrigger asChild>
 				<button
 					type="button"

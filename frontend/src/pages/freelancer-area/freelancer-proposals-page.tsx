@@ -390,7 +390,6 @@ const FreelancerProposalsPage = () => {
 					<WorkspaceSurface className="p-5">
 						<div className="mb-4 flex items-center justify-between">
 							<h2 className="font-headline-sm font-semibold text-headline-sm">Make your first impression count</h2>
-							<FilePenLine className="size-4 shrink-0 text-primary" />
 						</div>
 						<p className="text-body-sm text-on-surface-variant leading-relaxed">
 							A little care goes a long way. Give every proposal a personal touch.

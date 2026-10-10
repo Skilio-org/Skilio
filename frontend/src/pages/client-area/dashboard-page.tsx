@@ -18,7 +18,7 @@ export function ClientDashboardPage() {
 				description="Continue your search or review professionals selected for you."
 				meta={<span className="font-medium text-primary">{activeJobsCount} active jobs</span>}
 				action={
-					<Link to="/client-jobs" className={workspaceStyles.primaryAction}>
+					<Link to="/client-jobs" className={workspaceStyles.primaryAction} search={{ jobId: undefined }}>
 						Post a job
 					</Link>
 				}

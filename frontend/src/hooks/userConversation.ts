@@ -2,6 +2,7 @@ import { ChatMessagePublic, ChatService, ConversationDetailPublic } from "@/clie
 import { chatKeys } from "@/data/chat-keys"
 import { useQuery } from "@tanstack/react-query"
 import { useQueryClient } from "@tanstack/react-query"
+// import { useWebSocket } from "@/context/websocket-context"
 
 export function useConversation(id: string) {
 	const data = useQuery({
@@ -37,5 +38,5 @@ export function useConversationUpdate() {
 				last_message: message,
 				messages: [...(current.messages ?? []), message],
 			}
-		})
+	})
 }
