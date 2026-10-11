@@ -59,6 +59,7 @@ export function FreelancerProfileView({
 	contactActions,
 	contactFooter,
 	feedback,
+	reviewsNode,
 	portfolioDialogAction,
 	portfolioDialogEyebrow = "Portfolio entry",
 }: {
@@ -69,6 +70,7 @@ export function FreelancerProfileView({
 	contactActions?: ReactNode
 	contactFooter?: ReactNode
 	feedback?: Feedback
+	reviewsNode?: ReactNode
 	portfolioDialogAction?: ReactNode
 	portfolioDialogEyebrow?: string
 }) {
@@ -83,7 +85,11 @@ export function FreelancerProfileView({
 		["about", "About"],
 		["selected-work", "Selected work"],
 		["background", "Background"],
-		...(feedback ? [["client-feedback", "Feedback"]] : []),
+		...(reviewsNode
+			? [["client-reviews", `Reviews${profile.reviews !== undefined ? ` (${profile.reviews})` : ""}`]]
+			: feedback
+				? [["client-feedback", "Feedback"]]
+				: []),
 	]
 	const scrollPortfolio = (direction: -1 | 1) => {
 		const track = portfolioTrack.current
@@ -125,11 +131,18 @@ export function FreelancerProfileView({
 							</span>
 							{profile.memberSince && <span>{profile.memberSince}</span>}
 							{profile.rating !== undefined && profile.reviews !== undefined && (
-								<span className="inline-flex items-center gap-1.5">
-									<Star className="size-3.5" />
-									<strong className="font-semibold">{profile.rating.toFixed(1)}</strong>
-									<span className="text-muted-foreground">{profile.reviews} reviews</span>
-								</span>
+								<a
+									href="#client-reviews"
+									className="inline-flex items-center gap-1.5 rounded-md px-1.5 -mx-1.5 py-0.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/60"
+								>
+									<Star className="size-3.5 fill-amber-500 text-amber-500" />
+									<strong className="font-semibold text-foreground">
+										{profile.rating > 0 ? profile.rating.toFixed(1) : "New"}
+									</strong>
+									<span>
+										({profile.reviews} {profile.reviews === 1 ? "review" : "reviews"})
+									</span>
+								</a>
 							)}
 						</div>
 					</div>
@@ -303,7 +316,9 @@ export function FreelancerProfileView({
 							</div>
 						)}
 					</section>
-					{feedback && (
+					{reviewsNode ? (
+						<div className="border-border border-t">{reviewsNode}</div>
+					) : feedback ? (
 						<section id="client-feedback" className={`${section} border-border border-t`}>
 							<div className="flex flex-wrap items-center justify-between gap-3">
 								<h3 className={heading}>Client feedback</h3>
@@ -326,7 +341,7 @@ export function FreelancerProfileView({
 								</div>
 							</div>
 						</section>
-					)}
+					) : null}
 				</article>
 			</div>
 			<Dialog
@@ -337,7 +352,9 @@ export function FreelancerProfileView({
 			>
 				<DialogContent className="max-h-[85dvh] gap-0 overflow-hidden p-0 sm:max-w-2xl">
 					<div className="overflow-y-auto">
-						<div className={`relative grid h-44 place-items-center overflow-hidden text-slate-800 sm:h-52 ${project?.color ?? "bg-brand-100"}`}>
+						<div
+							className={`relative grid h-44 place-items-center overflow-hidden text-slate-800 sm:h-52 ${project?.color ?? "bg-brand-100"}`}
+						>
 							<div className="absolute -right-8 -top-16 size-64 rounded-full border border-current/10" />
 							<div className="absolute -right-2 -top-10 size-48 rounded-full border border-current/10" />
 							<FileText className="size-16 opacity-80" strokeWidth={1.2} />
@@ -364,7 +381,9 @@ export function FreelancerProfileView({
 									View project <ArrowUpRight className="size-4" />
 								</a>
 							)}
-							{portfolioDialogAction && <div className="space-y-4 border-border border-t pt-6">{portfolioDialogAction}</div>}
+							{portfolioDialogAction && (
+								<div className="space-y-4 border-border border-t pt-6">{portfolioDialogAction}</div>
+							)}
 						</div>
 					</div>
 				</DialogContent>

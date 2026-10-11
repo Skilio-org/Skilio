@@ -6,7 +6,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
 
-
 type ThemeOption = {
 	value: Theme
 	label: string
@@ -47,7 +46,6 @@ const LABEL_MAP: Record<Theme, string> = {
 	system: "System",
 }
 
-
 interface ThemeOptionItemProps {
 	value: Theme
 	label: string
@@ -68,7 +66,6 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
 					: `border-transparent bg-transparent data-[highlighted]:border-transparent data-[highlighted]:bg-muted/60`
 			} `}
 		>
-
 			<div
 				className={`flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-150 ${
 					selected
@@ -79,13 +76,11 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
 				<Icon className="size-[17px]" />
 			</div>
 
-
 			<div className="min-w-0 flex-1">
 				<div className="font-medium text-foreground text-sm">{label}</div>
 
 				<div className="mt-0.5 text-[11px] text-muted-foreground leading-4">{description}</div>
 			</div>
-
 
 			{selected && (
 				<div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
@@ -95,7 +90,6 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
 		</DropdownMenuItem>
 	)
 }
-
 
 export function SidebarAppearance() {
 	const { isMobile } = useSidebar()
@@ -108,7 +102,6 @@ export function SidebarAppearance() {
 	return (
 		<SidebarMenuItem>
 			<DropdownMenu modal={false}>
-
 				<DropdownMenuTrigger asChild>
 					<SidebarMenuButton
 						tooltip="Appearance"
@@ -128,7 +121,6 @@ export function SidebarAppearance() {
 						<span className="sr-only">Change appearance</span>
 					</SidebarMenuButton>
 				</DropdownMenuTrigger>
-
 
 				<DropdownMenuContent
 					side={isMobile ? "top" : "right"}

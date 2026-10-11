@@ -38,5 +38,5 @@ export function useConversationUpdate() {
 				last_message: message,
 				messages: [...(current.messages ?? []), message],
 			}
-	})
+		})
 }

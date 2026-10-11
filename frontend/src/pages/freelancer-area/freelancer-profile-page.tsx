@@ -7,6 +7,7 @@ import { profileFromApi, profileToApi } from "@/components/freelancer/freelancer
 import { SkillsSelect } from "@/components/common/skills-select"
 import { ProfilesService, UsersService, type FreelancerProfileDetailPublic } from "@/client"
 import { Avatar, EntryDialog, ProfilePreview } from "@/components/freelancer/freelancer-profile-components"
+import { FreelancerReviewsSection } from "@/components/reviews/freelancer-reviews-section"
 import {
 	completion,
 	descriptions,
@@ -266,6 +267,27 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 								Saved details are stored in your account and available when you sign in on another device.
 							</p>
 						</section>
+						<section className="rounded-xl border border-border bg-card p-6">
+							<p className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">Client feedback</p>
+							<div className="mt-3 flex items-baseline gap-2">
+								<span className="font-bold text-2xl text-foreground">
+									{serverProfile.average_rating ? serverProfile.average_rating.toFixed(1) : "—"}
+								</span>
+								<span className="text-muted-foreground text-xs">
+									({serverProfile.reviews_count ?? 0} {serverProfile.reviews_count === 1 ? "review" : "reviews"})
+								</span>
+							</div>
+							<p className="mt-2 text-muted-foreground text-xs leading-5">
+								Feedback received from clients you’ve collaborated with on Skilio.
+							</p>
+							<button
+								type="button"
+								onClick={() => setView("preview")}
+								className="mt-3 font-medium text-primary text-xs hover:underline inline-block"
+							>
+								View feedback in preview →
+							</button>
+						</section>
 						<section className="p-2">
 							<h2 className="font-semibold">A profile that sounds like you</h2>
 							<p className="mt-3 text-muted-foreground text-sm leading-6">
@@ -277,7 +299,22 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 				</div>
 			) : view === "preview" ? (
 				<>
-					<ProfilePreview profile={profile} />
+					<ProfilePreview
+						profile={profile}
+						rating={serverProfile.average_rating ?? undefined}
+						reviewsCount={serverProfile.reviews_count ?? 0}
+						reviewsNode={
+							serverProfile.id ? (
+								<FreelancerReviewsSection
+									freelancerId={serverProfile.id}
+									profileUserId={serverProfile.user_id}
+									freelancerName={profile.name}
+									freelancerTitle={profile.title}
+									freelancerAvatarUrl={profile.photo}
+								/>
+							) : undefined
+						}
+					/>
 					<div className="mt-6 flex justify-end">
 						<button className={primary} type="button" onClick={() => edit(0)}>
 							Edit profile

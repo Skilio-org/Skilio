@@ -4,8 +4,16 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog"
 import { useConnectionStatus, useSendConnectionRequest } from "@/hooks/useConnections"
+import useAuth from "@/hooks/useAuth"
 import type { TalentCard } from "./talent-api"
 import { cn } from "@/lib/utils"
 import { getInitials } from "@/utils"
@@ -19,15 +27,17 @@ export function FreelancerCard({
 	saved: boolean
 	onToggleSaved: () => void
 }) {
+	const { user } = useAuth()
 	const targetUserId = freelancer.userId ?? freelancer.id
-	const { data: connectionStatus } = useConnectionStatus(targetUserId)
+	const isSelf = Boolean(user?.id && targetUserId === user.id)
+	const { data: connectionStatus } = useConnectionStatus(!isSelf ? targetUserId : undefined)
 	const sendMutation = useSendConnectionRequest()
 	const [connectOpen, setConnectOpen] = useState(false)
 	const [note, setNote] = useState("")
 
 	const handleSend = async (e: React.FormEvent) => {
 		e.preventDefault()
-		if (!targetUserId) return
+		if (!targetUserId || isSelf) return
 		if (note.length > 300) {
 			toast.error("Note cannot exceed 300 characters.")
 			return
@@ -173,7 +183,11 @@ export function FreelancerCard({
 						View profile
 					</Link>
 
-					{connectionStatus?.status === "connected" ? (
+					{isSelf ? (
+						<span className="inline-flex h-8 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-low px-3 font-label-md text-label-md text-on-surface-variant">
+							Your profile
+						</span>
+					) : connectionStatus?.status === "connected" ? (
 						<Link
 							to="/messages"
 							search={{ userId: targetUserId }}

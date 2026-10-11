@@ -30,10 +30,7 @@ import { cn } from "@/lib/utils"
 import { NotificationEvent, NotificationPublic } from "@/client/types.gen"
 import { useNotifications } from "@/hooks/useNotifications"
 import { useAccountRole } from "@/hooks/useAccountRole"
-import {
-	useAcceptConnectionRequest,
-	useDeclineConnectionRequest,
-} from "@/hooks/useConnections"
+import { useAcceptConnectionRequest, useDeclineConnectionRequest } from "@/hooks/useConnections"
 import { chatKeys } from "@/data/chat-keys"
 import { formatMessageTime } from "@/util/timestampformatter"
 import { useWebSocket } from "@/context/websocket-context"
@@ -78,11 +75,7 @@ interface NotificationActionProps {
 	onMarkAsRead: (id: string) => void
 }
 
-function NotificationActions({
-	notification,
-	role,
-	onMarkAsRead,
-}: NotificationActionProps) {
+function NotificationActions({ notification, role, onMarkAsRead }: NotificationActionProps) {
 	const navigate = useNavigate()
 	const acceptConnection = useAcceptConnectionRequest()
 	const declineConnection = useDeclineConnectionRequest()
@@ -92,7 +85,7 @@ function NotificationActions({
 			? "accepted"
 			: notification.connection?.status === "declined"
 				? "declined"
-				: "idle"
+				: "idle",
 	)
 
 	// 1. Connection Request Actions (Accept / Decline)
@@ -102,7 +95,10 @@ function NotificationActions({
 		if (actionStatus === "accepted") {
 			return (
 				<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-					<Badge variant="outline" className="h-6 border-emerald-500/30 bg-emerald-500/10 px-2 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+					<Badge
+						variant="outline"
+						className="h-6 border-emerald-500/30 bg-emerald-500/10 px-2 text-[11px] font-medium text-emerald-600 dark:text-emerald-400"
+					>
 						Connected
 					</Badge>
 				</div>
@@ -112,7 +108,10 @@ function NotificationActions({
 		if (actionStatus === "declined") {
 			return (
 				<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-					<Badge variant="outline" className="h-6 border-muted-foreground/30 bg-muted/30 px-2 text-[11px] font-medium text-muted-foreground">
+					<Badge
+						variant="outline"
+						className="h-6 border-muted-foreground/30 bg-muted/30 px-2 text-[11px] font-medium text-muted-foreground"
+					>
 						Declined
 					</Badge>
 				</div>
@@ -137,11 +136,7 @@ function NotificationActions({
 						}}
 						className="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground shadow-2xs transition-opacity hover:opacity-90 disabled:opacity-50"
 					>
-						{acceptConnection.isPending ? (
-							<Loader2 className="size-3 animate-spin" />
-						) : (
-							<Check className="size-3" />
-						)}
+						{acceptConnection.isPending ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
 						Accept
 					</button>
 
@@ -160,11 +155,7 @@ function NotificationActions({
 						}}
 						className="inline-flex h-7 items-center gap-1.5 rounded-md border border-outline-variant bg-surface-container-low px-2 text-xs font-medium text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface disabled:opacity-50 dark:border-border-subtle"
 					>
-						{declineConnection.isPending ? (
-							<Loader2 className="size-3 animate-spin" />
-						) : (
-							<X className="size-3" />
-						)}
+						{declineConnection.isPending ? <Loader2 className="size-3 animate-spin" /> : <X className="size-3" />}
 						Decline
 					</button>
 				</div>
@@ -305,7 +296,10 @@ function NotificationActions({
 	if (notification.event === "proposal_rejected") {
 		return (
 			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<Badge variant="outline" className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground">
+				<Badge
+					variant="outline"
+					className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground"
+				>
 					Proposal Declined
 				</Badge>
 			</div>
@@ -316,7 +310,10 @@ function NotificationActions({
 	if (notification.event === "connection_declined") {
 		return (
 			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<Badge variant="outline" className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground">
+				<Badge
+					variant="outline"
+					className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground"
+				>
 					Declined
 				</Badge>
 			</div>
@@ -327,7 +324,10 @@ function NotificationActions({
 	if (notification.event === "job_closed") {
 		return (
 			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<Badge variant="outline" className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground">
+				<Badge
+					variant="outline"
+					className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground"
+				>
 					Job Closed
 				</Badge>
 			</div>
@@ -377,7 +377,7 @@ export function NotificationDropdown() {
 		})
 		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), [
 			...notifications.map((notification) =>
-				notification.id === notificationId ? { ...notification, is_read: true } : notification
+				notification.id === notificationId ? { ...notification, is_read: true } : notification,
 			),
 		])
 	}
@@ -494,7 +494,7 @@ export function NotificationDropdown() {
 								}}
 								className={cn(
 									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
-									!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]"
+									!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
 								)}
 							>
 								{/* Icon */}
@@ -503,7 +503,7 @@ export function NotificationDropdown() {
 										"grid size-8 shrink-0 place-items-center rounded-lg border transition-colors",
 										notification.is_read
 											? "border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container"
-											: "border-primary/15 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/10"
+											: "border-primary/15 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/10",
 									)}
 								>
 									<NotificationIcon type={notification.event} />
@@ -515,7 +515,7 @@ export function NotificationDropdown() {
 										<span
 											className={cn(
 												"min-w-0 truncate font-label-sm text-label-sm text-on-surface",
-												notification.is_read ? "font-medium" : "font-semibold"
+												notification.is_read ? "font-medium" : "font-semibold",
 											)}
 										>
 											{notification.title}
@@ -531,11 +531,7 @@ export function NotificationDropdown() {
 									</span>
 
 									{/* Actionable buttons tailored per notification type */}
-									<NotificationActions
-										notification={notification}
-										role={role}
-										onMarkAsRead={markAsRead}
-									/>
+									<NotificationActions notification={notification} role={role} onMarkAsRead={markAsRead} />
 								</span>
 
 								{/* Unread dot */}

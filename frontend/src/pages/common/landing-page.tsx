@@ -72,12 +72,8 @@ export function LandingPage() {
 									<span className="font-display font-medium text-3xl tracking-tight text-foreground sm:text-4xl lg:text-5xl">
 										{stat.value}
 									</span>
-									<span className="mt-2 font-medium text-foreground text-sm sm:text-base">
-										{stat.label}
-									</span>
-									<p className="mt-1 text-muted-foreground text-xs leading-relaxed">
-										{stat.description}
-									</p>
+									<span className="mt-2 font-medium text-foreground text-sm sm:text-base">{stat.label}</span>
+									<p className="mt-1 text-muted-foreground text-xs leading-relaxed">{stat.description}</p>
 								</div>
 							))}
 						</div>
@@ -92,11 +88,10 @@ export function LandingPage() {
 					<div className="landing-container">
 						<div className="max-w-2xl">
 							<p className="mb-4 font-medium text-primary text-sm">Testimonials</p>
-							<h2 className="landing-heading">
-								Trusted by teams that ship.
-							</h2>
+							<h2 className="landing-heading">Trusted by teams that ship.</h2>
 							<p className="mt-4 text-base text-muted-foreground leading-7">
-								See how leading founders and world-class independent specialists collaborate on Skilio to bring ambitious ideas to life.
+								See how leading founders and world-class independent specialists collaborate on Skilio to bring
+								ambitious ideas to life.
 							</p>
 						</div>
 

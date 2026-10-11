@@ -18,7 +18,6 @@ import useCustomToast from "@/hooks/useCustomToast"
 
 import { handleError } from "@/utils"
 
-
 const formSchema = z.object({
 	email: z.email({
 		message: "Please enter a valid email address.",
@@ -26,7 +25,6 @@ const formSchema = z.object({
 })
 
 type FormData = z.infer<typeof formSchema>
-
 
 export function RecoverPasswordPage() {
 	const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -40,7 +38,6 @@ export function RecoverPasswordPage() {
 			email: "",
 		},
 	})
-
 
 	const recoverPassword = async (data: FormData) => {
 		await LoginService.recoverPassword({
@@ -62,7 +59,6 @@ export function RecoverPasswordPage() {
 		onError: handleError.bind(showErrorToast),
 	})
 
-
 	const onSubmit = (data: FormData) => {
 		if (mutation.isPending) return
 
@@ -74,7 +70,6 @@ export function RecoverPasswordPage() {
 			<div>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
-
 						<RouterLink
 							to="/login"
 							className="mb-6 inline-flex items-center gap-2 rounded-md font-medium text-muted-foreground text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"
@@ -82,7 +77,6 @@ export function RecoverPasswordPage() {
 							<ArrowLeft className="size-4" />
 							Back to login
 						</RouterLink>
-
 
 						<div className="mb-7 text-center">
 							{/* <div
@@ -113,7 +107,6 @@ export function RecoverPasswordPage() {
 							</p>
 						</div>
 
-
 						<div className="flex flex-col gap-5">
 							<FormField
 								control={form.control}
@@ -143,7 +136,6 @@ export function RecoverPasswordPage() {
 								)}
 							/>
 
-
 							<LoadingButton
 								type="submit"
 								loading={mutation.isPending}
@@ -154,7 +146,6 @@ export function RecoverPasswordPage() {
 								{!mutation.isPending && <ArrowRight className="size-4" />}
 							</LoadingButton>
 						</div>
-
 
 						<div className="mt-7 border-border/70 border-t pt-6 text-center text-muted-foreground text-sm">
 							Remember your password?{" "}

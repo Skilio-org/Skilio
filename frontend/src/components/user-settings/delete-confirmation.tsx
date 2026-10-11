@@ -61,11 +61,7 @@ const DeleteConfirmation = () => {
 
 					<DialogFooter className="mt-4">
 						<DialogClose asChild>
-							<Button
-								variant="outline"
-								disabled={mutation.isPending}
-								className="h-10 rounded-lg px-5"
-							>
+							<Button variant="outline" disabled={mutation.isPending} className="h-10 rounded-lg px-5">
 								Cancel
 							</Button>
 						</DialogClose>

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { ArrowUpRight, Inbox, MessageSquare } from "lucide-react"
+import { ArrowUpRight, Inbox, MessageSquare, Star } from "lucide-react"
 import { useState } from "react"
 import { ProposalsService, type ProposalPublic } from "@/client"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
@@ -10,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { getInitials } from "@/utils"
 import { useErrorToast } from "@/hooks/useErrorToast"
+import { ReviewModal } from "@/components/reviews/review-modal"
+import { useFreelancerReviews } from "@/hooks/useFreelancerReviews"
 
 const pageSize = 20
 
@@ -71,16 +73,87 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 					<MessageSquare className="size-4" /> Message
 				</Link>
 				{profile && (
-					<Link
-						to="/talent/$freelancerId"
-						params={{ freelancerId: profile.id }}
-						className={workspaceStyles.secondaryAction}
-					>
-						View profile <ArrowUpRight className="size-4" />
-					</Link>
+					<>
+						<Link
+							to="/talent/$freelancerId"
+							params={{ freelancerId: profile.id }}
+							className={workspaceStyles.secondaryAction}
+						>
+							View profile <ArrowUpRight className="size-4" />
+						</Link>
+						{proposal.status === "accepted" && (
+							<ProposalRateButton
+								profileId={profile.id}
+								freelancerUserId={proposal.freelancer_id}
+								freelancerName={name}
+								freelancerTitle={profile.title ?? undefined}
+							/>
+						)}
+					</>
 				)}
 			</div>
 		</article>
+	)
+}
+
+function ProposalRateButton({
+	profileId,
+	freelancerUserId,
+	freelancerName,
+	freelancerTitle,
+}: {
+	profileId: string
+	freelancerUserId?: string
+	freelancerName: string
+	freelancerTitle?: string
+}) {
+	const [modalOpen, setModalOpen] = useState(false)
+	const { myReview, createReview, updateReview, isCreating, isUpdating, canCreateReview } = useFreelancerReviews(
+		profileId,
+		freelancerUserId,
+	)
+
+	const handleSubmit = async (data: { rating: number; comment: string }) => {
+		if (myReview) {
+			await updateReview({ reviewId: myReview.id, ...data })
+		} else {
+			await createReview(data)
+		}
+	}
+
+	return (
+		<>
+			{myReview ? (
+				<button
+					type="button"
+					onClick={() => setModalOpen(true)}
+					className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 text-xs font-medium text-amber-700 hover:bg-amber-500/20 dark:text-amber-300"
+				>
+					<Star className="size-3.5 fill-amber-500 text-amber-500" />
+					<span>Reviewed (★{myReview.rating})</span>
+				</button>
+			) : canCreateReview ? (
+				<button
+					type="button"
+					onClick={() => setModalOpen(true)}
+					className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 text-xs font-medium text-on-surface hover:bg-surface-container"
+				>
+					<Star className="size-3.5 text-amber-500 fill-amber-500" />
+					<span>Rate freelancer</span>
+				</button>
+			) : null}
+
+			<ReviewModal
+				open={modalOpen}
+				onOpenChange={setModalOpen}
+				freelancerName={freelancerName}
+				freelancerTitle={freelancerTitle}
+				freelancerAvatarUrl={freelancerUserId ? accountAvatarUrl(freelancerUserId) : undefined}
+				existingReview={myReview}
+				onSubmit={handleSubmit}
+				isSubmitting={isCreating || isUpdating}
+			/>
+		</>
 	)
 }
 

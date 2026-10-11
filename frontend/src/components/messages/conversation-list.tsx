@@ -157,9 +157,7 @@ export function ConversationList({
 												})}
 										</span>
 									</span>
-									<span className="text-xs text-accent-cyan  italic dark:color-[#131518]">
-										{roleAndLocation}
-									</span>
+									<span className="text-xs text-accent-cyan  italic dark:color-[#131518]">{roleAndLocation}</span>
 									<span className="flex items-between justify-between gap-2">
 										<span
 											className={cn(

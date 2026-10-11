@@ -6,7 +6,6 @@
 	&:is(:where(.dark, [data-theme="dark"], [data-mode="dark"]) *, [data-theme="dark"] *, [data-mode="dark"] *)
 );
 
-
 @theme inline {
 	/* Fonts */
 	--font-sans:
@@ -244,7 +243,6 @@
 	--shadow-floating: var(--elevation-floating);
 }
 
-
 :root {
 	--accent-lime: #b8ef0d;
 	--accent-lime-hover: #a5d80b;
@@ -393,7 +391,6 @@
 	--elevation-floating: 0 12px 30px rgb(31 33 37 / 0.12);
 }
 
-
 :root:where(.dark, [data-theme="dark"], [data-mode="dark"]),
 :where(.dark, [data-theme="dark"], [data-mode="dark"]),
 :root:has(body.dark),
@@ -534,7 +531,6 @@
 	--elevation-floating: 0 16px 34px rgb(0 0 0 / 0.34), 0 30px 70px rgb(0 0 0 / 0.26);
 }
 
-
 @layer base {
 	*,
 	*::before,
@@ -648,7 +644,6 @@
 	}
 }
 
-
 @layer utilities {
 	.rounded {
 		border-radius: 0.125rem;
@@ -666,7 +661,6 @@
 		border-radius: 0.75rem;
 	}
 }
-
 
 @layer utilities {
 	.font-display,
@@ -696,7 +690,6 @@
 		font-variant-numeric: tabular-nums;
 	}
 }
-
 
 @layer utilities {
 	.surface-card {
@@ -745,7 +738,6 @@
 		color: var(--on-primary-fixed);
 	}
 }
-
 
 @layer components {
 	.marketplace-list {
@@ -891,7 +883,6 @@
 	}
 }
 
-
 @layer base {
 	* {
 		scrollbar-width: none;
@@ -901,7 +892,6 @@
 		display: none;
 	}
 }
-
 
 @layer base {
 	h1,
@@ -931,7 +921,6 @@
 		transition-duration: 150ms;
 	}
 }
-
 
 @layer components {
 	.messages-workspace {
@@ -1074,7 +1063,6 @@
 		line-height: 20px;
 	}
 }
-
 
 @layer utilities {
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .surface-card,
@@ -1240,7 +1228,6 @@
 	}
 }
 
-
 @layer utilities {
 	/* Light job cards stay crisp white. */
 	article.border-outline-variant.bg-surface-container-lowest {
@@ -1400,7 +1387,6 @@
 	}
 }
 
-
 html[data-theme-transition],
 html[data-theme-transition] *,
 html[data-theme-transition] *::before,
@@ -1469,7 +1455,6 @@ html[data-theme-transition] *::after {
 	}
 }
 
-
 @media (max-width: 380px) {
 	.landing-page header .landing-container {
 		padding-inline: 1rem;
@@ -1480,7 +1465,6 @@ html[data-theme-transition] *::after {
 		height: 1.5rem;
 	}
 }
-
 
 @layer base {
 	:where(

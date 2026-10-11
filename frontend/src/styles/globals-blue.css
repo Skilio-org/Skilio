@@ -6,7 +6,6 @@
 	&:is(:where(.dark, [data-theme="dark"], [data-mode="dark"]) *, [data-theme="dark"] *, [data-mode="dark"] *)
 );
 
-
 @theme inline {
 	/* Fonts */
 	--font-sans:
@@ -387,7 +386,6 @@
 :root:has(#root.dark),
 :root:has(#root[data-theme="dark"]),
 :root:has(#root[data-mode="dark"]) {
-
 	/* Canvas / surfaces */
 	--background: #0d0f12;
 	--surface: #0d0f12;
@@ -544,7 +542,6 @@
 	--elevation-floating: 0 12px 24px rgb(0 0 0 / 0.28), 0 28px 64px rgb(0 0 0 / 0.32);
 }
 
-
 @layer base {
 	*,
 	*::before,
@@ -656,7 +653,6 @@
 	}
 }
 
-
 @layer utilities {
 	.rounded {
 		border-radius: 0.125rem;
@@ -674,7 +670,6 @@
 		border-radius: 0.75rem;
 	}
 }
-
 
 @layer utilities {
 	.font-display,
@@ -704,7 +699,6 @@
 		font-variant-numeric: tabular-nums;
 	}
 }
-
 
 @layer utilities {
 	.surface-card {
@@ -753,7 +747,6 @@
 		color: var(--on-primary-fixed);
 	}
 }
-
 
 @layer components {
 	.marketplace-list {
@@ -894,7 +887,6 @@
 	}
 }
 
-
 @layer base {
 	* {
 		scrollbar-width: none;
@@ -904,7 +896,6 @@
 		display: none;
 	}
 }
-
 
 @layer base {
 	h1,
@@ -934,7 +925,6 @@
 		transition-duration: 150ms;
 	}
 }
-
 
 @layer components {
 	.messages-workspace {
@@ -1078,7 +1068,6 @@
 		line-height: 20px;
 	}
 }
-
 
 @layer utilities {
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .surface-card,
@@ -1339,7 +1328,6 @@
 	}
 }
 
-
 /* Theme changes are atomic; only the complete page snapshots crossfade. */
 html[data-theme-transition],
 html[data-theme-transition] *,
@@ -1410,7 +1398,6 @@ html[data-theme-transition] *::after {
 	}
 }
 
-
 @media (max-width: 380px) {
 	.landing-page header .landing-container {
 		padding-inline: 1rem;
@@ -1421,7 +1408,6 @@ html[data-theme-transition] *::after {
 		height: 1.5rem;
 	}
 }
-
 
 @layer base {
 	:where(

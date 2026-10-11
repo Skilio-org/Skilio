@@ -6,7 +6,7 @@ export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?:
 	const navigate = useNavigate()
 
 	useEffect(() => {
-		const controller = new AbortController();
+		const controller = new AbortController()
 		if (error) {
 			navigate({
 				to: "/login",
@@ -27,7 +27,9 @@ export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?:
 
 		const authenticate = async () => {
 			try {
-				const res = await fetch(`http://localhost:8000/api/v1/login/google/callback?code=${encodeURIComponent(code)}`, {signal: controller.signal})
+				const res = await fetch(`http://localhost:8000/api/v1/login/google/callback?code=${encodeURIComponent(code)}`, {
+					signal: controller.signal,
+				})
 
 				if (!res.ok) {
 					const errorData = await res.json()
@@ -43,7 +45,7 @@ export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?:
 					to: "/dashboard",
 				})
 			} catch (err: any) {
-				if (err.name !== 'AbortError') {
+				if (err.name !== "AbortError") {
 					navigate({
 						to: "/login",
 						search: {
