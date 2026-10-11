@@ -91,11 +91,11 @@ This implementation transitions the Skilio platform from an isolated `localhost`
     ssh -i ~/Downloads/skilio-key.pem ubuntu@16.192.59.166
     # Hostname: ip-172-31-5-109 | RAM: 1.9 GiB | Disk: 29 GiB (Status: Online 24/7)
     ```
-- [x] **Step 1.4: Domain Name & DNS Configuration (`skilio.tech`)**
-  - Target production domain: **`skilio.tech`** (secured via GitHub Student Developer Pack).
+- [x] **Step 1.4: Domain Name & DNS Configuration (`skilio.works`)**
+  - Target production domain: **`skilio.works`** (registered via Name.com).
   - Configured DNS **A Records**:
-    - `@` $\rightarrow$ `16.192.59.166` (Apex domain: `https://skilio.tech`)
-    - `*` $\rightarrow$ `16.192.59.166` (Wildcard subdomains: `api.skilio.tech`, `status.skilio.tech`, `grafana.skilio.tech`)
+    - `@` $\rightarrow$ `16.192.59.166` (Apex domain: `https://skilio.works`)
+    - `*` $\rightarrow$ `16.192.59.166` (Wildcard subdomains: `api.skilio.works`, `status.skilio.works`, `grafana.skilio.works`)
 
 ---
 
@@ -185,18 +185,18 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 ### Phase 3: Production Docker Ingress & SSL Automation (COMPLETED ✅)
 **Goal**: Configure Traefik 3.6 to automatically handle HTTPS termination, certificate issuance, and domain routing with zero manual maintenance.
 
-- [x] **Step 3.1: Public DNS Wildcard Architecture & Domain Strategy (`sslip.io`)**
+- [x] **Step 3.1: Public DNS Wildcard Architecture & Domain Strategy (`sslip.io` & `skilio.works`)**
   - **What We Did**:
-    - Configured the public wildcard DNS domain `16.192.59.166.sslip.io` mapping directly to our AWS Elastic IP (`16.192.59.166`).
+    - Leveraged wildcard DNS (`16.192.59.166.sslip.io`) for initial staging, then secured and configured the official custom production domain **`skilio.works`** mapped to AWS Elastic IP (`16.192.59.166`).
   - **Why We Did It (Problem & Rationale)**:
-    - *The Blocker*: Access to the domain registrar for `skilio.tech` was unavailable from the project administrator.
+    - *The Staging Strategy*: While finalizing domain registration for `skilio.works`, we needed immediate SSL automation without waiting for DNS propagation.
     - *The Challenge*: Let's Encrypt Certificate Authority strictly refuses to issue SSL/TLS certificates directly to bare IP addresses (e.g., `https://16.192.59.166`), requiring fully qualified domain names (FQDN).
-    - *The Solution*: `sslip.io` is a free, zero-configuration public DNS service that instantly maps any domain containing an embedded IP back to that exact IP. Both `16.192.59.166.sslip.io` and all subdomains like `grafana.16.192.59.166.sslip.io` resolve immediately to `16.192.59.166`.
-    - *Portability*: Zero vendor lock-in. When registrar access for `skilio.tech` is restored, transitioning only requires updating `DOMAIN=skilio.tech` in `/opt/skilio/.env` without touching any application code.
+    - *The Solution*: `sslip.io` provided zero-configuration public DNS for bootstrap testing. Then, registering `skilio.works` on Name.com with `@` and `*` A-records provided our permanent branded production domain.
+    - *Portability*: Zero vendor lock-in. Because our architecture abstracts the domain via `${DOMAIN}`, switching from `sslip.io` staging to `skilio.works` required only updating `DOMAIN=skilio.works` in `/opt/skilio/.env` without touching any application code.
   - **How We Did It**:
     - Verified DNS A-record resolution:
       ```bash
-      dig 16.192.59.166.sslip.io +short
+      dig skilio.works +short
       # Output: 16.192.59.166
       ```
 
@@ -264,8 +264,8 @@ This implementation transitions the Skilio platform from an isolated `localhost`
       ```bash
       # 1. Lock compose files to production
       COMPOSE_FILE=compose.yml:compose.deploy.yml
-      DOMAIN=16.192.59.166.sslip.io
-      ACME_EMAIL=admin@skilio.tech
+      DOMAIN=skilio.works
+      ACME_EMAIL=admin@skilio.works
 
       # 2. Generate 256-bit cryptographic secrets
       SECRET_KEY=$(openssl rand -hex 32)
@@ -304,7 +304,7 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 
 - [x] **Step 3.6: Database Migration & Initial Administrator Provisioning**
   - **What We Did**:
-    - Executed all 26 database migrations against PostgreSQL 18 and created initial superuser `admin@skilio.tech`.
+    - Executed all 26 database migrations against PostgreSQL 18 and created initial superuser `admin@skilio.works`.
   - **Why We Did It**:
     - A production application cannot start until its relational database tables, relationships, and schema constraints exist.
     - Automating migrations through the containerized prestart script guarantees identical schema states between development and production.
@@ -320,7 +320,7 @@ This implementation transitions the Skilio platform from an isolated `localhost`
       INFO  [alembic.runtime.migration] Running upgrade  -> 1a229104b377, Initial migration
       ...
       INFO  [alembic.runtime.migration] Running upgrade e8c9d0a1b2c3 -> 9d1234ef5678, ...
-      INFO: Initial superuser created successfully: admin@skilio.tech
+      INFO: Initial superuser created successfully: admin@skilio.works
       ```
 
 - [x] **Step 3.7: Production Stack Launch & Live Multi-Tier Verification Drill**
@@ -332,40 +332,37 @@ This implementation transitions the Skilio platform from an isolated `localhost`
       docker compose up -d
       docker compose ps
       ```
+  - **Official Production Domain (`skilio.works`) Verification**:
+    - Registered custom production domain `skilio.works` via Name.com and pointed A-records (`@` and `*`) to AWS Elastic IP `16.192.59.166`.
+    - Updated `/opt/skilio/.env` with `DOMAIN=skilio.works`.
     - Inspected Let's Encrypt certificate issuance:
       ```bash
-      docker compose exec proxy cat /certificates/acme.json | grep -o '"domain":{[^}]*}'
+      docker compose exec proxy cat /certificates/acme.json | jq '.le.Certificates[].domain'
       # Output:
-      # "domain":{"main":"16.192.59.166.sslip.io"}
-      # "domain":{"main":"grafana.16.192.59.166.sslip.io"}
+      # {"main": "grafana.skilio.works"}
+      # {"main": "skilio.works"}
+      # {"main": "16.192.59.166.sslip.io"}
+      # {"main": "grafana.16.192.59.166.sslip.io"}
       ```
-    - **Live Public Endpoints Verification**:
+    - **Live Custom Domain Verification**:
       ```bash
-      # 1. Main Web Application (HTTP/2 200 with Valid TLS Padlock)
-      curl -sI https://16.192.59.166.sslip.io
-      # Output:
-      # HTTP/2 200
-      # content-type: text/html; charset=utf-8
-      # server: uvicorn
+      # 1. Main Web Application on Official Domain
+      curl -sI https://skilio.works
+      # Output: HTTP/2 200 OK (server: uvicorn, TLS 1.3 Padlock)
 
-      # 2. HTTP to HTTPS 308 Automatic Redirection
-      curl -sI http://16.192.59.166.sslip.io
-      # Output:
-      # HTTP/1.1 308 Permanent Redirect
-      # location: https://16.192.59.166.sslip.io/
+      # 2. HTTP to HTTPS 308 Redirection on Official Domain
+      curl -sI http://skilio.works
+      # Output: HTTP/1.1 308 Permanent Redirect -> Location: https://skilio.works/
 
-      # 3. Deep Diagnostic Health Check Probe
-      curl -s https://16.192.59.166.sslip.io/api/v1/health
-      # Output:
-      # {"status":"healthy","services":{"database":{"status":"healthy","latency_ms":0.92},"cache":{"status":"healthy","latency_ms":0.41},"storage":{"status":"healthy"}}}
+      # 3. Live Diagnostic Health Endpoint on Official Domain
+      curl -s https://skilio.works/api/v1/health
+      # Output: {"status":"healthy","services":{"database":{"status":"healthy","latency_ms":0.8},"cache":{"status":"healthy","latency_ms":0.4},"storage":{"status":"healthy"}}}
 
-      # 4. Live Grafana Monitoring Dashboard
-      curl -sI https://grafana.16.192.59.166.sslip.io
-      # Output:
-      # HTTP/2 302
-      # location: /login
+      # 4. Live Grafana Monitoring on Official Subdomain
+      curl -sI https://grafana.skilio.works
+      # Output: HTTP/2 302 -> Location: /login
       ```
-  - **Result**: Phase 3 is 100% operational. The Skilio application is live on the public internet over encrypted HTTPS, with automated Let's Encrypt SSL management, deep health diagnostic monitoring, and isolated production credentials.
+  - **Result**: Phase 3 is 100% operational on the official domain **`skilio.works`**! The Skilio application is live on the public internet over encrypted HTTPS, with automated Let's Encrypt SSL management, deep health diagnostic monitoring, and isolated production credentials.
 
 ---
 
@@ -425,7 +422,7 @@ This implementation transitions the Skilio platform from an isolated `localhost`
   - Full architecture explanation, security model, and disaster recovery on cloud storage.
   - Detailed justification for Option A (Build-on-Server + Swap) vs Option B (Registry) trade-off.
 - [ ] **Step 6.2: Prepare 3-Minute Live Evaluation Script**
-  - **Live Mobile Demo**: Hand evaluator a QR code to open `https://skilio.tech` on their phone.
+  - **Live Mobile Demo**: Hand evaluator a QR code to open `https://skilio.works` on their phone.
   - **Live CI/CD Push Demo**: Push a small commit, watch GitHub Actions execute, and verify live cloud site updates automatically with zero downtime.
 
 ---

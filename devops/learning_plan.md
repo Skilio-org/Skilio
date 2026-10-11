@@ -150,7 +150,7 @@ Before working with the cloud, understand the fundamental shift from local devel
   * The **Internet Gateway (IGW)** acts as the router connecting your VPC's public subnet to the internet.
 * **Dynamic Public IP vs. Elastic IP (Static IP)**:
   * *Default Public IP*: Changes randomly whenever the EC2 instance stops and starts.
-  * *Elastic IP (EIP)*: A permanent public IPv4 address allocated to your account that never changes across reboots. Mandatory so your domain's DNS `A Record` (`skilio.tech` $\rightarrow$ Elastic IP) remains permanently intact.
+  * *Elastic IP (EIP)*: A permanent public IPv4 address allocated to your account that never changes across reboots. Mandatory so your domain's DNS `A Record` (`skilio.works` $\rightarrow$ Elastic IP) remains permanently intact.
 * **Security Groups (Stateful Hypervisor Firewall)**:
   * Operates at the AWS Nitro hypervisor layer **outside** the Linux OS.
   * Packets on blocked ports are dropped before they ever reach the server CPU or network card.
@@ -256,29 +256,29 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 * **The Core Concept**: The Internet's Phonebook.
   * **Computers and routers** communicate exclusively via numerical IP addresses (`16.192.59.166`).
-  * **Humans** navigate using human-friendly names (`skilio.tech`).
+  * **Humans** navigate using human-friendly names (`skilio.works`).
   * DNS is the globally distributed database that maps:
-    $$\text{"skilio.tech"} \quad \xrightarrow{\text{DNS Lookup}} \quad \mathbf{16.192.59.166}$$
+    $$\text{"skilio.works"} \quad \xrightarrow{\text{DNS Lookup}} \quad \mathbf{16.192.59.166}$$
 
 ```text
  [Your Browser / Laptop]
           │
-          ▼ (1. "Who is skilio.tech?")
+          ▼ (1. "Who is skilio.works?")
  ┌────────────────────────────────────────────────────────────┐
  │ DNS Recursive Resolver (ISP, Cloudflare 1.1.1.1, Google)   │
  └────────┬───────────────────────────────────────────────────┘
           │
-          ▼ (2. "Who manages the .tech TLD?")
+          ▼ (2. "Who manages the .works TLD?")
  ┌────────────────────────────────────────────────────────────┐
- │ Root & TLD Nameservers (.tech Registry)                    │
+ │ Root & TLD Nameservers (.works Registry)                   │
  └────────┬───────────────────────────────────────────────────┘
           │
           ▼ (3. "Ask the Authoritative Nameserver")
  ┌────────────────────────────────────────────────────────────┐
- │ Authoritative Nameserver (Host where DNS records live)     │
+ │ Authoritative Nameserver (Name.com DNS Servers)            │
  └────────┬───────────────────────────────────────────────────┘
           │
-          ▼ (4. "skilio.tech resolves to 16.192.59.166!")
+          ▼ (4. "skilio.works resolves to 16.192.59.166!")
  [Browser establishes TCP/TLS handshake with AWS EC2]
 ```
 
@@ -286,9 +286,9 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 | Record Type | Host | Target Value | Purpose in Skilio Platform |
 | :---: | :---: | :---: | :--- |
-| **`A`** | `@` (Apex) | `16.192.59.166` | Maps the root domain (`https://skilio.tech`) directly to our static AWS Elastic IPv4. |
-| **`A` (Wildcard)** | `*` | `16.192.59.166` | **DevOps Superpower**: Directs **all** subdomains (`api.skilio.tech`, `grafana.skilio.tech`, `status.skilio.tech`) to our host without creating separate DNS records. |
-| **`CNAME`** | `www` | `skilio.tech` | Canonical Name alias: redirects `www.skilio.tech` to apex `skilio.tech`. |
+| **`A`** | `@` (Apex) | `16.192.59.166` | Maps the root domain (`https://skilio.works`) directly to our static AWS Elastic IPv4. |
+| **`A` (Wildcard)** | `*` | `16.192.59.166` | **DevOps Superpower**: Directs **all** subdomains (`api.skilio.works`, `grafana.skilio.works`, `status.skilio.works`) to our host without creating separate DNS records. |
+| **`CNAME`** | `www` | `skilio.works` | Canonical Name alias: redirects `www.skilio.works` to apex `skilio.works`. |
 
 * **TTL (Time-To-Live) & Global Caching**:
   * **TTL** defines the number of seconds intermediate DNS resolvers cache our DNS answer before querying our authoritative nameserver again.
@@ -296,9 +296,9 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
   * *Migration / Launch Mode*: `300` seconds ($5\text{ minutes}$) to ensure instant IP propagation if the server address changes.
 * **CLI DNS Verification**:
   ```bash
-  dig +short skilio.tech
+  dig +short skilio.works
   # 16.192.59.166
-  nslookup api.skilio.tech
+  nslookup api.skilio.works
   # Address: 16.192.59.166
   ```
 
@@ -307,7 +307,7 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 ### 2.2 Reverse Proxy Architecture (Traefik 3.6)
 
 * **Why We Cannot Expose Containers Directly**:
-  * If containers were published directly to the host, visitors would need to memorize ugly ports: `skilio.tech:5173` (React), `skilio.tech:8000` (FastAPI), `skilio.tech:3000` (Grafana).
+  * If containers were published directly to the host, visitors would need to memorize ugly ports: `skilio.works:5173` (React), `skilio.works:8000` (FastAPI), `skilio.works:3000` (Grafana).
   * Opening multiple host ports through the AWS Security Group expands the server's attack surface.
   * Each container would need its own complex SSL certificate configuration.
 
@@ -342,7 +342,7 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
             ▼                       ▼                       ▼
    ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
    │ React Frontend  │     │ FastAPI Backend │     │ Grafana Monitor │
-   │ (skilio.tech/)  │     │ (/api/v1/...)   │     │ (grafana.skilio)│
+   │ (skilio.works/) │     │ (/api/v1/...)   │     │ (grafana.skilio)│
    └─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
 
@@ -357,10 +357,10 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 | User Request | Traefik Routing Rule | Target Container |
 | :--- | :--- | :--- |
-| `https://skilio.tech/` | `Host("skilio.tech")` | **Frontend (React / Nginx)** |
-| `https://skilio.tech/api/v1/...` | `Host("skilio.tech") && PathPrefix("/api")` | **Backend (FastAPI)** |
-| `wss://skilio.tech/ws/...` | `Host("skilio.tech") && PathPrefix("/ws")` | **Backend (WebSockets)** |
-| `https://grafana.skilio.tech` | `Host("grafana.skilio.tech")` | **Monitoring (Grafana)** |
+| `https://skilio.works/` | `Host("skilio.works")` | **Frontend (React / Nginx)** |
+| `https://skilio.works/api/v1/...` | `Host("skilio.works") && PathPrefix("/api")` | **Backend (FastAPI)** |
+| `wss://skilio.works/ws/...` | `Host("skilio.works") && PathPrefix("/ws")` | **Backend (WebSockets)** |
+| `https://grafana.skilio.works` | `Host("grafana.skilio.works")` | **Monitoring (Grafana)** |
 
 * **Why Traefik 3.6 over Classic Nginx?**:
   * *Classic Nginx*: Relies on static configuration files (`nginx.conf`). Every container change requires updating IP addresses and running `nginx -s reload`.
@@ -384,18 +384,18 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 ```text
   [Traefik 3.6 on AWS]                                      [Let's Encrypt CA]
            │                                                         │
-           │  1. Request SSL certificate for "skilio.tech"           │
+           │  1. Request SSL certificate for "skilio.works"          │
            │ ──────────────────────────────────────────────────────▶ │
            │                                                         │
            │  2. Challenge: "Prove ownership! Serve this token at:   │
-           │     http://skilio.tech/.well-known/acme-challenge/XYZ"  │
+           │     http://skilio.works/.well-known/acme-challenge/XYZ" │
            │ ◀────────────────────────────────────────────────────── │
            │                                                         │
            │  3. Traefik dynamically registers temporary HTTP route   │
            │     and responds: "Challenge ready. Verify it!"         │
            │ ──────────────────────────────────────────────────────▶ │
            │                                                         │
-           │  4. Let's Encrypt queries http://skilio.tech/.../XYZ    │
+           │  4. Let's Encrypt queries http://skilio.works/.../XYZ   │
            │     ✔ Token verified! Domain ownership proven.          │
            │                                                         │
            │  5. Issues signed X.509 SSL Certificate                 │
@@ -411,7 +411,7 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 * **Global HTTP $\rightarrow$ HTTPS Redirection**:
   * Traefik enforces an automatic global redirect on Port 80:
     ```text
-    http://skilio.tech (Port 80) ──▶ HTTP 301 Moved Permanently ──▶ https://skilio.tech (Port 443)
+    http://skilio.works (Port 80) ──▶ HTTP 301 Moved Permanently ──▶ https://skilio.works (Port 443)
     ```
   * Guarantees $100\%$ of user traffic is encrypted, eliminating insecure plaintext connections.
 
