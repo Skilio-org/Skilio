@@ -395,7 +395,7 @@ async def websocket_chat_endpoint(
         user_id = user.id
 
     await connection_manager.connect(user_id, websocket)
-
+    
     try:
         await websocket.send_text(
             json.dumps(
@@ -451,22 +451,33 @@ async def websocket_chat_endpoint(
                             )
                         )
                         continue
-
                     new_msg = ChatMessage(
                         conversation_id=conv_id,
                         sender_id=user_id,
                         content=content,
                         created_at=get_datetime_utc(),
                     )
+                    try:
+                        msg_dict = ChatMessagePublic.model_validate(
+                            new_msg
+                        ).model_dump()
+                    except Exception as e:
+                        ack_data = {
+                            **msg_dict,
+                            "client_message_id": data.get("client_message_id"),
+                        }
+                        await websocket.send_text(
+                            json.dumps(
+                                {"type": "message_ack_failed", "data": ack_data}, default=str
+                            )
+                        )
+                        continue
                     conv.updated_at = get_datetime_utc()
                     session.add(new_msg)
                     session.add(conv)
                     session.commit()
                     session.refresh(new_msg)
 
-                    msg_dict = ChatMessagePublic.model_validate(
-                        new_msg
-                    ).model_dump()
                     recipient_id = (
                         conv.freelancer_id
                         if user_id == conv.client_id
@@ -474,9 +485,13 @@ async def websocket_chat_endpoint(
                     )
 
                 # Send confirmation ack back to sender
+                ack_data = {
+                    **msg_dict,
+                    "client_message_id": data.get("client_message_id"),
+                }
                 await websocket.send_text(
                     json.dumps(
-                        {"type": "message_ack", "data": msg_dict}, default=str
+                        {"type": "message_ack", "data": ack_data}, default=str
                     )
                 )
 
@@ -484,7 +499,7 @@ async def websocket_chat_endpoint(
                     user_id=recipient_id,
                     event=NotificationEvent.MESSAGE_RECEIVED,
                     title="New Message",
-                    link="bojm3a.com???",
+                    link="",
                     content="You have a new message",
                     chat_message_id=new_msg.id,
                 )

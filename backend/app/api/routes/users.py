@@ -285,8 +285,6 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
         if not profile:
             profile = FreelancerProfile(user_id=user.id)
             session.add(profile)
-            session.commit()
-            session.refresh(user)
     elif user.active_role == UserRole.CLIENT:
         profile = session.exec(
             select(ClientProfile).where(ClientProfile.user_id == user.id)
@@ -294,9 +292,9 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
         if not profile:
             profile = ClientProfile(user_id=user.id)
             session.add(profile)
-            session.commit()
-            session.refresh(user)
-
+    user.avatar_url = settings.DEFAULT_AVATAR_URL
+    session.commit()
+    session.refresh(user)
     return user
 
 

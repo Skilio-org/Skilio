@@ -62,7 +62,6 @@ async def publish_to_user(
     published = False
     try:
         client = get_redis_client()
-        # Ping check / publish
         await client.publish(channel, serialized)
         published = True
     except Exception as e:

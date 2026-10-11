@@ -182,12 +182,14 @@ def test_websocket_messaging_and_presence(
             assert welcome2["type"] == "connection_established"
 
             # User1 sends a chat_message over WebSocket
+            client_message_id = str(uuid.uuid4())
             ws1.send_text(
                 json.dumps(
                     {
                         "type": "chat_message",
                         "conversation_id": conv_id,
                         "content": "Real-time message over WebSocket!",
+                        "client_message_id": client_message_id,
                     }
                 )
             )
@@ -198,6 +200,7 @@ def test_websocket_messaging_and_presence(
             assert (
                 ack["data"]["content"] == "Real-time message over WebSocket!"
             )
+            assert ack["data"]["client_message_id"] == client_message_id
 
             # ws2 should receive the chat message and the corresponding notification
             delivered_events = []

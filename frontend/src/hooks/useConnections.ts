@@ -6,6 +6,11 @@ import {
   type ConnectionPublic,
   type ConnectionStatus,
 } from "@/client";
+import { CanceledError } from "axios";
+
+const iscancell = (err:any) => {
+    return (err instanceof CanceledError || (err as Error)?.name === "AbortError")
+}
 
 export const connectionKeys = {
   all: ["connections"] as const,
@@ -38,8 +43,18 @@ export function useConnections(options?: {
         });
         return response.data || [];
       } catch (err) {
+        if (iscancell(err))
+        {
+          return {
+            data: [],
+            count: 0
+          }
+        }
         console.error("Failed to fetch connections:", err);
-        return [] as ConnectionPublic[];
+        return {
+          data: [],
+          count: 0
+        };
       }
     },
   });
@@ -62,6 +77,7 @@ export function useConnectionStatus(targetUserId?: string | null) {
         });
         return response;
       } catch (err) {
+        if (iscancell(err)) return { status: "none" as const, connection_id: null }
         console.error("Failed to get connection status:", err);
         return { status: "none" as const, connection_id: null };
       }

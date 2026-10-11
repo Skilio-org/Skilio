@@ -171,6 +171,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 							const clientMessageId = data.data?.client_message_id
 							if (clientMessageId) setMessageSendResult(clientMessageId, "sent")
 						} break;
+						case "message_ack_failed": {
+							const clientMessageId = data.data?.client_message_id
+							if (clientMessageId) setMessageSendResult(clientMessageId, "failed")
+						} break;
 					}
 
 					const handlers = subscribersRef.current.get(eventType)

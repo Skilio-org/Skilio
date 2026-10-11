@@ -25,6 +25,8 @@ from app.models import (
     UserRole,
     get_datetime_utc,
 )
+from app.api.routes.notifications import push_notification
+from app.models import NotificationEvent
 
 logger = logging.getLogger(__name__)
 
@@ -205,19 +207,15 @@ async def send_connection_request(
         session.refresh(conn)
 
     # Dispatch realtime notification via Redis / WebSocket
+    
     try:
-        await publish_to_user(
-            connection_in.receiver_id,
-            {
-                "type": "notification",
-                "data": {
-                    "title": "New Connection Request",
-                    "body": f"{current_user.full_name or 'Someone'} sent you a connection request.",
-                    "connection_id": str(conn.id),
-                    "sender_id": str(current_user.id),
-                    "event": "connection_request",
-                },
-            },
+        await push_notification(
+            user_id=connection_in.receiver_id,
+            event= NotificationEvent.CONNECTION_REQUEST,
+            title="New connection",
+            link="",
+            content="You have a new connection",
+            connection_id=str(str(conn.id))
         )
     except Exception as e:
         logger.warning("Failed to publish connection request notification: %s", e)

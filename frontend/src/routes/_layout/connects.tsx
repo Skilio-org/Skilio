@@ -67,17 +67,17 @@ function ConnectsPage() {
   const role = useAccountRole();
 
   // Queries to backend
-  const { data: acceptedConnections = [], isLoading: loadingAccepted } = useConnections({
+  const { data: acceptedConnections, isLoading: loadingAccepted } = useConnections({
     status: "accepted",
     direction: "all",
   });
 
-  const { data: receivedRequests = [], isLoading: loadingReceived } = useConnections({
+  const { data: receivedRequests, isLoading: loadingReceived } = useConnections({
     status: "pending",
     direction: "received",
   });
 
-  const { data: sentRequests = [], isLoading: loadingSent } = useConnections({
+  const { data: sentRequests, isLoading: loadingSent } = useConnections({
     status: "pending",
     direction: "sent",
   });
@@ -155,7 +155,7 @@ function ConnectsPage() {
           </div>
           <div className="mt-3">
             <div className="text-3xl font-bold font-display tracking-tight text-foreground">
-              {acceptedConnections.length}
+              {acceptedConnections?.count}
             </div>
             <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
               <Badge variant="outline" className="border-primary/30 text-primary text-[10px] px-1.5 py-0">
@@ -178,7 +178,7 @@ function ConnectsPage() {
           </div>
           <div className="mt-3">
             <div className="text-3xl font-bold font-display tracking-tight text-foreground">
-              {receivedRequests.length}
+              {receivedRequests?.count}
             </div>
             <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
               <Clock3 className="size-3 text-amber-500" />
@@ -199,7 +199,7 @@ function ConnectsPage() {
           </div>
           <div className="mt-3">
             <div className="text-3xl font-bold font-display tracking-tight text-foreground">
-              {sentRequests.length}
+              {sentRequests?.count}
             </div>
             <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
               <span>Pending recipient review</span>
@@ -213,20 +213,18 @@ function ConnectsPage() {
         <TabsList className="h-10 p-1 bg-muted/60 border">
           <TabsTrigger value="network" className="gap-2 px-4 text-xs font-medium">
             <Users className="size-3.5" />
-            <span>My Connections ({acceptedConnections.length})</span>
+            <span>My Connections ({acceptedConnections?.count})</span>
           </TabsTrigger>
           <TabsTrigger value="received" className="relative gap-2 px-4 text-xs font-medium">
             <Inbox className="size-3.5" />
             <span>Received Requests</span>
-            {receivedRequests.length > 0 && (
               <span className="ml-1 inline-flex size-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
-                {receivedRequests.length}
+                {receivedRequests == undefined ? 0 : receivedRequests.count}
               </span>
-            )}
           </TabsTrigger>
           <TabsTrigger value="sent" className="gap-2 px-4 text-xs font-medium">
             <Send className="size-3.5" />
-            <span>Sent Requests ({sentRequests.length})</span>
+            <span>Sent Requests ({sentRequests == undefined ? 0 : sentRequests.count})</span>
           </TabsTrigger>
         </TabsList>
 
@@ -234,7 +232,7 @@ function ConnectsPage() {
         <TabsContent value="network" className="mt-4 space-y-4">
           {loadingAccepted ? (
             <p className="text-sm text-muted-foreground py-8 text-center">Loading connections...</p>
-          ) : acceptedConnections.length === 0 ? (
+          ) : acceptedConnections?.count === 0 ? (
             <WorkspaceSurface className="flex flex-col items-center justify-center py-16 text-center">
               <Users className="size-12 text-muted-foreground/40 mb-3" />
               <h3 className="font-semibold text-lg">No active connections yet</h3>
@@ -247,7 +245,7 @@ function ConnectsPage() {
             </WorkspaceSurface>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {acceptedConnections.map((conn: ConnectionPublic) => {
+              {acceptedConnections?.data.map((conn: ConnectionPublic) => {
                 const partner = conn.sender_id === user?.id ? conn.receiver : conn.sender;
                 const partnerName = partner?.full_name || "Platform Member";
                 const targetChatUserId = partner?.id || (conn.sender_id === user?.id ? conn.receiver_id : conn.sender_id);
@@ -330,7 +328,7 @@ function ConnectsPage() {
         <TabsContent value="received" className="mt-4 space-y-4">
           {loadingReceived ? (
             <p className="text-sm text-muted-foreground py-8 text-center">Loading requests...</p>
-          ) : receivedRequests.length === 0 ? (
+          ) : receivedRequests?.count === 0 ? (
             <WorkspaceSurface className="flex flex-col items-center justify-center py-16 text-center">
               <Inbox className="size-12 text-muted-foreground/40 mb-3" />
               <h3 className="font-semibold text-lg">No pending requests</h3>
@@ -340,7 +338,7 @@ function ConnectsPage() {
             </WorkspaceSurface>
           ) : (
             <div className="space-y-3">
-              {receivedRequests.map((conn: ConnectionPublic) => {
+              {receivedRequests?.data.map((conn: ConnectionPublic) => {
                 const senderName = conn.sender?.full_name || "Platform Member";
 
                 return (
@@ -414,7 +412,7 @@ function ConnectsPage() {
         <TabsContent value="sent" className="mt-4 space-y-4">
           {loadingSent ? (
             <p className="text-sm text-muted-foreground py-8 text-center">Loading sent requests...</p>
-          ) : sentRequests.length === 0 ? (
+          ) : sentRequests?.count === 0 ? (
             <WorkspaceSurface className="flex flex-col items-center justify-center py-16 text-center">
               <Send className="size-12 text-muted-foreground/40 mb-3" />
               <h3 className="font-semibold text-lg">No sent requests</h3>
@@ -427,7 +425,7 @@ function ConnectsPage() {
             </WorkspaceSurface>
           ) : (
             <div className="space-y-3">
-              {sentRequests.map((conn: ConnectionPublic) => {
+              {sentRequests?.data.map((conn: ConnectionPublic) => {
                 const receiverName = conn.receiver?.full_name || "Platform Member";
 
                 return (

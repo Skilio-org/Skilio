@@ -109,7 +109,10 @@ function MessageBubbleRepresentation({
 								<span className="text-outline text-[11px]">
 									•
 								</span>
-								{sendState}
+								<span className={cn("truncate text-label-md text-on-surface ", 
+										(sendState === "failed") ? "text-red-500" : "dark:text-primary text-label-md text-on-surface-variant")}>
+									{sendState === "sent" ? "sent" : sendState === "pending" ? "Sending..." : sendState === "failed" ? "Failed to send" : ""}
+								</span>
 								{sendState === "pending" && <LoaderCircle className="size-2 animate-spin" aria-hidden="true" />}
 								</div>
 							)}

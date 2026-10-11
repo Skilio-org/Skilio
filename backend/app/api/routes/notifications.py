@@ -67,7 +67,6 @@ def get_my_notifications(
     return [to_public(n) for n in notifications]
 
 async def push_notification(
-    # session: AsyncSession,
     user_id: uuid.UUID,
     event: NotificationEvent,
     title: str,
@@ -107,8 +106,6 @@ async def push_notification(
         )
         loaded = session.exec(stmt).one()
         public = to_public(loaded)
-
-    # 3. A push failure must never undo the saved notification.
     try:
         await publish_to_user(
             user_id,

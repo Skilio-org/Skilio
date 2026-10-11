@@ -26,7 +26,7 @@ export const JobDetails = ({
 
 	const [connectOpen, setConnectOpen] = useState(false)
 	const [connectNote, setConnectNote] = useState("")
-	const { data: connectionStatus } = useConnectionStatus(job.clientId)
+	const { data: connectionStatus, isLoading: isLoading } = useConnectionStatus(job.clientId)
 	const sendConnectionMutation = useSendConnectionRequest()
 
 	const [applying, setApplying] = useState(() => initiallyApplying && !submitted)
@@ -62,6 +62,31 @@ export const JobDetails = ({
 			toast.error("Couldn't save your draft.")
 		}
 	}
+
+	const handleSendConnection = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (connectNote.length > 300) {
+			toast.error("Introductory note cannot exceed 300 characters.");
+			return;
+		}
+		if (job.clientId == undefined || !job.clientId)
+			return ;
+		try {
+			await sendConnectionMutation.mutateAsync({
+				receiver_id: job.clientId,
+				job_post_id: job.id || undefined,
+				note: connectNote.trim() || undefined,
+			});
+
+			setConnectOpen(false);
+			// setRecipientId("");
+			// setJobPostId("");
+			setConnectNote("");
+		} catch {
+		// error handled in mutation hook
+		}
+  	};
 
 	const handleApplyNow = async () => {
 		if (submitted) {
@@ -252,7 +277,7 @@ export const JobDetails = ({
 						</button>
 
 						{/* Connect with Client Flow (F4, F5, F6) */}
-						{job.clientId && (
+						{job.clientId && !isLoading && (
 							connectionStatus?.status === "connected" ? (
 								<Link
 									to="/freelancer-messages"
