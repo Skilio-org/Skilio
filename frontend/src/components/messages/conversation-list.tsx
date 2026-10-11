@@ -110,10 +110,17 @@ export function ConversationList({
 						if (!person) return null
 						const theme = getClientTheme(person.user_id)
 						const active = selected?.user_id === person.user_id
-						let roleAndLocation = person.full_name
+						let roleAndLocation = ""
 
-						if (isClientProfile(person)) roleAndLocation = `${person.company} . ${person.company_role}`
-						else if (isFreelancerProfile(person)) roleAndLocation = `${person.category} . ${person.title}`
+						if (isClientProfile(person)) {
+							if (person.company)
+								roleAndLocation = `${person.company}`
+							if (person.company_role)
+								roleAndLocation  += ` . ${person.company_role}`
+						}
+						else if (isFreelancerProfile(person)) {
+							if (person.title) roleAndLocation = `${person.title}`
+						}
 						return (
 							<button
 								key={person.user_id}

@@ -1,32 +1,12 @@
-import {
-	ArrowRight,
-	Banknote,
-	Bookmark,
-	Building2,
-	CircleCheck,
-	Clock3,
-	Globe2,
-	MessageSquare,
-	Send,
-	UserPlus,
-} from "lucide-react"
+import { ArrowRight, Banknote, Bookmark, Building2, CircleCheck, Clock3, Globe2, MessageSquare, Send, UserPlus } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Link } from "@tanstack/react-router"
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { SheetDescription, SheetTitle } from "@/components/ui/sheet"
 import { useConnectionStatus, useSendConnectionRequest } from "@/hooks/useConnections"
 import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
-import useAuth from "@/hooks/useAuth"
-import { extractErrorMessage } from "@/utils"
 import type { FreelancerJob } from "@/types/job"
 
 export const JobDetails = ({
@@ -38,8 +18,6 @@ export const JobDetails = ({
 	projectType: string
 	initiallyApplying?: boolean
 }) => {
-	const { user } = useAuth()
-	const isOwnJob = Boolean(user?.id && job.clientId && user.id === job.clientId)
 	const { saved: savedIds, toggleSaved: toggleBookmark } = useSavedJobs()
 	const saved = savedIds.includes(job.id)
 	const { isSubmitted, getProposal, saveProposal } = useFreelancerProposals()
@@ -48,24 +26,8 @@ export const JobDetails = ({
 
 	const [connectOpen, setConnectOpen] = useState(false)
 	const [connectNote, setConnectNote] = useState("")
-	const { data: connectionStatus } = useConnectionStatus(!isOwnJob ? job.clientId : undefined)
+	const { data: connectionStatus, isLoading: isLoading } = useConnectionStatus(job.clientId)
 	const sendConnectionMutation = useSendConnectionRequest()
-
-	const handleSendConnection = async (e: React.FormEvent) => {
-		e.preventDefault()
-		if (!job.clientId || isOwnJob) return
-		try {
-			await sendConnectionMutation.mutateAsync({
-				receiver_id: job.clientId,
-				note: connectNote.trim() || undefined,
-				job_post_id: job.id,
-			})
-			setConnectOpen(false)
-			setConnectNote("")
-		} catch {
-			// error handled in hook
-		}
-	}
 
 	const [applying, setApplying] = useState(() => initiallyApplying && !submitted)
 	const coverInput = useRef<HTMLTextAreaElement>(null)
@@ -101,11 +63,32 @@ export const JobDetails = ({
 		}
 	}
 
-	const handleApplyNow = async () => {
-		if (isOwnJob) {
-			toast.error("You cannot submit a proposal to your own job.")
-			return
+	const handleSendConnection = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (connectNote.length > 300) {
+			toast.error("Introductory note cannot exceed 300 characters.");
+			return;
 		}
+		if (job.clientId == undefined || !job.clientId)
+			return ;
+		try {
+			await sendConnectionMutation.mutateAsync({
+				receiver_id: job.clientId,
+				job_post_id: job.id || undefined,
+				note: connectNote.trim() || undefined,
+			});
+
+			setConnectOpen(false);
+			// setRecipientId("");
+			// setJobPostId("");
+			setConnectNote("");
+		} catch {
+		// error handled in mutation hook
+		}
+  	};
+
+	const handleApplyNow = async () => {
 		if (submitted) {
 			toast.error("You have already submitted a proposal for this job.")
 			setApplying(false)
@@ -120,8 +103,8 @@ export const JobDetails = ({
 			await saveProposal(job, cover, "Submitted")
 			setApplying(false)
 			toast.success("Proposal submitted")
-		} catch (err: any) {
-			toast.error(extractErrorMessage(err) || "Couldn't submit your proposal.")
+		} catch {
+			toast.error("Couldn't submit your proposal.")
 		}
 	}
 	const primary =
@@ -268,17 +251,17 @@ export const JobDetails = ({
 				</div>
 				<aside className="border-outline-variant/60 border-t bg-surface-container-low/40 p-6 md:border-t-0 md:border-l">
 					<div className="space-y-2.5">
-						{isOwnJob ? (
-							<div className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-low font-label-md text-label-md text-on-surface-variant">
-								<span>Your job post</span>
-							</div>
-						) : submitted ? (
+						{submitted ? (
 							<div className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 font-label-md text-label-md text-primary dark:border-border-subtle dark:bg-surface-container">
 								<CircleCheck className="size-4 text-primary" />
 								<span>Proposal submitted</span>
 							</div>
 						) : (
-							<button type="button" className={primary} onClick={handleApplyNow}>
+							<button
+								type="button"
+								className={primary}
+								onClick={handleApplyNow}
+							>
 								{existingProposal ? "Continue proposal" : "Apply now"}
 								<ArrowRight className="size-4" />
 							</button>
@@ -294,8 +277,8 @@ export const JobDetails = ({
 						</button>
 
 						{/* Connect with Client Flow (F4, F5, F6) */}
-						{!isOwnJob && job.clientId &&
-							(connectionStatus?.status === "connected" ? (
+						{job.clientId && !isLoading && (
+							connectionStatus?.status === "connected" ? (
 								<Link
 									to="/freelancer-messages"
 									search={{ userId: job.clientId }}
@@ -313,12 +296,13 @@ export const JobDetails = ({
 								<button
 									type="button"
 									onClick={() => setConnectOpen(true)}
-									className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border-0 border-none bg-surface-container-low font-label-md text-label-md text-on-surface hover:bg-surface-container"
+									className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest font-label-md text-label-md text-on-surface hover:bg-surface-container"
 								>
 									<UserPlus className="size-4 text-primary" />
-									<span className="border-0 border-none bg-transparent">Connect with client</span>
+									<span>Connect with client</span>
 								</button>
-							))}
+							)
+						)}
 					</div>
 					<section className="mt-7 border-outline-variant/60 border-t pt-6">
 						<h3 className="font-semibold text-headline-sm">About the client</h3>
@@ -355,8 +339,7 @@ export const JobDetails = ({
 							<span>Connect with {job.company}</span>
 						</DialogTitle>
 						<DialogDescription>
-							Send a connection inquiry regarding "{job.title}". Once accepted, direct chat and collaboration will be
-							unlocked.
+							Send a connection inquiry regarding "{job.title}". Once accepted, direct chat and collaboration will be unlocked.
 						</DialogDescription>
 					</DialogHeader>
 

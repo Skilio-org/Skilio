@@ -104,19 +104,15 @@ export function MessageThread({
 			</section>
 		)
 
-	let companyOrName = selected.full_name || "Unknown"
+	let Name = selected.full_name || "Unknown"
 	let subtitle = "Client"
-	if (isClientProfile(selected)) {
-		companyOrName = selected.company || selected.full_name || "Unknown"
-		subtitle = selected.company_role || selected.location || "Client"
-	} else {
-		subtitle = [selected.title, ...(selected.skills ?? [])].filter(Boolean).join(" · ")
+	if (isClientProfile(selected))
+	{
+		if (selected.company_role) subtitle = `${selected.company_role}@`
+		if (selected.company) subtitle += `${selected.company}`
 	}
-	const initials = (selected.full_name || "?")
-		.split(" ")
-		.map((part) => part[0])
-		.slice(0, 2)
-		.join("")
+	else
+		subtitle = selected.title || "Freelancer"
 
 	return (
 		<section
@@ -134,9 +130,9 @@ export function MessageThread({
 				</button>
 				<Avatar className="size-10 rounded-lg">
 					<AvatarImage src={selectedAvatarUrl} alt={selected.full_name ?? ""} aria-hidden="true" />
-					<AvatarFallback>{initials}</AvatarFallback>
+					<AvatarFallback>{selected.full_name || "Unknown"}</AvatarFallback>
 				</Avatar>
-				<div className="min-w-0 flex-1">
+				<div className="flex-1 m-auto">
 					<div className="flex flex-wrap items-center gap-2">
 						<button
 							type="button"
@@ -144,11 +140,11 @@ export function MessageThread({
 							disabled={!canViewProfile}
 							className="block max-w-full truncate text-left font-headline-sm font-semibold text-headline-sm text-on-surface hover:text-primary transition-colors"
 						>
-							{companyOrName}
+							{ Name }
 						</button>
+					<p className="truncate font-caption text-caption text-on-surface-variant underline">{subtitle}</p>
 					</div>
-					<p className="mt-0.5 truncate font-caption text-caption text-on-surface-variant">{subtitle}</p>
-					<div className="mt-0.5 flex items-center gap-1.5 font-caption text-caption text-on-surface-variant">
+					<div className="flex items-center gap-1.5 font-caption text-caption text-on-surface-variant">
 						<span
 							aria-hidden="true"
 							className={cn(
@@ -269,7 +265,7 @@ export function MessageThread({
 								// sentState={messageSendState[message.id]}
 								key={message.id}
 								message={message}
-								name={selected.full_name ?? companyOrName ?? "Unknown"}
+								name={selected.full_name ?? Name ?? "Unknown"}
 								highlight={term}
 								own={message.sender_id !== selected.user_id}
 							/>
@@ -298,7 +294,9 @@ export function MessageThread({
 					<textarea
 						ref={composer}
 						value={draft}
-						onChange={(event) => onDraftChange(event.target.value)}
+						onChange={(event) => {
+							onDraftChange(event.target.value)
+						}}
 						onKeyDown={(event) => {
 							if (
 								event.key === "Enter" &&
@@ -311,7 +309,7 @@ export function MessageThread({
 							}
 						}}
 						rows={3}
-						maxLength={10000}
+						maxLength={5000}
 						aria-label={`Message ${selected.full_name}`}
 						placeholder={`Write a message to ${selected.full_name}…`}
 						className="block max-h-36 min-h-16 w-full resize-none bg-transparent px-3.5 pt-3 pb-1 font-body-sm text-body-sm leading-6 text-on-surface outline-none placeholder:text-outline"
