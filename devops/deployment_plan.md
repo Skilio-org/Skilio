@@ -369,36 +369,45 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 ### Phase 4: Automated CI/CD Pipeline (GitHub Actions)
 **Goal**: Build a zero-touch delivery pipeline that tests, builds, and deploys code on merge to `master`.
 
-- [ ] **Step 4.1: Configure GitHub Actions Secrets**
-  - Store deployment credentials securely in repository settings:
-    - `SERVER_HOST`: Public IP or domain name.
-    - `SERVER_USER`: Deployment username (e.g., `ubuntu`).
-    - `SERVER_SSH_KEY`: Private SSH key matching the server's `authorized_keys`.
-    - `PRODUCTION_ENV`: Base64-encoded production `.env` configuration.
-- [ ] **Step 4.2: Build the Delivery Workflow (`.github/workflows/deploy.yml`)**
-  - Pipeline stages:
-    1. **Test Gate (CI)**:
-       - Runs backend `pytest` suite.
-       - Runs frontend typecheck (`bun run build`).
-       - If any test fails, deployment immediately halts.
-    2. **Deploy Trigger (CD)**:
-       - Connects via secure SSH action (`appleboy/ssh-action` or native SSH).
-       - Updates repository using clean reset:
-         `git fetch origin master && git reset --hard origin/master`
-         *(Guarantees clean sync and eliminates non-interactive merge conflicts)*.
-       - Rebuilds modified containers:
-         `docker compose build`
-       - Runs database migrations:
-         `docker compose run --rm backend bash scripts/prestart.sh`
-       - Performs rolling container update:
-         `docker compose up -d --remove-orphans`
-       - **Disk Cleanup**: Executes `docker image prune -f` post-deploy to purge dangling layers and safeguard the small cloud EBS disk from `ENOSPC` exhaustion.
-- [ ] **Step 4.3: Resilient Deployment Health Smoke Test**
-  - Pipeline executes a post-deploy verification query with connection retry logic:
+- [x] **Step 4.1: Audit & Master Existing CI Quality Gates**
+  - The repository utilizes 3 modular CI workflows inherited from the template that act as our automated testing gate:
+    1. **`pre-commit.yml`**: Validates code style, formatting, and linting (Ruff, ESLint, Prettier, TypeScript) on every pull request.
+    2. **`test-backend.yml`**: Boots PostgreSQL + Mailpit inside GitHub Actions, runs database migrations, executes the full Python `pytest` test suite, and uploads test coverage.
+    3. **`test-docker-compose.yml`**: Compiles all production Docker containers, validates schema migrations, boots backend + Adminer, and performs live health-check probes inside the runner.
+  - **Verdict**: Our CI (Continuous Integration) is 100% complete and verified. Now we engineer the missing **CD (Continuous Deployment)** pipeline to AWS.
+
+- [ ] **Step 4.2: Configure GitHub Actions Secrets**
+  - Store deployment credentials securely in GitHub Repository Settings (`Settings` $\rightarrow$ `Secrets and variables` $\rightarrow$ `Actions`):
+    - `SERVER_HOST`: `16.192.59.166` (or `skilio.works`).
+    - `SERVER_USER`: `ubuntu`.
+    - `SERVER_SSH_KEY`: Full contents of the private RSA key (`skilio-key.pem`).
+
+- [ ] **Step 4.3: Engineer the Zero-Touch Delivery Workflow (`.github/workflows/deploy.yml`)**
+  - **Trigger**: Runs automatically on `push` to `master` (when PRs pass all CI checks and are merged).
+  - **CD Pipeline Stages on AWS (`16.192.59.166`)**:
+    1. **Secure SSH Handshake**: Connects to EC2 using `SERVER_SSH_KEY`.
+    2. **Idempotent Repository Sync**:
+       `git fetch origin master && git reset --hard origin/master`
+       *(Guarantees 100% clean sync and eliminates non-interactive merge conflicts on the host)*.
+    3. **Multi-Stage Container Build**:
+       `docker compose build`
+       *(Leverages 2 GB Swap allocated in Phase 2 for zero-OOM compilation)*.
+    4. **Database Migration Execution**:
+       `docker compose run --rm backend bash scripts/prestart.sh`
+       *(Applies pending Alembic schema migrations and verifies superuser)*.
+    5. **Zero-Downtime Rolling Swap**:
+       `docker compose up -d --remove-orphans`
+       *(Old containers finish in-flight requests while new containers pass Traefik health checks)*.
+    6. **Automated Layer Pruning**:
+       `docker image prune -f`
+       *(Purges dangling image layers post-deploy, safeguarding the EBS root disk from ENOSPC exhaustion)*.
+
+- [ ] **Step 4.4: Resilient Production Health Smoke Test**
+  - Pipeline executes post-deploy verification query with connection retry logic against our live domain:
     ```bash
-    curl --retry 6 --retry-delay 5 --retry-connrefused -f -s https://${DOMAIN}/api/v1/health | grep '"status":"healthy"'
+    curl --retry 6 --retry-delay 5 --retry-connrefused -f -s https://skilio.works/api/v1/health | grep '"status":"healthy"'
     ```
-  - *Reliability rationale*: Prevents false-negative 502/503 pipeline failures during the 3–5 second container warm-up window. Confirms zero-downtime deployment succeeded.
+  - *Reliability rationale*: Prevents false-negative pipeline failures during the 3–5 second container warm-up window and confirms zero-downtime deployment succeeded.
 
 ---
 

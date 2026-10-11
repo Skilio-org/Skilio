@@ -419,27 +419,109 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 ## Level 3: Continuous Integration & Deployment (CI/CD)
 
-### 3.1 CI vs. CD Explained
-- **Continuous Integration (CI)**:
-  - Automates code quality checks on every push or pull request.
-  - Runs linters, formatting checks, and automated unit/integration tests (`pytest`, `bun test`).
-  - **Goal**: Prevent broken code from ever reaching the `master` branch.
-- **Continuous Deployment (CD)**:
-  - Automatically takes code merged into `master` and ships it to the live cloud production server without human intervention.
-  - **Goal**: Fast, frequent, reliable releases (RTO $< 2\text{ minutes}$).
+### 3.1 The Beginner's Intuition: Why Do We Need CI/CD?
 
-### 3.2 GitHub Actions Architecture
-- **Workflow File**: YAML document inside `.github/workflows/` defining jobs and triggers.
-- **Runner**: A clean Ubuntu virtual machine spun up temporarily by GitHub to execute your workflow steps.
-- **Secrets Management**:
-  - Sensitive data (`SERVER_SSH_KEY`, `SERVER_HOST`, `DB_PASSWORD`) is stored in GitHub Repository Secrets.
-  - Masked in logs (displayed as `***`) and injected as runtime environment variables.
+* **The Problem (The "Old / Manual" Way)**:
+  * Developers write code on their laptops. It works locally (*"Works on my machine!"*).
+  * To update the live server on AWS, a developer had to:
+    1. Manually open a terminal: `ssh -i key.pem ubuntu@16.192.59.166`.
+    2. Remember a long sequence of terminal commands (`git pull`, `docker compose build`, `scripts/prestart.sh`, `docker compose up -d`).
+    3. A single typo or forgotten step could crash the entire production environment.
+    4. If someone pushed broken code on a Friday night, visitors immediately saw errors on `https://skilio.works`.
+  * **Summary**: Manual deployments are slow, stressful, and prone to human error.
 
-### 3.3 Zero-Downtime Deployment Lifecycle
-How does the server update without kicking active users out of their WebSocket chat?
+* **The Solution (The "CI/CD Robot" Way)**:
+  * **CI/CD** is an automated cloud robot that lives inside GitHub.
+  * Every time anyone pushes code or creates a Pull Request, the robot wakes up, tests the code, and if tests pass, automatically delivers it to AWS without you having to touch the server terminal.
 
 ```text
- 1. GitHub Actions SSH into Server
+ ┌────────────────────────────────────────┐     ┌────────────────────────────────────────┐
+ │        CI: CONTINUOUS INTEGRATION      │     │        CD: CONTINUOUS DEPLOYMENT       │
+ │        "The Strict Safety Inspector"   │     │        "The Reliable Delivery Drone"   │
+ └────────────────────────────────────────┘     └────────────────────────────────────────┘
+```
+
+---
+
+### 3.2 CI vs. CD: Breaking Down the Acronym
+
+| Dimension | **CI (Continuous Integration)** | **CD (Continuous Deployment)** |
+| :--- | :--- | :--- |
+| **Metaphor** | The **Factory Quality Inspector** | The **Automated Delivery Truck** |
+| **What it does** | Automatically tests, lints, and builds code on a temporary cloud computer. | Automatically connects to AWS, updates containers, and reloads the live site. |
+| **When it runs** | On **every push & pull request** to catch bugs early. | Only when code is **merged into `master`**. |
+| **Server impact** | 🟢 **Never touches AWS EC2**. Runs completely inside GitHub's cloud. | 🚀 **Modifies the live AWS production server**. |
+| **Examples in Skilio**| `.github/workflows/test-docker-compose.yml`<br>`.github/workflows/test-backend.yml` | `.github/workflows/deploy.yml` (our automated production pipeline) |
+| **Primary Goal** | Prevent broken code from ever entering the `master` branch. | Fast, zero-downtime production updates (RTO $< 2\text{ minutes}$). |
+
+---
+
+### 3.3 The 4 Building Blocks of GitHub Actions
+
+GitHub Actions is GitHub's native automation engine. Every pipeline is made of 4 simple concepts:
+
+```text
+ ┌──────────────────────┐      Wakes Up      ┌──────────────────────┐
+ │   1. TRIGGER (`on:`) │ ─────────────────▶ │ 2. RUNNER            │
+ │   (The Alarm Clock)  │                    │ (Temporary Cloud PC) │
+ └──────────────────────┘                    └──────────┬───────────┘
+                                                        │ Executes
+                                                        ▼
+ ┌──────────────────────┐    Injects Secret  ┌──────────────────────┐
+ │ 4. SECRETS & VARS    │ ─────────────────▶ │ 3. WORKFLOW STEPS    │
+ │ (The Encrypted Vault)│                    │ (The Recipe Actions) │
+ └──────────────────────┘                    └──────────────────────┘
+```
+
+1. **Workflow File (`.github/workflows/*.yml`)**:
+   - The recipe written in standard YAML syntax that tells GitHub what jobs to run.
+2. **Trigger (`on:`)**:
+   - The event that wakes the runner up (e.g., `push` to `master` or a `pull_request`).
+3. **Runner (`runs-on: ubuntu-latest`)**:
+   - A free, clean Ubuntu virtual machine spun up temporarily in GitHub's cloud. It runs your steps and gets destroyed immediately afterward.
+4. **Secrets & Variables (`${{ secrets.XYZ }}` / `${{ vars.XYZ }}`)**:
+   - **Secrets**: Encrypted storage for passwords, API keys, and our AWS private SSH key (`SERVER_SSH_KEY`). GitHub automatically masks these in logs as `***`.
+   - **Variables**: Non-sensitive settings (like redirect URLs or client IDs).
+
+---
+
+### 3.4 Deep Dive: Anatomy of an Existing CI Workflow (`test-docker-compose.yml`)
+
+Let's dissect what happens when our existing test workflow runs in the repository:
+
+```yaml
+name: Test Docker Compose          # 1. Human-readable name shown in GitHub UI
+
+on:                                # 2. TRIGGER: When does it wake up?
+  push:
+    branches: [master]             # On pushes to master...
+  pull_request:                    # ...and on any pull request!
+
+jobs:
+  test-docker-compose:
+    runs-on: ubuntu-latest         # 3. RUNNER: GitHub spins up a fresh Ubuntu machine
+    timeout-minutes: 10
+    env:                           # 4. SECRETS: Injects OAuth and Cloudinary credentials
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      ...
+    steps:
+      - name: Checkout             # 5. Clones your repository into the runner
+        uses: actions/checkout@v4
+      - run: cp .env.example .env  # 6. Prepares dummy environment configuration
+      - run: docker compose build  # 7. Compiles all Docker containers to verify builds pass!
+```
+
+> [!NOTE]
+> **Key Insight**: This workflow is a **pure CI check**. It compiles the images on GitHub's cloud machine to ensure there are no syntax or build errors, but it **does not** touch our AWS server.
+
+---
+
+### 3.5 The 7 Steps of Our Zero-Downtime CD Pipeline (`deploy.yml`)
+
+When code is safely merged into `master`, our new CD workflow connects to AWS and performs a seamless update:
+
+```text
+ 1. GitHub Actions SSH into Server (using secrets.SERVER_SSH_KEY)
                      │
                      ▼
  2. Clean Git Reset ('git fetch origin master && git reset --hard origin/master')
@@ -461,10 +543,20 @@ How does the server update without kicking active users out of their WebSocket c
     • Purges dangling layers, safeguarding EBS storage against ENOSPC crashes
                      │
                      ▼
- 7. Resilient Smoke Test (curl with retries to /api/v1/health)
+ 7. Resilient Smoke Test (curl with retries to https://skilio.works/api/v1/health)
 ```
 
-### 3.4 Production Architectural Trade-Off: Option A vs. Option B
+#### What is "Zero Downtime"?
+* If you shut down the old container before starting the new one, users browsing `https://skilio.works` see a `502 Bad Gateway` error for 30 seconds.
+* With Docker Compose rolling restart + Traefik reverse proxy:
+  1. The new container boots up and becomes healthy.
+  2. Traefik points new incoming web traffic to the new container.
+  3. The old container gracefully shuts down after finishing active requests.
+  4. Active users experience **zero connection drops**.
+
+---
+
+### 3.6 Production Architectural Trade-Off: Option A vs. Option B
 
 | Dimension | Option A: Build on EC2 with 2GB Swap (Our Chosen Architecture) | Option B: Build in CI & Push to Container Registry (GHCR/ECR) |
 | :--- | :--- | :--- |
