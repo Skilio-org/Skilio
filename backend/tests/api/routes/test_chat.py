@@ -234,6 +234,55 @@ def test_websocket_messaging_and_presence(
             assert typing_event["data"]["is_typing"] is True
 
 
+def test_websocket_message_ack_failed_for_invalid_messages(
+    client: TestClient, db: Session
+) -> None:
+    _, token_user1, user1_id = get_user_token_and_headers(client, db)
+    _, _, user2_id = get_user_token_and_headers(client, db)
+
+    create_resp = client.post(
+        f"{settings.API_V1_STR}/chat/conversation",
+        headers={"Authorization": f"Bearer {token_user1}"},
+        json={"freelancer_id": str(user2_id)},
+    )
+    conv_id = create_resp.json()["id"]
+
+    invalid_messages = [
+        {
+            "type": "chat_message",
+            "content": "Missing conversation ID",
+            "client_message_id": "missing-conversation-id",
+        },
+        {
+            "type": "chat_message",
+            "conversation_id": "not-a-uuid",
+            "content": "Invalid conversation ID",
+            "client_message_id": "invalid-conversation-id",
+        },
+        {
+            "type": "chat_message",
+            "conversation_id": conv_id,
+            "content": "x" * 5001,
+            "client_message_id": "message-too-long",
+        },
+    ]
+
+    with client.websocket_connect(
+        f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
+    ) as websocket:
+        assert json.loads(websocket.receive_text())["type"] == "connection_established"
+
+        for message in invalid_messages:
+            websocket.send_text(json.dumps(message))
+            failed_ack = json.loads(websocket.receive_text())
+
+            assert failed_ack["type"] == "message_ack_failed"
+            assert (
+                failed_ack["data"]["client_message_id"]
+                == message["client_message_id"]
+            )
+
+
 @pytest.mark.anyio
 async def test_redis_injection_to_connected_user(
     client: TestClient, db: Session

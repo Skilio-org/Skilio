@@ -265,7 +265,7 @@ export function MessageThread({
 								// sentState={messageSendState[message.id]}
 								key={message.id}
 								message={message}
-								name={selected.full_name ?? companyOrName ?? "Unknown"}
+								name={selected.full_name ?? Name ?? "Unknown"}
 								highlight={term}
 								own={message.sender_id !== selected.user_id}
 							/>

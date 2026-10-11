@@ -322,7 +322,7 @@ function OnboardingPage() {
     if (role === "freelancer") {
       navigate({ to: "/freelancer-jobs" });
     } else {
-      navigate({ to: "/talent" });
+      navigate({ to: "/talent", search: { q: "", category: "" } });
     }
   };
 

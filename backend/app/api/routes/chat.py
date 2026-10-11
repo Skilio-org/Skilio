@@ -429,11 +429,28 @@ async def websocket_chat_endpoint(
                 print("Received chat_message event:", data)
                 conv_id_raw = data.get("conversation_id")
                 content = (data.get("content") or "").strip()
+                client_message_id = data.get("client_message_id")
                 if not conv_id_raw or not content:
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "message_ack_failed",
+                                "data": {"client_message_id": client_message_id},
+                            }
+                        )
+                    )
                     continue
                 try:
                     conv_id = uuid.UUID(str(conv_id_raw))
                 except ValueError:
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "message_ack_failed",
+                                "data": {"client_message_id": client_message_id},
+                            }
+                        )
+                    )
                     continue
 
                 with Session(engine) as session:
@@ -461,14 +478,15 @@ async def websocket_chat_endpoint(
                         msg_dict = ChatMessagePublic.model_validate(
                             new_msg
                         ).model_dump()
-                    except Exception as e:
-                        ack_data = {
-                            **msg_dict,
-                            "client_message_id": data.get("client_message_id"),
-                        }
+                    except Exception:
                         await websocket.send_text(
                             json.dumps(
-                                {"type": "message_ack_failed", "data": ack_data}, default=str
+                                {
+                                    "type": "message_ack_failed",
+                                    "data": {
+                                        "client_message_id": client_message_id
+                                    },
+                                }
                             )
                         )
                         continue
@@ -487,7 +505,7 @@ async def websocket_chat_endpoint(
                 # Send confirmation ack back to sender
                 ack_data = {
                     **msg_dict,
-                    "client_message_id": data.get("client_message_id"),
+                    "client_message_id": client_message_id,
                 }
                 await websocket.send_text(
                     json.dumps(

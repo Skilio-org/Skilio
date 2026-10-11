@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import {
   ConnectionsService,
   type ConnectionCreate,
-  type ConnectionPublic,
+  // type ConnectionPublic,
   type ConnectionStatus,
 } from "@/client";
 import { CanceledError } from "axios";
@@ -75,7 +75,7 @@ export function useConnectionStatus(targetUserId?: string | null) {
           path: { target_user_id: targetUserId },
           signal,
         });
-        return response;
+        return response.data;
       } catch (err) {
         if (iscancell(err)) return { status: "none" as const, connection_id: null }
         console.error("Failed to get connection status:", err);
@@ -97,7 +97,7 @@ export function useSendConnectionRequest() {
         body: data,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries({ queryKey: connectionKeys.all });
       toast.success("Connection request sent!", {
         description: "The recipient will be notified. Once accepted, direct chat will unlock.",
