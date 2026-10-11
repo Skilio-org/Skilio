@@ -10,6 +10,12 @@ export default defineConfig({
 		outDir: "../backend/app/frontend",
 		emptyOutDir: true,
 	},
+	server: {
+		watch: {
+			usePolling: true,
+			interval: 800,
+		},
+	},
 	resolve: {
 		alias: {
 			"@": path.resolve(import.meta.dirname, "./src"),

@@ -313,10 +313,10 @@ export const JobDetails = ({
 								<button
 									type="button"
 									onClick={() => setConnectOpen(true)}
-									className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest font-label-md text-label-md text-on-surface hover:bg-surface-container"
+									className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border-0 border-none bg-surface-container-low font-label-md text-label-md text-on-surface hover:bg-surface-container"
 								>
 									<UserPlus className="size-4 text-primary" />
-									<span>Connect with client</span>
+									<span className="border-0 border-none bg-transparent">Connect with client</span>
 								</button>
 							))}
 					</div>

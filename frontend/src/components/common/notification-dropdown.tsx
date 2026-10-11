@@ -77,27 +77,32 @@ interface NotificationActionProps {
 
 function NotificationActions({ notification, role, onMarkAsRead }: NotificationActionProps) {
 	const navigate = useNavigate()
+	const queryClient = useQueryClient()
 	const acceptConnection = useAcceptConnectionRequest()
 	const declineConnection = useDeclineConnectionRequest()
 
+	const connectionId = notification.connection?.id || (notification as any).connection_id
+	const connectionStatus = notification.connection?.status
+
 	const [actionStatus, setActionStatus] = useState<"idle" | "accepted" | "declined">(
-		notification.connection?.status === "accepted"
+		connectionStatus === "accepted"
 			? "accepted"
-			: notification.connection?.status === "declined"
+			: connectionStatus === "declined"
 				? "declined"
 				: "idle",
 	)
 
+	const isAccepted = actionStatus === "accepted" || connectionStatus === "accepted"
+	const isDeclined = actionStatus === "declined" || connectionStatus === "declined"
+
 	// 1. Connection Request Actions (Accept / Decline)
 	if (notification.event === "connection_request") {
-		const connectionId = notification.connection?.id
-
-		if (actionStatus === "accepted") {
+		if (isAccepted) {
 			return (
 				<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
 					<Badge
-						variant="outline"
-						className="h-6 border-emerald-500/30 bg-emerald-500/10 px-2 text-[11px] font-medium text-emerald-600 dark:text-emerald-400"
+						variant="secondary"
+						className="h-6 border-0 border-none bg-emerald-500/10 px-2 text-[11px] font-medium text-emerald-600 dark:text-emerald-400"
 					>
 						Connected
 					</Badge>
@@ -105,12 +110,12 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 			)
 		}
 
-		if (actionStatus === "declined") {
+		if (isDeclined) {
 			return (
 				<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
 					<Badge
-						variant="outline"
-						className="h-6 border-muted-foreground/30 bg-muted/30 px-2 text-[11px] font-medium text-muted-foreground"
+						variant="secondary"
+						className="h-6 border-0 border-none bg-muted/40 px-2 text-[11px] font-medium text-muted-foreground"
 					>
 						Declined
 					</Badge>
@@ -128,13 +133,35 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 							e.stopPropagation()
 							e.preventDefault()
 							acceptConnection.mutate(connectionId, {
-								onSuccess: () => {
+								onSuccess: (data) => {
 									setActionStatus("accepted")
+									queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) => {
+										if (!current) return current
+										return current.map((item) => {
+											if (
+												item.id === notification.id ||
+												item.connection?.id === connectionId ||
+												(item as any).connection_id === connectionId
+											) {
+												return {
+													...item,
+													is_read: true,
+													connection: {
+														...(item.connection || {}),
+														...(data || {}),
+														id: connectionId,
+														status: "accepted",
+													} as any,
+												}
+											}
+											return item
+										})
+									})
 									onMarkAsRead(notification.id)
 								},
 							})
 						}}
-						className="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground shadow-2xs transition-opacity hover:opacity-90 disabled:opacity-50"
+						className="inline-flex h-7 min-w-[76px] items-center justify-center gap-1.5 rounded-md border-0 border-none bg-primary px-2.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
 					>
 						{acceptConnection.isPending ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
 						Accept
@@ -147,13 +174,35 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 							e.stopPropagation()
 							e.preventDefault()
 							declineConnection.mutate(connectionId, {
-								onSuccess: () => {
+								onSuccess: (data) => {
 									setActionStatus("declined")
+									queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) => {
+										if (!current) return current
+										return current.map((item) => {
+											if (
+												item.id === notification.id ||
+												item.connection?.id === connectionId ||
+												(item as any).connection_id === connectionId
+											) {
+												return {
+													...item,
+													is_read: true,
+													connection: {
+														...(item.connection || {}),
+														...(data || {}),
+														id: connectionId,
+														status: "declined",
+													} as any,
+												}
+											}
+											return item
+										})
+									})
 									onMarkAsRead(notification.id)
 								},
 							})
 						}}
-						className="inline-flex h-7 items-center gap-1.5 rounded-md border border-outline-variant bg-surface-container-low px-2 text-xs font-medium text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface disabled:opacity-50 dark:border-border-subtle"
+						className="inline-flex h-7 min-w-[76px] items-center justify-center gap-1.5 rounded-md border-0 border-none bg-surface-container-high px-2.5 text-xs font-medium text-on-surface transition-colors hover:bg-surface-container-highest disabled:opacity-50"
 					>
 						{declineConnection.isPending ? <Loader2 className="size-3 animate-spin" /> : <X className="size-3" />}
 						Decline
@@ -172,7 +221,7 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 						onMarkAsRead(notification.id)
 						void navigate({ to: "/connects" })
 					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
+					className="inline-flex h-6 items-center gap-1.5 rounded-md border-0 border-none bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
 				>
 					<UserPlus className="size-3" />
 					View Connections
@@ -297,8 +346,8 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 		return (
 			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
 				<Badge
-					variant="outline"
-					className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground"
+					variant="secondary"
+					className="h-5 border-0 border-none bg-muted/40 px-1.5 text-[10px] font-medium text-muted-foreground"
 				>
 					Proposal Declined
 				</Badge>
@@ -311,8 +360,8 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 		return (
 			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
 				<Badge
-					variant="outline"
-					className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground"
+					variant="secondary"
+					className="h-5 border-0 border-none bg-muted/40 px-1.5 text-[10px] font-medium text-muted-foreground"
 				>
 					Declined
 				</Badge>
@@ -325,8 +374,8 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 		return (
 			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
 				<Badge
-					variant="outline"
-					className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground"
+					variant="secondary"
+					className="h-5 border-0 border-none bg-muted/40 px-1.5 text-[10px] font-medium text-muted-foreground"
 				>
 					Job Closed
 				</Badge>
@@ -365,9 +414,9 @@ export function NotificationDropdown() {
 			type: "read_receipt",
 			notification_id: "all_notifications",
 		})
-		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), [
-			...notifications.map((notification) => ({ ...notification, is_read: true })),
-		])
+		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) =>
+			(current || notifications).map((notification) => ({ ...notification, is_read: true })),
+		)
 	}
 
 	const markAsRead = (notificationId: string) => {
@@ -375,11 +424,11 @@ export function NotificationDropdown() {
 			type: "read_receipt",
 			notification_id: notificationId,
 		})
-		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), [
-			...notifications.map((notification) =>
+		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) =>
+			(current || notifications).map((notification) =>
 				notification.id === notificationId ? { ...notification, is_read: true } : notification,
 			),
-		])
+		)
 	}
 
 	const handleItemClick = (notification: NotificationPublic) => {

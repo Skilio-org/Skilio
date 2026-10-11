@@ -205,10 +205,10 @@ export function FreelancerCard({
 						<button
 							type="button"
 							onClick={() => setConnectOpen(true)}
-							className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
+							className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border-0 border-none bg-primary px-3.5 font-label-md text-label-md text-primary-foreground transition-opacity hover:opacity-90"
 						>
 							<UserPlus className="size-3.5" />
-							<span>Connect</span>
+							<span className="border-0 border-none bg-transparent">Connect</span>
 						</button>
 					)}
 				</div>

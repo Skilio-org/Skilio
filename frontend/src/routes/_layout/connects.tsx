@@ -124,7 +124,7 @@ function ConnectsPage() {
 	}
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-8 pt-2 sm:pt-4">
 			{/* Header */}
 			<WorkspacePageHeader
 				eyebrow="Network & Collaboration"
@@ -134,10 +134,10 @@ function ConnectsPage() {
 					<Button
 						size="sm"
 						onClick={() => setIsConnectModalOpen(true)}
-						className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+						className="gap-1.5 border-0 border-none bg-primary text-primary-foreground hover:bg-primary/90"
 					>
 						<UserPlus className="size-4" />
-						<span>Connect with {role === "client" ? "Freelancer" : "Client"}</span>
+						<span className="border-0 border-none bg-transparent">Connect with {role === "client" ? "Freelancer" : "Client"}</span>
 					</Button>
 				}
 			/>
@@ -159,7 +159,7 @@ function ConnectsPage() {
 							{acceptedConnections.length}
 						</div>
 						<div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-							<Badge variant="outline" className="border-primary/30 text-primary text-[10px] px-1.5 py-0">
+							<Badge variant="secondary" className="border-0 border-none bg-primary/10 text-primary text-[10px] px-1.5 py-0">
 								Connected
 							</Badge>
 							<span>Direct messaging unlocked</span>
@@ -380,22 +380,22 @@ function ConnectsPage() {
 											<div className="flex items-center gap-2 shrink-0 self-end md:self-center">
 												<Button
 													size="sm"
-													variant="outline"
-													disabled={declineMutation.isPending}
+													variant="secondary"
+													disabled={declineMutation.isPending || acceptMutation.isPending}
 													onClick={() => declineMutation.mutate(conn.id)}
-													className="gap-1.5 text-xs text-destructive hover:bg-destructive/10"
+													className="h-8 min-w-[84px] items-center justify-center border-0 border-none gap-1.5 text-xs text-destructive hover:bg-destructive/10"
 												>
 													<X className="size-3.5" />
 													<span>Decline</span>
 												</Button>
 												<Button
 													size="sm"
-													disabled={acceptMutation.isPending}
+													disabled={acceptMutation.isPending || declineMutation.isPending}
 													onClick={() => acceptMutation.mutate(conn.id)}
-													className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
+													className="h-8 min-w-[84px] items-center justify-center border-0 border-none gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
 												>
 													<Check className="size-3.5" />
-													<span>Accept & Unlock Chat</span>
+													<span>Accept</span>
 												</Button>
 											</div>
 										</div>

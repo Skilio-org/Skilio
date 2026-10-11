@@ -1259,17 +1259,6 @@
 		color: #1f2125;
 	}
 
-	/* Selected filter pills remain dark, matching the reference category panel. */
-	button.bg-primary:has(> span:nth-child(2)) {
-		border-color: var(--graphite);
-		background: var(--graphite);
-		color: #ffffff;
-	}
-
-	button.bg-primary:has(> span:nth-child(2)) > span:last-child {
-		background: rgb(255 255 255 / 0.13);
-		color: #ffffff;
-	}
 
 	/* The profile callout uses the reference's concrete + lime energy without turning neon. */
 	aside section.bg-gradient-to-b {
@@ -1330,17 +1319,6 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) a.bg-primary:not([aria-current="page"]):hover,
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) search button[type="submit"].bg-primary:hover {
 		background: var(--primary-hover);
-	}
-
-	:where(.dark, [data-theme="dark"], [data-mode="dark"]) button.bg-primary:has(> span:nth-child(2)) {
-		border-color: var(--accent-lime);
-		background: var(--accent-lime);
-		color: #17191c;
-	}
-
-	:where(.dark, [data-theme="dark"], [data-mode="dark"]) button.bg-primary:has(> span:nth-child(2)) > span:last-child {
-		background: rgb(23 25 28 / 0.16);
-		color: #17191c;
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) aside section.bg-gradient-to-b {

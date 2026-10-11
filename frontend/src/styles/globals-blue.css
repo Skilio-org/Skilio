@@ -1265,19 +1265,6 @@
 		background: #ffffff;
 	}
 
-	/* Selected filters use the same light surface as primary actions. */
-	:where(.dark, [data-theme="dark"], [data-mode="dark"]) button.bg-primary:has(> span:nth-child(2)) {
-		border-color: #f4f6f8;
-		background: #f4f6f8;
-		color: #101216;
-		box-shadow: none;
-	}
-
-	:where(.dark, [data-theme="dark"], [data-mode="dark"]) button.bg-primary:has(> span:nth-child(2)) > span:last-child {
-		background: rgb(16 18 22 / 0.15);
-		color: #101216;
-	}
-
 	/* Charcoal profile panel with the reference's subtle blue border. */
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) aside section.bg-gradient-to-b {
 		border-color: rgb(79 117 255 / 0.25);

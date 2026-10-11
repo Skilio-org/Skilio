@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { ConnectionsService, type ConnectionCreate, type ConnectionPublic, type ConnectionStatus } from "@/client"
+import {
+	ConnectionsService,
+	type ConnectionCreate,
+	type ConnectionPublic,
+	type ConnectionStatus,
+	type NotificationPublic,
+} from "@/client"
+import { chatKeys } from "@/data/chat-keys"
 import { extractErrorMessage } from "@/utils"
 
 export const connectionKeys = {
@@ -97,13 +104,33 @@ export function useAcceptConnectionRequest() {
 
 	return useMutation({
 		mutationFn: async (connectionId: string) => {
-			return await ConnectionsService.acceptConnectionRequest({
+			const res = await ConnectionsService.acceptConnectionRequest({
 				path: { connection_id: connectionId },
 			})
+			return res.data
 		},
-		onSuccess: () => {
+		onSuccess: (data: ConnectionPublic, connectionId: string) => {
 			queryClient.invalidateQueries({ queryKey: connectionKeys.all })
 			queryClient.invalidateQueries({ queryKey: ["conversations"] })
+			queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) => {
+				if (!current) return current
+				return current.map((n) => {
+					if (n.connection?.id === connectionId || (n as any).connection_id === connectionId) {
+						return {
+							...n,
+							is_read: true,
+							connection: {
+								...(n.connection || {}),
+								...(data || {}),
+								id: connectionId,
+								status: "accepted",
+							} as any,
+						}
+					}
+					return n
+				})
+			})
+			queryClient.invalidateQueries({ queryKey: chatKeys.notifications() })
 			toast.success("Connection accepted!", {
 				description: "Direct messaging and collaboration is now unlocked.",
 			})
@@ -123,12 +150,32 @@ export function useDeclineConnectionRequest() {
 
 	return useMutation({
 		mutationFn: async (connectionId: string) => {
-			return await ConnectionsService.declineConnectionRequest({
+			const res = await ConnectionsService.declineConnectionRequest({
 				path: { connection_id: connectionId },
 			})
+			return res.data
 		},
-		onSuccess: () => {
+		onSuccess: (data: ConnectionPublic, connectionId: string) => {
 			queryClient.invalidateQueries({ queryKey: connectionKeys.all })
+			queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) => {
+				if (!current) return current
+				return current.map((n) => {
+					if (n.connection?.id === connectionId || (n as any).connection_id === connectionId) {
+						return {
+							...n,
+							is_read: true,
+							connection: {
+								...(n.connection || {}),
+								...(data || {}),
+								id: connectionId,
+								status: "declined",
+							} as any,
+						}
+					}
+					return n
+				})
+			})
+			queryClient.invalidateQueries({ queryKey: chatKeys.notifications() })
 			toast.info("Connection request declined.")
 		},
 		onError: (error: any) => {
