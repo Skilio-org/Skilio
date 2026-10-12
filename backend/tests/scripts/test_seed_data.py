@@ -36,7 +36,7 @@ def test_seed_accounts_is_idempotent(db: Session) -> None:
             "seed-freelancer-3@example.com",
         ]))
     ).all()
-    assert len(seeded_users) == 2
+    assert len(seeded_users) == 3
 
 
 def test_seed_count_is_limited() -> None:
