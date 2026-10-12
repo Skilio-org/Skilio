@@ -14,7 +14,26 @@ import useCustomToast from "./useCustomToast"
 import { toast } from "sonner"
 
 const isLoggedIn = () => {
-	return localStorage.getItem("access_token") !== null
+	let valid = localStorage.getItem("access_token") != null
+	return valid
+	// if (!valid) return valid
+
+	// console.log("Testing access token...")
+	// LoginService.testToken()
+	// .then((response) => {
+	// 	if (response.status != 200) {
+	// 		console.log("Access token is invalid, removing it from localStorage")
+	// 		localStorage.removeItem("access_token")
+	// 		window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+	// 		valid = false;
+	// 	}
+	// }).catch((err) => {
+	// 	console.error("Error testing access token:", err)
+	// 	localStorage.removeItem("access_token")
+	// 	window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+	// 	valid = false;
+	// })
+	// return valid;
 }
 
 const useAuth = () => {
@@ -30,18 +49,33 @@ const useAuth = () => {
 		refetch,
 	} = useQuery<UserPublic | null, Error>({
 		queryKey: ["currentUser"],
-		queryFn: async () => (await UsersService.readUserMe()).data,
+		queryFn: async (): Promise<UserPublic | null> => {
+			
+			try {
+				const { data: account } = await UsersService.readUserMe()
+				queryClient.setQueryData(["currentUser"], account)
+				return account
+			} catch (error) {
+				toast.error("Failed to fetch user data")
+				localStorage.removeItem("access_token")
+				queryClient.removeQueries({ queryKey: ["currentUser"] })
+				window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+				return null
+			}
+		},
 		enabled: isLoggedIn(),
 	})
 
 	const signUpMutation = useMutation({
-		mutationFn: (data: UserRegister & { role?: "freelancer" | "client" }) =>
-			UsersService.registerUser({
+		mutationFn: (data: UserRegister & { role?: "freelancer" | "client" }) => {
+			
+			return UsersService.registerUser({
 				body: {
 					...data,
 					active_role: data.active_role ?? data.role ?? "client",
 				},
-			}),
+			})
+		},
 		onSuccess: (_result, data) => {
 			const role = data.active_role ?? data.role
 			if (role) localStorage.setItem(`account-role:${data.email.trim().toLowerCase()}`, role)
@@ -53,13 +87,13 @@ const useAuth = () => {
 		},
 	})
 
-	const login = async (data: AccessToken) => {
-		const response = await LoginService.loginAccessToken({
-			body: data,
-		})
-		localStorage.setItem("access_token", response.data.access_token)
-		window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+	const login = async (data: AccessToken) => {		
 		try {
+			const response = await LoginService.loginAccessToken({
+				body: data,
+			})
+			localStorage.setItem("access_token", response.data.access_token)
+			window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
 			const { data: account } = await UsersService.readUserMe()
 			queryClient.setQueryData(["currentUser"], account)
 			return account
@@ -67,7 +101,7 @@ const useAuth = () => {
 			toast.error("Failed to fetch user data")
 			localStorage.removeItem("access_token")
 			queryClient.removeQueries({ queryKey: ["currentUser"] })
-			throw error
+			window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))	
 		}
 	}
 
