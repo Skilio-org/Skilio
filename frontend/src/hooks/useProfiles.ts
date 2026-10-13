@@ -3,21 +3,49 @@ import { ClientProfilesService, ProfilesService, ConversationsPublic, type UserP
 import { chatKeys } from "@/data/chat-keys"
 import type { ConversationProfile } from "@/hooks/isClientProfile"
 
-export async function fetchProfile(user: UserPublic, signal: AbortSignal) {
-	console.log("FETCHING PROFILE", user.id, user.active_role)
+export function createFallbackProfile(user: UserPublic): ConversationProfile {
 	if (user.active_role === "freelancer") {
-		const { data } = await ProfilesService.readProfileByUserId({
+		return {
+			id: user.id,
+			user_id: user.id,
+			full_name: user.full_name || "Freelancer",
+			title: "Freelancer",
+			is_available: true,
+			availability: "Available now",
+			skills: [],
+			user,
+		} as unknown as ConversationProfile
+	}
+	return {
+		id: user.id,
+		user_id: user.id,
+		full_name: user.full_name || "Client",
+		company: "",
+		company_role: "Client",
+		user,
+	} as unknown as ConversationProfile
+}
+
+export async function fetchProfile(user: UserPublic, signal: AbortSignal): Promise<ConversationProfile> {
+	console.log("FETCHING PROFILE", user.id, user.active_role)
+	try {
+		if (user.active_role === "freelancer") {
+			const { data } = await ProfilesService.readProfileByUserId({
+				path: { user_id: user.id },
+				signal,
+			})
+			return (data as ConversationProfile) ?? createFallbackProfile(user)
+		}
+
+		const { data } = await ClientProfilesService.profilesReadClientProfileByUserId({
 			path: { user_id: user.id },
 			signal,
 		})
-		return data
+		return (data as ConversationProfile) ?? createFallbackProfile(user)
+	} catch (error) {
+		console.warn("Failed to fetch profile for user, using fallback profile:", user.id, error)
+		return createFallbackProfile(user)
 	}
-
-	const { data } = await ClientProfilesService.profilesReadClientProfileByUserId({
-		path: { user_id: user.id },
-		signal,
-	})
-	return data
 }
 
 export function useProfiles(conversations: ConversationsPublic | undefined, conversationsLoaded: boolean) {
@@ -36,15 +64,17 @@ export function useProfiles(conversations: ConversationsPublic | undefined, conv
 
 	const profiles = new Map<string, ConversationProfile>()
 	profilesQueries.forEach((query, index) => {
+		const user = users[index]
 		if (query.data) {
-			profiles.set(users[index].id, query.data as ConversationProfile)
+			profiles.set(user.id, query.data as ConversationProfile)
+		} else if (!query.isPending) {
+			profiles.set(user.id, createFallbackProfile(user))
 		}
 	})
 
 	return {
 		data: profiles,
-		isPending: !conversationsLoaded || (users.length > 0 && profiles.size === 0),
-		// isPending: profilesQueries.some((query) => query.isPending),
+		isPending: !conversationsLoaded || profilesQueries.some((query) => query.isPending),
 		isSuccess: profilesQueries.every((query) => query.isSuccess),
 		isError: profilesQueries.some((query) => query.isError),
 		isFetching: profilesQueries.some((query) => query.isFetching),

@@ -12,6 +12,7 @@ from app.models import (
     ClientProfilePublic,
     ClientProfileUpdate,
     JobPost,
+    User,
     UserPublic,
 )
 
@@ -130,27 +131,36 @@ def read_client_profile_by_user_id(
 ) -> Any:
     """
     Get client profile by user ID. Public endpoint.
+    Automatically creates a draft profile if the user exists but has no profile yet.
     """
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Client profile not found")
+
     profile = session.exec(
         select(ClientProfile).where(ClientProfile.user_id == user_id)
     ).first()
     if not profile:
-        raise HTTPException(status_code=404, detail="Client profile not found")
+        profile = ClientProfile(user_id=user.id)
+        session.add(profile)
+        session.commit()
+        session.refresh(profile)
 
     job_posts_count_stmt = select(func.count()).where(
         JobPost.client_id == profile.user_id
     )
     job_posts_count = session.exec(job_posts_count_stmt).one()
 
+    user_obj = profile.user or user
     user_public = (
-        UserPublic.model_validate(profile.user) if profile.user else None
+        UserPublic.model_validate(user_obj) if user_obj else None
     )
 
     return ClientProfileDetailPublic.model_validate(
         profile,
         update={
-            "full_name": profile.user.full_name if profile.user else None,
-            "avatar_url": profile.user.avatar_url if profile.user else None,
+            "full_name": user_obj.full_name if user_obj else None,
+            "avatar_url": user_obj.avatar_url if user_obj else None,
             "user": user_public,
             "job_posts_count": job_posts_count,
         },

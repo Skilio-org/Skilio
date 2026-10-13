@@ -104,19 +104,19 @@ export function MessageThread({
 			</section>
 		)
 
-	let Name = selected.full_name || "Unknown"
+	let Name = selected?.full_name || "Unknown"
 	let subtitle = "Client"
-	if (isClientProfile(selected))
+	if (selected && isClientProfile(selected))
 	{
 		if (selected.company_role) subtitle = `${selected.company_role}@`
 		if (selected.company) subtitle += `${selected.company}`
 	}
 	else
-		subtitle = selected.title || "Freelancer"
+		subtitle = selected?.title || "Freelancer"
 
 	return (
 		<section
-			aria-label={`Conversation with ${selected.full_name}`}
+			aria-label={`Conversation with ${selected?.full_name ?? "User"}`}
 			className="message-thread flex min-h-0 min-w-0 flex-1 flex-col bg-surface-container-lowest"
 		>
 			<header className="flex h-16 shrink-0 items-center gap-3 border-b border-outline-variant bg-surface-container-lowest dark:bg-[#181a1d] px-4 sm:px-6">
@@ -250,7 +250,7 @@ export function MessageThread({
 					)}
 					{!term && (messages?.length != undefined ? messages?.length : 0) === 0 && (
 						<p role="status" className="py-12 text-center text-muted-foreground">
-							Start a conversation with {selected.full_name}. Say hello and share a little about your project.
+							Start a conversation with {selected?.full_name ?? "User"}. Say hello and share a little about your project.
 						</p>
 					)}
 					<div
@@ -265,9 +265,9 @@ export function MessageThread({
 								// sentState={messageSendState[message.id]}
 								key={message.id}
 								message={message}
-								name={selected.full_name ?? Name ?? "Unknown"}
+								name={selected?.full_name ?? Name ?? "Unknown"}
 								highlight={term}
-								own={message.sender_id !== selected.user_id}
+								own={selected?.user_id ? message.sender_id !== selected.user_id : true}
 							/>
 						))}
 					</div>
@@ -310,8 +310,8 @@ export function MessageThread({
 						}}
 						rows={3}
 						maxLength={5000}
-						aria-label={`Message ${selected.full_name}`}
-						placeholder={`Write a message to ${selected.full_name}…`}
+						aria-label={`Message ${selected?.full_name ?? "User"}`}
+						placeholder={`Write a message to ${selected?.full_name ?? "User"}…`}
 						className="block max-h-36 min-h-16 w-full resize-none bg-transparent px-3.5 pt-3 pb-1 font-body-sm text-body-sm leading-6 text-on-surface outline-none placeholder:text-outline"
 					/>
 					<div className="flex items-center justify-between gap-2 px-3 pb-2.5 pt-1">
