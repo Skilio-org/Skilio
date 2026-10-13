@@ -13,27 +13,19 @@ import { handleError } from "@/utils"
 import useCustomToast from "./useCustomToast"
 import { toast } from "sonner"
 
+function clear_access_token() {
+	localStorage.removeItem("access_token")
+	window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+}
+
+function update_access_token(token: string) {
+	localStorage.setItem("access_token", token)
+	window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+}
+
 const isLoggedIn = () => {
 	let valid = localStorage.getItem("access_token") != null
 	return valid
-	// if (!valid) return valid
-
-	// console.log("Testing access token...")
-	// LoginService.testToken()
-	// .then((response) => {
-	// 	if (response.status != 200) {
-	// 		console.log("Access token is invalid, removing it from localStorage")
-	// 		localStorage.removeItem("access_token")
-	// 		window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
-	// 		valid = false;
-	// 	}
-	// }).catch((err) => {
-	// 	console.error("Error testing access token:", err)
-	// 	localStorage.removeItem("access_token")
-	// 	window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
-	// 	valid = false;
-	// })
-	// return valid;
 }
 
 const useAuth = () => {
@@ -55,9 +47,9 @@ const useAuth = () => {
 				const { data: account } = await UsersService.readUserMe()
 				queryClient.setQueryData(["currentUser"], account)
 				return account
-			} catch (error) {
-				toast.error("Failed to fetch user data")
-				localStorage.removeItem("access_token")
+			} catch (error: any) {
+				toast.error((error.response?.data.detail || error.message || "Unknown error"))
+				clear_access_token()
 				queryClient.removeQueries({ queryKey: ["currentUser"] })
 				window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
 				return null
@@ -92,16 +84,14 @@ const useAuth = () => {
 			const response = await LoginService.loginAccessToken({
 				body: data,
 			})
-			localStorage.setItem("access_token", response.data.access_token)
-			window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+			update_access_token(response.data.access_token)
 			const { data: account } = await UsersService.readUserMe()
 			queryClient.setQueryData(["currentUser"], account)
 			return account
-		} catch (error) {
-			toast.error("Failed to fetch user data")
-			localStorage.removeItem("access_token")
+		} catch (error: any) {
+			toast.error((error.response?.data.detail || error.message || "Unknown error"))
+			clear_access_token()
 			queryClient.removeQueries({ queryKey: ["currentUser"] })
-			window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))	
 		}
 	}
 
@@ -130,8 +120,7 @@ const useAuth = () => {
 	})
 
 	const logout = () => {
-		localStorage.removeItem("access_token")
-		window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+		clear_access_token()
 		queryClient.clear()
 		navigate({ to: "/login" })
 	}
