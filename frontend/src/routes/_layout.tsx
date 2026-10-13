@@ -1,12 +1,20 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
 import { isLoggedIn } from "@/hooks/useAuth"
+import { UsersService } from "@/client"
+import { AUTH_TOKEN_CHANGED_EVENT } from "@/context/websocket-context"
 import { AppLayout } from "@/pages/common/app-layout"
 
 export const Route = createFileRoute("/_layout")({
 	component: AppLayout,
 	beforeLoad: async () => {
-		console.log("Checking if user is logged in with access token: ", localStorage.getItem("access_token"))
-		if (!await isLoggedIn()) throw redirect({ to: "/login" })
-		else console.log("User is logged in, proceeding to load the layout with: ", localStorage.getItem("access_token"))
+		if (!isLoggedIn()) throw redirect({ to: "/login" })
+		// Validate the token server-side before rendering any protected area
+		try {
+			await UsersService.readUserMe()
+		} catch {
+			localStorage.removeItem("access_token")
+			window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+			throw redirect({ to: "/login" })
+		}
 	},
 })
