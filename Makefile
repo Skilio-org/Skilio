@@ -1,4 +1,4 @@
-.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test
+.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test server-init
 
 # Default target — show available commands
 help:
@@ -20,6 +20,9 @@ help:
 	@echo "    make backup-list  Show inventory of available database snapshots"
 	@echo "    make restore      Restore database from latest backup (or FILE=...)"
 	@echo "    make dr-test      Run automated disaster recovery verification drill"
+	@echo ""
+	@echo "  Cloud Server & Deployment:"
+	@echo "    make server-init  Bootstrap remote AWS server with Docker, 2GB Swap & tools"
 	@echo ""
 	@echo "  Testing & Data:"
 	@echo "    make test         Run backend unit & integration test suite"
@@ -98,6 +101,19 @@ restore:
 # Run automated disaster recovery verification drill
 dr-test:
 	@bash devops/backup/dr-test.sh
+
+
+
+
+# =========== Cloud Server & Deployment ==========================
+
+SERVER_IP ?= 16.192.59.166
+SSH_KEY ?= $(HOME)/Downloads/skilio-key.pem
+
+# Bootstrap fresh remote AWS server with Docker, 2GB Swap & tools
+server-init:
+	@chmod 400 $(SSH_KEY) 2>/dev/null || true
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'sudo bash -s' < devops/scripts/server-init.sh
 
 
 

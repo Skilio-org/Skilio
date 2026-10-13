@@ -8,7 +8,7 @@ services:
       # Listen on port 443, default for HTTPS
       - "443:443"
     volumes:
-      # Mount the volume to store the certificates
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-certificates:/certificates
     command:
       # Enable Docker in Traefik, so that it reads labels from Docker services
@@ -22,6 +22,8 @@ services:
       - --entrypoints.http.http.redirections.entrypoint.scheme=https
       # Create an entrypoint "https" listening on port 443
       - --entrypoints.https.address=:443
+      # Let's Encrypt ACME registration email
+      - --certificatesresolvers.le.acme.email=${ACME_EMAIL:?Variable not set}
       # Store the Let's Encrypt certificates in the mounted volume
       - --certificatesresolvers.le.acme.storage=/certificates/acme.json
       # Use the TLS Challenge for Let's Encrypt
@@ -34,22 +36,37 @@ services:
   db:
     restart: always
 
+  redis:
+    restart: always
+
   backend:
     restart: always
     environment:
       FRONTEND_HOST: https://${DOMAIN:?Variable not set}
     labels:
+      - traefik.enable=true
       # Route HTTPS traffic for this domain
       - traefik.http.routers.backend-https.rule=Host(`${DOMAIN:?Variable not set}`)
       - traefik.http.routers.backend-https.entrypoints=https
       - traefik.http.routers.backend-https.tls=true
-      # Use the Let's Encrypt resolver
       - traefik.http.routers.backend-https.tls.certresolver=le
+      - traefik.http.services.backend.loadbalancer.server.port=8000
 
-      # Health check — Traefik stops routing traffic if the backend is unhealthy
-      - traefik.http.services.backend.loadbalancer.healthCheck.path=/api/v1/utils/health-check/
+      # Deep diagnostic health check — stops routing traffic if DB/Redis/Disk fails
+      - traefik.http.services.backend.loadbalancer.healthCheck.path=/api/v1/health
       - traefik.http.services.backend.loadbalancer.healthCheck.interval=10s
       - traefik.http.services.backend.loadbalancer.healthCheck.timeout=5s
+
+  grafana:
+    restart: always
+    labels:
+      - traefik.enable=true
+      # Route HTTPS traffic for Grafana dashboard
+      - traefik.http.routers.grafana-https.rule=Host(`grafana.${DOMAIN:?Variable not set}`)
+      - traefik.http.routers.grafana-https.entrypoints=https
+      - traefik.http.routers.grafana-https.tls=true
+      - traefik.http.routers.grafana-https.tls.certresolver=le
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
 
 volumes:
   # Create a volume to store the certificates, even if the container is recreated
