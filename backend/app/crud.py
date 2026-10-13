@@ -3,14 +3,7 @@ from typing import Any
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import (
-    ClientProfile,
-    FreelancerProfile,
-    User,
-    UserCreate,
-    UserRole,
-    UserUpdate,
-)
+from app.models import User, UserCreate, UserUpdate
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -19,25 +12,6 @@ def create_user(*, session: Session, user_create: UserCreate) -> User:
     )
     session.add(db_obj)
     session.commit()
-    session.refresh(db_obj)
-
-    if db_obj.active_role == UserRole.FREELANCER:
-        profile = session.exec(
-            select(FreelancerProfile).where(FreelancerProfile.user_id == db_obj.id)
-        ).first()
-        if not profile:
-            profile = FreelancerProfile(user_id=db_obj.id)
-            session.add(profile)
-            session.commit()
-    elif db_obj.active_role == UserRole.CLIENT:
-        profile = session.exec(
-            select(ClientProfile).where(ClientProfile.user_id == db_obj.id)
-        ).first()
-        if not profile:
-            profile = ClientProfile(user_id=db_obj.id)
-            session.add(profile)
-            session.commit()
-
     session.refresh(db_obj)
     return db_obj
 
