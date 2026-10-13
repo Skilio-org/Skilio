@@ -53,7 +53,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
-          "expr": "sum(container_memory_usage_bytes{name=~\"freelancer-.*\"})",
+          "expr": "sum(container_memory_usage_bytes{name=~\"(skilio|freelancer)-.*\"})",
           "instant": false,
           "legendFormat": "Total RAM",
           "range": true,
@@ -100,7 +100,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\"freelancer-.*\"}[1m])) * 100",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\"(skilio|freelancer)-.*\"}[1m])) * 100",
           "instant": false,
           "legendFormat": "Total CPU",
           "range": true,
@@ -145,7 +145,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
-          "expr": "count(count by (name) (container_last_seen{name=~\"freelancer-.*\"}))",
+          "expr": "count(count by (name) (container_last_seen{name=~\"(skilio|freelancer)-.*\"}))",
           "instant": false,
           "legendFormat": "Containers",
           "range": true,
@@ -190,7 +190,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
-          "expr": "sum(rate(container_network_receive_bytes_total{name=~\"freelancer-.*\"}[1m]))",
+          "expr": "sum(rate(container_network_receive_bytes_total{name=~\"(skilio|freelancer)-.*\"}[1m]))",
           "instant": false,
           "legendFormat": "Network RX",
           "range": true,
@@ -236,7 +236,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
-          "expr": "sum by (name) (container_memory_usage_bytes{name=~\"freelancer-.*\"})",
+          "expr": "sum by (name) (container_memory_usage_bytes{name=~\"(skilio|freelancer)-.*\"})",
           "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"
@@ -269,7 +269,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
-          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{name=~\"freelancer-.*\"}[1m])) * 100",
+          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{name=~\"(skilio|freelancer)-.*\"}[1m])) * 100",
           "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"
@@ -309,7 +309,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
-          "expr": "sum by (name) (container_memory_usage_bytes{name=~\"freelancer-.*\"})",
+          "expr": "sum by (name) (container_memory_usage_bytes{name=~\"(skilio|freelancer)-.*\"})",
           "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"
@@ -342,7 +342,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
-          "expr": "sum by (name) (rate(container_network_receive_bytes_total{name=~\"freelancer-.*\"}[1m]))",
+          "expr": "sum by (name) (rate(container_network_receive_bytes_total{name=~\"(skilio|freelancer)-.*\"}[1m]))",
           "legendFormat": "{{name}} (RX Inbound)",
           "range": true,
           "refId": "A"
@@ -350,7 +350,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
-          "expr": "sum by (name) (rate(container_network_transmit_bytes_total{name=~\"freelancer-.*\"}[1m]))",
+          "expr": "sum by (name) (rate(container_network_transmit_bytes_total{name=~\"(skilio|freelancer)-.*\"}[1m]))",
           "legendFormat": "{{name}} (TX Outbound)",
           "range": true,
           "refId": "B"
