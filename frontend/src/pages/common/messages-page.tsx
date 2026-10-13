@@ -10,7 +10,7 @@ import type { InboxFilter } from "@/components/messages/message-types"
 import { useUserOnlineStatus } from "@/hooks/useUserOnlineStatus"
 import { useCreateConversation } from "@/hooks/useCreateConversation"
 import { useConversations } from "@/hooks/useConversations"
-import { useProfiles } from "@/hooks/useProfiles"
+import { useProfiles, createFallbackProfile } from "@/hooks/useProfiles"
 import { useWebSocket } from "@/context/websocket-context"
 import { toast } from "sonner"
 import { useConversation, useConversationUpdate } from "@/hooks/userConversation"
@@ -46,7 +46,10 @@ export function MessagesPage({
 		? conversations.data?.data.find((conversation) => conversation.other_user?.id === SelectedUserId)
 		: undefined
 	const selectedConversationId = selectedConversation == undefined ? selectedConversation : selectedConversation?.id
-	const selectedProfile = selectedConversation && profiles.data?.get(selectedConversation?.other_user?.id ?? "")
+	const selectedProfile = selectedConversation && (
+		profiles.data?.get(selectedConversation?.other_user?.id ?? "") ??
+		(selectedConversation.other_user ? createFallbackProfile(selectedConversation.other_user) : undefined)
+	)
 
 	const { isOnline, isPending: presencePending } = useUserOnlineStatus(selectedProfile?.user_id)
 	const detailsQuery = useConversation(selectedConversationId ?? "")

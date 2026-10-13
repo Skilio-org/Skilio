@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "@/hooks/isClientProfile"
 import { useChatData } from "@/hooks/useChatData"
+import { createFallbackProfile } from "@/hooks/useProfiles"
 
 export function ConversationList({
 	selected,
@@ -106,7 +107,7 @@ export function ConversationList({
 					})
 					.map((conversation) => {
 						if (conversation.other_user == undefined) return
-						const person = profiles.data?.get(conversation.other_user.id)
+						const person = profiles.data?.get(conversation.other_user.id) ?? createFallbackProfile(conversation.other_user)
 						if (!person) return null
 						const theme = getClientTheme(person.user_id)
 						const active = selected?.user_id === person.user_id
