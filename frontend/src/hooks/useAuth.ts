@@ -13,6 +13,7 @@ import { handleError } from "@/utils"
 import useCustomToast from "./useCustomToast"
 import { toast } from "sonner"
 
+
 const isLoggedIn = () => {
 	return localStorage.getItem("access_token") !== null
 }
@@ -32,6 +33,8 @@ const useAuth = () => {
 		queryKey: ["currentUser"],
 		queryFn: async () => (await UsersService.readUserMe()).data,
 		enabled: isLoggedIn(),
+		retry: false,
+		staleTime: 5 * 60 * 1000,
 	})
 
 	const signUpMutation = useMutation({

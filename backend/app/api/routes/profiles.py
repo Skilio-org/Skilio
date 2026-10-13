@@ -1271,6 +1271,10 @@ def read_profile_by_user_id(
     user_id: uuid.UUID,
     current_user: CurrentUserOptional = None,
 ) -> Any:
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Freelancer profile not found")
+
     profile = session.exec(
         select(FreelancerProfile).where(
             FreelancerProfile.user_id == user_id
@@ -1278,18 +1282,20 @@ def read_profile_by_user_id(
     ).first()
 
     if not profile:
-        raise HTTPException(status_code=404, detail="Freelancer profile not found")
-
-    if not profile.finished:
-        if not current_user or (
-            current_user.id != profile.user_id
-            and not current_user.is_superuser
-        ):
-            raise HTTPException(status_code=404, detail="Freelancer profile not found")
+        profile = FreelancerProfile(
+            user_id=user.id,
+            is_available=True,
+            availability="Available now",
+            finished=False,
+        )
+        session.add(profile)
+        session.commit()
+        session.refresh(profile)
 
     return _build_profile_detail_public(
         session,
         profile,
+        current_user=current_user,
         is_saved=False,
     )
 

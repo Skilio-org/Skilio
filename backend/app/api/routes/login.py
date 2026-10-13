@@ -10,7 +10,17 @@ from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
-from app.models import Message, NewPassword, Token, UserPublic, UserUpdate, User
+from app.models import (
+    ClientProfile,
+    FreelancerProfile,
+    Message,
+    NewPassword,
+    Token,
+    User,
+    UserPublic,
+    UserRole,
+    UserUpdate,
+)
 from app.utils import (
     generate_password_reset_token,
     generate_reset_password_email,
@@ -93,6 +103,13 @@ def google_callback(request: Request, code: str, session: SessionDep):
         session.add(user)
         session.commit()
         session.refresh(user)
+        if user.active_role == UserRole.FREELANCER:
+            profile = FreelancerProfile(user_id=user.id)
+            session.add(profile)
+        else:
+            profile = ClientProfile(user_id=user.id)
+            session.add(profile)
+        session.commit()
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
@@ -181,6 +198,13 @@ def linkedin_callback(request: Request, code: str, session: SessionDep):
         session.add(user)
         session.commit()
         session.refresh(user)
+        if user.active_role == UserRole.FREELANCER:
+            profile = FreelancerProfile(user_id=user.id)
+            session.add(profile)
+        else:
+            profile = ClientProfile(user_id=user.id)
+            session.add(profile)
+        session.commit()
 
     # 4. Issue standard JWT token back to the frontend
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
