@@ -108,6 +108,10 @@ const useAuth = () => {
 	const loginMutation = useMutation({
 		mutationFn: login,
 		onSuccess: (account) => {
+			if (account == undefined || account == null) {
+				navigate({ to: "/login" })
+				return;
+			}
 			const role = account.active_role || localStorage.getItem(`account-role:${account.email.trim().toLowerCase()}`)
 			if (account.active_role) {
 				localStorage.setItem(`account-role:${account.email.trim().toLowerCase()}`, account.active_role)
