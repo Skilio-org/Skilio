@@ -84,7 +84,7 @@ git push origin <your-branch>
 GitHub Actions automatically runs the verification gate:
 - 🧪 **`test-backend`**: Pytest suite and database migrations.
 - 📦 **`test-docker-compose`**: Multi-stage Docker image compilation and container startup.
-- 🧹 **`pre-commit`**: Linting and formatting (Ruff, Bun).
+- 🧹 **`lint`**: Code quality checks (Python syntax via Ruff, TypeScript build via Bun).
 
 Once all checks are **GREEN ✅**, click **"Merge pull request"** $\rightarrow$ **"Confirm merge"**.
 
