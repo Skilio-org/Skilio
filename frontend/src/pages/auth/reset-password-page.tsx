@@ -18,7 +18,6 @@ import useCustomToast from "@/hooks/useCustomToast"
 
 import { handleError } from "@/utils"
 
-
 const formSchema = z
 	.object({
 		new_password: z
@@ -40,7 +39,6 @@ const formSchema = z
 	})
 
 type FormData = z.infer<typeof formSchema>
-
 
 export function ResetPasswordPage({ token }: { token: string }) {
 	const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -66,7 +64,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 
 	const passwordsMatch = newPassword.length > 0 && confirmPassword.length > 0 && newPassword === confirmPassword
 
-
 	const mutation = useMutation({
 		mutationFn: (data: { new_password: string; token: string }) =>
 			LoginService.resetPassword({
@@ -86,7 +83,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 		onError: handleError.bind(showErrorToast),
 	})
 
-
 	const onSubmit = (data: FormData) => {
 		if (mutation.isPending) return
 
@@ -101,7 +97,6 @@ export function ResetPasswordPage({ token }: { token: string }) {
 			<div>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
-
 						<RouterLink
 							to="/login"
 							className="mb-6 inline-flex items-center gap-2 rounded-md font-medium text-muted-foreground text-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"

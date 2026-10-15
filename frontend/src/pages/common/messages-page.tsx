@@ -128,11 +128,19 @@ export function MessagesPage({
 				data: updatedConversations,
 			}
 		})
-	}, [selectedConversationId, detailsQuery.isPending, detailsQuery.data?.messages, detailsQuery.data?.unread_count, sendMessage, queryClient, setMessageSendResult])
-	
+	}, [
+		selectedConversationId,
+		detailsQuery.isPending,
+		detailsQuery.data?.messages,
+		detailsQuery.data?.unread_count,
+		sendMessage,
+		queryClient,
+		setMessageSendResult,
+	])
+
 	useEffect(() => {
 		detailsQuery.data?.messages?.forEach((message) => setMessageSendResult(message.id, "sent"))
-	}, [selectedConversationId,  detailsQuery.isPending])
+	}, [selectedConversationId, detailsQuery.isPending])
 	if (conversations.isPending) {
 		return <>Still loading conversations!</>
 	}
@@ -153,7 +161,6 @@ export function MessagesPage({
 	// 	return text.toLowerCase().includes(search.toLowerCase())
 	// }
 
-
 	const send = (message: string) => {
 		const content = message.trim()
 		const rmessage: ChatMessagePublic = {
@@ -167,12 +174,12 @@ export function MessagesPage({
 
 		if (!selectedConversationId || !content) return
 
-		let sent = false;
+		let sent = false
 		MessageUpdate(selectedConversationId, rmessage)
 		setMessageSendResult(rmessage.id, "pending")
 		setDraft("")
 		// setTimeout(() => {
-	
+
 		sent = sendMessage({
 			type: "chat_message",
 			conversation_id: selectedConversationId,
@@ -319,56 +326,52 @@ export function MessagesPage({
 							Back to conversations
 						</Button>
 					</section>
+				) : selectedConversationId !== undefined ? (
+					<MessageThread
+						key={selectedProfile?.user_id ?? "no-profile"}
+						selected={selectedProfile}
+						isOnline={isOnline}
+						presencePending={presencePending}
+						messages={detailsQuery.data?.messages ?? []}
+						draft={draft}
+						archived={false}
+						onBack={() => {
+							onSelectContact("")
+						}}
+						onOpenLatest={() => {
+							if (conversations.data?.data[0]?.other_user?.id)
+								onSelectContact(conversations.data?.data[0].other_user?.id)
+							// else setNewMessageOpen(true)
+						}}
+						hasConversations={conversations.data?.count == undefined ? false : conversations.data?.count > 0}
+						canViewProfile={true}
+						onDetails={() => {
+							if (clientMode && selectedConversation?.other_user?.active_role === "freelancer")
+								void navigate({
+									to: "/talent/$freelancerId",
+									params: { freelancerId: selectedProfile?.user_id ?? "" },
+									search: { q: undefined },
+								})
+						}}
+						onArchive={() => {}}
+						onMarkUnread={() => {
+							// markUnread()
+							// select("")
+							;() => {}
+						}}
+						onDraftChange={setDraft}
+						onSend={() => send(draft)}
+					/>
 				) : (
-					selectedConversationId !== undefined ? (
-						<MessageThread
-							key={selectedProfile?.user_id ?? "no-profile"}
-							selected={selectedProfile}
-							isOnline={isOnline}
-							presencePending={presencePending}
-							messages={detailsQuery.data?.messages ?? []}
-							draft={draft}
-							archived={false}
-							onBack={() => {
-								onSelectContact("")
-							}}
-							onOpenLatest={() => {
-								if (conversations.data?.data[0]?.other_user?.id)
-									onSelectContact(conversations.data?.data[0].other_user?.id)
-								// else setNewMessageOpen(true)
-							}}
-							hasConversations={conversations.data?.count == undefined ? false : conversations.data?.count > 0}
-							canViewProfile={true}
-							onDetails={() => {
-								if (clientMode && selectedConversation?.other_user?.active_role === "freelancer")
-									void navigate({
-										to: "/talent/$freelancerId",
-										params: { freelancerId: selectedProfile?.user_id ?? "" },
-										search: { q: undefined },
-									})
-							}}
-							onArchive={() => {}}
-							onMarkUnread={() => {
-								// markUnread()
-								// select("")
-								;() => {}
-							}}
-							onDraftChange={setDraft}
-							onSend={() => send(draft)}
-						/>
-					) : (
-						<section className="flex flex-col items-center justify-center gap-4 p-6 text-center">
-							<div className="p-4 flex items-center justify-center rounded-full bg-surface-container-lowest dark:bg-surface-panel">
-								<InboxIcon className="size-12 text-on-surface-variant" />
-							</div>
-							<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
-								Select a conversation
-							</h2>
-							<p className="font-body-md text-body-md text-on-surface-variant">
-								Choose a {clientMode ? "freelancer" : "client"} from the list to view your conversation.
-							</p>
-						</section>
-					)
+					<section className="flex flex-col items-center justify-center gap-4 p-6 text-center">
+						<div className="p-4 flex items-center justify-center rounded-full bg-surface-container-lowest dark:bg-surface-panel">
+							<InboxIcon className="size-12 text-on-surface-variant" />
+						</div>
+						<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Select a conversation</h2>
+						<p className="font-body-md text-body-md text-on-surface-variant">
+							Choose a {clientMode ? "freelancer" : "client"} from the list to view your conversation.
+						</p>
+					</section>
 				)}
 			</div>
 		</div>

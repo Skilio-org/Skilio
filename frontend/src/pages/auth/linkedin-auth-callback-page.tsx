@@ -6,7 +6,7 @@ export function LinkedinAuthCallbackPage({ code, error }: { code?: string; error
 	const navigate = useNavigate()
 
 	useEffect(() => {
-		const controller = new AbortController();
+		const controller = new AbortController()
 		if (error) {
 			navigate({
 				to: "/login",
@@ -29,9 +29,9 @@ export function LinkedinAuthCallbackPage({ code, error }: { code?: string; error
 			try {
 				const res = await fetch(
 					`http://localhost:8000/api/v1/login/linkedin/callback?code=${encodeURIComponent(code)}`,
-					{ signal: controller.signal }
+					{ signal: controller.signal },
 				)
-				
+
 				console.log(JSON.stringify(res))
 				if (!res.ok) {
 					const errorData = await res.json()
@@ -48,7 +48,7 @@ export function LinkedinAuthCallbackPage({ code, error }: { code?: string; error
 					to: "/dashboard",
 				})
 			} catch (err: any) {
-				if (err.name !== 'AbortError') {
+				if (err.name !== "AbortError") {
 					navigate({
 						to: "/login",
 						search: {

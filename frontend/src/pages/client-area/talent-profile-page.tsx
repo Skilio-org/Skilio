@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowLeft, ArrowUpRight, Bookmark, Check } from "lucide-react"
+import { ArrowLeft, ArrowUpRight, Bookmark, Check, Star } from "lucide-react"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view"
 import type { FreelancerProfileDetailPublic } from "@/client"
@@ -7,8 +7,17 @@ import { profileFromApi } from "@/components/freelancer/freelancer-profile-api"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { getInitials } from "@/utils"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
+import { FreelancerReviewsSection } from "@/components/reviews/freelancer-reviews-section"
+import { useQuery } from "@tanstack/react-query"
+import { loadTalentProfile } from "@/components/talent/talent-api"
 
-export function TalentProfilePage({ person }: { person: FreelancerProfileDetailPublic }) {
+export function TalentProfilePage({ person: initialPerson }: { person: FreelancerProfileDetailPublic }) {
+	const { data: person } = useQuery({
+		queryKey: ["talent-profile", initialPerson.id],
+		initialData: initialPerson,
+		queryFn: () => loadTalentProfile(initialPerson.id),
+	})
+
 	const profile = profileFromApi(person)
 	const firstName = profile.name.split(" ")[0]
 	const { savedIds, toggleSaved } = useSavedTalent()
@@ -69,6 +78,13 @@ export function TalentProfilePage({ person }: { person: FreelancerProfileDetailP
 							{saved ? <Check className="size-4" /> : <Bookmark className="size-4" />}
 							{saved ? "Profile saved" : "Save profile"}
 						</button>
+						<a
+							href="#client-reviews"
+							className={`${workspaceStyles.secondaryAction} w-full inline-flex items-center justify-center gap-2`}
+						>
+							<Star className="size-4 fill-amber-500 text-amber-500" />
+							<span>Feedback & Reviews</span>
+						</a>
 					</>
 				}
 				contactFooter={
@@ -79,6 +95,15 @@ export function TalentProfilePage({ person }: { person: FreelancerProfileDetailP
 							</p>
 						)}
 					</>
+				}
+				reviewsNode={
+					<FreelancerReviewsSection
+						freelancerId={person.id}
+						profileUserId={person.user_id}
+						freelancerName={profile.name}
+						freelancerTitle={profile.title}
+						freelancerAvatarUrl={accountAvatarUrl(person.user_id)}
+					/>
 				}
 				portfolioDialogAction={
 					<>

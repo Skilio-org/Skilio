@@ -30,7 +30,19 @@ export function Avatar({ profile }: { profile: Profile }) {
 	)
 }
 
-export function ProfilePreview({ profile: p, compact = false }: { profile: Profile; compact?: boolean }) {
+export function ProfilePreview({
+	profile: p,
+	compact = false,
+	rating,
+	reviewsCount,
+	reviewsNode,
+}: {
+	profile: Profile
+	compact?: boolean
+	rating?: number
+	reviewsCount?: number
+	reviewsNode?: React.ReactNode
+}) {
 	const name = p.name || "Your name"
 	const bio = p.bio || "Your introduction will appear here."
 	const languages = p.languages
@@ -63,6 +75,8 @@ export function ProfilePreview({ profile: p, compact = false }: { profile: Profi
 					rate: p.rate,
 					availability: p.availability,
 					weeklyCapacity: p.hours,
+					rating,
+					reviews: reviewsCount,
 					portfolio: p.portfolio.map((entry) => ({
 						id: entry.id,
 						title: entry.title,
@@ -85,6 +99,7 @@ export function ProfilePreview({ profile: p, compact = false }: { profile: Profi
 					})),
 				}}
 				contactTitle="Your availability"
+				reviewsNode={reviewsNode}
 				contactFooter={
 					<p className="mt-4 text-center text-muted-foreground text-xs leading-5">
 						Clients will see these details when your profile is published.
