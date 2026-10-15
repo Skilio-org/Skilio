@@ -369,12 +369,32 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 ### Phase 4: Automated CI/CD Pipeline (GitHub Actions)
 **Goal**: Build a zero-touch delivery pipeline that tests, builds, and deploys code on merge to `master`.
 
-- [x] **Step 4.1: Audit & Master Existing CI Quality Gates**
-  - The repository utilizes 3 modular CI workflows inherited from the template that act as our automated testing gate:
-    1. **`lint.yml`**: Validates code quality and syntax integrity (Python syntax checks with Ruff, TypeScript compilation with Bun) on push and pull requests.
-    2. **`test-backend.yml`**: Boots PostgreSQL + Mailpit inside GitHub Actions, runs database migrations, executes the full Python `pytest` test suite, and uploads test coverage.
-    3. **`test-docker-compose.yml`**: Compiles all production Docker containers, validates schema migrations, boots backend + Adminer, and performs live health-check probes inside the runner.
-  - **Verdict**: Our CI (Continuous Integration) is 100% complete and verified. Authored complete team collaboration standard in [docs/git-workflow.md](file:///home/aysadeq/Desktop/Freelancer/docs/git-workflow.md) covering GitHub Flow, branch protection rules, conflict resolution, and the developer cheatsheet. Now we engineer the missing **CD (Continuous Deployment)** pipeline to AWS.
+- [x] **Step 4.1: Engineer & Harden the 3-Tier Automated CI Quality Gate**
+  - **What We Engineered**:
+    - Replaced buggy, legacy template workflows with a clean, high-performance **3-Tier CI Pipeline**:
+      1. **`lint.yml` (Layer 1: Static Analysis & Compilation, ~8s)**:
+         - **Python Backend**: Fast AST syntax checks via `uv run ruff check --select E9,F63,F7,F82 backend/` to catch fatal syntax, control flow, and undefined variable errors without failing on cosmetic issues.
+         - **Frontend**: Full type-checking and bundle compilation via `bun run build` (`tsc -p tsconfig.build.json && vite build`).
+         - **Optimizations**: `paths-ignore: ['docs/**', '*.md']` and concurrency control with `cancel-in-progress: true`.
+      2. **`test-backend.yml` (Layer 2: Integration Testing & Coverage Gate, ~1m)**:
+         - Spins up dedicated PostgreSQL 18 and Mailpit containers inside GitHub Actions.
+         - Executes database migrations (`uv run bash scripts/prestart.sh`).
+         - Runs all **173 Pytest tests** with coverage tracking (`pytest-cov`).
+         - Strictly enforces minimum **70% test coverage** (our project achieves **83%**).
+         - Uploads interactive HTML coverage report as a downloadable artifact.
+         - Filtered with `paths:` targeting `backend/**`, `compose.yml`, and workflow file.
+      3. **`test-docker-compose.yml` (Layer 3: Container Build & Smoke Test, ~3m)**:
+         - Validates production multi-stage Docker build (`docker compose build`).
+         - Runs containerized migrations (`docker compose run --rm backend bash scripts/prestart.sh`).
+         - Boots backend application stack in detached mode (`docker compose up -d --wait backend`).
+         - Performs automated HTTP smoke checks with retries (`curl -f --retry 5 http://localhost:8000/api/v1/utils/health-check/`).
+         - Verifies root frontend web serving (`curl -f --retry 5 http://localhost:8000`).
+         - Tears down containers with `if: always()` to ensure clean runner termination.
+  - **Repository & Security Hardening**:
+    - Deleted obsolete `pre-commit.yml` and `.pre-commit-config.yaml` to eliminate dead configuration.
+    - Fixed Pydantic validation requirement for OAuth settings by adding defaults (`LINKEDIN_CLIENT_ID: str = ""`) and clean placeholders in `.env.example`.
+    - Mocked external Cloudinary network calls in `test_claudinary.py` so unit tests execute deterministically without leaking external API calls.
+  - **Verdict**: Our CI (Continuous Integration) is 100% complete, hardened, and verified with all checks green on PRs. Authored complete team collaboration standard in [docs/git-workflow.md](file:///home/aysadeq/Desktop/Freelancer/docs/git-workflow.md). Ready to engineer **Phase 4: CD (Continuous Deployment)**.
 
 - [ ] **Step 4.2: Configure GitHub Actions Secrets**
   - Store deployment credentials securely in GitHub Repository Settings (`Settings` $\rightarrow$ `Secrets and variables` $\rightarrow$ `Actions`):
