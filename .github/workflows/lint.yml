@@ -3,7 +3,14 @@ name: Lint & Code Quality
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
 
 jobs:
   lint-backend:
