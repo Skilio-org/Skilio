@@ -3,15 +3,8 @@ name: Test Backend
 on:
   push:
     branches: [master]
-    paths:
-      - "backend/**"
-      - "compose.yml"
-      - ".github/workflows/test-backend.yml"
   pull_request:
-    paths:
-      - "backend/**"
-      - "compose.yml"
-      - ".github/workflows/test-backend.yml"
+    branches: [master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

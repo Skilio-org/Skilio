@@ -3,14 +3,12 @@ name: Lint & Code Quality
 on:
   push:
     branches: [master]
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
-
   pull_request:
-    paths-ignore:
-      - "docs/**"
-      - "*.md"
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint-backend:
