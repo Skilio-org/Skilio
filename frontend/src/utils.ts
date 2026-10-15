@@ -1,14 +1,17 @@
 import { AxiosError } from "axios"
 
-function extractErrorMessage(err: Error): string {
-	if (err instanceof AxiosError) {
-		const errDetail = (err.response?.data as any)?.detail
-		if (Array.isArray(errDetail) && errDetail.length > 0) {
-			return errDetail[0].msg
-		}
-		if (typeof errDetail === "string") {
-			return errDetail
-		}
+export function extractErrorMessage(err: any): string {
+	const errDetail = err?.response?.data?.detail ?? err?.body?.detail
+	if (Array.isArray(errDetail) && errDetail.length > 0) {
+		return errDetail[0]?.msg || JSON.stringify(errDetail[0])
+	}
+	if (typeof errDetail === "string") {
+		return errDetail
+	}
+	if (err instanceof AxiosError && err.message) {
+		return err.message
+	}
+	if (typeof err?.message === "string") {
 		return err.message
 	}
 	return "Something went wrong."

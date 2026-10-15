@@ -30,10 +30,7 @@ import { cn } from "@/lib/utils"
 import { NotificationEvent, NotificationPublic } from "@/client/types.gen"
 import { useNotifications } from "@/hooks/useNotifications"
 import { useAccountRole } from "@/hooks/useAccountRole"
-import {
-	useAcceptConnectionRequest,
-	useDeclineConnectionRequest,
-} from "@/hooks/useConnections"
+import { useAcceptConnectionRequest, useDeclineConnectionRequest } from "@/hooks/useConnections"
 import { chatKeys } from "@/data/chat-keys"
 import { formatMessageTime } from "@/util/timestampformatter"
 import { useWebSocket } from "@/context/websocket-context"
@@ -78,41 +75,48 @@ interface NotificationActionProps {
 	onMarkAsRead: (id: string) => void
 }
 
-function NotificationActions({
-	notification,
-	role,
-	onMarkAsRead,
-}: NotificationActionProps) {
+function NotificationActions({ notification, role, onMarkAsRead }: NotificationActionProps) {
 	const navigate = useNavigate()
+	const queryClient = useQueryClient()
 	const acceptConnection = useAcceptConnectionRequest()
 	const declineConnection = useDeclineConnectionRequest()
 
+	const connectionId = notification.connection?.id || (notification as any).connection_id
+	const connectionStatus = notification.connection?.status
+
 	const [actionStatus, setActionStatus] = useState<"idle" | "accepted" | "declined">(
-		notification.connection?.status === "accepted"
+		connectionStatus === "accepted"
 			? "accepted"
-			: notification.connection?.status === "declined"
+			: connectionStatus === "declined"
 				? "declined"
-				: "idle"
+				: "idle",
 	)
+
+	const isAccepted = actionStatus === "accepted" || connectionStatus === "accepted"
+	const isDeclined = actionStatus === "declined" || connectionStatus === "declined"
 
 	// 1. Connection Request Actions (Accept / Decline)
 	if (notification.event === "connection_request") {
-		const connectionId = notification.connection?.id
-
-		if (actionStatus === "accepted") {
+		if (isAccepted) {
 			return (
 				<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-					<Badge variant="outline" className="h-6 border-emerald-500/30 bg-emerald-500/10 px-2 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+					<Badge
+						variant="secondary"
+						className="h-6 border-0 border-none bg-emerald-500/10 px-2 text-[11px] font-medium text-emerald-600 dark:text-emerald-400"
+					>
 						Connected
 					</Badge>
 				</div>
 			)
 		}
 
-		if (actionStatus === "declined") {
+		if (isDeclined) {
 			return (
 				<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-					<Badge variant="outline" className="h-6 border-muted-foreground/30 bg-muted/30 px-2 text-[11px] font-medium text-muted-foreground">
+					<Badge
+						variant="secondary"
+						className="h-6 border-0 border-none bg-muted/40 px-2 text-[11px] font-medium text-muted-foreground"
+					>
 						Declined
 					</Badge>
 				</div>
@@ -129,19 +133,37 @@ function NotificationActions({
 							e.stopPropagation()
 							e.preventDefault()
 							acceptConnection.mutate(connectionId, {
-								onSuccess: () => {
+								onSuccess: (data) => {
 									setActionStatus("accepted")
+									queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) => {
+										if (!current) return current
+										return current.map((item) => {
+											if (
+												item.id === notification.id ||
+												item.connection?.id === connectionId ||
+												(item as any).connection_id === connectionId
+											) {
+												return {
+													...item,
+													is_read: true,
+													connection: {
+														...(item.connection || {}),
+														...(data || {}),
+														id: connectionId,
+														status: "accepted",
+													} as any,
+												}
+											}
+											return item
+										})
+									})
 									onMarkAsRead(notification.id)
 								},
 							})
 						}}
-						className="inline-flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground shadow-2xs transition-opacity hover:opacity-90 disabled:opacity-50"
+						className="inline-flex h-7 min-w-[76px] items-center justify-center gap-1.5 rounded-md border-0 border-none bg-primary px-2.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
 					>
-						{acceptConnection.isPending ? (
-							<Loader2 className="size-3 animate-spin" />
-						) : (
-							<Check className="size-3" />
-						)}
+						{acceptConnection.isPending ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
 						Accept
 					</button>
 
@@ -152,19 +174,37 @@ function NotificationActions({
 							e.stopPropagation()
 							e.preventDefault()
 							declineConnection.mutate(connectionId, {
-								onSuccess: () => {
+								onSuccess: (data) => {
 									setActionStatus("declined")
+									queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) => {
+										if (!current) return current
+										return current.map((item) => {
+											if (
+												item.id === notification.id ||
+												item.connection?.id === connectionId ||
+												(item as any).connection_id === connectionId
+											) {
+												return {
+													...item,
+													is_read: true,
+													connection: {
+														...(item.connection || {}),
+														...(data || {}),
+														id: connectionId,
+														status: "declined",
+													} as any,
+												}
+											}
+											return item
+										})
+									})
 									onMarkAsRead(notification.id)
 								},
 							})
 						}}
-						className="inline-flex h-7 items-center gap-1.5 rounded-md border border-outline-variant bg-surface-container-low px-2 text-xs font-medium text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface disabled:opacity-50 dark:border-border-subtle"
+						className="inline-flex h-7 min-w-[76px] items-center justify-center gap-1.5 rounded-md border-0 border-none bg-surface-container-high px-2.5 text-xs font-medium text-on-surface transition-colors hover:bg-surface-container-highest disabled:opacity-50"
 					>
-						{declineConnection.isPending ? (
-							<Loader2 className="size-3 animate-spin" />
-						) : (
-							<X className="size-3" />
-						)}
+						{declineConnection.isPending ? <Loader2 className="size-3 animate-spin" /> : <X className="size-3" />}
 						Decline
 					</button>
 				</div>
@@ -181,7 +221,7 @@ function NotificationActions({
 						onMarkAsRead(notification.id)
 						void navigate({ to: "/connects" })
 					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
+					className="inline-flex h-6 items-center gap-1.5 rounded-md border-0 border-none bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
 				>
 					<UserPlus className="size-3" />
 					View Connections
@@ -305,7 +345,10 @@ function NotificationActions({
 	if (notification.event === "proposal_rejected") {
 		return (
 			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<Badge variant="outline" className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground">
+				<Badge
+					variant="secondary"
+					className="h-5 border-0 border-none bg-muted/40 px-1.5 text-[10px] font-medium text-muted-foreground"
+				>
 					Proposal Declined
 				</Badge>
 			</div>
@@ -316,7 +359,10 @@ function NotificationActions({
 	if (notification.event === "connection_declined") {
 		return (
 			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<Badge variant="outline" className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground">
+				<Badge
+					variant="secondary"
+					className="h-5 border-0 border-none bg-muted/40 px-1.5 text-[10px] font-medium text-muted-foreground"
+				>
 					Declined
 				</Badge>
 			</div>
@@ -327,7 +373,10 @@ function NotificationActions({
 	if (notification.event === "job_closed") {
 		return (
 			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<Badge variant="outline" className="h-5 border-muted-foreground/30 bg-muted/30 px-1.5 text-[10px] font-medium text-muted-foreground">
+				<Badge
+					variant="secondary"
+					className="h-5 border-0 border-none bg-muted/40 px-1.5 text-[10px] font-medium text-muted-foreground"
+				>
 					Job Closed
 				</Badge>
 			</div>
@@ -365,9 +414,9 @@ export function NotificationDropdown() {
 			type: "read_receipt",
 			notification_id: "all_notifications",
 		})
-		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), [
-			...notifications.map((notification) => ({ ...notification, is_read: true })),
-		])
+		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) =>
+			(current || notifications).map((notification) => ({ ...notification, is_read: true })),
+		)
 	}
 
 	const markAsRead = (notificationId: string) => {
@@ -375,11 +424,11 @@ export function NotificationDropdown() {
 			type: "read_receipt",
 			notification_id: notificationId,
 		})
-		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), [
-			...notifications.map((notification) =>
-				notification.id === notificationId ? { ...notification, is_read: true } : notification
+		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) =>
+			(current || notifications).map((notification) =>
+				notification.id === notificationId ? { ...notification, is_read: true } : notification,
 			),
-		])
+		)
 	}
 
 	const handleItemClick = (notification: NotificationPublic) => {
@@ -494,7 +543,7 @@ export function NotificationDropdown() {
 								}}
 								className={cn(
 									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
-									!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]"
+									!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
 								)}
 							>
 								{/* Icon */}
@@ -503,7 +552,7 @@ export function NotificationDropdown() {
 										"grid size-8 shrink-0 place-items-center rounded-lg border transition-colors",
 										notification.is_read
 											? "border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container"
-											: "border-primary/15 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/10"
+											: "border-primary/15 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/10",
 									)}
 								>
 									<NotificationIcon type={notification.event} />
@@ -515,7 +564,7 @@ export function NotificationDropdown() {
 										<span
 											className={cn(
 												"min-w-0 truncate font-label-sm text-label-sm text-on-surface",
-												notification.is_read ? "font-medium" : "font-semibold"
+												notification.is_read ? "font-medium" : "font-semibold",
 											)}
 										>
 											{notification.title}
@@ -531,11 +580,7 @@ export function NotificationDropdown() {
 									</span>
 
 									{/* Actionable buttons tailored per notification type */}
-									<NotificationActions
-										notification={notification}
-										role={role}
-										onMarkAsRead={markAsRead}
-									/>
+									<NotificationActions notification={notification} role={role} onMarkAsRead={markAsRead} />
 								</span>
 
 								{/* Unread dot */}

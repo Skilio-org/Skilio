@@ -15,7 +15,6 @@ import { useCallback, useEffect, useState } from "react"
 import { LandingFooter } from "@/components/landing/landing-footer"
 import { LandingHeader } from "@/components/landing/landing-header"
 
-
 export const Route = createFileRoute("/status")({
 	component: StatusPage,
 	head: () => ({
@@ -28,7 +27,6 @@ export const Route = createFileRoute("/status")({
 		],
 	}),
 })
-
 
 type HealthState = "healthy" | "degraded" | "unhealthy"
 
@@ -48,7 +46,6 @@ interface SystemHealth {
 		[key: string]: ComponentHealth | undefined
 	}
 }
-
 
 const REFRESH_INTERVAL_SECONDS = 10
 
@@ -244,7 +241,6 @@ function StatusPage() {
 		</div>
 	)
 }
-
 
 function ServiceCard({
 	icon,
