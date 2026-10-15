@@ -34,8 +34,6 @@ jobs:
             --exclude '.venv' \
             --exclude '__pycache__' \
             --exclude 'devops/backup/dumps' \
-            --exclude 'devops/vault/.credentials' \
-            --exclude 'devops/vault/backups' \
             ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/skilio/
 
       - name: Execute Zero-Downtime Deployment

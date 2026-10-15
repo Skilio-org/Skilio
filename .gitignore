@@ -9,10 +9,7 @@ backend/app/frontend/
 loaddotenv.fish
 /loaddotenv.fish
 ./loaddotenv.fish
-devops/vault/.credentials/
-devops/vault/backups/
 devops/backup/dumps/
-.env.vault
 uv.lock
 docs/subject/en.subject.txt
 docs/subject/en.subject.pdf

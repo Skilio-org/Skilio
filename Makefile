@@ -158,23 +158,3 @@ clean:
 fclean: clean
 
 re: clean setup
-
-
-
-
-
-# ─── HCP Vault (Temporarily Disabled) ───────────────────────
-# env:
-# 	@bash devops/vault/scripts/vault-pull.sh
-#
-# env-dev:
-# 	@bash devops/vault/scripts/vault-pull.sh --allow-fallbacks
-#
-# push:
-# 	@bash devops/vault/scripts/vault-push.sh
-#
-# push-dry:
-# 	@bash devops/vault/scripts/vault-push.sh --dry-run
-#
-# token:
-# 	@bash devops/vault/scripts/vault-create-token.sh $(NAME) $(TTL)
