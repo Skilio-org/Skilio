@@ -371,7 +371,7 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 
 - [x] **Step 4.1: Audit & Master Existing CI Quality Gates**
   - The repository utilizes 3 modular CI workflows inherited from the template that act as our automated testing gate:
-    1. **`pre-commit.yml`**: Validates code style, formatting, and linting (Ruff, ESLint, Prettier, TypeScript) on every pull request.
+    1. **`lint.yml`**: Validates code quality and syntax integrity (Python syntax checks with Ruff, TypeScript compilation with Bun) on push and pull requests.
     2. **`test-backend.yml`**: Boots PostgreSQL + Mailpit inside GitHub Actions, runs database migrations, executes the full Python `pytest` test suite, and uploads test coverage.
     3. **`test-docker-compose.yml`**: Compiles all production Docker containers, validates schema migrations, boots backend + Adminer, and performs live health-check probes inside the runner.
   - **Verdict**: Our CI (Continuous Integration) is 100% complete and verified. Authored complete team collaboration standard in [docs/git-workflow.md](file:///home/aysadeq/Desktop/Freelancer/docs/git-workflow.md) covering GitHub Flow, branch protection rules, conflict resolution, and the developer cheatsheet. Now we engineer the missing **CD (Continuous Deployment)** pipeline to AWS.
