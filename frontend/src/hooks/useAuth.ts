@@ -13,19 +13,9 @@ import { handleError } from "@/utils"
 import useCustomToast from "./useCustomToast"
 import { toast } from "sonner"
 
-function clear_access_token() {
-	localStorage.removeItem("access_token")
-	window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
-}
-
-function update_access_token(token: string) {
-	localStorage.setItem("access_token", token)
-	window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
-}
 
 const isLoggedIn = () => {
-	let valid = localStorage.getItem("access_token") != null
-	return valid
+	return localStorage.getItem("access_token") !== null
 }
 
 const useAuth = () => {
@@ -41,33 +31,20 @@ const useAuth = () => {
 		refetch,
 	} = useQuery<UserPublic | null, Error>({
 		queryKey: ["currentUser"],
-		queryFn: async (): Promise<UserPublic | null> => {
-			
-			try {
-				const { data: account } = await UsersService.readUserMe()
-				queryClient.setQueryData(["currentUser"], account)
-				return account
-			} catch (error: any) {
-				toast.error((error.response?.data.detail || error.message || "Unknown error"))
-				clear_access_token()
-				queryClient.removeQueries({ queryKey: ["currentUser"] })
-				window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
-				return null
-			}
-		},
+		queryFn: async () => (await UsersService.readUserMe()).data,
 		enabled: isLoggedIn(),
+		retry: false,
+		staleTime: 5 * 60 * 1000,
 	})
 
 	const signUpMutation = useMutation({
-		mutationFn: (data: UserRegister & { role?: "freelancer" | "client" }) => {
-			
-			return UsersService.registerUser({
+		mutationFn: (data: UserRegister & { role?: "freelancer" | "client" }) =>
+			UsersService.registerUser({
 				body: {
 					...data,
 					active_role: data.active_role ?? data.role ?? "client",
 				},
-			})
-		},
+			}),
 		onSuccess: (_result, data) => {
 			const role = data.active_role ?? data.role
 			if (role) localStorage.setItem(`account-role:${data.email.trim().toLowerCase()}`, role)
@@ -79,29 +56,27 @@ const useAuth = () => {
 		},
 	})
 
-	const login = async (data: AccessToken) => {		
+	const login = async (data: AccessToken) => {
+		const response = await LoginService.loginAccessToken({
+			body: data,
+		})
+		localStorage.setItem("access_token", response.data.access_token)
+		window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
 		try {
-			const response = await LoginService.loginAccessToken({
-				body: data,
-			})
-			update_access_token(response.data.access_token)
 			const { data: account } = await UsersService.readUserMe()
 			queryClient.setQueryData(["currentUser"], account)
 			return account
-		} catch (error: any) {
-			toast.error((error.response?.data.detail || error.message || "Unknown error"))
-			clear_access_token()
+		} catch (error) {
+			toast.error("Failed to fetch user data")
+			localStorage.removeItem("access_token")
 			queryClient.removeQueries({ queryKey: ["currentUser"] })
+			throw error
 		}
 	}
 
 	const loginMutation = useMutation({
 		mutationFn: login,
 		onSuccess: (account) => {
-			if (account == undefined || account == null) {
-				navigate({ to: "/login" })
-				return;
-			}
 			const role = account.active_role || localStorage.getItem(`account-role:${account.email.trim().toLowerCase()}`)
 			if (account.active_role) {
 				localStorage.setItem(`account-role:${account.email.trim().toLowerCase()}`, account.active_role)
@@ -120,7 +95,8 @@ const useAuth = () => {
 	})
 
 	const logout = () => {
-		clear_access_token()
+		localStorage.removeItem("access_token")
+		window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
 		queryClient.clear()
 		navigate({ to: "/login" })
 	}

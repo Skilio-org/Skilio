@@ -1048,7 +1048,6 @@ class JobPostsPublic(SQLModel):
 # Proposal Models
 # ==============================================================================
 
-
 class ProposalBase(SQLModel):
     cover_letter: str | None = Field(default=None, max_length=3000)
 
@@ -1108,7 +1107,6 @@ class ProposalPublic(ProposalBase):
     freelancer_profile: Optional[FreelancerProfilePublic] = None
     job_post: Optional[JobPostPublic] = None
 
-
 class ProposalsPublic(SQLModel):
     data: list[ProposalPublic]
     count: int
@@ -1117,7 +1115,6 @@ class ProposalsPublic(SQLModel):
 # ==============================================================================
 # Saved Job Models
 # ==============================================================================
-
 
 class SavedJobBase(SQLModel):
     job_post_id: uuid.UUID

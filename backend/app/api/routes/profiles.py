@@ -1295,7 +1295,7 @@ def read_profile_by_user_id(
     return _build_profile_detail_public(
         session,
         profile,
-        current_user=user,
+        current_user=current_user,
         is_saved=False,
     )
 

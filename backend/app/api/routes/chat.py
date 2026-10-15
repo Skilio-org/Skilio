@@ -2,8 +2,7 @@ import json
 import logging
 import uuid
 from typing import Annotated, Any
-from app.api.routes.notifications import mark_all_notifications_as_read, mark_notification_as_read, push_notification
-from app.api.routes.message_mods import mark_all_messages_as_read
+
 import jwt
 from fastapi import (
     APIRouter,
@@ -18,6 +17,12 @@ from pydantic import ValidationError
 from sqlmodel import Session, and_, col, func, or_, select
 
 from app.api.deps import CurrentUser, SessionDep
+from app.api.routes.message_mods import mark_all_messages_as_read
+from app.api.routes.notifications import (
+    mark_all_notifications_as_read,
+    mark_notification_as_read,
+    push_notification,
+)
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
@@ -34,7 +39,6 @@ from app.models import (
     ConversationPublic,
     ConversationsPublic,
     InjectPayload,
-    Notification,
     NotificationEvent,
     TokenPayload,
     User,
@@ -118,7 +122,7 @@ def get_my_conversations(
 
     data = [
         _build_conversation_public(conv, current_user.id, session)
-        for conv in conversations
+        for conv in conversations if conv.messages
     ]
     return ConversationsPublic(data=data, count=len(data))
 
