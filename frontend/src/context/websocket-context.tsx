@@ -240,24 +240,22 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 			setIsConnected(false)
 		}
 	}
-	const safeConnect = useCallback(() => {
+
+	useEffect(() => {
 		isMountedRef.current = true
 		connect()
 
 		window.addEventListener("storage", handleStorage)
 		window.addEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
-	}, [connect])
 
-	useEffect(() => {
-		window.addEventListener("DOMContentLoaded", safeConnect)
 		return () => {
 			isMountedRef.current = false
 			window.removeEventListener("storage", handleStorage)
 			window.removeEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
-			window.removeEventListener("DOMContentLoaded", safeConnect)
 			cleanupSocket()
 		}
 	}, [connect, cleanupSocket])
+
 
 	const sendMessage = useCallback((payload: any): boolean => {
 		if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
