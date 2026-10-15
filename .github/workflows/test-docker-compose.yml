@@ -3,21 +3,8 @@ name: Test Docker Compose
 on:
   push:
     branches: [master]
-    paths:
-      - "backend/**"
-      - "frontend/**"
-      - "compose*.yml"
-      - "package.json"
-      - "bun.lock"
-      - ".github/workflows/test-docker-compose.yml"
   pull_request:
-    paths:
-      - "backend/**"
-      - "frontend/**"
-      - "compose*.yml"
-      - "package.json"
-      - "bun.lock"
-      - ".github/workflows/test-docker-compose.yml"
+    branches: [master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
