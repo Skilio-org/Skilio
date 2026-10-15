@@ -396,27 +396,32 @@ This implementation transitions the Skilio platform from an isolated `localhost`
     - Mocked external Cloudinary network calls in `test_claudinary.py` so unit tests execute deterministically without leaking external API calls.
   - **Verdict**: Our CI (Continuous Integration) is 100% complete, hardened, and verified with all checks green on PRs. Authored complete team collaboration standard in [docs/git-workflow.md](file:///home/aysadeq/Desktop/Freelancer/docs/git-workflow.md). Ready to engineer **Phase 4: CD (Continuous Deployment)**.
 
-- [ ] **Step 4.2: Configure GitHub Actions Secrets**
-  - Store deployment credentials securely in GitHub Repository Settings (`Settings` $\rightarrow$ `Secrets and variables` $\rightarrow$ `Actions`):
-    - `SERVER_HOST`: `16.192.59.166` (or `skilio.works`).
-    - `SERVER_USER`: `ubuntu`.
-    - `SERVER_SSH_KEY`: Full contents of the private RSA key (`skilio-key.pem`).
+- [x] **Step 4.2: Configure GitHub Actions Secrets**
+  - **What We Configured**:
+    - Stored deployment credentials securely in GitHub Repository Settings (`Settings` $\rightarrow$ `Secrets and variables` $\rightarrow$ `Actions`):
+      - `SERVER_HOST`: `16.192.59.166` (or `skilio.works`).
+      - `SERVER_USER`: `ubuntu`.
+      - `SERVER_SSH_KEY`: Full contents of the private RSA key (`skilio-key.pem`).
+  - **Why We Configured It**:
+    - Zero-touch deployment requires the CI/CD runner to authenticate to AWS EC2 over SSH. Storing keys as GitHub encrypted secrets ensures credentials are injected into runtime memory without ever appearing in Git history or pipeline logs (automatically masked with `***`).
 
-- [ ] **Step 4.3: Engineer the Zero-Touch Delivery Workflow (`.github/workflows/deploy.yml`)**
+- [x] **Step 4.3: Engineer the Zero-Touch Delivery Workflow (`.github/workflows/deploy.yml`)**
   - **Trigger**: Runs automatically on `push` to `master` (when PRs pass all CI checks and are merged).
+  - **Concurrency Protection**:
+    - Configured `concurrency: group: production-deployment, cancel-in-progress: false` to ensure production deployments are strictly sequential and never canceled halfway through database migrations.
   - **CD Pipeline Stages on AWS (`16.192.59.166`)**:
-    1. **Secure SSH Handshake**: Connects to EC2 using `SERVER_SSH_KEY`.
-    2. **Idempotent Repository Sync**:
-       `git fetch origin master && git reset --hard origin/master`
-       *(Guarantees 100% clean sync and eliminates non-interactive merge conflicts on the host)*.
+    1. **Secure SSH Handshake**: Injects `SERVER_SSH_KEY` into temporary runner keypair and scans host key with `ssh-keyscan`.
+    2. **Idempotent Code Sync via `rsync`**:
+       - Instead of storing GitHub PATs on the server for `git pull`, the runner uses `rsync -avz --delete` over SSH.
+       - Strictly excludes `.git*`, `.env*`, `node_modules`, `.venv`, and `devops/backup/dumps/` to protect live production environment variables, TLS certificates, and database backups.
     3. **Multi-Stage Container Build**:
-       `docker compose build`
+       `docker compose -f compose.yml -f compose.deploy.yml build`
        *(Leverages 2 GB Swap allocated in Phase 2 for zero-OOM compilation)*.
     4. **Database Migration Execution**:
-       `docker compose run --rm backend bash scripts/prestart.sh`
+       `docker compose -f compose.yml -f compose.deploy.yml run --rm backend bash scripts/prestart.sh`
        *(Applies pending Alembic schema migrations and verifies superuser)*.
     5. **Zero-Downtime Rolling Swap**:
-       `docker compose up -d --remove-orphans`
+       `docker compose -f compose.yml -f compose.deploy.yml up -d --remove-orphans`
        *(Old containers finish in-flight requests while new containers pass Traefik health checks)*.
     6. **Automated Layer Pruning**:
        `docker image prune -f`
@@ -428,6 +433,7 @@ This implementation transitions the Skilio platform from an isolated `localhost`
     curl --retry 6 --retry-delay 5 --retry-connrefused -f -s https://skilio.works/api/v1/health | grep '"status":"healthy"'
     ```
   - *Reliability rationale*: Prevents false-negative pipeline failures during the 3–5 second container warm-up window and confirms zero-downtime deployment succeeded.
+
 
 ---
 

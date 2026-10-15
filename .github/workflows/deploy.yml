@@ -1,0 +1,67 @@
+name: Deploy to Production (AWS)
+
+on:
+  push:
+    branches: [master]
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Continuous Deployment (AWS EC2)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync Codebase to Server
+        run: |
+          rsync -avz --delete \
+            --exclude '.git*' \
+            --exclude '.env*' \
+            --exclude 'node_modules' \
+            --exclude '.venv' \
+            --exclude '__pycache__' \
+            --exclude 'devops/backup/dumps' \
+            --exclude 'devops/vault/.credentials' \
+            --exclude 'devops/vault/backups' \
+            ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/skilio/
+
+      - name: Execute Zero-Downtime Deployment
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            set -euo pipefail
+            cd /opt/skilio
+
+            COMPOSE="docker compose -f compose.yml -f compose.deploy.yml"
+
+            echo "==> Building updated Docker containers..."
+            $COMPOSE build
+
+            echo "==> Running database schema migrations..."
+            $COMPOSE run --rm backend bash scripts/prestart.sh
+
+            echo "==> Applying zero-downtime container update..."
+            $COMPOSE up -d --remove-orphans
+
+            echo "==> Pruning dangling image layers..."
+            docker image prune -f
+          EOF
+
+      - name: Verify Live Production Health
+        run: |
+          echo "==> Probing live production health endpoint..."
+          curl --retry 6 --retry-delay 5 --retry-connrefused -f -s https://skilio.works/api/v1/health | grep '"status":"healthy"'
+          echo "==> Production deployment verified successfully at https://skilio.works!"
+
