@@ -1,4 +1,4 @@
-.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test server-init deploy-status deploy-logs
+.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test server-init deploy-status deploy-logs deploy-db-clean deploy-db-seed
 
 # Default target — show available commands
 help:
@@ -22,9 +22,12 @@ help:
 	@echo "    make dr-test      Run automated disaster recovery verification drill"
 	@echo ""
 	@echo "  Cloud Server & Deployment:"
-	@echo "    make server-init    Bootstrap remote AWS server with Docker, 2GB Swap & tools"
-	@echo "    make deploy-status  Check live production containers and resource usage on AWS"
-	@echo "    make deploy-logs    Tail live production container logs in real time from AWS"
+	@echo "    make server-init      Bootstrap remote AWS server with Docker, 2GB Swap & tools"
+	@echo "    make deploy-status    Check live production containers and resource usage on AWS"
+	@echo "    make deploy-logs      Tail live production container logs in real time from AWS"
+	@echo "    make deploy-db-clean  Safely reset and re-migrate production database on AWS"
+	@echo "    make deploy-db-seed   Seed production database with mock accounts (COUNT=20)"
+
 
 	@echo ""
 	@echo "  Testing & Data:"
@@ -127,6 +130,19 @@ deploy-status:
 deploy-logs:
 	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml logs -f'
+
+# Reset and re-migrate production database on AWS EC2 (preserves SSL certificates)
+deploy-db-clean:
+	@chmod 400 $(SSH_KEY) 2>/dev/null || true
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml exec db psql -U postgres -d postgres -c "DROP DATABASE app WITH (FORCE);" -c "CREATE DATABASE app;" && docker compose -f compose.yml -f compose.deploy.yml run --rm backend bash scripts/prestart.sh && docker compose -f compose.yml -f compose.deploy.yml restart backend'
+	@echo "==> Production database cleaned and re-migrated successfully!"
+
+# Seed production database with mock accounts (default COUNT=20)
+deploy-db-seed:
+	@chmod 400 $(SSH_KEY) 2>/dev/null || true
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml run --rm backend python app/seed_data.py $(COUNT)'
+	@echo "==> Production database seeded successfully!"
+
 
 
 
