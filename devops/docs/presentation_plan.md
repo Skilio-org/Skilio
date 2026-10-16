@@ -12,25 +12,29 @@
 ---
 
 ## 📑 Contents
-1. [Part 1: The Learning & Mastery Roadmap (6 Stages)](#part-1-the-learning--mastery-roadmap)
+1. [Part 1: The Learning & Mastery Roadmap (7 Stages)](#part-1-the-learning--mastery-roadmap)
 2. [Part 2: Master Presentation Order Flow (6 Phases)](#part-2-master-presentation-order-flow)
 
 ---
 
 # Part 1: The Learning & Mastery Roadmap
 
-Study these 6 stages in order to build a complete architectural understanding from the ground up:
+Study these 7 stages in order to master every file, script, and architecture under your DevOps responsibility:
 
 ```text
 Stage 1: Docker Core ──▶ Stage 2: Server & OS ──▶ Stage 3: Traefik & SSL
            │
            ▼
 Stage 4: CI/CD Pipeline ──▶ Stage 5: Backups & DR ──▶ Stage 6: Observability
+           │
+           ▼
+Stage 7: Developer Tooling & Team CLI (Makefile)
 ```
 
 ### 1. Docker & Multi-File Compose (The Foundation)
-* **Files:** [`compose.yml`](../../compose.yml), [`compose.override.yml`](../../compose.override.yml), [`compose.deploy.yml`](../../compose.deploy.yml)
+* **Files:** [`compose.yml`](../../compose.yml), [`compose.override.yml`](../../compose.override.yml), [`compose.deploy.yml`](../../compose.deploy.yml), [`backend/Dockerfile`](../../backend/Dockerfile), [`.dockerignore`](../../.dockerignore)
 * **Core Concepts:**
+  * **Multi-Stage Build**: Stage 1 uses Bun to compile the React SPA bundle; Stage 2 bundles it directly into the Python 3.14 FastAPI image.
   * **Bridge Network**: Containers communicate privately using service names (`db`, `redis`, `backend`) via Docker internal DNS.
   * **Named Volumes**: Persistent storage (`app-db-data`, `traefik-certificates`) surviving container rebuilds.
   * **Environment Isolation**: Local dev automatically uses `compose.override.yml` (debug ports, Mailpit, Adminer); production locks them out with `COMPOSE_FILE=compose.yml:compose.deploy.yml`.
@@ -50,27 +54,35 @@ Stage 4: CI/CD Pipeline ──▶ Stage 5: Backups & DR ──▶ Stage 6: Obser
   * **HTTPS Enforcement**: Port 80 unconditionally redirects to encrypted Port 443 via HTTP 308.
   * **Health Routing**: Traefik probes `/api/v1/health` and stops routing to the backend container if checks fail.
 
-### 4. Zero-Touch CI/CD Pipeline (The Delivery)
-* **Files:** [`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml), [`lint.yml`](../../.github/workflows/lint.yml), [`test-backend.yml`](../../.github/workflows/test-backend.yml)
+### 4. Zero-Touch CI/CD Pipeline (The Delivery - IV.10 Major)
+* **Files:** [`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml), [`lint.yml`](../../.github/workflows/lint.yml), [`test-backend.yml`](../../.github/workflows/test-backend.yml), [`test-docker-compose.yml`](../../.github/workflows/test-docker-compose.yml), [`DEPLOYMENT.md`](./DEPLOYMENT.md)
 * **Core Concepts:**
   * **3-Tier CI Gate**: PRs must pass Ruff linting, TypeScript type-check, 173 backend pytest tests (83% coverage), and a Docker smoke test.
-  * **Safe `rsync`**: Deploys over SSH excluding `.env*` (secrets), `.git*`, and `devops/backup/dumps/`.
+  * **Safe `rsync` over SSH**: Pushes code to EC2 without storing GitHub Personal Access Tokens on AWS (strictly least-privilege). Excludes `.env*` (secrets), `.git*`, and `devops/backup/dumps/`.
   * **Zero-Downtime Rolling Swap**: Builds images in background $\rightarrow$ runs migrations in ephemeral container (`run --rm prestart.sh`) $\rightarrow$ swaps live containers (`up -d --remove-orphans`) $\rightarrow$ prunes dangling layers.
 
 ### 5. High Availability & Disaster Recovery (IV.7 Minor)
-* **Files:** [`devops/backup/backup.sh`](../backup/backup.sh), [`restore.sh`](../backup/restore.sh), [`dr-test.sh`](../backup/dr-test.sh), [`BACKUP.md`](../backup/BACKUP.md)
+* **Files:** [`devops/backup/backup.sh`](../backup/backup.sh), [`restore.sh`](../backup/restore.sh), [`dr-test.sh`](../backup/dr-test.sh), [`entrypoint.sh`](../backup/entrypoint.sh), [`BACKUP.md`](../backup/BACKUP.md), [`backend/app/api/routes/health.py`](../../backend/app/api/routes/health.py), [`frontend/src/routes/status.tsx`](../../frontend/src/routes/status.tsx)
 * **Core Concepts:**
   * **RTO Target**: Recovery Time Objective `< 60s` (our actual drill runs in `< 5s`).
-  * **Rolling Retention**: Automated `pg_dump` with `.sql.gz` compression, keeping the last 7 daily archives.
+  * **Rolling Retention**: Automated `pg_dump` with `.sql.gz` compression via `entrypoint.sh` cron, keeping the last 7 daily archives.
   * **Sandbox DR Drill**: Ephemeral test database validates complete restore and schema integrity without touching production data.
   * **Diagnostic Probes**: `/api/v1/health` checks DB query latency (`SELECT 1`), Redis ping, and disk capacity; rendered on `/status`.
 
 ### 6. Observability & Telemetry (IV.7 Major)
-* **Files:** [`devops/monitoring/MONITORING.md`](../monitoring/MONITORING.md), [`prometheus.yml`](../monitoring/prometheus.yml)
+* **Files:** [`devops/monitoring/MONITORING.md`](../monitoring/MONITORING.md), [`prometheus.yml`](../monitoring/prometheus.yml), `devops/monitoring/grafana/`
 * **Core Concepts:**
   * **Prometheus Scraping**: Pulls metrics from backend and node exporters every 15s.
   * **Grafana Dashboards**: Real-time visualization of container CPU, RAM, HTTP throughput, and error rates at `https://grafana.skilio.works`.
   * **Alerting**: Pre-configured rules alerting on sustained high memory or container restarts.
+
+### 7. Developer Tooling & Team CLI (The Developer Experience)
+* **Files:** [`Makefile`](../../Makefile), [`devops/scripts/setup.sh`](../scripts/setup.sh), [`devops/scripts/dev.sh`](../scripts/dev.sh), [`docs/git-workflow.md`](../../docs/git-workflow.md)
+* **Core Concepts:**
+  * **Unified Control Panel**: Single-word commands for the whole team (`make setup`, `make dev`, `make test`, `make seed`).
+  * **Cloud Management CLI**: Direct operations on AWS without memorizing commands (`make deploy-ssh`, `make deploy-status`, `make deploy-logs`, `make deploy-restart`, `make deploy-db-clean`).
+  * **Team Standards**: Enforces standardized Git branch flow and commit conventions across all 4 team members.
+
 
 ---
 
