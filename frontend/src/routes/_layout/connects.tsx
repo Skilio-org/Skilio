@@ -62,6 +62,133 @@ export const Route = createFileRoute("/_layout/connects")({
   }),
 });
 
+export const connect_with = (role: "client" | "freelancer") => {
+  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const sendMutation = useSendConnectionRequest();
+
+    // Send request dialog state
+    const [recipientId, setRecipientId] = useState("");
+    const [jobPostId, setJobPostId] = useState("");
+    const [note, setNote] = useState("");
+    const handleSendConnection = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!recipientId.trim()) {
+      toast.error("Please enter the user ID or recipient handle.");
+      return;
+    }
+    if (note.length > 300) {
+      toast.error("Introductory note cannot exceed 300 characters.");
+      return;
+    }
+
+    try {
+      await sendMutation.mutateAsync({
+        receiver_id: recipientId.trim(),
+        job_post_id: jobPostId.trim() || undefined,
+        note: note.trim() || undefined,
+      });
+
+      setRecipientId("");
+      setJobPostId("");
+      setNote("");
+    } catch {
+      // error handled in mutation hook
+    }
+  };
+  
+  return (
+    <>
+    <Button
+    size="sm"
+    onClick={() => setIsConnectModalOpen(true)}
+    className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+  >
+      <UserPlus className="size-4" />
+      <span>Connect with {role === "client" ? "Freelancer" : "Client"}</span>
+    </Button>
+    {/* SEND CONNECTION MODAL (F4, F5 / C2, C3) */}
+      <Dialog open={isConnectModalOpen} onOpenChange={setIsConnectModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Link2 className="size-5 text-primary" />
+              <span>Connect with {role === "client" ? "Freelancer" : "Client"}</span>
+            </DialogTitle>
+            <DialogDescription>
+              Send an inquiry. Once accepted, direct chat and messaging are permanently unlocked.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSendConnection} className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="recipientId">Recipient User ID</Label>
+              <Input
+                id="recipientId"
+                placeholder="Paste the user ID to connect with"
+                value={recipientId}
+                onChange={(e) => setRecipientId(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="jobPostId">Job Post ID (Optional)</Label>
+              <Input
+                id="jobPostId"
+                placeholder="Optional job post ID reference"
+                value={jobPostId}
+                onChange={(e) => setJobPostId(e.target.value)}
+              />
+            </div>
+
+            {/* Optional 300-char note (F5 / C3) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="note">Introductory Note (Optional)</Label>
+                <span
+                  className={`text-[11px] ${
+                    note.length > 300 ? "text-destructive font-semibold" : "text-muted-foreground"
+                  }`}
+                >
+                  {note.length}/300
+                </span>
+              </div>
+              <textarea
+                id="note"
+                rows={3}
+                maxLength={300}
+                placeholder={
+                  role === "client"
+                    ? "Add a brief note about the project or why you'd like to collaborate..."
+                    : "Add a 300-character note referencing the job post or your relevant experience..."
+                }
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              />
+            </div>
+
+            <DialogFooter className="mt-4 gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsConnectModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={sendMutation.isPending || note.length > 300 || !recipientId.trim()}
+                className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <Send className="size-3.5" />
+                <span>{sendMutation.isPending ? "Sending..." : "Send Request"}</span>
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      </>
+  );
+};
+
+
 function ConnectsPage() {
   const { user } = useAuth();
   const role = useAccountRole();
@@ -87,62 +214,20 @@ function ConnectsPage() {
   const declineMutation = useDeclineConnectionRequest();
   const withdrawMutation = useWithdrawConnectionRequest();
   const removeMutation = useRemoveConnection();
-  const sendMutation = useSendConnectionRequest();
-
-  // Send request dialog state
-  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
-  const [recipientId, setRecipientId] = useState("");
-  const [jobPostId, setJobPostId] = useState("");
-  const [note, setNote] = useState("");
-
-  const handleSendConnection = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!recipientId.trim()) {
-      toast.error("Please enter the user ID or recipient handle.");
-      return;
-    }
-    if (note.length > 300) {
-      toast.error("Introductory note cannot exceed 300 characters.");
-      return;
-    }
-
-    try {
-      await sendMutation.mutateAsync({
-        receiver_id: recipientId.trim(),
-        job_post_id: jobPostId.trim() || undefined,
-        note: note.trim() || undefined,
-      });
-
-      setIsConnectModalOpen(false);
-      setRecipientId("");
-      setJobPostId("");
-      setNote("");
-    } catch {
-      // error handled in mutation hook
-    }
-  };
 
   return (
-    <div className="space-y-8 pt-2 sm:pt-4">
+    <div className="mx-auto w-full max-w-360 px-4 py-8 md:px-6 md:py-10">
       {/* Header */}
       <WorkspacePageHeader
         eyebrow="Network & Collaboration"
         title="Connections"
         description="Connect directly with verified clients and freelancers to discuss opportunities and collaborate."
-        action={
-          <Button
-            size="sm"
-            onClick={() => setIsConnectModalOpen(true)}
-            className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            <UserPlus className="size-4" />
-            <span>Connect with {role === "client" ? "Freelancer" : "Client"}</span>
-          </Button>
-        }
+        action=""
+				meta={<span className="font-medium text-primary">Manage your connections</span>}
       />
 
       {/* Top Metrics Row */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3 mt-7 gap-6">
         {/* Active Connections */}
         <WorkspaceSurface className="flex flex-col justify-between p-5">
           <div className="flex items-center justify-between">
@@ -209,7 +294,7 @@ function ConnectsPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="network" className="w-full">
+      <Tabs defaultValue="network" className="w-full mt-7">
         <TabsList className="h-10 p-1 bg-muted/60 border">
           <TabsTrigger value="network" className="gap-2 px-4 text-xs font-medium">
             <Users className="size-3.5" />
@@ -239,9 +324,9 @@ function ConnectsPage() {
               <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-4">
                 Connect with clients or freelancers to unlock direct messaging and discuss projects.
               </p>
-              <Button size="sm" onClick={() => setIsConnectModalOpen(true)}>
+              {/* <Button size="sm" onClick={() => setIsConnectModalOpen(true)}>
                 Find Someone to Connect With
-              </Button>
+              </Button> */}
             </WorkspaceSurface>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
@@ -419,9 +504,9 @@ function ConnectsPage() {
               <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-4">
                 You haven't sent any connection requests yet.
               </p>
-              <Button size="sm" onClick={() => setIsConnectModalOpen(true)}>
+              {/* <Button size="sm" onClick={() => setIsConnectModalOpen(true)}>
                 Send a Connection Request
-              </Button>
+              </Button> */}
             </WorkspaceSurface>
           ) : (
             <div className="space-y-3">
@@ -467,85 +552,6 @@ function ConnectsPage() {
           )}
         </TabsContent>
       </Tabs>
-
-      {/* SEND CONNECTION MODAL (F4, F5 / C2, C3) */}
-      <Dialog open={isConnectModalOpen} onOpenChange={setIsConnectModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Link2 className="size-5 text-primary" />
-              <span>Connect with {role === "client" ? "Freelancer" : "Client"}</span>
-            </DialogTitle>
-            <DialogDescription>
-              Send an inquiry. Once accepted, direct chat and messaging are permanently unlocked.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleSendConnection} className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="recipientId">Recipient User ID</Label>
-              <Input
-                id="recipientId"
-                placeholder="Paste the user ID to connect with"
-                value={recipientId}
-                onChange={(e) => setRecipientId(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="jobPostId">Job Post ID (Optional)</Label>
-              <Input
-                id="jobPostId"
-                placeholder="Optional job post ID reference"
-                value={jobPostId}
-                onChange={(e) => setJobPostId(e.target.value)}
-              />
-            </div>
-
-            {/* Optional 300-char note (F5 / C3) */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="note">Introductory Note (Optional)</Label>
-                <span
-                  className={`text-[11px] ${
-                    note.length > 300 ? "text-destructive font-semibold" : "text-muted-foreground"
-                  }`}
-                >
-                  {note.length}/300
-                </span>
-              </div>
-              <textarea
-                id="note"
-                rows={3}
-                maxLength={300}
-                placeholder={
-                  role === "client"
-                    ? "Add a brief note about the project or why you'd like to collaborate..."
-                    : "Add a 300-character note referencing the job post or your relevant experience..."
-                }
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              />
-            </div>
-
-            <DialogFooter className="mt-4 gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsConnectModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={sendMutation.isPending || note.length > 300 || !recipientId.trim()}
-                className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <Send className="size-3.5" />
-                <span>{sendMutation.isPending ? "Sending..." : "Send Request"}</span>
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
