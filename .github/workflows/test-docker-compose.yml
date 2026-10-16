@@ -2,47 +2,42 @@ name: Test Docker Compose
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   pull_request:
-permissions:
-  contents: read
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-
   test-docker-compose:
+    name: Docker Build & Smoke Test
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
-      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
-      GOOGLE_TOKEN_URI: ${{ vars.GOOGLE_TOKEN_URI }}
-      GOOGLE_USERINFO_URL: ${{ vars.GOOGLE_USERINFO_URL }}
-      GOOGLE_AUTH_URI: ${{ vars.GOOGLE_AUTH_URI }}
-      GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
-      GOOGLE_REDIRECT_URI: ${{ vars.GOOGLE_REDIRECT_URI }}
-
-      LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
-      LINKEDIN_CLIENT_ID: ${{ vars.LINKEDIN_CLIENT_ID }}
-      LINKEDIN_REDIRECT_URI: ${{ vars.LINKEDIN_REDIRECT_URI }}
-      LINKEDIN_AUTH_URI: ${{ vars.LINKEDIN_AUTH_URI }}
-      LINKEDIN_TOKEN_URI: ${{ vars.LINKEDIN_TOKEN_URI }}
-      LINKEDIN_USERINFO_URL: ${{ vars.LINKEDIN_USERINFO_URL }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - run: cp .env.example .env
-      - run: docker compose build
-      - run: docker compose down -v --remove-orphans
-      - run: docker compose run --rm backend bash scripts/prestart.sh
-      - run: docker compose up -d --wait backend adminer
-      - name: Test backend is up
-        run: curl http://localhost:8000/api/v1/utils/health-check
-      - name: Test frontend is up
-        run: curl http://localhost:8000
-      - run: docker compose down -v --remove-orphans
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        run: cp .env.example .env
+
+      - name: Build Docker Containers
+        run: docker compose build
+
+      - name: Run Database Migrations
+        run: docker compose run --rm backend bash scripts/prestart.sh
+
+      - name: Start Application Stack
+        run: docker compose up -d --wait backend
+
+      - name: Verify Backend Healthcheck
+        run: curl -f --retry 5 --retry-delay 2 http://localhost:8000/api/v1/utils/health-check/
+
+      - name: Verify Frontend Web Root
+        run: curl -f --retry 5 --retry-delay 2 http://localhost:8000
+
+      - name: Teardown Containers
+        if: always()
+        run: docker compose down -v --remove-orphans
