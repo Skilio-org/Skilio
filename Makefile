@@ -1,4 +1,4 @@
-.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test server-init deploy-status deploy-logs deploy-db-clean deploy-db-seed
+.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-status deploy-logs deploy-restart deploy-db-clean deploy-db-seed
 
 # Default target — show available commands
 help:
@@ -23,8 +23,10 @@ help:
 	@echo ""
 	@echo "  Cloud Server & Deployment:"
 	@echo "    make server-init      Bootstrap remote AWS server with Docker, 2GB Swap & tools"
+	@echo "    make deploy-ssh       Open interactive SSH shell into remote AWS server"
 	@echo "    make deploy-status    Check live production containers and resource usage on AWS"
 	@echo "    make deploy-logs      Tail live production container logs in real time from AWS"
+	@echo "    make deploy-restart   Restart production containers on AWS (or SERVICE=backend)"
 	@echo "    make deploy-db-clean  Safely reset and re-migrate production database on AWS"
 	@echo "    make deploy-db-seed   Seed production database with mock accounts (COUNT=20)"
 
@@ -121,6 +123,11 @@ server-init:
 	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'sudo bash -s' < devops/scripts/server-init.sh
 
+# Open interactive SSH shell into remote AWS server
+deploy-ssh:
+	@chmod 400 $(SSH_KEY) 2>/dev/null || true
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP)
+
 # Check live production containers and resource usage on AWS EC2
 deploy-status:
 	@chmod 400 $(SSH_KEY) 2>/dev/null || true
@@ -130,6 +137,13 @@ deploy-status:
 deploy-logs:
 	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml logs -f'
+
+# Restart production containers on AWS (or make deploy-restart SERVICE=backend)
+deploy-restart:
+	@chmod 400 $(SSH_KEY) 2>/dev/null || true
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml restart $(SERVICE)'
+	@echo "==> Production services restarted successfully!"
+
 
 # Reset and re-migrate production database on AWS EC2 (preserves SSL certificates)
 deploy-db-clean:
