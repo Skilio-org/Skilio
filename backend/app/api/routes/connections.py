@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import and_, col, func, or_, select
 
 from app.api.deps import CurrentUser, SessionDep
+from app.api.routes.notifications import push_notification
 from app.core.redis import publish_to_user
 from app.models import (
     Connection,
@@ -20,13 +21,12 @@ from app.models import (
     JobPostPublic,
     JobStatus,
     Message,
+    NotificationEvent,
     User,
     UserPublic,
     UserRole,
     get_datetime_utc,
 )
-from app.api.routes.notifications import push_notification
-from app.models import NotificationEvent
 
 logger = logging.getLogger(__name__)
 
@@ -207,8 +207,8 @@ async def send_connection_request(
         session.refresh(conn)
 
     # Dispatch realtime notification via Redis / WebSocket
-    
     try:
+        # print(f"Sending connection request notification to user {connection_in.receiver_id}"   )
         await push_notification(
             user_id=connection_in.receiver_id,
             event= NotificationEvent.CONNECTION_REQUEST,

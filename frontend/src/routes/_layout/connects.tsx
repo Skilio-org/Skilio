@@ -58,6 +58,7 @@ export const Route = createFileRoute("/_layout/connects")({
 	}),
 })
 
+
 type TabType = "network" | "received" | "sent"
 
 function ConnectsPage() {
