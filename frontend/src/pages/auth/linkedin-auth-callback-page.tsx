@@ -28,7 +28,7 @@ export function LinkedinAuthCallbackPage({ code, error }: { code?: string; error
 		const authenticate = async () => {
 			try {
 				const res = await fetch(
-					`http://localhost:8000/api/v1/login/linkedin/callback?code=${encodeURIComponent(code)}`,
+					`${import.meta.env.VITE_LINKEDIN_OAUTH_URL}/callback?code=${encodeURIComponent(code)}`,
 					{ signal: controller.signal },
 				)
 
