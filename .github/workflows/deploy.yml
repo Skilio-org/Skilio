@@ -51,7 +51,7 @@ jobs:
             $COMPOSE run --rm backend bash scripts/prestart.sh
 
             echo "==> Applying zero-downtime container update..."
-            $COMPOSE up -d --force-recreate --remove-orphans
+            $COMPOSE up -d --force-recreate --no-deps backend
 
             echo "==> Pruning dangling image layers..."
             docker image prune -f
