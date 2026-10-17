@@ -18,8 +18,8 @@ class Settings(BaseSettings):
         env_file="../.env",
         env_ignore_empty=True,
         extra="ignore",
-    )    
-    DEFAULT_AVATAR_URL: str ="https://res.cloudinary.com/vrreelhh/image/upload/070fa03c-8a3a-4b6b-b012-81ab0f0c3f4b.png"
+    )
+    DEFAULT_AVATAR_URL: str = "https://res.cloudinary.com/vrreelhh/image/upload/070fa03c-8a3a-4b6b-b012-81ab0f0c3f4b.png"
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str
     # 60 minutes * 24 hours * 8 days = 8 days
@@ -38,14 +38,14 @@ class Settings(BaseSettings):
 
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
-    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/login/google/callback"
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/googleAuth"
     GOOGLE_TOKEN_URI: str = "https://oauth2.googleapis.com/token"
     GOOGLE_AUTH_URI: str = "https://accounts.google.com/o/oauth2/auth"
     GOOGLE_USERINFO_URL: str = "https://www.googleapis.com/oauth2/v3/userinfo"
 
     LINKEDIN_CLIENT_ID: str = ""
     LINKEDIN_CLIENT_SECRET: str = ""
-    LINKEDIN_REDIRECT_URI: str = "http://localhost:8000/api/v1/login/linkedin/callback"
+    LINKEDIN_REDIRECT_URI: str = "http://localhost:8000/linkedinAuth"
     LINKEDIN_AUTH_URI: str = "https://www.linkedin.com/oauth/v2/authorization"
     LINKEDIN_TOKEN_URI: str = "https://www.linkedin.com/oauth/v2/accessToken"
     LINKEDIN_USERINFO_URL: str = "https://api.linkedin.com/v2/userinfo"

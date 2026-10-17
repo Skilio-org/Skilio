@@ -1,15 +1,18 @@
+import secrets
 from datetime import timedelta
 from typing import Annotated, Any
+from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, HTTPException, Response, Request, logger
+import requests
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from app.core.security import get_password_hash, generate_random_password
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
+from app.core.security import generate_random_password, get_password_hash
 from app.models import (
     ClientProfile,
     FreelancerProfile,
@@ -27,21 +30,16 @@ from app.utils import (
     send_email,
     verify_password_reset_token,
 )
-import requests
-from passlib.context import CryptContext
-import secrets
-from urllib.parse import urlencode
-
 
 router = APIRouter(tags=["login"])
 
+
 @router.get("/login/google")
-def login_google(response: Response) -> RedirectResponse:
+def login_google() -> RedirectResponse:
     """
     Google OAuth2 compatible token login, get an access token for future requests from google.
     """
     state = secrets.token_urlsafe(16)
-    response.set_cookie(key="oauth_state", value=state, httponly=True) 
     params = {
         "client_id": settings.GOOGLE_CLIENT_ID,
         "redirect_uri": settings.GOOGLE_REDIRECT_URI,
@@ -52,40 +50,76 @@ def login_google(response: Response) -> RedirectResponse:
         "state": state,
     }
     authorization_url = f"{settings.GOOGLE_AUTH_URI}?{urlencode(params)}"
-    return RedirectResponse(authorization_url)
+    redirect_resp = RedirectResponse(authorization_url)
+    redirect_resp.set_cookie(
+        key="oauth_state",
+        value=state,
+        httponly=True,
+        samesite="lax",
+        secure=settings.FASTAPI_ENV != "development",
+        max_age=600,
+    )
+    return redirect_resp
+
 
 @router.get("/login/google/callback")
-def google_callback(request: Request, code: str, session: SessionDep):
-    state = request.cookies.get("oauth_state")
-    if state != request.query_params.get("state"):
+def google_callback(
+    request: Request,
+    response: Response,
+    code: str,
+    session: SessionDep,
+    state: str | None = None,
+):
+    cookie_state = request.cookies.get("oauth_state")
+    if cookie_state and state and cookie_state != state:
         raise HTTPException(status_code=400, detail="Invalid state parameter")
-    token_response = requests.post(settings.GOOGLE_TOKEN_URI, data={
-        "code": code,
-        "client_id": settings.GOOGLE_CLIENT_ID,
-        "client_secret": settings.GOOGLE_CLIENT_SECRET,
-        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
-        "grant_type": "authorization_code",
-    })
+    response.delete_cookie(key="oauth_state")
+
+    token_response = requests.post(
+        settings.GOOGLE_TOKEN_URI,
+        data={
+            "code": code,
+            "client_id": settings.GOOGLE_CLIENT_ID,
+            "client_secret": settings.GOOGLE_CLIENT_SECRET,
+            "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+            "grant_type": "authorization_code",
+        },
+    )
     if token_response.status_code != 200:
-        raise HTTPException(status_code=400, detail="Failed to retrieve token from Google.")
-    token_data    = token_response.json()
-    access_token  = token_data["access_token"]
+        raise HTTPException(
+            status_code=400, detail="Failed to retrieve token from Google."
+        )
+    token_data = token_response.json()
+    access_token = token_data.get("access_token")
+    if not access_token:
+        raise HTTPException(
+            status_code=400, detail="Google token response missing access token."
+        )
     refresh_token = token_data.get("refresh_token")  # may be None on re-login
 
     userinfo_response = requests.get(
         settings.GOOGLE_USERINFO_URL,
-        headers={"Authorization": f"Bearer {access_token}"}
+        headers={"Authorization": f"Bearer {access_token}"},
     )
-    google_user = userinfo_response.json() # google_user has: sub, email, name, picture
+    if userinfo_response.status_code != 200:
+        raise HTTPException(
+            status_code=400, detail="Failed to retrieve profile from Google."
+        )
+    google_user = userinfo_response.json()  # google_user has: sub, email, name, picture
+    if "email" not in google_user:
+        raise HTTPException(
+            status_code=400, detail="Google user profile missing email."
+        )
+
     user = crud.get_user_by_email(session=session, email=google_user["email"])
     if user:
         if not user.google_id:
-            raise HTTPException(
-                status_code=400,
-                detail="An account with this email already exists. Please log in with your password."
-            )
-        user.full_name = google_user.get("name")
-        user.avatar_url = google_user.get("picture") == None and settings.DEFAULT_AVATAR_URL or google_user.get("picture")
+            user.google_id = google_user["sub"]
+        user.full_name = google_user.get("name") or user.full_name
+        avatar = google_user.get("picture")
+        user.avatar_url = (
+            avatar if avatar else (user.avatar_url or settings.DEFAULT_AVATAR_URL)
+        )
         if refresh_token:
             user.refresh_token = refresh_token
         session.add(user)
@@ -94,11 +128,11 @@ def google_callback(request: Request, code: str, session: SessionDep):
         user = User(
             email=google_user["email"],
             full_name=google_user.get("name"),
-            avatar_url=google_user.get("picture") == None and settings.DEFAULT_AVATAR_URL or google_user.get("picture"),
+            avatar_url=google_user.get("picture") or settings.DEFAULT_AVATAR_URL,
             google_id=google_user["sub"],
             refresh_token=refresh_token,
             is_active=True,
-            hashed_password=generate_random_password(12)  # Placeholder password for OAuth users
+            hashed_password=get_password_hash(generate_random_password(16)),
         )
         session.add(user)
         session.commit()
@@ -118,28 +152,46 @@ def google_callback(request: Request, code: str, session: SessionDep):
         )
     )
 
+
 @router.get("/login/linkedin")
-def login_linkedin(response: Response) -> RedirectResponse:
+def login_linkedin() -> RedirectResponse:
     """
     LinkedIn OAuth2 OpenID Compatible login redirect.
     """
     state = secrets.token_urlsafe(16)
-    response.set_cookie(key="oauth_state", value=state, httponly=True) 
     params = {
         "client_id": settings.LINKEDIN_CLIENT_ID,
         "redirect_uri": settings.LINKEDIN_REDIRECT_URI,
         "response_type": "code",
         "scope": "openid email profile",
-        "state": state
+        "state": state,
     }
     auth_url = f"{settings.LINKEDIN_AUTH_URI}?{urlencode(params)}"
-    return RedirectResponse(auth_url)
+    redirect_resp = RedirectResponse(auth_url)
+    redirect_resp.set_cookie(
+        key="oauth_state",
+        value=state,
+        httponly=True,
+        samesite="lax",
+        secure=settings.FASTAPI_ENV != "development",
+        max_age=600,
+    )
+    return redirect_resp
+
 
 @router.get("/login/linkedin/callback")
-def linkedin_callback(request: Request, code: str, session: SessionDep):
-    state = request.cookies.get("oauth_state")
-    if state != request.query_params.get("state"):
+def linkedin_callback(
+    request: Request,
+    response: Response,
+    code: str,
+    session: SessionDep,
+    state: str | None = None,
+):
+    cookie_state = request.cookies.get("oauth_state")
+    if cookie_state and state and cookie_state != state:
         raise HTTPException(status_code=400, detail="Invalid state parameter")
+    response.delete_cookie(key="oauth_state")
+
     token_response = requests.post(
         settings.LINKEDIN_TOKEN_URI,
         data={
@@ -151,49 +203,54 @@ def linkedin_callback(request: Request, code: str, session: SessionDep):
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
-    print("1 >> ", token_response.status_code, token_response.text)
     if token_response.status_code != 200:
-        raise HTTPException(status_code=400, detail="Failed to retrieve token from LinkedIn.")
+        raise HTTPException(
+            status_code=400, detail="Failed to retrieve token from LinkedIn."
+        )
 
     token_data = token_response.json()
-    access_token = token_data["access_token"]
-    # refresh_token: Any = token_data["refresh_token"]
+    access_token = token_data.get("access_token")
+    if not access_token:
+        raise HTTPException(
+            status_code=400, detail="LinkedIn token response missing access token."
+        )
 
-    # 2. Fetch user information from LinkedIn OIDC userinfo endpoint
+    # Fetch user information from LinkedIn OIDC userinfo endpoint
     userinfo_response = requests.get(
         settings.LINKEDIN_USERINFO_URL,
-        headers={"Authorization": f"Bearer {access_token}"}
+        headers={"Authorization": f"Bearer {access_token}"},
     )
-    print("2 >> ", userinfo_response.status_code, userinfo_response.text)    
     if userinfo_response.status_code != 200:
-        raise HTTPException(status_code=400, detail="Failed to retrieve profile from LinkedIn.")
+        raise HTTPException(
+            status_code=400, detail="Failed to retrieve profile from LinkedIn."
+        )
 
-    # linkedin_user contains standard OIDC fields: sub, email, name, picture
-    linkedin_user = userinfo_response.json() 
+    linkedin_user = userinfo_response.json()
+    if "email" not in linkedin_user:
+        raise HTTPException(
+            status_code=400, detail="LinkedIn user profile missing email."
+        )
 
     user = crud.get_user_by_email(session=session, email=linkedin_user["email"])
-    print("User found: ", user)
 
     if user:
         if not user.linkedin_id:
-            raise HTTPException(
-                status_code=400,
-                detail="An account with this email already exists. Please log in with your password."
-            )
-            # If the user registered via password or Google, link the account
-            # user.linkedin_id = linkedin_user["sub"]
-        user.full_name = linkedin_user.get("name")
-        user.avatar_url = linkedin_user.get("picture") == None and settings.DEFAULT_AVATAR_URL or linkedin_user.get("picture")
+            user.linkedin_id = linkedin_user["sub"]
+        user.full_name = linkedin_user.get("name") or user.full_name
+        avatar = linkedin_user.get("picture")
+        user.avatar_url = (
+            avatar if avatar else (user.avatar_url or settings.DEFAULT_AVATAR_URL)
+        )
         session.add(user)
         session.commit()
     else:
         user = User(
             email=linkedin_user["email"],
             full_name=linkedin_user.get("name"),
-            avatar_url=linkedin_user.get("picture") == None and settings.DEFAULT_AVATAR_URL or linkedin_user.get("picture"),
+            avatar_url=linkedin_user.get("picture") or settings.DEFAULT_AVATAR_URL,
             linkedin_id=linkedin_user["sub"],
             is_active=True,
-            hashed_password=generate_random_password(12)  # Placeholder password for OAuth users
+            hashed_password=get_password_hash(generate_random_password(16)),
         )
         session.add(user)
         session.commit()
@@ -206,13 +263,13 @@ def linkedin_callback(request: Request, code: str, session: SessionDep):
             session.add(profile)
         session.commit()
 
-    # 4. Issue standard JWT token back to the frontend
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(
             user.id, expires_delta=access_token_expires
         )
     )
+
 
 @router.post("/login/access-token")
 def login_access_token(
@@ -235,6 +292,7 @@ def login_access_token(
             user.id, expires_delta=access_token_expires
         )
     )
+
 
 @router.post("/login/test-token", response_model=UserPublic)
 def test_token(current_user: CurrentUser) -> Any:
