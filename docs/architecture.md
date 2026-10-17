@@ -12,7 +12,7 @@ The **Freelancer Marketplace** is a high-performance, full-stack platform connec
 - **Unified Account & Dynamic Workspace Switching**: Users maintain a single identity and toggle between Client and Freelancer roles on demand, with automatic profile provisioning.
 - **Distributed Real-Time Engine**: Built on WebSockets and Redis Pub/Sub, delivering cross-device messaging, typing indicators, presence, and fallback to direct in-memory dispatch when running standalone.
 - **Cloud-Native Media Pipeline**: Direct-to-Cloudinary media processing with async streaming proxies for avatars, resumes (PDFs), portfolio showcases, and chat attachments.
-- **Enterprise Operations & Security**: Integrated with HashiCorp HCP Vault for externalized secret management, automated PostgreSQL backup daemon with rotation and verification drills, and granular deep health diagnostics.
+- **Enterprise Operations & Security**: Isolated environment configurations (`.env` / `.env.production`), automated PostgreSQL backup daemon with rotation and verification drills, and granular deep health diagnostics.
 
 ---
 
@@ -88,7 +88,6 @@ The **Freelancer Marketplace** is a high-performance, full-stack platform connec
 | :--- | :--- | :--- |
 | **Traefik** | `3.6` | Container-aware reverse proxy routing HTTP/WS traffic and managing TLS certificates. |
 | **Docker Compose** | Multi-file (`compose.yml`, `override`, `deploy`) | Declarative container orchestration for local dev, watch modes, and production deployments. |
-| **HashiCorp HCP Vault** | Bash automation suite (`devops/vault/`) | Centralized secret store with pull/push commands, token generation, and least-privilege policies. |
 | **Automated Backup Daemon** | Custom container (`devops/backup/`) | Automated periodic database dumps, gzip compression, retention rotation, and recovery drill scripts. |
 | **Mailpit** | `axllent/mailpit` | SMTP sandbox capturing transactional emails (welcome, reset password) locally during development. |
 
@@ -453,21 +452,14 @@ flowchart LR
 
 ## 8. DevOps, Security & Disaster Recovery
 
-### 8.1 HashiCorp HCP Vault Integration
-Secrets are externalized from the code repository and synced via scripted workflows (`devops/vault/`):
-- **Pull Secrets**: `make env` pulls production keys directly from HCP Vault to `.env`.
-- **Local Dev Fallbacks**: `make env-dev` populates safe development fallbacks if specific cloud keys are unassigned.
-- **Push Secrets**: `make push` syncs local environment configurations back to HCP Vault with dry-run support (`make push-dry`).
-- **Least-Privilege Tokens**: `make token NAME=<developer>` generates bounded read-only developer access tokens.
-
-### 8.2 Database Backup Daemon & Disaster Recovery
+### 8.1 Database Backup Daemon & Disaster Recovery
 A standalone alpine Postgres service (`backup-daemon`) runs continuously in Docker Compose:
 - **Automated Cadence**: Dumps PostgreSQL using `pg_dump` on a configurable schedule (`BACKUP_INTERVAL_SECONDS`, default: 3600s).
 - **Gzip Compression**: Backups are compressed to `.sql.gz` and saved to `./devops/backup/dumps/`.
 - **Retention Management**: Retains the last `N` dumps (`BACKUP_KEEP_LAST`, default: 10) and automatically purges older archives.
 - **Disaster Recovery Drill**: `make dr-test` runs an automated DR drill that spins up an isolated sandbox database, restores the latest backup, verifies table counts and relational integrity, and tears down the sandbox.
 
-### 8.3 Deep Health Monitoring & Public Status Page
+### 8.2 Deep Health Monitoring & Public Status Page
 The platform features an automated observability system exposed via `/api/v1/utils/health/detailed` and rendered at `/status`:
 - **Database Diagnostic**: Runs an active `SELECT 1` query and measures roundtrip query latency in milliseconds.
 - **Disk Storage Diagnostic**: Checks filesystem storage capacity, reporting free GB, total GB, and percentage available (warning on `<10%`).

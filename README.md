@@ -9,7 +9,7 @@
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.2-38B2AC.svg?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A production-grade, full-stack marketplace connecting independent talent with clients. Features dual-role accounts, real-time WebSocket messaging backed by Redis Pub/Sub, talent discovery with rich portfolio showcases, proposal workflows, Cloudinary media hosting, HashiCorp HCP Vault secret management, and automated disaster recovery.
+A production-grade, full-stack marketplace connecting independent talent with clients. Features dual-role accounts, real-time WebSocket messaging backed by Redis Pub/Sub, talent discovery with rich portfolio showcases, proposal workflows, Cloudinary media hosting, and automated disaster recovery.
 
 ---
 
@@ -21,8 +21,8 @@ A production-grade, full-stack marketplace connecting independent talent with cl
 - **🎯 Talent Discovery & Faceted Search**: Search professionals by skills, categories, hourly rates, and availability. Review detailed profiles with verified ratings, portfolios, work history, and education.
 - **☁️ Cloudinary Media Pipeline**: Secure cloud hosting for profile avatars, portfolio showcases, project attachments, and PDF resumes with streaming download endpoints.
 - **🔐 Multi-Provider Authentication**: Social login via Google OAuth 2.0 and LinkedIn OIDC with automatic account creation, alongside Argon2/Bcrypt password hashing and JWT access tokens.
-- **🛡️ Enterprise Secrets & Disaster Recovery**: Dynamic secret synchronization with HashiCorp HCP Vault (`make env`, `make push`), plus an automated Postgres backup daemon with rotation and verification drills (`make dr-test`).
-- **📊 Deep System Observability**: Granular health checks inspecting live database latency, disk capacity, and vault secrets, rendered on an interactive `/status` dashboard.
+- **🛡️ Enterprise Operations & Disaster Recovery**: Isolated environment configurations (`.env` / `.env.production`), plus an automated Postgres backup daemon with rotation and verification drills (`make dr-test`).
+- **📊 Deep System Observability**: Granular health checks inspecting live database latency and disk capacity, rendered on an interactive `/status` dashboard.
 
 ---
 
@@ -32,7 +32,7 @@ A production-grade, full-stack marketplace connecting independent talent with cl
 | :--- | :--- |
 | **Backend** | Python 3.14 • FastAPI • SQLModel (SQLAlchemy 2.0) • PostgreSQL 18 (`psycopg3`) • Redis 8 • Alembic • Cloudinary SDK • HTTPX (HTTP/2) • Pwdlib (Argon2/Bcrypt) • PyJWT • Sentry |
 | **Frontend** | React 19 • TypeScript 6 • Vite 8 (SWC) • Tailwind CSS v4 • TanStack Router • TanStack Query v5 • Radix UI • shadcn/ui • Sonner • Hey-API OpenAPI Client |
-| **Infrastructure & DevOps** | Docker Compose • Traefik 3.6 Reverse Proxy • HashiCorp HCP Vault • Automated Backup Daemon • Mailpit (SMTP Sandbox) |
+| **Infrastructure & DevOps** | Docker Compose • Traefik 3.6 Reverse Proxy • Automated Backup Daemon • Mailpit (SMTP Sandbox) |
 
 For in-depth architectural details, diagrams, and schema documentation, see [architecture.md](./docs/architecture.md).
 
@@ -50,15 +50,11 @@ For in-depth architectural details, diagrams, and schema documentation, see [arc
 1. **Clone the repository and prepare environment variables**:
    ```bash
    cp .env.example .env
-   # Or pull directly from HCP Vault:
-   # make env-dev
    ```
 
 2. **Launch all services**:
    ```bash
    make up
-   # Or with HCP Vault integration:
-   # make dev
    ```
 
 3. **Initialize database schema & superuser**:
@@ -125,21 +121,6 @@ Run supporting databases in Docker while developing the backend and frontend loc
 
 ---
 
-## 🔒 HCP Vault Secret Management
-
-This project integrates with HashiCorp HCP Vault for externalized secret storage:
-
-```bash
-make env          # Pull secrets from HCP Vault into .env
-make env-dev      # Pull secrets with safe fallbacks for local development
-make push         # Push local .env variables into HCP Vault
-make push-dry     # Preview changes before writing to Vault
-make token NAME=x # Generate a developer read-only Vault token
-```
-
-For configuration guides and Vault policies, see [devops/vault/README.md](./devops/vault/README.md).
-
----
 
 ## 💾 Database Backups & Disaster Recovery
 
@@ -187,7 +168,6 @@ bash ./scripts/generate-client.sh
 - [Docker Compose Deployment](./docs/deployment-docker-compose.md) — Self-hosted deployment setup with Traefik and SSL.
 - [Cloud Deployment](./docs/deployment.md) — Cloud hosting guidance.
 - [Monitoring & Observability Suite](./devops/monitoring/MONITORING.md) — Prometheus, Grafana dashboards, alerting rules, and telemetry.
-- [HCP Vault Guide](./devops/vault/README.md) — Vault secrets engine setup and policies.
 - [Disaster Recovery Runbook & Backup Suite](./devops/backup/BACKUP.md) — Health checks, backup schedules, rotation, and restoration procedures.
 - [Frontend UI & Design QA](./frontend/UI-POLISH.md) — Design system decisions, typography, and test verification notes.
 - [42 Subject Specification](./docs/subject/en.subject.pdf) — Official project requirements and evaluation criteria.
