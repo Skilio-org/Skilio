@@ -12,12 +12,13 @@
 **/app.egg-info
 
 # Frontend Caches & Artifacts
-node_modules
-frontend/node_modules
+**/node_modules
 frontend/dist
 frontend/test-results
+backend/app/frontend
 
-# Environment & Secrets
+# Secrets & Database Backups
 .env
-.env.vault
-devops/vault/.credentials/
+.env.*
+!.env.example
+devops/backup/dumps/
