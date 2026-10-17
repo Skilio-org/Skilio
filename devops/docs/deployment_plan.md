@@ -427,38 +427,42 @@ This implementation transitions the Skilio platform from an isolated `localhost`
        `docker image prune -f`
        *(Purges dangling image layers post-deploy, safeguarding the EBS root disk from ENOSPC exhaustion)*.
 
-- [ ] **Step 4.4: Resilient Production Health Smoke Test**
+- [x] **Step 4.4: Resilient Production Health Smoke Test**
   - Pipeline executes post-deploy verification query with connection retry logic against our live domain:
     ```bash
     curl --retry 6 --retry-delay 5 --retry-connrefused -f -s https://skilio.works/api/v1/health | grep '"status":"healthy"'
     ```
   - *Reliability rationale*: Prevents false-negative pipeline failures during the 3–5 second container warm-up window and confirms zero-downtime deployment succeeded.
-
+  - *Verification*: Verified live in multiple GitHub Actions runs on merge to `master`.
 
 ---
 
-### Phase 5: Developer Tooling & Remote Management CLI
+### Phase 5: Developer Tooling & Remote Management CLI (COMPLETED ✅)
 **Goal**: Integrate production management commands into the local `Makefile`.
 
-- [ ] **Step 5.1: Add Remote Management Targets in [`Makefile`](file:///home/ayman/Desktop/Freelancer/Makefile)**
-  - `make deploy`: Triggers manual deployment or reports latest deployed commit.
+- [x] **Step 5.1: Add Remote Management Targets in [`Makefile`](file:///home/aysadeq/Desktop/Freelancer/Makefile)**
+  - `make deploy-ssh`: Opens instant interactive SSH terminal into AWS EC2 server.
   - `make deploy-status`: Inspects live container status and resource usage on the cloud server (`docker compose ps` & `docker stats --no-stream`).
   - `make deploy-logs`: Streams real-time remote production logs directly to local terminal via SSH (`docker compose logs -f`).
-- [ ] **Step 5.2: Verification & Dry-Run**
-  - Test the entire pipeline with a minor commit and confirm automated delivery takes $< 2\text{ minutes}$.
+  - `make deploy-restart`: Restarts production containers on AWS (with optional `SERVICE=backend`).
+  - `make deploy-db-clean`: Drops and re-migrates PostgreSQL database safely (preserves Let's Encrypt SSL certs).
+  - `make deploy-db-seed`: Populates production database with mock accounts (`make deploy-db-seed COUNT=20`).
+- [x] **Step 5.2: Verification & Dry-Run**
+  - All targets tested and verified live from the local developer terminal.
 
 ---
 
-### Phase 6: Documentation & 42 Evaluation Defence Playbook
+### Phase 6: Documentation & 42 Evaluation Defence Playbook (COMPLETED ✅)
 **Goal**: Document the module according to Section `IV.10` and prepare a live evaluation presentation.
 
-- [ ] **Step 6.1: Create `devops/DEPLOYMENT.md`**
-  - Complete documentation answering the 4 mandatory subject criteria.
-  - Full architecture explanation, security model, and disaster recovery on cloud storage.
+- [x] **Step 6.1: Create `devops/docs/DEPLOYMENT.md`**
+  - Authored comprehensive production documentation answering the 4 mandatory subject criteria.
+  - Full architecture diagrams, security model, and disaster recovery on cloud storage.
   - Detailed justification for Option A (Build-on-Server + Swap) vs Option B (Registry) trade-off.
-- [ ] **Step 6.2: Prepare 3-Minute Live Evaluation Script**
-  - **Live Mobile Demo**: Hand evaluator a QR code to open `https://skilio.works` on their phone.
-  - **Live CI/CD Push Demo**: Push a small commit, watch GitHub Actions execute, and verify live cloud site updates automatically with zero downtime.
+- [x] **Step 6.2: Prepare 3-Minute Live Evaluation Script**
+  - Prepared complete step-by-step presentation order in [`presentation_plan.md`](file:///home/aysadeq/Desktop/Freelancer/devops/docs/presentation_plan.md) and [`DEPLOYMENT.md`](file:///home/aysadeq/Desktop/Freelancer/devops/docs/DEPLOYMENT.md).
+  - Walkthrough: Live SaaS Hook $\rightarrow$ Docker Security $\rightarrow$ 3-Tier CI Gate $\rightarrow$ Zero-Downtime CD $\rightarrow$ Observability & Health $\rightarrow$ Developer CLI Tooling.
+
 
 ---
 

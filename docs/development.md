@@ -99,18 +99,12 @@ docker compose watch
 
 ## The `.env` File
 
-The project integrates with **HashiCorp Cloud Platform (HCP) Vault** to manage and distribute secrets across developers and environments. 
-
-To pull secrets directly from Vault into your local `.env`:
+Copy the template environment file to configure your local environment:
 ```bash
-make env-dev  # Pull secrets with safe local fallback defaults
-# Or start the entire stack directly:
-make dev      # Pull secrets and start all containers
+cp .env.example .env
 ```
 
-For complete documentation on authentication, issuing tokens, pushing secrets, and running a local Vault dev server, refer to the [Vault Secrets Management Guide](devops/vault/README.md).
-
-Do not store production secrets in git. Configure them via Vault or as described in the [FastAPI Cloud deployment guide](./deployment.md) or the [Docker Compose deployment guide](./deployment-docker-compose.md).
+Do not store production secrets in git. For cloud deployments, configure production environment variables on the remote server as described in [deployment.md](./deployment.md) or [deployment-docker-compose.md](./deployment-docker-compose.md).
 
 ## Pre-commit Hooks and Code Linting
 
