@@ -1,557 +1,757 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router"
 import {
-  Briefcase,
-  Check,
-  Clock3,
-  Inbox,
-  Link2,
-  MessageSquare,
-  Send,
-  Trash2,
-  UserCheck,
-  UserPlus,
-  Users,
-  X,
-} from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-
+	Briefcase,
+	Check,
+	Clock3,
+	Inbox,
+	MessageSquare,
+	Search,
+	Send,
+	UserCheck,
+	UserMinus,
+	Users,
+	X,
+} from "lucide-react"
+import { useMemo, useState } from "react"
 import {
-  WorkspacePageHeader,
-  WorkspaceSurface,
-} from "@/components/dashboard/dashboard-header";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+	WorkspacePageHeader,
+	WorkspaceSurface,
+	workspaceStyles,
+} from "@/components/dashboard/dashboard-header"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog"
 import {
-  useAcceptConnectionRequest,
-  useConnections,
-  useDeclineConnectionRequest,
-  useRemoveConnection,
-  useSendConnectionRequest,
-  useWithdrawConnectionRequest,
-} from "@/hooks/useConnections";
-import type { ConnectionPublic } from "@/client";
-import useAuth from "@/hooks/useAuth";
-import { useAccountRole } from "@/hooks/useAccountRole";
-import { getInitials } from "@/utils";
+	useAcceptConnectionRequest,
+	useConnections,
+	useDeclineConnectionRequest,
+	useRemoveConnection,
+	useWithdrawConnectionRequest,
+} from "@/hooks/useConnections"
+import type { ConnectionPublic } from "@/client"
+import useAuth from "@/hooks/useAuth"
+import { useAccountRole } from "@/hooks/useAccountRole"
+import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
+import { getInitials } from "@/utils"
+import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/_layout/connects")({
-  component: ConnectsPage,
-  head: () => ({
-    meta: [
-      { title: "Connections & Network | Skilio" },
-      {
-        name: "description",
-        content:
-          "Manage client and freelancer network connections, respond to requests, and unlock direct collaboration.",
-      },
-    ],
-  }),
-});
+	component: ConnectsPage,
+	head: () => ({
+		meta: [
+			{ title: "Connections & Network | Skilio" },
+			{
+				name: "description",
+				content:
+					"Manage verified partnerships, respond to collaboration requests, and unlock direct messaging on Skilio.",
+			},
+		],
+	}),
+})
 
-export const connect_with = (role: "client" | "freelancer") => {
-  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
-  const sendMutation = useSendConnectionRequest();
 
-    // Send request dialog state
-    const [recipientId, setRecipientId] = useState("");
-    const [jobPostId, setJobPostId] = useState("");
-    const [note, setNote] = useState("");
-    const handleSendConnection = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!recipientId.trim()) {
-      toast.error("Please enter the user ID or recipient handle.");
-      return;
-    }
-    if (note.length > 300) {
-      toast.error("Introductory note cannot exceed 300 characters.");
-      return;
-    }
-
-    try {
-      await sendMutation.mutateAsync({
-        receiver_id: recipientId.trim(),
-        job_post_id: jobPostId.trim() || undefined,
-        note: note.trim() || undefined,
-      });
-
-      setRecipientId("");
-      setJobPostId("");
-      setNote("");
-    } catch {
-      // error handled in mutation hook
-    }
-  };
-  
-  return (
-    <>
-    <Button
-    size="sm"
-    onClick={() => setIsConnectModalOpen(true)}
-    className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
-  >
-      <UserPlus className="size-4" />
-      <span>Connect with {role === "client" ? "Freelancer" : "Client"}</span>
-    </Button>
-    {/* SEND CONNECTION MODAL (F4, F5 / C2, C3) */}
-      <Dialog open={isConnectModalOpen} onOpenChange={setIsConnectModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Link2 className="size-5 text-primary" />
-              <span>Connect with {role === "client" ? "Freelancer" : "Client"}</span>
-            </DialogTitle>
-            <DialogDescription>
-              Send an inquiry. Once accepted, direct chat and messaging are permanently unlocked.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleSendConnection} className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="recipientId">Recipient User ID</Label>
-              <Input
-                id="recipientId"
-                placeholder="Paste the user ID to connect with"
-                value={recipientId}
-                onChange={(e) => setRecipientId(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="jobPostId">Job Post ID (Optional)</Label>
-              <Input
-                id="jobPostId"
-                placeholder="Optional job post ID reference"
-                value={jobPostId}
-                onChange={(e) => setJobPostId(e.target.value)}
-              />
-            </div>
-
-            {/* Optional 300-char note (F5 / C3) */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="note">Introductory Note (Optional)</Label>
-                <span
-                  className={`text-[11px] ${
-                    note.length > 300 ? "text-destructive font-semibold" : "text-muted-foreground"
-                  }`}
-                >
-                  {note.length}/300
-                </span>
-              </div>
-              <textarea
-                id="note"
-                rows={3}
-                maxLength={300}
-                placeholder={
-                  role === "client"
-                    ? "Add a brief note about the project or why you'd like to collaborate..."
-                    : "Add a 300-character note referencing the job post or your relevant experience..."
-                }
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              />
-            </div>
-
-            <DialogFooter className="mt-4 gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsConnectModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={sendMutation.isPending || note.length > 300 || !recipientId.trim()}
-                className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <Send className="size-3.5" />
-                <span>{sendMutation.isPending ? "Sending..." : "Send Request"}</span>
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-      </>
-  );
-};
-
+type TabType = "network" | "received" | "sent"
 
 function ConnectsPage() {
-  const { user } = useAuth();
-  const role = useAccountRole();
+	const { user } = useAuth()
+	const role = useAccountRole()
 
-  // Queries to backend
-  const { data: acceptedConnections, isLoading: loadingAccepted } = useConnections({
-    status: "accepted",
-    direction: "all",
-  });
+	// Queries for connections
+	const { data: acceptedConnections, isLoading: loadingAccepted } = useConnections({
+		status: "accepted",
+		direction: "all",
+	})
 
-  const { data: receivedRequests, isLoading: loadingReceived } = useConnections({
-    status: "pending",
-    direction: "received",
-  });
+	const { data: receivedRequests, isLoading: loadingReceived } = useConnections({
+		status: "pending",
+		direction: "received",
+	})
 
-  const { data: sentRequests, isLoading: loadingSent } = useConnections({
-    status: "pending",
-    direction: "sent",
-  });
+	const { data: sentRequests, isLoading: loadingSent } = useConnections({
+		status: "pending",
+		direction: "sent",
+	})
 
-  // Mutations
-  const acceptMutation = useAcceptConnectionRequest();
-  const declineMutation = useDeclineConnectionRequest();
-  const withdrawMutation = useWithdrawConnectionRequest();
-  const removeMutation = useRemoveConnection();
+	// Mutations
+	const acceptMutation = useAcceptConnectionRequest()
+	const declineMutation = useDeclineConnectionRequest()
+	const withdrawMutation = useWithdrawConnectionRequest()
+	const removeMutation = useRemoveConnection()
 
-  return (
-    <div className="mx-auto w-full max-w-360 px-4 py-8 md:px-6 md:py-10">
-      {/* Header */}
-      <WorkspacePageHeader
-        eyebrow="Network & Collaboration"
-        title="Connections"
-        description="Connect directly with verified clients and freelancers to discuss opportunities and collaborate."
-        action=""
-				meta={<span className="font-medium text-primary">Manage your connections</span>}
-      />
+	// Local state
+	const [activeTab, setActiveTab] = useState<TabType>("network")
+	const [searchQuery, setSearchQuery] = useState("")
+	const [connToRemove, setConnToRemove] = useState<ConnectionPublic | null>(null)
 
-      {/* Top Metrics Row */}
-      <div className="grid gap-4 sm:grid-cols-3 mt-7 gap-6">
-        {/* Active Connections */}
-        <WorkspaceSurface className="flex flex-col justify-between p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Connected Network
-            </span>
-            <div className="rounded-full bg-primary/10 p-2 text-primary">
-              <Users className="size-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-3xl font-bold font-display tracking-tight text-foreground">
-              {acceptedConnections?.count}
-            </div>
-            <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Badge variant="outline" className="border-primary/30 text-primary text-[10px] px-1.5 py-0">
-                Connected
-              </Badge>
-              <span>Direct messaging unlocked</span>
-            </div>
-          </div>
-        </WorkspaceSurface>
+	// Normalized lists and counts
+	const acceptedList = acceptedConnections?.data ?? []
+	const receivedList = receivedRequests?.data ?? []
+	const sentList = sentRequests?.data ?? []
 
-        {/* Pending Received */}
-        <WorkspaceSurface className="flex flex-col justify-between p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Received Requests
-            </span>
-            <div className="rounded-full bg-amber-500/10 p-2 text-amber-500">
-              <Inbox className="size-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-3xl font-bold font-display tracking-tight text-foreground">
-              {receivedRequests?.count}
-            </div>
-            <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock3 className="size-3 text-amber-500" />
-              <span>Awaiting your response</span>
-            </div>
-          </div>
-        </WorkspaceSurface>
+	const acceptedCount = acceptedConnections?.count ?? acceptedList.length
+	const receivedCount = receivedRequests?.count ?? receivedList.length
+	const sentCount = sentRequests?.count ?? sentList.length
 
-        {/* Sent Requests */}
-        <WorkspaceSurface className="flex flex-col justify-between p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Sent Inquiries
-            </span>
-            <div className="rounded-full bg-blue-500/10 p-2 text-blue-500">
-              <Send className="size-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-3xl font-bold font-display tracking-tight text-foreground">
-              {sentRequests?.count}
-            </div>
-            <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-              <span>Pending recipient review</span>
-            </div>
-          </div>
-        </WorkspaceSurface>
-      </div>
+	// Realtime search filtering without exposing IDs
+	const filteredAccepted = useMemo(() => {
+		if (!searchQuery.trim()) return acceptedList
+		const q = searchQuery.toLowerCase()
+		return acceptedList.filter((conn) => {
+			const partner = conn.sender_id === user?.id ? conn.receiver : conn.sender
+			const name = partner?.full_name || "Platform Member"
+			const jobTitle = conn.job_post?.title || ""
+			const note = conn.note || ""
+			return name.toLowerCase().includes(q) || jobTitle.toLowerCase().includes(q) || note.toLowerCase().includes(q)
+		})
+	}, [acceptedList, searchQuery, user?.id])
 
-      {/* Tabs */}
-      <Tabs defaultValue="network" className="w-full mt-7">
-        <TabsList className="h-10 p-1 bg-muted/60 border">
-          <TabsTrigger value="network" className="gap-2 px-4 text-xs font-medium">
-            <Users className="size-3.5" />
-            <span>My Connections ({acceptedConnections?.count})</span>
-          </TabsTrigger>
-          <TabsTrigger value="received" className="relative gap-2 px-4 text-xs font-medium">
-            <Inbox className="size-3.5" />
-            <span>Received Requests</span>
-              <span className="ml-1 inline-flex size-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
-                {receivedRequests == undefined ? 0 : receivedRequests.count}
-              </span>
-          </TabsTrigger>
-          <TabsTrigger value="sent" className="gap-2 px-4 text-xs font-medium">
-            <Send className="size-3.5" />
-            <span>Sent Requests ({sentRequests == undefined ? 0 : sentRequests.count})</span>
-          </TabsTrigger>
-        </TabsList>
+	const filteredReceived = useMemo(() => {
+		if (!searchQuery.trim()) return receivedList
+		const q = searchQuery.toLowerCase()
+		return receivedList.filter((conn) => {
+			const senderName = conn.sender?.full_name || "Platform Member"
+			const jobTitle = conn.job_post?.title || ""
+			const note = conn.note || ""
+			return senderName.toLowerCase().includes(q) || jobTitle.toLowerCase().includes(q) || note.toLowerCase().includes(q)
+		})
+	}, [receivedList, searchQuery])
 
-        {/* TAB 1: ACCEPTED CONNECTIONS */}
-        <TabsContent value="network" className="mt-4 space-y-4">
-          {loadingAccepted ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">Loading connections...</p>
-          ) : acceptedConnections?.count === 0 ? (
-            <WorkspaceSurface className="flex flex-col items-center justify-center py-16 text-center">
-              <Users className="size-12 text-muted-foreground/40 mb-3" />
-              <h3 className="font-semibold text-lg">No active connections yet</h3>
-              <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-4">
-                Connect with clients or freelancers to unlock direct messaging and discuss projects.
-              </p>
-              {/* <Button size="sm" onClick={() => setIsConnectModalOpen(true)}>
-                Find Someone to Connect With
-              </Button> */}
-            </WorkspaceSurface>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {acceptedConnections?.data.map((conn: ConnectionPublic) => {
-                const partner = conn.sender_id === user?.id ? conn.receiver : conn.sender;
-                const partnerName = partner?.full_name || "Platform Member";
-                const targetChatUserId = partner?.id || (conn.sender_id === user?.id ? conn.receiver_id : conn.sender_id);
+	const filteredSent = useMemo(() => {
+		if (!searchQuery.trim()) return sentList
+		const q = searchQuery.toLowerCase()
+		return sentList.filter((conn) => {
+			const receiverName = conn.receiver?.full_name || "Platform Member"
+			const jobTitle = conn.job_post?.title || ""
+			const note = conn.note || ""
+			return receiverName.toLowerCase().includes(q) || jobTitle.toLowerCase().includes(q) || note.toLowerCase().includes(q)
+		})
+	}, [sentList, searchQuery])
 
-                return (
-                  <Card key={conn.id} className="overflow-hidden border bg-card/60 backdrop-blur-sm">
-                    <CardContent className="p-5 flex flex-col justify-between h-full gap-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="size-12 border">
-                            <AvatarFallback className="font-semibold bg-primary/10 text-primary">
-                              {getInitials(partnerName)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-semibold text-base leading-tight text-foreground">
-                                {partnerName}
-                              </h4>
-                              {/* R6: Badge 'Connected' */}
-                              <Badge
-                                variant="outline"
-                                className="bg-primary/10 text-primary border-primary/30 text-[11px] font-medium gap-1"
-                              >
-                                <UserCheck className="size-3" />
-                                Connected
-                              </Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {partner?.active_role === "client" ? "Client" : "Independent Specialist"}
-                            </p>
-                            {conn.job_post && (
-                              <div className="flex items-center gap-1 text-[11px] text-muted-foreground/80 mt-1">
-                                <Briefcase className="size-3" />
-                                <span>{conn.job_post.title}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+	return (
+		<div className="mx-auto w-full max-w-[1400px] space-y-7 px-4 py-6 md:px-6 md:py-8">
+			{/* Page Header matching Skilio workspace standard */}
+			<WorkspacePageHeader
+				eyebrow="Network & Collaboration"
+				title="Connections"
+				description="Manage verified partnerships, review incoming collaboration requests, and connect with professionals across Skilio."
+				meta={<span className="font-medium text-primary">Direct Messaging Unlocked</span>}
+				action={
+					<Link
+						to="/talent"
+						search={{ q: undefined, category: undefined }}
+						className={workspaceStyles.primaryAction}
+					>
+						<Search className="size-4" />
+						<span>{role === "client" ? "Explore Freelancer Talent" : "Discover Verified Members"}</span>
+					</Link>
+				}
+			/>
 
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-muted-foreground hover:text-destructive"
-                          onClick={() => removeMutation.mutate(conn.id)}
-                          title="Remove Connection"
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
+			{/* Interactive Metric Overview Cards (Clickable Category Selectors) */}
+			<section aria-label="Connection metrics overview" className="grid gap-3 sm:gap-4 sm:grid-cols-3">
+				{/* 1. Connected Network Card */}
+				<button
+					type="button"
+					onClick={() => setActiveTab("network")}
+					aria-pressed={activeTab === "network"}
+					className={cn(
+						"group relative flex flex-col justify-between rounded-xl border p-5 text-left transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary",
+						activeTab === "network"
+							? "border-primary/60 bg-surface-container-low/50 shadow-xs ring-1 ring-primary/30 dark:border-primary/50"
+							: "border-outline-variant bg-surface-container-lowest hover:border-outline hover:bg-surface-container-low/30"
+					)}
+				>
+					<div className="flex items-center justify-between gap-2">
+						<span className="font-caption text-caption font-semibold tracking-wider uppercase text-on-surface-variant">
+							Connected Network
+						</span>
+						<div
+							className={cn(
+								"grid size-8 place-items-center rounded-lg transition-colors",
+								activeTab === "network"
+									? "bg-primary text-primary-foreground dark:bg-on-surface dark:text-background"
+									: "bg-primary/10 text-primary"
+							)}
+						>
+							<Users className="size-4" />
+						</div>
+					</div>
+					<div className="mt-4">
+						<div className="font-headline-xl text-3xl font-bold tracking-tight text-on-surface tabular-nums">
+							{loadingAccepted ? "—" : acceptedCount}
+						</div>
+						<div className="mt-1 flex items-center gap-1.5 font-caption text-caption text-on-surface-variant">
+							<span className="inline-block size-2 rounded-full bg-emerald-500" />
+							<span>Direct messaging unlocked</span>
+						</div>
+					</div>
+				</button>
 
-                      {conn.note && (
-                        <p className="text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-lg border italic">
-                          "{conn.note}"
-                        </p>
-                      )}
+				{/* 2. Received Requests Card */}
+				<button
+					type="button"
+					onClick={() => setActiveTab("received")}
+					aria-pressed={activeTab === "received"}
+					className={cn(
+						"group relative flex flex-col justify-between rounded-xl border p-5 text-left transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary",
+						activeTab === "received"
+							? "border-amber-500/60 bg-surface-container-low/50 shadow-xs ring-1 ring-amber-500/30 dark:border-amber-500/50"
+							: "border-outline-variant bg-surface-container-lowest hover:border-outline hover:bg-surface-container-low/30"
+					)}
+				>
+					<div className="flex items-center justify-between gap-2">
+						<span className="font-caption text-caption font-semibold tracking-wider uppercase text-on-surface-variant">
+							Received Requests
+						</span>
+						<div
+							className={cn(
+								"grid size-8 place-items-center rounded-lg transition-colors",
+								activeTab === "received"
+									? "bg-amber-500 text-white"
+									: "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+							)}
+						>
+							<Inbox className="size-4" />
+						</div>
+					</div>
+					<div className="mt-4">
+						<div className="font-headline-xl text-3xl font-bold tracking-tight text-on-surface tabular-nums">
+							{loadingReceived ? "—" : receivedCount}
+						</div>
+						<div className="mt-1 flex items-center gap-1.5 font-caption text-caption text-on-surface-variant">
+							{receivedCount > 0 ? (
+								<span className="inline-block size-2 rounded-full bg-amber-500 animate-pulse" />
+							) : (
+								<Clock3 className="size-3 text-on-surface-variant" />
+							)}
+							<span>{receivedCount > 0 ? "Awaiting your response" : "No pending requests"}</span>
+						</div>
+					</div>
+				</button>
 
-                      <div className="flex items-center justify-between pt-2 border-t text-xs text-muted-foreground">
-                        <span>Connected</span>
-                        {/* R5: Direct Chat / Conversation Unlocked */}
-                        <Link
-                          to={role === "freelancer" ? "/freelancer-messages" : "/messages"}
-                          search={{ userId: targetChatUserId }}
-                        >
-                          <Button size="sm" variant="default" className="h-8 gap-1.5 text-xs">
-                            <MessageSquare className="size-3.5" />
-                            <span>Direct Chat</span>
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </TabsContent>
+				{/* 3. Sent Inquiries Card */}
+				<button
+					type="button"
+					onClick={() => setActiveTab("sent")}
+					aria-pressed={activeTab === "sent"}
+					className={cn(
+						"group relative flex flex-col justify-between rounded-xl border p-5 text-left transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary",
+						activeTab === "sent"
+							? "border-sky-500/60 bg-surface-container-low/50 shadow-xs ring-1 ring-sky-500/30 dark:border-sky-500/50"
+							: "border-outline-variant bg-surface-container-lowest hover:border-outline hover:bg-surface-container-low/30"
+					)}
+				>
+					<div className="flex items-center justify-between gap-2">
+						<span className="font-caption text-caption font-semibold tracking-wider uppercase text-on-surface-variant">
+							Sent Inquiries
+						</span>
+						<div
+							className={cn(
+								"grid size-8 place-items-center rounded-lg transition-colors",
+								activeTab === "sent" ? "bg-sky-500 text-white" : "bg-sky-500/10 text-sky-600 dark:text-sky-400"
+							)}
+						>
+							<Send className="size-4" />
+						</div>
+					</div>
+					<div className="mt-4">
+						<div className="font-headline-xl text-3xl font-bold tracking-tight text-on-surface tabular-nums">
+							{loadingSent ? "—" : sentCount}
+						</div>
+						<div className="mt-1 flex items-center gap-1.5 font-caption text-caption text-on-surface-variant">
+							<span className="inline-block size-2 rounded-full bg-sky-500" />
+							<span>Pending recipient review</span>
+						</div>
+					</div>
+				</button>
+			</section>
 
-        {/* TAB 2: RECEIVED REQUESTS (Recipient Action: R1, R2, R3, R4) */}
-        <TabsContent value="received" className="mt-4 space-y-4">
-          {loadingReceived ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">Loading requests...</p>
-          ) : receivedRequests?.count === 0 ? (
-            <WorkspaceSurface className="flex flex-col items-center justify-center py-16 text-center">
-              <Inbox className="size-12 text-muted-foreground/40 mb-3" />
-              <h3 className="font-semibold text-lg">No pending requests</h3>
-              <p className="text-sm text-muted-foreground max-w-sm mt-1">
-                When someone sends you a connection request, it will appear here for your review.
-              </p>
-            </WorkspaceSurface>
-          ) : (
-            <div className="space-y-3">
-              {receivedRequests?.data.map((conn: ConnectionPublic) => {
-                const senderName = conn.sender?.full_name || "Platform Member";
+			{/* Unified Tab Navigation Bar (Matches Skilio's Dashboard & Proposals Tabbing) */}
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-outline-variant pb-4">
+				<nav aria-label="Connection tabs" className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+					{[
+						{ id: "network" as const, label: "My Connections", icon: Users, count: acceptedCount },
+						{
+							id: "received" as const,
+							label: "Received Requests",
+							icon: Inbox,
+							count: receivedCount,
+							isAlert: receivedCount > 0,
+						},
+						{ id: "sent" as const, label: "Sent Inquiries", icon: Send, count: sentCount },
+					].map((t) => {
+						const active = activeTab === t.id
+						return (
+							<button
+								key={t.id}
+								type="button"
+								onClick={() => setActiveTab(t.id)}
+								aria-pressed={active}
+								className={cn(
+									"flex h-9 shrink-0 items-center gap-2 rounded-lg px-3.5 font-label-md text-label-md font-medium transition-all",
+									active
+										? "bg-primary text-primary-foreground dark:bg-on-surface dark:text-background shadow-xs"
+										: "border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
+								)}
+							>
+								<t.icon className="size-3.5" />
+								<span>{t.label}</span>
+								<span
+									className={cn(
+										"rounded-full px-2 py-0.5 font-caption text-[11px] font-semibold tabular-nums",
+										active
+											? "bg-black/15 text-current dark:bg-background/25"
+											: t.isAlert
+												? "bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold"
+												: "bg-surface-container text-on-surface-variant"
+									)}
+								>
+									{t.count}
+								</span>
+							</button>
+						)
+					})}
+				</nav>
 
-                return (
-                  <Card key={conn.id} className="border bg-card/60 backdrop-blur-sm p-5">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-start gap-3.5">
-                        <Avatar className="size-12 border shrink-0">
-                          <AvatarFallback className="font-semibold bg-amber-500/10 text-amber-500">
-                            {getInitials(senderName)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h4 className="font-semibold text-base text-foreground">{senderName}</h4>
-                            <Badge
-                              variant="outline"
-                              className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]"
-                            >
-                              Pending Request
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {conn.sender?.active_role === "client" ? "Client" : "Independent Specialist"}
-                          </p>
-                          {conn.job_post && (
-                            <div className="flex items-center gap-1.5 text-xs text-primary font-medium mt-1">
-                              <Briefcase className="size-3.5" />
-                              <span>Referencing Job: {conn.job_post.title}</span>
-                            </div>
-                          )}
-                          {/* 300-char note (F5 / C3) */}
-                          {conn.note && (
-                            <div className="mt-2 text-xs bg-muted/40 p-3 rounded-lg border text-foreground/90 max-w-2xl leading-relaxed">
-                              "{conn.note}"
-                            </div>
-                          )}
-                        </div>
-                      </div>
+				{/* Instant Search Filter */}
+				<div className="relative w-full sm:w-72">
+					<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-on-surface-variant/70" />
+					<input
+						type="text"
+						placeholder="Filter by name, role or job..."
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className="h-9 w-full rounded-lg border border-outline-variant bg-surface-container-lowest pl-9 pr-8 font-body-sm text-sm text-on-surface placeholder:text-on-surface-variant/60 outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary"
+					/>
+					{searchQuery && (
+						<button
+							type="button"
+							onClick={() => setSearchQuery("")}
+							aria-label="Clear filter"
+							className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-on-surface-variant hover:text-on-surface"
+						>
+							<X className="size-3.5" />
+						</button>
+					)}
+				</div>
+			</div>
 
-                      {/* Recipient Action: Accept or Decline? (R2) */}
-                      <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          disabled={declineMutation.isPending || acceptMutation.isPending}
-                          onClick={() => declineMutation.mutate(conn.id)}
-                          className="h-8 min-w-[84px] items-center justify-center border-0 border-none gap-1.5 text-xs text-destructive hover:bg-destructive/10"
-                        >
-                          <X className="size-3.5" />
-                          <span>Decline</span>
-                        </Button>
-                        <Button
-                          size="sm"
-                          disabled={acceptMutation.isPending || declineMutation.isPending}
-                          onClick={() => acceptMutation.mutate(conn.id)}
-                          className="h-8 min-w-[84px] items-center justify-center border-0 border-none gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
-                        >
-                          <Check className="size-3.5" />
-                          <span>Accept</span>
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </TabsContent>
+			{/* TAB CONTENT: TAB 1 - ACTIVE CONNECTIONS */}
+			{activeTab === "network" && (
+				<section aria-label="Connected Network" className="space-y-4">
+					{loadingAccepted ? (
+						<div className="py-16 text-center">
+							<p className="font-label-md text-sm text-on-surface-variant">Loading your connections...</p>
+						</div>
+					) : filteredAccepted.length === 0 ? (
+						<WorkspaceSurface className="flex flex-col items-center justify-center p-12 text-center">
+							<div className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary mb-3">
+								<Users className="size-6" />
+							</div>
+							<h3 className="font-headline-sm font-semibold text-lg text-on-surface">
+								{searchQuery ? "No matching connections found" : "No active connections yet"}
+							</h3>
+							<p className="mt-1.5 max-w-md font-body-md text-sm text-on-surface-variant leading-relaxed">
+								{searchQuery
+									? `No connections match "${searchQuery}". Try searching for another name, role, or project.`
+									: "Connect directly with verified clients and specialists to unlock direct messaging, shared proposals, and collaboration."}
+							</p>
+							<div className="mt-5 flex flex-wrap gap-2.5">
+								{searchQuery ? (
+									<Button variant="outline" size="sm" onClick={() => setSearchQuery("")}>
+										Clear Filter
+									</Button>
+								) : (
+									<Link
+										to="/talent"
+										search={{ q: undefined, category: undefined }}
+										className={workspaceStyles.primaryAction}
+									>
+										<Search className="size-4" />
+										<span>Browse Verified Members</span>
+									</Link>
+								)}
+							</div>
+						</WorkspaceSurface>
+					) : (
+						<div className="grid gap-4 md:grid-cols-2">
+							{filteredAccepted.map((conn) => {
+								const partner = conn.sender_id === user?.id ? conn.receiver : conn.sender
+								const partnerName = partner?.full_name || "Platform Member"
+								const partnerRole = partner?.active_role === "client" ? "Client" : "Specialist"
+								const targetUserId =
+									partner?.id || (conn.sender_id === user?.id ? conn.receiver_id : conn.sender_id)
 
-        {/* TAB 3: SENT REQUESTS (F6: Connection status PENDING) */}
-        <TabsContent value="sent" className="mt-4 space-y-4">
-          {loadingSent ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">Loading sent requests...</p>
-          ) : sentRequests?.count === 0 ? (
-            <WorkspaceSurface className="flex flex-col items-center justify-center py-16 text-center">
-              <Send className="size-12 text-muted-foreground/40 mb-3" />
-              <h3 className="font-semibold text-lg">No sent requests</h3>
-              <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-4">
-                You haven't sent any connection requests yet.
-              </p>
-              {/* <Button size="sm" onClick={() => setIsConnectModalOpen(true)}>
-                Send a Connection Request
-              </Button> */}
-            </WorkspaceSurface>
-          ) : (
-            <div className="space-y-3">
-              {sentRequests?.data.map((conn: ConnectionPublic) => {
-                const receiverName = conn.receiver?.full_name || "Platform Member";
+								return (
+									<Card
+										key={conn.id}
+										className="group rounded-xl border border-outline-variant bg-surface-container-lowest p-5 transition-all duration-150 hover:border-outline hover:shadow-xs"
+									>
+										<CardContent className="p-0 flex flex-col justify-between h-full gap-4">
+											{/* Member Identity & Status */}
+											<div className="flex items-start justify-between gap-3">
+												<div className="flex items-start gap-3.5 min-w-0">
+													<div className="relative shrink-0">
+														<Avatar className="size-11 rounded-lg border border-outline-variant bg-surface-container">
+															<AvatarImage
+																src={accountAvatarUrl(targetUserId)}
+																alt={partnerName}
+																className="object-cover"
+															/>
+															<AvatarFallback className="rounded-lg bg-surface-container font-label-md font-semibold text-label-md text-on-surface">
+																{getInitials(partnerName)}
+															</AvatarFallback>
+														</Avatar>
+														<span
+															aria-hidden="true"
+															className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-container-lowest bg-emerald-500"
+														/>
+													</div>
 
-                return (
-                  <Card key={conn.id} className="border bg-card/60 p-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm text-foreground">
-                            Request to: {receiverName}
-                          </span>
-                          <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/30">
-                            PENDING
-                          </Badge>
-                        </div>
-                        {conn.job_post && (
-                          <p className="text-xs text-muted-foreground">
-                            Job Context: {conn.job_post.title}
-                          </p>
-                        )}
-                        {conn.note && (
-                          <p className="text-xs text-muted-foreground italic mt-1">"{conn.note}"</p>
-                        )}
-                      </div>
+													<div className="min-w-0 flex-1">
+														<div className="flex flex-wrap items-center gap-2">
+															<h4 className="font-headline-sm font-semibold text-base text-on-surface truncate">
+																{partnerName}
+															</h4>
+															<Badge
+																variant="outline"
+																className="bg-primary/10 text-primary border-primary/30 text-[10px] font-medium gap-1"
+															>
+																<UserCheck className="size-3" />
+																Connected
+															</Badge>
+														</div>
 
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-xs text-muted-foreground hover:text-destructive"
-                        disabled={withdrawMutation.isPending}
-                        onClick={() => withdrawMutation.mutate(conn.id)}
-                      >
-                        Withdraw
-                      </Button>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+														<p className="mt-0.5 text-xs text-on-surface-variant font-medium">
+															{partnerRole}
+														</p>
+
+														{conn.job_post && (
+															<div className="mt-1.5 flex items-center gap-1.5 text-xs text-on-surface-variant">
+																<Briefcase className="size-3.5 text-primary shrink-0" />
+																<span className="truncate">{conn.job_post.title}</span>
+															</div>
+														)}
+													</div>
+												</div>
+
+												{/* Disconnect Button (triggers confirmation dialog) */}
+												<button
+													type="button"
+													onClick={() => setConnToRemove(conn)}
+													title={`Remove connection with ${partnerName}`}
+													className="grid size-8 shrink-0 place-items-center rounded-lg border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant/70 transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+												>
+													<UserMinus className="size-4" />
+												</button>
+											</div>
+
+											{/* Optional Connection Note */}
+											{conn.note && (
+												<div className="rounded-lg border border-outline-variant/50 bg-surface-container-low/40 p-2.5 text-xs text-on-surface-variant italic leading-relaxed">
+													"{conn.note}"
+												</div>
+											)}
+
+											{/* Action Footer */}
+											<div className="flex items-center justify-between border-t border-outline-variant/60 pt-3 text-xs text-on-surface-variant">
+												<span className="font-caption text-caption flex items-center gap-1.5">
+													<span className="size-1.5 rounded-full bg-emerald-500" />
+													Collaboration unlocked
+												</span>
+
+												<Link
+													to={role === "freelancer" ? "/freelancer-messages" : "/messages"}
+													search={{ userId: targetUserId }}
+													className={cn(workspaceStyles.primaryAction, "h-8 px-3 text-xs gap-1.5")}
+												>
+													<MessageSquare className="size-3.5" />
+													<span>Message</span>
+												</Link>
+											</div>
+										</CardContent>
+									</Card>
+								)
+							})}
+						</div>
+					)}
+				</section>
+			)}
+
+			{/* TAB CONTENT: TAB 2 - RECEIVED REQUESTS */}
+			{activeTab === "received" && (
+				<section aria-label="Received connection requests" className="space-y-4">
+					{loadingReceived ? (
+						<div className="py-16 text-center">
+							<p className="font-label-md text-sm text-on-surface-variant">Loading incoming requests...</p>
+						</div>
+					) : filteredReceived.length === 0 ? (
+						<WorkspaceSurface className="flex flex-col items-center justify-center p-12 text-center">
+							<div className="grid size-12 place-items-center rounded-full bg-amber-500/10 text-amber-500 mb-3">
+								<Inbox className="size-6" />
+							</div>
+							<h3 className="font-headline-sm font-semibold text-lg text-on-surface">
+								{searchQuery ? "No matching incoming requests" : "No pending requests awaiting your response"}
+							</h3>
+							<p className="mt-1.5 max-w-md font-body-md text-sm text-on-surface-variant leading-relaxed">
+								{searchQuery
+									? `No requests match "${searchQuery}". Clear your search filter to see all incoming inquiries.`
+									: "When other verified members request to connect with you, their requests will appear here for your review."}
+							</p>
+							{searchQuery && (
+								<Button variant="outline" size="sm" onClick={() => setSearchQuery("")} className="mt-4">
+									Clear Filter
+								</Button>
+							)}
+						</WorkspaceSurface>
+					) : (
+						<div className="space-y-3">
+							{filteredReceived.map((conn) => {
+								const senderName = conn.sender?.full_name || "Platform Member"
+								const senderRole = conn.sender?.active_role === "client" ? "Client" : "Specialist"
+								const senderId = conn.sender?.id || conn.sender_id
+
+								return (
+									<Card
+										key={conn.id}
+										className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 transition-all duration-150 hover:border-outline"
+									>
+										<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+											{/* Sender Info & Request Note */}
+											<div className="flex items-start gap-3.5 min-w-0">
+												<Avatar className="size-11 shrink-0 rounded-lg border border-outline-variant bg-surface-container">
+													<AvatarImage
+														src={accountAvatarUrl(senderId)}
+														alt={senderName}
+														className="object-cover"
+													/>
+													<AvatarFallback className="rounded-lg bg-surface-container font-label-md font-semibold text-label-md text-on-surface">
+														{getInitials(senderName)}
+													</AvatarFallback>
+												</Avatar>
+
+												<div className="min-w-0 space-y-1">
+													<div className="flex flex-wrap items-center gap-2">
+														<h4 className="font-headline-sm font-semibold text-base text-on-surface">
+															{senderName}
+														</h4>
+														<Badge
+															variant="outline"
+															className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]"
+														>
+															Pending Request
+														</Badge>
+													</div>
+
+													<p className="text-xs text-on-surface-variant font-medium">
+														{senderRole} • Wants to connect with you
+													</p>
+
+													{conn.job_post && (
+														<div className="flex items-center gap-1.5 text-xs text-primary font-medium mt-1">
+															<Briefcase className="size-3.5 shrink-0" />
+															<span className="truncate">Referencing Project: {conn.job_post.title}</span>
+														</div>
+													)}
+
+													{conn.note && (
+														<div className="mt-2 text-xs rounded-lg border border-outline-variant/60 bg-surface-container-low/40 p-2.5 text-on-surface leading-relaxed max-w-2xl italic">
+															"{conn.note}"
+														</div>
+													)}
+												</div>
+											</div>
+
+											{/* Symmetrical Action Buttons (Decline / Accept) */}
+											<div className="flex shrink-0 items-center gap-2.5 self-end md:self-center">
+												<Button
+													size="sm"
+													variant="secondary"
+													disabled={declineMutation.isPending || acceptMutation.isPending}
+													onClick={() => declineMutation.mutate(conn.id)}
+													className="h-8 min-w-[84px] items-center justify-center border border-outline-variant bg-surface-container-lowest gap-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 hover:border-destructive/30 rounded-lg transition-colors"
+												>
+													<X className="size-3.5" />
+													<span>Decline</span>
+												</Button>
+
+												<Button
+													size="sm"
+													disabled={acceptMutation.isPending || declineMutation.isPending}
+													onClick={() => acceptMutation.mutate(conn.id)}
+													className="h-8 min-w-[84px] items-center justify-center border-0 border-none gap-1.5 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors"
+												>
+													<Check className="size-3.5" />
+													<span>Accept</span>
+												</Button>
+											</div>
+										</div>
+									</Card>
+								)
+							})}
+						</div>
+					)}
+				</section>
+			)}
+
+			{/* TAB CONTENT: TAB 3 - SENT INQUIRIES */}
+			{activeTab === "sent" && (
+				<section aria-label="Sent connection inquiries" className="space-y-4">
+					{loadingSent ? (
+						<div className="py-16 text-center">
+							<p className="font-label-md text-sm text-on-surface-variant">Loading sent inquiries...</p>
+						</div>
+					) : filteredSent.length === 0 ? (
+						<WorkspaceSurface className="flex flex-col items-center justify-center p-12 text-center">
+							<div className="grid size-12 place-items-center rounded-full bg-sky-500/10 text-sky-500 mb-3">
+								<Send className="size-6" />
+							</div>
+							<h3 className="font-headline-sm font-semibold text-lg text-on-surface">
+								{searchQuery ? "No matching sent inquiries" : "No pending sent requests"}
+							</h3>
+							<p className="mt-1.5 max-w-md font-body-md text-sm text-on-surface-variant leading-relaxed">
+								{searchQuery
+									? `No sent inquiries match "${searchQuery}". Clear your search filter to see all.`
+									: "You haven't sent any pending connection inquiries. Discover professionals through job posts and member profiles."}
+							</p>
+							<div className="mt-5">
+								{searchQuery ? (
+									<Button variant="outline" size="sm" onClick={() => setSearchQuery("")}>
+										Clear Filter
+									</Button>
+								) : (
+									<Link
+										to="/talent"
+										search={{ q: undefined, category: undefined }}
+										className={workspaceStyles.secondaryAction}
+									>
+										<Search className="size-4" />
+										<span>Browse Verified Members</span>
+									</Link>
+								)}
+							</div>
+						</WorkspaceSurface>
+					) : (
+						<div className="space-y-3">
+							{filteredSent.map((conn) => {
+								const receiverName = conn.receiver?.full_name || "Platform Member"
+								const receiverId = conn.receiver?.id || conn.receiver_id
+
+								return (
+									<Card
+										key={conn.id}
+										className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 transition-all duration-150 hover:border-outline"
+									>
+										<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+											{/* Receiver Info */}
+											<div className="flex items-start gap-3.5 min-w-0">
+												<Avatar className="size-11 shrink-0 rounded-lg border border-outline-variant bg-surface-container">
+													<AvatarImage
+														src={accountAvatarUrl(receiverId)}
+														alt={receiverName}
+														className="object-cover"
+													/>
+													<AvatarFallback className="rounded-lg bg-surface-container font-label-md font-semibold text-label-md text-on-surface">
+														{getInitials(receiverName)}
+													</AvatarFallback>
+												</Avatar>
+
+												<div className="min-w-0 space-y-1">
+													<div className="flex flex-wrap items-center gap-2">
+														<span className="font-headline-sm font-semibold text-base text-on-surface">
+															Request to: {receiverName}
+														</span>
+														<Badge
+															variant="outline"
+															className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]"
+														>
+															Pending Review
+														</Badge>
+													</div>
+
+													{conn.job_post && (
+														<p className="text-xs text-on-surface-variant flex items-center gap-1.5">
+															<Briefcase className="size-3.5 text-primary shrink-0" />
+															<span>Project: {conn.job_post.title}</span>
+														</p>
+													)}
+
+													{conn.note && (
+														<p className="mt-1 text-xs text-on-surface-variant italic bg-surface-container-low/40 border border-outline-variant/60 rounded-lg p-2.5 max-w-xl">
+															"{conn.note}"
+														</p>
+													)}
+												</div>
+											</div>
+
+											{/* Withdraw Action */}
+											<Button
+												size="sm"
+												variant="ghost"
+												disabled={withdrawMutation.isPending}
+												onClick={() => withdrawMutation.mutate(conn.id)}
+												className="h-8 px-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-xs text-on-surface-variant hover:text-destructive hover:border-destructive/30 transition-colors self-end sm:self-center"
+											>
+												Withdraw
+											</Button>
+										</div>
+									</Card>
+								)
+							})}
+						</div>
+					)}
+				</section>
+			)}
+
+			{/* Confirmation Dialog for Removing a Connection (Safe UX, No raw IDs exposed) */}
+			<Dialog open={Boolean(connToRemove)} onOpenChange={(open) => !open && setConnToRemove(null)}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle className="flex items-center gap-2 text-destructive">
+							<UserMinus className="size-5" />
+							<span>Remove Connection</span>
+						</DialogTitle>
+						<DialogDescription>
+							Are you sure you want to remove your connection with{" "}
+							<strong className="text-foreground">
+								{connToRemove
+									? connToRemove.sender_id === user?.id
+										? connToRemove.receiver?.full_name || "this member"
+										: connToRemove.sender?.full_name || "this member"
+									: "this member"}
+							</strong>
+							? Direct messaging channels will be locked until a new connection is accepted.
+						</DialogDescription>
+					</DialogHeader>
+
+					<DialogFooter className="mt-4 gap-2">
+						<Button variant="outline" onClick={() => setConnToRemove(null)}>
+							Cancel
+						</Button>
+						<Button
+							variant="destructive"
+							disabled={removeMutation.isPending}
+							onClick={() => {
+								if (connToRemove) {
+									removeMutation.mutate(connToRemove.id)
+									setConnToRemove(null)
+								}
+							}}
+						>
+							{removeMutation.isPending ? "Removing..." : "Remove Connection"}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</div>
+	)
 }
