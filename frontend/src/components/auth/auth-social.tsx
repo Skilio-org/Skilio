@@ -8,18 +8,20 @@ export const SocialAuth = () => {
 		window.location.assign(href)
 	}
 
+	const apiUrl = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "")
+
 	const socialProviders = [
 		{
 			id: "google",
 			label: "Continue with Google",
 			icon: FcGoogle,
-			href: import.meta.env.VITE_GOOGLE_OAUTH_URL as string | undefined,
+			href: (import.meta.env.VITE_GOOGLE_OAUTH_URL as string | undefined) || `${apiUrl}/api/v1/login/google`,
 		},
 		{
 			id: "linkedin",
 			label: "Continue with LinkedIn",
 			icon: FaLinkedinIn,
-			href: import.meta.env.VITE_LINKEDIN_OAUTH_URL as string | undefined,
+			href: (import.meta.env.VITE_LINKEDIN_OAUTH_URL as string | undefined) || `${apiUrl}/api/v1/login/linkedin`,
 		},
 	]
 

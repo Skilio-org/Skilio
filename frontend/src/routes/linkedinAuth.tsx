@@ -4,6 +4,7 @@ import { LinkedinAuthCallbackPage } from "@/pages/auth/linkedin-auth-callback-pa
 
 const linkedinAuthSearchSchema = z.object({
 	code: z.string().optional(),
+	state: z.string().optional(),
 	error: z.string().optional(),
 })
 

@@ -2,7 +2,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { AUTH_TOKEN_CHANGED_EVENT } from "@/context/websocket-context"
 
-export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?: string }) {
+export function GoogleAuthCallbackPage({ code, state, error }: { code?: string; state?: string; error?: string }) {
 	const navigate = useNavigate()
 
 	useEffect(() => {
@@ -27,7 +27,18 @@ export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?:
 
 		const authenticate = async () => {
 			try {
-				const res = await fetch(`${import.meta.env.VITE_GOOGLE_OAUTH_URL}/callback?code=${encodeURIComponent(code)}`, {
+				const baseUrl = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "")
+				const params = new URLSearchParams({ code })
+				if (state) {
+					params.set("state", state)
+				}
+
+				const callbackUrl = import.meta.env.VITE_GOOGLE_OAUTH_URL
+					? `${import.meta.env.VITE_GOOGLE_OAUTH_URL}/callback?${params.toString()}`
+					: `${baseUrl}/api/v1/login/google/callback?${params.toString()}`
+
+				const res = await fetch(callbackUrl, {
+					credentials: "include",
 					signal: controller.signal,
 				})
 
@@ -62,7 +73,7 @@ export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?:
 			controller.abort()
 			window.removeEventListener(AUTH_TOKEN_CHANGED_EVENT, () => {})
 		}
-	}, [code, error, navigate])
+	}, [code, state, error, navigate])
 
 	return null
 }
