@@ -1,11 +1,23 @@
 .git
+
+# Python & Test Caches
 **/__pycache__
+**/*.pyc
 **/.venv
-backend/htmlcov
-frontend/dist
-frontend/node_modules
-frontend/test-results
+**/.mypy_cache
+**/.pytest_cache
+**/.ruff_cache
+**/.coverage
+**/htmlcov
+**/app.egg-info
+
+# Frontend Caches & Artifacts
 node_modules
+frontend/node_modules
+frontend/dist
+frontend/test-results
+
+# Environment & Secrets
 .env
 .env.vault
 devops/vault/.credentials/
