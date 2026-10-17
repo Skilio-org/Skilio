@@ -138,16 +138,6 @@ deploy-logs:
 	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml logs -f'
 
-# Sync codebase to AWS EC2, rebuild backend container, and apply changes
-deploy:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
-	rsync -avz --exclude '.git' --exclude 'node_modules' --exclude '.venv' \
-		--exclude '__pycache__' --exclude '.env' --exclude 'frontend/dist' \
-		-e "ssh -i $(SSH_KEY)" \
-		./ ubuntu@$(SERVER_IP):/opt/skilio/
-	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml build backend && docker compose -f compose.yml -f compose.deploy.yml up -d backend'
-	@echo "==> Production deployed and updated successfully!"
-
 # Restart production containers on AWS (or make deploy-restart SERVICE=backend)
 deploy-restart:
 	@chmod 400 $(SSH_KEY) 2>/dev/null || true
