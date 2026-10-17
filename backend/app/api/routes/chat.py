@@ -122,7 +122,7 @@ def get_my_conversations(
 
     data = [
         _build_conversation_public(conv, current_user.id, session)
-        for conv in conversations if conv.messages
+        for conv in conversations
     ]
     return ConversationsPublic(data=data, count=len(data))
 
