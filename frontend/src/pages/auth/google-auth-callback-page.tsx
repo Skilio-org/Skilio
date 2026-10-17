@@ -27,7 +27,7 @@ export function GoogleAuthCallbackPage({ code, error }: { code?: string; error?:
 
 		const authenticate = async () => {
 			try {
-				const res = await fetch(`http://localhost:8000/api/v1/login/google/callback?code=${encodeURIComponent(code)}`, {
+				const res = await fetch(`${import.meta.env.VITE_GOOGLE_OAUTH_URL}/callback?code=${encodeURIComponent(code)}`, {
 					signal: controller.signal,
 				})
 
