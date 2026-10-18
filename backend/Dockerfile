@@ -1,4 +1,4 @@
-# Stage 1: Build Frontend (React + Vite + Tailwind via Bun)
+# Stage 1: Build Frontend
 
 FROM oven/bun:1 AS frontend-build
 
@@ -13,7 +13,7 @@ COPY ./frontend /app/frontend
 RUN bun run build
 
 
-# Stage 2: Production Backend (FastAPI + Python 3.14 + UV)
+# Stage 2: Production Backend
 
 FROM python:3.14
 
