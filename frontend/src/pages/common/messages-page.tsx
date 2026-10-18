@@ -173,6 +173,29 @@ export function MessagesPage({
 
 		let sent = false
 		MessageUpdate(selectedConversationId, rmessage)
+
+		// append the latest message to the conversations list, and set the unread count to 0 for this conversation.
+		queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
+			if (!current) return current
+
+			const updatedConversations = current.data.map((conversation: any) => {
+				if (conversation.id === selectedConversationId) {
+					return {
+						...conversation,
+						unread_count: 0,
+						last_message: {
+							...rmessage,
+							is_read: true,
+						},
+					}
+				}
+				return conversation
+			})
+			return {
+				...current,
+				data: updatedConversations,
+			}
+		})
 		setMessageSendResult(rmessage.id, "pending")
 		setDraft("")
 		// setTimeout(() => {
@@ -286,6 +309,7 @@ export function MessagesPage({
 			</Dialog> */}
 			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] h-[calc(100vh-14.5rem)] min-h-[640px] max-h-[880px]">
 				<ConversationList
+					me={user}
 					selected={selectedProfile}
 					query={query}
 					filter={filter}
