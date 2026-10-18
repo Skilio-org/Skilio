@@ -448,6 +448,10 @@ export type ConversationDetailPublic = {
      */
     freelancer_id: string;
     /**
+     * Creator Id
+     */
+    creator_id: string;
+    /**
      * Created At
      */
     created_at?: string | null;
@@ -483,6 +487,10 @@ export type ConversationPublic = {
      * Freelancer Id
      */
     freelancer_id: string;
+    /**
+     * Creator Id
+     */
+    creator_id: string;
     /**
      * Created At
      */
@@ -2162,6 +2170,10 @@ export type loginGoogleCallbackData = {
          * Code
          */
         code: string;
+        /**
+         * State
+         */
+        state?: string | null;
     };
     url: '/api/v1/login/google/callback';
 };
@@ -2204,6 +2216,10 @@ export type loginLinkedinCallbackData = {
          * Code
          */
         code: string;
+        /**
+         * State
+         */
+        state?: string | null;
     };
     url: '/api/v1/login/linkedin/callback';
 };

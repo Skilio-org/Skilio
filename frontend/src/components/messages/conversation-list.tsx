@@ -6,8 +6,10 @@ import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "@/hooks/isClientProfile"
 import { useChatData } from "@/hooks/useChatData"
 import { createFallbackProfile } from "@/hooks/useProfiles"
+import { UserPublic } from "@/client"
 
 export function ConversationList({
+	me,
 	selected,
 	query,
 	filter,
@@ -16,6 +18,7 @@ export function ConversationList({
 	onFilterChange,
 	onSelect,
 }: {
+	me: UserPublic | null | undefined
 	selected: ConversationProfile | undefined
 	query: string
 	filter: InboxFilter
@@ -103,6 +106,8 @@ export function ConversationList({
 					.filter((conversation) => {
 						if (filter === "unread" && (conversation.unread_count ?? 0) === 0) return false
 						if (query && !conversation.other_user?.full_name?.toLowerCase().includes(query.toLowerCase())) return false
+						if (conversation.last_message == null || conversation.last_message == undefined)
+							return conversation.creator_id === me?.id
 						return true
 					})
 					.map((conversation) => {

@@ -81,6 +81,7 @@ export function useChatEventHandlers() {
 					id: d.id,
 					client_id: d.client_id,
 					freelancer_id: d.freelancer_id,
+					creator_id: d.creator_id,
 					created_at: d.created_at,
 					updated_at: d.updated_at,
 					last_message: d.last_message,
