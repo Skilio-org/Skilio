@@ -52,6 +52,6 @@ export async function loadTalentCards(
 }
 
 export async function loadTalentProfile(id: string) {
-	const { data } = await ProfilesService.readProfile({ path: { id } })
+	const { data } = await ProfilesService.readProfileByUserId({ path: { user_id: id } })
 	return data
 }

@@ -58,6 +58,11 @@ export function MessagesPage({
 	const queryClient = useQueryClient()
 
 	useEffect(() => {
+		console.log(JSON.stringify(profiles.data?.size))
+		console.log(JSON.stringify(conversations.data?.data.length))
+	}, [profiles.isPending, conversations.isPending])
+
+	useEffect(() => {
 		if (
 			conversations.isSuccess &&
 			SelectedUserId &&
@@ -152,14 +157,6 @@ export function MessagesPage({
 		(total, conversation) => total + (conversation.unread_count ?? 0),
 		0,
 	)
-
-	// function checkProfile(profile: Parameters<typeof isClientProfile>[0], search: string) {
-	// 	if (search.trim() === "") return true
-	// 	const text = isClientProfile(profile)
-	// 		? `${profile.company ?? ""} ${profile.full_name ?? ""}`
-	// 		: `${profile.title ?? ""} ${profile.full_name ?? ""}`
-	// 	return text.toLowerCase().includes(search.toLowerCase())
-	// }
 
 	const send = (message: string) => {
 		const content = message.trim()

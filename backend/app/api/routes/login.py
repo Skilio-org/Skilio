@@ -215,7 +215,6 @@ def linkedin_callback(
             status_code=400, detail="LinkedIn token response missing access token."
         )
 
-    # Fetch user information from LinkedIn OIDC userinfo endpoint
     userinfo_response = requests.get(
         settings.LINKEDIN_USERINFO_URL,
         headers={"Authorization": f"Bearer {access_token}"},
