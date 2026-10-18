@@ -9,7 +9,9 @@ export const Route = createFileRoute("/login")({
 	component: LoginRoute,
 	validateSearch: (search) => loginSearchSchema.parse(search),
 	beforeLoad: async () => {
-		if (isLoggedIn()) throw redirect({ to: "/dashboard" })
+		if (isLoggedIn()) {
+			throw redirect({ to: "/dashboard" })
+		} 
 	},
 	head: () => ({
 		meta: [{ title: "Log in | Skilio" }, { name: "description", content: "Log in to your Skilio account." }],

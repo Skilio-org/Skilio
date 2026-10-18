@@ -48,6 +48,7 @@ const useAuth = () => {
 		onSuccess: (_result, data) => {
 			const role = data.active_role ?? data.role
 			if (role) localStorage.setItem(`account-role:${data.email.trim().toLowerCase()}`, role)
+			
 			navigate({ to: "/login" })
 		},
 		onError: handleError.bind(showErrorToast),

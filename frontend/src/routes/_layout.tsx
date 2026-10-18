@@ -8,6 +8,7 @@ export const Route = createFileRoute("/_layout")({
 	component: AppLayout,
 	beforeLoad: async () => {
 		if (!isLoggedIn()) throw redirect({ to: "/login" })
+
 		// Validate the token server-side before rendering any protected area
 		try {
 			await UsersService.readUserMe()
