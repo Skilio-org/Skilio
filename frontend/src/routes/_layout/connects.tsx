@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import {
 	Briefcase,
 	Check,
-	Clock3,
 	Inbox,
 	MessageSquare,
 	Search,
@@ -157,8 +156,8 @@ function ConnectsPage() {
 			/>
 
 			{/* Interactive Metric Overview Cards (Clickable Category Selectors) */}
-			<section aria-label="Connection metrics overview" className="grid gap-3 sm:gap-4 sm:grid-cols-3">
-				{/* 1. Connected Network Card */}
+			{/* <section aria-label="Connection metrics overview" className="grid gap-3 sm:gap-4 sm:grid-cols-3">
+				1. Connected Network Card
 				<button
 					type="button"
 					onClick={() => setActiveTab("network")}
@@ -196,7 +195,7 @@ function ConnectsPage() {
 					</div>
 				</button>
 
-				{/* 2. Received Requests Card */}
+				2. Received Requests Card
 				<button
 					type="button"
 					onClick={() => setActiveTab("received")}
@@ -238,7 +237,7 @@ function ConnectsPage() {
 					</div>
 				</button>
 
-				{/* 3. Sent Inquiries Card */}
+				3. Sent Inquiries Card
 				<button
 					type="button"
 					onClick={() => setActiveTab("sent")}
@@ -273,11 +272,27 @@ function ConnectsPage() {
 						</div>
 					</div>
 				</button>
-			</section>
+			</section> */}
 
 			{/* Unified Tab Navigation Bar (Matches Skilio's Dashboard & Proposals Tabbing) */}
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-outline-variant pb-4">
-				<nav aria-label="Connection tabs" className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+			
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-outline-variant border-b">
+				{/* <nav aria-label="Job status" className="">
+				{["All jobs", "Draft", "Open", "Closed"].map((status) => (
+					<button
+						type="button"
+						key={status}
+						onClick={() => onTabChange(status)}
+						aria-pressed={tab === status}
+						>
+						{status}{" "}
+						<span className="ml-1 text-xs">
+							{jobs.filter((job) => status === "All jobs" || job.status === status).length}
+						</span>
+					</button>
+				))}
+			</nav> */}
+				<nav aria-label="Connection tabs" className="flex gap-6 overflow-x-auto">
 					{[
 						{ id: "network" as const, label: "My Connections", icon: Users, count: acceptedCount },
 						{
@@ -290,60 +305,50 @@ function ConnectsPage() {
 						{ id: "sent" as const, label: "Sent Inquiries", icon: Send, count: sentCount },
 					].map((t) => {
 						const active = activeTab === t.id
+						
 						return (
 							<button
 								key={t.id}
 								type="button"
 								onClick={() => setActiveTab(t.id)}
 								aria-pressed={active}
-								className={cn(
-									"flex h-9 shrink-0 items-center gap-2 rounded-lg px-3.5 font-label-md text-label-md font-medium transition-all",
-									active
-										? "bg-primary text-primary-foreground dark:bg-on-surface dark:text-background shadow-xs"
-										: "border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
-								)}
+								className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm flex flex-row items-center ${active ? "border-primary text-primary" : "border-transparent text-on-surface-variant"}`}
 							>
 								<t.icon className="size-3.5" />
-								<span>{t.label}</span>
-								<span
-									className={cn(
-										"rounded-full px-2 py-0.5 font-caption text-[11px] font-semibold tabular-nums",
-										active
-											? "bg-black/15 text-current dark:bg-background/25"
-											: t.isAlert
-												? "bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold"
-												: "bg-surface-container text-on-surface-variant"
-									)}
-								>
-									{t.count}
+								<span className="m-2">{t.label}</span>
+								<span className="text-xs">
+									<span className="ml-1 text-xs">
+										{t.count}
+									</span>
 								</span>
 							</button>
 						)
 					})}
 				</nav>
 
-				{/* Instant Search Filter */}
-				<div className="relative w-full sm:w-72">
-					<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-on-surface-variant/70" />
-					<input
-						type="text"
-						placeholder="Filter by name, role or job..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className="h-9 w-full rounded-lg border border-outline-variant bg-surface-container-lowest pl-9 pr-8 font-body-sm text-sm text-on-surface placeholder:text-on-surface-variant/60 outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary"
-					/>
-					{searchQuery && (
-						<button
-							type="button"
-							onClick={() => setSearchQuery("")}
-							aria-label="Clear filter"
-							className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-on-surface-variant hover:text-on-surface"
-						>
-							<X className="size-3.5" />
-						</button>
-					)}
-				</div>
 			</div>
+			{/* Instant Search Filter */}
+			<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
+				<Search className="size-4 text-on-surface-variant" />
+				<input
+					type="text"
+					aria-label="Search your jobs"
+					placeholder="Filter by name, role or job..."
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+					className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+				/>
+				{searchQuery && (
+					<button
+						type="button"
+						onClick={() => setSearchQuery("")}
+						aria-label="Clear filter"
+						className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-on-surface-variant hover:text-on-surface"
+					>
+						<X className="size-3.5" />
+					</button>
+				)}
+			</label>
 
 			{/* TAB CONTENT: TAB 1 - ACTIVE CONNECTIONS */}
 			{activeTab === "network" && (
