@@ -72,8 +72,8 @@ export function ReviewCard({ review, isOwnReview = false, onEdit, onDelete }: Re
 							<DropdownMenuTrigger asChild>
 								<Button
 									variant="ghost"
-									size="icon"
-									className="size-8 text-muted-foreground hover:text-foreground"
+									size="icon-sm"
+									className="text-muted-foreground hover:text-foreground"
 									aria-label="Review actions"
 								>
 									<MoreHorizontal className="size-4" />

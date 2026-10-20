@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { ArrowUpRight, Inbox, MessageSquare, Star } from "lucide-react"
+import { ArrowUpRight, Inbox, MessageSquare, MessageSquarePlus, Star } from "lucide-react"
 import { useState } from "react"
 import { ProposalsService, type ProposalPublic } from "@/client"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
@@ -127,18 +127,18 @@ function ProposalRateButton({
 				<button
 					type="button"
 					onClick={() => setModalOpen(true)}
-					className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 text-xs font-medium text-amber-700 hover:bg-amber-500/20 dark:text-amber-300"
+					className="inline-flex h-9 items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3.5 font-label-md text-label-md font-medium text-amber-700 transition-colors hover:bg-amber-500/20 dark:text-amber-300"
 				>
-					<Star className="size-3.5 fill-amber-500 text-amber-500" />
+					<Star className="size-4 fill-amber-500 text-amber-500" />
 					<span>Reviewed (★{myReview.rating})</span>
 				</button>
 			) : canCreateReview ? (
 				<button
 					type="button"
 					onClick={() => setModalOpen(true)}
-					className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 text-xs font-medium text-on-surface hover:bg-surface-container"
+					className="inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
 				>
-					<Star className="size-3.5 text-amber-500 fill-amber-500" />
+					<MessageSquarePlus className="size-4 text-primary" />
 					<span>Rate freelancer</span>
 				</button>
 			) : null}
