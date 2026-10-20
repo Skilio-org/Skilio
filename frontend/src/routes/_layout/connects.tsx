@@ -314,7 +314,6 @@ function ConnectsPage() {
 								aria-pressed={active}
 								className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm flex flex-row items-center ${active ? "border-primary text-primary" : "border-transparent text-on-surface-variant"}`}
 							>
-								<t.icon className="size-3.5" />
 								<span className="m-2">{t.label}</span>
 								<span className="text-xs">
 									<span className="ml-1 text-xs">

@@ -1,27 +1,22 @@
-import json
+# from app.services.connection_manager import connection_manager
 import logging
 import uuid
-from typing import Annotated, Any
 
-import jwt
 from fastapi import (
     APIRouter,
-    HTTPException,
-    Query,
-    WebSocket,
-    WebSocketDisconnect,
-    status,
+    # HTTPException,
+    # Query,
+    # WebSocket,
+    # WebSocketDisconnect,
+    # status,
 )
-from jwt.exceptions import InvalidTokenError
-from pydantic import ValidationError
-from requests import session
-from sqlmodel import Session, and_, col, func, or_, select
+from sqlalchemy.orm import selectinload
+from sqlmodel import Session, select
 
+# and_, col, func, or_, 
 from app.api.deps import CurrentUser, SessionDep
-from app.core import security
-from app.core.config import settings
 from app.core.db import engine
-from app.core.redis import broadcast_to_all, publish_to_user
+from app.core.redis import publish_to_user
 from app.models import (
     Connection,
     JobPostPublic,
@@ -29,10 +24,7 @@ from app.models import (
     NotificationEvent,
     NotificationPublic,
     Proposal,
-    get_datetime_utc,
 )
-from app.services.connection_manager import connection_manager
-from sqlalchemy.orm import selectinload
 
 logger = logging.getLogger(__name__)
 
