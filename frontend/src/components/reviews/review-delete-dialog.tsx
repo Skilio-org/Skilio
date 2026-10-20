@@ -33,11 +33,17 @@ export function ReviewDeleteDialog({ open, onOpenChange, onConfirmDelete, isDele
 					</DialogDescription>
 				</DialogHeader>
 
-				<DialogFooter className="mt-4 gap-2 sm:gap-0">
+				<DialogFooter className="mt-6 gap-2 sm:gap-2">
 					<Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isDeleting}>
 						Keep review
 					</Button>
-					<Button type="button" variant="destructive" onClick={handleDelete} disabled={isDeleting} className="gap-2">
+					<Button
+						type="button"
+						variant="destructive"
+						onClick={handleDelete}
+						disabled={isDeleting}
+						className="gap-2 font-medium"
+					>
 						{isDeleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
 						Delete review
 					</Button>

@@ -32,15 +32,134 @@ describe("Review System Unit Tests", () => {
 		expect(percent5).toBe(60)
 	})
 
-	it("should validate comment lengths", () => {
-		const emptyComment = "   "
-		expect(emptyComment.trim().length).toBe(0)
+	it("should correctly handle filtering reviews by star rating", () => {
+		const sampleReviews = [
+			{ id: "1", rating: 5, comment: "Top notch", created_at: "2026-01-01T00:00:00Z" },
+			{ id: "2", rating: 4, comment: "Good", created_at: "2026-01-02T00:00:00Z" },
+			{ id: "3", rating: 5, comment: "Another 5", created_at: "2026-01-03T00:00:00Z" },
+			{ id: "4", rating: 2, comment: "Not great", created_at: "2026-01-04T00:00:00Z" },
+		]
 
-		const validComment = "Great freelancer! High quality deliverables and fast communication."
-		expect(validComment.trim().length).toBeGreaterThanOrEqual(1)
-		expect(validComment.trim().length).toBeLessThanOrEqual(3000)
+		const filterByStars = (stars: number | null) =>
+			stars === null ? sampleReviews : sampleReviews.filter((r) => Math.round(r.rating) === stars)
 
-		const longComment = "a".repeat(3001)
-		expect(longComment.length > 3000).toBe(true)
+		expect(filterByStars(null).length).toBe(4)
+		expect(filterByStars(5).length).toBe(2)
+		expect(filterByStars(4).length).toBe(1)
+		expect(filterByStars(2).length).toBe(1)
+		expect(filterByStars(1).length).toBe(0)
+	})
+
+	it("should sort reviews correctly by newest, highest, and lowest", () => {
+		const sampleReviews = [
+			{ id: "1", rating: 3, created_at: "2026-01-01T00:00:00Z" },
+			{ id: "2", rating: 5, created_at: "2026-01-05T00:00:00Z" },
+			{ id: "3", rating: 1, created_at: "2026-01-03T00:00:00Z" },
+		]
+
+		// Sort newest
+		const sortedNewest = [...sampleReviews].sort(
+			(a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+		)
+		expect(sortedNewest.map((r) => r.id)).toEqual(["2", "3", "1"])
+
+		// Sort highest
+		const sortedHighest = [...sampleReviews].sort((a, b) => b.rating - a.rating)
+		expect(sortedHighest.map((r) => r.id)).toEqual(["2", "1", "3"])
+
+		// Sort lowest
+		const sortedLowest = [...sampleReviews].sort((a, b) => a.rating - b.rating)
+		expect(sortedLowest.map((r) => r.id)).toEqual(["3", "1", "2"])
+	})
+
+	it("should pin user's own review to the top when present", () => {
+		const sampleReviews = [
+			{ id: "1", client_id: "other-user", rating: 5 },
+			{ id: "2", client_id: "my-user-id", rating: 4 },
+			{ id: "3", client_id: "third-user", rating: 5 },
+		]
+
+		const myUserId = "my-user-id"
+		const myReview = sampleReviews.find((r) => r.client_id === myUserId)
+		expect(myReview).toBeDefined()
+
+		let list = [...sampleReviews]
+		if (myReview) {
+			list = [myReview, ...list.filter((r) => r.id !== myReview.id)]
+		}
+
+		expect(list[0].id).toBe("2")
+		expect(list.length).toBe(3)
+	})
+
+	it("should evaluate review permissions correctly", () => {
+		const checkCanCreate = ({
+			user,
+			profileUserId,
+			existingReview,
+		}: {
+			user: { id: string; active_role: string; is_superuser?: boolean } | null
+			profileUserId: string
+			existingReview?: { id: string } | null
+		}) => {
+			if (!user) return false
+			const isClientRole = user.active_role === "client" || Boolean(user.is_superuser)
+			const isOwnProfile = user.id === profileUserId
+			return Boolean(isClientRole && !isOwnProfile && !existingReview)
+		}
+
+		// 1. Logged in client viewing another profile without existing review -> can create
+		expect(
+			checkCanCreate({
+				user: { id: "client-1", active_role: "client" },
+				profileUserId: "freelancer-1",
+				existingReview: null,
+			}),
+		).toBe(true)
+
+		// 2. Client viewing their own profile -> cannot create
+		expect(
+			checkCanCreate({
+				user: { id: "client-1", active_role: "client" },
+				profileUserId: "client-1",
+				existingReview: null,
+			}),
+		).toBe(false)
+
+		// 3. Client already submitted a review -> cannot create another
+		expect(
+			checkCanCreate({
+				user: { id: "client-1", active_role: "client" },
+				profileUserId: "freelancer-1",
+				existingReview: { id: "rev-1" },
+			}),
+		).toBe(false)
+
+		// 4. Freelancer-role user -> cannot create
+		expect(
+			checkCanCreate({
+				user: { id: "freelancer-2", active_role: "freelancer" },
+				profileUserId: "freelancer-1",
+				existingReview: null,
+			}),
+		).toBe(false)
+
+		// 5. Unauthenticated user -> cannot create
+		expect(
+			checkCanCreate({
+				user: null,
+				profileUserId: "freelancer-1",
+				existingReview: null,
+			}),
+		).toBe(false)
+
+		// 6. Superuser -> can create
+		expect(
+			checkCanCreate({
+				user: { id: "admin-1", active_role: "freelancer", is_superuser: true },
+				profileUserId: "freelancer-1",
+				existingReview: null,
+			}),
+		).toBe(true)
 	})
 })
