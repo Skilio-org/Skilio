@@ -168,14 +168,14 @@ export function ReviewModal({
 						</div>
 					)}
 
-					<DialogFooter className="mt-6 gap-2 sm:gap-2">
+					<DialogFooter className="mt-6 gap-2 sm:gap-2 ">
 						<Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
 							Cancel
 						</Button>
 						<Button
 							type="submit"
 							disabled={isSubmitting || isOverLimit || rating === 0 || !comment.trim()}
-							className="gap-2 font-medium"
+							className="gap-2 py-1 font-medium"
 						>
 							{isSubmitting && <Loader2 className="size-4 animate-spin" />}
 							{isEditing ? "Save changes" : "Submit review"}
