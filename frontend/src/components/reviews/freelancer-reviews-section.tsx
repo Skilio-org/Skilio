@@ -309,9 +309,9 @@ export function FreelancerReviewsSection({
 						</p>
 						{canCreateReview && (
 							<div className="mt-6">
-								<Button onClick={handleOpenCreate} className="gap-2 font-medium">
+								<Button size="sm" onClick={handleOpenCreate} className="gap-2 font-medium">
 									<MessageSquarePlus className="size-4" />
-									Write the first review
+									<span>Write the first review</span>
 								</Button>
 							</div>
 						)}
