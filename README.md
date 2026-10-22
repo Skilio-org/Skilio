@@ -116,7 +116,6 @@ Run supporting databases in Docker while developing the backend and frontend loc
 | **Interactive API Docs** | <http://localhost:8000/docs> | Swagger UI testing suite |
 | **System Status Dashboard** | <http://localhost:5173/status> or `/status` | Real-time service & DB latency monitor |
 | **Mailpit Web UI** | <http://localhost:8025> | Transactional email inbox sandbox |
-| **Adminer Database UI** | `http://adminer.localhost:80` (or `8080`) | PostgreSQL Web GUI |
 | **Traefik Proxy Dashboard**| <http://localhost:8090> | Routing rules and health |
 
 ---

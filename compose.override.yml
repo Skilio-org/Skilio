@@ -33,10 +33,6 @@ services:
     ports:
       - "${REDIS_PORT:-6379}:6379"
 
-  # adminer:
-  #   ports:
-  #     - "8080:8080"
-
   backend:
     ports:
       - "8000:8000"
