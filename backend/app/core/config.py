@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
+    HOST: str = "http://localhost:8000"
     FRONTEND_HOST: str = "http://localhost:5173"
     FASTAPI_ENV: Literal["development"] | None = None
 
@@ -84,6 +85,8 @@ class Settings(BaseSettings):
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
+    ENV: str = "production"
+    RESEND_API_KEY: str = ""
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
@@ -104,6 +107,8 @@ class Settings(BaseSettings):
         self._check_default_secret(
             "FIRST_SUPERUSER_PASSWORD", self.FIRST_SUPERUSER_PASSWORD
         )
+        if not self.RESEND_API_KEY:
+            raise ValueError("RESEND_API_KEY does not exist. it is mandatory for mail service to work properly.")
 
         return self
 

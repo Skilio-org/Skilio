@@ -2,7 +2,7 @@ import uuid
 from typing import Any
 
 import httpx
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, logger
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 from sqlmodel import col, func, select
@@ -32,7 +32,13 @@ from app.models import (
     UserUpdate,
     UserUpdateMe,
 )
-from app.utils import generate_new_account_email, send_email
+from app.utils import (
+    generate_email_validation_token,
+    generate_new_account_email,
+    generate_verify_email,
+    send_email,
+    validate_verify_token,
+)
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -66,7 +72,7 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
 @router.post(
     "/", dependencies=[Depends(get_current_active_superuser)], response_model=UserPublic
 )
-def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
+async def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     """
     Create new user.
     """
@@ -82,7 +88,7 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
         email_data = generate_new_account_email(
             email_to=user_in.email, username=user_in.email, password=user_in.password
         )
-        send_email(
+        await send_email(
             email_to=user_in.email,
             subject=email_data.subject,
             html_content=email_data.html_content,
@@ -108,7 +114,6 @@ async def upload_avatar(
         )
 
     current_user.avatar_url = url
-
     session.add(current_user)
     session.commit()
     session.refresh(current_user)
@@ -264,9 +269,9 @@ def update_user_me(
 
 
 @router.post("/signup", response_model=UserPublic)
-def register_user(session: SessionDep, user_in: UserRegister) -> Any:
+async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     """
-    Create new user without the need to be logged in.
+        Create new user without the need to be logged in.
     """
     user = crud.get_user_by_email(session=session, email=user_in.email)
     if user:
@@ -292,10 +297,46 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
         if not profile:
             profile = ClientProfile(user_id=user.id)
             session.add(profile)
+
+    if user.email.startswith("seed"):
+        user.is_email_verified = True
+    else:
+        user.is_email_verified = False
+
+    # token = generate_email_validation_token(user.email)
+    # mail  = generate_verify_email(user.email, user.full_name, user.email, token)
+    # await send_email(
+    #     email_to=user.email,
+    #     subject=mail.subject,
+    #     html_content=mail.html_content
+    # )
     user.avatar_url = settings.DEFAULT_AVATAR_URL
     session.commit()
     session.refresh(user)
     return user
+
+
+@router.get("/verify")
+def verify_email(session: SessionDep, token: str) -> Message:
+    """
+    Verify email.
+    """
+    email = validate_verify_token(token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid token")
+    user = crud.get_user_by_email(session=session, email=email)
+    if not user:
+        # Don't reveal that the user doesn't exist - use same error as invalid token
+        raise HTTPException(status_code=400, detail="Invalid token")
+    elif not user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    # TODO: Update user.is_email_verified.
+    user.is_email_verified = True
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    # print(f"User {user.email} has verified their email using token {token}")
+    return Message(message="Email was verified!")
 
 
 @router.get("/{user_id}", response_model=UserPublic)

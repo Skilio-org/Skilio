@@ -1,3 +1,4 @@
+
 import secrets
 from datetime import timedelta
 from typing import Annotated, Any
@@ -285,6 +286,8 @@ def login_access_token(
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     elif not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
+    if not user.is_superuser and not user.is_email_verified and not user.google_id and not user.linkedin_id:
+        raise HTTPException(status_code=400, detail="please check your email before login for verification link")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(
