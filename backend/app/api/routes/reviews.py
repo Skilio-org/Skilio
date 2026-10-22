@@ -8,9 +8,11 @@ from sqlalchemy.orm import joinedload
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
+from app.api.routes.notifications import push_notification
 from app.models import (
     FreelancerProfile,
     Message,
+    NotificationEvent,
     Review,
     ReviewCreate,
     ReviewPublic,
@@ -23,7 +25,7 @@ router = APIRouter(prefix="/reviews", tags=["reviews"])
 
 
 @router.post("/", response_model=ReviewPublic)
-def create_review(
+async def create_review(
     *, session: SessionDep, current_user: CurrentUser, review_in: ReviewCreate
 ) -> Any:
     """
@@ -64,6 +66,14 @@ def create_review(
         )
     session.refresh(review)
 
+    await push_notification(
+        user_id=profile.user_id,
+        event=NotificationEvent.REVIEW_RECEIVED,
+        title="New Review",
+        link="",
+        content="You have a new review on your profile.",
+        review_id=review.id,
+    )
     return ReviewPublic.model_validate(
         review,
         update={

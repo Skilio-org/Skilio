@@ -10,6 +10,7 @@ import type { ReviewPublic } from "@/client"
 import useAuth from "@/hooks/useAuth"
 import { Link } from "@tanstack/react-router"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 
 type FreelancerReviewsSectionProps = {
 	freelancerId: string
@@ -219,39 +220,40 @@ export function FreelancerReviewsSection({
 
 			{/* Filter & Sort Controls */}
 			{totalCount > 0 && (
-				<div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+				<div className="mt-6  flex flex-wrap items-center justify-between gap-3">
 					<div className="flex flex-wrap items-center gap-1.5">
 						<span className="mr-1 inline-flex items-center gap-1 text-xs text-muted-foreground font-medium">
 							<Filter className="size-3" /> Filter:
 						</span>
 						<Button
-							variant={selectedStarFilter === null ? "secondary" : "ghost"}
+							variant={null}
+							// variant={selectedStarFilter === null ? "bg-muted font-medium text-foreground" : "bg-none!"}
 							size="sm"
 							onClick={() => setSelectedStarFilter(null)}
-							className="h-7 text-xs"
+							className={cn(["h-7 gap-1 text-xs bg-none!", 
+									selectedStarFilter === null ? "bg-muted font-medium text-foreground" : ""])}
 						>
 							All ({totalCount})
 						</Button>
 						{[5, 4, 3, 2, 1].map((star) => (
 							<Button
 								key={star}
-								variant={selectedStarFilter === star ? "secondary" : "ghost"}
+								variant={null}
 								size="sm"
 								onClick={() => setSelectedStarFilter(selectedStarFilter === star ? null : star)}
-								className="h-7 gap-1 text-xs"
+								className={cn(["h-7 gap-1 text-xs bg-none!", 
+									selectedStarFilter === star ? "bg-muted font-medium text-foreground" : "hover:bg-muted"])}
 							>
-								<span>{star}★</span>
+								<span>{star} ★ </span>
 								<span className="text-muted-foreground">({distribution[star] || 0})</span>
 							</Button>
 						))}
 					</div>
 
-					<div className="flex items-center gap-2">
-						<span className="inline-flex items-center gap-1 text-xs text-muted-foreground font-medium">
-							<ArrowUpDown className="size-3" /> Sort:
-						</span>
+					<div className="flex flex-row flex-wrap items-center gap-4 py-0 px-0">
 						<Select value={sortBy} onValueChange={(val) => setSortBy(val as SortOption)}>
-							<SelectTrigger className="h-8 w-34 text-xs">
+							<SelectTrigger className="text-xs py-2! px-4! m-0! h-full!">
+								<ArrowUpDown className="size-3" />
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
