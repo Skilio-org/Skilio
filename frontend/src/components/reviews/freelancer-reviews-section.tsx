@@ -226,7 +226,8 @@ export function FreelancerReviewsSection({
 							<Filter className="size-3" /> Filter:
 						</span>
 						<Button
-							variant={selectedStarFilter === null ? "bg-muted font-medium text-foreground" : "bg-none!"}
+							variant={null}
+							// variant={selectedStarFilter === null ? "bg-muted font-medium text-foreground" : "bg-none!"}
 							size="sm"
 							onClick={() => setSelectedStarFilter(null)}
 							className={cn(["h-7 gap-1 text-xs bg-none!", 
@@ -237,13 +238,13 @@ export function FreelancerReviewsSection({
 						{[5, 4, 3, 2, 1].map((star) => (
 							<Button
 								key={star}
-								variant={selectedStarFilter === star ? "bg-muted font-medium text-foreground" : "bg-none!"}
+								variant={null}
 								size="sm"
 								onClick={() => setSelectedStarFilter(selectedStarFilter === star ? null : star)}
 								className={cn(["h-7 gap-1 text-xs bg-none!", 
-									selectedStarFilter === star ? "bg-muted font-medium text-foreground" : ""])}
+									selectedStarFilter === star ? "bg-muted font-medium text-foreground" : "hover:bg-muted"])}
 							>
-								<span>{star} ★</span>
+								<span>{star} ★ </span>
 								<span className="text-muted-foreground">({distribution[star] || 0})</span>
 							</Button>
 						))}
