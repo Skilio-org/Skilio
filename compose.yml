@@ -9,7 +9,7 @@ services:
       - --accesslog
       - --log
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro"
 
 
   db:
@@ -96,12 +96,6 @@ services:
   prometheus:
     image: prom/prometheus:v2.54.1
     restart: unless-stopped
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
-      - "--web.console.templates=/usr/share/prometheus/consoles"
-      - "--web.enable-lifecycle"
     depends_on:
       - backend
     volumes:
