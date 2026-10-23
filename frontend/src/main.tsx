@@ -24,6 +24,7 @@ const handleApiError = (error: Error) => {
 		window.location.href = "/login"
 	}
 }
+
 queryClient = new QueryClient({
 	queryCache: new QueryCache({
 		onError: handleApiError,
