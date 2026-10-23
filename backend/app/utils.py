@@ -12,6 +12,7 @@ from jwt.exceptions import InvalidTokenError
 
 from app.core import security
 from app.core.config import settings
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,24 +25,23 @@ class EmailData:
 
 
 VERIFICATION_TOKEN_EXPIRE_MINUTES = 30
+EMAIL_TEMPLATES_DIR = Path(__file__).parent / "email-templates"
 
-# def create_verification_token(email: str) -> str:
-#     expires = datetime.now(timezone.utc) + timedelta(minutes=VERIFICATION_TOKEN_EXPIRE_MINUTES)
-#     payload = {
-#         "sub": email,
-#         "scope": "email_verification",
-#         "exp": expires
-#     }
-#     return jwt.encode(payload, settings.SECRET_KEY, algorithm=security.ALGORITHM)
+jinja_env = Environment(
+    loader=FileSystemLoader(EMAIL_TEMPLATES_DIR),
+    autoescape=select_autoescape(["html", "xml"]),
+)
+jinja_env.globals.update(
+    {
+        "logo_url": f"{settings.FRONTEND_HOST}/assets/images/s.png",
+    }
+)
 
 def render_email_template(*, template_name: str, context: dict[str, Any]) -> str:
-    template_str = (
-        Path(__file__).parent / "email-templates" / template_name
-    ).read_text()
-    html_content = Template(template_str).render(context)
-    return html_content
+    template = jinja_env.get_template(template_name)
+    return template.render(context)
 
-async def send_email_via_resend(email: str, sub: str, content: str):
+async def send_email_via_resend(email: str, sub: str, content: str) -> None:
     async with httpx2.AsyncClient() as client:
         response = await client.post(
             "https://api.resend.com/emails",
@@ -117,7 +117,7 @@ def generate_verify_email(email_to: str, username: str, email: str, token: str) 
     # link = f"{settings.FRONTEND_HOST}/verify?token={token}"
     link = f"{settings.HOST}/api/v1/users/verify?token={token}"
     html_content = render_email_template(
-        template_name="verify_mail.html",
+        template_name="verify_email.html",
         context={
             "project_name": settings.PROJECT_NAME,
             "username": username,

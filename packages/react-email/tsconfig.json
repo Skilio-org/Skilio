@@ -7,8 +7,23 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "baseUrl": ".",
+    "paths": {
+      "@frontend/*": [
+        "../../apps/frontend/*",
+        "../../frontend/*"
+      ]
+    }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", ".react-email"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../../frontend/**/*.ts",
+    "../../frontend/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    ".react-email"
+  ]
 }

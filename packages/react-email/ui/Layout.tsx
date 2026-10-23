@@ -3,6 +3,7 @@ import {
   Head,
   Hr,
   Html,
+  Img,
   Preview,
   Section,
   Tailwind,
@@ -13,14 +14,18 @@ type LayoutProps = React.PropsWithChildren & {
   title: string
   project_name: string
   preview?: string
+  logo_url?: string
 }
 
 export const Layout = ({
   project_name,
   title,
   preview,
+  logo_url,
   children,
 }: LayoutProps) => {
+  const isExport = process.env.EMAIL_EXPORT === "true"
+  const logoSrc = logo_url ?? (isExport ? "{{ logo_url }}" : "../static/s.png")
   return (
     <Tailwind
       config={{
@@ -65,9 +70,15 @@ export const Layout = ({
         </Head>
         {preview ? <Preview>{preview}</Preview> : null}
         <Body className="bg-surface font-sans text-body max-w-[560px] w-full mx-auto my-0 py-12 px-6">
-          <Section>
-            <Hr className="border-0 border-t-2 border-solid border-brand w-8 m-0" />
-            <Text className="text-body text-[13px] font-semibold uppercase tracking-[0.1em] mt-4 mb-9">
+          <Section className="mb-8">
+            <Img
+              src={logoSrc}
+              alt={project_name}
+              width="36"
+              height="36"
+              className="mb-3"
+            />
+            <Text className="text-body text-[13px] font-semibold uppercase tracking-[0.1em] m-0">
               {project_name}
             </Text>
           </Section>
