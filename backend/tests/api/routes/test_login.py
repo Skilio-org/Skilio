@@ -34,6 +34,26 @@ def test_get_access_token_incorrect_password(client: TestClient) -> None:
     assert r.status_code == 400
 
 
+def test_login_blocked_for_unverified_user(client: TestClient, db: Session) -> None:
+    """Login should be blocked with a descriptive error for users who haven't verified their email."""
+    email = random_email()
+    password = random_lower_string()
+    user = User(
+        email=email,
+        hashed_password=get_password_hash(password),
+        is_active=True,
+        is_email_verified=False,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    login_data = {"username": email, "password": password}
+    r = client.post(f"{settings.API_V1_STR}/login/access-token", data=login_data)
+    assert r.status_code == 400
+    assert r.json()["detail"] == "please check your email before login for verification link"
+
+
 def test_use_access_token(
     client: TestClient, superuser_token_headers: dict[str, str]
 ) -> None:
@@ -92,6 +112,11 @@ def test_reset_password(client: TestClient, db: Session) -> None:
         is_superuser=False,
     )
     user = create_user(session=db, user_create=user_create)
+    # Mark as verified so login isn't blocked by the email verification gate
+    user.is_email_verified = True
+    db.add(user)
+    db.commit()
+    db.refresh(user)
     token = generate_password_reset_token(email=email)
     headers = user_authentication_headers(client=client, email=email, password=password)
     data = {"new_password": new_password, "token": token}
@@ -138,7 +163,7 @@ def test_login_with_bcrypt_password_upgrades_to_argon2(
     bcrypt_hash = bcrypt_hasher.hash(password)
     assert bcrypt_hash.startswith("$2")  # bcrypt hashes start with $2
 
-    user = User(email=email, hashed_password=bcrypt_hash, is_active=True)
+    user = User(email=email, hashed_password=bcrypt_hash, is_active=True, is_email_verified=True)
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -172,7 +197,7 @@ def test_login_with_argon2_password_keeps_hash(client: TestClient, db: Session) 
     assert argon2_hash.startswith("$argon2")
 
     # Create user with argon2 hash
-    user = User(email=email, hashed_password=argon2_hash, is_active=True)
+    user = User(email=email, hashed_password=argon2_hash, is_active=True, is_email_verified=True)
     db.add(user)
     db.commit()
     db.refresh(user)

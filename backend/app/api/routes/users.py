@@ -304,7 +304,7 @@ async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     else:
         user.is_email_verified = False
         token = generate_email_validation_token(user.email)
-        mail  = generate_verify_email(user.email, user.full_name, user.email, token)
+        mail  = generate_verify_email(user.email, user_create.full_name, user.email, token)
         await send_email(
             email_to=user.email,
             subject=mail.subject,

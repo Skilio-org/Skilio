@@ -8,6 +8,7 @@ from app import crud
 from app.core.config import settings
 from app.core.security import verify_password
 from app.models import FreelancerProfile, User, UserCreate, UserRole
+from app.utils import generate_email_validation_token
 from tests.utils.user import create_random_user, user_authentication_headers
 from tests.utils.utils import random_email, random_lower_string
 
@@ -92,6 +93,11 @@ def test_get_existing_user_current_user(client: TestClient, db: Session) -> None
     password = random_lower_string()
     user_in = UserCreate(email=username, password=password)
     user = crud.create_user(session=db, user_create=user_in)
+    # Mark as verified so login isn't blocked by the email verification gate
+    user.is_email_verified = True
+    db.add(user)
+    db.commit()
+    db.refresh(user)
     user_id = user.id
 
     login_data = {
@@ -338,6 +344,8 @@ def test_register_user(client: TestClient, db: Session) -> None:
     assert user_db.full_name == full_name
     verified, _ = verify_password(password, user_db.hashed_password)
     assert verified
+    # Non-production ENV: email should be auto-verified on signup
+    assert user_db.is_email_verified is True
 
 
 def test_register_user_as_freelancer_with_role_field(
@@ -471,6 +479,51 @@ def test_register_user_already_exists_error(client: TestClient) -> None:
     assert r.json()["detail"] == "The user with this email already exists in the system"
 
 
+def test_verify_email_valid_token(client: TestClient, db: Session) -> None:
+    """
+    GET /users/verify with a valid token should mark the user's email as verified.
+    """
+    username = random_email()
+    password = random_lower_string()
+    user_in = UserCreate(email=username, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+    # Start unverified
+    user.is_email_verified = False
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    assert user.is_email_verified is False
+
+    token = generate_email_validation_token(username)
+    r = client.get(f"{settings.API_V1_STR}/users/verify", params={"token": token})
+    assert r.status_code == 200
+    assert r.json()["message"] == "Email was verified!"
+
+    db.refresh(user)
+    assert user.is_email_verified is True
+
+
+def test_verify_email_invalid_token(client: TestClient) -> None:
+    """
+    GET /users/verify with a bad token should return 400.
+    """
+    r = client.get(
+        f"{settings.API_V1_STR}/users/verify", params={"token": "notavalidtoken"}
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Invalid token"
+
+
+def test_verify_email_unknown_user_token(client: TestClient) -> None:
+    """
+    GET /users/verify with a valid-shaped token for a non-existent email returns 400.
+    """
+    token = generate_email_validation_token("ghost@nobody.com")
+    r = client.get(f"{settings.API_V1_STR}/users/verify", params={"token": token})
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Invalid token"
+
+
 def test_update_user(
     client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
@@ -538,6 +591,11 @@ def test_delete_user_me(client: TestClient, db: Session) -> None:
     password = random_lower_string()
     user_in = UserCreate(email=username, password=password)
     user = crud.create_user(session=db, user_create=user_in)
+    # Mark as verified so login isn't blocked by the email verification gate
+    user.is_email_verified = True
+    db.add(user)
+    db.commit()
+    db.refresh(user)
     user_id = user.id
 
     login_data = {
@@ -560,7 +618,7 @@ def test_delete_user_me(client: TestClient, db: Session) -> None:
     assert result is None
 
     user_query = select(User).where(User.id == user_id)
-    user_db = db.execute(user_query).first()
+    user_db = db.exec(user_query).first()
     assert user_db is None
 
 

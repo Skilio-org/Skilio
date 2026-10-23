@@ -25,6 +25,8 @@ def create_user_with_role(
         hashed_password=get_password_hash(password),
         full_name=f"Test {role.value.capitalize()}",
         active_role=role,
+        # Mark as verified so login isn't blocked by the email verification gate
+        is_email_verified=True,
     )
     db.add(user)
     db.commit()
