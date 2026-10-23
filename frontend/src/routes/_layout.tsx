@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router"
 import { isLoggedIn } from "@/hooks/useAuth"
 import { UsersService } from "@/client"
 import { AUTH_TOKEN_CHANGED_EVENT } from "@/context/websocket-context"
-import { AppLayout } from "@/pages/common/app-layout"
+import { AppLayout } from "@/pages/layouts/app-layout"
 
 export const Route = createFileRoute("/_layout")({
 	component: AppLayout,

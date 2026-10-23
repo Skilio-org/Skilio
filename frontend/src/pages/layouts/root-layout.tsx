@@ -8,7 +8,7 @@ export function RootLayout() {
 			<HeadContent />
 			<a
 				href="#main-content"
-				className="fixed top-4 left-4 z-[100] -translate-y-24 rounded-full bg-slate-950 px-4 py-2 font-semibold text-sm text-white shadow-floating transition-transform focus:translate-y-0"
+				className="fixed top-4 left-4 z-100 -translate-y-24 rounded-full bg-slate-950 px-4 py-2 font-semibold text-sm text-white shadow-floating transition-transform focus:translate-y-0"
 			>
 				Skip to main content
 			</a>
