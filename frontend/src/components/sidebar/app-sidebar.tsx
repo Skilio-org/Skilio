@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router"
-import { CircleHelp, Compass, LayoutDashboard, Settings, ShieldCheck } from "lucide-react"
+import { CircleHelp, Compass, LayoutDashboard, Settings } from "lucide-react"
 
 import { SidebarAppearance } from "@/components/common/appearance"
 import { Logo } from "@/components/common/logo"
@@ -76,31 +76,6 @@ export function AppSidebar() {
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
-
-				{user?.is_superuser && (
-					<SidebarGroup className="mt-7 p-0">
-						<SidebarGroupLabel className="mb-2 px-3 font-semibold text-[11px] text-muted-foreground uppercase tracking-[0.14em] group-data-[collapsible=icon]:hidden">
-							Administration
-						</SidebarGroupLabel>
-						<SidebarGroupContent>
-							<SidebarMenu>
-								<SidebarMenuItem>
-									<SidebarMenuButton
-										asChild
-										isActive={pathname === "/admin"}
-										tooltip="User management"
-										className="h-11 rounded-lg px-3 font-medium text-sm data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold"
-									>
-										<Link to="/admin">
-											<ShieldCheck className="size-[18px]" />
-											<span>User management</span>
-										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							</SidebarMenu>
-						</SidebarGroupContent>
-					</SidebarGroup>
-				)}
 			</SidebarContent>
 
 			<SidebarFooter className="gap-2 border-sidebar-border border-t px-2 py-3 group-data-[collapsible=icon]:px-1.5">
