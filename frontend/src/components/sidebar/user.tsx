@@ -3,7 +3,6 @@ import { Link, useNavigate } from "@tanstack/react-router"
 import { BriefcaseBusiness, Check, ChevronDown, LogOut, Settings, UserRound } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
-
 import { type UserPublic, UsersService } from "@/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {

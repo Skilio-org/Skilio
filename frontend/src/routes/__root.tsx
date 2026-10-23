@@ -1,7 +1,7 @@
 import { createRootRoute } from "@tanstack/react-router"
 import ErrorComponent from "@/components/common/error-component"
 import NotFound from "@/components/common/not-found"
-import { RootLayout } from "@/pages/common/root-layout"
+import { RootLayout } from "@/pages/layouts/root-layout"
 
 export const Route = createRootRoute({
 	component: RootLayout,

@@ -1,6 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router"
 import { CircleHelp, Compass, LayoutDashboard, Settings } from "lucide-react"
-
 import { SidebarAppearance } from "@/components/common/appearance"
 import { Logo } from "@/components/common/logo"
 import {
@@ -16,7 +15,6 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import useAuth from "@/hooks/useAuth"
-
 import { User } from "./user"
 
 const navigation = [
