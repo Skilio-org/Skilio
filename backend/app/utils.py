@@ -5,13 +5,13 @@ from pathlib import Path
 from typing import Any
 
 import emails
+import httpx2
 import jwt
 from jinja2 import Template
 from jwt.exceptions import InvalidTokenError
 
 from app.core import security
 from app.core.config import settings
-import httpx2
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ async def send_email_via_resend(email: str, sub: str, content: str):
             "https://api.resend.com/emails",
             headers={"Authorization": f"Bearer {settings.RESEND_API_KEY}"},
             json={
-                "from": f"{settings.FIRST_SUPERUSER}",
+                "from": f"{settings.EMAILS_FROM_EMAIL}",
                 "to": email,
                 "subject": sub,
                 "html": content

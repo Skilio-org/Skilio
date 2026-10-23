@@ -298,19 +298,18 @@ async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
             profile = ClientProfile(user_id=user.id)
             session.add(profile)
 
-    if user.email.startswith("seed"):
+    user.avatar_url = settings.DEFAULT_AVATAR_URL
+    if user.email.startswith("seed") or settings.ENV != "production":
         user.is_email_verified = True
     else:
         user.is_email_verified = False
-
-    # token = generate_email_validation_token(user.email)
-    # mail  = generate_verify_email(user.email, user.full_name, user.email, token)
-    # await send_email(
-    #     email_to=user.email,
-    #     subject=mail.subject,
-    #     html_content=mail.html_content
-    # )
-    user.avatar_url = settings.DEFAULT_AVATAR_URL
+        token = generate_email_validation_token(user.email)
+        mail  = generate_verify_email(user.email, user.full_name, user.email, token)
+        await send_email(
+            email_to=user.email,
+            subject=mail.subject,
+            html_content=mail.html_content
+        )
     session.commit()
     session.refresh(user)
     return user
