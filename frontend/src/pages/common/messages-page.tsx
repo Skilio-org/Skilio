@@ -19,6 +19,7 @@ import type { ChatMessagePublic, ConversationDetailPublic } from "@/client/types
 import { chatKeys } from "@/data/chat-keys"
 import { useQueryClient } from "@tanstack/react-query"
 import useAuth from "@/hooks/useAuth"
+import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 
 export function MessagesPage({
 	SelectedUserId,
@@ -214,37 +215,23 @@ export function MessagesPage({
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
-			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
-				<div className="flex max-w-2xl flex-col gap-4">
-					<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
-						<span className="font-semibold text-on-surface-variant uppercase tracking-wider">
-							{clientMode ? "Client workspace" : "Freelancer workspace"}
-						</span>
-						<span className="size-1 rounded-full bg-outline-variant" />
-						<span className="flex items-center gap-1 font-medium text-primary">
-							<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
-							{unreadCount ?? 0} unread {unreadCount === 1 ? "message" : "messages"}
-						</span>
-					</div>
-					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">Messages</h1>
-					<p className="font-body-md text-body-md text-on-surface-variant">
-						{clientMode
-							? "Connect with freelancers, discuss your brief, and keep your projects moving."
-							: "Manage client conversations, share design artifacts, and collaborate on active contracts."}
-					</p>
-				</div>
-				{/* <div className="flex shrink-0 flex-wrap items-center gap-2.5">
-					<button
-						type="button"
-						onClick={() => setNewMessageOpen(true)}
-						className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md font-medium text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-					>
-						<SquarePen className="size-4" />
-						New message
-					</button>
-				</div> */}
-			</header>
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 md:px-6">
+			<WorkspacePageHeader
+				eyebrow={clientMode ? "Client workspace" : "Freelancer workspace"}
+				title="Messages"
+				description={
+					clientMode
+						? "Connect with freelancers, discuss your brief, and keep your projects moving."
+						: "Manage client conversations, share design artifacts, and collaborate on active contracts."
+				}
+				meta={
+					<span className="flex items-center gap-1 font-medium text-primary">
+						<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
+						{unreadCount ?? 0} unread {unreadCount === 1 ? "message" : "messages"}
+					</span>
+				}
+				action=""
+			/>
 			{/* <Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
 				<DialogContent className="max-w-md border-outline-variant bg-surface-container-lowest">
 					<DialogHeader>
