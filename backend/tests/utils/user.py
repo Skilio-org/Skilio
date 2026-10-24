@@ -24,6 +24,11 @@ def create_random_user(db: Session) -> User:
     password = random_lower_string()
     user_in = UserCreate(email=email, password=password)
     user = crud.create_user(session=db, user_create=user_in)
+    # Mark as verified so login isn't blocked by the email verification gate
+    user.is_email_verified = True
+    db.add(user)
+    db.commit()
+    db.refresh(user)
     return user
 
 
@@ -45,5 +50,11 @@ def authentication_token_from_email(
         if not user.id:
             raise Exception("User id not set")
         user = crud.update_user(session=db, db_user=user, user_in=user_in_update)
+    # Mark as verified so login isn't blocked by the email verification gate
+    if not user.is_email_verified:
+        user.is_email_verified = True
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
     return user_authentication_headers(client=client, email=email, password=password)

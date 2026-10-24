@@ -1,85 +1,80 @@
-import {
-  Body,
-  Head,
-  Hr,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from "@react-email/components"
+import { Body, Head, Hr, Html, Img, Preview, Section, Tailwind, Text } from "@react-email/components"
 
 type LayoutProps = React.PropsWithChildren & {
-  title: string
-  project_name: string
-  preview?: string
+	title: string
+	project_name: string
+	preview?: string
+	logo_url?: string
 }
 
-export const Layout = ({
-  project_name,
-  title,
-  preview,
-  children,
-}: LayoutProps) => {
-  return (
-    <Tailwind
-      config={{
-        theme: {
-          extend: {
-            colors: {
-              surface: "#ffffff",
-              body: "#1e293b",
-              muted: "#64748b",
-              rule: "#e2e8f0",
-              brand: {
-                DEFAULT: "#009688",
-                dark: "#00695c",
-              },
-            },
-            fontFamily: {
-              sans: [
-                "-apple-system",
-                "BlinkMacSystemFont",
-                '"Segoe UI"',
-                "Roboto",
-                "Oxygen",
-                "Ubuntu",
-                "Cantarell",
-                '"Fira Sans"',
-                '"Droid Sans"',
-                '"Helvetica Neue"',
-                "sans-serif",
-              ],
-            },
-          },
-        },
-      }}
-    >
-      <Html lang="en" dir="ltr">
-        <Head>
-          <title>{title}</title>
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
-        </Head>
-        {preview ? <Preview>{preview}</Preview> : null}
-        <Body className="bg-surface font-sans text-body max-w-[560px] w-full mx-auto my-0 py-12 px-6">
-          <Section>
-            <Hr className="border-0 border-t-2 border-solid border-brand w-8 m-0" />
-            <Text className="text-body text-[13px] font-semibold uppercase tracking-[0.1em] mt-4 mb-9">
-              {project_name}
-            </Text>
-          </Section>
-          <Section>{children}</Section>
-          <Hr className="border-0 border-t border-solid border-rule mt-10 mb-5" />
-          <Section>
-            <Text className="text-xs leading-5 text-muted m-0">
-              © {new Date().getFullYear()} {project_name}. All rights reserved.
-            </Text>
-          </Section>
-        </Body>
-      </Html>
-    </Tailwind>
-  )
+export const Layout = ({ project_name, title, preview, logo_url, children }: LayoutProps) => {
+	return (
+		<Tailwind
+			config={{
+				theme: {
+					extend: {
+						colors: {
+							surface: "#1f2125",
+							body: "#ffffff",
+							muted: "#fffff9",
+							rule: "#e2e8f0",
+							primary: {
+								DEFAULT: "#00ef0d", // Your frontend --primary color
+								foreground: "#ffffff",
+							},
+							brand: {
+								DEFAULT: "#229688",
+								dark: "#00695c",
+							},
+						},
+						fontFamily: {
+							sans: [
+								"-apple-system",
+								"BlinkMacSystemFont",
+								'"Segoe UI"',
+								"Roboto",
+								"Oxygen",
+								"Ubuntu",
+								"Cantarell",
+								'"Fira Sans"',
+								'"Droid Sans"',
+								'"Helvetica Neue"',
+								"sans-serif",
+							],
+						},
+					},
+				},
+			}}
+		>
+			<Html lang="en" dir="ltr">
+				<Head>
+					<title>{title}</title>
+					<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+				</Head>
+				{preview ? <Preview>{preview}</Preview> : null}
+				<Body className="mx-auto my-0 w-full max-w-[560px] bg-surface px-4 py-8 font-sans text-body sm:px-6 sm:py-12">
+					<Section className="mb-2 w-full rounded-2xl text-center">
+						<Img
+							src={logo_url || "https://res.cloudinary.com/vrreelhh/image/upload/v1792779326/s.png"}
+							alt={project_name}
+							width="48"
+							height="48"
+							align="center"
+							className="inline-block rounded-xl bg-black/10 p-3 align-middle"
+						/>
+					</Section>
+					<Text className="m-0 mb-4 text-center font-semibold text-[13px] text-body uppercase tracking-[0.1em]">
+						{project_name}
+					</Text>
+					<Section className="w-full rounded-2xl bg-black/20 p-6 shadow-md">{children}</Section>
+					<Hr className="mt-10 mb-5 border-0 border-rule border-t border-solid" />
+					<Section className="text-center">
+						<Text className="m-0 text-center text-muted text-xs leading-5">
+							© {new Date().getFullYear()} {project_name}. All rights reserved.
+						</Text>
+					</Section>
+				</Body>
+			</Html>
+		</Tailwind>
+	)
 }

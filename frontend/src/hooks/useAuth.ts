@@ -13,7 +13,6 @@ import { handleError } from "@/utils"
 import useCustomToast from "./useCustomToast"
 import { toast } from "sonner"
 
-
 const isLoggedIn = () => {
 	return localStorage.getItem("access_token") !== null
 }
@@ -48,6 +47,7 @@ const useAuth = () => {
 		onSuccess: (_result, data) => {
 			const role = data.active_role ?? data.role
 			if (role) localStorage.setItem(`account-role:${data.email.trim().toLowerCase()}`, role)
+
 			navigate({ to: "/login" })
 		},
 		onError: handleError.bind(showErrorToast),
@@ -81,13 +81,9 @@ const useAuth = () => {
 			if (account.active_role) {
 				localStorage.setItem(`account-role:${account.email.trim().toLowerCase()}`, account.active_role)
 			}
-			if (account.is_active && !account.is_superuser) {
+			if (account.is_active || account.is_superuser) {
 				navigate({
 					to: role === "freelancer" ? "/freelancer-dashboard" : "/dashboard",
-				})
-			} else if (account.is_superuser) {
-				navigate({
-					to: "/admin",
 				})
 			}
 		},

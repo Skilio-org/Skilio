@@ -157,6 +157,7 @@ class User(UserBase, table=True):
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
     )
+    is_email_verified: bool = Field(default=False, nullable=True)
     avatar_url: str | None = Field(
         default=None, max_length=500
     )  # stores the Cloudinary url
@@ -861,6 +862,9 @@ class Conversation(SQLModel, table=True):
     freelancer_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
+    creator_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
     created_at: datetime | None = Field(
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
@@ -944,6 +948,7 @@ class ConversationPublic(SQLModel):
     id: uuid.UUID
     client_id: uuid.UUID
     freelancer_id: uuid.UUID
+    creator_id: uuid.UUID
     created_at: datetime | None = None
     updated_at: datetime | None = None
     last_message: ChatMessagePublic | None = None

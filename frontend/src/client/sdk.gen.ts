@@ -880,6 +880,7 @@ export class ClientProfilesService {
      * Read Client Profile By User Id
      *
      * Get client profile by user ID. Public endpoint.
+     * Automatically creates a draft profile if the user exists but has no profile yet.
      */
     public static profilesReadClientProfileByUserId<ThrowOnError extends boolean = true>(options: Options<clientProfilesReadClientProfileByUserIdData, ThrowOnError>) {
         return (options.client ?? client).get<clientProfilesReadClientProfileByUserIdResponses, clientProfilesReadClientProfileByUserIdErrors, ThrowOnError>({

@@ -1,4 +1,4 @@
-.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-status deploy-logs deploy-restart deploy-backup deploy-backup-list deploy-restore deploy-dr-test deploy-db-clean deploy-db-seed
+.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-status deploy-logs deploy-restart deploy-backup deploy-backup-list deploy-restore deploy-dr-test deploy-db-clean deploy-db-seed mail-pages-gen
 
 # Default target — show available commands
 help:
@@ -33,6 +33,10 @@ help:
 	@echo "    make deploy-dr-test   Run disaster recovery drill on AWS"
 	@echo "    make deploy-db-clean  Safely reset and re-migrate production database on AWS"
 	@echo "    make deploy-db-seed   Seed production database with mock accounts (COUNT=20)"
+	@echo ""
+	@echo "  email generation:"
+	@echo "    make mail-pages-gen   generates email pages from react email"
+
 
 
 	@echo ""
@@ -182,9 +186,10 @@ deploy-db-seed:
 	@echo "==> Production database seeded successfully!"
 
 
-
-
-
+# =========== generation (Hossin made this) =====================
+mail-pages-gen:
+	@bun run email:export
+	@echo "==> mailing pages were generated successfully!"
 
 # =========== Cleanup ===========================================
 

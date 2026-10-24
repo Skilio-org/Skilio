@@ -58,6 +58,11 @@ export function MessagesPage({
 	const queryClient = useQueryClient()
 
 	useEffect(() => {
+		console.log(JSON.stringify(profiles.data?.size))
+		console.log(JSON.stringify(conversations.data?.data.length))
+	}, [profiles.isPending, conversations.isPending])
+
+	useEffect(() => {
 		if (
 			conversations.isSuccess &&
 			SelectedUserId &&
@@ -153,14 +158,6 @@ export function MessagesPage({
 		0,
 	)
 
-	// function checkProfile(profile: Parameters<typeof isClientProfile>[0], search: string) {
-	// 	if (search.trim() === "") return true
-	// 	const text = isClientProfile(profile)
-	// 		? `${profile.company ?? ""} ${profile.full_name ?? ""}`
-	// 		: `${profile.title ?? ""} ${profile.full_name ?? ""}`
-	// 	return text.toLowerCase().includes(search.toLowerCase())
-	// }
-
 	const send = (message: string) => {
 		const content = message.trim()
 		const rmessage: ChatMessagePublic = {
@@ -176,6 +173,29 @@ export function MessagesPage({
 
 		let sent = false
 		MessageUpdate(selectedConversationId, rmessage)
+
+		// append the latest message to the conversations list, and set the unread count to 0 for this conversation.
+		queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
+			if (!current) return current
+
+			const updatedConversations = current.data.map((conversation: any) => {
+				if (conversation.id === selectedConversationId) {
+					return {
+						...conversation,
+						unread_count: 0,
+						last_message: {
+							...rmessage,
+							is_read: true,
+						},
+					}
+				}
+				return conversation
+			})
+			return {
+				...current,
+				data: updatedConversations,
+			}
+		})
 		setMessageSendResult(rmessage.id, "pending")
 		setDraft("")
 		// setTimeout(() => {
@@ -289,6 +309,7 @@ export function MessagesPage({
 			</Dialog> */}
 			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] h-[calc(100vh-14.5rem)] min-h-[640px] max-h-[880px]">
 				<ConversationList
+					me={user}
 					selected={selectedProfile}
 					query={query}
 					filter={filter}

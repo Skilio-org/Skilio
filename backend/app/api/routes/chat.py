@@ -93,6 +93,7 @@ def _build_conversation_public(
         id=conversation.id,
         client_id=conversation.client_id,
         freelancer_id=conversation.freelancer_id,
+        creator_id=conversation.creator_id,
         created_at=conversation.created_at,
         updated_at=conversation.updated_at,
         last_message=last_msg_public,
@@ -175,6 +176,7 @@ def get_conversation_details(
         id=conv_summary.id,
         client_id=conv_summary.client_id,
         freelancer_id=conv_summary.freelancer_id,
+        creator_id=conv_summary.creator_id,
         created_at=conv_summary.created_at,
         updated_at=conv_summary.updated_at,
         last_message=conv_summary.last_message,
@@ -259,6 +261,7 @@ def create_or_get_conversation(
     new_conv = Conversation(
         client_id=conv_client_id,
         freelancer_id=conv_freelancer_id,
+        creator_id=current_user.id,
         created_at=get_datetime_utc(),
         updated_at=get_datetime_utc(),
     )

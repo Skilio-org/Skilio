@@ -28,7 +28,7 @@ export function FreelancerCard({
 	onToggleSaved: () => void
 }) {
 	const { user } = useAuth()
-	const targetUserId = freelancer.userId ?? freelancer.id
+	const targetUserId = freelancer.userId
 	const isSelf = Boolean(user?.id && targetUserId === user.id)
 	const { data: connectionStatus } = useConnectionStatus(!isSelf ? targetUserId : undefined)
 	const sendMutation = useSendConnectionRequest()
@@ -64,10 +64,9 @@ export function FreelancerCard({
 					{/* Avatar */}
 					<Link
 						to="/talent/$freelancerId"
-						params={{ freelancerId: freelancer.id }}
+						params={{ freelancerId: freelancer.userId ?? "" }}
 						search={{ q: undefined }}
-						className="relative mt-0.5 shrink-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
-					>
+						className="relative mt-0.5 shrink-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
 						<Avatar className="size-10 rounded-lg border border-outline-variant bg-surface-container">
 							{freelancer.avatarUrl && (
 								<AvatarImage src={freelancer.avatarUrl} alt={freelancer.name} className="object-cover" />
@@ -105,7 +104,7 @@ export function FreelancerCard({
 
 						<Link
 							to="/talent/$freelancerId"
-							params={{ freelancerId: freelancer.id }}
+							params={{ freelancerId: freelancer.userId ?? "" }}
 							search={{ q: undefined }}
 							className="relative inline-block pt-0.5 text-left font-headline-md font-semibold text-headline-md text-on-surface transition-colors after:absolute after:right-0 after:bottom-0 after:left-0 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-200 group-hover:text-primary-container group-hover:after:scale-x-100"
 						>
@@ -176,7 +175,7 @@ export function FreelancerCard({
 				<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
 					<Link
 						to="/talent/$freelancerId"
-						params={{ freelancerId: freelancer.id }}
+						params={{ freelancerId: freelancer.userId ?? "" }}
 						search={{ q: undefined }}
 						className="inline-flex h-8 items-center justify-center rounded-lg px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
 					>
