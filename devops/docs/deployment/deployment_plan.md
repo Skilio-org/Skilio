@@ -254,7 +254,7 @@ This implementation transitions the Skilio platform from an isolated `localhost`
 
 - [x] **Step 3.4: Production Environment Isolation & Override Elimination**
   - **What We Did**:
-    - Created [devops/.env.production.example](file:///home/aysadeq/Desktop/Freelancer/devops/.env.production.example), generated cryptographically secure keys on AWS, and strictly locked out local development overrides.
+    - Created [.env.production.example](file:///home/aysadeq/Desktop/Freelancer/.env.production.example), generated cryptographically secure keys on AWS, and strictly locked out local development overrides.
   - **Why We Did It (Critical Security Rationale)**:
     - *The Docker Compose Trap*: By default, Docker Compose automatically merges `compose.override.yml` whenever `docker compose up` is executed.
     - *The Vulnerability*: In local development, `compose.override.yml` exposes PostgreSQL directly to the host on port `5432:5432`, exposes Redis on port `6379:6379`, opens Traefik's insecure debug API on port `8090`, runs FastAPI in debug reload mode, and runs Mailpit. If merged in production, these debug ports would be directly exposed to the open internet.
