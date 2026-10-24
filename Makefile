@@ -1,4 +1,4 @@
-.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-status deploy-logs deploy-restart deploy-db-clean deploy-db-seed mail-pages-gen
+.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-status deploy-logs deploy-restart deploy-backup deploy-backup-list deploy-restore deploy-dr-test deploy-db-clean deploy-db-seed mail-pages-gen
 
 # Default target — show available commands
 help:
@@ -27,6 +27,10 @@ help:
 	@echo "    make deploy-status    Check live production containers and resource usage on AWS"
 	@echo "    make deploy-logs      Tail live production container logs in real time from AWS"
 	@echo "    make deploy-restart   Restart production containers on AWS (or SERVICE=backend)"
+	@echo "    make deploy-backup    Take live database snapshot directly on AWS"
+	@echo "    make deploy-backup-list List database snapshots on AWS"
+	@echo "    make deploy-restore   Restore database on AWS from latest (or FILE=...)"
+	@echo "    make deploy-dr-test   Run disaster recovery drill on AWS"
 	@echo "    make deploy-db-clean  Safely reset and re-migrate production database on AWS"
 	@echo "    make deploy-db-seed   Seed production database with mock accounts (COUNT=20)"
 	@echo ""
@@ -147,6 +151,26 @@ deploy-restart:
 	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml restart $(SERVICE)'
 	@echo "==> Production services restarted successfully!"
+
+# Create live database snapshot directly on AWS EC2
+deploy-backup:
+	@chmod 400 $(SSH_KEY) 2>/dev/null || true
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && bash devops/backup/backup.sh'
+
+# List available database backup snapshots on AWS EC2
+deploy-backup-list:
+	@chmod 400 $(SSH_KEY) 2>/dev/null || true
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && bash devops/backup/backup-list.sh'
+
+# Run automated disaster recovery verification drill on AWS EC2
+deploy-dr-test:
+	@chmod 400 $(SSH_KEY) 2>/dev/null || true
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && bash devops/backup/dr-test.sh'
+
+# Restore production database from latest backup (or make deploy-restore FILE=backup_xxx.sql.gz) on AWS EC2
+deploy-restore:
+	@chmod 400 $(SSH_KEY) 2>/dev/null || true
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && bash devops/backup/restore.sh $(FILE)'
 
 
 # Reset and re-migrate production database on AWS EC2 (preserves SSL certificates)

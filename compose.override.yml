@@ -1,30 +1,23 @@
 services:
 
   proxy:
-    image: traefik:3.6
+    user: ":0"
+    command:
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.http.address=:80
+      - --accesslog
+      - --log
+      - --log.level=DEBUG
+      - --api
+      - --api.insecure=true
+    volumes:
+      - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro"
     ports:
       - "${PROXY_PORT:-80}:80"
       - "8090:8080"
-    volumes:
-      - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro"
-    # Duplicate the command from compose.yml to add --api.insecure=true
-    command:
-      # Enable Docker in Traefik, so that it reads labels from Docker services
-      - --providers.docker
-      # Do not expose all Docker services, only the ones explicitly exposed
-      - --providers.docker.exposedbydefault=false
-      # Create an entrypoint "http" listening on port 80
-      - --entrypoints.http.address=:80
-      # Enable the access log, with HTTP requests
-      - --accesslog
-      # Enable the Traefik log, for configurations and errors
-      - --log
-      # Enable debug logging for local development
-      - --log.level=DEBUG
-      # Enable the Dashboard and API
-      - --api
-      # Enable the Dashboard and API in insecure mode for local development
-      - --api.insecure=true
+
+
   db:
     ports:
       - "5432:5432"
@@ -33,51 +26,25 @@ services:
     ports:
       - "${REDIS_PORT:-6379}:6379"
 
-  # adminer:
-  #   ports:
-  #     - "8080:8080"
 
   backend:
-    ports:
-      - "8000:8000"
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    # command: sleep infinity  # Infinite loop to keep container alive doing nothing
     command:
       - fastapi
       - dev
       - --host
       - "0.0.0.0"
-    develop:
-      watch:
-        - path: ./backend
-          action: sync
-          target: /app/backend
-          ignore:
-            - .venv
-        - path: ./backend/pyproject.toml
-          action: rebuild
-        - path: ./frontend
-          action: rebuild
-          ignore:
-            - ./frontend/node_modules
-            - ./frontend/dist
-            - ./frontend/test-results
-    # TODO: remove once coverage is done locally
-    volumes:
-      - ./backend/htmlcov:/app/backend/htmlcov
     environment:
-      FASTAPI_ENV: "development"
       SMTP_HOST: "mailpit"
-      SMTP_PORT: "1025"
-      SMTP_TLS: "false"
+    ports:
+      - "8000:8000"
+
 
   mailpit:
     image: axllent/mailpit
     ports:
       - "8025:8025"
       - "1025:1025"
+
 
   prometheus:
     ports:
@@ -86,5 +53,3 @@ services:
   grafana:
     ports:
       - "3000:3000"
-
-

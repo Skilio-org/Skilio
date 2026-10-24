@@ -48,6 +48,7 @@ apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     git \
+    make \
     ufw
 
 echo -e "  ${GREEN}[✔] Base system packages are up to date.${NC}"

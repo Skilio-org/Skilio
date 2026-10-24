@@ -67,8 +67,6 @@ Application, with the frontend and API served by FastAPI: <http://localhost:8000
 
 Automatic interactive API documentation with Swagger UI: <http://localhost:8000/docs>
 
-Adminer, database web administration: <http://localhost:8080>
-
 Traefik UI, to see how the routes are being handled by the proxy: <http://localhost:8090>
 
 Mailpit: <http://localhost:8025>

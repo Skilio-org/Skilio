@@ -100,7 +100,7 @@ This module bridges the gap between academic code and production-grade software 
 * **Static Elastic IP**: Allocated and attached **`16.192.59.166`** (persists across reboots).
 * **Domain DNS Routing**:
   * Apex Domain (`skilio.works`): A-record $\rightarrow$ `16.192.59.166`.
-  * Wildcard Subdomains (`*.skilio.works`): A-record $\rightarrow$ `16.192.59.166` (`grafana.skilio.works`, `adminer.skilio.works`).
+  * Wildcard Subdomains (`*.skilio.works`): A-record $\rightarrow$ `16.192.59.166` (`grafana.skilio.works`).
 
 ### 3.2 Network Security & Least-Privilege Firewall
 The AWS Security Group operates as a stateful hypervisor firewall outside the operating system:

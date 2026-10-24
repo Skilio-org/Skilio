@@ -5,7 +5,7 @@ You can deploy the project to your own remote server with Docker Compose. The de
 ## Preparation
 
 * Have a remote server ready and available.
-* Configure DNS records pointing to the server for the application domain and any supporting service subdomains you want to expose, such as `fastapi-project.example.com` and `adminer.fastapi-project.example.com`.
+* Configure DNS records pointing to the server for the application domain, such as `fastapi-project.example.com`.
 * Install and configure [Docker](https://docs.docker.com/engine/install/) on the remote server (Docker Engine, not Docker Desktop).
 
 ## Copy the Code
@@ -125,5 +125,3 @@ Replace `fastapi-project.example.com` with your domain.
 Application (frontend and API): `https://fastapi-project.example.com`
 
 Interactive API docs: `https://fastapi-project.example.com/docs`
-
-Adminer: `https://adminer.fastapi-project.example.com`

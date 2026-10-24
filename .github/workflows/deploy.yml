@@ -36,7 +36,7 @@ jobs:
             --exclude 'devops/backup/dumps' \
             ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/skilio/
 
-      - name: Execute Zero-Downtime Deployment
+      - name: Deploy Updated Backend Container
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -euo pipefail
@@ -44,14 +44,15 @@ jobs:
 
             COMPOSE="docker compose -f compose.yml -f compose.deploy.yml"
 
-            echo "==> Building updated Docker containers..."
-            $COMPOSE build
-
             echo "==> Running database schema migrations..."
             $COMPOSE run --rm backend bash scripts/prestart.sh
 
-            echo "==> Applying zero-downtime container update..."
-            $COMPOSE up -d --force-recreate --no-deps backend
+            echo "==> Stopping and removing old backend container..."
+            $COMPOSE stop backend
+            $COMPOSE rm -f backend
+
+            echo "==> Building and starting fresh backend container..."
+            $COMPOSE up -d --build --no-deps backend
 
             echo "==> Pruning dangling image layers..."
             docker image prune -f

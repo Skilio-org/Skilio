@@ -28,15 +28,13 @@ The **Freelancer Marketplace** is a high-performance, full-stack platform connec
 ┌────────────────────────────────────────────────────────────────────────┐
 │                         TRAEFIK REVERSE PROXY 3.6                      │
 │            Port 80/443 Routing • SSL Termination • Host Rules          │
-└───────────────────┬───────────────────────────────┬────────────────────┘
-                    │                               │
-           (HTTP / WebSockets)              (Subdomain Routing)
-                    ▼                               ▼
-┌───────────────────────────────────────┐   ┌────────────────────────────┐
-│         FASTAPI BACKEND (Python 3.14) │   │     ADMINER (DB Viewer)    │
-│  FastAPI • SQLModel • Pydantic v2     │   │     adminer.localhost      │
-│  Lifespan Engine • Auth & OAuth       │   └────────────────────────────┘
-└───────┬──────────────┬──────────────┬─┘
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ (HTTP / WebSockets)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                     FASTAPI BACKEND (Python 3.14)                      │
+│  FastAPI • SQLModel • Pydantic v2 • Lifespan Engine • Auth & OAuth     │
+└───────┬───────────────────────────┬────────────────────────────────────┘
         │              │              │
         ▼              ▼              ▼
 ┌──────────────┐ ┌───────────┐ ┌─────────────────────────────────────────┐
@@ -98,9 +96,8 @@ The **Freelancer Marketplace** is a high-performance, full-stack platform connec
 ### 3.1 Network & Reverse Proxy Layer
 1. **Traefik** acts as the single external gateway on port `80`/`443`.
 2. Requests to `Host: localhost` or `Host: ${DOMAIN}` are routed to the FastAPI backend service (port `8000`).
-3. Requests to `Host: adminer.${DOMAIN:-localhost}` route to the Adminer database dashboard.
-4. FastAPI serves the built frontend single-page application at `/` via `app.frontend()` when static assets exist, or falls back to pure API when developing with Vite on port `5173`.
-5. WebSocket requests (`/api/v1/chat/ws`) pass through Traefik transparently without connection interruption.
+3. FastAPI serves the built frontend single-page application at `/` via `app.frontend()` when static assets exist, or falls back to pure API when developing with Vite on port `5173`.
+4. WebSocket requests (`/api/v1/chat/ws`) pass through Traefik transparently without connection interruption.
 
 ### 3.2 Real-Time Event & Messaging Topology
 

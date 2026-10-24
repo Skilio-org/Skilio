@@ -37,7 +37,7 @@ Stage 7: Developer Tooling & Team CLI (Makefile)
   * **Multi-Stage Build**: Stage 1 uses Bun to compile the React SPA bundle; Stage 2 bundles it directly into the Python 3.14 FastAPI image.
   * **Bridge Network**: Containers communicate privately using service names (`db`, `redis`, `backend`) via Docker internal DNS.
   * **Named Volumes**: Persistent storage (`app-db-data`, `traefik-certificates`) surviving container rebuilds.
-  * **Environment Isolation**: Local dev automatically uses `compose.override.yml` (debug ports, Mailpit, Adminer); production locks them out with `COMPOSE_FILE=compose.yml:compose.deploy.yml`.
+  * **Environment Isolation**: Local dev automatically uses `compose.override.yml` (debug ports, Mailpit); production locks them out with `COMPOSE_FILE=compose.yml:compose.deploy.yml`.
 
 ### 2. Linux OS Hardening & Bootstrap (The Server)
 * **Files:** [`devops/scripts/server-init.sh`](../scripts/server-init.sh)
@@ -118,7 +118,7 @@ Phase 4: Observability   ──▶ Phase 5: Disaster Recovery ──▶ Phase 6:
 * **Show & Demo:**
   * Inspect [`compose.yml`](../../compose.yml) and [`compose.deploy.yml`](../../compose.deploy.yml).
   * Run `make status` to show all running containers and health states.
-* **Key Takeaway:** PostgreSQL (5432) and Redis (6379) are isolated on Docker's private bridge network. Debug overrides (Mailpit, Adminer) are excluded in production via `COMPOSE_FILE=compose.yml:compose.deploy.yml`.
+* **Key Takeaway:** PostgreSQL (5432) and Redis (6379) are isolated on Docker's private bridge network. Debug overrides (like Mailpit) are excluded in production via `COMPOSE_FILE=compose.yml:compose.deploy.yml`.
 
 ---
 
