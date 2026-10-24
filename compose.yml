@@ -117,6 +117,8 @@ services:
       LINKEDIN_AUTH_URI: ${LINKEDIN_AUTH_URI}
       LINKEDIN_TOKEN_URI: ${LINKEDIN_TOKEN_URI}
       LINKEDIN_USERINFO_URL: ${LINKEDIN_USERINFO_URL}
+      END: ${END:-production}
+      RESEND_API_KEY: ${RESEND_API_KEY}
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
