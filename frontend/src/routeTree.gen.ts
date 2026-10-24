@@ -20,7 +20,6 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutClientJobsRouteImport } from './routes/_layout/client-jobs'
 import { Route as LayoutClientProfileRouteImport } from './routes/_layout/client-profile'
 import { Route as LayoutConnectsRouteImport } from './routes/_layout/connects'
@@ -93,11 +92,6 @@ const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
   getParentRoute: () => rootRouteImport,
-} as any)
-const LayoutAdminRoute = LayoutAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutClientJobsRoute = LayoutClientJobsRouteImport.update({
   id: '/client-jobs',
@@ -207,7 +201,6 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
-  '/admin': typeof LayoutAdminRoute
   '/client-jobs': typeof LayoutClientJobsRoute
   '/client-profile': typeof LayoutClientProfileRoute
   '/connects': typeof LayoutConnectsRoute
@@ -238,7 +231,6 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
-  '/admin': typeof LayoutAdminRoute
   '/client-jobs': typeof LayoutClientJobsRoute
   '/client-profile': typeof LayoutClientProfileRoute
   '/connects': typeof LayoutConnectsRoute
@@ -271,7 +263,6 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
-  '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/client-jobs': typeof LayoutClientJobsRoute
   '/_layout/client-profile': typeof LayoutClientProfileRoute
   '/_layout/connects': typeof LayoutConnectsRoute
@@ -304,7 +295,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/status'
     | '/terms'
-    | '/admin'
     | '/client-jobs'
     | '/client-profile'
     | '/connects'
@@ -335,7 +325,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/status'
     | '/terms'
-    | '/admin'
     | '/client-jobs'
     | '/client-profile'
     | '/connects'
@@ -367,7 +356,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/status'
     | '/terms'
-    | '/_layout/admin'
     | '/_layout/client-jobs'
     | '/_layout/client-profile'
     | '/_layout/connects'
@@ -480,13 +468,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_layout/admin': {
-      id: '/_layout/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof LayoutAdminRouteImport
-      parentRoute: typeof LayoutRoute
     }
     '/_layout/client-jobs': {
       id: '/_layout/client-jobs'
@@ -618,7 +599,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface LayoutRouteChildren {
-  LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutClientJobsRoute: typeof LayoutClientJobsRoute
   LayoutClientProfileRoute: typeof LayoutClientProfileRoute
   LayoutConnectsRoute: typeof LayoutConnectsRoute
@@ -640,7 +620,6 @@ interface LayoutRouteChildren {
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
-  LayoutAdminRoute: LayoutAdminRoute,
   LayoutClientJobsRoute: LayoutClientJobsRoute,
   LayoutClientProfileRoute: LayoutClientProfileRoute,
   LayoutConnectsRoute: LayoutConnectsRoute,
