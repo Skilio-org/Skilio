@@ -54,9 +54,11 @@ docker compose up -d db redis mailpit
 # 3. Launch Frontend and Backend Concurrently (Merged Logs)
 # ──────────────────────────────────────────────────────────────────────────────
 echo -e "${BLUE}==> [2/2] Launching Backend and Frontend concurrently...${NC}"
-echo -e "    ${BOLD}Backend${NC}  : http://localhost:8000 (Docs: http://localhost:8000/docs)"
-echo -e "    ${BOLD}Frontend${NC} : http://localhost:5173"
-echo -e "    ${BOLD}Mailpit${NC}  : http://localhost:8025"
+echo -e "    ${BOLD}Backend${NC}      : http://localhost:8000 (Docs: http://localhost:8000/docs)"
+echo -e "    ${BOLD}Frontend${NC}     : http://localhost:5173"
+echo -e "    ${BOLD}Mailpit${NC}      : http://localhost:8025"
+echo -e "    ${BOLD}React email${NC}  : http://localhost:3333"
+# 
 echo -e "    Press ${BOLD}Ctrl+C${NC} to stop both servers simultaneously.\n"
 
 # Verify bun is installed
@@ -89,6 +91,8 @@ cleanup() {
 trap cleanup INT TERM
 
 # Launch backend and frontend concurrently with live colored prefixes
+
+(bun run email:dev 2>&1 | sed -u "s/^/$(printf "${YELLOW}${BOLD}[react email]${NC}  ")/") &
 (cd backend && ./run_backend.sh 2>&1 | sed -u "s/^/$(printf "${BLUE}${BOLD}[backend]${NC}  ")/") &
 (cd frontend && bun run dev 2>&1 | sed -u "s/^/$(printf "${MAGENTA}${BOLD}[frontend]${NC} ")/") &
 

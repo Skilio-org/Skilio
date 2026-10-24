@@ -7,12 +7,11 @@ from typing import Any
 import emails
 import httpx2
 import jwt
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from jwt.exceptions import InvalidTokenError
 
 from app.core import security
 from app.core.config import settings
-from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,17 +30,18 @@ jinja_env = Environment(
     loader=FileSystemLoader(EMAIL_TEMPLATES_DIR),
     autoescape=select_autoescape(["html", "xml"]),
 )
-jinja_env.globals.update(
-    {
-        "logo_url": f"{settings.FRONTEND_HOST}/assets/images/s.png",
-    }
-)
 
 def render_email_template(*, template_name: str, context: dict[str, Any]) -> str:
     template = jinja_env.get_template(template_name)
     return template.render(context)
 
+def check_env():
+    if not settings.emails_enabled or not settings.EMAILS_FROM_EMAIL:
+        raise RuntimeError("Email configuration is not enabled in settings")
+
 async def send_email_via_resend(email: str, sub: str, content: str) -> None:
+    if not settings.RESEND_API_KEY:
+        raise RuntimeError("Missing RESEND_API_KEY")
     async with httpx2.AsyncClient() as client:
         response = await client.post(
             "https://api.resend.com/emails",
@@ -61,11 +61,10 @@ async def send_email(
     subject: str = "",
     html_content: str = "",
 ) -> None:
+    check_env()
     if settings.ENV == "production" and settings.RESEND_API_KEY and not email_to.startswith("seed"):
         await send_email_via_resend(email_to, subject, html_content)
     else:
-        assert settings.emails_enabled, "no provided configuration for email variables"
-        assert settings.EMAILS_FROM_EMAIL  # For type checker
         message = emails.message.Message(
             subject=subject,
             html=html_content,
