@@ -3,7 +3,6 @@ import { ArrowLeft, ArrowUpRight, Bookmark, Check, Star } from "lucide-react"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view"
 import type { FreelancerProfileDetailPublic } from "@/client"
-import { profileFromApi } from "@/components/freelancer/freelancer-profile-api"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { getInitials } from "@/utils"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
@@ -18,8 +17,8 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 		queryFn: () => loadTalentProfile(initialPerson.id),
 	})
 
-	const profile = profileFromApi(person)
-	const firstName = profile.name.split(" ")[0]
+	const name = person.full_name ?? person.user?.full_name ?? ""
+	const firstName = name.split(" ")[0]
 	const { savedIds, toggleSaved } = useSavedTalent()
 	const saved = savedIds.includes(person.id)
 
@@ -28,26 +27,42 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 			<FreelancerProfileView
 				nameHeadingLevel="h1"
 				profile={{
-					name: profile.name,
-					initials: getInitials(profile.name),
+					name,
+					initials: getInitials(name),
 					avatarUrl: accountAvatarUrl(person.user_id),
-					title: profile.title,
-					location: profile.location,
-					summary: profile.bio,
-					about: profile.bio ? [profile.bio] : [],
-					skills: profile.skills,
-					rate: profile.rate,
-					availability: profile.availability,
-					weeklyCapacity: profile.hours,
+					title: person.title ?? "",
+					location: person.location ?? "",
+					summary: person.bio ?? "",
+					about: person.bio ? [person.bio] : [],
+					skills: person.skills ?? [],
+					rate: person.hourly_rate == null ? "" : String(person.hourly_rate),
+					availability: person.availability ?? "",
+					weeklyCapacity: person.hours ?? "",
 					rating: person.average_rating ?? undefined,
 					reviews: person.reviews_count,
-					portfolio: profile.portfolio.map((entry) => ({ ...entry, category: entry.organization })),
-					languages: profile.languages
+					portfolio: (person.portfolio ?? []).map((entry) => ({
+						id: entry.id,
+						title: entry.title,
+						category: entry.organization ?? "",
+						detail: entry.detail ?? entry.description ?? "",
+						url: entry.url ?? "",
+					})),
+					languages: (person.languages ?? "")
 						.split(",")
 						.map((name) => ({ name: name.trim(), level: "" }))
 						.filter((language) => language.name),
-					education: profile.education,
-					experience: profile.experience,
+					education: (person.educations ?? []).map((entry) => ({
+						id: entry.id,
+						title: entry.title ?? entry.degree ?? "",
+						organization: entry.organization ?? entry.institution ?? "",
+						detail: entry.detail ?? entry.description ?? "",
+					})),
+					experience: (person.experiences ?? []).map((entry) => ({
+						id: entry.id,
+						title: entry.title,
+						organization: entry.organization ?? "",
+						detail: entry.detail ?? "",
+					})),
 				}}
 				backLink={
 					<Link
@@ -100,8 +115,8 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 					<FreelancerReviewsSection
 						freelancerId={person.id}
 						profileUserId={person.user_id}
-						freelancerName={profile.name}
-						freelancerTitle={profile.title}
+					freelancerName={name}
+					freelancerTitle={person.title ?? ""}
 						freelancerAvatarUrl={accountAvatarUrl(person.user_id)}
 					/>
 				}

@@ -1,5 +1,5 @@
 import { ProposalsService, type ProposalPublic, type ProposalStatus } from "@/client"
-import { jobFromApi } from "@/components/freelancer/freelancer-jobs-api"
+import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
 import useAuth from "@/hooks/useAuth"
 import type { FreelancerJob } from "@/types/job"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"

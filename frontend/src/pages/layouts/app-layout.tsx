@@ -14,7 +14,7 @@ export function AppLayout() {
 
 	// Use the shared account query so expired sessions reach the existing
 	// authentication handler, and transient failures remain recoverable.
-	if (!isPending && !isFetching && !user) {
+	if (!user) {
 		return (
 			<div className="flex min-h-svh flex-col bg-background">
 				<header className="mx-auto w-full max-w-330 px-6 py-6">

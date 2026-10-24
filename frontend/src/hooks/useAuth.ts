@@ -17,6 +17,9 @@ const isLoggedIn = () => {
 	return localStorage.getItem("access_token") !== null
 }
 
+export const currentUserQueryKey = ["currentUser"] as const
+export const fetchCurrentUser = async () => (await UsersService.readUserMe()).data
+
 const useAuth = () => {
 	const navigate = useNavigate()
 	const queryClient = useQueryClient()
@@ -29,8 +32,8 @@ const useAuth = () => {
 		error,
 		refetch,
 	} = useQuery<UserPublic | null, Error>({
-		queryKey: ["currentUser"],
-		queryFn: async () => (await UsersService.readUserMe()).data,
+		queryKey: currentUserQueryKey,
+		queryFn: fetchCurrentUser,
 		enabled: isLoggedIn(),
 		retry: false,
 		staleTime: 5 * 60 * 1000,

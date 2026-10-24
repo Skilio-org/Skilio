@@ -9,79 +9,65 @@ import {
 	MessageSquare,
 	RefreshCw,
 } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { isAxiosError } from "axios"
+import { useEffect, useState } from "react"
 
+import { HealthService, type SystemHealth } from "@/client"
 import { LandingFooter } from "@/components/landing/landing-footer"
 import { LandingHeader } from "@/components/landing/landing-header"
-import type { HealthState, SystemHealth } from "@/types/status"
+import type { HealthState } from "@/types/status"
 import ServiceCard from "@/components/status/service-card"
 
 const REFRESH_INTERVAL_SECONDS = 10
+const REFRESH_INTERVAL_MS = REFRESH_INTERVAL_SECONDS * 1000
+
+const unavailableHealth: SystemHealth = {
+	status: "unhealthy",
+	timestamp: "",
+	services: {
+		database: { status: "unhealthy", latency_ms: null, message: "Database service unreachable" },
+		cache: { status: "unhealthy", latency_ms: null, message: "Cache service unreachable" },
+		storage: { status: "unhealthy", latency_ms: null, message: "Storage service unreachable" },
+	},
+}
+
+function healthFromError(error: Error | null): SystemHealth | null {
+	if (!isAxiosError<SystemHealth>(error)) return null
+	const health = error.response?.data
+	if (!health || !["healthy", "degraded", "unhealthy"].includes(health.status) || !health.services) return null
+	return health
+}
 
 const StatusPage = () => {
-	const [data, setData] = useState<SystemHealth | null>(null)
-	const [isLoading, setIsLoading] = useState(true)
-	const [countdown, setCountdown] = useState(REFRESH_INTERVAL_SECONDS)
-	const [isBackendReachable, setIsBackendReachable] = useState(true)
+	const [now, setNow] = useState(Date.now)
+	const { data, error, isPending, isFetching, isError, dataUpdatedAt, errorUpdatedAt, refetch } = useQuery({
+		queryKey: ["system-health"],
+		queryFn: async ({ signal }) =>
+			(
+				await HealthService.getSystemHealth({
+					baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+					signal,
+				})
+			).data,
+		refetchInterval: REFRESH_INTERVAL_MS,
+		refetchIntervalInBackground: true,
+		retry: false,
+	})
 
-	const fetchHealth = useCallback(async () => {
-		setIsLoading(true)
-		try {
-			const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000"
-			const res = await fetch(`${apiUrl}/api/v1/health`)
-			const json = (await res.json()) as SystemHealth
-			setData(json)
-			setIsBackendReachable(true)
-		} catch {
-			setIsBackendReachable(false)
-			setData({
-				status: "unhealthy",
-				timestamp: new Date().toISOString(),
-				services: {
-					database: {
-						status: "unhealthy",
-						latency_ms: null,
-						message: "Database service unreachable",
-					},
-					cache: {
-						status: "unhealthy",
-						latency_ms: null,
-						message: "Cache service unreachable",
-					},
-					storage: {
-						status: "unhealthy",
-						latency_ms: null,
-						message: "Storage service unreachable",
-					},
-				},
-			})
-		} finally {
-			setIsLoading(false)
-			setCountdown(REFRESH_INTERVAL_SECONDS)
-		}
+	useEffect(() => {
+		const timer = setInterval(() => setNow(Date.now()), 1000)
+		return () => clearInterval(timer)
 	}, [])
 
-	// Initial fetch
-	useEffect(() => {
-		void fetchHealth()
-	}, [fetchHealth])
-
-	// Live 10-second countdown and auto-poll
-	useEffect(() => {
-		const timer = setInterval(() => {
-			setCountdown((prev) => {
-				if (prev <= 1) {
-					void fetchHealth()
-					return REFRESH_INTERVAL_SECONDS
-				}
-				return prev - 1
-			})
-		}, 1000)
-
-		return () => clearInterval(timer)
-	}, [fetchHealth])
-
-	const overallStatus: HealthState = data?.status || "healthy"
+	const errorHealth = healthFromError(error)
+	const health = isError ? (errorHealth ?? unavailableHealth) : data
+	const isBackendReachable = !isError || Boolean(errorHealth)
+	const lastCheckedAt = Math.max(dataUpdatedAt, errorUpdatedAt)
+	const countdown = lastCheckedAt
+		? Math.max(0, Math.ceil((lastCheckedAt + REFRESH_INTERVAL_MS - now) / 1000))
+		: REFRESH_INTERVAL_SECONDS
+	const overallStatus: HealthState = health?.status ?? "unhealthy"
 
 	return (
 		<div className="min-h-dvh bg-background text-foreground flex flex-col">
@@ -93,7 +79,11 @@ const StatusPage = () => {
 					<div>
 						<div className="flex items-center gap-2.5">
 							<h1 className="text-2xl sm:text-3xl font-bold tracking-tight">System Status</h1>
-							{isBackendReachable ? (
+							{isPending ? (
+								<span role="status" className="text-xs text-muted-foreground">
+									Checking services…
+								</span>
+							) : isBackendReachable ? (
 								<span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
 									<span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
 									Live Telemetry
@@ -115,19 +105,24 @@ const StatusPage = () => {
 						</div>
 						<button
 							type="button"
-							onClick={() => void fetchHealth()}
-							disabled={isLoading}
+							onClick={() => void refetch()}
+							disabled={isFetching}
 							className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border border-border bg-card hover:bg-muted/80 transition-colors disabled:opacity-50"
 						>
-							<RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
+							<RefreshCw className={`size-3.5 ${isFetching ? "animate-spin" : ""}`} />
 							<span>Refresh</span>
 						</button>
 					</div>
 				</div>
 
+				{isPending && (
+					<p role="status" className="rounded-xl border border-border bg-card p-6 text-muted-foreground">
+						Checking system status…
+					</p>
+				)}
 				{/* 1. Overall System Banner */}
 				<div
-					className={`p-6 rounded-2xl border transition-all ${
+					className={`p-6 rounded-2xl border transition-all ${isPending ? "hidden" : ""} ${
 						overallStatus === "healthy"
 							? "bg-emerald-500/5 border-emerald-500/30 text-emerald-950 dark:text-emerald-100"
 							: overallStatus === "degraded"
@@ -168,7 +163,7 @@ const StatusPage = () => {
 				</div>
 
 				{/* 2. Platform Services Grid */}
-				<div className="space-y-4">
+				<div className={`space-y-4 ${isPending ? "hidden" : ""}`}>
 					<h3 className="text-lg font-semibold tracking-tight">Platform Services</h3>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						{/* Database / Marketplace Card */}
@@ -176,7 +171,7 @@ const StatusPage = () => {
 							icon={<BriefcaseBusiness className="size-5" />}
 							name="Job Marketplace"
 							description="Browsing listings, posting projects, and submitting proposals."
-							status={data?.services?.database?.status || "healthy"}
+							status={health?.services?.database?.status || "unhealthy"}
 						/>
 
 						{/* Cache / Chat Card */}
@@ -184,7 +179,7 @@ const StatusPage = () => {
 							icon={<MessageSquare className="size-5" />}
 							name="Direct Messaging"
 							description="Instant chat between clients and freelancers, plus live alerts."
-							status={data?.services?.cache?.status || "healthy"}
+							status={health?.services?.cache?.status || "unhealthy"}
 						/>
 
 						{/* Storage Card */}
@@ -192,7 +187,7 @@ const StatusPage = () => {
 							icon={<HardDrive className="size-5" />}
 							name="Files & Media Storage"
 							description="Profile pictures, portfolio attachments, and platform storage."
-							status={data?.services?.storage?.status || "healthy"}
+							status={health?.services?.storage?.status || "unhealthy"}
 						/>
 
 						{/* Web Platform & Accounts Card */}

@@ -14,7 +14,7 @@ import { useProfiles, createFallbackProfile } from "@/hooks/useProfiles"
 import { useWebSocket } from "@/context/websocket-context"
 import { toast } from "sonner"
 import { useConversation, useConversationUpdate } from "@/hooks/userConversation"
-import { ChatMessagePublic, ConversationDetailPublic } from "@/client/types.gen"
+import type { ChatMessagePublic, ConversationDetailPublic } from "@/client/types.gen"
 // import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
 import { chatKeys } from "@/data/chat-keys"
 import { useQueryClient } from "@tanstack/react-query"
@@ -46,10 +46,10 @@ export function MessagesPage({
 		? conversations.data?.data.find((conversation) => conversation.other_user?.id === SelectedUserId)
 		: undefined
 	const selectedConversationId = selectedConversation == undefined ? selectedConversation : selectedConversation?.id
-	const selectedProfile = selectedConversation && (
-		profiles.data?.get(selectedConversation?.other_user?.id ?? "") ??
-		(selectedConversation.other_user ? createFallbackProfile(selectedConversation.other_user) : undefined)
-	)
+	const selectedProfile =
+		selectedConversation &&
+		(profiles.data?.get(selectedConversation?.other_user?.id ?? "") ??
+			(selectedConversation.other_user ? createFallbackProfile(selectedConversation.other_user) : undefined))
 
 	const { isOnline, isPending: presencePending } = useUserOnlineStatus(selectedProfile?.user_id)
 	const detailsQuery = useConversation(selectedConversationId ?? "")
@@ -214,7 +214,7 @@ export function MessagesPage({
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
 				<div className="flex max-w-2xl flex-col gap-4">
 					<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
