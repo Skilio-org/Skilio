@@ -138,7 +138,7 @@ class UserUpdateMe(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr | None = Field(default=None, max_length=255)
     active_role: UserRole | None = None
-
+    password: str | None = Field(default=None, min_length=8, max_length=128)
 
 class UpdatePassword(SQLModel):
     current_password: str = Field(min_length=8, max_length=128)

@@ -1,11 +1,11 @@
-
+import logging
 import secrets
 from datetime import timedelta
 from typing import Annotated, Any
 from urllib.parse import urlencode
 
 import requests
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -28,10 +28,11 @@ from app.models import (
 from app.utils import (
     generate_password_reset_token,
     generate_reset_password_email,
-    send_email,
+    send_password_reconvery_email,
     verify_password_reset_token,
 )
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["login"])
 
 
@@ -64,7 +65,7 @@ def login_google() -> RedirectResponse:
 
 
 @router.get("/login/google/callback")
-def google_callback(
+async def google_callback(
     request: Request,
     response: Response,
     code: str,
@@ -88,13 +89,13 @@ def google_callback(
     )
     if token_response.status_code != 200:
         raise HTTPException(
-            status_code=400, detail="Failed to retrieve token from Google."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to retrieve token from Google."
         )
     token_data = token_response.json()
     access_token = token_data.get("access_token")
     if not access_token:
         raise HTTPException(
-            status_code=400, detail="Google token response missing access token."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Google token response missing access token."
         )
     refresh_token = token_data.get("refresh_token")  # may be None on re-login
 
@@ -127,6 +128,7 @@ def google_callback(
         session.commit()
     else:
         user = User(
+            is_email_verified=False,
             email=google_user["email"],
             full_name=google_user.get("name"),
             avatar_url=google_user.get("picture") or settings.DEFAULT_AVATAR_URL,
@@ -145,7 +147,10 @@ def google_callback(
             profile = ClientProfile(user_id=user.id)
             session.add(profile)
         session.commit()
-
+        try:
+            await send_password_reconvery_email(user.email, True)
+        except Exception as e:
+            logger.error(f"Error sending password recovery email: {e}")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(
@@ -181,7 +186,7 @@ def login_linkedin() -> RedirectResponse:
 
 
 @router.get("/login/linkedin/callback")
-def linkedin_callback(
+async def linkedin_callback(
     request: Request,
     response: Response,
     code: str,
@@ -190,7 +195,7 @@ def linkedin_callback(
 ):
     cookie_state = request.cookies.get("oauth_state")
     if cookie_state and state and cookie_state != state:
-        raise HTTPException(status_code=400, detail="Invalid state parameter")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid state parameter")
     response.delete_cookie(key="oauth_state")
 
     token_response = requests.post(
@@ -206,14 +211,14 @@ def linkedin_callback(
     )
     if token_response.status_code != 200:
         raise HTTPException(
-            status_code=400, detail="Failed to retrieve token from LinkedIn."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to retrieve token from LinkedIn."
         )
 
     token_data = token_response.json()
     access_token = token_data.get("access_token")
     if not access_token:
         raise HTTPException(
-            status_code=400, detail="LinkedIn token response missing access token."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="LinkedIn token response missing access token."
         )
 
     userinfo_response = requests.get(
@@ -222,13 +227,13 @@ def linkedin_callback(
     )
     if userinfo_response.status_code != 200:
         raise HTTPException(
-            status_code=400, detail="Failed to retrieve profile from LinkedIn."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to retrieve profile from LinkedIn."
         )
 
     linkedin_user = userinfo_response.json()
     if "email" not in linkedin_user:
         raise HTTPException(
-            status_code=400, detail="LinkedIn user profile missing email."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="LinkedIn user profile missing email."
         )
 
     user = crud.get_user_by_email(session=session, email=linkedin_user["email"])
@@ -249,6 +254,7 @@ def linkedin_callback(
             full_name=linkedin_user.get("name"),
             avatar_url=linkedin_user.get("picture") or settings.DEFAULT_AVATAR_URL,
             linkedin_id=linkedin_user["sub"],
+            is_email_verified=False,
             is_active=True,
             hashed_password=get_password_hash(generate_random_password(16)),
         )
@@ -262,7 +268,10 @@ def linkedin_callback(
             profile = ClientProfile(user_id=user.id)
             session.add(profile)
         session.commit()
-
+        try:
+            await send_password_reconvery_email(user.email, True)
+        except Exception as e:
+            logger.error(f"Error sending password recovery email: {e}")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(
@@ -283,11 +292,11 @@ def login_access_token(
         session=session, email=form_data.username, password=form_data.password
     )
     if not user:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
     elif not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     if not user.is_superuser and not user.is_email_verified and not user.google_id and not user.linkedin_id:
-        raise HTTPException(status_code=400, detail="please check your email before login for verification link")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="please check your email before login for verification link")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(
@@ -314,15 +323,11 @@ async def recover_password(email: str, session: SessionDep) -> Message:
     # Always return the same response to prevent email enumeration attacks
     # Only send email if user actually exists
     if user:
-        password_reset_token = generate_password_reset_token(email=email)
-        email_data = generate_reset_password_email(
-            email_to=user.email, email=email, token=password_reset_token
-        )
-        await send_email(
-            email_to=user.email,
-            subject=email_data.subject,
-            html_content=email_data.html_content,
-        )
+        try:
+            await send_password_reconvery_email(email=email, oauth=False)
+        except Exception as e:
+            logger.error(f"Error sending password recovery email: {e}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Invalid token")
     return Message(
         message="If that email is registered, we sent a password recovery link"
     )
@@ -334,13 +339,13 @@ def reset_password(session: SessionDep, body: NewPassword) -> Message:
     """
     email = verify_password_reset_token(token=body.token)
     if not email:
-        raise HTTPException(status_code=400, detail="Invalid token")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
     user = crud.get_user_by_email(session=session, email=email)
     if not user:
         # Don't reveal that the user doesn't exist - use same error as invalid token
-        raise HTTPException(status_code=400, detail="Invalid token")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
     elif not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     user_in_update = UserUpdate(password=body.new_password)
     crud.update_user(
         session=session,
@@ -363,13 +368,12 @@ def recover_password_html_content(email: str, session: SessionDep) -> Any:
 
     if not user:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="The user with this username does not exist in the system.",
         )
     password_reset_token = generate_password_reset_token(email=email)
     email_data = generate_reset_password_email(
-        email_to=user.email, email=email, token=password_reset_token
-    )
+        email_to=user.email, email=email, token=password_reset_token, oauth=False)
 
     return HTMLResponse(
         content=email_data.html_content, headers={"subject:": email_data.subject}

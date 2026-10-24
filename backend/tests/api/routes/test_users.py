@@ -1,5 +1,5 @@
 import uuid
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
 from sqlmodel import Session, select
@@ -203,27 +203,59 @@ def test_retrieve_users(
     for item in all_users["data"]:
         assert "email" in item
 
-
-def test_update_user_me(
-    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
-) -> None:
+def test_update_user_bad_password(
+    client: TestClient, normal_user_token_headers: dict[str, str]
+):
     full_name = "Updated Name"
     email = random_email()
-    data = {"full_name": full_name, "email": email}
+    password = random_lower_string()
+    data = {"full_name": full_name, "email": email, "password": password}
     r = client.patch(
         f"{settings.API_V1_STR}/users/me",
         headers=normal_user_token_headers,
         json=data,
     )
+    assert r.status_code == 400
+
+def test_update_user_me(
+    client: TestClient, db: Session
+) -> None:
+    username = random_email()
+    password = random_lower_string()
+    user_in = UserCreate(email=username, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+    user.is_email_verified = True
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    auth_headers = user_authentication_headers(
+        client=client, email=username, password=password
+    )
+
+    full_name = "Updated Name"
+    new_email = random_email()
+    data = {"full_name": full_name, "email": new_email, "password": password}
+    with patch(
+        "app.api.routes.users.send_verification_email",
+        new_callable=AsyncMock,
+    ):
+        r = client.patch(
+            f"{settings.API_V1_STR}/users/me",
+            headers=auth_headers,
+            json=data,
+        )
     assert r.status_code == 200
+
     updated_user = r.json()
-    assert updated_user["email"] == email
+    assert updated_user["email"] == new_email
     assert updated_user["full_name"] == full_name
 
-    user_query = select(User).where(User.email == email)
+    db.expire_all()
+    user_query = select(User).where(User.email == new_email)
     user_db = db.exec(user_query).first()
     assert user_db
-    assert user_db.email == email
+    assert user_db.email == new_email
     assert user_db.full_name == full_name
 
 
@@ -282,7 +314,7 @@ def test_update_password_me_incorrect_password(
     )
     assert r.status_code == 400
     updated_user = r.json()
-    assert updated_user["detail"] == "Incorrect password"
+    assert updated_user["detail"] == "New password cannot be the same as the current one"
 
 
 # Needs to be added `/users/me` PATCH

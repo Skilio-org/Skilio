@@ -94,12 +94,12 @@ def generate_test_email(email_to: str) -> EmailData:
     return EmailData(html_content=html_content, subject=subject)
 
 
-def generate_reset_password_email(email_to: str, email: str, token: str) -> EmailData:
+def generate_reset_password_email(email_to: str, email: str, token: str, oauth: bool) -> EmailData:
     project_name = settings.PROJECT_NAME
     subject = f"{project_name} - Password recovery for user {email}"
     link = f"{settings.HOST}/reset-password?token={token}"
     html_content = render_email_template(
-        template_name="reset_password.html",
+        template_name="reset_password.html" if not oauth else "verify_email_oauth.html",
         context={
             "project_name": settings.PROJECT_NAME,
             "username": email,
@@ -174,20 +174,40 @@ def generate_email_validation_token(email: str) -> str:
     )
     return encoded_jwt
 
-def verify_password_reset_token(token: str) -> str | None:
+def _decode_token_subject(token: str) -> str | None:
     try:
         decoded_token = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
-        return str(decoded_token["sub"])
+        subject = decoded_token.get("sub")
+        return str(subject) if subject is not None else None
     except InvalidTokenError:
         return None
 
+def verify_password_reset_token(token: str) -> str | None:
+    return _decode_token_subject(token)
+
 def validate_verify_token(token: str) -> str | None:
-    try:
-        decoded_token = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
-        )
-        return str(decoded_token["sub"])
-    except InvalidTokenError:
-        return None
+    return _decode_token_subject(token)
+
+async def send_password_reconvery_email(email: str, oauth: bool = False) -> None:
+    password_reset_token = generate_password_reset_token(email=email)
+    email_data     = generate_reset_password_email(
+        email_to=email, email=email, token=password_reset_token, oauth=oauth
+    )
+    await send_email(
+        email_to=email,
+        subject=email_data.subject,
+        html_content=email_data.html_content,
+    )
+
+async def send_verification_email(email: str, username: str) -> None:
+    email_validation_token = generate_email_validation_token(email=email)
+    email_data = generate_verify_email(
+        email_to=email, username=username, email=email, token=email_validation_token
+    )
+    await send_email(
+        email_to=email,
+        subject=email_data.subject,
+        html_content=email_data.html_content,
+    )
