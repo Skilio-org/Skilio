@@ -1,6 +1,7 @@
 services:
 
   proxy:
+    user: ":0"
     image: traefik:3.6
     command:
       - --providers.docker
@@ -10,6 +11,8 @@ services:
       - --log
     volumes:
       - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro"
+    ports:
+      - "${PROXY_PORT:-80}:80"
 
 
   db:

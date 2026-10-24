@@ -1,6 +1,5 @@
 services:
 
-  # ============== GATEWAY & REVERSE PROXY ==============
   proxy:
     restart: always
     command:
