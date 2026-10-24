@@ -1,22 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
-import {
-	Briefcase,
-	Check,
-	Inbox,
-	MessageSquare,
-	Search,
-	Send,
-	UserCheck,
-	UserMinus,
-	Users,
-	X,
-} from "lucide-react"
+import { Briefcase, Check, Inbox, MessageSquare, Search, Send, UserCheck, UserMinus, Users, X } from "lucide-react"
 import { useMemo, useState } from "react"
-import {
-	WorkspacePageHeader,
-	WorkspaceSurface,
-	workspaceStyles,
-} from "@/components/dashboard/dashboard-header"
+import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -56,7 +41,6 @@ export const Route = createFileRoute("/_layout/connects")({
 		],
 	}),
 })
-
 
 type TabType = "network" | "received" | "sent"
 
@@ -120,7 +104,9 @@ function ConnectsPage() {
 			const senderName = conn.sender?.full_name || "Platform Member"
 			const jobTitle = conn.job_post?.title || ""
 			const note = conn.note || ""
-			return senderName.toLowerCase().includes(q) || jobTitle.toLowerCase().includes(q) || note.toLowerCase().includes(q)
+			return (
+				senderName.toLowerCase().includes(q) || jobTitle.toLowerCase().includes(q) || note.toLowerCase().includes(q)
+			)
 		})
 	}, [receivedList, searchQuery])
 
@@ -131,12 +117,14 @@ function ConnectsPage() {
 			const receiverName = conn.receiver?.full_name || "Platform Member"
 			const jobTitle = conn.job_post?.title || ""
 			const note = conn.note || ""
-			return receiverName.toLowerCase().includes(q) || jobTitle.toLowerCase().includes(q) || note.toLowerCase().includes(q)
+			return (
+				receiverName.toLowerCase().includes(q) || jobTitle.toLowerCase().includes(q) || note.toLowerCase().includes(q)
+			)
 		})
 	}, [sentList, searchQuery])
 
 	return (
-		<div className="mx-auto w-full max-w-[1400px] space-y-7 px-4 py-6 md:px-6 md:py-8">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6">
 			{/* Page Header matching Skilio workspace standard */}
 			<WorkspacePageHeader
 				eyebrow="Network & Collaboration"
@@ -144,11 +132,7 @@ function ConnectsPage() {
 				description="Manage verified partnerships, review incoming collaboration requests, and connect with professionals across Skilio."
 				meta={<span className="font-medium text-primary">Direct Messaging Unlocked</span>}
 				action={
-					<Link
-						to="/talent"
-						search={{ q: undefined, category: undefined }}
-						className={workspaceStyles.primaryAction}
-					>
+					<Link to="/talent" search={{ q: undefined, category: undefined }} className={workspaceStyles.primaryAction}>
 						<Search className="size-4" />
 						<span>{role === "client" ? "Explore Freelancer Talent" : "Discover Verified Members"}</span>
 					</Link>
@@ -275,7 +259,7 @@ function ConnectsPage() {
 			</section> */}
 
 			{/* Unified Tab Navigation Bar (Matches Skilio's Dashboard & Proposals Tabbing) */}
-			
+
 			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-outline-variant border-b">
 				{/* <nav aria-label="Job status" className="">
 				{["All jobs", "Draft", "Open", "Closed"].map((status) => (
@@ -305,7 +289,7 @@ function ConnectsPage() {
 						{ id: "sent" as const, label: "Sent Inquiries", icon: Send, count: sentCount },
 					].map((t) => {
 						const active = activeTab === t.id
-						
+
 						return (
 							<button
 								key={t.id}
@@ -316,15 +300,12 @@ function ConnectsPage() {
 							>
 								<span className="m-2">{t.label}</span>
 								<span className="text-xs">
-									<span className="ml-1 text-xs">
-										{t.count}
-									</span>
+									<span className="ml-1 text-xs">{t.count}</span>
 								</span>
 							</button>
 						)
 					})}
 				</nav>
-
 			</div>
 			{/* Instant Search Filter */}
 			<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
@@ -392,8 +373,7 @@ function ConnectsPage() {
 								const partner = conn.sender_id === user?.id ? conn.receiver : conn.sender
 								const partnerName = partner?.full_name || "Platform Member"
 								const partnerRole = partner?.active_role === "client" ? "Client" : "Specialist"
-								const targetUserId =
-									partner?.id || (conn.sender_id === user?.id ? conn.receiver_id : conn.sender_id)
+								const targetUserId = partner?.id || (conn.sender_id === user?.id ? conn.receiver_id : conn.sender_id)
 
 								return (
 									<Card
@@ -435,9 +415,7 @@ function ConnectsPage() {
 															</Badge>
 														</div>
 
-														<p className="mt-0.5 text-xs text-on-surface-variant font-medium">
-															{partnerRole}
-														</p>
+														<p className="mt-0.5 text-xs text-on-surface-variant font-medium">{partnerRole}</p>
 
 														{conn.job_post && (
 															<div className="mt-1.5 flex items-center gap-1.5 text-xs text-on-surface-variant">
@@ -533,11 +511,7 @@ function ConnectsPage() {
 											{/* Sender Info & Request Note */}
 											<div className="flex items-start gap-3.5 min-w-0">
 												<Avatar className="size-11 shrink-0 rounded-lg border border-outline-variant bg-surface-container">
-													<AvatarImage
-														src={accountAvatarUrl(senderId)}
-														alt={senderName}
-														className="object-cover"
-													/>
+													<AvatarImage src={accountAvatarUrl(senderId)} alt={senderName} className="object-cover" />
 													<AvatarFallback className="rounded-lg bg-surface-container font-label-md font-semibold text-label-md text-on-surface">
 														{getInitials(senderName)}
 													</AvatarFallback>
@@ -545,9 +519,7 @@ function ConnectsPage() {
 
 												<div className="min-w-0 space-y-1">
 													<div className="flex flex-wrap items-center gap-2">
-														<h4 className="font-headline-sm font-semibold text-base text-on-surface">
-															{senderName}
-														</h4>
+														<h4 className="font-headline-sm font-semibold text-base text-on-surface">{senderName}</h4>
 														<Badge
 															variant="outline"
 															className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]"
@@ -659,11 +631,7 @@ function ConnectsPage() {
 											{/* Receiver Info */}
 											<div className="flex items-start gap-3.5 min-w-0">
 												<Avatar className="size-11 shrink-0 rounded-lg border border-outline-variant bg-surface-container">
-													<AvatarImage
-														src={accountAvatarUrl(receiverId)}
-														alt={receiverName}
-														className="object-cover"
-													/>
+													<AvatarImage src={accountAvatarUrl(receiverId)} alt={receiverName} className="object-cover" />
 													<AvatarFallback className="rounded-lg bg-surface-container font-label-md font-semibold text-label-md text-on-surface">
 														{getInitials(receiverName)}
 													</AvatarFallback>
