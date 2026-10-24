@@ -3,17 +3,16 @@ import { useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useBlocker } from "@tanstack/react-router"
 import { toast } from "sonner"
-import { profileFromApi, profileToApi } from "@/components/freelancer/freelancer-profile-api"
 import { SkillsSelect } from "@/components/common/skills-select"
-import { ProfilesService, UsersService, type FreelancerProfileDetailPublic } from "@/client"
+import { ProfilesService, UsersService, type FreelancerProfileDetailPublic, type FreelancerProfileUpdate } from "@/client"
 import { Avatar, EntryDialog, ProfilePreview } from "@/components/freelancer/freelancer-profile-components"
 import { FreelancerReviewsSection } from "@/components/reviews/freelancer-reviews-section"
 import {
 	completion,
 	descriptions,
-	type Entry,
+	type ProfileEntryForm,
 	fieldClass,
-	type Profile,
+	type ProfileForm,
 	primary,
 	secondary,
 	steps,
@@ -26,9 +25,44 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	const { user } = useAuth()
 	const queryClient = useQueryClient()
 	const [serverProfile, setServerProfile] = useState(initial)
-	const [profile, setProfile] = useState<Profile>(() => ({
-		...profileFromApi(initial),
+	const [profile, setProfile] = useState<ProfileForm>(() => ({
+		name: initial.full_name ?? initial.user?.full_name ?? "",
+		title: initial.title ?? "",
+		location: initial.location ?? "",
 		photo: accountAvatarUrl(initial.user_id),
+		category: initial.category ?? "",
+		skills: initial.skills ?? [],
+		bio: initial.bio ?? "",
+		languages: initial.languages ?? "",
+		rate: initial.hourly_rate == null ? "" : String(initial.hourly_rate),
+		availability: initial.availability ?? "",
+		hours: initial.hours ?? "",
+		finished: initial.finished ?? false,
+		experience: (initial.experiences ?? []).map((entry) => ({
+			id: entry.id,
+			title: entry.title,
+			organization: entry.organization ?? "",
+			detail: entry.detail ?? "",
+			url: entry.url ?? "",
+		})),
+		education: (initial.educations ?? []).map((entry) => ({
+			id: entry.id,
+			title: entry.title ?? entry.degree ?? "",
+			organization: entry.organization ?? entry.institution ?? "",
+			detail: entry.detail ?? entry.description ?? "",
+			url: entry.url ?? "",
+			field_of_study: entry.field_of_study,
+			start_date: entry.start_date,
+			end_date: entry.end_date,
+		})),
+		portfolio: (initial.portfolio ?? []).map((entry) => ({
+			id: entry.id,
+			title: entry.title,
+			organization: entry.organization ?? "",
+			detail: entry.detail ?? entry.description ?? "",
+			url: entry.url ?? "",
+			image_url: entry.image_url,
+		})),
 	}))
 	const [savedProfile, setSavedProfile] = useState(profile)
 	const [saving, setSaving] = useState(false)
@@ -44,7 +78,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	const [step, setStep] = useState(0)
 	const [editor, setEditor] = useState<{
 		kind: "experience" | "education" | "portfolio"
-		entry: Entry
+		entry: ProfileEntryForm
 	} | null>(null)
 	async function save(finished = profile.finished) {
 		if (saveLock.current || uploading) return false
@@ -55,10 +89,58 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 		saveLock.current = true
 		setSaving(true)
 		try {
+			const body: FreelancerProfileUpdate = {
+				full_name: profile.name.trim(),
+				title: profile.title,
+				location: profile.location,
+				category: profile.category,
+				skills: profile.skills,
+				bio: profile.bio,
+				languages: profile.languages,
+				hourly_rate: profile.rate.trim() ? Number(profile.rate) : null,
+				availability: profile.availability,
+				hours: profile.hours,
+				finished,
+			}
+			// The API replaces a child collection when it is included in the request.
+			if (JSON.stringify(profile.experience) !== JSON.stringify(savedProfile.experience)) {
+				body.experiences = profile.experience.map(({ title, organization, detail, url }) => ({
+					title,
+					organization,
+					detail,
+					url,
+				}))
+			}
+			if (JSON.stringify(profile.education) !== JSON.stringify(savedProfile.education)) {
+				body.educations = profile.education.map(
+					({ title, organization, detail, url, field_of_study, start_date, end_date }) => ({
+						title,
+						organization,
+						detail,
+						url,
+						degree: title,
+						institution: organization,
+						description: detail,
+						field_of_study,
+						start_date,
+						end_date,
+					}),
+				)
+			}
+			if (JSON.stringify(profile.portfolio) !== JSON.stringify(savedProfile.portfolio)) {
+				body.portfolio = profile.portfolio.map(({ title, organization, detail, url, image_url }) => ({
+					title,
+					organization,
+					detail,
+					url,
+					description: detail,
+					image_url,
+				}))
+			}
 			const { data } = await ProfilesService.updateProfileMe({
-				body: profileToApi({ ...profile, finished }, serverProfile),
+				body,
 			})
-			const saved = { ...profileFromApi(data), photo: profile.photo }
+			const saved = { ...profile, finished }
 			setServerProfile(data)
 			setProfile(saved)
 			setSavedProfile(saved)
@@ -76,7 +158,8 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			setSaving(false)
 		}
 	}
-	const update = <K extends keyof Profile>(name: K, value: Profile[K]) => setProfile((p) => ({ ...p, [name]: value }))
+	const update = <K extends keyof ProfileForm>(name: K, value: ProfileForm[K]) =>
+		setProfile((p) => ({ ...p, [name]: value }))
 	const done = completion(profile)
 	const percent = Math.round((done.filter(Boolean).length / done.length) * 100)
 	function edit(index: number) {

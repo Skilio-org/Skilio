@@ -1,14 +1,15 @@
 import SearchWithCategories from "@/components/common/search-with-categories"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
-import { loadFreelancerJobs, type BackendSearchJob } from "@/components/freelancer/freelancer-jobs-api"
+import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
 import { useErrorToast } from "@/hooks/useErrorToast"
 import { Link } from "@tanstack/react-router"
-import { useQuery } from "@tanstack/react-query"
+import { useInfiniteQuery } from "@tanstack/react-query"
+import { JobsService } from "@/client"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useState } from "react"
 
@@ -44,27 +45,42 @@ export default function FreelancerJobsPage() {
 	const budgetType = types.length === 1 ? (types[0] === "Hourly" ? "hourly" : "fixed") : undefined
 	const sortBy = sort === "budget" ? "budget_desc" : "newest"
 	const {
-		data: jobs = [],
+		data,
 		isPending,
 		isError,
 		errorUpdatedAt,
 		refetch,
-	} = useQuery({
+		hasNextPage,
+		fetchNextPage,
+		isFetchingNextPage,
+	} = useInfiniteQuery({
 		queryKey: ["freelancer-jobs", search, category, budgetType, hourlyRate, sortBy],
-		queryFn: ({ signal }) =>
-			loadFreelancerJobs(
-				{
+		initialPageParam: 0,
+		queryFn: async ({ pageParam, signal }) => {
+			const { data } = await JobsService.readJobs({
+				query: {
+					skip: pageParam,
+					limit: 100,
 					q: search,
 					category: category === "all" ? undefined : category,
-					budgetType,
-					minBudget: hourlyRate[0] || undefined,
-					maxBudget: hourlyRate[1] === 120 ? undefined : hourlyRate[1],
-					sortBy,
+					budget_type: budgetType,
+					min_budget: hourlyRate[0] || undefined,
+					max_budget: hourlyRate[1] === 120 ? undefined : hourlyRate[1],
+					status: "open",
+					sort_by: sortBy,
 				},
 				signal,
-			),
+			})
+			return data
+		},
+		getNextPageParam: (lastPage, pages) => {
+			if (lastPage.data.length === 0) return undefined
+			const loaded = pages.reduce((count, page) => count + page.data.length, 0)
+			return loaded < lastPage.count ? loaded : undefined
+		},
 	})
 	useErrorToast(isError ? "Could not load opportunities." : undefined, "freelancer-jobs-load", errorUpdatedAt, refetch)
+	const jobs = data?.pages.flatMap((page) => page.data.map(jobFromApi)) ?? []
 
 	const toggle = (values: string[], value: string, update: (values: string[]) => void) => {
 		update(values.includes(value) ? values.filter((item) => item !== value) : [...values, value])
@@ -83,7 +99,7 @@ export default function FreelancerJobsPage() {
 		setSearchResetKey((current) => current + 1)
 	}
 
-	const filtered = (jobs as BackendSearchJob[])
+	const filtered = jobs
 		.filter((job) => !experience.length || (job.experience && experience.includes(job.experience)))
 		.sort((a, b) => (sort === "title" ? a.title.localeCompare(b.title) : 0))
 
@@ -356,7 +372,7 @@ export default function FreelancerJobsPage() {
 
 					{isPending && <p role="status">Loading opportunities...</p>}
 
-					{!isPending && !isError && !filtered.length && (
+					{!isPending && !isError && !filtered.length && !hasNextPage && (
 						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
 							<Search className="mx-auto mb-4 size-6 text-outline" />
 
@@ -372,15 +388,27 @@ export default function FreelancerJobsPage() {
 						</div>
 					)}
 
-					{filtered.length > 0 && (
+					{(filtered.length > 0 || hasNextPage) && (
 						<div className="flex justify-center pt-8 pb-6">
 							<button
 								type="button"
-								disabled={visibleCount >= filtered.length}
-								onClick={() => setVisibleCount((count) => count + 4)}
+								disabled={isFetchingNextPage || (visibleCount >= filtered.length && !hasNextPage)}
+								onClick={() => {
+									if (visibleCount < filtered.length) {
+										setVisibleCount((count) => count + 4)
+									} else if (hasNextPage) {
+										void fetchNextPage().then((result) => {
+											if (result.isSuccess) setVisibleCount((count) => count + 4)
+										})
+									}
+								}}
 								className={`${secondaryAction} px-6 disabled:opacity-60`}
 							>
-								{visibleCount >= filtered.length ? "All opportunities loaded" : "Load more opportunities"}
+								{isFetchingNextPage
+									? "Loading opportunities…"
+									: visibleCount >= filtered.length && !hasNextPage
+										? "All opportunities loaded"
+										: "Load more opportunities"}
 
 								<ChevronDown className="size-4 text-outline" />
 							</button>
