@@ -1,3 +1,4 @@
+
 import secrets
 from datetime import timedelta
 from typing import Annotated, Any
@@ -285,6 +286,8 @@ def login_access_token(
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     elif not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
+    if not user.is_superuser and not user.is_email_verified and not user.google_id and not user.linkedin_id:
+        raise HTTPException(status_code=400, detail="please check your email before login for verification link")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(
@@ -302,7 +305,7 @@ def test_token(current_user: CurrentUser) -> Any:
 
 
 @router.post("/password-recovery/{email}")
-def recover_password(email: str, session: SessionDep) -> Message:
+async def recover_password(email: str, session: SessionDep) -> Message:
     """
     Password Recovery
     """
@@ -315,7 +318,7 @@ def recover_password(email: str, session: SessionDep) -> Message:
         email_data = generate_reset_password_email(
             email_to=user.email, email=email, token=password_reset_token
         )
-        send_email(
+        await send_email(
             email_to=user.email,
             subject=email_data.subject,
             html_content=email_data.html_content,
@@ -323,7 +326,6 @@ def recover_password(email: str, session: SessionDep) -> Message:
     return Message(
         message="If that email is registered, we sent a password recovery link"
     )
-
 
 @router.post("/reset-password/")
 def reset_password(session: SessionDep, body: NewPassword) -> Message:

@@ -157,6 +157,7 @@ class User(UserBase, table=True):
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
     )
+    is_email_verified: bool = Field(default=False, nullable=True)
     avatar_url: str | None = Field(
         default=None, max_length=500
     )  # stores the Cloudinary url

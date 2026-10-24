@@ -1,14 +1,18 @@
 {
-  "compilerOptions": {
-    "composite": false,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "strictNullChecks": true
-  },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", ".react-email"]
+	"compilerOptions": {
+		"composite": false,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"jsx": "react-jsx",
+		"skipLibCheck": true,
+		"strict": true,
+		"noEmit": true,
+		"strictNullChecks": true,
+		"baseUrl": ".",
+		"paths": {
+			"@frontend/*": ["../../apps/frontend/*", "../../frontend/*"]
+		}
+	},
+	"include": ["**/*.ts", "**/*.tsx", "../../frontend/**/*.ts", "../../frontend/**/*.tsx", "../../frontend/**/*.css"],
+	"exclude": ["node_modules", ".react-email"]
 }

@@ -1,12 +1,17 @@
-import { Button } from "@react-email/components"
+import { Button as EmailButton } from "@react-email/components"
 
-type ButtonProps = React.PropsWithChildren & { href: string }
+interface LinkButtonProps extends React.PropsWithChildren {
+	href: string
+	className?: string
+}
 
-export const LinkButton = ({ children, href }: ButtonProps) => (
-  <Button
-    href={href}
-    className="bg-brand text-white rounded-md font-semibold text-sm mt-2 mb-7 inline-block text-center no-underline px-7 py-3.5"
-  >
-    {children}
-  </Button>
-)
+export const LinkButton = ({ children, href, className = "" }: LinkButtonProps) => {
+	return (
+		<EmailButton
+			href={href}
+			className={`inline-block rounded-md bg-primary px-7 py-3 text-center align-middle font-semibold text-primary-foreground text-sm leading-5 no-underline ${className}`}
+		>
+			{children}
+		</EmailButton>
+	)
+}
