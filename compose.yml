@@ -23,7 +23,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Variable not set}
       - POSTGRES_DB=app
     volumes:
-      - app-db-data:/var/lib/postgresql/data
+      - app-db-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
       interval: 10s

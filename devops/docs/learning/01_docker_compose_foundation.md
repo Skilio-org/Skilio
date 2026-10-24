@@ -113,7 +113,7 @@ The `.dockerignore` file prevents unnecessary host files from entering the Docke
  │   │ • prometheus     • grafana        │           │                    │
  │   │ • cadvisor       • db-backup      │           ▼ Volume             │
  │   │ • postgres-exporter               │    [app-db-data]               │
- │   └───────────────────────────────────┘    (/var/lib/postgresql/data)  │
+ │   └───────────────────────────────────┘    (/var/lib/postgresql)       │
  └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -126,7 +126,7 @@ The `.dockerignore` file prevents unnecessary host files from entering the Docke
 
 2. **`db` (PostgreSQL 18)**:
    * `image: postgres:18` provides the primary relational database.
-   * `volumes: - app-db-data:/var/lib/postgresql/data`: Maps data to a persistent named volume that survives container restarts and upgrades.
+   * `volumes: - app-db-data:/var/lib/postgresql`: Maps to PostgreSQL's root data volume. In PostgreSQL 18+, Docker images require mounting at `/var/lib/postgresql` (instead of `/data`) to support major-version cluster layouts (`pg_ctlcluster`) and seamless `pg_upgrade --link`.
    * `healthcheck`: Tests responsiveness every 10s using `pg_isready -U postgres -d app`.
 
 3. **`redis` (Redis 7-Alpine)**:
