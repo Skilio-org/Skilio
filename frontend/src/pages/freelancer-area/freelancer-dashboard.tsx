@@ -40,7 +40,7 @@ const FreelancerDashboardPage = () => {
 	const dashboardFilters = ["All work", ...Array.from(new Set(jobs.map((job) => job.category))).slice(0, 2)]
 
 	return (
-		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<WorkspacePageHeader
 				eyebrow="Freelancer workspace"
 				title={firstName ? `Good to see you, ${firstName}.` : "Find your next collaborator."}

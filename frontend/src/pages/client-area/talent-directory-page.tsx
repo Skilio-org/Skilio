@@ -174,7 +174,7 @@ export function TalentDirectoryPage({
 		</div>
 	)
 	return (
-		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<WorkspacePageHeader
 				eyebrow="Client workspace"
 				title="Find your next collaborator."

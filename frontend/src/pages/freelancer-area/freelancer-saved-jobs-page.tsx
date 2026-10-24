@@ -57,7 +57,7 @@ export default function FreelancerSavedJobsPage() {
 		setTimeout(() => URL.revokeObjectURL(url), 1000)
 	}
 	return (
-		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<WorkspacePageHeader
 				eyebrow="Freelancer workspace"
 				title="Saved Jobs"
