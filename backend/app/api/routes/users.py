@@ -1,8 +1,9 @@
+import logging
 import uuid
 from typing import Any
 
 import httpx
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, logger
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 from sqlmodel import col, func, select
@@ -40,6 +41,7 @@ from app.utils import (
     validate_verify_token,
 )
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/users", tags=["users"])
 
 
@@ -79,7 +81,7 @@ async def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     user = crud.get_user_by_email(session=session, email=user_in.email)
     if user:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="The user with this email already exists in the system.",
         )
 
@@ -110,7 +112,8 @@ async def upload_avatar(
     )
     if not url:
         raise HTTPException(
-            status_code=500, detail="Failed to upload avatar image"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to upload avatar image"
         )
 
     current_user.avatar_url = url
@@ -141,10 +144,11 @@ async def proxy_media(
         response = await client.send(req, stream=True)
     except httpx.PoolTimeout:
         raise HTTPException(
-            status_code=503, detail="Server capacity reached, retry shortly"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Server capacity reached, retry shortly"
         )
     except httpx.RequestError:
-        raise HTTPException(status_code=502, detail="Upstream media fetch failed")
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Upstream media fetch failed")
 
     if response.status_code not in (200, 206):
         await response.aclose()
@@ -174,10 +178,10 @@ def update_password_me(
     """
     verified, _ = verify_password(body.current_password, current_user.hashed_password)
     if not verified:
-        raise HTTPException(status_code=400, detail="Incorrect password")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password")
     if body.current_password == body.new_password:
         raise HTTPException(
-            status_code=400, detail="New password cannot be the same as the current one"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="New password cannot be the same as the current one"
         )
     hashed_password = get_password_hash(body.new_password)
     current_user.hashed_password = hashed_password
@@ -240,7 +244,7 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     """
     if current_user.is_superuser:
         raise HTTPException(
-            status_code=403, detail="Super users are not allowed to delete themselves"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Super users are not allowed to delete themselves"
         )
     session.delete(current_user)
     session.commit()
@@ -258,7 +262,7 @@ def update_user_me(
         existing_user = crud.get_user_by_email(session=session, email=user_in.email)
         if existing_user and existing_user.id != current_user.id:
             raise HTTPException(
-                status_code=409, detail="User with this email already exists"
+                status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists"
             )
     user_data = user_in.model_dump(exclude_unset=True)
     current_user.sqlmodel_update(user_data)
@@ -286,7 +290,7 @@ async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
         #     )
         #     return user
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="The user with this email already exists in the system",
         )
     user_create = UserCreate.model_validate(user_in)
@@ -309,22 +313,35 @@ async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
             session.add(profile)
 
     user.avatar_url = settings.DEFAULT_AVATAR_URL
-    if user.email.startswith("seed"):
+    if user.email.startswith("seed") or settings.ENV != "production":
         user.is_email_verified = True
+        session.commit()
+        session.refresh(user)
+        return user
     else:
         user.is_email_verified = False
         token = generate_email_validation_token(user.email)
-        mail  = generate_verify_email(user.email, user_create.full_name, user.email, token)
+        mail  = generate_verify_email(email_to=user.email, username=user.full_name if user.full_name else  "", email=user.email, token=token)
         try:
             await send_email(
                 email_to=user.email,
                 subject=mail.subject,
                 html_content=mail.html_content
             )
-        except 
-    session.commit()
-    session.refresh(user)
-    return user
+            session.commit()
+            session.refresh(user)
+            return user
+        except RuntimeError as e:
+            logger.error(f"Failed to send verification email to {user.email}: {e}")
+        except HTTPException as e:
+            logger.error(f"Unexpected error when sending verification email to {user.email}: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error when sending verification email to {user.email}: {e}")
+    session.rollback()
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="Failed to send verification email. Please try again later.",
+    )
 
 
 @router.get("/verify")
@@ -334,13 +351,13 @@ def verify_email(session: SessionDep, token: str) -> Message:
     """
     email = validate_verify_token(token)
     if not email:
-        raise HTTPException(status_code=400, detail="Invalid token")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
     user = crud.get_user_by_email(session=session, email=email)
     if not user:
         # Don't reveal that the user doesn't exist - use same error as invalid token
-        raise HTTPException(status_code=400, detail="Invalid token")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
     elif not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     # TODO: Update user.is_email_verified.
     user.is_email_verified = True
     session.add(user)
@@ -362,11 +379,11 @@ def read_user_by_id(
         return user
     if not current_user.is_superuser:
         raise HTTPException(
-            status_code=403,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="The user doesn't have enough privileges",
         )
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
 
@@ -388,14 +405,14 @@ def update_user(
     db_user = session.get(User, user_id)
     if not db_user:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="The user with this id does not exist in the system",
         )
     if user_in.email:
         existing_user = crud.get_user_by_email(session=session, email=user_in.email)
         if existing_user and existing_user.id != user_id:
             raise HTTPException(
-                status_code=409, detail="User with this email already exists"
+                status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists"
             )
     db_user = crud.update_user(session=session, db_user=db_user, user_in=user_in)
     return db_user
@@ -410,10 +427,10 @@ def delete_user(
     """
     user = session.get(User, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     if user == current_user:
         raise HTTPException(
-            status_code=403, detail="Super users are not allowed to delete themselves"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Super users are not allowed to delete themselves"
         )
     session.delete(user)
     session.commit()
