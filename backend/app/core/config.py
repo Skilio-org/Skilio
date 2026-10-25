@@ -107,7 +107,7 @@ class Settings(BaseSettings):
         self._check_default_secret(
             "FIRST_SUPERUSER_PASSWORD", self.FIRST_SUPERUSER_PASSWORD
         )
-        if not self.RESEND_API_KEY:
+        if not self.RESEND_API_KEY and self.ENV == "production":
             raise ValueError("RESEND_API_KEY does not exist. it is mandatory for mail service to work properly.")
 
         return self

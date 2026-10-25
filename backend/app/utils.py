@@ -22,7 +22,6 @@ class EmailData:
     html_content: str
     subject: str
 
-
 VERIFICATION_TOKEN_EXPIRE_MINUTES = 30
 EMAIL_TEMPLATES_DIR = Path(__file__).parent / "email-templates"
 
@@ -40,8 +39,6 @@ def check_env():
         raise RuntimeError("Email configuration is not enabled in settings")
 
 async def send_email_via_resend(email: str, sub: str, content: str) -> None:
-    if not settings.RESEND_API_KEY:
-        raise RuntimeError("Missing RESEND_API_KEY")
     async with httpx2.AsyncClient() as client:
         response = await client.post(
             "https://api.resend.com/emails",
@@ -62,7 +59,7 @@ async def send_email(
     html_content: str = "",
 ) -> None:
     check_env()
-    if settings.ENV == "production" and settings.RESEND_API_KEY and not email_to.startswith("seed"):
+    if settings.ENV == "production" and settings.RESEND_API_KEY:
         await send_email_via_resend(email_to, subject, html_content)
     else:
         message = emails.message.Message(

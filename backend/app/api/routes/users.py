@@ -313,16 +313,6 @@ async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     """
     user = crud.get_user_by_email(session=session, email=user_in.email)
     if user:
-        # if user_in.email == "azmoudh@gmail.com":
-        #     user.is_email_verified = False
-        #     token = generate_email_validation_token(user.email)
-        #     mail  = generate_verify_email(user.email, user_in.full_name, user.email, token)
-        #     await send_email(
-        #         email_to=user.email,
-        #         subject=mail.subject,
-        #         html_content=mail.html_content
-        #     )
-        #     return user
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="The user with this email already exists in the system",
@@ -347,7 +337,7 @@ async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
             session.add(profile)
 
     user.avatar_url = settings.DEFAULT_AVATAR_URL
-    if user.email.startswith("seed") or settings.ENV != "production":
+    if settings.ENV != "production":
         user.is_email_verified = True
         session.commit()
         session.refresh(user)

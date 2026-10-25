@@ -108,8 +108,8 @@ def _validate_count(value: int) -> int:
     return value
 
 
-def _create_freelancer(session: Session, index: int) -> bool:
-    email = f"seed-freelancer-{index}@example.com"
+def _create_freelancer(session: Session, index: int, mail_prefix: str) -> bool:
+    email = f"{mail_prefix}seed-freelancer-{index}@example.com"
     user = session.exec(select(User).where(User.email == email)).first()
     if user is None:
         user = crud.create_user(
@@ -186,8 +186,8 @@ def _create_freelancer(session: Session, index: int) -> bool:
     return True
 
 
-def _create_client(session: Session, index: int) -> bool:
-    email = f"seed-client-{index}@example.com"
+def _create_client(session: Session, index: int, mail_prefix: str) -> bool:
+    email = f"{mail_prefix}seed-client-{index}@example.com"
     user = session.exec(select(User).where(User.email == email)).first()
     if user is None:
         user = crud.create_user(
@@ -261,18 +261,18 @@ def _create_job_posts(session: Session, client_ids: list[object]) -> int:
 
 
 def seed_accounts(
-    session: Session, *, clients: int, freelancers: int
+    session: Session, *, clients: int, freelancers: int, mail_prefix: str
 ) -> tuple[int, int]:
     clients = _validate_count(clients)
     freelancers = _validate_count(freelancers)
 
-    created_clients = sum(_create_client(session, index) for index in range(1, clients + 1))
+    created_clients = sum(_create_client(session, index, mail_prefix) for index in range(1, clients + 1))
     created_freelancers = sum(
-        _create_freelancer(session, index) for index in range(1, freelancers + 1)
+        _create_freelancer(session, index, mail_prefix) for index in range(1, freelancers + 1)
     )
     client_ids = list(
         session.exec(
-            select(User.id).where(User.email.startswith("seed-client-"))
+            select(User.id).where(User.email.startswith(mail_prefix+"seed-client-"))
         ).all()
     )
     created_job_posts = _create_job_posts(session, client_ids)
@@ -306,7 +306,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     args = _parse_args(argv)
     with Session(engine) as session:
         clients, freelancers = seed_accounts(
-            session, clients=args.clients, freelancers=args.freelancers
+            session, clients=args.clients, freelancers=args.freelancers, mail_prefix=""
         )
     logger.info("Created %s clients and %s freelancers", clients, freelancers)
 
