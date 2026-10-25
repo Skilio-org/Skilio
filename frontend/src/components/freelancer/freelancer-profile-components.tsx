@@ -1,15 +1,15 @@
 import { useState } from "react"
 import {
-	type Entry,
+	type ProfileEntryForm,
 	fieldClass,
-	type Profile,
+	type ProfileForm,
 	primary,
 	secondary,
 } from "@/components/freelancer/freelancer-profile-model"
 import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
-export function Avatar({ profile }: { profile: Profile }) {
+export function Avatar({ profile }: { profile: ProfileForm }) {
 	const [failedPhoto, setFailedPhoto] = useState("")
 	return profile.photo && failedPhoto !== profile.photo ? (
 		<img
@@ -37,7 +37,7 @@ export function ProfilePreview({
 	reviewsCount,
 	reviewsNode,
 }: {
-	profile: Profile
+	profile: ProfileForm
 	compact?: boolean
 	rating?: number
 	reviewsCount?: number
@@ -117,9 +117,9 @@ export function EntryDialog({
 	save,
 }: {
 	kind: string
-	entry: Entry
+	entry: ProfileEntryForm
 	close: () => void
-	save: (e: Entry) => void
+	save: (e: ProfileEntryForm) => void
 }) {
 	const [value, setValue] = useState(entry)
 	return (

@@ -1,11 +1,10 @@
 import { Plus } from "lucide-react"
 import { useEffect, useState } from "react"
-import { JobsService } from "@/client"
+import { JobsService, type JobPostCreate, type JobPostPublic } from "@/client"
 import { ClientJobEditor } from "@/components/client/client-job-editor"
-import { blankClientJob, type ClientJob } from "@/components/client/client-job-types"
-import { clientJobFromApi, clientJobPayload } from "@/components/client/client-jobs-api"
-import { jobDescriptionLimit } from "@/components/common/job-experience"
 import { ClientJobsList } from "@/components/client/client-jobs-list"
+import { blankClientJob, type ClientJob } from "@/components/client/client-job-types"
+import { jobDescriptionLimit, readJobExperience, writeJobExperience } from "@/components/common/job-experience"
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import useAuth from "@/hooks/useAuth"
 import { useErrorToast } from "@/hooks/useErrorToast"
@@ -15,6 +14,33 @@ import { toast } from "sonner"
 type ClientJobsPageProps = {
 	focusedJobId?: string
 	onFocusedJobChange: (jobId?: string) => void
+}
+
+function clientJobFromApi(job: JobPostPublic): ClientJob {
+	const { level, description } = readJobExperience(job.description)
+	return {
+		id: job.id,
+		title: job.title,
+		description,
+		experienceLevel: level,
+		skills: job.skills ?? [],
+		category: job.category ?? "",
+		type: job.budget_type === "hourly" ? "Hourly" : "Fixed price",
+		budget: String(job.budget),
+		status: job.status === "draft" ? "Draft" : job.status === "closed" ? "Closed" : "Open",
+	}
+}
+
+function clientJobPayload(job: ClientJob): JobPostCreate {
+	return {
+		title: job.title.trim(),
+		description: writeJobExperience(job.description, job.experienceLevel),
+		budget_type: job.type === "Hourly" ? "hourly" : "fixed",
+		budget: Number(job.budget),
+		category: job.category,
+		status: job.status === "Draft" ? "draft" : job.status === "Closed" ? "closed" : "open",
+		skills: job.skills,
+	}
 }
 
 export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsPageProps) {
@@ -94,7 +120,7 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 	)
 
 	return (
-		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<WorkspacePageHeader
 				eyebrow="Client workspace"
 				title="Your next great hire starts here."

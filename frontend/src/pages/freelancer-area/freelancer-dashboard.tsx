@@ -3,9 +3,10 @@ import { ArrowRight, Bookmark, BriefcaseBusiness, CheckCircle2, ChevronDown, Cir
 import { useState } from "react"
 
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
-import { loadFreelancerJobs } from "@/components/freelancer/freelancer-jobs-api"
+import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
 import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
 import { useQuery } from "@tanstack/react-query"
+import { JobsService } from "@/client"
 import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
@@ -23,7 +24,13 @@ const FreelancerDashboardPage = () => {
 
 	const { data: jobs = [], isPending: jobsPending } = useQuery({
 		queryKey: ["freelancer-jobs", "dashboard"],
-		queryFn: ({ signal }) => loadFreelancerJobs({ sortBy: "newest" }, signal),
+		queryFn: async ({ signal }) => {
+			const { data } = await JobsService.readJobs({
+				query: { skip: 0, limit: 100, status: "open", sort_by: "newest" },
+				signal,
+			})
+			return data.data.map(jobFromApi)
+		},
 	})
 
 	const [filter, setFilter] = useState("All work")
@@ -40,7 +47,7 @@ const FreelancerDashboardPage = () => {
 	const dashboardFilters = ["All work", ...Array.from(new Set(jobs.map((job) => job.category))).slice(0, 2)]
 
 	return (
-		<div className="mx-auto w-full max-w-360 space-y-7 px-4 py-8 md:px-6 md:py-10">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<WorkspacePageHeader
 				eyebrow="Freelancer workspace"
 				title={firstName ? `Good to see you, ${firstName}.` : "Find your next collaborator."}

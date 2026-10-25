@@ -1,4 +1,4 @@
-.PHONY: help setup dev up down build logs status test seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-status deploy-logs deploy-restart deploy-backup deploy-backup-list deploy-restore deploy-dr-test deploy-db-clean deploy-db-seed mail-pages-gen
+.PHONY: help setup dev up down build logs status test test-backend test-frontend seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-status deploy-logs deploy-restart deploy-backup deploy-backup-list deploy-restore deploy-dr-test deploy-db-clean deploy-db-seed mail-pages-gen
 
 # Default target — show available commands
 help:
@@ -41,8 +41,10 @@ help:
 
 	@echo ""
 	@echo "  Testing & Data:"
-	@echo "    make test         Run backend unit & integration test suite"
-	@echo "    make seed         Seed database with mock accounts (make seed COUNT=20)"
+	@echo "    make test          Run complete test suite (backend pytest + frontend build)"
+	@echo "    make test-backend  Run backend unit & integration tests only"
+	@echo "    make test-frontend Verify frontend TypeScript types and production build"
+	@echo "    make seed          Seed database with mock accounts (make seed COUNT=20)"
 	@echo ""
 	@echo "  Cleanup:"
 	@echo "    make clean        Stop services → remove containers & volumes"
@@ -88,9 +90,16 @@ status:
 
 # =========== Testing & Data ====================================
 
+# Run full test suite (backend pytest + frontend TypeScript & build)
+test: test-backend test-frontend
+
 # Run backend unit and integration tests via pytest
-test:
+test-backend:
 	cd backend && uv run pytest
+
+# Verify frontend TypeScript compilation and production build
+test-frontend:
+	bun run --filter frontend build
 
 # Seed database with mock accounts (default: 20)
 COUNT ?= 20

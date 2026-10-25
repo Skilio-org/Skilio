@@ -3,6 +3,7 @@ services:
   proxy:
     user: ":0"
     image: traefik:3.6
+    restart: unless-stopped
     command:
       - --providers.docker
       - --providers.docker.exposedbydefault=false
@@ -17,6 +18,7 @@ services:
 
   db:
     image: postgres:18
+    restart: unless-stopped
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Variable not set}
       - POSTGRES_DB=app
@@ -67,6 +69,7 @@ services:
 
   backend:
     image: backend:latest
+    restart: unless-stopped
     build:
       context: .
       dockerfile: backend/Dockerfile

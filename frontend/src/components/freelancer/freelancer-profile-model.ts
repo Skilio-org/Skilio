@@ -1,45 +1,28 @@
-export type Entry = {
-	id: string
-	title: string
-	organization: string
-	detail: string
-	url: string
-}
-export type Profile = {
-	name: string
-	title: string
-	location: string
-	photo: string
-	category: string
-	skills: string[]
-	bio: string
-	languages: string
-	rate: string
-	availability: string
-	hours: string
-	experience: Entry[]
-	education: Entry[]
-	portfolio: Entry[]
-	finished: boolean
-}
-export const empty: Profile = {
-	name: "",
-	title: "",
-	location: "",
-	photo: "",
-	category: "",
-	skills: [],
-	bio: "",
-	languages: "",
-	rate: "",
-	availability: "",
-	hours: "",
-	experience: [],
-	education: [],
-	portfolio: [],
-	finished: false,
-}
+import type { EducationPublic, ExperiencePublic, FreelancerProfileDetailPublic, PortfolioItemPublic } from "@/client"
 
+type EntryTextField = "title" | "organization" | "detail" | "url"
+
+export type ProfileEntryForm = {
+	[K in EntryTextField]-?: NonNullable<ExperiencePublic[K]>
+} &
+	Pick<ExperiencePublic, "id"> &
+	Pick<EducationPublic, "field_of_study" | "start_date" | "end_date"> &
+	Pick<PortfolioItemPublic, "image_url">
+
+type ProfileTextField = "title" | "location" | "category" | "bio" | "languages" | "availability" | "hours"
+
+export type ProfileForm = {
+	[K in ProfileTextField]-?: NonNullable<FreelancerProfileDetailPublic[K]>
+} & {
+	name: NonNullable<FreelancerProfileDetailPublic["full_name"]>
+	photo: string
+	rate: string // Text inputs hold strings; the API uses hourly_rate as a number.
+	skills: NonNullable<FreelancerProfileDetailPublic["skills"]>
+	finished: NonNullable<FreelancerProfileDetailPublic["finished"]>
+	experience: ProfileEntryForm[]
+	education: ProfileEntryForm[]
+	portfolio: ProfileEntryForm[]
+}
 export const steps = [
 	"The basics",
 	"Your expertise",
@@ -65,7 +48,7 @@ export const primary =
 export const secondary =
 	"inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 text-sm font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 
-export function completion(p: Profile) {
+export function completion(p: ProfileForm) {
 	return [
 		!!(p.name.trim() && p.title.trim() && p.location.trim()),
 		!!(p.category && p.skills.length),
