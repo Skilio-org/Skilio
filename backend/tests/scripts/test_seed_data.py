@@ -6,19 +6,19 @@ from app.seed_data import _parse_args, seed_accounts
 
 
 def test_seed_accounts_creates_complete_profiles(db: Session) -> None:
-    clients, freelancers = seed_accounts(db, clients=2, freelancers=2)
+    clients, freelancers = seed_accounts(db, clients=2, freelancers=2, mail_prefix="test-")
 
     assert (clients, freelancers) == (2, 2)
     seeded_clients = db.exec(
         select(ClientProfile)
         .join(User)
-        .where(User.email.startswith("seed-client-"))
+        .where(User.email.startswith("test-seed-client-"))
     ).all()
     assert len(seeded_clients) >= 2
     seeded_freelancers = db.exec(
         select(FreelancerProfile)
         .join(User)
-        .where(User.email.startswith("seed-freelancer-"))
+        .where(User.email.startswith("test-seed-freelancer-"))
     ).all()
     assert len(seeded_freelancers) == 2
     assert all(profile.finished for profile in seeded_freelancers)
@@ -28,12 +28,12 @@ def test_seed_accounts_creates_complete_profiles(db: Session) -> None:
 
 
 def test_seed_accounts_is_idempotent(db: Session) -> None:
-    seed_accounts(db, clients=3, freelancers=3)
-    assert seed_accounts(db, clients=3, freelancers=3) == (0, 0)
+    seed_accounts(db, clients=3, freelancers=3, mail_prefix="test-")
+    assert seed_accounts(db, clients=3, freelancers=3, mail_prefix="test-") == (0, 0)
     seeded_users = db.exec(
         select(User).where(User.email.in_([
-            "seed-client-3@example.com",
-            "seed-freelancer-3@example.com",
+            "test-seed-client-3@example.com",
+            "test-seed-freelancer-3@example.com",
         ]))
     ).all()
     assert len(seeded_users) == 2

@@ -34,10 +34,9 @@ from app.models import (
     UserUpdateMe,
 )
 from app.utils import (
-    generate_email_validation_token,
     generate_new_account_email,
-    generate_verify_email,
     send_email,
+    send_verification_email,
     validate_verify_token,
 )
 
@@ -176,13 +175,13 @@ def update_password_me(
     """
     Update own password.
     """
-    verified, _ = verify_password(body.current_password, current_user.hashed_password)
-    if not verified:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password")
     if body.current_password == body.new_password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="New password cannot be the same as the current one"
         )
+    verified, _ = verify_password(body.current_password, current_user.hashed_password)
+    if not verified:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password")
     hashed_password = get_password_hash(body.new_password)
     current_user.hashed_password = hashed_password
     session.add(current_user)
@@ -250,22 +249,57 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     session.commit()
     return Message(message="User deleted successfully")
 
-
 @router.patch("/me", response_model=UserPublic)
-def update_user_me(
+async def update_user_me(
     *, session: SessionDep, user_in: UserUpdateMe, current_user: CurrentUser
 ) -> Any:
     """
     Update own user.
     """
-    if user_in.email:
+    if user_in.email and user_in.email != current_user.email:
         existing_user = crud.get_user_by_email(session=session, email=user_in.email)
         if existing_user and existing_user.id != current_user.id:
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists"
+                status_code=status.HTTP_409_CONFLICT,
+                detail="User with this email already exists",
             )
+
+    email_changed = user_in.email is not None and user_in.email != current_user.email
+    if email_changed:
+        if not user_in.password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password is required to change email",
+            )
+        verified, _ = verify_password(
+            str(user_in.password), current_user.hashed_password
+        )
+        if not verified:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect password",
+            )
+
     user_data = user_in.model_dump(exclude_unset=True)
+    user_data.pop("password", None)
+
     current_user.sqlmodel_update(user_data)
+
+    if email_changed:
+        current_user.is_email_verified = False
+        try:
+            await send_verification_email(
+                user_in.email, current_user.full_name or ""
+            )
+        except Exception as e:
+            logger.error(
+                f"Failed to send verification email to {user_in.email}: {e}"
+            )
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to send verification email. Please try again later.",
+            )
     session.add(current_user)
     session.commit()
     session.refresh(current_user)
@@ -279,16 +313,6 @@ async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     """
     user = crud.get_user_by_email(session=session, email=user_in.email)
     if user:
-        # if user_in.email == "azmoudh@gmail.com":
-        #     user.is_email_verified = False
-        #     token = generate_email_validation_token(user.email)
-        #     mail  = generate_verify_email(user.email, user_in.full_name, user.email, token)
-        #     await send_email(
-        #         email_to=user.email,
-        #         subject=mail.subject,
-        #         html_content=mail.html_content
-        #     )
-        #     return user
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="The user with this email already exists in the system",
@@ -313,21 +337,15 @@ async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
             session.add(profile)
 
     user.avatar_url = settings.DEFAULT_AVATAR_URL
-    if user.email.startswith("seed") or settings.ENV != "production":
+    if settings.ENV != "production":
         user.is_email_verified = True
         session.commit()
         session.refresh(user)
         return user
     else:
         user.is_email_verified = False
-        token = generate_email_validation_token(user.email)
-        mail  = generate_verify_email(email_to=user.email, username=user.full_name if user.full_name else  "", email=user.email, token=token)
         try:
-            await send_email(
-                email_to=user.email,
-                subject=mail.subject,
-                html_content=mail.html_content
-            )
+            await send_verification_email(user_in.email, user.full_name if user.full_name else "")
             session.commit()
             session.refresh(user)
             return user
