@@ -339,22 +339,19 @@ async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     user.avatar_url = settings.DEFAULT_AVATAR_URL
     if settings.ENV != "production":
         user.is_email_verified = True
+    else:
+        user.is_email_verified = False
+    try:
+        await send_verification_email(user_in.email, user.full_name if user.full_name else "")
         session.commit()
         session.refresh(user)
         return user
-    else:
-        user.is_email_verified = False
-        try:
-            await send_verification_email(user_in.email, user.full_name if user.full_name else "")
-            session.commit()
-            session.refresh(user)
-            return user
-        except RuntimeError as e:
-            logger.error(f"Failed to send verification email to {user.email}: {e}")
-        except HTTPException as e:
-            logger.error(f"Unexpected error when sending verification email to {user.email}: {e}")
-        except Exception as e:
-            logger.error(f"Unexpected error when sending verification email to {user.email}: {e}")
+    except RuntimeError as e:
+        logger.error(f"Failed to send verification email to {user.email}: {e}")
+    except HTTPException as e:
+        logger.error(f"Unexpected error when sending verification email to {user.email}: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error when sending verification email to {user.email}: {e}")
     session.rollback()
     raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

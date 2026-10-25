@@ -52,7 +52,7 @@ export const Layout = ({ project_name, title, preview, logo_url, children }: Lay
 					<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 				</Head>
 				{preview ? <Preview>{preview}</Preview> : null}
-				<Body className="mx-auto my-0 w-full max-w-[560px] bg-surface px-4 py-8 font-sans text-body sm:px-6 sm:py-12">
+				<Body className="my-0 max-w-140 bg-black px-4 py-8 font-sans text-body sm:px-6 sm:py-12">
 					<Section className="mb-2 w-full rounded-2xl text-center">
 						<Img
 							src={logo_url || "https://res.cloudinary.com/vrreelhh/image/upload/v1792779326/s.png"}
@@ -66,7 +66,7 @@ export const Layout = ({ project_name, title, preview, logo_url, children }: Lay
 					<Text className="m-0 mb-4 text-center font-semibold text-[13px] text-body uppercase tracking-[0.1em]">
 						{project_name}
 					</Text>
-					<Section className="w-full rounded-2xl bg-black/20 p-6 shadow-md">{children}</Section>
+					<Section className="max-w-3xl rounded-2xl bg-surface p-6 shadow-md">{children}</Section>
 					<Hr className="mt-10 mb-5 border-0 border-rule border-t border-solid" />
 					<Section className="text-center">
 						<Text className="m-0 text-center text-muted text-xs leading-5">
