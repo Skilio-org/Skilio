@@ -40,11 +40,13 @@ Stage 7: Developer Tooling & Team CLI (Makefile)
   * **Environment Isolation**: Local dev automatically uses `compose.override.yml` (debug ports, Mailpit); production locks them out with `COMPOSE_FILE=compose.yml:compose.deploy.yml`.
 
 ### 2. Linux OS Hardening & Bootstrap (The Server)
-* **Files:** [`devops/scripts/server-init.sh`](../scripts/server-init.sh)
+* **Documentation Mapping:** Covers [Learning Plan: Level 1](deployment/learning_plan.md#level-1-cloud--linux-infrastructure-iaas--aws) & [Deployment Plan: Phases 1 & 2](deployment/deployment_plan.md#phase-1-cloud-server--network-provisioning-iaas-completed-)
+* **Files & Tools:** [`devops/scripts/server-init.sh`](../scripts/server-init.sh), `make server-init`, `skilio-key.pem`
 * **Core Concepts:**
-  * **Idempotency**: `set -euo pipefail` and existence checks ensure the script can run repeatedly without breaking existing services.
-  * **2 GB Swap (`chmod 600`)**: Prevents Linux OOM kills (`Exit 137`) during frontend builds on AWS `t3.small` (2 GB RAM).
-  * **Memory Tuning**: `vm.swappiness=10` prioritizes fast RAM and only pages inactive memory during extreme spikes (>90%).
+  * **IaaS & Cloud Networking (Phase 1)**: AWS EC2 (`t3.small`), static Elastic IP (`16.192.59.166`), and Security Group firewall (ports 22, 80, 443 open; DB/Redis strictly blocked).
+  * **Asymmetric SSH Security**: Challenge-response authentication using `skilio-key.pem` (`chmod 400`); password authentication permanently disabled.
+  * **2 GB Swap & OOM Prevention**: `fallocate -l 2G /swapfile` (`chmod 600`) prevents Linux Exit 137 OOM kills during frontend builds; `vm.swappiness=10` prioritizes physical RAM.
+  * **Idempotent Automated Bootstrap (Phase 2)**: `server-init.sh` (`set -euo pipefail`, auto-sudo) safely re-runs without side effects, installs native Docker with `overlay2`, provisions `/opt/skilio`, and grants non-root Docker access.
 
 ### 3. Ingress, Reverse Proxy & HTTPS (The Gateway)
 * **Files:** [`compose.deploy.yml`](../../compose.deploy.yml) (Traefik service)
