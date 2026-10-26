@@ -38,7 +38,7 @@ echo -e "\n${BLUE}==> [2/4] Running database schema migrations...${NC}"
 ${COMPOSE} run -T --rm backend bash scripts/prestart.sh
 
 echo -e "\n${BLUE}==> [3/4] Recreating backend container with updated image...${NC}"
-${COMPOSE} up -d --force-recreate --no-deps backend
+${COMPOSE} up -d --wait --force-recreate --no-deps backend
 
 echo -e "\n${BLUE}==> [4/4] Pruning dangling Docker image layers...${NC}"
 docker image prune -f
