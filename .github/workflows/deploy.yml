@@ -43,6 +43,19 @@ jobs:
       - name: Verify Live Production Health
         run: |
           echo "==> Probing live production health endpoint..."
-          curl --retry 6 --retry-delay 5 --retry-connrefused -f -s https://skilio.works/api/v1/health | grep '"status":"healthy"'
-          echo "==> Production deployment verified successfully at https://skilio.works!"
+          HEALTH_URL="https://skilio.works/api/v1/health"
+          MAX_RETRIES=12
+          RETRY_INTERVAL=5
+
+          for ((i=1; i<=MAX_RETRIES; i++)); do
+            if curl -fsSL "$HEALTH_URL" 2>/dev/null | grep -q '"status":"healthy"'; then
+              echo "==> Production deployment verified successfully at $HEALTH_URL!"
+              exit 0
+            fi
+            echo "==> Waiting for backend and ingress to become ready... (attempt $i/$MAX_RETRIES)"
+            sleep $RETRY_INTERVAL
+          done
+
+          echo "==> Production health check failed after $((MAX_RETRIES * RETRY_INTERVAL)) seconds!"
+          exit 1
 
