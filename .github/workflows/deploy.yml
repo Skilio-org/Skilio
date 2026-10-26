@@ -38,28 +38,7 @@ jobs:
 
       - name: Deploy Updated Backend Container
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            set -euo pipefail
-            cd /opt/skilio
-
-            COMPOSE="docker compose -f compose.yml -f compose.deploy.yml"
-
-            echo "==> Building updated Docker containers..."
-            $COMPOSE build
-
-            echo "==> Running database schema migrations..."
-            $COMPOSE run --rm backend bash scripts/prestart.sh
-
-            echo "==> Stopping and removing old backend container..."
-            $COMPOSE stop backend
-            $COMPOSE rm -f backend
-
-            echo "==> Starting fresh backend container..."
-            $COMPOSE up -d --no-deps backend
-
-            echo "==> Pruning dangling image layers..."
-            docker image prune -f
-          EOF
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'bash /opt/skilio/devops/scripts/deploy.sh'
 
       - name: Verify Live Production Health
         run: |
