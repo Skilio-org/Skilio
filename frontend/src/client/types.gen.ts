@@ -2088,6 +2088,10 @@ export type UserUpdateMe = {
      */
     email?: string | null;
     active_role?: UserRole | null;
+    /**
+     * Password
+     */
+    password?: string | null;
 };
 
 /**
@@ -2191,8 +2195,10 @@ export type loginGoogleCallbackResponses = {
     /**
      * Successful Response
      */
-    200: unknown;
+    200: Token;
 };
+
+export type loginGoogleCallbackResponse = loginGoogleCallbackResponses[keyof loginGoogleCallbackResponses];
 
 export type loginLoginLinkedinData = {
     body?: never;
@@ -2237,8 +2243,10 @@ export type loginLinkedinCallbackResponses = {
     /**
      * Successful Response
      */
-    200: unknown;
+    200: Token;
 };
+
+export type loginLinkedinCallbackResponse = loginLinkedinCallbackResponses[keyof loginLinkedinCallbackResponses];
 
 export type loginLoginAccessTokenData = {
     body: Body_login_login_access_token;
@@ -2609,6 +2617,36 @@ export type usersRegisterUserResponses = {
 };
 
 export type usersRegisterUserResponse = usersRegisterUserResponses[keyof usersRegisterUserResponses];
+
+export type usersVerifyEmailData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Token
+         */
+        token: string;
+    };
+    url: '/api/v1/users/verify';
+};
+
+export type usersVerifyEmailErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type usersVerifyEmailError = usersVerifyEmailErrors[keyof usersVerifyEmailErrors];
+
+export type usersVerifyEmailResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type usersVerifyEmailResponse = usersVerifyEmailResponses[keyof usersVerifyEmailResponses];
 
 export type usersDeleteUserData = {
     body?: never;
