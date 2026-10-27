@@ -6,8 +6,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Loader2, Trash2 } from "lucide-react"
+import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 
 type ReviewDeleteDialogProps = {
 	open: boolean
@@ -34,19 +34,23 @@ export function ReviewDeleteDialog({ open, onOpenChange, onConfirmDelete, isDele
 				</DialogHeader>
 
 				<DialogFooter className="mt-6 gap-2 sm:gap-2">
-					<Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isDeleting}>
-						Keep review
-					</Button>
-					<Button
+					<button
 						type="button"
-						variant="destructive"
+						onClick={() => onOpenChange(false)}
+						disabled={isDeleting}
+						className={workspaceStyles.secondaryAction}
+					>
+						Keep review
+					</button>
+					<button
+						type="button"
 						onClick={handleDelete}
 						disabled={isDeleting}
-						className="gap-2 font-medium"
+						className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-destructive px-4 font-label-md text-label-md font-medium text-white transition-colors hover:bg-destructive/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-40"
 					>
 						{isDeleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
-						Delete review
-					</Button>
+						<span>Delete review</span>
+					</button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
