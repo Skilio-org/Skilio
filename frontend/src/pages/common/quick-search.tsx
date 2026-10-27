@@ -29,12 +29,21 @@ export const QuickSavedSearch = () => {
 	}
 
 	return (
-		count > 0 && (
-			<section className="flex flex-col gap-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
-				<h3 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Quick searches</h3>
-
-				<div className="flex flex-col gap-2">
-					{recentSearch.map((search) => (
+		<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
+			<div className="mb-4 flex items-center justify-between">
+				<div className="flex items-center gap-2">
+					<h3 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Quick searches</h3>
+					<span className="rounded border border-transparent bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline dark:border-border-subtle dark:text-on-surface-variant">
+						{count}
+					</span>
+				</div>
+				<Link to="/freelancer-jobs" className="font-label-sm text-label-sm text-primary hover:underline">
+					Search
+				</Link>
+			</div>
+			<div className="flex flex-col gap-3">
+				{recentSearch.length > 0 ? (
+					recentSearch.map((search) => (
 						<button
 							key={search}
 							type="button"
@@ -43,28 +52,20 @@ export const QuickSavedSearch = () => {
 						>
 							<span className="flex items-center gap-2">
 								<Search className="size-4 text-outline" />
-
 								<span className="font-body-sm text-body-sm text-on-surface transition-colors group-hover:text-primary-container">
 									{search}
 								</span>
 							</span>
-
 							<ArrowRight className="size-3.5 text-outline" />
 						</button>
-					))}
-				</div>
-
-				<div className="flex items-center justify-between border-outline-variant border-t pt-3 font-caption text-caption text-on-surface-variant">
-					<span>
-						{count} {count === 1 ? "search" : "searches"}
-					</span>
-
-					<Link to="/freelancer-jobs" className="font-medium text-primary hover:underline">
-						Browse
-					</Link>
-				</div>
-			</section>
-		)
+					))
+				) : (
+					<p className="rounded-lg border border-outline-variant border-dashed px-3 py-4 font-body-sm text-body-sm text-on-surface-variant">
+						Your Searches will appear here.
+					</p>
+				)}
+			</div>
+		</section>
 	)
 }
 

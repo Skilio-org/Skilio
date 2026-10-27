@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { Bookmark, Search, Upload, X } from "lucide-react"
+import { Bookmark, Search, Upload } from "lucide-react"
 import { useState } from "react"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
@@ -117,21 +117,6 @@ export default function FreelancerSavedJobsPage() {
 							</Select>
 						</div>
 					</div>
-					{query && (
-						<div className="flex items-center justify-between gap-3 text-body-sm">
-							<span>
-								Search: <strong>{query}</strong>
-							</span>
-							<button
-								type="button"
-								onClick={() => setQuery("")}
-								className="inline-flex items-center gap-1 text-primary"
-							>
-								Clear search
-								<X className="size-4" />
-							</button>
-						</div>
-					)}
 					<div className="flex flex-col gap-3.5">
 						{filtered.map((job) => (
 							<FreelancerJobCard key={job.id} {...job} savedView />
