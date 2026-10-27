@@ -1970,6 +1970,10 @@ export type UserCreate = {
     full_name?: string | null;
     active_role?: UserRole;
     /**
+     * Is Email Verified
+     */
+    is_email_verified?: boolean;
+    /**
      * Password
      */
     password: string;
@@ -2010,6 +2014,10 @@ export type UserPublic = {
      */
     full_name?: string | null;
     active_role?: UserRole;
+    /**
+     * Is Email Verified
+     */
+    is_email_verified?: boolean;
     /**
      * Id
      */

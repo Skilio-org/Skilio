@@ -229,7 +229,7 @@ const UserInformation = () => {
 									icon={Mail}
 									label="Email address"
 									value={form.getValues("email") || "Not available"}
-									badge={currentUser?.email ? "Verified" : undefined}
+									badge={currentUser?.is_email_verified ? "Verified" : "Unverified"}
 								/>
 							</div>
 						)}
