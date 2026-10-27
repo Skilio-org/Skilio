@@ -1,4 +1,4 @@
-.PHONY: help setup dev up down build logs status test test-backend test-frontend seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-status deploy-logs deploy-restart deploy-backup deploy-backup-list deploy-restore deploy-dr-test deploy-db-clean deploy-db-seed mail-pages-gen
+.PHONY: help setup dev up down build logs status test test-backend test-frontend seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-apply deploy-status deploy-logs deploy-restart deploy-backup deploy-backup-list deploy-restore deploy-dr-test deploy-db-clean deploy-db-seed mail-pages-gen
 
 # Default target — show available commands
 help:
@@ -23,6 +23,7 @@ help:
 	@echo ""
 	@echo "  Cloud Server & Deployment:"
 	@echo "    make server-init      Bootstrap remote AWS server with Docker, 2GB Swap & tools"
+	@echo "    make deploy-apply     Rebuild and deploy latest backend container on AWS"
 	@echo "    make deploy-ssh       Open interactive SSH shell into remote AWS server"
 	@echo "    make deploy-status    Check live production containers and resource usage on AWS"
 	@echo "    make deploy-logs      Tail live production container logs in real time from AWS"
@@ -144,6 +145,11 @@ server-init:
 deploy-ssh:
 	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP)
+
+# Rebuild and recreate backend container on AWS EC2
+deploy-apply:
+	@chmod 400 $(SSH_KEY) 2>/dev/null || true
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'bash /opt/skilio/devops/scripts/deploy.sh'
 
 # Check live production containers and resource usage on AWS EC2
 deploy-status:
