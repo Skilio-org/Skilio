@@ -133,6 +133,10 @@ export function FreelancerProfileView({
 							{profile.rating !== undefined && profile.reviews !== undefined && (
 								<a
 									href="#client-reviews"
+									onClick={(e) => {
+										e.preventDefault()
+										document.getElementById("client-reviews")?.scrollIntoView({ behavior: "smooth", block: "start" })
+									}}
 									className="inline-flex items-center gap-1.5 rounded-md px-1.5 -mx-1.5 py-0.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/60"
 								>
 									<Star className="size-3.5 fill-amber-500 text-amber-500" />
@@ -181,6 +185,10 @@ export function FreelancerProfileView({
 							<a
 								key={id}
 								href={`#${id}`}
+								onClick={(e) => {
+									e.preventDefault()
+									document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+								}}
 								className="inline-flex min-h-14 shrink-0 items-center font-medium text-muted-foreground text-sm hover:text-primary"
 							>
 								{label}
