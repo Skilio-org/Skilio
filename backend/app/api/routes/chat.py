@@ -3,7 +3,6 @@ import logging
 import uuid
 from typing import Annotated, Any
 
-import jwt
 from fastapi import (
     APIRouter,
     HTTPException,
@@ -12,18 +11,16 @@ from fastapi import (
     WebSocketDisconnect,
     status,
 )
-from jwt.exceptions import InvalidTokenError
-from pydantic import ValidationError
 from sqlmodel import Session, and_, or_, select
 
 from app.api.deps import CurrentUser, SessionDep
-from app.api.routes.message_mods import mark_all_messages_as_read
-from app.api.routes.notifications import (
-    mark_all_notifications_as_read,
-    mark_notification_as_read,
+from app.api.utils.chat import (
+    _build_conversation_public,
+    chat_message,
+    get_user_id_from_token,
+    read_receipt,
+    user_typing,
 )
-from app.core import security
-from app.core.config import settings
 from app.core.db import engine
 from app.core.redis import broadcast_to_all, publish_to_user
 from app.models import (
@@ -38,10 +35,8 @@ from app.models import (
     ConversationPublic,
     ConversationsPublic,
     InjectPayload,
-    TokenPayload,
     User,
     UserPresence,
-    UserPublic,
     UserRole,
     get_datetime_utc,
 )
@@ -50,54 +45,6 @@ from app.services.connection_manager import connection_manager
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/chat", tags=["chat"])
-
-
-def _build_conversation_public(
-    conversation: Conversation, current_user_id: uuid.UUID, session: Session
-) -> ConversationPublic:
-    other_id = (
-        conversation.freelancer_id
-        if current_user_id == conversation.client_id
-        else conversation.client_id
-    )
-    other_user = session.get(User, other_id)
-    other_user_public = UserPublic.model_validate(other_user) if other_user else None
-
-    # Get last message
-    last_msg_stmt = (
-        select(ChatMessage)
-        .where(ChatMessage.conversation_id == conversation.id)
-        .order_by(ChatMessage.created_at.desc())  # type: ignore
-        .limit(1)
-    )
-    last_msg = session.exec(last_msg_stmt).first()
-    last_msg_public = (
-        ChatMessagePublic.model_validate(last_msg) if last_msg else None
-    )
-
-    # Get unread count for current user
-    # unread_count_stmt = (
-    #     select(func.count())
-    #     .select_from(ChatMessage)
-    #     .where(
-    #         ChatMessage.conversation_id == conversation.id,
-    #         ChatMessage.sender_id != current_user_id,
-    #         col(ChatMessage.is_read).is_(False),
-    #     )
-    # )
-    # unread_count = session.exec(unread_count_stmt).one()
-
-    return ConversationPublic(
-        id=conversation.id,
-        client_id=conversation.client_id,
-        freelancer_id=conversation.freelancer_id,
-        creator_id=conversation.creator_id,
-        created_at=conversation.created_at,
-        updated_at=conversation.updated_at,
-        last_message=last_msg_public,
-        unread_count=conversation.unread_count,
-        other_user=other_user_public,
-    )
 
 
 @router.get("/me", response_model=ConversationsPublic)
@@ -182,7 +129,6 @@ def get_conversation_details(
         other_user=conv_summary.other_user,
         messages=messages_public,
     )
-
 
 @router.post("/conversation", response_model=ConversationPublic)
 def create_or_get_conversation(
@@ -383,23 +329,16 @@ async def websocket_chat_endpoint(
         await reject_websocket(websocket)
         return
 
-    try:
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=[security.ALGORITHM],
-        )
-        token_data = TokenPayload(**payload)
-    except (InvalidTokenError, ValidationError):
+    user_id = get_user_id_from_token(token)
+    if not user_id:
         await reject_websocket(websocket)
         return
 
     with Session(engine) as session:
-        user = session.get(User, ident=token_data.sub)
+        user = session.get(User, ident=user_id)
         if not user or not user.is_active:
             await reject_websocket(websocket)
             return
-        user_id = user.id
 
     await connection_manager.connect(user_id, websocket)
 
@@ -431,183 +370,26 @@ async def websocket_chat_endpoint(
                 await websocket.send_text(json.dumps({"type": "pong"}))
                 continue
 
-            # 2. Chat Message frame
             if event_type == "chat_message":
-                print("Received chat_message event:", data)
-                conv_id_raw = data.get("conversation_id")
-                content = (data.get("content") or "").strip()
-                client_message_id = data.get("client_message_id")
-                if not conv_id_raw or not content:
-                    await websocket.send_text(
-                        json.dumps(
-                            {
-                                "type": "message_ack_failed",
-                                "data": {"client_message_id": client_message_id},
-                            }
-                        )
-                    )
-                    continue
-                try:
-                    conv_id = uuid.UUID(str(conv_id_raw))
-                except ValueError:
-                    await websocket.send_text(
-                        json.dumps(
-                            {
-                                "type": "message_ack_failed",
-                                "data": {"client_message_id": client_message_id},
-                            }
-                        )
-                    )
-                    continue
-
-                with Session(engine) as session:
-                    conv = session.get(Conversation, conv_id)
-                    if not conv or (
-                        conv.client_id != user_id
-                        and conv.freelancer_id != user_id
-                    ):
-                        await websocket.send_text(
-                            json.dumps(
-                                {
-                                    "type": "error",
-                                    "data": "Unauthorized conversation",
-                                }
-                            )
-                        )
-                        continue
-                    new_msg = ChatMessage(
-                        conversation_id=conv_id,
-                        sender_id=user_id,
-                        content=content,
-                        created_at=get_datetime_utc(),
-                    )
-                    try:
-                        msg_dict = ChatMessagePublic.model_validate(
-                            new_msg
-                        ).model_dump()
-                    except Exception:
-                        await websocket.send_text(
-                            json.dumps(
-                                {
-                                    "type": "message_ack_failed",
-                                    "data": {
-                                        "client_message_id": client_message_id
-                                    },
-                                }
-                            )
-                        )
-                        continue
-                    conv.updated_at = get_datetime_utc()
-                    conv.unread_count += 1
-                    session.add(new_msg)
-                    session.add(conv)
-                    session.commit()
-                    session.refresh(new_msg)
-
-                    recipient_id = (
-                        conv.freelancer_id
-                        if user_id == conv.client_id
-                        else conv.client_id
-                    )
-
-                # Send confirmation ack back to sender
-                ack_data = {
-                    **msg_dict,
-                    "client_message_id": client_message_id,
-                }
-                await websocket.send_text(
-                    json.dumps(
-                        {"type": "message_ack", "data": ack_data}, default=str
-                    )
-                )
-
-                # I am already sending the  msg why
-                # send the notification again? I will
-                # just send the message to the recipient
-                # and let them handle the notification..
-
-                # await push_notification(
-                #     user_id=recipient_id,
-                #     event=NotificationEvent.MESSAGE_RECEIVED,
-                #     title="New Message",
-                #     link="",
-                #     content="You have a new message",
-                #     chat_message_id=new_msg.id,
-                # )
-
-                await publish_to_user(
-                    recipient_id,
-                    payload={"type": "chat_message", "data": msg_dict},
-                )
+                await chat_message(data, websocket, user_id)
                 continue
             if event_type == "typing":
-                conv_id_raw = data.get("conversation_id")
-                if not conv_id_raw:
-                    continue
-                try:
-                    conv_id = uuid.UUID(str(conv_id_raw))
-                except ValueError:
-                    continue
-
-                with Session(engine) as session:
-                    conv = session.get(Conversation, conv_id)
-                    if conv and (
-                        conv.client_id == user_id
-                        or conv.freelancer_id == user_id
-                    ):
-                        recipient_id = (
-                            conv.freelancer_id
-                            if user_id == conv.client_id
-                            else conv.client_id
-                        )
-                        await publish_to_user(
-                            recipient_id,
-                            payload={
-                                "type": "typing",
-                                "data": {
-                                    "conversation_id": str(conv_id),
-                                    "user_id": str(user_id),
-                                    "is_typing": data.get("is_typing", True),
-                                },
-                            },
-                        )
+                await user_typing(data, websocket, user_id)
                 continue
-
-            # 4. Read receipt frame..
-            # well what if i send that some notification was read.
             if event_type == "read_receipt":
-                if "notification_id" in data:
-                    notification_id_raw = data.get("notification_id")
-                    if notification_id_raw:
-                        if notification_id_raw == "all_notifications":
-                            mark_all_notifications_as_read(user_id)
-                        else:
-                            try:
-                                mark_notification_as_read(user_id, uuid.UUID(str(notification_id_raw)))
-                            except ValueError:
-                                pass
-                if "conversation_id" in data:
-                    conv_id_raw = data.get("conversation_id")
-                    if conv_id_raw:
-                        try:
-                            await mark_all_messages_as_read(user_id, uuid.UUID(str(conv_id_raw)))
-                        except ValueError:
-                            pass
+                await read_receipt(data, websocket, user_id)
                 continue
-
-            # 5. Generic Event forwarding (if recipient_id is provided)
-            target_user_raw = data.get("recipient_id") or data.get("user_id")
-            if target_user_raw:
-                try:
+            else:
+                target_user_raw = data.get("recipient_id") or data.get("user_id")
+                if target_user_raw:
                     target_uid = uuid.UUID(str(target_user_raw))
                     await publish_to_user(target_uid, payload=data)
-                except ValueError:
-                    pass
 
+    except ValueError:
+        logger.error("WebSocket value error for user %s", user_id)
+        connection_manager.disconnect(user_id, websocket)
     except WebSocketDisconnect:
-
         connection_manager.disconnect(user_id, websocket)
     except Exception as e:
         logger.error("WebSocket unexpected error for user %s: %s", user_id, e)
         connection_manager.disconnect(user_id, websocket)
-
