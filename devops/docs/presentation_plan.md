@@ -57,7 +57,7 @@ Stage 7: Developer Tooling & Team CLI (Makefile)
   * **Health Routing**: Traefik probes `/api/v1/health` and stops routing to the backend container if checks fail.
 
 ### 4. Zero-Touch CI/CD Pipeline (The Delivery - IV.10 Major)
-* **Files:** [`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml), [`lint.yml`](../../.github/workflows/lint.yml), [`test-backend.yml`](../../.github/workflows/test-backend.yml), [`test-docker-compose.yml`](../../.github/workflows/test-docker-compose.yml), [`DEPLOYMENT.md`](./DEPLOYMENT.md)
+* **Files:** [`.github/workflows/ci-cd.yml`](../../.github/workflows/ci-cd.yml), [`DEPLOYMENT.md`](./DEPLOYMENT.md)
 * **Core Concepts:**
   * **3-Tier CI Gate**: PRs must pass Ruff linting, TypeScript type-check, 173 backend pytest tests (83% coverage), and a Docker smoke test.
   * **Safe `rsync` over SSH**: Pushes code to EC2 without storing GitHub Personal Access Tokens on AWS (strictly least-privilege). Excludes `.env*` (secrets), `.git*`, and `devops/backup/dumps/`.
@@ -129,7 +129,7 @@ Phase 4: Observability   ──▶ Phase 5: Disaster Recovery ──▶ Phase 6:
 * **Objective:** Prove continuous automated testing and zero-downtime production delivery.
 * **Show & Demo:**
   * Show GitHub Actions test history (173 passing tests, 83% coverage).
-  * Walk through [`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml): safe `rsync`, background image build, prestart migration gate, rolling swap (`up -d`), and layer prune.
+  * Walk through [`.github/workflows/ci-cd.yml`](../../.github/workflows/ci-cd.yml): safe `rsync`, background image build, prestart migration gate, rolling swap (`up -d`), and layer prune.
 * **Key Takeaway:** Ephemeral migration checks guarantee that broken schemas never restart live containers, ensuring true zero-downtime releases.
 
 ---
