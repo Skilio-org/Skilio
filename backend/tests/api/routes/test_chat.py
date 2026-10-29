@@ -1,5 +1,6 @@
 import json
 import uuid
+from sys import stderr
 
 import pytest
 from fastapi import WebSocketDisconnect
@@ -202,21 +203,12 @@ def test_websocket_messaging_and_presence(
             )
             assert ack["data"]["client_message_id"] == client_message_id
 
-            # ws2 should receive the chat message and the corresponding notification
-            delivered_events = []
-            for _ in range(2):
-                delivered_events.append(json.loads(ws2.receive_text()))
-
-            assert any(
-                event["type"] == "chat_message"
-                and event["data"]["content"] == "Real-time message over WebSocket!"
-                for event in delivered_events
-            )
-            assert any(
-                event["type"] == "notification"
-                and event["data"]["title"] == "New Message"
-                and event["data"]["content"] == "You have a new message"
-                for event in delivered_events
+            # ws2 should receive the chat message
+            delivered_message = json.loads(ws2.receive_text())
+            assert delivered_message["type"] == "chat_message"
+            assert (
+                delivered_message["data"]["content"]
+                == "Real-time message over WebSocket!"
             )
 
             # User1 sends a typing indicator

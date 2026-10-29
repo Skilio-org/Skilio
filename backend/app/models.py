@@ -886,6 +886,7 @@ class Conversation(SQLModel, table=True):
         back_populates="freelancer_conversations",
         sa_relationship_kwargs={"foreign_keys": "[Conversation.freelancer_id]"},
     )
+    unread_count: int = Field(default=0)
     messages: list["ChatMessage"] = Relationship(
         back_populates="conversation", cascade_delete=True
     )
