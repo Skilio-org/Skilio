@@ -94,11 +94,20 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 		}
 		if (wsRef.current) {
 			// Nullify event handlers before closing so onclose doesn't trigger a reconnect cycle
-			wsRef.current.onopen = null
-			wsRef.current.onmessage = null
-			wsRef.current.onclose = null
-			wsRef.current.onerror = null
-			wsRef.current.close()
+			const ws = wsRef.current
+			ws.onopen = null
+			ws.onmessage = null
+			ws.onclose = null
+			ws.onerror = null
+			// wsRef.current.close()
+			if (ws.readyState === WebSocket.CONNECTING) {
+				// Wait until it's open before cleanly closing, or close gracefully
+				ws.onopen = () => {
+					ws.close(1000);
+				};
+			} else if (ws.readyState === WebSocket.OPEN) {
+				ws.close(1000);
+			}
 			wsRef.current = null
 		}
 	}, [])
@@ -116,11 +125,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 		// Clean up active connection/listeners before opening a new one
 		cleanupSocket()
 		try {
-			let ws = new WebSocket(url)
+			const ws = new WebSocket(url)
 
-			// ws.addEventListener("error", (event) => {
-			// 	ws.close()
-			// })
+			ws.addEventListener("error", () => {
+				ws.close()
+			})
 			wsRef.current = ws
 
 			ws.onopen = () => {
@@ -243,13 +252,19 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		isMountedRef.current = true
-		connect()
+		// connect()
+		const timer = setTimeout(() => {
+			if (isMountedRef.current) {
+				connect();
+			}
+	    }, 50);
 
 		window.addEventListener("storage", handleStorage)
 		window.addEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
 
 		return () => {
 			isMountedRef.current = false
+			clearTimeout(timer);
 			window.removeEventListener("storage", handleStorage)
 			window.removeEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
 			cleanupSocket()

@@ -1,11 +1,7 @@
-
-
-import select
 import uuid
 
-import uuid
 from sqlmodel import Session, col, select
-from app.core.redis import publish_to_user
+
 from app.core.db import engine
 from app.core.redis import publish_to_user
 from app.models import ChatMessage, Conversation
@@ -30,18 +26,18 @@ async def mark_all_messages_as_read(user_id: uuid.UUID, conversation_id: uuid.UU
                 session.add(m)
             if unreads:
                 session.commit()
-            recipient_id = (
-                conv.freelancer_id
-                if user_id == conv.client_id
-                else conv.client_id
-            )
-            await publish_to_user(
-                recipient_id,
-                payload={
-                    "type": "messages_read",
-                    "data": {
-                        "conversation_id": str(conversation_id),
-                        "read_by": str(user_id),
-                    },
-                },
-            )
+            # recipient_id = (
+            #     conv.freelancer_id
+            #     if user_id == conv.client_id
+            #     else conv.client_id
+            # )
+            # await publish_to_user(
+            #     recipient_id,
+            #     payload={
+            #         "type": "messages_read",
+            #         "data": {
+            #             "conversation_id": str(conversation_id),
+            #             "read_by": str(user_id),
+            #         },
+            #     },
+            # )
