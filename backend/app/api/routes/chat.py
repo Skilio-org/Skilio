@@ -14,14 +14,13 @@ from fastapi import (
 )
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
-from sqlmodel import Session, and_, col, func, or_, select
+from sqlmodel import Session, and_, or_, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.message_mods import mark_all_messages_as_read
 from app.api.routes.notifications import (
     mark_all_notifications_as_read,
     mark_notification_as_read,
-    push_notification,
 )
 from app.core import security
 from app.core.config import settings
@@ -39,7 +38,6 @@ from app.models import (
     ConversationPublic,
     ConversationsPublic,
     InjectPayload,
-    NotificationEvent,
     TokenPayload,
     User,
     UserPresence,
@@ -78,16 +76,16 @@ def _build_conversation_public(
     )
 
     # Get unread count for current user
-    unread_count_stmt = (
-        select(func.count())
-        .select_from(ChatMessage)
-        .where(
-            ChatMessage.conversation_id == conversation.id,
-            ChatMessage.sender_id != current_user_id,
-            col(ChatMessage.is_read).is_(False),
-        )
-    )
-    unread_count = session.exec(unread_count_stmt).one()
+    # unread_count_stmt = (
+    #     select(func.count())
+    #     .select_from(ChatMessage)
+    #     .where(
+    #         ChatMessage.conversation_id == conversation.id,
+    #         ChatMessage.sender_id != current_user_id,
+    #         col(ChatMessage.is_read).is_(False),
+    #     )
+    # )
+    # unread_count = session.exec(unread_count_stmt).one()
 
     return ConversationPublic(
         id=conversation.id,
@@ -97,7 +95,7 @@ def _build_conversation_public(
         created_at=conversation.created_at,
         updated_at=conversation.updated_at,
         last_message=last_msg_public,
-        unread_count=unread_count,
+        unread_count=conversation.unread_count,
         other_user=other_user_public,
     )
 
@@ -209,7 +207,6 @@ def create_or_get_conversation(
             detail="Target user not found",
         )
 
-    # Permission check: clients can initiate, or connected users can initiate
     if current_user.active_role != UserRole.CLIENT and not current_user.is_superuser:
         conn_stmt = select(Connection).where(
             or_(
@@ -309,6 +306,9 @@ async def send_message_rest(
         attachment_id=message_in.attachment_id,
         created_at=get_datetime_utc(),
     )
+    conversation.last_message_id = new_msg.id
+    conversation.unread_count += 1
+    # conversation.last_message_content = new_msg.content
     conversation.updated_at = get_datetime_utc()
     session.add(new_msg)
     session.add(conversation)
@@ -402,7 +402,7 @@ async def websocket_chat_endpoint(
         user_id = user.id
 
     await connection_manager.connect(user_id, websocket)
-    
+
     try:
         await websocket.send_text(
             json.dumps(
@@ -498,6 +498,7 @@ async def websocket_chat_endpoint(
                         )
                         continue
                     conv.updated_at = get_datetime_utc()
+                    conv.unread_count += 1
                     session.add(new_msg)
                     session.add(conv)
                     session.commit()
@@ -520,14 +521,20 @@ async def websocket_chat_endpoint(
                     )
                 )
 
-                await push_notification(
-                    user_id=recipient_id,
-                    event=NotificationEvent.MESSAGE_RECEIVED,
-                    title="New Message",
-                    link="",
-                    content="You have a new message",
-                    chat_message_id=new_msg.id,
-                )
+                # I am already sending the  msg why
+                # send the notification again? I will
+                # just send the message to the recipient
+                # and let them handle the notification..
+
+                # await push_notification(
+                #     user_id=recipient_id,
+                #     event=NotificationEvent.MESSAGE_RECEIVED,
+                #     title="New Message",
+                #     link="",
+                #     content="You have a new message",
+                #     chat_message_id=new_msg.id,
+                # )
+
                 await publish_to_user(
                     recipient_id,
                     payload={"type": "chat_message", "data": msg_dict},
