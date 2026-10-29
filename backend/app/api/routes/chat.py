@@ -365,7 +365,6 @@ async def websocket_chat_endpoint(
 
             event_type = data.get("type", "custom")
 
-            # 1. Heartbeat Ping / Pong
             if event_type == "ping":
                 await websocket.send_text(json.dumps({"type": "pong"}))
                 continue
