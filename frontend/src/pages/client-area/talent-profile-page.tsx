@@ -12,9 +12,9 @@ import { loadTalentProfile } from "@/components/talent/talent-api"
 
 export function TalentProfilePage({ person: initialPerson }: { person: FreelancerProfileDetailPublic }) {
 	const { data: person } = useQuery({
-		queryKey: ["talent-profile", initialPerson.id],
+		queryKey: ["talent-profile", initialPerson.user_id],
 		initialData: initialPerson,
-		queryFn: () => loadTalentProfile(initialPerson.id),
+		queryFn: () => loadTalentProfile(initialPerson.user_id),
 	})
 
 	const name = person.full_name ?? person.user?.full_name ?? ""
@@ -93,13 +93,19 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 							{saved ? <Check className="size-4" /> : <Bookmark className="size-4" />}
 							{saved ? "Profile saved" : "Save profile"}
 						</button>
-						<a
-							href="#client-reviews"
-							className={`${workspaceStyles.secondaryAction} w-full inline-flex items-center justify-center gap-2`}
+						<button
+							type="button"
+							onClick={() => {
+								const el = document.getElementById("client-reviews")
+								if (el) {
+									el.scrollIntoView({ behavior: "smooth", block: "start" })
+								}
+							}}
+							className={`${workspaceStyles.secondaryAction} w-full inline-flex items-center justify-center gap-2 cursor-pointer`}
 						>
 							<Star className="size-4 fill-amber-500 text-amber-500" />
 							<span>Feedback & Reviews</span>
-						</a>
+						</button>
 					</>
 				}
 				contactFooter={

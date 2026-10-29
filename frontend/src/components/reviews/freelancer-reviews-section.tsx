@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react"
-import { Star, MessageSquarePlus, Filter, ArrowUpDown, Sparkles } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Star, MessageSquarePlus, Sparkles } from "lucide-react"
 import { StarRatingDisplay } from "./review-stars"
 import { ReviewCard } from "./review-card"
 import { ReviewModal } from "./review-modal"
@@ -11,6 +10,7 @@ import useAuth from "@/hooks/useAuth"
 import { Link } from "@tanstack/react-router"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 
 type FreelancerReviewsSectionProps = {
 	freelancerId: string
@@ -127,31 +127,35 @@ export function FreelancerReviewsSection({
 				{/* Primary Action Button based on auth and role */}
 				<div>
 					{!user ? (
-						<Button asChild variant="outline" size="sm" className="gap-2">
-							<Link to="/login">
-								<Star className="size-3.5 text-amber-500 fill-amber-500" />
-								<span>Sign in to review</span>
-							</Link>
-						</Button>
+						<Link
+							to="/login"
+							className={cn(workspaceStyles.secondaryAction, "h-8 px-3 text-xs gap-1.5")}
+						>
+							<Star className="size-3.5 text-amber-500 fill-amber-500" />
+							<span>Sign in to review</span>
+						</Link>
 					) : isOwnProfile ? (
 						<p className="text-xs text-muted-foreground italic">Your profile</p>
 					) : !isClientRole ? (
 						<p className="text-xs text-muted-foreground">Only client accounts can rate</p>
 					) : myReview ? (
-						<Button
-							variant="outline"
-							size="sm"
+						<button
+							type="button"
 							onClick={() => handleOpenEdit(myReview)}
-							className="gap-2 border-primary/30 text-primary hover:bg-primary/5 hover:text-primary"
+							className={cn(workspaceStyles.secondaryAction, "h-8 px-3 text-xs gap-1.5")}
 						>
 							<Star className="size-3.5 text-amber-500 fill-amber-500" />
 							<span>Edit your review</span>
-						</Button>
+						</button>
 					) : (
-						<Button size="sm" onClick={handleOpenCreate} className="gap-2 font-medium">
-							<MessageSquarePlus className="size-4" />
+						<button
+							type="button"
+							onClick={handleOpenCreate}
+							className={cn(workspaceStyles.primaryAction, "h-8 px-3 text-xs gap-1.5")}
+						>
+							<MessageSquarePlus className="size-3.5" />
 							<span>Rate this freelancer</span>
-						</Button>
+						</button>
 					)}
 				</div>
 			</div>
@@ -218,54 +222,73 @@ export function FreelancerReviewsSection({
 				</div>
 			</div>
 
-			{/* Filter & Sort Controls */}
+			{/* Unified Tab Navigation Bar & Sort Controls (Consistent with Connections and Jobs tabbing) */}
 			{totalCount > 0 && (
-				<div className="mt-6  flex flex-wrap items-center justify-between gap-3">
-					<div className="flex flex-wrap items-center gap-1.5">
-						<span className="mr-1 inline-flex items-center gap-1 text-xs text-muted-foreground font-medium">
-							<Filter className="size-3" /> Filter:
-						</span>
-						<Button
-							variant={null}
-							// variant={selectedStarFilter === null ? "bg-muted font-medium text-foreground" : "bg-none!"}
-							size="sm"
+				<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-outline-variant border-b">
+					<nav aria-label="Review rating tabs" className="flex gap-6 overflow-x-auto">
+						<button
+							type="button"
 							onClick={() => setSelectedStarFilter(null)}
-							className={cn(["h-7 gap-1 text-xs bg-none!", 
-									selectedStarFilter === null ? "bg-muted font-medium text-foreground" : ""])}
+							aria-pressed={selectedStarFilter === null}
+							className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm flex items-center transition-colors ${
+								selectedStarFilter === null
+									? "border-primary text-primary"
+									: "border-transparent text-on-surface-variant hover:text-on-surface"
+							}`}
 						>
-							All ({totalCount})
-						</Button>
-						{[5, 4, 3, 2, 1].map((star) => (
-							<Button
-								key={star}
-								variant={null}
-								size="sm"
-								onClick={() => setSelectedStarFilter(selectedStarFilter === star ? null : star)}
-								className={cn(["h-7 gap-1 text-xs bg-none!", 
-									selectedStarFilter === star ? "bg-muted font-medium text-foreground" : "hover:bg-muted"])}
-							>
-								<span>{star} ★ </span>
-								<span className="text-muted-foreground">({distribution[star] || 0})</span>
-							</Button>
-						))}
-					</div>
+							<span>All</span>
+							<span className="ml-1 text-xs font-normal">({totalCount})</span>
+						</button>
+						{([5, 4, 3, 2, 1] as const).map((star) => {
+							const active = selectedStarFilter === star
+							const count = distribution[star] || 0
+							return (
+								<button
+									key={star}
+									type="button"
+									onClick={() => setSelectedStarFilter(active ? null : star)}
+									aria-pressed={active}
+									className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm flex items-center transition-colors ${
+										active
+											? "border-primary text-primary"
+											: "border-transparent text-on-surface-variant hover:text-on-surface"
+									}`}
+								>
+									<span>{star} ★</span>
+									<span className="ml-1 text-xs font-normal">({count})</span>
+								</button>
+							)
+						})}
+					</nav>
 
-					<div className="flex flex-row flex-wrap items-center gap-4 py-0 px-0">
+					<div className="flex items-center gap-2 pb-2 sm:pb-0 shrink-0">
+						<span className="font-caption text-caption text-outline">Sort:</span>
 						<Select value={sortBy} onValueChange={(val) => setSortBy(val as SortOption)}>
-							<SelectTrigger className="text-xs py-2! px-4! m-0! h-full!">
-								<ArrowUpDown className="size-3" />
+							<SelectTrigger
+								size="sm"
+								aria-label="Sort reviews"
+								className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] leading-4 text-on-surface shadow-none hover:border-outline dark:bg-surface-card dark:hover:bg-surface-container data-[state=open]:border-primary [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+							>
 								<SelectValue />
 							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="newest" className="text-xs">
-									Most recent
-								</SelectItem>
-								<SelectItem value="highest" className="text-xs">
-									Highest rating
-								</SelectItem>
-								<SelectItem value="lowest" className="text-xs">
-									Lowest rating
-								</SelectItem>
+							<SelectContent
+								align="end"
+								sideOffset={6}
+								className="w-[var(--radix-select-trigger-width)] min-w-0 rounded-lg border-outline-variant bg-surface-container-lowest p-1 text-on-surface shadow-md [&_[data-radix-select-viewport]]:min-w-0"
+							>
+								{[
+									["newest", "Most recent"],
+									["highest", "Highest rating"],
+									["lowest", "Lowest rating"],
+								].map(([value, label]) => (
+									<SelectItem
+										key={value}
+										value={value}
+										className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+									>
+										{label}
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
 					</div>
@@ -311,10 +334,14 @@ export function FreelancerReviewsSection({
 						</p>
 						{canCreateReview && (
 							<div className="mt-6">
-								<Button size="sm" onClick={handleOpenCreate} className="gap-2 font-medium">
+								<button
+									type="button"
+									onClick={handleOpenCreate}
+									className={cn(workspaceStyles.primaryAction, "gap-2")}
+								>
 									<MessageSquarePlus className="size-4" />
 									<span>Write the first review</span>
-								</Button>
+								</button>
 							</div>
 						)}
 					</div>
@@ -322,9 +349,13 @@ export function FreelancerReviewsSection({
 					/* Star filter returned 0 results */
 					<div className="rounded-xl border border-border bg-card p-8 text-center">
 						<p className="text-muted-foreground text-sm">No {selectedStarFilter}-star reviews found.</p>
-						<Button variant="outline" size="sm" onClick={() => setSelectedStarFilter(null)} className="mt-3 text-xs">
+						<button
+							type="button"
+							onClick={() => setSelectedStarFilter(null)}
+							className={cn(workspaceStyles.secondaryAction, "mt-3")}
+						>
 							Show all reviews
-						</Button>
+						</button>
 					</div>
 				)}
 			</div>

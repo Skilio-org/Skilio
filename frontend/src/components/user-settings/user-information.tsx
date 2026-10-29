@@ -18,6 +18,15 @@ import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog"
+
 const formSchema = z.object({
 	full_name: z.string().max(30).optional(),
 	email: z.email({ message: "Invalid email address" }),
@@ -34,6 +43,12 @@ const UserInformation = () => {
 	const avatarUrl = useAccountAvatarUrl(currentUser?.id)
 	const [avatarFailed, setAvatarFailed] = useState(false)
 	useEffect(() => setAvatarFailed(false), [])
+
+	const [emailPasswordDialogOpen, setEmailPasswordDialogOpen] = useState(false)
+
+	const [emailChangePassword, setEmailChangePassword] = useState("")
+
+	const [pendingUpdate, setPendingUpdate] = useState<UserUpdateMe | null>(null)
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(formSchema),
@@ -59,6 +74,9 @@ const UserInformation = () => {
 		onSuccess: () => {
 			showSuccessToast("User updated successfully")
 			setEditMode(false)
+			setEmailPasswordDialogOpen(false)
+			setEmailChangePassword("")
+			setPendingUpdate(null)
 		},
 		onError: handleError.bind(showErrorToast),
 		onSettled: () => queryClient.invalidateQueries(),
@@ -66,11 +84,27 @@ const UserInformation = () => {
 
 	const onSubmit = (data: FormData) => {
 		const updateData: UserUpdateMe = {}
-		if (data.full_name !== currentUser?.full_name) {
+
+		if ((data.full_name ?? "") !== (currentUser?.full_name ?? "")) {
 			updateData.full_name = data.full_name
 		}
-		if (data.email !== currentUser?.email) updateData.email = data.email
-		mutation.mutate(updateData)
+
+		if (data.email !== currentUser?.email) {
+			updateData.email = data.email
+		}
+
+		// An email change requires password confirmation.
+		if (updateData.email) {
+			setPendingUpdate(updateData)
+			setEmailChangePassword("")
+			setEmailPasswordDialogOpen(true)
+			return
+		}
+
+		// No email change: save other edits normally.
+		if (Object.keys(updateData).length > 0) {
+			mutation.mutate(updateData)
+		}
 	}
 
 	const onCancel = () => {
@@ -195,7 +229,7 @@ const UserInformation = () => {
 									icon={Mail}
 									label="Email address"
 									value={form.getValues("email") || "Not available"}
-									badge={currentUser?.email ? "Verified" : undefined}
+									badge={currentUser?.is_email_verified ? "Verified" : "Unverified"}
 								/>
 							</div>
 						)}
@@ -224,6 +258,82 @@ const UserInformation = () => {
 					</form>
 				</Form>
 			</section>
+			<Dialog
+				open={emailPasswordDialogOpen}
+				onOpenChange={(open) => {
+					setEmailPasswordDialogOpen(open)
+
+					if (!open) {
+						setEmailChangePassword("")
+						setPendingUpdate(null)
+					}
+				}}
+			>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>Confirm your password</DialogTitle>
+						<DialogDescription>
+							To change your email address, enter your current password to verify your identity.
+						</DialogDescription>
+					</DialogHeader>
+
+					<form
+						onSubmit={(event) => {
+							event.preventDefault()
+
+							if (!pendingUpdate) return
+
+							mutation.mutate({
+								...pendingUpdate,
+								password: emailChangePassword,
+							})
+						}}
+						className="space-y-4"
+					>
+						<div className="space-y-2">
+							<label htmlFor="email-change-password" className="text-sm font-medium">
+								Current password
+							</label>
+
+							<Input
+								id="email-change-password"
+								type="password"
+								autoComplete="current-password"
+								placeholder="Enter your current password"
+								value={emailChangePassword}
+								onChange={(event) => setEmailChangePassword(event.target.value)}
+								required
+								autoFocus
+								className="h-10 rounded-lg mt-1"
+							/>
+						</div>
+
+						<DialogFooter>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => {
+									setEmailPasswordDialogOpen(false)
+									setEmailChangePassword("")
+									setPendingUpdate(null)
+								}}
+								disabled={mutation.isPending}
+								className={workspaceStyles.secondaryAction}
+							>
+								Cancel
+							</Button>
+							<LoadingButton
+								className={workspaceStyles.primaryAction}
+								type="submit"
+								loading={mutation.isPending}
+								disabled={!emailChangePassword}
+							>
+								Confirm email change
+							</LoadingButton>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
 }

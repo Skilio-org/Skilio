@@ -7,12 +7,13 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { StarRatingInput } from "./review-stars"
 import type { ReviewPublic } from "@/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { getInitials } from "@/utils"
+import { extractErrorMessage, getInitials } from "@/utils"
 import { AlertCircle, Loader2 } from "lucide-react"
+import { workspaceStyles } from "@/components/dashboard/dashboard-header"
+import { cn } from "@/lib/utils"
 
 type ReviewModalProps = {
 	open: boolean
@@ -76,8 +77,7 @@ export function ReviewModal({
 			await onSubmit({ rating, comment: trimmedComment })
 			onOpenChange(false)
 		} catch (err: any) {
-			const detail = err?.response?.data?.detail
-			setError(typeof detail === "string" ? detail : "Failed to save review. Please try again.")
+			setError(extractErrorMessage(err))
 		}
 	}
 
@@ -168,18 +168,23 @@ export function ReviewModal({
 						</div>
 					)}
 
-					<DialogFooter className="mt-6 gap-2 sm:gap-2 ">
-						<Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+					<DialogFooter className="mt-6 gap-2 sm:gap-2">
+						<button
+							type="button"
+							onClick={() => onOpenChange(false)}
+							disabled={isSubmitting}
+							className={workspaceStyles.secondaryAction}
+						>
 							Cancel
-						</Button>
-						<Button
+						</button>
+						<button
 							type="submit"
-							disabled={isSubmitting || isOverLimit || rating === 0 || !comment.trim()}
-							className="gap-2 py-1 font-medium"
+							disabled={isSubmitting || isOverLimit}
+							className={cn(workspaceStyles.primaryAction, "disabled:cursor-not-allowed disabled:opacity-40")}
 						>
 							{isSubmitting && <Loader2 className="size-4 animate-spin" />}
-							{isEditing ? "Save changes" : "Submit review"}
-						</Button>
+							<span>{isEditing ? "Save changes" : "Submit review"}</span>
+						</button>
 					</DialogFooter>
 				</form>
 			</DialogContent>
