@@ -306,7 +306,7 @@ async def send_message_rest(
         attachment_id=message_in.attachment_id,
         created_at=get_datetime_utc(),
     )
-    conversation.last_message_id = new_msg.id
+    # conversation.last_message_id = new_msg.id
     conversation.unread_count += 1
     # conversation.last_message_content = new_msg.content
     conversation.updated_at = get_datetime_utc()
