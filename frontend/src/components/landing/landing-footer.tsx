@@ -9,8 +9,8 @@ const FOOTER_SECTIONS = [
 			{ label: "Browse Contracts", href: "#contracts", isAnchor: true },
 			{ label: "Why Skilio", href: "#difference", isAnchor: true },
 			{ label: "How It Works", href: "#how-it-works", isAnchor: true },
-			{ label: "Sign Up", href: "/signup" },
-			{ label: "Log In", href: "/login" },
+			{ label: "Sign Up", href: "/signup", isAnchor: false },
+			{ label: "Log In", href: "/login", isAnchor: false },
 		],
 	},
 	{
@@ -26,20 +26,20 @@ const FOOTER_SECTIONS = [
 	{
 		title: "Specialists",
 		links: [
-			{ label: "How to Get Vetted", href: "/signup?role=freelancer" },
-			{ label: "Freelancer Earnings", href: "/signup?role=freelancer" },
+			{ label: "How to Get Vetted", href: "/signup", isAnchor: false },
+			{ label: "Freelancer Earnings", href: "/signup", isAnchor: false },
 			{ label: "Milestone Escrow", href: "#difference", isAnchor: true },
-			{ label: "Browse Jobs", href: "/freelancer-jobs" },
-			{ label: "Community", href: "/status" },
+			{ label: "Browse Jobs", href: "/freelancer-jobs", isAnchor: false },
+			{ label: "Community", href: "/status", isAnchor: false },
 		],
 	},
 	{
 		title: "Company",
 		links: [
-			{ label: "About Skilio", href: "/" },
-			{ label: "Privacy Policy", href: "/privacy" },
-			{ label: "Terms of Service", href: "/terms" },
-			{ label: "System Status", href: "/status" },
+			{ label: "About Skilio", href: "/", isAnchor: false },
+			{ label: "Privacy Policy", href: "/privacy", isAnchor: false },
+			{ label: "Terms of Service", href: "/terms", isAnchor: false },
+			{ label: "System Status", href: "/status", isAnchor: false },
 		],
 	},
 ]

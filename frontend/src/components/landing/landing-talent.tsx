@@ -147,6 +147,7 @@ export function LandingTalent({
 
 								<Link
 									to="/talent"
+									search={{ q: undefined, category: undefined }}
 									className="inline-flex items-center gap-1 font-semibold text-foreground hover:underline"
 								>
 									<span>View</span>
@@ -161,6 +162,7 @@ export function LandingTalent({
 				<div className="mt-10 flex justify-center">
 					<Link
 						to="/talent"
+						search={{ q: undefined, category: undefined }}
 						className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
 					>
 						<span>Explore all 12,000+ vetted talent profiles</span>

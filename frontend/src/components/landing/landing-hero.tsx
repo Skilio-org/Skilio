@@ -1,10 +1,9 @@
 import { useState } from "react"
-import { Link, useNavigate } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
 import {
 	ArrowUpRight,
 	Check,
 	ChevronDown,
-	Lock,
 	Search,
 	ShieldCheck,
 	Sparkles,
@@ -47,7 +46,10 @@ export function LandingHero({
 				onSearchSelect(searchQuery)
 				document.getElementById("talent")?.scrollIntoView({ behavior: "smooth" })
 			} else {
-				navigate({ to: "/talent" })
+				navigate({
+					to: "/talent",
+					search: { q: searchQuery || undefined, category: undefined },
+				})
 			}
 		} else {
 			navigate({ to: "/signup", search: { role: "freelancer" } })
