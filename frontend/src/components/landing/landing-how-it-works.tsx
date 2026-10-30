@@ -1,87 +1,87 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, CheckCircle2, MessagesSquare, ScanSearch, ShieldCheck } from "lucide-react"
+import { ArrowUpRight, MessageSquare, ScanSearch, ShieldCheck } from "lucide-react"
 
 const STEPS = [
 	{
-		icon: ScanSearch,
 		step: "01",
-		title: "Discover verified specialists",
-		copy: "Search by core skills, explore domains, and review public profiles with authentic client ratings and transparent rates.",
+		icon: ScanSearch,
+		title: "Define Brief or Browse",
+		desc: "Post your project specifications in 2 minutes, or explore curated specialist profiles by exact tech stack and verified hourly rates.",
 	},
 	{
-		icon: MessagesSquare,
 		step: "02",
-		title: "Direct client-talent messaging",
-		copy: "Message specialists directly without middlemen or restrictive gates. Clarify project scope, timelines, and deliverables.",
+		icon: MessageSquare,
+		title: "Direct Alignment & Chat",
+		desc: "Meet top candidates directly, review code repositories or Figma systems, and align on scope without intermediary delays.",
 	},
 	{
-		icon: ShieldCheck,
 		step: "03",
-		title: "Collaborate with zero commission",
-		copy: "Work together with 0% platform cuts. Independent talent keeps 100% of their rate, and clients pay exactly what was agreed upon.",
+		icon: ShieldCheck,
+		title: "Milestone Delivery & Escrow",
+		desc: "Lock payments safely in tier-1 escrow. Inspect staging deliverables, request revisions, and approve payouts with 1 click.",
 	},
 ]
 
 export function LandingHowItWorks() {
 	return (
-		<section id="how-it-works" className="scroll-mt-24 border-border border-y bg-muted/40 py-16 sm:py-20 lg:py-24">
-			<div className="landing-container grid gap-12 md:grid-cols-[.9fr_1.1fr] lg:gap-20">
-				<div>
-					<p className="mb-4 font-medium text-primary text-sm">How it works</p>
+		<section
+			id="how-it-works"
+			className="scroll-mt-20 border-y border-border/70 bg-card py-16 sm:py-24"
+		>
+			<div className="landing-container">
+				{/* Section Header */}
+				<div className="flex flex-col gap-3">
+					<div className="inline-flex w-fit items-center gap-1.5 rounded-md bg-[#EDF9C5] px-2.5 py-1 text-xs font-bold text-[#4F6500] dark:bg-[#1F2125] dark:text-[#B8EF0D]">
+						<span>SIMPLE 3-STEP WORKFLOW</span>
+					</div>
 					<h2 className="landing-heading text-foreground">
-						Less searching.
-						<br />
-						More doing.
+						From project brief to production in days.
 					</h2>
-					<p className="mt-4 max-w-md text-base text-muted-foreground leading-relaxed sm:leading-7">
-						Go from a project idea to collaborating with the right specialist. Direct connections, zero platform
-						commission, and total transparency from day one.
+					<p className="max-w-2xl text-base text-muted-foreground leading-relaxed">
+						A streamlined process engineered to remove bureaucratic friction, long sales cycles,
+						and agency markups.
 					</p>
-
-					<div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-						<Link
-							to="/signup"
-							search={{ role: "client" }}
-							className="landing-primary inline-flex min-h-11 self-start px-6 font-semibold text-sm"
-						>
-							Get started as client <ArrowUpRight className="size-4" />
-						</Link>
-						<Link
-							to="/signup"
-							search={{ role: "freelancer" }}
-							className="landing-secondary inline-flex min-h-11 self-start px-6 font-semibold text-sm"
-						>
-							Join as talent
-						</Link>
-					</div>
-
-					<div className="mt-8 flex items-center gap-2 text-muted-foreground text-xs">
-						<CheckCircle2 className="size-4 text-success" />
-						<span>No credit card required to explore or message</span>
-					</div>
 				</div>
 
-				<ol className="space-y-6 sm:space-y-8">
-					{STEPS.map(({ icon: Icon, step, title, copy }) => (
-						<li
-							key={title}
-							className="group relative flex gap-5 rounded-2xl border border-border bg-card p-6 shadow-xs transition-all duration-200 hover:border-outline hover:shadow-sm sm:p-7 dark:hover:border-border-hover"
+				{/* Steps Grid */}
+				<div className="mt-12 grid gap-6 md:grid-cols-3">
+					{STEPS.map(({ step, icon: Icon, title, desc }) => (
+						<div
+							key={step}
+							className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-background p-7 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
 						>
-							<span className="grid size-12 shrink-0 place-items-center rounded-xl border border-border bg-surface-container text-primary">
-								<Icon className="size-5.5" strokeWidth={1.75} />
-							</span>
 							<div>
-								<div className="flex items-center gap-2.5">
-									<span className="font-mono font-semibold text-muted-foreground/60 text-xs">{step}</span>
-									<h3 className="font-display font-medium text-foreground text-lg tracking-tight transition-colors group-hover:text-primary">
-										{title}
-									</h3>
+								<div className="flex items-center justify-between">
+									<span className="font-display text-3xl font-extrabold text-[#7FA600] dark:text-[#B8EF0D]">
+										{step}
+									</span>
+									<div className="grid size-11 place-items-center rounded-xl bg-muted/60 text-foreground">
+										<Icon className="size-5" />
+									</div>
 								</div>
-								<p className="mt-2 text-muted-foreground text-sm leading-relaxed">{copy}</p>
+
+								<h3 className="mt-6 font-semibold text-lg text-foreground">
+									{title}
+								</h3>
+								<p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
+									{desc}
+								</p>
 							</div>
-						</li>
+						</div>
 					))}
-				</ol>
+				</div>
+
+				{/* Bottom Action */}
+				<div className="mt-10 flex justify-center">
+					<Link
+						to="/signup"
+						search={{ role: "client" }}
+						className="inline-flex items-center gap-2 rounded-xl bg-[#1F2125] dark:bg-white px-6 py-3 text-sm font-semibold text-white dark:text-[#1F2125] shadow-xs transition-all hover:bg-[#2B2E32] dark:hover:bg-neutral-200"
+					>
+						<span>Get started with your project</span>
+						<ArrowUpRight className="size-4" />
+					</Link>
+				</div>
 			</div>
 		</section>
 	)

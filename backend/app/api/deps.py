@@ -33,7 +33,7 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
         token_data = TokenPayload(**payload)
-    except InvalidTokenError, ValidationError:
+    except (InvalidTokenError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
@@ -65,7 +65,7 @@ def get_current_user_optional(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
         token_data = TokenPayload(**payload)
-    except InvalidTokenError, ValidationError:
+    except (InvalidTokenError, ValidationError):
         return None
     user = session.get(User, ident=token_data.sub)
     if not user or not user.is_active:

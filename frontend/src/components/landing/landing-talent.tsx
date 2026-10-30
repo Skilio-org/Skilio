@@ -1,233 +1,172 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, Clock3, MapPin, Search, Star } from "lucide-react"
+import { ArrowUpRight, Check, MapPin, Star } from "lucide-react"
 import { freelancers } from "@/data/freelancers"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { cn } from "@/lib/utils"
 
-const filters = ["All talent", "Design", "Development", "Marketing", "AI"] as const
+const CATEGORIES = [
+	"All talent",
+	"AI & Machine Learning",
+	"Full-Stack Engineering",
+	"Product & UI/UX Design",
+	"Growth & Marketing",
+]
 
-const terms: Record<string, string[]> = {
-	Design: ["design"],
-	Development: ["engineer", "developer"],
-	Marketing: ["brand", "marketing"],
-	AI: ["ai", "machine learning"],
+const TERMS_MAP: Record<string, string[]> = {
+	"AI & Machine Learning": ["ai", "python", "automation", "llm", "rag"],
+	"Full-Stack Engineering": ["engineer", "react", "typescript", "full-stack", "postgres"],
+	"Product & UI/UX Design": ["design", "product", "figma", "ux", "ui"],
+	"Growth & Marketing": ["brand", "marketing", "growth", "seo", "content"],
 }
 
-export function LandingTalent({ filter, onFilter }: { filter: string; onFilter: (value: string) => void }) {
-	const people = freelancers.filter(
-		(person) =>
-			filter === "All talent" ||
-			terms[filter]?.some(
-				(term) =>
-					`${person.title} ${person.skills.join(" ")}`
-						.toLowerCase()
-						.split(/[^a-z]+/)
-						.includes(term) || person.title.toLowerCase().includes(term),
-			),
-	)
+export function LandingTalent({
+	filter,
+	onFilter,
+}: {
+	filter: string
+	onFilter: (value: string) => void
+}) {
+	const filteredPeople = freelancers.filter((person) => {
+		if (filter === "All talent") return true
+		const searchTerms = TERMS_MAP[filter] || []
+		const content = `${person.title} ${person.skills.join(" ")} ${person.bio}`.toLowerCase()
+		return searchTerms.some((term) => content.includes(term))
+	})
 
-	const getFilteredCount = (f: string) => {
-		if (f === "All talent") return freelancers.length
-		return freelancers.filter((person) =>
-			terms[f]?.some(
-				(term) =>
-					`${person.title} ${person.skills.join(" ")}`
-						.toLowerCase()
-						.split(/[^a-z]+/)
-						.includes(term) || person.title.toLowerCase().includes(term),
-			),
-		).length
-	}
+	const displayPeople = (filteredPeople.length > 0 ? filteredPeople : freelancers).slice(0, 3)
 
 	return (
-		<section id="talent" className="scroll-mt-24 py-16 sm:py-20 lg:py-24">
+		<section id="talent" className="scroll-mt-20 py-16 sm:py-24">
 			<div className="landing-container">
 				{/* Section Header */}
-				<div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-					<div className="max-w-2xl">
-						<p className="mb-4 font-medium text-primary text-sm">Featured talent</p>
-						<h2 className="landing-heading text-foreground">
-							A little expertise.
-							<br />
-							A lot of possibility.
-						</h2>
-						<p className="mt-4 text-base text-muted-foreground leading-relaxed sm:leading-7">
-							Explore the independent specialists behind the work. Compare craft, portfolios, and rates before you
-							start a collaboration.
-						</p>
+				<div className="flex flex-col gap-3">
+					<div className="inline-flex w-fit items-center gap-1.5 rounded-md bg-[#EDF9C5] px-2.5 py-1 text-xs font-bold text-[#4F6500] dark:bg-[#1F2125] dark:text-[#B8EF0D]">
+						<span>PRE-VETTED ROSTER</span>
 					</div>
-
-					<Link
-						to="/signup"
-						search={{ role: "client" }}
-						className="landing-text-link mb-1 hidden items-center gap-1.5 self-end font-semibold text-sm md:inline-flex"
-					>
-						Explore full directory <ArrowUpRight className="size-4" />
-					</Link>
+					<h2 className="landing-heading text-foreground">
+						Curated specialists ready for your next sprint.
+					</h2>
+					<p className="max-w-2xl text-base text-muted-foreground leading-relaxed">
+						Browse verified portfolios, inspect technical match scores, and interview senior
+						engineers and designers in under 24 hours.
+					</p>
 				</div>
 
 				{/* Filter Tabs */}
-				<fieldset className="mt-8 flex flex-wrap items-center gap-2">
-					<legend className="sr-only">Filter talent by expertise</legend>
-					{filters.map((item) => {
-						const isSelected = filter === item
+				<div className="mt-8 flex flex-wrap gap-2">
+					{CATEGORIES.map((cat) => {
+						const active = filter === cat
 						return (
 							<button
-								key={item}
+								key={cat}
 								type="button"
-								aria-pressed={isSelected}
-								onClick={() => onFilter(item)}
-								className={cn(
-									"inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 font-medium text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm",
-									isSelected
-										? "border-foreground bg-foreground font-semibold text-background shadow-xs"
-										: "border-border bg-card text-muted-foreground hover:border-foreground/30 hover:bg-muted hover:text-foreground",
-								)}
+								onClick={() => onFilter(cat)}
+								className={`rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+									active
+										? "bg-[#1F2125] text-white shadow-xs dark:bg-white dark:text-[#1F2125]"
+										: "border border-border/80 bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+								}`}
 							>
-								<span>{item}</span>
-								<span
-									className={cn(
-										"rounded-full px-2 py-0.5 font-semibold text-[11px] tabular-nums",
-										isSelected ? "bg-background/20 text-background" : "bg-muted text-muted-foreground",
-									)}
-								>
-									{getFilteredCount(item)}
-								</span>
+								{cat}
 							</button>
 						)
 					})}
-				</fieldset>
-
-				{/* Talent Cards Responsive Grid */}
-				<div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite">
-					{people.length ? (
-						people.map((person) => (
-							<article
-								key={person.id}
-								className="group relative flex flex-col justify-between rounded-xl border border-border bg-card p-6 shadow-xs transition-all duration-200 hover:border-outline hover:shadow-sm dark:hover:border-border-hover"
-							>
-								<div>
-									{/* Card Top: Avatar with Availability Indicator & Hourly Rate */}
-									<div className="flex items-start justify-between gap-3">
-										<div className="relative shrink-0">
-											<Avatar className="size-11 rounded-lg border border-border bg-surface-container">
-												<AvatarFallback className="rounded-lg bg-surface-container font-display font-semibold text-on-surface text-sm">
-													{person.initials}
-												</AvatarFallback>
-											</Avatar>
-											<span
-												aria-hidden="true"
-												className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-card bg-success"
-											/>
-										</div>
-
-										<div className="flex flex-col items-end">
-											<p className="font-display font-semibold text-foreground text-lg tabular-nums sm:text-xl">
-												${person.rate}
-												<span className="font-caption text-muted-foreground text-xs font-normal"> / hour</span>
-											</p>
-											<span className="mt-1 inline-flex items-center gap-1 font-caption text-muted-foreground text-xs">
-												<Clock3 className="size-3 shrink-0 text-success" />
-												{person.availability}
-											</span>
-										</div>
-									</div>
-
-									{/* Name & Title */}
-									<div className="mt-4">
-										<h3 className="font-display font-medium text-foreground text-lg tracking-tight transition-colors group-hover:text-primary">
-											{person.name}
-										</h3>
-										<p className="mt-0.5 font-medium text-muted-foreground text-sm">{person.title}</p>
-									</div>
-
-									{/* Location & Rating */}
-									<div className="mt-2.5 flex flex-wrap items-center gap-2 text-muted-foreground text-xs">
-										<span className="inline-flex items-center gap-1">
-											<MapPin className="size-3 shrink-0 text-muted-foreground" />
-											<span className="truncate">{person.location}</span>
-										</span>
-										<span className="text-muted-foreground/60">·</span>
-										<span className="inline-flex items-center gap-1">
-											<Star className="size-3.5 fill-amber-400 text-amber-400" />
-											<strong className="font-medium text-foreground">{person.rating.toFixed(1)}</strong>
-											<span>({person.reviews} reviews)</span>
-										</span>
-									</div>
-
-									{/* Bio */}
-									<p className="mt-3.5 line-clamp-2 font-body-sm text-muted-foreground text-sm leading-relaxed">
-										{person.bio}
-									</p>
-
-									{/* Skills Chips */}
-									<div className="mt-4 flex flex-wrap gap-1.5">
-										{person.skills.slice(0, 4).map((skill) => (
-											<span
-												key={skill}
-												className="rounded border border-border/60 bg-muted/60 px-2 py-0.5 font-label-sm font-medium text-muted-foreground text-xs"
-											>
-												{skill}
-											</span>
-										))}
-										{person.skills.length > 4 && (
-											<span className="rounded border border-border/60 bg-muted/60 px-2 py-0.5 font-label-sm font-medium text-muted-foreground text-xs">
-												+{person.skills.length - 4}
-											</span>
-										)}
-									</div>
-								</div>
-
-								{/* Card Footer: Timezone & Action Link */}
-								<div className="mt-6 flex items-center justify-between gap-2 border-border border-t pt-4 text-xs">
-									<span className="font-caption text-muted-foreground text-xs">
-										{person.timezone.split("·")[0].trim()}
-									</span>
-									<Link
-										to="/signup"
-										search={{ role: "client" }}
-										className="inline-flex items-center gap-1 font-medium text-foreground text-xs transition-colors hover:text-primary"
-										aria-label={`View profile of ${person.name}`}
-									>
-										<span>View profile</span>
-										<ArrowUpRight className="size-3.5" />
-									</Link>
-								</div>
-							</article>
-						))
-					) : (
-						<div className="col-span-full rounded-2xl border border-border border-dashed p-10 text-center">
-							<Search className="mx-auto size-6 text-muted-foreground" />
-							<h3 className="mt-4 font-medium text-foreground text-lg">More specialists are on the way</h3>
-							<p className="mt-2 text-muted-foreground text-sm">Explore other areas of expertise in the meantime.</p>
-							<button
-								type="button"
-								onClick={() => onFilter("All talent")}
-								className="landing-text-link mt-5 font-semibold"
-							>
-								See all talent <ArrowUpRight className="size-4" />
-							</button>
-						</div>
-					)}
 				</div>
 
-				{/* Directory Discovery Banner */}
-				<div className="mt-12 flex flex-col items-center justify-between gap-5 rounded-2xl border border-border bg-muted/40 p-6 sm:flex-row sm:px-8">
-					<div className="text-center sm:text-left">
-						<h4 className="font-display font-medium text-foreground text-base sm:text-lg">
-							Looking for specific expertise?
-						</h4>
-						<p className="mt-1 text-muted-foreground text-xs sm:text-sm">
-							Create a free account to browse verified portfolios, save profiles, and message specialists directly with
-							zero platform commission.
-						</p>
-					</div>
+				{/* Talent Cards Grid */}
+				<div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+					{displayPeople.map((person) => (
+						<article
+							key={person.id}
+							className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
+						>
+							<div>
+								{/* Card Top: Avatar, Name, Rate */}
+								<div className="flex items-start justify-between gap-3">
+									<div className="flex items-center gap-3.5">
+										<span
+											className={`grid size-12 shrink-0 place-items-center rounded-xl font-bold text-sm ${person.background} ${person.foreground} shadow-xs`}
+										>
+											{person.initials}
+										</span>
+										<div>
+											<div className="flex items-center gap-1.5">
+												<h3 className="font-semibold text-foreground text-base group-hover:text-primary transition-colors">
+													{person.name}
+												</h3>
+												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:bg-[#3E7B3D]/20">
+													<Check className="size-2.5" />
+													Top 3%
+												</span>
+											</div>
+											<p className="text-xs text-muted-foreground">{person.title}</p>
+										</div>
+									</div>
+
+									<div className="text-right">
+										<p className="font-display font-bold text-base text-foreground sm:text-lg">
+											${person.rate}
+											<span className="text-xs font-normal text-muted-foreground">
+												/hr
+											</span>
+										</p>
+										<span className="text-[11px] font-medium text-[#3E7B3D]">
+											{person.availability}
+										</span>
+									</div>
+								</div>
+
+								{/* Bio */}
+								<p className="mt-4 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+									{person.bio}
+								</p>
+
+								{/* Skills Pills */}
+								<div className="mt-4 flex flex-wrap gap-1.5">
+									{person.skills.slice(0, 4).map((skill) => (
+										<span
+											key={skill}
+											className="rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+										>
+											{skill}
+										</span>
+									))}
+								</div>
+							</div>
+
+							{/* Card Footer */}
+							<div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4 text-xs">
+								<div className="flex items-center gap-1">
+									<Star className="size-3.5 fill-amber-400 text-amber-400" />
+									<span className="font-bold text-foreground">{person.rating}</span>
+									<span className="text-muted-foreground">({person.reviews})</span>
+									<span className="mx-1 text-muted-foreground/60">·</span>
+									<span className="flex items-center gap-1 text-muted-foreground">
+										<MapPin className="size-3" />
+										{person.location.split(",")[0]}
+									</span>
+								</div>
+
+								<Link
+									to="/talent"
+									search={{ q: undefined, category: undefined }}
+									className="inline-flex items-center gap-1 font-semibold text-foreground hover:underline"
+								>
+									<span>View</span>
+									<ArrowUpRight className="size-3.5" />
+								</Link>
+							</div>
+						</article>
+					))}
+				</div>
+
+				{/* Explore All CTA */}
+				<div className="mt-10 flex justify-center">
 					<Link
-						to="/signup"
-						search={{ role: "client" }}
-						className="landing-primary shrink-0 whitespace-nowrap px-6 font-semibold text-xs sm:text-sm"
+						to="/talent"
+						search={{ q: undefined, category: undefined }}
+						className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
 					>
-						Explore full directory <ArrowUpRight className="size-4" />
+						<span>Explore all 12,000+ vetted talent profiles</span>
+						<ArrowUpRight className="size-4" />
 					</Link>
 				</div>
 			</div>

@@ -1,6 +1,6 @@
 import json
 import uuid
-from sys import stderr
+from time import sleep
 
 import pytest
 from fastapi import WebSocketDisconnect
@@ -138,7 +138,6 @@ def test_websocket_unauthorized(client: TestClient) -> None:
     assert exc_info.value.code == 1008
     assert exc_info.value.reason == "Invalid or expired token"
 
-
 def test_websocket_messaging_and_presence(
     client: TestClient, db: Session
 ) -> None:
@@ -162,7 +161,6 @@ def test_websocket_messaging_and_presence(
     with client.websocket_connect(
         f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
     ) as ws1:
-        # Check presence while online
         p_resp_online = client.get(
             f"{settings.API_V1_STR}/chat/presence/{user1_id}"
         )
@@ -273,7 +271,7 @@ def test_websocket_message_ack_failed_for_invalid_messages(
                 failed_ack["data"]["client_message_id"]
                 == message["client_message_id"]
             )
-
+            sleep(.6)
 
 @pytest.mark.anyio
 async def test_redis_injection_to_connected_user(
@@ -305,3 +303,91 @@ async def test_redis_injection_to_connected_user(
         assert (
             received_data["data"]["title"] == "New Proposal Received"
         )
+
+
+def test_websocket_chat_message_rate_limit(
+    client: TestClient, db: Session
+) -> None:
+    headers_user1, token_user1, _ = get_user_token_and_headers(client, db)
+    _, _, user2_id = get_user_token_and_headers(client, db)
+
+    create_resp = client.post(
+        f"{settings.API_V1_STR}/chat/conversation",
+        headers=headers_user1,
+        json={"freelancer_id": str(user2_id)},
+    )
+    conv_id = create_resp.json()["id"]
+
+    with client.websocket_connect(
+        f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
+    ) as ws:
+        assert json.loads(ws.receive_text())["type"] == "connection_established"
+
+        # 1. First message in window -> Allowed
+        ws.send_text(
+            json.dumps(
+                {
+                    "type": "chat_message",
+                    "conversation_id": conv_id,
+                    "content": "Message 1",
+                    "client_message_id": "msg-1",
+                }
+            )
+        )
+        resp1 = json.loads(ws.receive_text())
+        assert resp1["type"] == "message_ack"
+        assert resp1["data"]["client_message_id"] == "msg-1"
+
+        # 2. Second message immediately -> Allowed (2 messages in 1 sec allowed)
+        ws.send_text(
+            json.dumps(
+                {
+                    "type": "chat_message",
+                    "conversation_id": conv_id,
+                    "content": "Message 2",
+                    "client_message_id": "msg-2",
+                }
+            )
+        )
+        resp2 = json.loads(ws.receive_text())
+        assert resp2["type"] == "message_ack"
+        assert resp2["data"]["client_message_id"] == "msg-2"
+
+        # 3. Third message immediately (< 1s) -> Blocked by rate limiter
+        ws.send_text(
+            json.dumps(
+                {
+                    "type": "chat_message",
+                    "conversation_id": conv_id,
+                    "content": "Message 3 - should be blocked",
+                    "client_message_id": "msg-3",
+                }
+            )
+        )
+        resp3 = json.loads(ws.receive_text())
+        assert resp3["type"] == "error"
+        assert resp3["data"] == "Rate limit exceeded. Slow down."
+
+        # 4. Ping is exempt from chat message rate limiter
+        ws.send_text(json.dumps({"type": "ping"}))
+        pong = json.loads(ws.receive_text())
+        assert pong["type"] == "pong"
+
+        # 5. Wait for the 1-second rolling window to expire
+        sleep(1.05)
+
+        # 6. Next message after window expires -> Allowed
+        ws.send_text(
+            json.dumps(
+                {
+                    "type": "chat_message",
+                    "conversation_id": conv_id,
+                    "content": "Message 4 - allowed after cooldown",
+                    "client_message_id": "msg-4",
+                }
+            )
+        )
+        resp4 = json.loads(ws.receive_text())
+        assert resp4["type"] == "message_ack"
+        assert resp4["data"]["client_message_id"] == "msg-4"
+
