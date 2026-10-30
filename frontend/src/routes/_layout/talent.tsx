@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { TalentDirectoryPage } from "@/pages/client-area/talent-directory-page"
 
 export const Route = createFileRoute("/_layout/talent")({
-	validateSearch: (search: Record<string, unknown>) => ({
+	validateSearch: (search: Record<string, unknown>): { q?: string; category?: string } => ({
 		q: typeof search.q === "string" ? search.q : undefined,
 		category: typeof search.category === "string" ? search.category : undefined,
 	}),

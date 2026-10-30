@@ -1,53 +1,87 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, ListFilter, MessagesSquare, ScanSearch } from "lucide-react"
+import { ArrowUpRight, MessageSquare, ScanSearch, ShieldCheck } from "lucide-react"
+
+const STEPS = [
+	{
+		step: "01",
+		icon: ScanSearch,
+		title: "Define Brief or Browse",
+		desc: "Post your project specifications in 2 minutes, or explore curated specialist profiles by exact tech stack and verified hourly rates.",
+	},
+	{
+		step: "02",
+		icon: MessageSquare,
+		title: "Direct Alignment & Chat",
+		desc: "Meet top candidates directly, review code repositories or Figma systems, and align on scope without intermediary delays.",
+	},
+	{
+		step: "03",
+		icon: ShieldCheck,
+		title: "Milestone Delivery & Escrow",
+		desc: "Lock payments safely in tier-1 escrow. Inspect staging deliverables, request revisions, and approve payouts with 1 click.",
+	},
+]
 
 export function LandingHowItWorks() {
 	return (
-		<section id="how-it-works" className="scroll-mt-24 border-border border-y bg-muted/40 py-16 sm:py-24">
-			<div className="landing-container grid gap-12 md:grid-cols-[.9fr_1.1fr] lg:gap-24">
-				<div>
-					<p className="mb-5 font-medium text-primary text-sm">How it works</p>
-					<h2 className="landing-heading">
-						Less searching.
-						<br />
-						More doing.
+		<section
+			id="how-it-works"
+			className="scroll-mt-20 border-y border-border/70 bg-card py-16 sm:py-24"
+		>
+			<div className="landing-container">
+				{/* Section Header */}
+				<div className="flex flex-col gap-3">
+					<div className="inline-flex w-fit items-center gap-1.5 rounded-md bg-[#EDF9C5] px-2.5 py-1 text-xs font-bold text-[#4F6500] dark:bg-[#1F2125] dark:text-[#B8EF0D]">
+						<span>SIMPLE 3-STEP WORKFLOW</span>
+					</div>
+					<h2 className="landing-heading text-foreground">
+						From project brief to production in days.
 					</h2>
-					<p className="mt-5 max-w-sm text-base text-muted-foreground leading-7">
-						Go from a project in mind to a person you want to work with.
+					<p className="max-w-2xl text-base text-muted-foreground leading-relaxed">
+						A streamlined process engineered to remove bureaucratic friction, long sales cycles,
+						and agency markups.
 					</p>
-					<Link to="/signup" search={{ role: "client" }} className="landing-text-link mt-7">
-						Get started <ArrowUpRight className="size-4" />
+				</div>
+
+				{/* Steps Grid */}
+				<div className="mt-12 grid gap-6 md:grid-cols-3">
+					{STEPS.map(({ step, icon: Icon, title, desc }) => (
+						<div
+							key={step}
+							className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-background p-7 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
+						>
+							<div>
+								<div className="flex items-center justify-between">
+									<span className="font-display text-3xl font-extrabold text-[#7FA600] dark:text-[#B8EF0D]">
+										{step}
+									</span>
+									<div className="grid size-11 place-items-center rounded-xl bg-muted/60 text-foreground">
+										<Icon className="size-5" />
+									</div>
+								</div>
+
+								<h3 className="mt-6 font-semibold text-lg text-foreground">
+									{title}
+								</h3>
+								<p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
+									{desc}
+								</p>
+							</div>
+						</div>
+					))}
+				</div>
+
+				{/* Bottom Action */}
+				<div className="mt-10 flex justify-center">
+					<Link
+						to="/signup"
+						search={{ role: "client" }}
+						className="inline-flex items-center gap-2 rounded-xl bg-[#1F2125] dark:bg-white px-6 py-3 text-sm font-semibold text-white dark:text-[#1F2125] shadow-xs transition-all hover:bg-[#2B2E32] dark:hover:bg-neutral-200"
+					>
+						<span>Get started with your project</span>
+						<ArrowUpRight className="size-4" />
 					</Link>
 				</div>
-				<ol className="space-y-8">
-					{[
-						{
-							icon: ScanSearch,
-							title: "Find your kind of expert",
-							copy: "Search by skill, explore specialties, and discover people who understand the work.",
-						},
-						{
-							icon: ListFilter,
-							title: "Look beyond the headline",
-							copy: "Compare portfolios, experience, and rates. Save the people who stand out.",
-						},
-						{
-							icon: MessagesSquare,
-							title: "Start a real conversation",
-							copy: "Share your brief, ask questions, and find out if you're a good fit.",
-						},
-					].map(({ icon: Icon, title, copy }) => (
-						<li key={title} className="flex gap-5 border-border border-b pb-8 last:border-0 last:pb-0">
-							<span className="grid size-12 shrink-0 place-items-center rounded-xl border border-border bg-card text-primary">
-								<Icon className="size-5" strokeWidth={1.5} />
-							</span>
-							<div>
-								<h3 className="font-medium text-lg tracking-tight">{title}</h3>
-								<p className="mt-2 max-w-md text-muted-foreground text-sm leading-7">{copy}</p>
-							</div>
-						</li>
-					))}
-				</ol>
 			</div>
 		</section>
 	)
