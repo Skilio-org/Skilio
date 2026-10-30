@@ -391,3 +391,80 @@ def test_websocket_chat_message_rate_limit(
         assert resp4["type"] == "message_ack"
         assert resp4["data"]["client_message_id"] == "msg-4"
 
+
+def test_websocket_read_receipt_and_unread_counts(
+    client: TestClient, db: Session
+) -> None:
+    headers_user1, token_user1, user1_id = get_user_token_and_headers(client, db)
+    headers_user2, token_user2, user2_id = get_user_token_and_headers(client, db)
+
+    # 1. Create conversation between User 1 and User 2
+    create_resp = client.post(
+        f"{settings.API_V1_STR}/chat/conversation",
+        headers=headers_user1,
+        json={"freelancer_id": str(user2_id)},
+    )
+    conv_id = create_resp.json()["id"]
+
+    # 2. Both users connect via WebSocket
+    with client.websocket_connect(
+        f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
+    ) as ws1:
+        assert json.loads(ws1.receive_text())["type"] == "connection_established"
+
+        with client.websocket_connect(
+            f"{settings.API_V1_STR}/chat/ws?token={token_user2}"
+        ) as ws2:
+            assert json.loads(ws2.receive_text())["type"] == "connection_established"
+
+            # 3. User 1 sends a message to User 2
+            ws1.send_text(
+                json.dumps(
+                    {
+                        "type": "chat_message",
+                        "conversation_id": conv_id,
+                        "content": "Hello, please read me!",
+                        "client_message_id": "receipt-test-1",
+                    }
+                )
+            )
+
+            ack = json.loads(ws1.receive_text())
+            assert ack["type"] == "message_ack"
+
+            delivered = json.loads(ws2.receive_text())
+            assert delivered["type"] == "chat_message"
+
+            # 4. Check REST unread counts:
+            # User 1 (sender) should have unread_count == 0
+            u1_resp = client.get(f"{settings.API_V1_STR}/chat/me", headers=headers_user1)
+            u1_conv = next(c for c in u1_resp.json()["data"] if c["id"] == conv_id)
+            assert u1_conv["unread_count"] == 0
+
+            # User 2 (recipient) should have unread_count == 1
+            u2_resp = client.get(f"{settings.API_V1_STR}/chat/me", headers=headers_user2)
+            u2_conv = next(c for c in u2_resp.json()["data"] if c["id"] == conv_id)
+            assert u2_conv["unread_count"] == 1
+
+            # 5. User 2 sends read_receipt over WebSocket
+            ws2.send_text(
+                json.dumps(
+                    {
+                        "type": "read_receipt",
+                        "conversation_id": conv_id,
+                    }
+                )
+            )
+
+            # 6. User 1 receives real-time messages_read event
+            read_event = json.loads(ws1.receive_text())
+            assert read_event["type"] == "messages_read"
+            assert read_event["data"]["conversation_id"] == conv_id
+            assert read_event["data"]["read_by"] == str(user2_id)
+
+            # 7. User 2's unread_count is now 0
+            u2_resp_after = client.get(f"{settings.API_V1_STR}/chat/me", headers=headers_user2)
+            u2_conv_after = next(c for c in u2_resp_after.json()["data"] if c["id"] == conv_id)
+            assert u2_conv_after["unread_count"] == 0
+
+

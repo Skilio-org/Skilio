@@ -1,4 +1,4 @@
-import { NotificationPublic } from "@/client"
+import { NotificationPublic, type ConversationDetailPublic, type ConversationsPublic } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
 import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
 import { useQueryClient } from "@tanstack/react-query"
@@ -183,6 +183,45 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 						case "message_ack_failed": {
 							const clientMessageId = data.data?.client_message_id
 							if (clientMessageId) setMessageSendResult(clientMessageId, "failed")
+						} break;
+						case "messages_read": {
+							const convId = data.data?.conversation_id
+							if (convId) {
+								queryClient.setQueryData<ConversationDetailPublic>(
+									chatKeys.conversation(convId),
+									(current) => {
+										if (!current) return current
+										return {
+											...current,
+											messages: current.messages?.map((m) => ({
+												...m,
+												is_read: true,
+											})),
+										}
+									},
+								)
+								queryClient.setQueryData<ConversationsPublic>(
+									chatKeys.conversations(),
+									(current) => {
+										if (!current) return current
+										return {
+											...current,
+											data: current.data.map((conv) => {
+												if (conv.id === convId && conv.last_message) {
+													return {
+														...conv,
+														last_message: {
+															...conv.last_message,
+															is_read: true,
+														},
+													}
+												}
+												return conv
+											}),
+										}
+									},
+								)
+							}
 						} break;
 					}
 

@@ -128,7 +128,7 @@ export function TopNav() {
 								aria-label="Open workspace navigation"
 								className="flex size-8 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface md:hidden"
 							>
-								<Menu className="size-[18px]" />
+								<Menu className="size-4.5" />
 							</button>
 						</DropdownMenuTrigger>
 
@@ -142,7 +142,6 @@ export function TopNav() {
 										<span>{label}</span>
 										{to.includes("messages") && unreadMessages > 0 && (
 											<span
-												aria-label={`${unreadMessages} unread messages`}
 												className="min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-center font-caption text-[10px] font-bold text-on-primary leading-none"
 											>
 												{unreadLabel}
