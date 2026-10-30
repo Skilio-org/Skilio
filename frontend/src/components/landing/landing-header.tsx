@@ -14,7 +14,7 @@ export function LandingHeader() {
 	return (
 		<header className="sticky top-0 z-50 border-border border-b bg-card/95 backdrop-blur-md">
 			<div className="landing-container flex h-[76px] items-center gap-3">
-				<Logo className="h-7 sm:h-8" />
+				<Logo variant="icon" className="size-8" />
 				<nav
 					aria-label="Main navigation"
 					className="ml-12 hidden items-center gap-7 font-medium text-muted-foreground text-sm lg:flex"

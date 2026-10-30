@@ -4,30 +4,30 @@ import { Logo } from "@/components/common/logo"
 
 export function LandingFooter() {
 	return (
-		<footer className="border-border border-t bg-background px-5 py-12 sm:px-8 lg:px-12">
-			<div className="mx-auto max-w-[1344px]">
+		<footer className="border-border border-t bg-background py-12 sm:py-16">
+			<div className="landing-container">
 				<div className="flex flex-col gap-8 border-border border-b pb-10 sm:flex-row sm:items-center sm:justify-between">
 					<Logo className="h-8 w-auto self-start" />
 					<nav aria-label="Footer navigation" className="flex flex-wrap gap-x-7 gap-y-3 text-muted-foreground text-sm">
-						<a href="#talent" className="hover:text-foreground">
+						<a href="#talent" className="transition-colors hover:text-foreground">
 							Find talent
 						</a>
-						<a href="#categories" className="hover:text-foreground">
+						<a href="#categories" className="transition-colors hover:text-foreground">
 							Categories
 						</a>
-						<a href="#how-it-works" className="hover:text-foreground">
+						<a href="#testimonials" className="transition-colors hover:text-foreground">
+							Testimonials
+						</a>
+						<a href="#how-it-works" className="transition-colors hover:text-foreground">
 							How it works
 						</a>
-						<Link to="/status" className="hover:text-foreground">
-							System Status
-						</Link>
-						<Link to="/privacy" className="hover:text-foreground">
+						<Link to="/privacy" className="transition-colors hover:text-foreground">
 							Privacy Policy
 						</Link>
-						<Link to="/terms" className="hover:text-foreground">
+						<Link to="/terms" className="transition-colors hover:text-foreground">
 							Terms of Service
 						</Link>
-						<Link to="/login" className="hover:text-foreground">
+						<Link to="/login" className="transition-colors hover:text-foreground">
 							Log in
 						</Link>
 					</nav>
@@ -35,11 +35,11 @@ export function LandingFooter() {
 				<div className="flex flex-col gap-3 pt-7 text-muted-foreground text-xs sm:flex-row sm:items-center sm:justify-between">
 					<p>© {new Date().getFullYear()} Skilio. All rights reserved.</p>
 					<div className="flex items-center gap-4">
-						<Link to="/privacy" className="hover:text-foreground transition-colors">
+						<Link to="/privacy" className="transition-colors hover:text-foreground">
 							Privacy
 						</Link>
 						<span>·</span>
-						<Link to="/terms" className="hover:text-foreground transition-colors">
+						<Link to="/terms" className="transition-colors hover:text-foreground">
 							Terms
 						</Link>
 						<span>·</span>

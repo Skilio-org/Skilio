@@ -6,12 +6,65 @@
 	&:is(:where(.dark, [data-theme="dark"], [data-mode="dark"]) *, [data-theme="dark"] *, [data-mode="dark"] *)
 );
 
+/* =========================================================
+   NOHEMI
+   Brand / Marketing / Display Typeface
+   ========================================================= */
+
+@font-face {
+	font-family: "Nohemi";
+	src: url("/fonts/Nohemi-Regular.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Nohemi";
+	src: url("/fonts/Nohemi-Medium.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Nohemi";
+	src: url("/fonts/Nohemi-SemiBold.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Nohemi";
+	src: url("/fonts/Nohemi-Bold.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Nohemi";
+	src: url("/fonts/Nohemi-ExtraBold.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 800;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Nohemi";
+	src: url("/fonts/Nohemi-Black.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 900;
+	font-display: swap;
+}
+
 @theme inline {
 	/* Fonts */
 	--font-sans:
 		"Geist Variable", "Geist", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 	--font-body: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
-	--font-display: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+	--font-display: "Nohemi", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
 	--font-headline: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
 	--font-label: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
 	--font-label-sm: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
@@ -663,7 +716,6 @@
 }
 
 @layer utilities {
-	.font-display,
 	.heading-display,
 	.heading-ui,
 	.workspace-shell .font-display,
@@ -938,7 +990,7 @@
 	}
 
 	.landing-heading {
-		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
+		font-family: var(--font-display);
 		font-size: clamp(2rem, 3.7vw, 3.5rem);
 		font-weight: 600;
 		line-height: 1.08;
@@ -947,22 +999,62 @@
 
 	.landing-primary {
 		display: inline-flex;
-		min-height: 2.25rem;
+		min-height: 2.75rem;
 		align-items: center;
 		justify-content: center;
 		gap: 0.5rem;
-		padding-inline: 1rem;
-		border-radius: 0.25rem;
+		padding-inline: 1.5rem;
+		border-radius: 9999px;
 		background: var(--graphite);
 		color: #ffffff;
-		font-size: 13px;
+		font-size: 14px;
 		font-weight: 500;
-		line-height: 16px;
-		transition: background-color 150ms ease;
+		line-height: 20px;
+		transition: all 150ms ease;
 	}
 
 	.landing-primary:hover {
 		background: var(--graphite-raised);
+	}
+
+	.landing-secondary {
+		display: inline-flex;
+		min-height: 2.75rem;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding-inline: 1.5rem;
+		border-radius: 9999px;
+		border: 1px solid var(--border);
+		background: var(--card);
+		color: var(--foreground);
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 20px;
+		transition: all 150ms ease;
+	}
+
+	.landing-secondary:hover {
+		border-color: var(--outline);
+		background: var(--muted);
+	}
+
+	.hero-dots-pattern {
+		background-image: radial-gradient(circle, rgb(31 33 37 / 0.08) 1.25px, transparent 1.25px);
+		background-size: 28px 28px;
+		background-position: center top;
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .hero-dots-pattern {
+		background-image: radial-gradient(circle, rgb(255 255 255 / 0.08) 1.25px, transparent 1.25px);
+	}
+
+	.hero-radial-glow {
+		background: radial-gradient(ellipse 65% 55% at 50% 30%, rgb(184 239 13 / 0.22), transparent 70%);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .hero-radial-glow {
+		background: radial-gradient(ellipse 65% 55% at 50% 30%, rgb(184 239 13 / 0.16), transparent 70%);
 	}
 
 	.landing-text-link,
@@ -1178,6 +1270,17 @@
 		background: var(--primary-hover);
 	}
 
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .landing-secondary {
+		background: var(--surface-card);
+		border-color: var(--border-dark);
+		color: var(--foreground);
+	}
+
+	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .landing-secondary:hover {
+		background: var(--surface-container-high);
+		border-color: var(--outline);
+	}
+
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .app-link {
 		color: var(--accent-lime);
 	}
@@ -1258,7 +1361,6 @@
 		background: var(--accent-lime);
 		color: #1f2125;
 	}
-
 
 	/* The profile callout uses the reference's concrete + lime energy without turning neon. */
 	aside section.bg-gradient-to-b {
@@ -1369,7 +1471,7 @@ html[data-theme-transition],
 html[data-theme-transition] *,
 html[data-theme-transition] *::before,
 html[data-theme-transition] *::after {
-	transition: none !important;
+	transition: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {

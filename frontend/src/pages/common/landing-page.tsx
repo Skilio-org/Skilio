@@ -13,10 +13,14 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 
 const STATS = [
-	{ value: "12,000+", label: "Vetted specialists", description: "Top 3% accepted across all technical domains" },
-	{ value: "4,800+", label: "Projects delivered", description: "On-time completion rate across 40+ countries" },
-	{ value: "98%", label: "Satisfaction rate", description: "Consistently rated 5 stars by verified clients" },
-	{ value: "$15M+", label: "Paid to talent", description: "Direct, transparent compensation with zero hidden cuts" },
+	{ value: "0%", label: "Platform commission", description: "Zero hidden cuts or fees for talent and clients" },
+	{ value: "4", label: "Specialty categories", description: "Development, Design, Marketing, and AI Services" },
+	{ value: "Direct", label: "Client messaging", description: "Unrestricted direct conversations and clear scoping" },
+	{
+		value: "100%",
+		label: "Transparent reviews",
+		description: "Authentic client ratings, feedback, and skill transparency",
+	},
 ]
 
 const TESTIMONIALS = [
@@ -40,7 +44,7 @@ const TESTIMONIALS = [
 	},
 	{
 		quote:
-			"We scaled our product sprint team by three specialists within a week. Every deliverable was polished, production-ready, and executed without hand-holding.",
+			"We hired two specialist contractors for our design system rebuild. The direct collaboration and transparent rates made onboarding seamless and fast.",
 		author: "Sarah Jenkins",
 		role: "Founder & Design Director",
 		company: "Studio Lumina",
@@ -69,7 +73,7 @@ export function LandingPage() {
 										idx < STATS.length - 1 ? "md:border-border md:border-r md:pr-6 lg:pr-8" : ""
 									}`}
 								>
-									<span className="font-display font-medium text-3xl tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+									<span className="font-display font-medium text-3xl text-foreground tracking-tight sm:text-4xl lg:text-5xl">
 										{stat.value}
 									</span>
 									<span className="mt-2 font-medium text-foreground text-sm sm:text-base">{stat.label}</span>
@@ -108,13 +112,13 @@ export function LandingPage() {
 													<Star key={i} className="size-4 fill-amber-400 text-amber-400" />
 												))}
 											</div>
-											<Badge variant="outline" className="text-[11px] font-normal tracking-wide text-muted-foreground">
+											<Badge variant="outline" className="font-normal text-[11px] text-muted-foreground tracking-wide">
 												{t.type}
 											</Badge>
 										</div>
 
 										<div className="relative mt-5">
-											<Quote className="size-6 text-muted-foreground/20 absolute -top-2 -left-1" />
+											<Quote className="absolute -top-2 -left-1 size-6 text-muted-foreground/20" />
 											<p className="relative z-10 text-foreground/90 text-sm leading-relaxed sm:text-base">
 												"{t.quote}"
 											</p>
@@ -123,7 +127,7 @@ export function LandingPage() {
 
 									<div className="mt-8 flex items-center gap-3.5 border-border/60 border-t pt-5">
 										<Avatar className="size-10 border border-border">
-											<AvatarFallback className="bg-primary/10 font-semibold text-primary text-xs">
+											<AvatarFallback className="bg-surface-container font-semibold text-on-surface text-xs">
 												{t.initials}
 											</AvatarFallback>
 										</Avatar>
