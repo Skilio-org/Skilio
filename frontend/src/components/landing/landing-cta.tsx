@@ -3,36 +3,36 @@ import { ArrowUpRight, Check, Sparkles } from "lucide-react"
 
 export function LandingCta() {
 	return (
-		<section className="landing-container py-16 sm:py-24">
-			<div className="relative overflow-hidden rounded-3xl bg-[#1F2125] px-6 py-12 text-white shadow-xl sm:px-12 sm:py-16 lg:px-16">
+		<section className="landing-container px-4 sm:px-6 py-12 sm:py-20 lg:py-24">
+			<div className="relative overflow-hidden rounded-3xl bg-[#0B120C] dark:bg-[#070A07] border border-[#1A261B] dark:border-[#1E2E1F] px-6 py-10 text-white shadow-2xl sm:px-12 sm:py-16 lg:px-16">
 				{/* Background glow decoration */}
 				<div
-					className="pointer-events-none absolute -right-20 -top-20 size-96 rounded-full opacity-20 blur-3xl"
+					className="pointer-events-none absolute -right-20 -top-20 size-80 sm:size-96 rounded-full opacity-15 blur-3xl"
 					style={{ background: "#B8EF0D" }}
 				/>
 
 				<div className="relative z-10 max-w-3xl">
-					<div className="inline-flex items-center gap-1.5 rounded-md border border-[#B8EF0D]/30 bg-[#25282C] px-2.5 py-1 text-xs font-bold text-[#B8EF0D]">
+					<div className="inline-flex items-center gap-1.5 rounded-md border border-[#27402A] bg-[#152317] px-2.5 py-1 text-xs font-bold text-[#B8EF0D]">
 						<Sparkles className="size-3.5" />
 						<span>START TODAY · NO LOCK-IN</span>
 					</div>
 
-					<h2 className="mt-6 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl lg:leading-[1.15]">
+					<h2 className="mt-5 sm:mt-6 font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white sm:leading-tight lg:leading-[1.15]">
 						Make room for <br />
 						<span className="text-[#B8EF0D]">your next great project.</span>
 					</h2>
 
-					<p className="mt-5 max-w-xl text-base text-neutral-300 leading-relaxed sm:text-lg">
-						Whether you're hiring a specialist for a critical sprint or seeking your next
+					<p className="mt-4 sm:mt-5 max-w-xl text-sm sm:text-base text-[#C4D4C5] leading-relaxed">
+						Whether you&apos;re hiring a specialist for a critical sprint or seeking your next
 						flagship contract, Skilio is where ambitious builders collaborate with confidence.
 					</p>
 
-					{/* Dual CTAs */}
-					<div className="mt-8 flex flex-wrap items-center gap-4">
+					{/* Dual CTAs - Full width tap targets on mobile */}
+					<div className="mt-7 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
 						<Link
 							to="/signup"
 							search={{ role: "client" }}
-							className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#B8EF0D] px-6 text-sm font-bold text-[#1F2125] shadow-xs transition-all hover:bg-[#A5D80B] active:scale-95"
+							className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#B8EF0D] px-6 text-sm font-bold text-[#080C09] shadow-xs transition-all hover:bg-[#C8FF23] active:scale-95"
 						>
 							<span>Hire Top Talent</span>
 							<ArrowUpRight className="size-4" />
@@ -41,7 +41,7 @@ export function LandingCta() {
 						<Link
 							to="/signup"
 							search={{ role: "freelancer" }}
-							className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/20 bg-[#25282C]/80 px-6 text-sm font-semibold text-white transition-all hover:border-white/40 hover:bg-[#25282C]"
+							className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#27402A] bg-[#152317]/80 px-6 text-sm font-semibold text-[#F4F8F4] transition-all hover:border-[#385B3C] hover:bg-[#1C2F1F]"
 						>
 							<span>Apply as a Specialist</span>
 							<ArrowUpRight className="size-4" />
@@ -49,17 +49,17 @@ export function LandingCta() {
 					</div>
 
 					{/* Trust Perks */}
-					<div className="mt-10 flex flex-wrap items-center gap-6 border-t border-white/10 pt-6 text-xs text-neutral-400">
+					<div className="mt-8 sm:mt-10 grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-6 border-t border-[#1A261B] dark:border-[#162217] pt-5 sm:pt-6 text-xs text-[#95A896]">
 						<div className="flex items-center gap-2">
-							<Check className="size-4 text-[#B8EF0D]" />
+							<Check className="size-4 text-[#B8EF0D] shrink-0" />
 							<span>No credit card required to browse</span>
 						</div>
 						<div className="flex items-center gap-2">
-							<Check className="size-4 text-[#B8EF0D]" />
+							<Check className="size-4 text-[#B8EF0D] shrink-0" />
 							<span>100% Milestone Escrow Guarantee</span>
 						</div>
 						<div className="flex items-center gap-2">
-							<Check className="size-4 text-[#B8EF0D]" />
+							<Check className="size-4 text-[#B8EF0D] shrink-0" />
 							<span>Verified Work History & Identity</span>
 						</div>
 					</div>
