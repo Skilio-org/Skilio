@@ -1,6 +1,7 @@
 import json
 import logging
 import uuid
+from time import time
 from typing import Annotated, Any
 
 from fastapi import (
@@ -22,6 +23,7 @@ from app.api.utils.chat import (
     user_typing,
 )
 from app.core.db import engine
+from app.core.limiter import limiter
 from app.core.redis import broadcast_to_all, publish_to_user
 from app.models import (
     ChatMessage,
@@ -316,6 +318,7 @@ async def reject_websocket(websocket: WebSocket, code: int = status.WS_1008_POLI
     await websocket.close(code=code,reason=reason)
 
 @router.websocket("/ws")
+@limiter.limit("5/minute")
 async def websocket_chat_endpoint(
     websocket: WebSocket,
     token: Annotated[str | None, Query()] = None,
@@ -351,25 +354,39 @@ async def websocket_chat_endpoint(
                 }
             )
         )
-        print("Connection established for user:", user_id)
+        logger.info(f"Connection established for user >> {user_id}")
+        message_timestamps: list[float] = []
+        MAX_MESSAGES_PER_SECOND = 2
+        RATE_LIMIT_WINDOW = 1.0
 
         while True:
             text = await websocket.receive_text()
-            print("Received message from user:", user_id, ":", text)
-
             try:
                 data = json.loads(text)
             except Exception:
-                # Raw text ignored or echoed
                 continue
 
             event_type = data.get("type", "custom")
 
             if event_type == "ping":
-                await websocket.send_text(json.dumps({"type": "pong"}))
+                await websocket.send_text(data=json.dumps({"type": "pong"}))
                 continue
-
             if event_type == "chat_message":
+                current_time = time()
+                message_timestamps = [
+                    t for t in message_timestamps if current_time - t < RATE_LIMIT_WINDOW
+                ]
+                if len(message_timestamps) >= MAX_MESSAGES_PER_SECOND:
+                    await websocket.send_text(
+                        json.dumps(
+                            {
+                                "type": "error",
+                                "data": "Rate limit exceeded. Slow down.",
+                            }
+                        )
+                    )
+                    continue
+                message_timestamps.append(current_time)
                 await chat_message(data, websocket, user_id)
                 continue
             if event_type == "typing":

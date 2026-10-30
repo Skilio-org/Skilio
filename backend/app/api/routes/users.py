@@ -40,6 +40,7 @@ from app.utils import (
     validate_verify_token,
 )
 
+ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"]
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -77,6 +78,8 @@ async def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     """
     Create new user.
     """
+    # NOTE: Idk if this function is ever used. ? maybe signup is used instead of this.
+    # SO maybe... I should remove it.
     user = crud.get_user_by_email(session=session, email=user_in.email)
     if user:
         raise HTTPException(
@@ -105,6 +108,11 @@ async def upload_avatar(
     current_user: CurrentUser,
 ) -> AvatarResponse:
     """Uploads avatar asynchronously without blocking the event loop."""
+    if file.size is None or file.size > 1024 * 1024 * 20 or file.content_type not in ALLOWED_MIME_TYPES:
+        raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail="That is not an image buddy.."
+            )
     contents = await file.read()
     url = await run_in_threadpool(
         claudinary_upload_media, current_user.id, contents, media_type="image"

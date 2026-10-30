@@ -1,7 +1,9 @@
+import random
+import secrets
+import string
 from datetime import UTC, datetime, timedelta
 from typing import Any
-import random
-import string
+
 import jwt
 from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
@@ -57,12 +59,12 @@ def generate_random_password(length: int = 8) -> str:
     # Ensure the password has at least one character from each pool
     all_characters = lower + upper + digits + special
     password = [
-        random.choice(lower),
-        random.choice(upper),
-        random.choice(digits),
-        random.choice(special),
+        secrets.choice(lower),
+        secrets.choice(upper),
+        secrets.choice(digits),
+        secrets.choice(special),
     ]
 
     password += random.choices(all_characters, k=length - 4)
-    random.shuffle(password)
+    secrets.SystemRandom().shuffle(password)
     return ''.join(password)
