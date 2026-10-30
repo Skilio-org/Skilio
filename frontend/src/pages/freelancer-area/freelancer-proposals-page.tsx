@@ -4,139 +4,159 @@ import {
 	ArrowLeft,
 	ArrowRight,
 	Bookmark,
-	CircleCheck,
+	Briefcase,
+	Clock3,
 	FilePenLine,
-	FileText,
+	MessageSquare,
 	Search,
 	Send,
+	Trash2,
+	UserCheck,
+	UserMinus,
 	X,
+	XCircle,
 } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
-import { JobDetails } from "@/components/freelancer/freelancer-job-details"
 import { JobFormSection, jobFormField } from "@/components/common/job-form-section"
-import { WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header"
+import {
+	SkillTag,
+	WorkspacePageHeader,
+	WorkspaceSurface,
+	workspaceStyles,
+} from "@/components/dashboard/dashboard-header"
+import { JobDetails } from "@/components/freelancer/freelancer-job-details"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet"
-import { type BackendProposal, useFreelancerProposals } from "@/hooks/useFreelancerProposals"
+import { Skeleton } from "@/components/ui/skeleton"
+import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { useErrorToast } from "@/hooks/useErrorToast"
+import { type BackendProposal, useFreelancerProposals } from "@/hooks/useFreelancerProposals"
+import { cn } from "@/lib/utils"
 import type { FreelancerJob } from "@/types/job"
+import { getInitials } from "@/utils"
 
 type ProposalTab = "Drafts" | "Submitted" | "Archived"
-const workspaceStyles = {
-	primaryAction:
-		"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary transition-colors hover:opacity-90 dark:bg-on-surface dark:text-background",
-	secondaryAction:
-		"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-low",
+
+function formatProposalDate(value?: string | null) {
+	if (!value) return null
+	const date = new Date(value)
+	return Number.isNaN(date.getTime())
+		? null
+		: date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
 }
-const proposalStatuses = [
-	{
-		label: "Drafts" as const,
-		title: "Ready for your next move",
-		description: "Finish your introduction and make it count.",
-	},
-	{
-		label: "Submitted" as const,
-		title: "Out in the world",
-		description: "Keep track of the proposals you’ve sent.",
-	},
-	{
-		label: "Archived" as const,
-		title: "Filed for later",
-		description: "Past proposals, ready when you need them.",
-	},
-]
 
 const FreelancerProposalsPage = () => {
-	const { drafts, error, saveProposal, withdrawProposal } = useFreelancerProposals()
+	const { drafts, loaded, error, isSubmitting, isWithdrawing, saveProposal, withdrawProposal } =
+		useFreelancerProposals()
 	useErrorToast(error, "freelancer-proposals-load")
 
 	const [tab, setTab] = useState<ProposalTab>("Drafts")
 	const [query, setQuery] = useState("")
-	const [sort, setSort] = useState("default")
-	const counts = (status: ProposalTab) => drafts.filter((draft) => (draft.status ?? "Drafts") === status).length
-	const selectTab = (status: ProposalTab) => {
-		setTab(status)
-		setQuery("")
-	}
+	const [sort, setSort] = useState("recent")
 
 	const [selected, setSelected] = useState<FreelancerJob | null>(null)
+	const [activeProposal, setActiveProposal] = useState<BackendProposal | null>(null)
 	const [compose, setCompose] = useState(false)
-
 	const [cover, setCover] = useState("")
+	const [itemToWithdraw, setItemToWithdraw] = useState<BackendProposal | null>(null)
 
-	const visibleProposals = drafts
-		.filter(
-			(draft) =>
-				(draft.status ?? "Drafts") === tab &&
-				`${draft.job.title} ${draft.job.company} ${draft.job.skills.join(" ")}`
-					.toLowerCase()
-					.includes(query.trim().toLowerCase()),
-		)
-		.sort((a, b) => (sort === "title" ? a.job.title.localeCompare(b.job.title) : 0))
-	const selectedReadOnly =
-		!!selected && drafts.some((draft) => draft.job.id === selected.id && (draft.status ?? "Drafts") !== "Drafts")
+	// Counts
+	const draftsCount = drafts.filter((d) => d.rawStatus === "draft").length
+	const submittedCount = drafts.filter((d) => d.rawStatus === "pending" || d.rawStatus === "accepted").length
+	const acceptedCount = drafts.filter((d) => d.rawStatus === "accepted").length
+	const archivedCount = drafts.filter((d) => d.rawStatus === "rejected").length
 
-	const selectedProjectType =
-		selected?.projectType ?? (selected?.budget.toLowerCase().includes("fixed") ? "Fixed price" : "Hourly")
+	const tabs = [
+		{
+			id: "Drafts" as const,
+			label: "Drafts",
+			icon: FilePenLine,
+			count: draftsCount,
+		},
+		{
+			id: "Submitted" as const,
+			label: "Submitted Proposals",
+			icon: Send,
+			count: submittedCount,
+			isAlert: acceptedCount > 0,
+		},
+		{
+			id: "Archived" as const,
+			label: "Archived",
+			icon: Archive,
+			count: archivedCount,
+		},
+	]
 
-	const changeProposal = async (id: string, status: ProposalTab) => {
-		const proposal = drafts.find((draft) => draft.job.id === id)
-		if (!proposal) return
-		if (status === "Submitted" && proposal?.status === "Submitted") {
-			toast.error("You have already submitted a proposal for this job.")
-			return
-		}
-		if (status === "Submitted" && proposal && proposal.cover.trim().length < 40) {
-			toast.error("Add a cover letter of at least 40 characters before submitting.")
-			openProposal(proposal.job, proposal)
-			return
-		}
-		if (status === "Archived") {
-			try {
-				await withdrawProposal(proposal.proposalId)
-				toast.success("Proposal withdrawn")
-			} catch {
-				toast.error("Couldn't withdraw the proposal.")
-			}
-			return
-		}
-		if (proposal.status === "Archived") {
-			toast.error("Archived proposals cannot be restored.")
-			return
-		}
-		try {
-			await saveProposal(proposal.job, proposal.cover, status)
-			toast.success(status === "Submitted" ? "Proposal submitted" : "Proposal restored to drafts")
-		} catch {
-			toast.error("Couldn't update the proposal.")
-		}
-	}
+	const visibleProposals = useMemo(() => {
+		const q = query.trim().toLowerCase()
+		return drafts
+			.filter((draft) => {
+				const matchesTab =
+					tab === "Drafts"
+						? draft.rawStatus === "draft"
+						: tab === "Submitted"
+							? draft.rawStatus === "pending" || draft.rawStatus === "accepted"
+							: draft.rawStatus === "rejected"
+				if (!matchesTab) return false
+				if (!q) return true
+				const searchStr =
+					`${draft.job.title} ${draft.job.company} ${draft.job.skills.join(" ")} ${draft.job.category}`.toLowerCase()
+				return searchStr.includes(q)
+			})
+			.sort((a, b) => {
+				if (sort === "title") return a.job.title.localeCompare(b.job.title)
+				if (sort === "budget") {
+					const numA = Number(a.job.budget.replace(/,/g, "").match(/[\d.]+/)?.[0] || 0)
+					const numB = Number(b.job.budget.replace(/,/g, "").match(/[\d.]+/)?.[0] || 0)
+					return numB - numA
+				}
+				const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+				const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+				return timeB - timeA
+			})
+	}, [drafts, tab, query, sort])
 
 	const openProposal = (job: FreelancerJob, draft: BackendProposal) => {
 		setSelected(job)
+		setActiveProposal(draft)
 		setCompose(true)
 		setCover(draft.cover)
 	}
 
 	const openJob = (job: FreelancerJob) => {
 		setSelected(job)
+		setActiveProposal(drafts.find((d) => d.job.id === job.id) || null)
 		setCompose(false)
 		setCover("")
 	}
 
 	const closeSheet = () => {
 		setSelected(null)
+		setActiveProposal(null)
 		setCompose(false)
 		setCover("")
 	}
 
-	const saveDraft = async () => {
+	const handleSaveDraft = async () => {
 		if (!selected) return
 
 		const existing = drafts.find((draft) => draft.job.id === selected.id)
-		if (existing?.status === "Submitted") {
+		if (existing && existing.rawStatus !== "draft") {
 			toast.error("You have already submitted a proposal for this job.")
 			closeSheet()
 			return
@@ -151,15 +171,57 @@ const FreelancerProposalsPage = () => {
 		}
 	}
 
+	const handleSubmitProposal = async () => {
+		if (!selected) return
+		if (cover.trim().length < 40) {
+			toast.error("Add a cover letter of at least 40 characters before submitting.")
+			return
+		}
+		if (cover.length > 3000) {
+			toast.error("Cover letter cannot exceed 3,000 characters.")
+			return
+		}
+
+		try {
+			await saveProposal(selected, cover, "Submitted")
+			closeSheet()
+			setTab("Submitted")
+			toast.success(activeProposal?.rawStatus === "pending" ? "Proposal updated" : "Proposal submitted")
+		} catch {
+			toast.error("Couldn't submit the proposal.")
+		}
+	}
+
+	const selectedProjectType =
+		selected?.projectType ?? (selected?.budget.toLowerCase().includes("fixed") ? "Fixed price" : "Hourly")
+
+	const isReadOnlyProposal = activeProposal?.rawStatus === "accepted" || activeProposal?.rawStatus === "rejected"
+
+	const emptyTitle =
+		tab === "Submitted"
+			? "No submitted proposals yet"
+			: tab === "Archived"
+				? "No archived proposals"
+				: "Your draft proposals start here"
+
+	const emptyDescription =
+		tab === "Submitted"
+			? "Proposals you submit to clients will appear here with live client review updates."
+			: tab === "Archived"
+				? "Past submissions and declined proposals will be filed here."
+				: "Save a draft proposal to polish your introduction before applying to open roles."
+
 	return (
-		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 md:px-6">
+			{/* Page Header */}
 			<WorkspacePageHeader
 				eyebrow="Freelancer workspace"
 				title="Your proposals"
-				description="From a thoughtful introduction to your next collaboration."
+				description="Manage your ongoing applications, review drafts, and track client responses across Skilio."
 				meta={
 					<span className="font-medium text-primary">
-						{counts("Drafts")} {counts("Drafts") === 1 ? "draft" : "drafts"} to make your own
+						{draftsCount} {draftsCount === 1 ? "draft" : "drafts"} in progress
+						{acceptedCount > 0 && ` · ${acceptedCount} accepted`}
 					</span>
 				}
 				action={
@@ -175,263 +237,389 @@ const FreelancerProposalsPage = () => {
 					</div>
 				}
 			/>
-			<section aria-label="Proposal overview" className="grid grid-cols-3 gap-2 sm:gap-3">
-				{proposalStatuses.map(({ label, description }) => (
-					<button
-						key={label}
-						type="button"
-						onClick={() => selectTab(label)}
-						aria-pressed={tab === label}
-						className={`group rounded-lg border bg-surface-container-lowest p-3 text-left transition-colors hover:border-outline sm:p-5 ${tab === label ? "border-outline" : "border-outline-variant"}`}
-					>
-						<div className="flex items-center justify-between">
-							<span className="font-label-md text-caption text-on-surface-variant sm:text-label-md">
-								{label === "Drafts" ? "In progress" : label}
-							</span>
-						</div>
-						<div className="mt-3 flex items-end justify-between">
-							<span className="font-headline-xl font-semibold text-headline-xl tabular-nums tracking-tight">
-								{counts(label).toString().padStart(2, "0")}
-							</span>
-						</div>
-						<p className="mt-2 hidden text-caption text-on-surface-variant sm:block">{description}</p>
-					</button>
-				))}
-			</section>
-			<div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2.1fr)_minmax(280px,1fr)] lg:gap-8">
-				<section aria-label="Your proposal list" className="min-w-0 space-y-5">
-					<div className="flex flex-wrap items-center justify-between gap-3">
-						<fieldset aria-label="Proposal status" className="flex min-w-0 flex-wrap gap-1.5">
-							{proposalStatuses.map(({ label }) => (
-								<button
-									key={label}
-									type="button"
-									aria-pressed={tab === label}
-									onClick={() => selectTab(label)}
-									className={
-										tab === label
-											? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors dark:bg-on-surface dark:text-background"
-											: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
-									}
-								>
-									<span>{label}</span>
-									<span
-										className={
-											tab === label
-												? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-background/15 dark:text-background"
-												: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
-										}
-									>
-										{counts(label)}
-									</span>
-								</button>
-							))}
-						</fieldset>
-						<div className="flex items-center gap-2">
-							<span className="font-caption text-caption text-outline">Sort by:</span>
-							<Select value={sort} onValueChange={setSort}>
-								<SelectTrigger
-									size="sm"
-									aria-label="Sort proposals"
-									className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
-								>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent
-									align="end"
-									sideOffset={6}
-									className="w-[var(--radix-select-trigger-width)] min-w-0 rounded-lg border-outline-variant bg-surface-container-lowest p-1 text-on-surface shadow-md [&_[data-radix-select-viewport]]:min-w-0"
-								>
-									{[
-										["default", "Default order"],
-										["title", "Project title"],
-									].map(([value, label]) => (
-										<SelectItem
-											key={value}
-											value={value}
-											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
-										>
-											{label}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-					</div>
-					<label className="flex h-11 items-center gap-2.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 focus-within:border-primary">
-						<Search className="size-4 shrink-0 text-outline" />
-						<span className="sr-only">Search proposals</span>
-						<input
-							type="text"
-							value={query}
-							onChange={(event) => setQuery(event.target.value)}
-							placeholder="Search by project, client, or skill"
-							className="min-w-0 flex-1 bg-transparent text-body-sm outline-none"
-						/>
-						{query && (
+
+			{/* Unified Tab Navigation Bar (Styled identically to Connections page) */}
+			<div className="flex min-w-0 max-w-full flex-col gap-3 border-outline-variant border-b sm:flex-row sm:items-center sm:justify-between">
+				<nav aria-label="Proposal tabs" className="flex max-w-full gap-6 overflow-x-auto">
+					{tabs.map((t) => {
+						const active = tab === t.id
+
+						return (
 							<button
+								key={t.id}
 								type="button"
-								aria-label="Clear proposal search"
-								onClick={() => setQuery("")}
-								className="rounded p-1 text-outline hover:text-on-surface"
+								onClick={() => {
+									setTab(t.id)
+									setQuery("")
+								}}
+								aria-pressed={active}
+								className={cn(
+									"flex min-h-12 shrink-0 flex-row items-center border-b-2 px-1 font-medium text-sm transition-colors",
+									active
+										? "border-primary text-primary"
+										: "border-transparent text-on-surface-variant hover:text-on-surface",
+								)}
 							>
-								<X className="size-4" />
-							</button>
-						)}
-					</label>
-					<div className="flex items-center justify-between gap-3">
-						<h2 className="font-headline-sm font-semibold text-headline-sm">
-							{proposalStatuses.find((status) => status.label === tab)?.title}
-						</h2>
-						<span role="status" className="text-caption text-outline">
-							{visibleProposals.length} {visibleProposals.length === 1 ? "proposal" : "proposals"}
-						</span>
-					</div>
-					{visibleProposals.length ? (
-						<div className="space-y-3.5">
-							{visibleProposals.map((draft) => (
-								<article
-									key={draft.job.id}
-									className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5 transition-colors hover:border-outline"
+								<span className="py-2 pr-1.5">{t.label}</span>
+								<span
+									className={cn(
+										"ml-1 rounded-full px-2 py-0.5 font-semibold text-xs tabular-nums",
+										active ? "bg-primary/10 text-primary" : "bg-surface-container text-on-surface-variant",
+									)}
 								>
-									<div className="flex items-start justify-between gap-3">
-										<div className="min-w-0">
-											<div className="flex flex-wrap items-center gap-2 text-caption text-outline">
-												<span className="font-medium text-on-surface-variant">{draft.job.company}</span>
-												<span aria-hidden="true">·</span>
-												<span>Remote</span>
-												<span aria-hidden="true">·</span>
-												<span>{draft.job.category}</span>
-											</div>
-											<button
-												type="button"
-												onClick={() => openJob(draft.job)}
-												className="mt-1.5 text-left font-headline-md font-semibold text-headline-md text-on-surface hover:text-primary"
-											>
-												{draft.job.title}
-											</button>
-										</div>
-										<span className="inline-flex shrink-0 items-center gap-1.5 rounded border border-outline-variant bg-surface-container-low px-2 py-1 text-caption text-on-surface-variant">
-											{tab === "Drafts" ? (
-												<FilePenLine className="size-3" />
-											) : tab === "Submitted" ? (
-												<Send className="size-3" />
-											) : (
-												<Archive className="size-3" />
-											)}
-											{tab === "Drafts" ? "Draft" : tab}
-										</span>
-									</div>
-									<div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-caption">
-										<div>
-											<span className="mr-2 text-on-surface-variant">Project budget</span>
-											<strong className="font-numeric-data font-semibold text-[16px] text-on-surface">
-												{draft.job.budget.split(" · ")[0]}
-											</strong>
-										</div>
-										<span className="text-outline">{draft.job.projectType} contract</span>
-									</div>
-									<div className="mt-4 rounded-lg border border-outline-variant/50 bg-surface-container-low/50 p-3.5">
-										<p className="mb-1.5 font-caption font-medium text-caption text-on-surface-variant">
-											Your introduction
-										</p>
-										<p className="line-clamp-3 text-body-sm text-on-surface-variant leading-relaxed">
-											{draft.cover ||
-												"A great proposal starts with a personal introduction. Tell the client how you can help."}
-										</p>
-									</div>
-									<div className="mt-4 flex flex-col gap-3 border-outline-variant/50 border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
-										<div className="flex flex-wrap gap-1.5">
-											{draft.job.skills.slice(0, 3).map((skill) => (
-												<span
-													key={skill}
-													className="rounded border border-transparent bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant dark:border-border-subtle dark:text-on-surface-soft"
-												>
-													{skill}
-												</span>
-											))}
-										</div>
-										<div className="flex shrink-0 flex-wrap items-center gap-2 self-end">
-											<button
-												type="button"
-												onClick={() => changeProposal(draft.job.id, tab === "Archived" ? "Drafts" : "Archived")}
-												className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-label-sm text-on-surface-variant hover:bg-surface-container"
-											>
-												{tab === "Archived" ? "Restore draft" : "Archive"}
-											</button>
-											<button
-												type="button"
-												onClick={() => openProposal(draft.job, draft)}
-												className={workspaceStyles.primaryAction}
-											>
-												{tab === "Drafts" ? "Continue draft" : "View proposal"}
-												<ArrowRight className="size-3.5" />
-											</button>
-										</div>
-									</div>
-								</article>
-							))}
-						</div>
-					) : query ? (
-						<WorkspaceSurface className="p-10 text-center">
-							<Search className="mx-auto size-6 text-outline" />
-							<h3 className="mt-4 font-headline-md font-semibold text-headline-md">No matching proposals</h3>
-							<p className="mt-2 text-body-sm text-on-surface-variant">Try another project, client, or skill.</p>
-							<button type="button" onClick={() => setQuery("")} className={`${workspaceStyles.secondaryAction} mt-5`}>
-								Clear search
+									{t.count}
+								</span>
 							</button>
-						</WorkspaceSurface>
-					) : (
-						<EmptyProposals tab={tab} />
-					)}
-					<p className="pt-1 text-caption text-outline">Your next great project starts with a conversation.</p>
-				</section>
-				<aside aria-label="Proposal guidance" className="space-y-5">
-					<WorkspaceSurface className="p-5">
-						<div className="mb-4 flex items-center justify-between">
-							<h2 className="font-headline-sm font-semibold text-headline-sm">Make your first impression count</h2>
-						</div>
-						<p className="text-body-sm text-on-surface-variant leading-relaxed">
-							A little care goes a long way. Give every proposal a personal touch.
-						</p>
-						<div className="mt-5 space-y-4">
-							{[
-								["Start with their project", "Show you understand what they need."],
-								["Make your experience relevant", "Share a similar project and its outcome."],
-								["Offer a clear next step", "Explain how you’d start the work."],
-							].map(([title, description]) => (
-								<div key={title} className="flex gap-2.5">
-									<CircleCheck className="mt-0.5 size-4 shrink-0 text-primary" />
-									<div>
-										<h3 className="font-label-md font-medium text-label-md">{title}</h3>
-										<p className="mt-1 text-caption text-on-surface-variant leading-relaxed">{description}</p>
-									</div>
-								</div>
-							))}
-						</div>
-						<Link to="/freelancer" className={`${workspaceStyles.secondaryAction} mt-5 w-full`}>
-							Review your profile
-							<ArrowRight className="size-3.5" />
-						</Link>
-					</WorkspaceSurface>
-					<WorkspaceSurface className="p-5">
-						<div className="mb-3 flex items-center gap-2">
-							<h2 className="font-headline-sm font-semibold text-headline-sm">Keep the momentum</h2>
-						</div>
-						<p className="text-body-sm text-on-surface-variant leading-relaxed">
-							Your shortlist is a good place to find your next introduction.
-						</p>
-						<Link
-							to="/freelancer-saved-jobs"
-							className="mt-4 inline-flex items-center gap-2 font-label-md text-label-md text-primary hover:underline"
-						>
-							Explore saved jobs
-							<ArrowRight className="size-3.5" />
-						</Link>
-					</WorkspaceSurface>
-				</aside>
+						)
+					})}
+				</nav>
 			</div>
 
+			{/* Instant Search Filter & Sort Selector (Styled identically to Connections page filter) */}
+			<div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<label className="relative flex min-h-12 flex-1 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4 transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+					<Search className="size-4 shrink-0 text-on-surface-variant" />
+					<input
+						type="text"
+						aria-label="Filter proposals"
+						placeholder="Filter by project, client, or skill..."
+						value={query}
+						onChange={(e) => setQuery(e.target.value)}
+						className="min-w-0 flex-1 bg-transparent text-on-surface text-sm outline-none placeholder:text-outline"
+					/>
+					{query && (
+						<button
+							type="button"
+							onClick={() => setQuery("")}
+							aria-label="Clear filter"
+							className="rounded p-1 text-on-surface-variant hover:text-on-surface"
+						>
+							<X className="size-3.5" />
+						</button>
+					)}
+				</label>
+
+				<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
+					<span className="font-caption text-caption text-outline">Sort by:</span>
+					<Select value={sort} onValueChange={setSort}>
+						<SelectTrigger
+							size="sm"
+							aria-label="Sort proposals"
+							className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+						>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent
+							align="end"
+							sideOffset={6}
+							className="w-[var(--radix-select-trigger-width)] min-w-0 rounded-lg border-outline-variant bg-surface-container-lowest p-1 text-on-surface shadow-md [&_[data-radix-select-viewport]]:min-w-0"
+						>
+							{[
+								["recent", "Newest first"],
+								["title", "Project title"],
+								["budget", "Budget: High to low"],
+							].map(([value, label]) => (
+								<SelectItem
+									key={value}
+									value={value}
+									className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+								>
+									{label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+			</div>
+
+			{/* Main Section Feed */}
+			<section aria-label="Proposals feed" className="min-w-0 space-y-4">
+				{!loaded ? (
+					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+						{Array.from({ length: 4 }).map((_, i) => (
+							<Card
+								key={i}
+								className="min-w-0 rounded-xl border border-outline-variant bg-surface-container-lowest p-5"
+							>
+								<CardContent className="flex flex-col gap-4 p-0">
+									<div className="flex items-start gap-3.5">
+										<Skeleton className="size-11 rounded-lg" />
+										<div className="flex-1 space-y-2">
+											<Skeleton className="h-4 w-32" />
+											<Skeleton className="h-5 w-48" />
+										</div>
+										<Skeleton className="h-5 w-20 rounded-full" />
+									</div>
+									<Skeleton className="h-16 w-full rounded-lg" />
+									<div className="flex items-center justify-between border-outline-variant/60 border-t pt-3">
+										<Skeleton className="h-4 w-24" />
+										<Skeleton className="h-8 w-28 rounded-lg" />
+									</div>
+								</CardContent>
+							</Card>
+						))}
+					</div>
+				) : visibleProposals.length === 0 ? (
+					<WorkspaceSurface className="flex flex-col items-center justify-center p-12 text-center">
+						<div className="mb-3 grid size-12 place-items-center rounded-full bg-primary/10 text-primary">
+							{tab === "Drafts" ? (
+								<FilePenLine className="size-6" />
+							) : tab === "Submitted" ? (
+								<Send className="size-6" />
+							) : (
+								<Archive className="size-6" />
+							)}
+						</div>
+						<h3 className="font-headline-sm font-semibold text-lg text-on-surface">
+							{query ? "No matching proposals found" : emptyTitle}
+						</h3>
+						<p className="mt-1.5 max-w-md font-body-md text-on-surface-variant text-sm leading-relaxed">
+							{query ? `No proposals match "${query}". Try searching for another keyword or skill.` : emptyDescription}
+						</p>
+						<div className="mt-5 flex flex-wrap gap-2.5">
+							{query ? (
+								<Button variant="outline" size="sm" onClick={() => setQuery("")}>
+									Clear Filter
+								</Button>
+							) : (
+								<Link to="/freelancer-jobs" className={workspaceStyles.primaryAction}>
+									<Search className="size-4" />
+									<span>Browse Opportunities</span>
+								</Link>
+							)}
+						</div>
+					</WorkspaceSurface>
+				) : (
+					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+						{visibleProposals.map((draft) => {
+							const formattedDate = formatProposalDate(draft.createdAt)
+							const isAccepted = draft.rawStatus === "accepted"
+							const isPending = draft.rawStatus === "pending"
+							const isDraft = draft.rawStatus === "draft"
+							const isRejected = draft.rawStatus === "rejected"
+
+							return (
+								<Card
+									key={draft.proposalId}
+									className="group min-w-0 rounded-xl border border-outline-variant bg-surface-container-lowest p-5 transition-all duration-150 hover:border-outline hover:shadow-xs"
+								>
+									<CardContent className="flex h-full flex-col justify-between gap-4 p-0">
+										{/* Member / Client Identity & Status */}
+										<div className="flex items-start justify-between gap-3">
+											<div className="flex min-w-0 items-start gap-3.5">
+												<div className="relative shrink-0">
+													<Avatar className="size-11 rounded-lg border border-outline-variant bg-surface-container">
+														{draft.job.clientId && (
+															<AvatarImage
+																src={accountAvatarUrl(draft.job.clientId)}
+																alt={draft.job.company}
+																className="object-cover"
+															/>
+														)}
+														<AvatarFallback className="rounded-lg bg-surface-container font-label-md font-semibold text-label-md text-on-surface">
+															{getInitials(draft.job.company)}
+														</AvatarFallback>
+													</Avatar>
+													<span
+														aria-hidden="true"
+														className={cn(
+															"absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-container-lowest",
+															isAccepted
+																? "bg-emerald-500"
+																: isPending
+																	? "animate-pulse bg-amber-500"
+																	: isDraft
+																		? "bg-outline"
+																		: "bg-muted-foreground/40",
+														)}
+													/>
+												</div>
+
+												<div className="min-w-0 flex-1">
+													<div className="flex flex-wrap items-center gap-2">
+														<h4 className="truncate font-headline-sm font-semibold text-base text-on-surface">
+															{draft.job.company}
+														</h4>
+
+														{/* Explicit Authentic Status Badge */}
+														{isAccepted ? (
+															<Badge
+																variant="outline"
+																className="gap-1 border-primary/30 bg-primary/10 font-medium text-[10px] text-primary"
+															>
+																<UserCheck className="size-3" />
+																Accepted
+															</Badge>
+														) : isPending ? (
+															<Badge
+																variant="outline"
+																className="gap-1 border-amber-500/30 bg-amber-500/10 font-medium text-[10px] text-amber-600 dark:text-amber-400"
+															>
+																<Clock3 className="size-3" />
+																Under review
+															</Badge>
+														) : isDraft ? (
+															<Badge
+																variant="outline"
+																className="gap-1 border-outline-variant bg-surface-container-low font-medium text-[10px] text-on-surface-variant"
+															>
+																<FilePenLine className="size-3 text-outline" />
+																Draft
+															</Badge>
+														) : (
+															<Badge
+																variant="outline"
+																className="gap-1 border-border bg-muted font-medium text-[10px] text-muted-foreground"
+															>
+																<XCircle className="size-3" />
+																Declined
+															</Badge>
+														)}
+													</div>
+
+													<p className="mt-0.5 font-medium text-on-surface-variant text-xs">
+														Remote · {draft.job.category}
+													</p>
+
+													<button
+														type="button"
+														onClick={() => openJob(draft.job)}
+														className="mt-2 flex w-full items-center gap-1.5 truncate text-left font-semibold text-on-surface text-xs transition-colors hover:text-primary"
+													>
+														<Briefcase className="size-3.5 shrink-0 text-primary" />
+														<span className="truncate">{draft.job.title}</span>
+													</button>
+
+													<div className="mt-1 flex items-center gap-2 text-on-surface-variant text-xs">
+														<strong className="font-numeric-data font-semibold text-on-surface">
+															{draft.job.budget.split(" · ")[0]}
+														</strong>
+														<span>·</span>
+														<span>{draft.job.projectType} contract</span>
+													</div>
+												</div>
+											</div>
+
+											{/* Disconnect / Discard / Delete Action Button */}
+											{!isAccepted && (
+												<button
+													type="button"
+													onClick={() => setItemToWithdraw(draft)}
+													title={isDraft ? "Discard draft" : isRejected ? "Delete record" : "Withdraw proposal"}
+													className="grid size-8 shrink-0 place-items-center rounded-lg border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant/70 transition-colors hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+												>
+													{isDraft || isRejected ? <Trash2 className="size-4" /> : <X className="size-4" />}
+												</button>
+											)}
+										</div>
+
+										{/* Proposal Introduction Note Box (Inspired by connections note box) */}
+										<div className="rounded-lg border border-outline-variant/50 bg-surface-container-low/40 p-3 text-on-surface-variant text-xs leading-relaxed">
+											<div className="mb-1 flex items-center justify-between font-medium text-[11px] text-on-surface-variant/80">
+												<span>{isDraft ? "Draft proposal" : "Your cover letter"}</span>
+												{formattedDate && <span className="tabular-nums">{formattedDate}</span>}
+											</div>
+											<p className="line-clamp-3 whitespace-pre-line text-on-surface-variant italic">
+												"
+												{draft.cover ||
+													"A great proposal starts with a personal introduction. Tell the client how you can help."}
+												"
+											</p>
+										</div>
+
+										{/* Skills Tags */}
+										<div className="flex flex-wrap gap-1.5">
+											{draft.job.skills.slice(0, 3).map((skill) => (
+												<SkillTag key={skill}>{skill}</SkillTag>
+											))}
+										</div>
+
+										{/* Action Footer (Inspired by connections action footer) */}
+										<div className="flex items-center justify-between border-outline-variant/60 border-t pt-3 text-on-surface-variant text-xs">
+											<span className="flex items-center gap-1.5 font-caption text-caption">
+												<span
+													className={cn(
+														"size-2 rounded-full",
+														isAccepted ? "bg-emerald-500" : isPending ? "bg-amber-500" : "bg-outline",
+													)}
+												/>
+												<span>
+													{isAccepted
+														? "Collaboration unlocked"
+														: isPending
+															? "Under client review"
+															: isDraft
+																? "Draft in progress"
+																: "Submission closed"}
+												</span>
+											</span>
+
+											<div className="flex items-center gap-2">
+												{isDraft && (
+													<button
+														type="button"
+														onClick={() => openProposal(draft.job, draft)}
+														className={cn(workspaceStyles.primaryAction, "h-8 gap-1.5 px-3 text-xs")}
+													>
+														<span>Continue draft</span>
+														<ArrowRight className="size-3.5" />
+													</button>
+												)}
+
+												{isPending && (
+													<button
+														type="button"
+														onClick={() => openProposal(draft.job, draft)}
+														className={cn(workspaceStyles.primaryAction, "h-8 gap-1.5 px-3 text-xs")}
+													>
+														<span>Edit proposal</span>
+														<ArrowRight className="size-3.5" />
+													</button>
+												)}
+
+												{isAccepted && (
+													<>
+														<button
+															type="button"
+															onClick={() => openProposal(draft.job, draft)}
+															className={cn(workspaceStyles.secondaryAction, "h-8 gap-1.5 px-3 text-xs")}
+														>
+															<span>View terms</span>
+														</button>
+														{draft.job.clientId && (
+															<Link
+																to="/freelancer-messages"
+																search={{ userId: draft.job.clientId }}
+																className={cn(workspaceStyles.primaryAction, "h-8 gap-1.5 px-3 text-xs")}
+															>
+																<MessageSquare className="size-3.5" />
+																<span>Message</span>
+															</Link>
+														)}
+													</>
+												)}
+
+												{isRejected && (
+													<button
+														type="button"
+														onClick={() => openProposal(draft.job, draft)}
+														className={cn(workspaceStyles.secondaryAction, "h-8 gap-1.5 px-3 text-xs")}
+													>
+														<span>View details</span>
+														<ArrowRight className="size-3.5" />
+													</button>
+												)}
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+							)
+						})}
+					</div>
+				)}
+			</section>
+
+			{/* Slide-over Sheet: Proposal Editor or Job Details */}
 			<Sheet
 				open={selected !== null}
 				onOpenChange={(open) => {
@@ -465,19 +653,12 @@ const FreelancerProposalsPage = () => {
 									job={selected}
 									cover={cover}
 									onCoverChange={setCover}
-									readOnly={selectedReadOnly}
-									onSend={async () => {
-										try {
-											await saveProposal(selected, cover, "Submitted")
-											closeSheet()
-											setTab("Submitted")
-											toast.success("Proposal submitted")
-										} catch {
-											toast.error("Couldn't submit the proposal.")
-										}
-									}}
+									readOnly={isReadOnlyProposal}
+									isPendingSubmission={activeProposal?.rawStatus === "pending"}
+									isSubmitting={isSubmitting}
+									onSend={handleSubmitProposal}
 									onCancel={closeSheet}
-									onSubmit={saveDraft}
+									onSubmit={handleSaveDraft}
 								/>
 							) : (
 								<JobDetails key={selected.id} job={selected} projectType={selectedProjectType} />
@@ -486,6 +667,81 @@ const FreelancerProposalsPage = () => {
 					)}
 				</SheetContent>
 			</Sheet>
+
+			{/* Safe Confirmation Dialog (Inspired by connections remove dialog) */}
+			<Dialog open={Boolean(itemToWithdraw)} onOpenChange={(open) => !open && setItemToWithdraw(null)}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle className="flex items-center gap-2 text-destructive">
+							{itemToWithdraw?.rawStatus === "draft" || itemToWithdraw?.rawStatus === "rejected" ? (
+								<Trash2 className="size-5" />
+							) : (
+								<UserMinus className="size-5" />
+							)}
+							<span>
+								{itemToWithdraw?.rawStatus === "draft"
+									? "Discard Draft"
+									: itemToWithdraw?.rawStatus === "rejected"
+										? "Delete Proposal Record"
+										: "Withdraw Proposal"}
+							</span>
+						</DialogTitle>
+						<DialogDescription>
+							{itemToWithdraw?.rawStatus === "draft" ? (
+								<>
+									Are you sure you want to discard your draft for{" "}
+									<strong className="text-foreground">{itemToWithdraw?.job.title}</strong>? This cannot be undone.
+								</>
+							) : itemToWithdraw?.rawStatus === "rejected" ? (
+								<>
+									Are you sure you want to remove the declined proposal record for{" "}
+									<strong className="text-foreground">{itemToWithdraw?.job.title}</strong>?
+								</>
+							) : (
+								<>
+									Are you sure you want to withdraw your proposal for{" "}
+									<strong className="text-foreground">{itemToWithdraw?.job.title}</strong>? The client will no longer
+									see your submission.
+								</>
+							)}
+						</DialogDescription>
+					</DialogHeader>
+
+					<DialogFooter className="mt-4 gap-2">
+						<Button variant="outline" onClick={() => setItemToWithdraw(null)}>
+							Cancel
+						</Button>
+						<Button
+							variant="destructive"
+							disabled={isWithdrawing}
+							onClick={async () => {
+								if (!itemToWithdraw) return
+								try {
+									await withdrawProposal(itemToWithdraw.proposalId)
+									toast.success(
+										itemToWithdraw.rawStatus === "draft"
+											? "Draft discarded"
+											: itemToWithdraw.rawStatus === "rejected"
+												? "Record deleted"
+												: "Proposal withdrawn",
+									)
+									setItemToWithdraw(null)
+								} catch {
+									toast.error("Couldn't process your request.")
+								}
+							}}
+						>
+							{isWithdrawing
+								? "Processing..."
+								: itemToWithdraw?.rawStatus === "draft"
+									? "Discard draft"
+									: itemToWithdraw?.rawStatus === "rejected"
+										? "Delete record"
+										: "Withdraw proposal"}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
 }
@@ -497,6 +753,8 @@ const ProposalEditor = ({
 	onCancel,
 	onSubmit,
 	readOnly = false,
+	isPendingSubmission = false,
+	isSubmitting = false,
 	onSend,
 }: {
 	job: FreelancerJob
@@ -505,21 +763,27 @@ const ProposalEditor = ({
 	onCancel: () => void
 	onSubmit: () => void
 	readOnly?: boolean
+	isPendingSubmission?: boolean
+	isSubmitting?: boolean
 	onSend: () => void
 }) => {
 	return (
 		<section className="flex min-h-0 flex-1 flex-col">
 			<div className="border-border border-b px-6 py-6 sm:px-8">
-				<p className="mb-2 font-semibold text-primary text-xs">YOUR NEXT OPPORTUNITY</p>
+				<p className="mb-2 font-semibold text-primary text-xs uppercase tracking-wider">
+					{readOnly ? "Submitted Application" : "Your Next Opportunity"}
+				</p>
 
-				<SheetTitle className="font-semibold text-2xl tracking-tight">
-					{readOnly ? "Your proposal" : "Make your introduction"}
+				<SheetTitle className="font-semibold text-2xl text-foreground tracking-tight">
+					{readOnly ? "Your proposal" : isPendingSubmission ? "Edit your proposal" : "Make your introduction"}
 				</SheetTitle>
 
-				<SheetDescription className="mt-2 text-sm leading-6">
+				<SheetDescription className="mt-2 text-muted-foreground text-sm leading-6">
 					{readOnly
-						? "Your introduction and proposed terms, all in one place."
-						: "A thoughtful proposal is the start of a great collaboration."}
+						? "Your introduction and proposed terms for this project."
+						: isPendingSubmission
+							? "Update your cover letter while your application is under client review."
+							: "A thoughtful proposal is the start of a great collaboration."}
 				</SheetDescription>
 			</div>
 
@@ -527,7 +791,7 @@ const ProposalEditor = ({
 				className="flex min-h-0 flex-1 flex-col"
 				onSubmit={(event) => {
 					event.preventDefault()
-					if (!readOnly) onSubmit()
+					if (!readOnly && !isPendingSubmission) onSubmit()
 				}}
 			>
 				<div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-6 py-6 sm:px-8">
@@ -536,7 +800,7 @@ const ProposalEditor = ({
 							{readOnly ? "Proposal for" : "Applying to"} · {job.company}
 						</p>
 
-						<p className="mt-2 font-semibold text-sm leading-6">{job.title}</p>
+						<p className="mt-2 font-semibold text-foreground text-sm leading-6">{job.title}</p>
 
 						<p className="mt-2 text-muted-foreground text-xs">{job.budget}</p>
 					</div>
@@ -545,22 +809,22 @@ const ProposalEditor = ({
 						title="Tell them why you're a good fit"
 						description="Share relevant experience and how you'd approach this project."
 					>
-						<label className="block font-medium text-sm">
+						<label className="block font-medium text-foreground text-sm">
 							Cover letter
 							<textarea
 								readOnly={readOnly}
 								required
 								minLength={40}
-								maxLength={5000}
-								rows={6}
+								maxLength={3000}
+								rows={7}
 								value={cover}
 								onChange={(event) => onCoverChange(event.target.value)}
 								placeholder="Hi! Your project caught my attention because…"
-								className={`${jobFormField} mt-2 min-h-40 resize-y leading-6`}
+								className={cn(jobFormField, "mt-2 min-h-40 resize-y text-foreground leading-6")}
 							/>
 							<span className="mt-2 block text-muted-foreground text-xs">
 								At least 40 characters
-								<span className="float-right">{cover.length.toLocaleString()} / 5,000</span>
+								<span className="float-right tabular-nums">{cover.length.toLocaleString()} / 3,000</span>
 							</span>
 						</label>
 					</JobFormSection>
@@ -569,22 +833,24 @@ const ProposalEditor = ({
 				<footer className="shrink-0 border-border border-t px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8">
 					<div className="flex items-center justify-between gap-3">
 						<button type="button" onClick={onCancel} className={workspaceStyles.secondaryAction}>
-							Back
+							{readOnly ? "Close" : "Back"}
 						</button>
 
 						{!readOnly && (
 							<div className="flex items-center justify-end gap-2.5">
-								<button type="submit" className={workspaceStyles.secondaryAction}>
-									Save as draft
-								</button>
+								{!isPendingSubmission && (
+									<button type="submit" disabled={isSubmitting} className={workspaceStyles.secondaryAction}>
+										Save as draft
+									</button>
+								)}
 								<button
 									type="button"
-									disabled={cover.trim().length < 40 || cover.length > 5000}
+									disabled={cover.trim().length < 40 || cover.length > 3000 || isSubmitting}
 									onClick={onSend}
-									className={`${workspaceStyles.primaryAction} disabled:opacity-50`}
+									className={cn(workspaceStyles.primaryAction, "disabled:opacity-50")}
 								>
 									<Send className="size-3.5" />
-									Apply now
+									{isSubmitting ? "Submitting..." : isPendingSubmission ? "Update proposal" : "Apply now"}
 								</button>
 							</div>
 						)}
@@ -592,40 +858,6 @@ const ProposalEditor = ({
 				</footer>
 			</form>
 		</section>
-	)
-}
-
-const EmptyProposals = ({ tab }: { tab: ProposalTab }) => {
-	const title =
-		tab === "Submitted"
-			? "No submitted proposals"
-			: tab === "Archived"
-				? "No archived proposals"
-				: "Start with a project that fits"
-
-	return (
-		<WorkspaceSurface className="grid min-h-72 place-items-center border-outline-variant border-dashed bg-surface-container-lowest p-8 text-center">
-			<div>
-				<span className="mx-auto grid size-14 place-items-center rounded-lg border border-outline-variant bg-surface-container text-primary">
-					<FileText className="size-6" strokeWidth={1.5} />
-				</span>
-
-				<h2 className="mt-5 font-headline-lg font-semibold text-headline-lg text-on-surface">{title}</h2>
-
-				<p className="mx-auto mt-3 max-w-lg font-body-sm text-body-sm text-on-surface-variant leading-6">
-					Your proposals will appear here. Browse work and prepare a thoughtful introduction.
-				</p>
-
-				{tab === "Drafts" && (
-					<div className="mt-5">
-						<Link className={workspaceStyles.primaryAction} to="/freelancer-jobs">
-							Find work
-							<ArrowRight className="size-4" />
-						</Link>
-					</div>
-				)}
-			</div>
-		</WorkspaceSurface>
 	)
 }
 
