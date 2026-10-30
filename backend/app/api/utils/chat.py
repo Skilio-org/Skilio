@@ -7,7 +7,7 @@ from fastapi import (
 )
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
-from sqlmodel import Session, select
+from sqlmodel import Session, col, func, select
 
 from app.api.routes.message_mods import mark_all_messages_as_read
 from app.api.routes.notifications import (
@@ -54,16 +54,16 @@ def _build_conversation_public(
     )
 
     # Get unread count for current user
-    # unread_count_stmt = (
-    #     select(func.count())
-    #     .select_from(ChatMessage)
-    #     .where(
-    #         ChatMessage.conversation_id == conversation.id,
-    #         ChatMessage.sender_id != current_user_id,
-    #         col(ChatMessage.is_read).is_(False),
-    #     )
-    # )
-    # unread_count = session.exec(unread_count_stmt).one()
+    unread_count_stmt = (
+        select(func.count())
+        .select_from(ChatMessage)
+        .where(
+            ChatMessage.conversation_id == conversation.id,
+            ChatMessage.sender_id != current_user_id,
+            col(ChatMessage.is_read).is_(False),
+        )
+    )
+    unread_count = session.exec(unread_count_stmt).one()
 
     return ConversationPublic(
         id=conversation.id,
@@ -73,7 +73,7 @@ def _build_conversation_public(
         created_at=conversation.created_at,
         updated_at=conversation.updated_at,
         last_message=last_msg_public,
-        unread_count=conversation.unread_count,
+        unread_count=unread_count,
         other_user=other_user_public,
     )
 

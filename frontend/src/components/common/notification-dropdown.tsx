@@ -320,26 +320,6 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 		)
 	}
 
-	// 6. Review Received -> View Profile
-	if (notification.event === "review_received") {
-		return (
-			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<button
-					type="button"
-					onClick={(e) => {
-						e.stopPropagation()
-						e.preventDefault()
-						onMarkAsRead(notification.id)
-						void navigate({ to: role === "freelancer" ? "/freelancer" : "/client-profile" })
-					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-amber-500/10 px-2 text-[11px] font-medium text-amber-600 transition-colors hover:bg-amber-500/20 dark:text-amber-400"
-				>
-					<Star className="size-3" />
-					View Review
-				</button>
-			</div>
-		)
-	}
 
 	// 7. Proposal Rejected
 	if (notification.event === "proposal_rejected") {
@@ -534,8 +514,15 @@ export function NotificationDropdown() {
 				{/* Notifications */}
 				<div className="max-h-[420px] overflow-y-auto px-1.5 pb-1.5">
 					{notifications.length > 0 ? (
-						notifications.map((notification) => (
-							<DropdownMenuItem
+						notifications.map((notification) => {
+							if ((notification.event === "review_received"
+								|| notification.event === "proposal_rejected"
+								|| notification.event === "proposal_accepted") && role === "client")
+								return ""
+							if (notification.event === "proposal_received" && role === "freelancer")
+								return ""
+
+							return <DropdownMenuItem
 								key={notification.id}
 								onSelect={(event) => {
 									event.preventDefault()
@@ -585,11 +572,11 @@ export function NotificationDropdown() {
 
 								{/* Unread dot */}
 								{!notification.is_read && (
-									<span aria-label="Unread" className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
+									<span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
 								)}
 							</DropdownMenuItem>
-						))
-					) : (
+						}
+					)) : (
 						<div className="px-6 py-12 text-center">
 							<span className="mx-auto grid size-10 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-outline dark:border-border-subtle">
 								<Bell className="size-[18px]" />
