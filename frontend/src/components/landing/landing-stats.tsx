@@ -34,27 +34,27 @@ export function LandingStats() {
 	return (
 		<section
 			aria-label="Platform proof metrics and trusted companies"
-			className="border-y border-border/70 bg-card py-12 lg:py-16"
+			className="border-y border-border/70 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] py-10 sm:py-12 lg:py-16"
 		>
-			<div className="landing-container">
+			<div className="landing-container px-4 sm:px-6">
 				{/* 4 Stats Grid */}
-				<div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:gap-10">
+				<div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-8 md:grid-cols-4 lg:gap-10">
 					{STATS.map((stat, idx) => (
 						<div
 							key={stat.label}
 							className={`flex flex-col ${
 								idx < STATS.length - 1
-									? "md:border-r md:border-border/60 md:pr-6 lg:pr-8"
+									? "md:border-r md:border-border/60 dark:md:border-[#1F2D21] md:pr-6 lg:pr-8"
 									: ""
 							}`}
 						>
-							<span className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+							<span className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
 								{stat.value}
 							</span>
-							<span className="mt-2 text-sm font-semibold text-foreground sm:text-base">
+							<span className="mt-1.5 sm:mt-2 text-xs sm:text-sm font-semibold text-foreground sm:text-base">
 								{stat.label}
 							</span>
-							<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+							<p className="mt-1 text-[11px] sm:text-xs leading-relaxed text-muted-foreground">
 								{stat.description}
 							</p>
 						</div>
@@ -62,15 +62,15 @@ export function LandingStats() {
 				</div>
 
 				{/* Trust Logos Banner */}
-				<div className="mt-12 border-t border-border/50 pt-8 sm:mt-14">
-					<p className="text-center text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/80">
+				<div className="mt-10 sm:mt-14 border-t border-border/50 dark:border-[#1F2D21] pt-6 sm:pt-8">
+					<p className="text-center text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/80">
 						Trusted by product & engineering leaders at modern high-velocity companies
 					</p>
-					<div className="mt-6 flex flex-wrap items-center justify-center gap-8 sm:gap-12 lg:gap-16 opacity-75 grayscale hover:grayscale-0 transition-all">
+					<div className="mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-12 lg:gap-16 opacity-75 grayscale hover:grayscale-0 transition-all">
 						{TRUST_LOGOS.map((logo) => (
 							<span
 								key={logo.name}
-								className="font-display text-sm font-bold tracking-widest text-foreground/80 sm:text-base"
+								className="font-display text-xs sm:text-sm font-bold tracking-widest text-foreground/80 sm:text-base"
 							>
 								{logo.name}
 							</span>
@@ -81,4 +81,3 @@ export function LandingStats() {
 		</section>
 	)
 }
-
