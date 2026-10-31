@@ -1128,7 +1128,7 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-tag-active {
 		border-color: var(--accent-lime);
 		background: var(--accent-lime);
-		color: #17191c;
+		color: var(--on-primary, #080c09);
 	}
 
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-filter {
@@ -1147,7 +1147,7 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .marketplace-filter[data-state="active"] {
 		border-color: var(--accent-lime);
 		background: var(--accent-lime);
-		color: #17191c;
+		color: var(--on-primary, #080c09);
 		box-shadow: none;
 	}
 
@@ -1169,7 +1169,7 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .app-primary-action,
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .landing-primary {
 		background: var(--accent-lime);
-		color: #17191c;
+		color: var(--on-primary, #080c09);
 		font-weight: 600;
 		box-shadow: none;
 	}
@@ -1311,7 +1311,7 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) a.bg-primary:not([aria-current="page"]),
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) search button[type="submit"].bg-primary {
 		background: var(--accent-lime);
-		color: #17191c;
+		color: var(--on-primary, #080c09);
 		font-weight: 600;
 		box-shadow: none;
 	}
