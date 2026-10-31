@@ -41,12 +41,12 @@ export function LandingContracts() {
 	return (
 		<section
 			id="contracts"
-			className="scroll-mt-20 border-y border-border/70 dark:border-[#1F2D21] bg-muted/20 dark:bg-[#080C09] py-12 sm:py-20 lg:py-24"
+			className="scroll-mt-20 border-y border-border/70 bg-muted/20 py-12 sm:py-20 lg:py-24"
 		>
 			<div className="landing-container px-4 sm:px-6">
 				{/* Section Header */}
 				<div className="flex flex-col gap-2.5 sm:gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-[#B8EF0D]/40 bg-[#EDF9C5] dark:border-[#2E421F] dark:bg-[#152317] px-2.5 py-1 text-xs font-bold text-[#4F6500] dark:text-[#B8EF0D]">
+					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
 						<ShieldCheck className="size-3.5" />
 						<span>LIVE MARKETPLACE FEED</span>
 					</div>
@@ -64,16 +64,16 @@ export function LandingContracts() {
 					{CONTRACTS.map((contract) => (
 						<article
 							key={contract.title}
-							className="group flex flex-col justify-between rounded-2xl border border-border/80 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 dark:hover:border-[#B8EF0D]/30 hover:shadow-md"
+							className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
 						>
 							<div>
 								{/* Meta Row: Tag & Escrow Badge */}
 								<div className="flex items-center justify-between gap-2">
 									<div className="flex flex-wrap items-center gap-1.5">
-										<span className="rounded-md bg-[#1F2125] dark:bg-[#131B14] dark:border dark:border-[#1F2D21] px-2 py-0.5 text-[11px] font-semibold text-white dark:text-[#B8EF0D]">
+										<span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-foreground border border-border/60">
 											{contract.tag}
 										</span>
-										<span className="inline-flex items-center gap-1 rounded-md bg-[#EEF8E7] dark:bg-[#142316] dark:border dark:border-[#203D24] px-2 py-0.5 text-[11px] font-semibold text-[#1E5C2D] dark:text-[#4ADE80]">
+										<span className="inline-flex items-center gap-1 rounded-md bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-2 py-0.5 text-[11px] font-semibold text-[#3E7B3D] dark:text-[#8DD37D]">
 											<ShieldCheck className="size-3" />
 											{contract.escrow}
 										</span>
@@ -91,7 +91,7 @@ export function LandingContracts() {
 
 								{/* Client Info */}
 								<div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-									<Award className="size-3.5 text-[#1E5C2D] dark:text-[#4ADE80] shrink-0" />
+									<Award className="size-3.5 text-[#3E7B3D] dark:text-[#8DD37D] shrink-0" />
 									<span className="truncate">{contract.client}</span>
 								</div>
 
@@ -110,7 +110,7 @@ export function LandingContracts() {
 									{contract.tags.map((tg) => (
 										<span
 											key={tg}
-											className="rounded-md border border-border/60 dark:border-[#1F2D21] bg-muted/40 dark:bg-[#131B14] px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:text-[#B5C4B6]"
+											className="rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
 										>
 											{tg}
 										</span>
@@ -119,14 +119,14 @@ export function LandingContracts() {
 							</div>
 
 							{/* Footer */}
-							<div className="mt-5 sm:mt-6 flex items-center justify-between border-t border-border/60 dark:border-[#1F2D21] pt-3.5 sm:pt-4 text-xs">
+							<div className="mt-5 sm:mt-6 flex items-center justify-between border-t border-border/60 pt-3.5 sm:pt-4 text-xs">
 								<span className="text-muted-foreground font-medium">
 									{contract.proposals}
 								</span>
 								<Link
 									to="/signup"
 									search={{ role: "freelancer" }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground dark:text-[#B8EF0D] hover:underline"
+									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-primary hover:underline"
 								>
 									<span>Submit Proposal</span>
 									<ArrowUpRight className="size-3.5" />
@@ -141,7 +141,7 @@ export function LandingContracts() {
 					<Link
 						to="/signup"
 						search={{ role: "freelancer" }}
-						className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F2125] dark:bg-[#B8EF0D] px-6 py-3 text-sm font-semibold text-white dark:text-[#080C09] shadow-xs transition-all hover:bg-[#2B2E32] dark:hover:bg-[#C8FF23]"
+						className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90"
 					>
 						<span>Browse all 340+ open contracts</span>
 						<ArrowUpRight className="size-4" />
@@ -149,9 +149,9 @@ export function LandingContracts() {
 					<Link
 						to="/signup"
 						search={{ role: "client" }}
-						className="inline-flex items-center justify-center gap-2 rounded-xl border border-border dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 dark:hover:border-[#B8EF0D]/40 hover:bg-muted dark:hover:bg-[#131B14]"
+						className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
 					>
-						<Sparkles className="size-4 text-[#7FA600] dark:text-[#B8EF0D]" />
+						<Sparkles className="size-4 text-[#7FA600] dark:text-primary" />
 						<span>Post a new project in 2 minutes</span>
 					</Link>
 				</div>

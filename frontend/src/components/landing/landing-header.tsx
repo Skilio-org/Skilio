@@ -19,7 +19,7 @@ const links = [
 
 export function LandingHeader() {
 	return (
-		<header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md transition-colors dark:border-[#1F2D21]/80 dark:bg-[#080C09]/90">
+		<header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md transition-colors">
 			<div className="landing-container flex h-[70px] sm:h-[74px] items-center justify-between gap-3 sm:gap-4">
 				<div className="flex items-center gap-6 lg:gap-12">
 					<Logo className="h-7 sm:h-8" />
@@ -51,11 +51,11 @@ export function LandingHeader() {
 
 					<Link
 						to="/signup"
-						className="inline-flex min-h-9 sm:min-h-10 items-center gap-1.5 sm:gap-2 rounded-xl bg-[#1F2125] dark:bg-[#B8EF0D] px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white dark:text-[#080C09] shadow-xs transition-all hover:bg-[#2B2E32] dark:hover:bg-[#C8FF23] active:scale-95"
+						className="inline-flex min-h-9 sm:min-h-10 items-center gap-1.5 sm:gap-2 rounded-xl bg-primary px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-95"
 					>
 						<span className="hidden xs:inline sm:inline">Join Skilio</span>
 						<span className="xs:hidden sm:hidden">Join</span>
-						<ArrowUpRight className="size-3.5 sm:size-4 text-[#B8EF0D] dark:text-[#080C09]" />
+						<ArrowUpRight className="size-3.5 sm:size-4" />
 					</Link>
 
 					<DropdownMenu>
@@ -63,12 +63,12 @@ export function LandingHeader() {
 							<button
 								type="button"
 								aria-label="Open navigation"
-								className="grid size-9 sm:size-10 place-items-center rounded-lg border border-border dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] text-foreground hover:bg-muted dark:hover:bg-[#152317] lg:hidden"
+								className="grid size-9 sm:size-10 place-items-center rounded-lg border border-border bg-card text-foreground hover:bg-muted lg:hidden"
 							>
 								<Menu className="size-5" />
 							</button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-56 p-2 dark:bg-[#0E140F] dark:border-[#1F2D21]">
+						<DropdownMenuContent align="end" className="w-56 p-2">
 							{links.map(([href, label]) => (
 								<DropdownMenuItem asChild key={href}>
 									<a className="min-h-10 w-full" href={href}>
@@ -84,7 +84,7 @@ export function LandingHeader() {
 							<DropdownMenuItem asChild>
 								<Link
 									to="/signup"
-									className="min-h-10 w-full font-semibold text-primary dark:text-[#B8EF0D]"
+									className="min-h-10 w-full font-semibold text-primary"
 								>
 									Create account
 								</Link>
