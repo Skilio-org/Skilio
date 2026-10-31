@@ -80,7 +80,7 @@ def probe_disk() -> ComponentHealth:
                 latency_ms=None,
                 message="Critical storage capacity shortage",
             )
-        if free_pct < 15.0:
+        if free_pct < 10.0:
             return ComponentHealth(
                 status="degraded",
                 latency_ms=None,
