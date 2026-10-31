@@ -34,7 +34,7 @@ export function LandingStats() {
 	return (
 		<section
 			aria-label="Platform proof metrics and trusted companies"
-			className="border-y border-border/70 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] py-10 sm:py-12 lg:py-16"
+			className="border-y border-border/70 bg-card py-10 sm:py-12 lg:py-16"
 		>
 			<div className="landing-container px-4 sm:px-6">
 				{/* 4 Stats Grid */}
@@ -44,7 +44,7 @@ export function LandingStats() {
 							key={stat.label}
 							className={`flex flex-col ${
 								idx < STATS.length - 1
-									? "md:border-r md:border-border/60 dark:md:border-[#1F2D21] md:pr-6 lg:pr-8"
+									? "md:border-r md:border-border/60 md:pr-6 lg:pr-8"
 									: ""
 							}`}
 						>
@@ -62,7 +62,7 @@ export function LandingStats() {
 				</div>
 
 				{/* Trust Logos Banner */}
-				<div className="mt-10 sm:mt-14 border-t border-border/50 dark:border-[#1F2D21] pt-6 sm:pt-8">
+				<div className="mt-10 sm:mt-14 border-t border-border/50 pt-6 sm:pt-8">
 					<p className="text-center text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/80">
 						Trusted by product & engineering leaders at modern high-velocity companies
 					</p>

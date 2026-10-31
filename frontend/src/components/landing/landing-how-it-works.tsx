@@ -26,12 +26,12 @@ export function LandingHowItWorks() {
 	return (
 		<section
 			id="how-it-works"
-			className="scroll-mt-20 border-y border-border/70 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] py-12 sm:py-20 lg:py-24"
+			className="scroll-mt-20 border-y border-border/70 bg-card py-12 sm:py-20 lg:py-24"
 		>
 			<div className="landing-container px-4 sm:px-6">
 				{/* Section Header */}
 				<div className="flex flex-col gap-2.5 sm:gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-[#B8EF0D]/40 bg-[#EDF9C5] dark:border-[#2E421F] dark:bg-[#152317] px-2.5 py-1 text-xs font-bold text-[#4F6500] dark:text-[#B8EF0D]">
+					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
 						<span>SIMPLE 3-STEP WORKFLOW</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
@@ -48,14 +48,14 @@ export function LandingHowItWorks() {
 					{STEPS.map(({ step, icon: Icon, title, desc }) => (
 						<div
 							key={step}
-							className="group relative flex flex-col justify-between rounded-2xl border border-border/80 dark:border-[#1F2D21] bg-background dark:bg-[#080C09] p-6 sm:p-7 shadow-xs transition-all hover:border-foreground/20 dark:hover:border-[#B8EF0D]/30 hover:shadow-md"
+							className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-background p-6 sm:p-7 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
 						>
 							<div>
 								<div className="flex items-center justify-between">
-									<span className="font-display text-3xl font-extrabold text-[#7FA600] dark:text-[#B8EF0D]">
+									<span className="font-display text-3xl font-extrabold text-[#7FA600] dark:text-primary">
 										{step}
 									</span>
-									<div className="grid size-11 place-items-center rounded-xl bg-muted/60 dark:bg-[#131B14] border border-transparent dark:border-[#1F2D21] text-foreground dark:text-[#B8EF0D]">
+									<div className="grid size-11 place-items-center rounded-xl bg-muted/60 text-foreground">
 										<Icon className="size-5" />
 									</div>
 								</div>
@@ -76,7 +76,7 @@ export function LandingHowItWorks() {
 					<Link
 						to="/signup"
 						search={{ role: "client" }}
-						className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#1F2125] dark:bg-[#B8EF0D] px-6 py-3 text-sm font-semibold text-white dark:text-[#080C09] shadow-xs transition-all hover:bg-[#2B2E32] dark:hover:bg-[#C8FF23]"
+						className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90"
 					>
 						<span>Get started with your project</span>
 						<ArrowUpRight className="size-4" />

@@ -65,10 +65,10 @@ export function LandingHero({
 	}
 
 	return (
-		<section className="relative overflow-hidden border-b border-border/60 dark:border-[#1F2D21]/60 bg-muted/20 dark:bg-[#080C09] py-10 sm:py-16 lg:py-20">
-			{/* Subtle ambient green glow pattern */}
+		<section className="relative overflow-hidden border-b border-border/60 bg-muted/20 py-10 sm:py-16 lg:py-20">
+			{/* Subtle ambient green glow pattern matching platform accent */}
 			<div
-				className="pointer-events-none absolute inset-0 -z-10 opacity-30 dark:opacity-25"
+				className="pointer-events-none absolute inset-0 -z-10 opacity-30 dark:opacity-20"
 				style={{
 					backgroundImage: `radial-gradient(circle at 50% 20%, rgba(184, 239, 13, 0.12) 0%, transparent 60%)`,
 				}}
@@ -76,8 +76,8 @@ export function LandingHero({
 
 			<div className="landing-container flex flex-col items-center text-center px-4 sm:px-6">
 				{/* Eyebrow Pill */}
-				<div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-[#B8EF0D]/40 bg-[#EDF9C5]/80 dark:border-[#2E421F] dark:bg-[#152317] px-3 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-semibold text-[#4F6500] dark:text-[#B8EF0D] shadow-xs backdrop-blur-xs">
-					<Sparkles className="size-3 sm:size-3.5 text-[#7FA600] dark:text-[#B8EF0D]" />
+				<div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-semibold text-foreground shadow-xs backdrop-blur-xs">
+					<Sparkles className="size-3 sm:size-3.5 text-[#7FA600] dark:text-primary" />
 					<span>THE TOP 3% INDEPENDENT TALENT NETWORK</span>
 				</div>
 
@@ -109,8 +109,8 @@ export function LandingHero({
 							onClick={() => setRoleMode("hire")}
 							className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition-all ${
 								roleMode === "hire"
-									? "bg-[#1F2125] text-white shadow-xs dark:bg-[#B8EF0D] dark:text-[#080C09]"
-									: "bg-card dark:bg-[#0E140F] border border-border dark:border-[#1F2D21] text-muted-foreground hover:text-foreground"
+									? "bg-primary text-primary-foreground shadow-xs"
+									: "bg-card border border-border text-muted-foreground hover:text-foreground"
 							}`}
 						>
 							Hire Talent
@@ -120,8 +120,8 @@ export function LandingHero({
 							onClick={() => setRoleMode("work")}
 							className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition-all ${
 								roleMode === "work"
-									? "bg-[#1F2125] text-white shadow-xs dark:bg-[#B8EF0D] dark:text-[#080C09]"
-									: "bg-card dark:bg-[#0E140F] border border-border dark:border-[#1F2D21] text-muted-foreground hover:text-foreground"
+									? "bg-primary text-primary-foreground shadow-xs"
+									: "bg-card border border-border text-muted-foreground hover:text-foreground"
 							}`}
 						>
 							Find Work
@@ -131,7 +131,7 @@ export function LandingHero({
 					{/* Search Box Form */}
 					<form
 						onSubmit={handleSearch}
-						className="relative flex flex-col gap-2 rounded-2xl border border-border/80 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] p-2 shadow-md sm:flex-row sm:items-center sm:gap-2.5 sm:p-2.5"
+						className="relative flex flex-col gap-2 rounded-2xl border border-border/80 bg-card p-2 shadow-md sm:flex-row sm:items-center sm:gap-2.5 sm:p-2.5"
 					>
 						<div className="flex flex-1 items-center gap-2.5 px-3 py-1.5 sm:py-1">
 							<Search className="size-4 sm:size-5 shrink-0 text-muted-foreground" />
@@ -149,18 +149,18 @@ export function LandingHero({
 						</div>
 
 						{/* Category Dropdown */}
-						<div className="relative shrink-0 border-t border-border/60 dark:border-[#1F2D21] pt-2 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-2">
+						<div className="relative shrink-0 border-t border-border/60 pt-2 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-2">
 							<button
 								type="button"
 								onClick={() => setIsCatOpen(!isCatOpen)}
-								className="flex w-full items-center justify-between gap-2 rounded-lg bg-muted/50 dark:bg-[#131B14] px-3 py-2 text-xs font-medium text-foreground hover:bg-muted dark:hover:bg-[#1A261B]"
+								className="flex w-full items-center justify-between gap-2 rounded-lg bg-muted/50 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted"
 							>
 								<span className="truncate max-w-[180px] text-left">{category}</span>
 								<ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
 							</button>
 
 							{isCatOpen && (
-								<div className="absolute top-full left-0 right-0 sm:left-auto sm:right-0 z-30 mt-1.5 w-full sm:w-56 rounded-xl border border-border dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] p-1.5 shadow-xl">
+								<div className="absolute top-full left-0 right-0 sm:left-auto sm:right-0 z-30 mt-1.5 w-full sm:w-56 rounded-xl border border-border bg-card p-1.5 shadow-xl">
 									{CATEGORIES.map((cat) => (
 										<button
 											key={cat}
@@ -169,7 +169,7 @@ export function LandingHero({
 												setCategory(cat)
 												setIsCatOpen(false)
 											}}
-											className="flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-muted-foreground hover:bg-muted dark:hover:bg-[#152317] hover:text-foreground"
+											className="flex w-full items-center rounded-lg px-2.5 py-1.5 text-left text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
 										>
 											{cat}
 										</button>
@@ -181,7 +181,7 @@ export function LandingHero({
 						{/* Submit Action */}
 						<button
 							type="submit"
-							className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#B8EF0D] px-6 text-sm font-semibold text-[#080C09] shadow-xs transition-all hover:bg-[#C8FF23] active:scale-95"
+							className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-95"
 						>
 							<span>{roleMode === "hire" ? "Find Talent" : "Find Work"}</span>
 							<ArrowUpRight className="size-4" />
@@ -196,7 +196,7 @@ export function LandingHero({
 								key={tag.label}
 								type="button"
 								onClick={() => handleTagClick(tag.query)}
-								className="rounded-full border border-border/80 dark:border-[#1F2D21] bg-card/80 dark:bg-[#0E140F] px-2.5 py-1 text-[11px] sm:text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-card hover:text-foreground dark:hover:text-[#F4F8F4]"
+								className="rounded-full border border-border/80 bg-card/80 px-2.5 py-1 text-[11px] sm:text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-card hover:text-foreground"
 							>
 								{tag.label}
 							</button>
@@ -207,13 +207,13 @@ export function LandingHero({
 				{/* Floating Showcase Trio Preview */}
 				<div className="mt-10 sm:mt-12 grid w-full max-w-5xl items-center gap-4 text-left sm:gap-6 md:grid-cols-[240px_1fr_240px]">
 					{/* Left Float: Escrow Safeguard */}
-					<div className="hidden rounded-2xl border border-border/80 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] p-4 shadow-sm backdrop-blur-xs md:block">
+					<div className="hidden rounded-2xl border border-border/80 bg-card p-4 shadow-sm backdrop-blur-xs md:block">
 						<div className="flex items-center gap-2.5">
-							<div className="grid size-8 place-items-center rounded-lg bg-[#EEF8E7] text-[#1E5C2D] dark:bg-[#142316] dark:text-[#4ADE80] dark:border dark:border-[#203D24]">
+							<div className="grid size-8 place-items-center rounded-lg bg-[#EEF8E7] text-[#3E7B3D] dark:bg-[#252A21] dark:text-[#8DD37D] dark:border dark:border-[#384334]">
 								<ShieldCheck className="size-4" />
 							</div>
 							<div>
-								<span className="block text-[11px] font-bold uppercase tracking-wider text-[#1E5C2D] dark:text-[#4ADE80]">
+								<span className="block text-[11px] font-bold uppercase tracking-wider text-[#3E7B3D] dark:text-[#8DD37D]">
 									Milestone Protected
 								</span>
 								<span className="text-sm font-semibold text-foreground">
@@ -227,10 +227,10 @@ export function LandingHero({
 					</div>
 
 					{/* Center: Live Featured Specialist Profile */}
-					<div className="rounded-2xl border border-border/90 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] p-4 sm:p-6 shadow-lg transition-transform hover:-translate-y-0.5">
+					<div className="rounded-2xl border border-border/90 bg-card p-4 sm:p-6 shadow-lg transition-transform hover:-translate-y-0.5">
 						<div className="flex items-start justify-between gap-3">
 							<div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-								<div className="grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl bg-[#1F2125] dark:bg-[#1A261B] font-bold text-sm text-[#B8EF0D] shadow-xs">
+								<div className="grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl bg-primary font-bold text-sm text-primary-foreground shadow-xs">
 									MC
 								</div>
 								<div className="min-w-0">
@@ -238,7 +238,7 @@ export function LandingHero({
 										<h3 className="font-semibold text-sm sm:text-base text-foreground truncate">
 											Marcus Chen
 										</h3>
-										<span className="inline-flex items-center gap-1 rounded-md bg-[#EEF8E7] dark:bg-[#142316] dark:border dark:border-[#203D24] px-1.5 py-0.5 text-[10px] font-bold text-[#1E5C2D] dark:text-[#4ADE80]">
+										<span className="inline-flex items-center gap-1 rounded-md bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
 											<Check className="size-3" />
 											Top 3% Vetted
 										</span>
@@ -255,7 +255,7 @@ export function LandingHero({
 										/hr
 									</span>
 								</p>
-								<span className="text-[11px] font-medium text-[#1E5C2D] dark:text-[#4ADE80]">
+								<span className="text-[11px] font-medium text-[#3E7B3D] dark:text-[#8DD37D]">
 									Available: 30h/wk
 								</span>
 							</div>
@@ -267,7 +267,7 @@ export function LandingHero({
 								(skill) => (
 									<span
 										key={skill}
-										className="rounded-md border border-border/60 dark:border-[#1F2D21] bg-muted/40 dark:bg-[#131B14] px-2 py-0.5 text-[11px] font-medium text-foreground/80 dark:text-[#B5C4B6]"
+										className="rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
 									>
 										{skill}
 									</span>
@@ -276,7 +276,7 @@ export function LandingHero({
 						</div>
 
 						{/* Verified Feedback Snippet */}
-						<div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 rounded-xl bg-muted/30 dark:bg-[#111912] px-3.5 py-2.5 border border-border/50 dark:border-[#1F2D21] text-xs">
+						<div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 rounded-xl bg-muted/30 px-3.5 py-2.5 border border-border/50 text-xs">
 							<div className="flex items-center gap-1 text-amber-500 shrink-0">
 								{Array.from({ length: 5 }).map((_, i) => (
 									<Star key={i} className="size-3.5 fill-amber-400 text-amber-400" />
@@ -291,9 +291,9 @@ export function LandingHero({
 					</div>
 
 					{/* Right Float: Match Speed */}
-					<div className="hidden rounded-2xl border border-border/80 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] p-4 shadow-sm backdrop-blur-xs md:block">
+					<div className="hidden rounded-2xl border border-border/80 bg-card p-4 shadow-sm backdrop-blur-xs md:block">
 						<div className="flex items-center gap-2.5">
-							<div className="grid size-8 place-items-center rounded-lg bg-[#FFFBEB] text-[#D97706] dark:bg-[#231E12] dark:text-[#FBBF24] dark:border dark:border-[#3D321A]">
+							<div className="grid size-8 place-items-center rounded-lg bg-[#FFFBEB] text-[#D97706] dark:bg-[#272318] dark:text-[#FBBF24] dark:border dark:border-[#423920]">
 								<Zap className="size-4" />
 							</div>
 							<div>

@@ -38,7 +38,7 @@ export function LandingTalent({
 			<div className="landing-container px-4 sm:px-6">
 				{/* Section Header */}
 				<div className="flex flex-col gap-2.5 sm:gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-[#B8EF0D]/40 bg-[#EDF9C5] dark:border-[#2E421F] dark:bg-[#152317] px-2.5 py-1 text-xs font-bold text-[#4F6500] dark:text-[#B8EF0D]">
+					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
 						<span>PRE-VETTED ROSTER</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
@@ -61,8 +61,8 @@ export function LandingTalent({
 								onClick={() => onFilter(cat)}
 								className={`shrink-0 rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold transition-all ${
 									active
-										? "bg-[#1F2125] text-white shadow-xs dark:bg-[#B8EF0D] dark:text-[#080C09]"
-										: "border border-border/80 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] text-muted-foreground hover:border-foreground/30 hover:text-foreground dark:hover:text-[#F4F8F4]"
+										? "bg-primary text-primary-foreground shadow-xs"
+										: "border border-border/80 bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
 								}`}
 							>
 								{cat}
@@ -76,7 +76,7 @@ export function LandingTalent({
 					{displayPeople.map((person) => (
 						<article
 							key={person.id}
-							className="group flex flex-col justify-between rounded-2xl border border-border/80 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 dark:hover:border-[#B8EF0D]/30 hover:shadow-md"
+							className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
 						>
 							<div>
 								{/* Card Top: Avatar, Name, Rate */}
@@ -92,7 +92,7 @@ export function LandingTalent({
 												<h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors truncate">
 													{person.name}
 												</h3>
-												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] dark:bg-[#142316] dark:border dark:border-[#203D24] px-1.5 py-0.5 text-[10px] font-bold text-[#1E5C2D] dark:text-[#4ADE80]">
+												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
 													<Check className="size-2.5" />
 													Top 3%
 												</span>
@@ -108,7 +108,7 @@ export function LandingTalent({
 												/hr
 											</span>
 										</p>
-										<span className="text-[11px] font-medium text-[#1E5C2D] dark:text-[#4ADE80]">
+										<span className="text-[11px] font-medium text-[#3E7B3D] dark:text-[#8DD37D]">
 											{person.availability}
 										</span>
 									</div>
@@ -124,7 +124,7 @@ export function LandingTalent({
 									{person.skills.slice(0, 4).map((skill) => (
 										<span
 											key={skill}
-											className="rounded-md border border-border/60 dark:border-[#1F2D21] bg-muted/40 dark:bg-[#131B14] px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:text-[#B5C4B6]"
+											className="rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
 										>
 											{skill}
 										</span>
@@ -133,7 +133,7 @@ export function LandingTalent({
 							</div>
 
 							{/* Card Footer */}
-							<div className="mt-5 sm:mt-6 flex items-center justify-between border-t border-border/60 dark:border-[#1F2D21] pt-3.5 sm:pt-4 text-xs">
+							<div className="mt-5 sm:mt-6 flex items-center justify-between border-t border-border/60 pt-3.5 sm:pt-4 text-xs">
 								<div className="flex items-center gap-1 min-w-0">
 									<Star className="size-3.5 fill-amber-400 text-amber-400 shrink-0" />
 									<span className="font-bold text-foreground">{person.rating}</span>
@@ -148,7 +148,7 @@ export function LandingTalent({
 								<Link
 									to="/talent"
 									search={{ q: undefined, category: undefined }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground dark:text-[#B8EF0D] hover:underline shrink-0"
+									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-primary hover:underline shrink-0"
 								>
 									<span>View</span>
 									<ArrowUpRight className="size-3.5" />
@@ -163,10 +163,10 @@ export function LandingTalent({
 					<Link
 						to="/talent"
 						search={{ q: undefined, category: undefined }}
-						className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-border dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 dark:hover:border-[#B8EF0D]/40 hover:bg-muted dark:hover:bg-[#131B14]"
+						className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
 					>
 						<span>Explore all 12,000+ vetted talent profiles</span>
-						<ArrowUpRight className="size-4 text-[#7FA600] dark:text-[#B8EF0D]" />
+						<ArrowUpRight className="size-4 text-[#7FA600] dark:text-primary" />
 					</Link>
 				</div>
 			</div>
