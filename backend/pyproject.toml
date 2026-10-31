@@ -29,6 +29,7 @@ dependencies = [
     "passlib>=1.7.4",
     "redis>=8.1.0",
     "prometheus-fastapi-instrumentator>=8.1.0",
+    "slowapi>=0.1.10",
 ]
 
 [dependency-groups]
