@@ -50,8 +50,8 @@ export function LandingTalent({
 					</p>
 				</div>
 
-				{/* Filter Tabs - horizontally scrollable on mobile */}
-				<div className="mt-6 sm:mt-8 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap no-scrollbar">
+				{/* Filter Tabs - clean responsive wrapping tabs */}
+				<div className="mt-6 sm:mt-8 flex flex-wrap gap-2">
 					{CATEGORIES.map((cat) => {
 						const active = filter === cat
 						return (
@@ -59,10 +59,10 @@ export function LandingTalent({
 								key={cat}
 								type="button"
 								onClick={() => onFilter(cat)}
-								className={`shrink-0 rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold transition-all ${
+								className={`rounded-lg px-3.5 py-1.5 sm:py-2 text-xs font-medium transition-all ${
 									active
-										? "bg-primary text-primary-foreground shadow-xs"
-										: "border border-border/80 bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+										? "bg-foreground text-background font-semibold shadow-xs"
+										: "border border-border/80 bg-card text-muted-foreground hover:border-foreground/30 hover:bg-muted hover:text-foreground"
 								}`}
 							>
 								{cat}

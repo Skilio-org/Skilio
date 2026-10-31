@@ -227,13 +227,13 @@ export function LandingHero({
 					</div>
 
 					{/* Center: Live Featured Specialist Profile */}
-					<div className="rounded-2xl border border-border/90 bg-card p-4 sm:p-6 shadow-lg transition-transform hover:-translate-y-0.5">
-						<div className="flex items-start justify-between gap-3">
-							<div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-								<div className="grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl bg-primary font-bold text-sm text-primary-foreground shadow-xs">
+					<div className="w-full max-w-full overflow-hidden rounded-2xl border border-border/90 bg-card p-4 sm:p-6 shadow-lg transition-transform hover:-translate-y-0.5">
+						<div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+							<div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
+								<div className="grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl bg-muted border border-border font-bold text-sm text-foreground shadow-xs">
 									MC
 								</div>
-								<div className="min-w-0">
+								<div className="min-w-0 flex-1">
 									<div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
 										<h3 className="font-semibold text-sm sm:text-base text-foreground truncate">
 											Marcus Chen
@@ -248,7 +248,7 @@ export function LandingHero({
 									</p>
 								</div>
 							</div>
-							<div className="text-right shrink-0">
+							<div className="flex items-center justify-between sm:flex-col sm:items-end gap-0.5 shrink-0 pt-2 border-t border-border/50 sm:border-0 sm:pt-0">
 								<p className="font-display text-base sm:text-lg font-bold text-foreground">
 									$140
 									<span className="text-xs font-normal text-muted-foreground">

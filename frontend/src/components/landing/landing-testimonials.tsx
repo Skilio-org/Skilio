@@ -1,4 +1,4 @@
-import { Quote, Star } from "lucide-react"
+import { Star } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -73,17 +73,16 @@ export function LandingTestimonials() {
 									</Badge>
 								</div>
 
-								<div className="relative mt-4 sm:mt-5">
-									<Quote className="size-6 text-muted-foreground/20 absolute -top-2 -left-1" />
-									<p className="relative z-10 text-foreground text-xs sm:text-sm leading-relaxed">
-										"{t.quote}"
+								<div className="mt-4 sm:mt-5">
+									<p className="text-foreground/90 text-xs sm:text-sm leading-relaxed italic">
+										“{t.quote}”
 									</p>
 								</div>
 							</CardContent>
 
 							<div className="mt-6 sm:mt-8 flex items-center gap-3 sm:gap-3.5 border-t border-border/60 pt-4 sm:pt-5">
 								<Avatar className="size-9 sm:size-10 border border-border">
-									<AvatarFallback className="bg-primary font-bold text-xs text-primary-foreground">
+									<AvatarFallback className="bg-muted border border-border/80 font-semibold text-xs text-foreground">
 										{t.initials}
 									</AvatarFallback>
 								</Avatar>
