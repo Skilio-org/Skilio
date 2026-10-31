@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { LandingTopBanner } from "@/components/landing/landing-top-banner"
 import { LandingHeader } from "@/components/landing/landing-header"
 import { LandingHero } from "@/components/landing/landing-hero"
 import { LandingStats } from "@/components/landing/landing-stats"
@@ -29,9 +28,6 @@ export function LandingPage() {
 
 	return (
 		<div className="landing-page min-h-dvh bg-background text-foreground antialiased selection:bg-[#B8EF0D] selection:text-[#17191C]">
-			{/* Top Announcement Bar */}
-			<LandingTopBanner />
-
 			{/* Main Sticky Header */}
 			<LandingHeader />
 
