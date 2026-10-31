@@ -113,10 +113,6 @@ jobs:
       - name: Check Web Root
         run: curl -f --retry 5 --retry-delay 2 http://localhost:8000
 
-      - name: Teardown Stack
-        if: always()
-        run: docker compose down -v --remove-orphans
-
 
   deploy:
     name: Deploy to AWS
