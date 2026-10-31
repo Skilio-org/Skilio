@@ -150,7 +150,6 @@ Every Pull Request targeting `master` must pass a sequential 3-tier automated qu
  │   • Runs database migrations (prestart.sh)                                  │
  │   • Executes 173 Pytest integration tests                                   │
  │   • Enforces strict ≥70% coverage gate (achieving 83% coverage)             │
- │   • Uploads interactive HTML coverage report artifact                       │
  │                                                                             │
  │  [Tier 3: test-docker-compose.yml] (~2.5m)                                  │
  │   • Builds production multi-stage Docker images                             │

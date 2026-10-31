@@ -264,7 +264,6 @@ Our pipeline executes four parallel testing jobs across three tiers before deplo
  │                        ──▶ Runs prestart.sh (DB migrations)            │
  │                        ──▶ Runs tests-start.sh (Pytest + Coverage)     │
  │                        ──▶ Enforces coverage: --fail-under=70          │
- │                        ──▶ Uploads HTML coverage report artifact       │
  ├────────────────────────────────────────────────────────────────────────┤
  │ TIER 3: Docker Build & Smoke Test                                      │
  │   • Job: test-docker-compose ──▶ docker compose build                 │
@@ -286,6 +285,7 @@ Our pipeline executes four parallel testing jobs across three tiers before deplo
    * `bun run build`: Executes the full Vite + TypeScript compiler against React 19 source code, guaranteeing zero type errors or missing imports.
 
 #### Tier 2: Backend Integration Testing (`test-backend`)
+* Uses `enable-cache: true` with `astral-sh/setup-uv@v5` to cache Python packages based on `uv.lock`, speeding up subsequent test runs.
 * Spawns live database and mock email dependencies inside the runner:
   ```bash
   cp .env.example .env
@@ -301,7 +301,6 @@ Our pipeline executes four parallel testing jobs across three tiers before deplo
   ```
 * **Enforces 70% Code Coverage Gate:**
   `uv run coverage report --fail-under=70` halts the pipeline if test coverage drops below 70% (our actual backend achieves **83% coverage across 173 tests**).
-* **Uploads HTML Coverage Report:** Generates and attaches an interactive HTML coverage artifact (`coverage-html`) viewable on GitHub Actions.
 
 #### Tier 3: Docker Build & Smoke Test (`test-docker-compose`)
 * Proves that the actual production container build succeeds on a clean system:
@@ -321,7 +320,7 @@ Our pipeline executes four parallel testing jobs across three tiers before deplo
 In [`ci-cd.yml`](file:///home/aysadeq/Desktop/Freelancer/.github/workflows/ci-cd.yml), the `deploy` job declares:
 ```yaml
 deploy:
-  name: Continuous Deployment (AWS EC2)
+  name: Deploy to AWS
   runs-on: ubuntu-latest
   needs: [lint-backend, lint-frontend, test-backend, test-docker-compose]
   if: github.ref == 'refs/heads/master' && github.event_name == 'push'
