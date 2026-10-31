@@ -154,7 +154,7 @@ Every Pull Request targeting `master` must pass a sequential 3-tier automated qu
  │  [Tier 3: test-docker-compose.yml] (~2.5m)                                  │
  │   • Builds production multi-stage Docker images                             │
  │   • Boots containerized application stack in detached mode                  │
- │   • Probes HTTP /api/v1/utils/health-check/ with retries                    │
+ │   • Probes HTTP /api/v1/health (DB + Redis + API) with retries              │
  │   • Verifies static frontend serving at root (/)                            │
  └─────────────────────────────────────────────────────────────────────────────┘
 ```

@@ -107,8 +107,8 @@ jobs:
       - name: Start Backend
         run: docker compose up -d --wait backend
 
-      - name: Check Backend Health
-        run: curl -f --retry 5 --retry-delay 2 http://localhost:8000/api/v1/utils/health-check/
+      - name: Check Full Stack Health
+        run: bash devops/scripts/check-health.sh http://localhost:8000/api/v1/health 5 2
 
       - name: Check Web Root
         run: curl -f --retry 5 --retry-delay 2 http://localhost:8000
@@ -151,21 +151,5 @@ jobs:
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'bash /opt/skilio/devops/scripts/deploy.sh'
 
-      - name: Verify Live Health
-        run: |
-          echo "==> Probing live production health endpoint..."
-          HEALTH_URL="https://skilio.works/api/v1/health"
-          MAX_RETRIES=12
-          RETRY_INTERVAL=5
-
-          for ((i=1; i<=MAX_RETRIES; i++)); do
-            if curl -fsSL "$HEALTH_URL" 2>/dev/null | grep -q '"status":"healthy"'; then
-              echo "==> Production deployment verified successfully at $HEALTH_URL!"
-              exit 0
-            fi
-            echo "==> Waiting for backend and ingress to become ready... (attempt $i/$MAX_RETRIES)"
-            sleep $RETRY_INTERVAL
-          done
-
-          echo "==> Production health check failed after $((MAX_RETRIES * RETRY_INTERVAL)) seconds!"
-          exit 1
+      - name: Verify Live Production Health
+        run: bash devops/scripts/check-health.sh https://skilio.works/api/v1/health 12 5
