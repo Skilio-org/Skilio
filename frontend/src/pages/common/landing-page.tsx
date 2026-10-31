@@ -28,7 +28,7 @@ export function LandingPage() {
 	}
 
 	return (
-		<div className="landing-page min-h-dvh bg-background text-foreground antialiased selection:bg-[#B8EF0D] selection:text-[#1F2125]">
+		<div className="landing-page min-h-dvh bg-background text-foreground antialiased selection:bg-[#B8EF0D] selection:text-[#080C09]">
 			{/* Top Announcement Bar */}
 			<LandingTopBanner />
 

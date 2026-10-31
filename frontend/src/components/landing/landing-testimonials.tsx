@@ -35,63 +35,63 @@ const TESTIMONIALS = [
 
 export function LandingTestimonials() {
 	return (
-		<section id="testimonials" className="scroll-mt-20 py-16 sm:py-24">
-			<div className="landing-container">
+		<section id="testimonials" className="scroll-mt-20 py-12 sm:py-20 lg:py-24">
+			<div className="landing-container px-4 sm:px-6">
 				{/* Section Header */}
-				<div className="flex flex-col gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md bg-[#EDF9C5] px-2.5 py-1 text-xs font-bold text-[#4F6500] dark:bg-[#1F2125] dark:text-[#B8EF0D]">
+				<div className="flex flex-col gap-2.5 sm:gap-3">
+					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-[#B8EF0D]/40 bg-[#EDF9C5] dark:border-[#2E421F] dark:bg-[#152317] px-2.5 py-1 text-xs font-bold text-[#4F6500] dark:text-[#B8EF0D]">
 						<span>TESTIMONIALS & CASE STUDIES</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
 						Trusted by teams that ship and talent that delivers.
 					</h2>
-					<p className="max-w-2xl text-base text-muted-foreground leading-relaxed">
+					<p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
 						See how leading founders and world-class independent specialists collaborate on
 						Skilio to bring ambitious ideas to life.
 					</p>
 				</div>
 
 				{/* Cards Grid */}
-				<div className="mt-12 grid gap-6 md:grid-cols-3">
+				<div className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 md:grid-cols-3">
 					{TESTIMONIALS.map((t) => (
 						<Card
 							key={t.author}
-							className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
+							className="group flex flex-col justify-between rounded-2xl border border-border/80 dark:border-[#1F2D21] bg-card dark:bg-[#0E140F] p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 dark:hover:border-[#B8EF0D]/30 hover:shadow-md"
 						>
 							<CardContent className="p-0">
 								<div className="flex items-center justify-between gap-2">
 									<div className="flex items-center gap-1 text-amber-500">
 										{Array.from({ length: 5 }).map((_, i) => (
-											<Star key={i} className="size-4 fill-amber-400 text-amber-400" />
+											<Star key={i} className="size-3.5 sm:size-4 fill-amber-400 text-amber-400" />
 										))}
 									</div>
 									<Badge
 										variant="outline"
-										className="text-[11px] font-semibold text-muted-foreground"
+										className="text-[11px] font-semibold text-muted-foreground dark:border-[#1F2D21] dark:text-[#B5C4B6]"
 									>
 										{t.type}
 									</Badge>
 								</div>
 
-								<div className="relative mt-5">
-									<Quote className="size-6 text-muted-foreground/20 absolute -top-2 -left-1" />
-									<p className="relative z-10 text-foreground text-sm leading-relaxed sm:text-base">
+								<div className="relative mt-4 sm:mt-5">
+									<Quote className="size-6 text-muted-foreground/20 dark:text-[#1F2D21] absolute -top-2 -left-1" />
+									<p className="relative z-10 text-foreground text-xs sm:text-sm leading-relaxed">
 										"{t.quote}"
 									</p>
 								</div>
 							</CardContent>
 
-							<div className="mt-8 flex items-center gap-3.5 border-t border-border/60 pt-5">
-								<Avatar className="size-10 border border-border">
-									<AvatarFallback className="bg-[#1F2125] font-bold text-xs text-[#B8EF0D]">
+							<div className="mt-6 sm:mt-8 flex items-center gap-3 sm:gap-3.5 border-t border-border/60 dark:border-[#1F2D21] pt-4 sm:pt-5">
+								<Avatar className="size-9 sm:size-10 border border-border dark:border-[#1F2D21]">
+									<AvatarFallback className="bg-[#1F2125] dark:bg-[#131B14] font-bold text-xs text-[#B8EF0D]">
 										{t.initials}
 									</AvatarFallback>
 								</Avatar>
 								<div className="min-w-0">
-									<p className="truncate font-semibold text-foreground text-sm">
+									<p className="truncate font-semibold text-foreground text-xs sm:text-sm">
 										{t.author}
 									</p>
-									<p className="truncate text-muted-foreground text-xs">
+									<p className="truncate text-muted-foreground text-[11px] sm:text-xs">
 										{t.role} · <span className="text-foreground/80">{t.company}</span>
 									</p>
 								</div>
@@ -103,4 +103,3 @@ export function LandingTestimonials() {
 		</section>
 	)
 }
-
