@@ -269,7 +269,7 @@ Our pipeline executes four parallel testing jobs across three tiers before deplo
  │   • Job: test-docker-compose ──▶ docker compose build                 │
  │                              ──▶ Run ephemeral prestart.sh             │
  │                              ──▶ docker compose up -d --wait backend   │
- │                              ──▶ curl http://localhost:8000/health     │
+ │                              ──▶ curl http://localhost:8000/api/v1/health   │
  │                              ──▶ curl http://localhost:8000 (UI root)  │
  └────────────────────────────────────────────────────────────────────────┘
 ```
@@ -309,7 +309,7 @@ Our pipeline executes four parallel testing jobs across three tiers before deplo
   docker compose run --rm backend bash scripts/prestart.sh
   docker compose up -d --wait backend
   ```
-* **HTTP Smoke Testing:** Uses `curl -f --retry 5 --retry-delay 2` to verify that both the backend health diagnostic endpoint (`/api/v1/utils/health-check/`) and the compiled React single-page application (`/`) respond with HTTP 200 OK.
+* **HTTP Smoke Testing:** Uses `curl -fsSL --retry 5 --retry-delay 2 http://localhost:8000/api/v1/health | grep '"status":"healthy"'` to verify both HTTP 200 and explicit JSON payload health (confirming FastAPI, PostgreSQL, and Redis are fully operational), and probes the compiled React single-page application (`/`) at web root.
 * **Automated Cleanup:** Enforces `docker compose down -v --remove-orphans` using `if: always()` to destroy test volumes cleanly.
 
 ---
@@ -465,26 +465,17 @@ Once files are synchronized, GitHub Actions triggers `bash /opt/skilio/devops/sc
 
 ## 7. Production Verification, CD Cons & Defense Guide
 
-### Step 5: Live Production Health Verification Loop
-After swapping the container, [`ci-cd.yml`](file:///home/aysadeq/Desktop/Freelancer/.github/workflows/ci-cd.yml#L157-L176) executes a post-deployment verification loop:
+### Step 5: Live Production Health Verification Loop (`check-health.sh`)
+After swapping the container, [`ci-cd.yml`](file:///home/aysadeq/Desktop/Freelancer/.github/workflows/ci-cd.yml) invokes our standardized health verification script [`check-health.sh`](file:///home/aysadeq/Desktop/Freelancer/devops/scripts/check-health.sh):
 
 ```bash
-HEALTH_URL="https://skilio.works/api/v1/health"
-MAX_RETRIES=12
-RETRY_INTERVAL=5
-
-for ((i=1; i<=MAX_RETRIES; i++)); do
-  if curl -fsSL "$HEALTH_URL" 2>/dev/null | grep -q '"status":"healthy"'; then
-    echo "==> Production deployment verified successfully at $HEALTH_URL!"
-    exit 0
-  fi
-  sleep $RETRY_INTERVAL
-done
-exit 1
+bash devops/scripts/check-health.sh https://skilio.works/api/v1/health 12 5
 ```
 
-* **Active Telemetry Probing:** Does not simply check if Port 443 is open. It verifies that Traefik has routed traffic to the newly swapped container and that `/api/v1/health` confirms active PostgreSQL query latency (`SELECT 1`) and Redis ping latency.
-* **Timeout Window:** Retries 12 times with 5-second intervals (60-second total window). If the backend fails to become healthy, the workflow exits with code 1, marking the deployment failed.
+* **Architectural Symmetry & Reusability:** Rather than embedding duplicate 20-line bash loops in YAML, `check-health.sh` standardizes health probing across both pre-deployment Docker smoke testing (`http://localhost:8000/api/v1/health 5 2`) and post-deployment AWS live verification (`https://skilio.works/api/v1/health 12 5`).
+* **Accurate JSON Parsing with `jq`:** Uses `jq -e '.status == "healthy"'` to strictly inspect the top-level summary status. This eliminates false positives where a degraded or unhealthy service (e.g., Redis outage) might otherwise pass a naive text `grep`.
+* **Diagnostic Telemetry Output:** On success, outputs the complete formatted JSON telemetry payload (PostgreSQL query latency, Redis ping latency, storage capacity) directly to CI logs.
+* **Timeout Window:** Retries 12 times with 5-second intervals (60-second total window). If the backend fails to become healthy, the script exits with code 1, marking the deployment failed.
 
 ---
 
