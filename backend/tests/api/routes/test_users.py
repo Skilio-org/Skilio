@@ -7,9 +7,20 @@ from sqlmodel import Session, select
 from app import crud
 from app.core.config import settings
 from app.core.security import verify_password
-from app.models import FreelancerProfile, User, UserCreate, UserRole
+from app.models import (
+    ChatMessage,
+    Conversation,
+    FreelancerProfile,
+    User,
+    UserCreate,
+    UserRole,
+)
 from app.utils import generate_email_validation_token
-from tests.utils.user import create_random_user, user_authentication_headers
+from tests.utils.user import (
+    authentication_token_from_email,
+    create_random_user,
+    user_authentication_headers,
+)
 from tests.utils.utils import random_email, random_lower_string
 
 
@@ -652,6 +663,47 @@ def test_delete_user_me(client: TestClient, db: Session) -> None:
     user_query = select(User).where(User.id == user_id)
     user_db = db.exec(user_query).first()
     assert user_db is None
+
+
+def test_delete_user_me_with_conversations(client: TestClient, db: Session) -> None:
+    client_user = create_random_user(db)
+    freelancer_user = create_random_user(db)
+    client_id = client_user.id
+    freelancer_id = freelancer_user.id
+
+    conv = Conversation(
+        client_id=client_id,
+        freelancer_id=freelancer_id,
+        creator_id=client_id,
+    )
+    db.add(conv)
+    db.commit()
+    db.refresh(conv)
+
+    msg1 = ChatMessage(conversation_id=conv.id, sender_id=client_id, content="Hello")
+    msg2 = ChatMessage(conversation_id=conv.id, sender_id=freelancer_id, content="Hi there")
+    db.add(msg1)
+    db.add(msg2)
+    db.commit()
+    conv_id = conv.id
+
+    headers = authentication_token_from_email(
+        client=client, email=client_user.email, db=db
+    )
+
+    r = client.delete(
+        f"{settings.API_V1_STR}/users/me",
+        headers=headers,
+    )
+    assert r.status_code == 200
+    assert r.json()["message"] == "User deleted successfully"
+
+    # User is deleted
+    assert db.exec(select(User).where(User.id == client_id)).first() is None
+    # Conversation is cascaded
+    assert db.exec(select(Conversation).where(Conversation.id == conv_id)).first() is None
+    # Messages are cascaded
+    assert db.exec(select(ChatMessage).where(ChatMessage.conversation_id == conv_id)).first() is None
 
 
 def test_delete_user_me_as_superuser(
