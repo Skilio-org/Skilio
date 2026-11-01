@@ -263,7 +263,7 @@ This overlay strips away development tools and hardens the infrastructure for pu
 | **Ingress Protocols** | HTTP Port 80 | HTTP 80 + Traefik API (8090) | Strict HTTPS (443) + HTTP (80) redirect |
 | **SSL / TLS** | None (Plain HTTP) | None | Automated Let's Encrypt (TLS 1.3) |
 | **Datastore Ports** | Internal network only | Published (`5432`, `6379`) | **Strictly blocked** from host |
-| **Backend Execution** | `fastapi run --workers 4` | `fastapi dev --host 0.0.0.0` | `fastapi run --workers 4` |
+| **Backend Execution** | `uvicorn app.main:app` (4 workers) | `fastapi dev --host 0.0.0.0` | `uvicorn app.main:app` (4 workers) |
 | **Email Subsystem** | Configured via env | Local Mailpit UI (:8025) | Production SMTP Relay |
 | **Restart Policy** | `unless-stopped` | Default / Inherited | `always` |
 | **Logging Level** | Standard INFO | DEBUG | Structured INFO / Access Logs |
