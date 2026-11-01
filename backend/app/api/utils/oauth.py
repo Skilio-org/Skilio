@@ -140,11 +140,11 @@ def upsert_oauth_user(
             user.google_id = provider_user.get("sub")
         if provider == "linkedin" and not user.linkedin_id:
             user.linkedin_id = provider_user.get("sub")
-        user.full_name = provider_user.get("name") or user.full_name
-        avatar = provider_user.get("picture")
-        user.avatar_url = (
-            avatar if avatar else (user.avatar_url or settings.DEFAULT_AVATAR_URL)
-        )
+        # user.full_name = provider_user.get("name") or user.full_name
+        # avatar = provider_user.get("picture")
+        # user.avatar_url = (
+        #     avatar if avatar else (user.avatar_url or settings.DEFAULT_AVATAR_URL)
+        # )
         if refresh_token:
             user.refresh_token = refresh_token
         session.add(user)

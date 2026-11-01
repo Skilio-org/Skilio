@@ -94,54 +94,64 @@ export function MessagesPage({
 	])
 
 	useEffect(() => {
-		if (selectedConversationId == undefined) return
-		// mutate the current conversation to mark all messages as read.
-		queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(selectedConversationId), (current) => {
-			if (!current) return current
-			if (current.unread_count === 0 && current.messages?.every((message) => message.is_read)) return current
-			// Send receipt to server for all messages in this conversation.
+		if (!selectedConversationId) return
+
+		const hasUnread =
+			(selectedConversation?.unread_count ?? 0) > 0 ||
+			detailsQuery.data?.messages?.some((message) => message.sender_id !== user?.id && !message.is_read)
+
+		if (hasUnread) {
 			sendMessage({
 				type: "read_receipt",
 				conversation_id: selectedConversationId,
 			})
-			return {
-				...current,
-				unread_count: 0,
-				messages: current.messages?.map((message) => ({
-					...message,
-					is_read: true,
-				})),
-			}
-		})
-		// Also update the conversations list to mark this conversation as read..
-		queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
-			if (!current) return current
-			const updatedConversations = current.data.map((conversation: any) => {
-				if (conversation.id === selectedConversationId) {
+
+			// Mark messages received from the other user as read in the active conversation
+			queryClient.setQueryData<ConversationDetailPublic>(
+				chatKeys.conversation(selectedConversationId),
+				(current) => {
+					if (!current) return current
 					return {
-						...conversation,
+						...current,
 						unread_count: 0,
-						last_message: {
-							...conversation.last_message,
-							is_read: true,
-						},
+						messages: current.messages?.map((message) =>
+							message.sender_id !== user?.id ? { ...message, is_read: true } : message,
+						),
 					}
+				},
+			)
+
+			// Clear unread count and mark last message as read in conversations list
+			queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
+				if (!current) return current
+				const updatedConversations = current.data.map((conversation: any) => {
+					if (conversation.id === selectedConversationId) {
+						return {
+							...conversation,
+							unread_count: 0,
+							last_message: conversation.last_message
+								? {
+										...conversation.last_message,
+										is_read: true,
+									}
+								: conversation.last_message,
+						}
+					}
+					return conversation
+				})
+				return {
+					...current,
+					data: updatedConversations,
 				}
-				return conversation
 			})
-			return {
-				...current,
-				data: updatedConversations,
-			}
-		})
+		}
 	}, [
 		selectedConversationId,
-		detailsQuery.isPending,
+		selectedConversation?.unread_count,
 		detailsQuery.data?.messages,
-		detailsQuery.data?.unread_count,
+		user?.id,
 		sendMessage,
 		queryClient,
-		setMessageSendResult,
 	])
 
 	useEffect(() => {

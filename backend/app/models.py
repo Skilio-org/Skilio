@@ -199,14 +199,20 @@ class User(UserBase, table=True):
     )
     client_conversations: list["Conversation"] = Relationship(
         back_populates="client",
+        cascade_delete=True,
+        passive_deletes=True,
         sa_relationship_kwargs={"foreign_keys": "[Conversation.client_id]"},
     )
     freelancer_conversations: list["Conversation"] = Relationship(
         back_populates="freelancer",
+        cascade_delete=True,
+        passive_deletes=True,
         sa_relationship_kwargs={"foreign_keys": "[Conversation.freelancer_id]"},
     )
     sent_messages: list["ChatMessage"] = Relationship(
         back_populates="sender",
+        cascade_delete=True,
+        passive_deletes=True,
         sa_relationship_kwargs={"foreign_keys": "[ChatMessage.sender_id]"},
     )
     job_posts: list["JobPost"] = Relationship(
@@ -886,6 +892,7 @@ class Conversation(SQLModel, table=True):
         back_populates="freelancer_conversations",
         sa_relationship_kwargs={"foreign_keys": "[Conversation.freelancer_id]"},
     )
+    unread_count: int = Field(default=0, sa_column_kwargs={"server_default": "0"})
     messages: list["ChatMessage"] = Relationship(
         back_populates="conversation", cascade_delete=True
     )

@@ -10,7 +10,7 @@ import {
 import { StarRatingInput } from "./review-stars"
 import type { ReviewPublic } from "@/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { getInitials } from "@/utils"
+import { extractErrorMessage, getInitials } from "@/utils"
 import { AlertCircle, Loader2 } from "lucide-react"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { cn } from "@/lib/utils"
@@ -77,8 +77,7 @@ export function ReviewModal({
 			await onSubmit({ rating, comment: trimmedComment })
 			onOpenChange(false)
 		} catch (err: any) {
-			const detail = err?.response?.data?.detail
-			setError(typeof detail === "string" ? detail : "Failed to save review. Please try again.")
+			setError(extractErrorMessage(err))
 		}
 	}
 
@@ -180,7 +179,7 @@ export function ReviewModal({
 						</button>
 						<button
 							type="submit"
-							disabled={isSubmitting || isOverLimit || rating === 0 || !comment.trim()}
+							disabled={isSubmitting || isOverLimit}
 							className={cn(workspaceStyles.primaryAction, "disabled:cursor-not-allowed disabled:opacity-40")}
 						>
 							{isSubmitting && <Loader2 className="size-4 animate-spin" />}

@@ -8,10 +8,13 @@ import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from prometheus_fastapi_instrumentator import Instrumentator
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
 from app.core.config import settings
+from app.core.limiter import limiter
 from app.core.redis import start_redis_listener, stop_redis_listener
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
@@ -69,6 +72,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[

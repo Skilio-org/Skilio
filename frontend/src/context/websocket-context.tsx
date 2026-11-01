@@ -1,4 +1,4 @@
-import { NotificationPublic } from "@/client"
+import { NotificationPublic, type ConversationDetailPublic, type ConversationsPublic } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
 import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
 import { useQueryClient } from "@tanstack/react-query"
@@ -94,11 +94,20 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 		}
 		if (wsRef.current) {
 			// Nullify event handlers before closing so onclose doesn't trigger a reconnect cycle
-			wsRef.current.onopen = null
-			wsRef.current.onmessage = null
-			wsRef.current.onclose = null
-			wsRef.current.onerror = null
-			wsRef.current.close()
+			const ws = wsRef.current
+			ws.onopen = null
+			ws.onmessage = null
+			ws.onclose = null
+			ws.onerror = null
+			// wsRef.current.close()
+			if (ws.readyState === WebSocket.CONNECTING) {
+				// Wait until it's open before cleanly closing, or close gracefully
+				ws.onopen = () => {
+					ws.close(1000);
+				};
+			} else if (ws.readyState === WebSocket.OPEN) {
+				ws.close(1000);
+			}
 			wsRef.current = null
 		}
 	}, [])
@@ -116,11 +125,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 		// Clean up active connection/listeners before opening a new one
 		cleanupSocket()
 		try {
-			let ws = new WebSocket(url)
+			const ws = new WebSocket(url)
 
-			// ws.addEventListener("error", (event) => {
-			// 	ws.close()
-			// })
+			ws.addEventListener("error", () => {
+				ws.close()
+			})
 			wsRef.current = ws
 
 			ws.onopen = () => {
@@ -174,6 +183,45 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 						case "message_ack_failed": {
 							const clientMessageId = data.data?.client_message_id
 							if (clientMessageId) setMessageSendResult(clientMessageId, "failed")
+						} break;
+						case "messages_read": {
+							const convId = data.data?.conversation_id
+							if (convId) {
+								queryClient.setQueryData<ConversationDetailPublic>(
+									chatKeys.conversation(convId),
+									(current) => {
+										if (!current) return current
+										return {
+											...current,
+											messages: current.messages?.map((m) => ({
+												...m,
+												is_read: true,
+											})),
+										}
+									},
+								)
+								queryClient.setQueryData<ConversationsPublic>(
+									chatKeys.conversations(),
+									(current) => {
+										if (!current) return current
+										return {
+											...current,
+											data: current.data.map((conv) => {
+												if (conv.id === convId && conv.last_message) {
+													return {
+														...conv,
+														last_message: {
+															...conv.last_message,
+															is_read: true,
+														},
+													}
+												}
+												return conv
+											}),
+										}
+									},
+								)
+							}
 						} break;
 					}
 
@@ -243,13 +291,19 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		isMountedRef.current = true
-		connect()
+		// connect()
+		const timer = setTimeout(() => {
+			if (isMountedRef.current) {
+				connect();
+			}
+	    }, 50);
 
 		window.addEventListener("storage", handleStorage)
 		window.addEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
 
 		return () => {
 			isMountedRef.current = false
+			clearTimeout(timer);
 			window.removeEventListener("storage", handleStorage)
 			window.removeEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
 			cleanupSocket()

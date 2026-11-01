@@ -4,18 +4,20 @@ import useAuth from "@/hooks/useAuth"
 import type { FreelancerJob } from "@/types/job"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-type ProposalDraft = {
+export type BackendProposal = {
+	proposalId: string
 	job: FreelancerJob
 	cover: string
 	rate: string
-	status?: "Drafts" | "Submitted" | "Archived"
+	status: "Drafts" | "Submitted" | "Archived"
+	rawStatus: ProposalStatus
+	createdAt?: string | null
+	updatedAt?: string | null
 }
 
-export type BackendProposal = ProposalDraft & { proposalId: string }
-
-const proposalStatus = (status: ProposalStatus): ProposalDraft["status"] => {
+const proposalStatus = (status: ProposalStatus): BackendProposal["status"] => {
 	if (status === "draft") return "Drafts"
-	if (status === "pending") return "Submitted"
+	if (status === "pending" || status === "accepted") return "Submitted"
 	return "Archived"
 }
 
@@ -27,6 +29,9 @@ function proposalToDraft(proposal: ProposalPublic): BackendProposal | null {
 		cover: proposal.cover_letter ?? "",
 		rate: "",
 		status: proposalStatus(proposal.status),
+		rawStatus: proposal.status,
+		createdAt: proposal.created_at,
+		updatedAt: proposal.updated_at,
 	}
 }
 
@@ -97,6 +102,8 @@ export function useFreelancerProposals() {
 		getProposal,
 		saveProposal,
 		withdrawProposal: (proposalId: string) => withdrawMutation.mutateAsync(proposalId),
+		isSubmitting: mutation.isPending,
+		isWithdrawing: withdrawMutation.isPending,
 		refetch: proposalsQuery.refetch,
 	}
 }

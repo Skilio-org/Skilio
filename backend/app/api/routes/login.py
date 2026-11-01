@@ -18,6 +18,7 @@ from app.api.utils.oauth import (
 )
 from app.core import security
 from app.core.config import settings
+from app.core.limiter import limiter
 from app.models import (
     Message,
     NewPassword,
@@ -45,6 +46,7 @@ def login_google() -> RedirectResponse:
     )
 
 @router.get("/login/google/callback")
+@limiter.limit('5/minute')
 async def google_callback(
     request: Request,
     response: Response,
@@ -92,6 +94,7 @@ def login_linkedin() -> RedirectResponse:
     )
 
 @router.get("/login/linkedin/callback")
+@limiter.limit('5/minute')
 async def linkedin_callback(
     request: Request,
     response: Response,
@@ -130,8 +133,9 @@ async def linkedin_callback(
     return build_access_token_response(user)
 
 @router.post("/login/access-token")
+@limiter.limit('5/minute')
 def login_access_token(
-    session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request
 ) -> Token:
     """
     OAuth2 compatible token login, get an access token for future requests
@@ -175,7 +179,8 @@ async def recover_password(email: str, session: SessionDep) -> Message:
     )
 
 @router.post("/reset-password/")
-def reset_password(session: SessionDep, body: NewPassword) -> Message:
+@limiter.limit('5/minute')
+def reset_password(session: SessionDep, body: NewPassword, request: Request) -> Message:
     """Reset password"""
     email = verify_password_reset_token(token=body.token)
     if not email:

@@ -54,6 +54,9 @@ export function useFreelancerReviews(freelancerId?: string, profileUserId?: stri
 	const invalidateReviewQueries = async () => {
 		if (freelancerId) {
 			await queryClient.invalidateQueries({ queryKey: reviewKeys.freelancer(freelancerId) })
+			if (profileUserId) {
+				await queryClient.invalidateQueries({ queryKey: ["talent-profile", profileUserId] })
+			}
 			await queryClient.invalidateQueries({ queryKey: ["talent-profile", freelancerId] })
 		}
 		await queryClient.invalidateQueries({ queryKey: ["profiles"] })
