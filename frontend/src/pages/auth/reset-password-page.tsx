@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Link as RouterLink, useNavigate } from "@tanstack/react-router"
 import { ArrowLeft, ArrowRight, Check, KeyRound, LockKeyhole } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { LoadingButton } from "@/components/ui/loading-button"
 import { PasswordInput } from "@/components/ui/password-input"
 
+import { AUTH_TOKEN_CHANGED_EVENT } from "@/context/websocket-context"
 import useCustomToast from "@/hooks/useCustomToast"
 
 import { handleError } from "@/utils"
@@ -44,6 +45,7 @@ export function ResetPasswordPage({ token }: { token: string }) {
 	const { showSuccessToast, showErrorToast } = useCustomToast()
 
 	const navigate = useNavigate()
+	const queryClient = useQueryClient()
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(formSchema),
@@ -74,6 +76,10 @@ export function ResetPasswordPage({ token }: { token: string }) {
 			showSuccessToast("Your password has been updated successfully.")
 
 			form.reset()
+
+			localStorage.removeItem("access_token")
+			window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+			queryClient.clear()
 
 			navigate({
 				to: "/login",
