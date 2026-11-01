@@ -183,7 +183,7 @@ export function ConversationList({
 											{conversation.last_message?.content || "No messages yet"}
 										</span>
 										{(conversation.unread_count ?? 0) > 0 && (
-											<span className="mt-0.5 grid  place-items-center rounded-full bg-primary p-1 font-caption text-[8px] font-bold text-on-primary leading-none shadow-xs">
+											<span className="mt-0.5 grid place-items-center rounded-full bg-primary p-1 font-caption text-[8px] font-bold text-on-primary leading-none shadow-xs w-4 h-4">
 												{conversation.unread_count}
 											</span>
 										)}

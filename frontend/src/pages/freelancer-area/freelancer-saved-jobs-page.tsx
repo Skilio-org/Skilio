@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { Bookmark, Search, Upload, X } from "lucide-react"
+import { Bookmark, Search, Upload } from "lucide-react"
 import { useState } from "react"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"

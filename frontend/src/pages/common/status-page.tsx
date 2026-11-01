@@ -46,7 +46,7 @@ const StatusPage = () => {
 		queryFn: async ({ signal }) =>
 			(
 				await HealthService.getSystemHealth({
-					baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+					baseURL: import.meta.env.VITE_API_URL ?? "",
 					signal,
 				})
 			).data,

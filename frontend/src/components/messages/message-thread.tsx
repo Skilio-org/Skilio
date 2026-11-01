@@ -298,14 +298,23 @@ export function MessageThread({
 							onDraftChange(event.target.value)
 						}}
 						onKeyDown={(event) => {
-							if (
-								event.key === "Enter" &&
-								(event.metaKey || event.ctrlKey) &&
-								!event.nativeEvent.isComposing &&
-								window.matchMedia("(pointer: fine)").matches
-							) {
-								event.preventDefault()
-								onSend()
+							if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+								if (event.metaKey || event.ctrlKey) {
+									event.preventDefault()
+									const textarea = event.currentTarget
+									const start = textarea.selectionStart
+									const end = textarea.selectionEnd
+									const nextValue = `${draft.substring(0, start)}\n${draft.substring(end)}`
+									onDraftChange(nextValue)
+									requestAnimationFrame(() => {
+										textarea.selectionStart = textarea.selectionEnd = start + 1
+									})
+								} else if (!event.shiftKey && window.matchMedia("(pointer: fine)").matches) {
+									event.preventDefault()
+									if (draft.trim()) {
+										onSend()
+									}
+								}
 							}
 						}}
 						rows={3}
@@ -316,7 +325,7 @@ export function MessageThread({
 					/>
 					<div className="flex items-center justify-between gap-2 px-3 pb-2.5 pt-1">
 						<span className="hidden font-caption text-caption text-on-surface-variant sm:block">
-							⌘ / Ctrl + Enter to send
+							Enter to send, Ctrl + Enter for new line
 						</span>
 						<button
 							type="submit"

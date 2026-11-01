@@ -1,0 +1,151 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'devops/docs/**'
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
+jobs:
+
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.11.18"
+          enable-cache: true
+
+      - name: Run Ruff
+        run: uv run ruff check --select E9,F63,F7,F82 backend/
+
+  lint-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.12
+
+      - name: Install Dependencies
+        run: bun install
+        working-directory: frontend
+
+      - name: Build React App
+        run: bun run build
+        working-directory: frontend
+
+
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.11.18"
+          enable-cache: true
+
+      - name: Start DB & Mailpit
+        run: |
+          cp .env.example .env
+          docker compose up -d db mailpit
+
+      - name: Run Migrations
+        run: uv run bash scripts/prestart.sh
+        working-directory: backend
+
+      - name: Run Pytest
+        run: uv run bash scripts/tests-start.sh
+        working-directory: backend
+
+      - name: Check Coverage (>= 70%)
+        run: uv run coverage report --fail-under=70
+        working-directory: backend
+
+
+  test-docker-compose:
+    name: Test Docker Stack
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        run: cp .env.example .env
+
+      - name: Build Stack
+        run: docker compose build
+
+      - name: Run Migrations
+        run: docker compose run --rm backend bash scripts/prestart.sh
+
+      - name: Start Backend
+        run: docker compose up -d --wait backend
+
+      - name: Check Full Stack Health
+        run: bash devops/scripts/check-health.sh http://localhost:8000/api/v1/health 5 2
+
+      - name: Check Web Root
+        run: curl -f --retry 5 --retry-delay 2 http://localhost:8000
+
+
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint-backend, lint-frontend, test-backend, test-docker-compose]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync Code to Server
+        run: |
+          rsync -avz --delete \
+            --exclude '.git*' \
+            --exclude '.env*' \
+            --exclude 'node_modules' \
+            --exclude '.venv' \
+            --exclude '__pycache__' \
+            --exclude 'devops/backup/dumps' \
+            ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/skilio/
+
+      - name: Run deploy.sh
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'bash /opt/skilio/devops/scripts/deploy.sh'
+
+      - name: Verify Live Production Health
+        run: bash devops/scripts/check-health.sh https://skilio.works/api/v1/health 12 5
