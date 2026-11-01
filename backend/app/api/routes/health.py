@@ -99,7 +99,6 @@ def probe_disk() -> ComponentHealth:
             message="Storage service unreachable",
         )
 
-
 @router.get("", response_model=SystemHealth)
 async def get_system_health(session: SessionDep, response: Response) -> SystemHealth:
     """

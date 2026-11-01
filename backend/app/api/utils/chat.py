@@ -94,7 +94,6 @@ def get_user_id_from_token(token: str) -> uuid.UUID | None:
         return None
 
 async def chat_message(data: dict[any, any], websocket: WebSocket, user_id: uuid.UUID) -> None:
-    print("Received chat_message event:", data)
     conv_id_raw = data.get("conversation_id")
     content = (data.get("content") or "").strip()
     client_message_id = data.get("client_message_id")
