@@ -40,7 +40,7 @@ Stage 7: Developer Tooling & Team CLI (Makefile)
   * **Environment Isolation**: Local dev automatically uses `compose.override.yml` (debug ports, Mailpit); production locks them out with `COMPOSE_FILE=compose.yml:compose.deploy.yml`.
 
 ### 2. Linux OS Hardening & Bootstrap (The Server)
-* **Documentation Mapping:** Covers [Learning Plan: Level 1](deployment/learning_plan.md#level-1-cloud--linux-infrastructure-iaas--aws) & [Deployment Plan: Phases 1 & 2](deployment/deployment_plan.md#phase-1-cloud-server--network-provisioning-iaas-completed-)
+* **Documentation Mapping:** Covers [Stage 2: Cloud Server & Auto Setup](guides/02_cloud_server_&_auto_setup.md) & [Production Cloud Deployment Spec](DEPLOYMENT.md)
 * **Files & Tools:** [`devops/scripts/server-init.sh`](../scripts/server-init.sh), `make server-init`, `skilio-key.pem`
 * **Core Concepts:**
   * **IaaS & Cloud Networking (Phase 1)**: AWS EC2 (`t3.small`), static Elastic IP (`16.192.59.166`), and Security Group firewall (ports 22, 80, 443 open; DB/Redis strictly blocked).

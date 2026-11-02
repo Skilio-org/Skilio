@@ -309,8 +309,8 @@ Our pipeline executes four parallel testing jobs across three tiers before deplo
   docker compose run --rm backend bash scripts/prestart.sh
   docker compose up -d --wait backend
   ```
-* **HTTP Smoke Testing:** Uses `curl -fsSL --retry 5 --retry-delay 2 http://localhost:8000/api/v1/health | grep '"status":"healthy"'` to verify both HTTP 200 and explicit JSON payload health (confirming FastAPI, PostgreSQL, and Redis are fully operational), and probes the compiled React single-page application (`/`) at web root.
-* **Automated Cleanup:** Enforces `docker compose down -v --remove-orphans` using `if: always()` to destroy test volumes cleanly.
+* **HTTP Smoke Testing:** Uses `bash devops/scripts/check-health.sh http://localhost:8000/api/v1/health 5 2` to verify deep diagnostic health (confirming FastAPI, PostgreSQL, and Redis are fully operational with JSON payload validation), followed by probing the compiled React single-page application (`/`) at web root.
+* **Zero State Leakage:** Relies on GitHub's cloud runner lifecycle, which completely destroys the ephemeral virtual machine, containers, and temporary volumes immediately upon job completion.
 
 ---
 
@@ -422,7 +422,7 @@ Once files are synchronized, GitHub Actions triggers `bash /opt/skilio/devops/sc
  ┌────────────────────────────────────────────────────────────────────────┐
  │           STEP 2: THE EPHEMERAL PRE-FLIGHT MIGRATION GATE              │
  │                                                                        │
- │  docker compose ... run -T --rm backend bash scripts/prestart.sh       │
+ │  docker compose ... run --rm backend bash scripts/prestart.sh          │
  │                                                                        │
  │  • Spins up ONE-OFF temporary container from the new image.            │
  │  • Probes DB readiness, executes `alembic upgrade head`.               │
@@ -453,13 +453,13 @@ Once files are synchronized, GitHub Actions triggers `bash /opt/skilio/devops/sc
  └────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### Why Line 38 (`docker compose run -T --rm ...`) is Best Practice:
+#### Why Ephemeral Container Migrations (`docker compose run --rm ...`) is Best Practice:
 * **Why not run migrations inside container startup (`CMD` / `entrypoint.sh`)?**  
   If multiple replicas of the backend start simultaneously, all instances race to apply `alembic upgrade head` at the exact same millisecond, corrupting database tables. Furthermore, if a migration fails, the container enters a `CrashLoopBackOff`, dropping user connections.
 * **Our Solution:** An ephemeral one-off container acts as a gatekeeper. If the schema migration fails, the script aborts before the running container is ever touched.
 * **Flag Breakdown:**
-  * `-T`: Disables pseudo-TTY allocation to prevent terminal hangs during automated SSH pipelines.
   * `--rm`: Automatically removes the temporary container upon exit, preventing disk clutter.
+  * *Note on TTY:* Modern Docker Compose v2 auto-detects non-interactive CI/SSH environments (`default: auto-detected`), eliminating the need for legacy `-T` flags.
 
 ---
 
