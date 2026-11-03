@@ -1,5 +1,5 @@
-import logging
 import hashlib
+import logging
 from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any
 
@@ -24,7 +24,6 @@ from app.core.limiter import limiter
 from app.models import (
     Message,
     NewPassword,
-    PasswordResetToken,
     Token,
     UserPublic,
     UserUpdate,
@@ -33,7 +32,6 @@ from app.utils import (
     generate_password_reset_token,
     generate_reset_password_email,
     send_password_reconvery_email,
-    store_password_reset_token,
     verify_password_reset_token,
 )
 
@@ -175,7 +173,6 @@ async def recover_password(email: str, session: SessionDep) -> Message:
     if user:
         try:
             token = generate_password_reset_token(email=email)
-            store_password_reset_token(session=session, email=email, token=token)
             await send_password_reconvery_email(
                 email=email, oauth=False, password_reset_token=token
             )
@@ -185,7 +182,6 @@ async def recover_password(email: str, session: SessionDep) -> Message:
     return Message(
         message="If that email is registered, we sent a password recovery link"
     )
-logger = logging.getLogger(__name__)
 
 @router.post("/reset-password/")
 @limiter.limit('5/minute')
@@ -194,26 +190,11 @@ def reset_password(session: SessionDep, body: NewPassword, request: Request) -> 
     email = verify_password_reset_token(token=body.token)
     if not email:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid url, please request a new one.")
-    token_hash = hashlib.sha256(body.token.encode()).hexdigest()
-    reset_token = session.exec(
-        select(PasswordResetToken)
-        .where(
-            PasswordResetToken.token_hash == token_hash,
-            PasswordResetToken.used_at.is_(None),
-            PasswordResetToken.expires_at > datetime.now(UTC),
-        )
-        .with_for_update()
-    ).first()
-    if not reset_token:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
     user = crud.get_user_by_email(session=session, email=email)
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
     elif not user.is_active:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
-    reset_token.used_at = datetime.now(UTC)
-    session.add(reset_token)
-    session.commit()
     user_in_update = UserUpdate(password=body.new_password)
     crud.update_user(
         session=session,
@@ -237,9 +218,6 @@ def recover_password_html_content(email: str, session: SessionDep) -> Any:
             detail="The user with this username does not exist in the system.",
         )
     password_reset_token = generate_password_reset_token(email=email)
-    store_password_reset_token(
-        session=session, email=email, token=password_reset_token
-    )
     email_data = generate_reset_password_email(
         email_to=user.email, email=email, token=password_reset_token, oauth=False
     )

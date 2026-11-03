@@ -13,7 +13,6 @@ from app.models import (
     FreelancerProfile,
     JobPost,
     Proposal,
-    PasswordResetToken,
     SavedJob,
     User,
 )
@@ -33,7 +32,7 @@ def db() -> Generator[Session]:
         session.exec(delete(ClientProfile))
         session.exec(delete(FreelancerProfile))
         session.exec(delete(User))
-        session.exec(delete(PasswordResetToken))
+        # session.exec(delete(PasswordResetToken))
         session.commit()
 
 

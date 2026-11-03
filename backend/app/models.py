@@ -255,7 +255,6 @@ class PasswordResetToken(SQLModel, table=True):
     expires_at: datetime = Field(sa_type=DateTime(timezone=True))
     used_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
 
-
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
     id: uuid.UUID
@@ -265,7 +264,6 @@ class UserPublic(UserBase):
 class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
-
 
 # ==============================================================================
 # Media Models (Cloudinary Ready)

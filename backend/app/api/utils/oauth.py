@@ -22,7 +22,6 @@ from app.models import (
 from app.utils import (
     generate_password_reset_token,
     send_password_reconvery_email,
-    store_password_reset_token,
 )
 
 logger = logging.getLogger(__name__)
@@ -183,9 +182,6 @@ def upsert_oauth_user(
             import asyncio
 
             password_reset_token = generate_password_reset_token(user.email)
-            store_password_reset_token(
-                session=session, email=user.email, token=password_reset_token
-            )
             asyncio.create_task(
                 send_password_reconvery_email(
                     user.email, True, password_reset_token
