@@ -1,14 +1,13 @@
 import { useCallback, useMemo } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-	ChatService,
 	type ChatMessagePublic,
 	type ConversationDetailPublic,
 	type ConversationPublic,
 	type ConversationsPublic,
 } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
-import { toast } from "sonner"
+// import { toast } from "sonner"
 
 type ChatMessageUpdateOptions = {
 	incrementUnread?: boolean

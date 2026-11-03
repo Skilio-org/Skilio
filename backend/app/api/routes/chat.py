@@ -396,7 +396,7 @@ async def websocket_chat_endpoint(
                     await chat_send_error_message(
                         websocket,
                         data.get("client_message_id"),
-                        "slow down."
+                        "slow down"
                     )
                     continue
                 message_timestamps.append(current_time)
