@@ -70,6 +70,7 @@ Our DevOps documentation is organized into two layers: **Official Evaluation Spe
 * ☁️ **[guides/02_cloud_server_&_auto_setup.md](docs/guides/02_cloud_server_&_auto_setup.md)**: AWS EC2 provisioning, Elastic IP, 2GB Swap OOM prevention, and idempotent server setup.
 * 🔒 **[guides/03_ingress_reverse_proxy_https.md](docs/guides/03_ingress_reverse_proxy_https.md)**: Traefik dynamic socket discovery, ACME Let's Encrypt TLS challenges, and HTTP 308 redirects.
 * ⚙️ **[guides/04_CI-CD_pipeline.md](docs/guides/04_CI-CD_pipeline.md)**: 3-Tier CI quality gates, least-privilege SSH `rsync`, and zero-downtime rolling container swap.
+* 🛡️ **[guides/05_backup_&_disaster_recovery.md](docs/guides/05_backup_&_disaster_recovery.md)**: Zero-downtime streaming backups, RTO < 60s disaster recovery, and sandbox verification drill.
 
 ---
 

@@ -64,7 +64,8 @@ Stage 7: Developer Tooling & Team CLI (Makefile)
   * **Zero-Downtime Rolling Swap**: Builds images in background $\rightarrow$ runs migrations in ephemeral container (`run --rm prestart.sh`) $\rightarrow$ swaps live containers (`up -d --remove-orphans`) $\rightarrow$ prunes dangling layers.
 
 ### 5. High Availability & Disaster Recovery (IV.7 Minor)
-* **Files:** [`devops/backup/backup.sh`](../backup/backup.sh), [`restore.sh`](../backup/restore.sh), [`dr-test.sh`](../backup/dr-test.sh), [`entrypoint.sh`](../backup/entrypoint.sh), [`BACKUP.md`](../backup/BACKUP.md), [`backend/app/api/routes/health.py`](../../backend/app/api/routes/health.py), [`frontend/src/routes/status.tsx`](../../frontend/src/routes/status.tsx)
+* **Documentation Mapping:** Covers [Stage 5: Backups & Disaster Recovery](guides/05_backup_&_disaster_recovery.md) & [Resilience & DR Spec](BACKUP.md)
+* **Files:** [`devops/backup/backup.sh`](../backup/backup.sh), [`restore.sh`](../backup/restore.sh), [`dr-test.sh`](../backup/dr-test.sh), [`entrypoint.sh`](../backup/entrypoint.sh), [`backend/app/api/routes/health.py`](../../backend/app/api/routes/health.py), [`frontend/src/routes/status.tsx`](../../frontend/src/routes/status.tsx)
 * **Core Concepts:**
   * **RTO Target**: Recovery Time Objective `< 60s` (our actual drill runs in `< 5s`).
   * **Rolling Retention**: Automated `pg_dump` with `.sql.gz` compression via `entrypoint.sh` cron, keeping the last 7 daily archives.
