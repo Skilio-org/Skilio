@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.crud import create_user
 from app.models import User, UserCreate
-from app.utils import generate_password_reset_token
+from app.utils import generate_password_reset_token, store_password_reset_token
 from tests.utils.user import user_authentication_headers
 from tests.utils.utils import random_email, random_lower_string
 
@@ -118,6 +118,7 @@ def test_reset_password(client: TestClient, db: Session) -> None:
     db.commit()
     db.refresh(user)
     token = generate_password_reset_token(email=email)
+    store_password_reset_token(session=db, email=email, token=token)
     headers = user_authentication_headers(client=client, email=email, password=password)
     data = {"new_password": new_password, "token": token}
 

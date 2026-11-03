@@ -177,6 +177,7 @@ class User(UserBase, table=True):
         cascade_delete=True,
         sa_relationship_kwargs={"uselist": False},
     )
+
     client_profile: Optional["ClientProfile"] = Relationship(
         back_populates="user",
         cascade_delete=True,
@@ -245,6 +246,14 @@ class User(UserBase, table=True):
         cascade_delete=True,
         sa_relationship_kwargs={"foreign_keys": "[Connection.receiver_id]"},
     )
+
+
+class PasswordResetToken(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    token_hash: str = Field(max_length=64, unique=True, index=True)
+    email: EmailStr = Field(max_length=255, index=True)
+    expires_at: datetime = Field(sa_type=DateTime(timezone=True))
+    used_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
 
 
 # Properties to return via API, id is always required

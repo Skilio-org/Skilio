@@ -1,4 +1,5 @@
 import logging
+import hashlib
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -9,9 +10,11 @@ import httpx2
 import jwt
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from jwt.exceptions import InvalidTokenError
+from sqlmodel import Session
 
 from app.core import security
 from app.core.config import settings
+from app.models import PasswordResetToken
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -154,6 +157,21 @@ def generate_password_reset_token(email: str) -> str:
     )
     return encoded_jwt
 
+
+def store_password_reset_token(
+    session: Session, email: str, token: str
+) -> PasswordResetToken:
+    token_record = PasswordResetToken(
+        token_hash=hashlib.sha256(token.encode()).hexdigest(),
+        email=email,
+        expires_at=datetime.now(UTC)
+        + timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS),
+    )
+    session.add(token_record)
+    session.commit()
+    session.refresh(token_record)
+    return token_record
+
 def generate_email_validation_token(email: str) -> str:
     delta = timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
     now = datetime.now(UTC)
@@ -187,8 +205,11 @@ def verify_password_reset_token(token: str) -> str | None:
 def validate_verify_token(token: str) -> str | None:
     return _decode_token_subject(token)
 
-async def send_password_reconvery_email(email: str, oauth: bool = False) -> None:
-    password_reset_token = generate_password_reset_token(email=email)
+async def send_password_reconvery_email(
+    email: str, oauth: bool = False, password_reset_token: str | None = None
+) -> None:
+    if password_reset_token is None:
+        raise ValueError("A registered password reset token is required")
     email_data     = generate_reset_password_email(
         email_to=email, email=email, token=password_reset_token, oauth=oauth
     )

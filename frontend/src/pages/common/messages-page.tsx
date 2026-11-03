@@ -194,10 +194,7 @@ export function MessagesPage({
 					return {
 						...conversation,
 						unread_count: 0,
-						last_message: {
-							...rmessage,
-							is_read: true,
-						},
+						last_message: rmessage,
 					}
 				}
 				return conversation

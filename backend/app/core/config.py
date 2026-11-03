@@ -86,7 +86,7 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_PASSWORD: str
     ENV: str = "production"
     RESEND_API_KEY: str = ""
-    MAX_MESSAGES_PER_SECOND: int = 2
+    MAX_MESSAGES_PER_SECOND: int = 5
     RATE_LIMIT_WINDOW: float = 1.0
     TOTAL_FRAME_LIMIT: int = 15
     MAX_FRAME_SIZE: int = 64 * 1024
