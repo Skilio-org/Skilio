@@ -318,29 +318,7 @@ Follow these steps when defending this module to an evaluator:
 
 ---
 
-### 5.2 Top Evaluator Q&A Defense Answers
+### 5.2 The 30-Second Defense Elevator Pitch
 
-#### Q1: "Why don't you automatically trigger a database restore whenever the health check fails?"
-> **Answer:**  
-> *"Automatically restoring a database on health probe failure is a dangerous anti-pattern. If the health probe failed due to temporary network congestion or CPU load, an automated restore would destroy all valid in-flight transactions and cause unnecessary data loss. Second, if a bug crashed the app, restoring an older backup overwrites all new user data created since the last backup. In production SRE, detection is automated, verification drills are automated, but restoration remains an intentional, human-reviewed operational action."*
-
-#### Q2: "How do you guarantee zero data corruption or downtime during the backup process?"
-> **Answer:**  
-> *"PostgreSQL uses Multi-Version Concurrency Control (MVCC). When `pg_dump` runs, it uses `REPEATABLE READ` snapshot isolation. It reads a point-in-time snapshot without taking exclusive table write locks. Users can continue registering, placing orders, and sending messages without any interruption."*
-
-#### Q3: "What prevents the server disk from filling up over time with backups?"
-> **Answer:**  
-> *"We use a two-tier safeguard:*  
-> *1. **Count-Based FIFO Retention**: [`backup.sh`](../../backup/backup.sh) enforces `MAX_BACKUPS=7`. On every run, it sorts snapshots by modification time (`ls -1tr`) and deletes the oldest archives, keeping disk usage strictly bounded.*  
-> *2. **Active Disk Monitoring**: [`health.py`](../../../backend/app/api/routes/health.py) monitors root partition capacity via `shutil.disk_usage('/')`. If free space drops below 15%, status shifts to `degraded`; if below 5%, it shifts to `unhealthy` and returns HTTP 503."*
-
-#### Q4: "How do you know your backups are actually valid and not corrupted empty files?"
-> **Answer:**  
-> *"We validate integrity at two independent stages:*  
-> *1. **Immediate CRC-32 Check**: Immediately after streaming `pg_dump | gzip -9`, [`backup.sh`](../../backup/backup.sh) executes `gzip -t`. If the gzip header, payload, or checksum is invalid, the script aborts and our POSIX exit trap deletes the partial file.*  
-> *2. **Continuous Sandbox Verification (`make dr-test`)**: We never guess whether a backup works—`dr-test.sh` restores the snapshot into a clean temporary database and asserts that all 17 public application tables match production 100%."*
-
-#### Q5: "Why did you use a dedicated container for db-backup instead of installing cron on the host?"
-> **Answer:**  
-> *"Packaging the backup daemon as a container (`postgres:18-alpine`) enforces 12-factor infrastructure portability. It requires zero host configuration, runs the exact same PostgreSQL 18 client binaries as the database engine (preventing pg_dump version mismatches), communicates over Docker's internal isolated bridge network, and boots identically on any machine with a single `docker compose up`."*
+> *"Our high-availability and resilience suite implements a closed **Detection $\rightarrow$ Protection $\rightarrow$ Verification** operational loop satisfying Module IV.7 Minor. For observability, our FastAPI `/api/v1/health` probe actively tests PostgreSQL query latency (`SELECT 1`), Redis ping roundtrips, and root partition capacity, rendered live by our public React `/status` dashboard with 10-second auto-polling. For data protection, an isolated Alpine backup daemon executes daily at 02:00 UTC, streaming database dumps directly through memory with `gzip -9` under PostgreSQL MVCC snapshot isolation—guaranteeing zero exclusive write locks and zero application downtime. Every archive undergoes automated CRC-32 validation via `gzip -t` and is pruned via a deterministic 7-day FIFO retention ring buffer. For disaster recovery, our single-command restore terminates client locks for instant recovery, while our automated sandbox drill (`make dr-test`) restores snapshots into an ephemeral database, asserts 100% schema integrity across all 17 public tables, and cleans up in under 5 seconds—achieving an actual Recovery Time Objective of $\text{RTO} < 5\text{s}$ against the 42 subject standard of $< 60\text{ seconds}$ with zero production risk."*
 
