@@ -148,7 +148,7 @@ def test_reset_password_invalid_token(
 
     assert "detail" in response
     assert r.status_code == 400
-    assert response["detail"] == "Invalid token"
+    assert response["detail"] == "Invalid url, please request a new one."
 
 
 def test_login_with_bcrypt_password_upgrades_to_argon2(

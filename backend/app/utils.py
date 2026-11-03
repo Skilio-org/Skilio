@@ -187,8 +187,11 @@ def verify_password_reset_token(token: str) -> str | None:
 def validate_verify_token(token: str) -> str | None:
     return _decode_token_subject(token)
 
-async def send_password_reconvery_email(email: str, oauth: bool = False) -> None:
-    password_reset_token = generate_password_reset_token(email=email)
+async def send_password_reconvery_email(
+    email: str, oauth: bool = False, password_reset_token: str | None = None
+) -> None:
+    if password_reset_token is None:
+        raise ValueError("A registered password reset token is required")
     email_data     = generate_reset_password_email(
         email_to=email, email=email, token=password_reset_token, oauth=oauth
     )
