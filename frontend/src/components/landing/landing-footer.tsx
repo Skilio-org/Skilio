@@ -50,7 +50,7 @@ export function LandingFooter() {
 				<div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
 					{/* Brand Column (4 cols on lg) */}
 					<div className="flex flex-col gap-4 lg:col-span-4">
-						<Logo outlined={false} className="h-7 sm:h-8 w-auto self-start" />
+						<Logo className="h-7 sm:h-8 w-auto self-start" />
 						<p className="max-w-sm text-xs leading-relaxed text-neutral-400">
 							The modern freelance marketplace for ambitious builders and elite independent talent. Zero hidden markups,
 							pre-funded escrow milestones, and direct collaboration.

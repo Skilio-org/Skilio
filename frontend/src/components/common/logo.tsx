@@ -11,13 +11,11 @@ export interface LogoProps {
 	iconClassName?: string
 	asLink?: boolean
 	to?: "/" | "/dashboard" | "/freelancer" | "/freelancer-dashboard" | string
-	// Adds the outline so the lime logo stands out on light and dark backgrounds. Turn off on surfaces where it looks wrong.
-	outlined?: boolean
 }
 
-export function Logo({ variant = "full", className, iconClassName, asLink = true, to = "/", outlined = true }: LogoProps) {
+export function Logo({ variant = "full", className, iconClassName, asLink = true, to = "/" }: LogoProps) {
 	const content = (
-		<span className={cn("inline-flex", outlined && "logo-outline")}>
+		<span className="inline-flex">
 			{variant === "typography" ? (
 				<img
 					src={skilioTypography}
