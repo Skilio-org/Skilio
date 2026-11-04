@@ -84,7 +84,7 @@ export function LandingHeader() {
 							<DropdownMenuItem asChild>
 								<Link
 									to="/signup"
-									className="min-h-10 w-full font-semibold text-primary"
+									className="min-h-10 w-full font-semibold text-link"
 								>
 									Create account
 								</Link>

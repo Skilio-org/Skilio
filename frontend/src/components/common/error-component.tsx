@@ -20,7 +20,7 @@ const ErrorComponent = ({ error, reset }: { error?: Error; reset?: () => void })
 							<p className="mt-5 font-medium text-muted-foreground text-xs uppercase tracking-[0.14em]">Error 500</p>
 						</div>
 						<div className="max-w-2xl">
-							<p className="font-medium text-primary text-sm">We couldn’t load this page</p>
+							<p className="font-medium text-link text-sm">We couldn’t load this page</p>
 							<h1 className="mt-3 font-display font-medium text-4xl tracking-[-0.04em] sm:text-5xl">
 								Let’s get you back to work.
 							</h1>

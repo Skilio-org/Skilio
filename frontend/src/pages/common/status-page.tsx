@@ -70,10 +70,10 @@ const StatusPage = () => {
 	const overallStatus: HealthState = health?.status ?? "unhealthy"
 
 	return (
-		<div className="min-h-dvh bg-background text-foreground flex flex-col">
+		<div className="landing-page flex min-h-dvh flex-col bg-background text-foreground">
 			<LandingHeader />
 
-			<main className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8">
+			<main id="main-content" tabIndex={-1} className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8 outline-none">
 				{/* Top Bar: Title & Controls */}
 				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-6">
 					<div>

@@ -20,7 +20,7 @@ export function MessageToolDialogView({
 		>
 			<DialogContent className="sm:max-w-lg border-outline-variant bg-surface-container-lowest">
 				<DialogHeader>
-					<span className="mb-2 grid size-10 place-items-center rounded-lg border border-outline-variant/60 bg-surface-container text-primary">
+					<span className="mb-2 grid size-10 place-items-center rounded-lg border border-outline-variant/60 bg-surface-container text-link">
 						<FileText className="size-5" />
 					</span>
 					<DialogTitle className="font-headline-sm font-semibold text-headline-sm text-on-surface">

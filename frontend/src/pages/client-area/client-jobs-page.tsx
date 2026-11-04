@@ -132,7 +132,7 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 				title="Your next great hire starts here."
 				description="Create a clear brief and keep your hiring in one place."
 				meta={
-					<span className="font-medium text-primary">
+					<span className="font-medium text-link">
 						{jobs.filter((job) => job.status === "Open").length} open{" "}
 						{jobs.filter((job) => job.status === "Open").length === 1 ? "job" : "jobs"}
 					</span>

@@ -37,7 +37,7 @@ export function ClientJobsList({
 						key={status}
 						onClick={() => onTabChange(status)}
 						aria-pressed={tab === status}
-						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${tab === status ? "border-primary text-primary" : "border-transparent text-on-surface-variant"}`}
+						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${tab === status ? "border-primary text-link" : "border-transparent text-on-surface-variant"}`}
 					>
 						{status}{" "}
 						<span className="ml-1 text-xs">

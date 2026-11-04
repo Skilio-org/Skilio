@@ -50,7 +50,7 @@ function NotificationIcon({ type }: { type: NotificationEvent }) {
 			return <XCircle className="size-4 text-muted-foreground" />
 
 		case "connection_request":
-			return <UserPlus className="size-4 text-primary" />
+			return <UserPlus className="size-4 text-link" />
 
 		case "connection_accepted":
 			return <UserCheck className="size-4 text-emerald-500" />
@@ -221,7 +221,7 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 						onMarkAsRead(notification.id)
 						void navigate({ to: "/connects" })
 					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md border-0 border-none bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
+					className="inline-flex h-6 items-center gap-1.5 rounded-md border-0 border-none bg-primary/10 px-2 text-[11px] font-medium text-link transition-colors hover:bg-primary/20"
 				>
 					<UserPlus className="size-3" />
 					View Connections
@@ -242,7 +242,7 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 						onMarkAsRead(notification.id)
 						void navigate({ to: role === "freelancer" ? "/freelancer-messages" : "/messages" })
 					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
+					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-link transition-colors hover:bg-primary/20"
 				>
 					<MessageSquare className="size-3" />
 					Send Message
@@ -266,7 +266,7 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 							search: { userId: notification.chat_message?.sender_id },
 						})
 					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
+					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-link transition-colors hover:bg-primary/20"
 				>
 					<MessageSquare className="size-3" />
 					Reply
@@ -290,7 +290,7 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 							search: { jobId: notification.job_post?.id },
 						})
 					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
+					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-link transition-colors hover:bg-primary/20"
 				>
 					<FileText className="size-3" />
 					Review Proposal
@@ -478,7 +478,7 @@ export function NotificationDropdown() {
 							<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Notifications</h2>
 
 							{unreadCount > 0 && (
-								<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption font-medium text-caption text-primary dark:border dark:border-border-subtle dark:bg-surface-container">
+								<span className="rounded-md bg-surface-container px-1.5 py-0.5 font-caption font-medium text-caption text-link dark:border dark:border-border-subtle dark:bg-surface-container">
 									{unreadCount}
 								</span>
 							)}
@@ -493,7 +493,7 @@ export function NotificationDropdown() {
 							onClick={markAllAsRead}
 							title="Mark all as read"
 							aria-label="Mark all notifications as read"
-							className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-primary"
+							className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-link"
 						>
 							<CheckCheck className="size-4" />
 						</button>
@@ -539,7 +539,7 @@ export function NotificationDropdown() {
 										"grid size-8 shrink-0 place-items-center rounded-lg border transition-colors",
 										notification.is_read
 											? "border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container"
-											: "border-primary/15 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/10",
+											: "border-primary/15 bg-primary/8 text-link dark:border-primary/20 dark:bg-primary/10",
 									)}
 								>
 									<NotificationIcon type={notification.event} />

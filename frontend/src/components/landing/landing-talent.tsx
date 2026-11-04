@@ -89,7 +89,7 @@ export function LandingTalent({
 										</span>
 										<div className="min-w-0">
 											<div className="flex items-center gap-1.5">
-												<h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors truncate">
+												<h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-link transition-colors truncate">
 													{person.name}
 												</h3>
 												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
@@ -148,7 +148,7 @@ export function LandingTalent({
 								<Link
 									to="/talent"
 									search={{ q: undefined, category: undefined }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-primary hover:underline shrink-0"
+									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-link hover:underline shrink-0"
 								>
 									<span>View</span>
 									<ArrowUpRight className="size-3.5" />

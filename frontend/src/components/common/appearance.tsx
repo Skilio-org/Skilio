@@ -69,7 +69,7 @@ function ThemeOptionItem({ value, label, description, icon: Icon, selected, onSe
 			<div
 				className={`flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-150 ${
 					selected
-						? `bg-primary/10 text-primary`
+						? `bg-primary/10 text-link`
 						: `bg-muted text-muted-foreground group-data-[highlighted]:bg-background group-data-[highlighted]:text-foreground`
 				} `}
 			>

@@ -40,7 +40,7 @@ export function ClientJobEditor({
 		<Sheet open={!!job} onOpenChange={(open) => !open && onClose()}>
 			<SheetContent className="w-full gap-0 bg-surface-container-lowest p-0 sm:max-w-180">
 				<SheetHeader className="border-b px-6 py-6 pr-12 sm:px-8 sm:pr-14">
-					<p className="font-semibold text-primary text-xs">{editing ? "FIND YOUR NEXT COLLABORATOR" : "YOUR JOB"}</p>
+					<p className="font-semibold text-link text-xs">{editing ? "FIND YOUR NEXT COLLABORATOR" : "YOUR JOB"}</p>
 					<SheetTitle className="mt-1 font-semibold text-2xl tracking-tight">
 						{editing ? "Let’s shape your project" : job?.title || "Untitled job"}
 					</SheetTitle>

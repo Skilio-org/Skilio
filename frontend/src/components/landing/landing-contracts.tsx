@@ -85,7 +85,7 @@ export function LandingContracts() {
 								</div>
 
 								{/* Title */}
-								<h3 className="mt-4 font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors leading-snug">
+								<h3 className="mt-4 font-semibold text-foreground text-sm sm:text-base group-hover:text-link transition-colors leading-snug">
 									{contract.title}
 								</h3>
 
@@ -126,7 +126,7 @@ export function LandingContracts() {
 								<Link
 									to="/signup"
 									search={{ role: "freelancer" }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-primary hover:underline"
+									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-link hover:underline"
 								>
 									<span>Submit Proposal</span>
 									<ArrowUpRight className="size-3.5" />

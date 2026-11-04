@@ -232,7 +232,7 @@ export function MessagesPage({
 						: "Manage client conversations, share design artifacts, and collaborate on active contracts."
 				}
 				meta={
-					<span className="flex items-center gap-1 font-medium text-primary">
+					<span className="flex items-center gap-1 font-medium text-link">
 						<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
 						{unreadCount ?? 0} unread {unreadCount === 1 ? "message" : "messages"}
 					</span>

@@ -58,7 +58,7 @@ export default function FreelancerSavedJobsPage() {
 				title="Saved jobs"
 				description="Review and manage roles you’ve bookmarked. Keep your next opportunity in sight and get ready to apply."
 				meta={
-					<span className="font-medium text-primary">
+					<span className="font-medium text-link">
 						{allSaved.length} bookmarked {allSaved.length === 1 ? "job" : "jobs"}
 					</span>
 				}
@@ -110,7 +110,7 @@ export default function FreelancerSavedJobsPage() {
 										<SelectItem
 											key={value}
 											value={value}
-											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
 										>
 											{label}
 										</SelectItem>

@@ -148,7 +148,7 @@ function WizardShell({
                     isDone
                       ? "bg-primary text-primary-foreground"
                       : isCurrent
-                      ? "border-2 border-primary text-primary"
+                      ? "border-2 border-primary text-link"
                       : "border border-border text-muted-foreground"
                   }`}
                 >
@@ -181,7 +181,7 @@ function WizardShell({
         <CardContent className="p-6 sm:p-8 space-y-6">
           {/* Header */}
           <div className="border-border border-b pb-4">
-            <Badge variant="outline" className="mb-2 text-[10px] font-medium text-primary border-primary/30">
+            <Badge variant="outline" className="mb-2 text-[10px] font-medium text-link border-primary/30">
               Step {currentStep + 1} of {totalSteps}
             </Badge>
             <h2 className="font-display text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
@@ -448,7 +448,7 @@ function OnboardingPage() {
                       <Badge
                         key={s}
                         variant="secondary"
-                        className="gap-1 pr-1 text-xs py-1 bg-primary/10 text-primary border-primary/20"
+                        className="gap-1 pr-1 text-xs py-1 bg-primary/10 text-link border-primary/20"
                       >
                         <span>{s}</span>
                         <button
@@ -586,7 +586,7 @@ function OnboardingPage() {
               nextLabel="Go to Job Board"
             >
               <div className="rounded-xl border bg-muted/20 p-5 space-y-4 text-center">
-                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-primary/10 text-link">
                   <CheckCircle2 className="size-8" />
                 </div>
                 <div>
@@ -734,7 +734,7 @@ function OnboardingPage() {
                       <p className="text-xs text-muted-foreground">{desc}</p>
                     </div>
                     {clientData.typicalBudget === range && (
-                      <Check className="size-4 text-primary" />
+                      <Check className="size-4 text-link" />
                     )}
                   </div>
                 ))}
@@ -755,7 +755,7 @@ function OnboardingPage() {
               nextLabel="Explore Talent Directory"
             >
               <div className="rounded-xl border bg-muted/20 p-5 space-y-3 text-center">
-                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-primary/10 text-link">
                   <Building2 className="size-8" />
                 </div>
                 <div>

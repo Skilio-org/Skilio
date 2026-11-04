@@ -218,7 +218,7 @@ const FreelancerProposalsPage = () => {
 				title="Your proposals"
 				description="Manage your ongoing applications, review drafts, and track client responses across Skilio."
 				meta={
-					<span className="font-medium text-primary">
+					<span className="font-medium text-link">
 						{draftsCount} {draftsCount === 1 ? "draft" : "drafts"} in progress
 						{acceptedCount > 0 && ` · ${acceptedCount} accepted`}
 					</span>
@@ -247,7 +247,7 @@ const FreelancerProposalsPage = () => {
 							setQuery("")
 						}}
 						aria-pressed={tab === t.id}
-						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${tab === t.id ? "border-primary text-primary" : "border-transparent text-on-surface-variant"}`}
+						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${tab === t.id ? "border-primary text-link" : "border-transparent text-on-surface-variant"}`}
 					>
 						{t.label} <span className="ml-1 text-xs">{t.count}</span>
 					</button>
@@ -302,7 +302,7 @@ const FreelancerProposalsPage = () => {
 								<SelectItem
 									key={value}
 									value={value}
-									className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+									className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
 								>
 									{label}
 								</SelectItem>
@@ -416,7 +416,7 @@ const FreelancerProposalsPage = () => {
 														{isAccepted ? (
 															<Badge
 																variant="outline"
-																className="gap-1 border-primary/30 bg-primary/10 font-medium text-[10px] text-primary"
+																className="gap-1 border-primary/30 bg-primary/10 font-medium text-[10px] text-link"
 															>
 																<UserCheck className="size-3" />
 																Accepted
@@ -455,9 +455,9 @@ const FreelancerProposalsPage = () => {
 													<button
 														type="button"
 														onClick={() => openJob(draft.job)}
-														className="mt-2 flex w-full items-center gap-1.5 truncate text-left font-semibold text-on-surface text-xs transition-colors hover:text-primary"
+														className="mt-2 flex w-full items-center gap-1.5 truncate text-left font-semibold text-on-surface text-xs transition-colors hover:text-link"
 													>
-														<Briefcase className="size-3.5 shrink-0 text-primary" />
+														<Briefcase className="size-3.5 shrink-0 text-link" />
 														<span className="truncate">{draft.job.title}</span>
 													</button>
 
@@ -742,7 +742,7 @@ const ProposalEditor = ({
 	return (
 		<section className="flex min-h-0 min-w-0 flex-1 flex-col">
 			<div className="border-border border-b px-6 py-6 sm:px-8">
-				<p className="mb-2 font-semibold text-primary text-xs uppercase tracking-wider">
+				<p className="mb-2 font-semibold text-link text-xs uppercase tracking-wider">
 					{readOnly ? "Submitted application" : "Your next opportunity"}
 				</p>
 

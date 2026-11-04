@@ -166,6 +166,7 @@
 	--color-border-input: var(--border-input);
 	--color-on-surface-muted: var(--on-surface-muted);
 	--color-primary-hover: var(--primary-hover);
+	--color-link: var(--link);
 	--color-primary-glow: var(--primary-glow);
 	--color-accent-cyan: var(--accent-cyan);
 	--color-accent-lime: var(--accent-lime);
@@ -283,11 +284,13 @@
 	--border-input: #8a9096;
 	--border-hover: #9da2a7;
 
-	/* Structural primary is graphite. Acid lime is used as a high-energy accent. */
-	--primary: #1f2125;
-	--primary-hover: #2d3034;
+	/* The brand lime is the primary colour in both themes, with graphite text on it (12:1).
+	   Lime can't be read as text on white, so text accents use --link, which is graphite (15:1 on white). */
+	--primary: #b8ef0d;
+	--primary-hover: #a5d80b;
+	--link: #1f2125;
 	--primary-container: #7fa600;
-	--on-primary: #ffffff;
+	--on-primary: #1f2125;
 	--on-primary-container: #1f2125;
 	--inverse-primary: #b8ef0d;
 	--surface-tint: #1f2125;
@@ -433,6 +436,7 @@
 
 	--primary: #b8ef0d;
 	--primary-hover: #c8ff23;
+	--link: #b8ef0d;
 	--primary-container: #d1ff42;
 	--on-primary: #17191c;
 	--on-primary-container: #17191c;
@@ -1238,19 +1242,19 @@
 		border-color: var(--border-hover);
 	}
 
-	/* Existing bg-primary CTAs are graphite in light mode. */
+	/* Primary CTAs use the brand lime with graphite text in light mode, same as dark mode. */
 	article button.bg-primary,
 	a.bg-primary:not([aria-current="page"]),
 	search button[type="submit"].bg-primary {
-		background: var(--graphite);
-		color: #ffffff;
+		background: var(--primary);
+		color: var(--on-primary);
 		box-shadow: none;
 	}
 
 	article button.bg-primary:hover,
 	a.bg-primary:not([aria-current="page"]):hover,
 	search button[type="submit"].bg-primary:hover {
-		background: var(--graphite-raised);
+		background: var(--primary-hover);
 	}
 
 	/* Important marketplace CTAs can opt into lime simply by using primary-container. */

@@ -123,7 +123,7 @@ export const SearchWithCategories = ({
 						key={item}
 						type="button"
 						onClick={() => submitSearch(item)}
-						className="rounded bg-surface-container px-2.5 py-1 text-on-surface-variant hover:text-primary"
+						className="rounded bg-surface-container px-2.5 py-1 text-on-surface-variant hover:text-link"
 					>
 						{item}
 					</button>

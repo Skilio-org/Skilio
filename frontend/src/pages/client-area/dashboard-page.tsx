@@ -28,7 +28,7 @@ export function ClientDashboardPage() {
 				description="Continue your search or review professionals selected for you."
 				meta={
 					activeJobsCount !== undefined && (
-						<span className="font-medium text-primary">
+						<span className="font-medium text-link">
 							{activeJobsCount} active {activeJobsCount === 1 ? "job" : "jobs"}
 						</span>
 					)
