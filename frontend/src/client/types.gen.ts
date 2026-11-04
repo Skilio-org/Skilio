@@ -1498,10 +1498,6 @@ export type NotificationPublic = {
      */
     title?: string;
     /**
-     * Link
-     */
-    link: string;
-    /**
      * Id
      */
     id: string;

@@ -70,8 +70,7 @@ async def create_review(
         user_id=profile.user_id,
         event=NotificationEvent.REVIEW_RECEIVED,
         title="New Review",
-        link="",
-        content="You have a new review on your profile.",
+        content=f"{current_user.full_name} made a review for you",
         review_id=review.id,
     )
     return ReviewPublic.model_validate(

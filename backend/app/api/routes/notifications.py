@@ -62,7 +62,6 @@ async def push_notification(
     user_id: uuid.UUID,
     event: NotificationEvent,
     title: str,
-    link: str,
     content: str,
     **target: uuid.UUID,
 ) -> NotificationPublic:
@@ -75,14 +74,12 @@ async def push_notification(
         raise ValueError(f"Pass exactly one target of {sorted(_TARGET_KEYS)}")
 
     notification = Notification(
-        user_id=user_id, event=event, title=title, link=link, content=content, **target
+        user_id=user_id, event=event, title=title, content=content, **target
     )
     with Session(engine) as session:
-        # 1. Persist
         session.add(notification)
         session.commit()
 
-        # 2. Reload with the relations NotificationPublic exposes.
         stmt = (
             select(Notification)
             .where(Notification.id == notification.id)
@@ -129,7 +126,7 @@ def mark_all_notifications_as_read(user_id: uuid.UUID):
             select(Notification)
             .where(
                 Notification.user_id == user_id,
-                Notification.is_read == False,  # type: ignore
+                not Notification.is_read,
             )
         ).all()
         for n in notifications:

@@ -1382,7 +1382,6 @@ class NotificationBase(SQLModel):
     event: NotificationEvent = Field(index=True)
     content: str = Field(min_length=1, max_length=5000)
     title: str = Field(default=None, max_length=255)
-    link: str = Field(default=None, max_length=2048)
 
 
 class Notification(NotificationBase, table=True):
@@ -1431,7 +1430,6 @@ class Notification(NotificationBase, table=True):
 class NotificationPublic(NotificationBase):
     id: uuid.UUID
     is_read: bool
-    link: str
     created_at: datetime | None = None
     proposal: ProposalPublic | None = None
     connection: ConnectionPublic | None = None
