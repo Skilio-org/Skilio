@@ -91,7 +91,7 @@ export function ReviewModal({
 					<DialogTitle className="font-display font-semibold text-xl tracking-tight">
 						{isEditing ? "Edit your review" : "Rate this freelancer"}
 					</DialogTitle>
-					<DialogDescription className="text-muted-foreground text-sm">
+					<DialogDescription className="text-on-surface-variant text-sm">
 						{isEditing
 							? `Update your rating and feedback for ${freelancerName}.`
 							: `Share your experience working with ${freelancerName} to help the community.`}
@@ -100,8 +100,8 @@ export function ReviewModal({
 
 				<form onSubmit={handleSubmit} className="space-y-5 pt-2">
 					{/* Freelancer Info Card */}
-					<div className="flex items-center gap-3.5 rounded-lg border border-border bg-muted/40 p-3">
-						<Avatar className="size-11 border border-border">
+					<div className="flex items-center gap-3.5 rounded-lg border border-outline-variant bg-muted/40 p-3">
+						<Avatar className="size-11 border border-outline-variant">
 							{freelancerAvatarUrl && <AvatarImage src={freelancerAvatarUrl} alt={freelancerName} />}
 							<AvatarFallback className="bg-primary/10 font-medium text-primary text-sm">
 								{getInitials(freelancerName)}
@@ -109,7 +109,7 @@ export function ReviewModal({
 						</Avatar>
 						<div className="min-w-0 flex-1">
 							<p className="truncate font-semibold text-sm text-foreground">{freelancerName}</p>
-							{freelancerTitle && <p className="truncate text-muted-foreground text-xs">{freelancerTitle}</p>}
+							{freelancerTitle && <p className="truncate text-on-surface-variant text-xs">{freelancerTitle}</p>}
 						</div>
 					</div>
 
@@ -134,7 +134,7 @@ export function ReviewModal({
 							<label htmlFor="review-comment" className="font-medium text-foreground text-sm">
 								Detailed feedback <span className="text-destructive">*</span>
 							</label>
-							<span className={`text-xs ${isOverLimit ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+							<span className={`text-xs ${isOverLimit ? "font-medium text-destructive" : "text-on-surface-variant"}`}>
 								{charCount} / {MAX_COMMENT_LENGTH.toLocaleString()}
 							</span>
 						</div>
@@ -149,9 +149,9 @@ export function ReviewModal({
 							disabled={isSubmitting}
 							required
 							placeholder="What did you work on? How was communication, timeliness, and the quality of the deliverables?"
-							className="w-full resize-y rounded-lg border border-input bg-transparent px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+							className="w-full resize-y rounded-lg border border-input bg-transparent px-3 py-2 text-foreground text-sm placeholder:text-on-surface-variant focus-visible:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
 						/>
-						<p className="text-muted-foreground text-xs">
+						<p className="text-on-surface-variant text-xs">
 							Constructive, professional feedback helps freelancers showcase their work and helps other clients make
 							informed hiring decisions.
 						</p>

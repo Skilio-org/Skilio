@@ -46,6 +46,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 						category: entry.organization ?? "",
 						detail: entry.detail ?? entry.description ?? "",
 						url: entry.url ?? "",
+						imageUrl: entry.image_url ?? undefined,
 					})),
 					languages: (person.languages ?? "")
 						.split(",")
@@ -68,7 +69,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 					<Link
 						to="/talent"
 						search={{ q: undefined, category: undefined }}
-						className="inline-flex min-h-11 items-center gap-2 font-medium text-muted-foreground text-sm hover:text-primary"
+						className="inline-flex min-h-11 items-center gap-2 font-medium text-on-surface-variant text-sm hover:text-primary"
 					>
 						<ArrowLeft className="size-4" />
 						Back to talent
@@ -111,7 +112,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 				contactFooter={
 					<>
 						{saved && (
-							<p role="status" className="mt-2 text-center text-muted-foreground text-xs">
+							<p role="status" className="mt-2 text-center text-on-surface-variant text-xs">
 								Available in your Saved talent list.
 							</p>
 						)}
@@ -130,7 +131,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 					<>
 						<div>
 							<h3 className="font-medium text-sm">Interested in similar work?</h3>
-							<p className="mt-2 text-muted-foreground text-sm leading-6">
+							<p className="mt-2 text-on-surface-variant text-sm leading-6">
 								Start a conversation about your goals, scope, and timeline.
 							</p>
 						</div>

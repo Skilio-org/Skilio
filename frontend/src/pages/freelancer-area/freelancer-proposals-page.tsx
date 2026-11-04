@@ -28,7 +28,6 @@ import {
 import { JobDetails } from "@/components/freelancer/freelancer-job-details"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
 	Dialog,
@@ -232,7 +231,7 @@ const FreelancerProposalsPage = () => {
 						</Link>
 						<Link to="/freelancer-jobs" className={workspaceStyles.primaryAction}>
 							<Search className="size-4" />
-							Find opportunities
+							Find work
 						</Link>
 					</div>
 				}
@@ -285,7 +284,7 @@ const FreelancerProposalsPage = () => {
 						<SelectTrigger
 							size="sm"
 							aria-label="Sort proposals"
-							className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+							className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-sm text-on-surface shadow-none hover:border-foreground/20 data-[size=sm]:h-12 data-[state=open]:border-primary dark:bg-surface-container-lowest dark:hover:bg-surface-container-lowest [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
 						>
 							<SelectValue />
 						</SelectTrigger>
@@ -354,7 +353,7 @@ const FreelancerProposalsPage = () => {
 							) : (
 								<Link to="/freelancer-jobs" className={workspaceStyles.secondaryAction}>
 									<Search className="size-4" />
-									<span>Browse opportunities</span>
+									<span>Find work</span>
 								</Link>
 							)
 						}
@@ -642,20 +641,20 @@ const FreelancerProposalsPage = () => {
 			<Dialog open={Boolean(itemToWithdraw)} onOpenChange={(open) => !open && setItemToWithdraw(null)}>
 				<DialogContent className="sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="flex items-center gap-2 text-destructive">
-							{itemToWithdraw?.rawStatus === "draft" || itemToWithdraw?.rawStatus === "rejected" ? (
+						<span className="mb-1 grid size-10 place-items-center rounded-lg bg-destructive/10 text-destructive">
+{itemToWithdraw?.rawStatus === "draft" || itemToWithdraw?.rawStatus === "rejected" ? (
 								<Trash2 className="size-5" />
 							) : (
 								<UserMinus className="size-5" />
 							)}
-							<span>
-								{itemToWithdraw?.rawStatus === "draft"
+</span>
+<DialogTitle>
+{itemToWithdraw?.rawStatus === "draft"
 									? "Discard draft"
 									: itemToWithdraw?.rawStatus === "rejected"
 										? "Delete proposal record"
 										: "Withdraw proposal"}
-							</span>
-						</DialogTitle>
+</DialogTitle>
 						<DialogDescription>
 							{itemToWithdraw?.rawStatus === "draft" ? (
 								<>
@@ -677,12 +676,13 @@ const FreelancerProposalsPage = () => {
 						</DialogDescription>
 					</DialogHeader>
 
-					<DialogFooter className="mt-4 gap-2">
-						<Button variant="outline" onClick={() => setItemToWithdraw(null)}>
+					<DialogFooter>
+						<button type="button" className={workspaceStyles.secondaryAction} onClick={() => setItemToWithdraw(null)}>
 							Cancel
-						</Button>
-						<Button
-							variant="destructive"
+						</button>
+						<button
+							type="button"
+							className={workspaceStyles.destructiveAction}
 							disabled={isWithdrawing}
 							onClick={async () => {
 								if (!itemToWithdraw) return
@@ -708,7 +708,7 @@ const FreelancerProposalsPage = () => {
 									: itemToWithdraw?.rawStatus === "rejected"
 										? "Delete record"
 										: "Withdraw proposal"}
-						</Button>
+						</button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>

@@ -17,12 +17,12 @@ import { useState } from "react"
 
 const popularSearches = ["Product design", "React", "Content strategy", "Design systems", "Mobile app"]
 
-export default function FreelancerJobsPage() {
+export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery?: string }) {
 	const { saved } = useSavedJobs()
 
 	const savedCount = saved.length
 
-	const [search, setSearch] = useState("")
+	const [search, setSearch] = useState(initialQuery)
 	const [category, setCategory] = useState("all")
 	const [types, setTypes] = useState<string[]>([])
 	const [credentials, setCredentials] = useState<string[]>([])

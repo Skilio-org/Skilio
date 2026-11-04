@@ -56,7 +56,7 @@ export function FreelancerCard({
 	return (
 		<article
 			aria-label={freelancer.name}
-			className="group relative rounded-lg border border-outline-variant bg-surface-container-lowest p-5 transition-colors duration-150 hover:border-outline dark:hover:border-border-hover"
+			className="group relative rounded-lg border border-outline-variant bg-surface-container-lowest p-5 transition-colors duration-150 hover:border-outline dark:hover:border-outline-variant-hover"
 		>
 			{/* Header */}
 			<div className="mb-2.5 flex items-start justify-between gap-4">
@@ -152,20 +152,20 @@ export function FreelancerCard({
 			</p>
 
 			{/* Footer */}
-			<div className="flex flex-col gap-3 border-surface-container border-t pt-3 dark:border-border-dark sm:flex-row sm:items-center sm:justify-between">
+			<div className="flex flex-col gap-3 border-surface-container border-t pt-3 dark:border-outline-variant-dark sm:flex-row sm:items-center sm:justify-between">
 				{/* EXACT SAME skill style as job card */}
 				<div className="flex flex-wrap items-center gap-1.5">
 					{freelancer.skills.slice(0, 4).map((skill) => (
 						<span
 							key={skill}
-							className="rounded border border-transparent bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant dark:border-border-subtle dark:text-on-surface-soft"
+							className="rounded border border-transparent bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant dark:border-outline-variant-subtle dark:text-on-surface-soft"
 						>
 							{skill}
 						</span>
 					))}
 
 					{freelancer.skills.length > 4 && (
-						<span className="rounded border border-transparent bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant dark:border-border-subtle dark:text-on-surface-soft">
+						<span className="rounded border border-transparent bg-surface-container px-2 py-0.5 font-label-sm text-label-sm text-on-secondary-fixed-variant dark:border-outline-variant-subtle dark:text-on-surface-soft">
 							+{freelancer.skills.length - 4}
 						</span>
 					)}
@@ -234,7 +234,7 @@ export function FreelancerCard({
 								</label>
 								<span
 									className={`text-[11px] ${
-										note.length > 300 ? "text-destructive font-semibold" : "text-muted-foreground"
+										note.length > 300 ? "text-destructive font-semibold" : "text-on-surface-variant"
 									}`}
 								>
 									{note.length}/300
@@ -247,7 +247,7 @@ export function FreelancerCard({
 								placeholder="Add a brief note about your project or why you'd like to collaborate..."
 								value={note}
 								onChange={(e) => setNote(e.target.value)}
-								className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+								className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-on-surface-variant focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
 							/>
 						</div>
 

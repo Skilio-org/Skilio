@@ -5,7 +5,6 @@ import { EmptyState } from "@/components/common/empty-state"
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
 	Dialog,
@@ -116,14 +115,14 @@ export function ConnectsPage() {
 			<WorkspacePageHeader
 				eyebrow={`${role === "client" ? "Client" : "Freelancer"} workspace`}
 				title="Connections"
-				description="Manage verified partnerships, review incoming collaboration requests, and connect with professionals across Skilio."
-				meta={<span className="font-medium text-primary">Direct messaging unlocked</span>}
-				action={
-					<Link to="/talent" search={{ q: undefined, category: undefined }} className={workspaceStyles.primaryAction}>
-						<Search className="size-4" />
-						<span>{role === "client" ? "Explore freelancer talent" : "Discover verified members"}</span>
-					</Link>
+				description="Manage verified partnerships, review incoming collaboration requests, and connect with professionals."
+				meta={
+					<span className="font-medium text-primary">
+						{acceptedCount} {acceptedCount === 1 ? "connection" : "connections"}
+						{receivedCount > 0 && ` · ${receivedCount} awaiting your reply`}
+					</span>
 				}
+				action={<FindLink role={role} className={workspaceStyles.primaryAction} />}
 			/>
 
 			{/* Interactive Metric Overview Cards (Clickable Category Selectors) */}
@@ -270,7 +269,7 @@ export function ConnectsPage() {
 				<input
 					type="text"
 					aria-label="Filter connections"
-					placeholder="Filter by name, role or job"
+					placeholder="Filter by name, role, or job"
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.target.value)}
 					className="min-w-0 flex-1 bg-transparent text-sm outline-none"
@@ -309,14 +308,7 @@ export function ConnectsPage() {
 										Clear filter
 									</button>
 								) : (
-									<Link
-										to="/talent"
-										search={{ q: undefined, category: undefined }}
-										className={workspaceStyles.secondaryAction}
-									>
-										<Search className="size-4" />
-										<span>Browse verified members</span>
-									</Link>
+									<FindLink role={role} className={workspaceStyles.secondaryAction} />
 								)
 							}
 						/>
@@ -554,14 +546,7 @@ export function ConnectsPage() {
 										Clear filter
 									</button>
 								) : (
-									<Link
-										to="/talent"
-										search={{ q: undefined, category: undefined }}
-										className={workspaceStyles.secondaryAction}
-									>
-										<Search className="size-4" />
-										<span>Browse verified members</span>
-									</Link>
+									<FindLink role={role} className={workspaceStyles.secondaryAction} />
 								)
 							}
 						/>
@@ -570,7 +555,7 @@ export function ConnectsPage() {
 							{filteredSent.map((conn) => {
 								const receiverName = conn.receiver?.full_name || "Platform Member"
 								const receiverId = conn.receiver?.id || conn.receiver_id
-				const receiverRole = conn.receiver?.active_role === "client" ? "Client" : "Specialist"
+								const receiverRole = conn.receiver?.active_role === "client" ? "Client" : "Specialist"
 
 								return (
 									<Card
@@ -642,10 +627,10 @@ export function ConnectsPage() {
 			<Dialog open={Boolean(connToRemove)} onOpenChange={(open) => !open && setConnToRemove(null)}>
 				<DialogContent className="sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="flex items-center gap-2 text-destructive">
-							<UserMinus className="size-5" />
-							<span>Remove connection</span>
-						</DialogTitle>
+						<span className="mb-1 grid size-10 place-items-center rounded-lg bg-destructive/10 text-destructive">
+<UserMinus className="size-5" />
+</span>
+<DialogTitle>Remove connection</DialogTitle>
 						<DialogDescription>
 							Are you sure you want to remove your connection with{" "}
 							<strong className="text-foreground">
@@ -659,12 +644,13 @@ export function ConnectsPage() {
 						</DialogDescription>
 					</DialogHeader>
 
-					<DialogFooter className="mt-4 gap-2">
-						<Button variant="outline" onClick={() => setConnToRemove(null)}>
+					<DialogFooter>
+						<button type="button" className={workspaceStyles.secondaryAction} onClick={() => setConnToRemove(null)}>
 							Cancel
-						</Button>
-						<Button
-							variant="destructive"
+						</button>
+						<button
+							type="button"
+							className={workspaceStyles.destructiveAction}
 							disabled={removeMutation.isPending}
 							onClick={() => {
 								if (connToRemove) {
@@ -674,10 +660,25 @@ export function ConnectsPage() {
 							}}
 						>
 							{removeMutation.isPending ? "Removing..." : "Remove connection"}
-						</Button>
+						</button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
 		</div>
+	)
+}
+
+// Clients look for talent; freelancers look for work (the talent page is not available to freelancers).
+function FindLink({ role, className }: { role: ReturnType<typeof useAccountRole>; className: string }) {
+	return role === "client" ? (
+		<Link to="/talent" search={{ q: undefined, category: undefined }} className={className}>
+			<Search className="size-4" />
+			<span>Find talent</span>
+		</Link>
+	) : (
+		<Link to="/freelancer-jobs" search={{ q: undefined }} className={className}>
+			<Search className="size-4" />
+			<span>Find work</span>
+		</Link>
 	)
 }

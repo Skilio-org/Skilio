@@ -1,4 +1,5 @@
 import { Check, ChevronDown } from "lucide-react"
+import { useState } from "react"
 
 import { moroccoCities } from "@/components/common/morocco-cities"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
@@ -22,20 +23,26 @@ export default function CitySelect({
 	contentClassName,
 	emptyLabel = "Remote / anywhere",
 }: CitySelectProps) {
+	const [open, setOpen] = useState(false)
+	const choose = (next: string) => {
+		onValueChange(next)
+		setOpen(false)
+	}
+
 	return (
-		<Popover>
+		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
 				<button
 					type="button"
 					aria-label="Select city"
 					className={cn(
-						"flex h-9 min-w-40 items-center justify-between gap-2 px-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors hover:text-primary",
+						"group flex h-9 min-w-40 items-center justify-between gap-2 px-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors hover:text-primary",
 						className,
 					)}
 				>
 					<span className={cn("truncate", !value && "text-muted-foreground")}>{value || emptyLabel}</span>
 
-					<ChevronDown className="size-4 shrink-0 text-current opacity-50" />
+					<ChevronDown className="size-4 shrink-0 text-current opacity-50 transition-transform group-data-[state=open]:rotate-180" />
 				</button>
 			</PopoverTrigger>
 
@@ -43,7 +50,7 @@ export default function CitySelect({
 				align={align}
 				sideOffset={8}
 				className={cn(
-					"w-64 rounded-lg border border-outline-variant bg-surface-container-lowest p-1 shadow-lg",
+					"w-[max(var(--radix-popover-trigger-width),16rem)] rounded-lg border border-outline-variant bg-surface-container-lowest p-1 shadow-lg",
 					contentClassName,
 				)}
 			>
@@ -54,14 +61,14 @@ export default function CitySelect({
 						<CommandEmpty>No city found.</CommandEmpty>
 
 						<CommandGroup>
-							<CommandItem value={emptyLabel} onSelect={() => onValueChange("")} className="cursor-pointer">
+							<CommandItem value={emptyLabel} onSelect={() => choose("")} className="cursor-pointer">
 								<span className="flex-1">{emptyLabel}</span>
 
 								<Check className={cn("size-4 text-primary", !value ? "opacity-100" : "opacity-0")} />
 							</CommandItem>
 
 							{moroccoCities.map((city) => (
-								<CommandItem key={city} value={city} onSelect={() => onValueChange(city)} className="cursor-pointer">
+								<CommandItem key={city} value={city} onSelect={() => choose(city)} className="cursor-pointer">
 									<span className="flex-1 truncate">{city}</span>
 
 									<Check className={cn("size-4 text-primary", value === city ? "opacity-100" : "opacity-0")} />

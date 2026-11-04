@@ -27,7 +27,7 @@ export function ReviewDeleteDialog({ open, onOpenChange, onConfirmDelete, isDele
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader className="gap-1">
 					<DialogTitle className="font-display font-semibold text-lg text-destructive">Delete your review?</DialogTitle>
-					<DialogDescription className="text-muted-foreground text-sm">
+					<DialogDescription className="text-on-surface-variant text-sm">
 						This review and rating will be permanently removed from this freelancer's profile. You can write a new
 						review at any time.
 					</DialogDescription>

@@ -46,8 +46,8 @@ export function StarRatingDisplay({
 					const isHalfFilled = !isFilled && normalizedRating > index && normalizedRating < starIndex
 
 					return (
-						<span key={starIndex} className="relative inline-block text-muted-foreground/30">
-							<Star className={cn(sizeMap[size], "text-muted-foreground/25 stroke-current")} />
+						<span key={starIndex} className="relative inline-block text-on-surface-variant/30">
+							<Star className={cn(sizeMap[size], "text-on-surface-variant/25 stroke-current")} />
 							{(isFilled || isHalfFilled) && (
 								<span
 									className="absolute inset-0 overflow-hidden text-amber-500"
@@ -66,7 +66,7 @@ export function StarRatingDisplay({
 				</strong>
 			)}
 			{showCount !== undefined && (
-				<span className="text-muted-foreground text-xs">
+				<span className="text-on-surface-variant text-xs">
 					({showCount} {showCount === 1 ? "review" : "reviews"})
 				</span>
 			)}
@@ -130,7 +130,7 @@ export function StarRatingInput({
 									"size-6 transition-colors duration-150",
 									isSelectedOrHovered
 										? "fill-amber-400 text-amber-400 drop-shadow-[0_1px_2px_rgba(245,158,11,0.25)]"
-										: "text-muted-foreground/35 group-hover:text-muted-foreground/60",
+										: "text-on-surface-variant/35 group-hover:text-on-surface-variant/60",
 								)}
 							/>
 						</button>
@@ -138,13 +138,13 @@ export function StarRatingInput({
 				})}
 			</div>
 
-			<p className="min-h-5 font-medium text-xs text-muted-foreground transition-opacity">
+			<p className="min-h-5 font-medium text-xs text-on-surface-variant transition-opacity">
 				{activeValue > 0 ? (
 					<span className="font-semibold text-amber-600 dark:text-amber-400">
 						{activeValue} {activeValue === 1 ? "star" : "stars"} — {RATING_LABELS[activeValue]}
 					</span>
 				) : (
-					<span className="text-muted-foreground/80">Select a rating from 1 to 5 stars</span>
+					<span className="text-on-surface-variant/80">Select a rating from 1 to 5 stars</span>
 				)}
 			</p>
 		</div>
