@@ -21,7 +21,7 @@ export function LandingBento() {
 				{/* Bento Grid */}
 				<div className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 md:grid-cols-12">
 					{/* Box 1: Milestone Escrow Protection (8 cols on lg) */}
-					<div className="flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md md:col-span-12 lg:col-span-7">
+					<div className="flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline md:col-span-12 lg:col-span-7">
 						<div>
 							<div className="inline-flex items-center gap-1.5 rounded-md bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-2.5 py-1 text-xs font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
 								<ShieldCheck className="size-3.5" />
@@ -55,7 +55,7 @@ export function LandingBento() {
 					</div>
 
 					{/* Box 2: Zero Hidden Platform Cuts (5 cols on lg) */}
-					<div className="flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md md:col-span-12 lg:col-span-5">
+					<div className="flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline md:col-span-12 lg:col-span-5">
 						<div>
 							<div className="inline-flex items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
 								<Zap className="size-3.5" />
@@ -82,7 +82,7 @@ export function LandingBento() {
 					</div>
 
 					{/* Box 3: Direct Messaging & Collaboration (5 cols on lg) */}
-					<div className="flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md md:col-span-12 lg:col-span-5">
+					<div className="flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline md:col-span-12 lg:col-span-5">
 						<div>
 							<div className="inline-flex items-center gap-1.5 rounded-md bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-2.5 py-1 text-xs font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
 								<MessageSquare className="size-3.5" />
@@ -105,7 +105,7 @@ export function LandingBento() {
 					</div>
 
 					{/* Box 4: Rigorous Top 3% Vetting (7 cols on lg) */}
-					<div className="flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md md:col-span-12 lg:col-span-7">
+					<div className="flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline md:col-span-12 lg:col-span-7">
 						<div>
 							<div className="inline-flex items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
 								<Award className="size-3.5" />

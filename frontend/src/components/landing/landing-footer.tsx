@@ -39,7 +39,6 @@ const FOOTER_SECTIONS = [
 			{ label: "About Skilio", href: "/", isAnchor: false },
 			{ label: "Privacy Policy", href: "/privacy", isAnchor: false },
 			{ label: "Terms of Service", href: "/terms", isAnchor: false },
-			{ label: "System Status", href: "/status", isAnchor: false },
 		],
 	},
 ]

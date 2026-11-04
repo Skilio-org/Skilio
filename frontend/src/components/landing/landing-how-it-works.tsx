@@ -48,7 +48,7 @@ export function LandingHowItWorks() {
 					{STEPS.map(({ step, icon: Icon, title, desc }) => (
 						<div
 							key={step}
-							className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-background p-6 sm:p-7 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
+							className="group relative flex flex-col justify-between rounded-xl border border-border bg-background p-6 sm:p-7 transition-colors hover:border-outline"
 						>
 							<div>
 								<div className="flex items-center justify-between">
@@ -76,7 +76,7 @@ export function LandingHowItWorks() {
 					<Link
 						to="/signup"
 						search={{ role: "client" }}
-						className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90"
+						className="inline-flex w-full sm:w-auto h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
 					>
 						<span>Get started with your project</span>
 						<ArrowUpRight className="size-4" />

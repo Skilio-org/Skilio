@@ -56,7 +56,7 @@ export function LandingTestimonials() {
 					{TESTIMONIALS.map((t) => (
 						<Card
 							key={t.author}
-							className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
+							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<CardContent className="p-0">
 								<div className="flex items-center justify-between gap-2">

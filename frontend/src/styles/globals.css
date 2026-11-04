@@ -1315,7 +1315,6 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) search button[type="submit"].bg-primary {
 		background: var(--accent-lime);
 		color: #17191c;
-		font-weight: 600;
 		box-shadow: none;
 	}
 

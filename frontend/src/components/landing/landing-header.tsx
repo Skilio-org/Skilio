@@ -51,7 +51,7 @@ export function LandingHeader() {
 
 					<Link
 						to="/signup"
-						className="inline-flex min-h-9 sm:min-h-10 items-center gap-1.5 sm:gap-2 rounded-xl bg-primary px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-95"
+						className="inline-flex h-9 items-center gap-1.5 sm:gap-2 rounded-lg bg-primary px-3.5 sm:px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
 					>
 						<span className="hidden xs:inline sm:inline">Join Skilio</span>
 						<span className="xs:hidden sm:hidden">Join</span>

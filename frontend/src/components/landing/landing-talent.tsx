@@ -59,9 +59,9 @@ export function LandingTalent({
 								key={cat}
 								type="button"
 								onClick={() => onFilter(cat)}
-								className={`shrink-0 rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold transition-all ${
+								className={`shrink-0 rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-medium transition-colors ${
 									active
-										? "bg-primary text-primary-foreground shadow-xs"
+										? "bg-primary text-primary-foreground"
 										: "border border-border/80 bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
 								}`}
 							>
@@ -76,14 +76,14 @@ export function LandingTalent({
 					{displayPeople.map((person) => (
 						<article
 							key={person.id}
-							className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
+							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<div>
 								{/* Card Top: Avatar, Name, Rate */}
 								<div className="flex items-start justify-between gap-3">
 									<div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
 										<span
-											className={`grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl font-bold text-sm ${person.background} ${person.foreground} shadow-xs`}
+											className={`grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl font-bold text-sm ${person.background} ${person.foreground}`}
 										>
 											{person.initials}
 										</span>
@@ -163,7 +163,7 @@ export function LandingTalent({
 					<Link
 						to="/talent"
 						search={{ q: undefined, category: undefined }}
-						className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
+						className="inline-flex w-full sm:w-auto h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
 					>
 						<span>Explore all 12,000+ vetted talent profiles</span>
 						<ArrowUpRight className="size-4 text-ring" />
