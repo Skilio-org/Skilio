@@ -18,12 +18,18 @@ from app.api.deps import CurrentUser, SessionDep
 from app.core.db import engine
 from app.core.redis import publish_to_user
 from app.models import (
+    ChatMessagePublic,
     Connection,
+    ConnectionPublic,
+    JobPost,
     JobPostPublic,
     Notification,
     NotificationEvent,
     NotificationPublic,
     Proposal,
+    ProposalPublic,
+    Review,
+    ReviewPublic,
 )
 
 logger = logging.getLogger(__name__)
@@ -35,13 +41,18 @@ _TARGET_KEYS = {
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
 def to_public(n: Notification) -> NotificationPublic:
-    job = (
+    job: JobPost|None = (
         n.job_post
         or (n.proposal.job_post if n.proposal else None)
         or (n.connection.job_post if n.connection else None)
     )
     out = NotificationPublic.model_validate(n)
+
     out.job_post = JobPostPublic.model_validate(job) if job else None
+    out.connection = ConnectionPublic.model_validate(n.connection) if n.connection else None
+    out.proposal = ProposalPublic.model_validate(n.proposal) if n.proposal else None
+    out.review = ReviewPublic.model_validate(n.review) if n.review else None
+    out.chat_message = ChatMessagePublic.model_validate(n.chat_message) if n.chat_message else None
     return out
 
 @router.get("/me", response_model=list[NotificationPublic])
@@ -88,9 +99,9 @@ async def push_notification(
                 selectinload(Notification.proposal).selectinload(Proposal.job_post),
                 selectinload(Notification.connection).selectinload(Connection.sender),
                 selectinload(Notification.connection).selectinload(Connection.job_post),
-                selectinload(Notification.review),
+                selectinload(Notification.review).selectinload(Review.client),
+                selectinload(Notification.job_post).selectinload(JobPost.client),
                 selectinload(Notification.chat_message),
-                selectinload(Notification.job_post),
             )
         )
         loaded = session.exec(stmt).one()

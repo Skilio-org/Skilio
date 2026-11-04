@@ -1244,6 +1244,7 @@ export type JobPostDetailPublic = {
      * Updated At
      */
     updated_at?: string | null;
+    client?: UserPublic | null;
     /**
      * Skills
      */
@@ -1264,7 +1265,6 @@ export type JobPostDetailPublic = {
      * Has Draft
      */
     has_draft?: boolean;
-    client?: UserPublic | null;
     client_profile?: ClientProfilePublic | null;
 };
 
@@ -1318,6 +1318,7 @@ export type JobPostPublic = {
      * Updated At
      */
     updated_at?: string | null;
+    client?: UserPublic | null;
     /**
      * Skills
      */
@@ -1816,6 +1817,7 @@ export type ReviewPublic = {
      * Updated At
      */
     updated_at?: string | null;
+    client?: UserPublic | null;
 };
 
 /**

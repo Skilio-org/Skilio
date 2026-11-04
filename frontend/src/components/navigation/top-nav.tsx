@@ -78,7 +78,6 @@ export function TopNav() {
 										{label}
 										{to.includes("messages") && unreadMessages > 0 && (
 											<span
-												aria-label={`${unreadMessages} unread messages`}
 												className="min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-center font-caption text-[10px] font-bold text-on-primary leading-none"
 											>
 												{unreadLabel}

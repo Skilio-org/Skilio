@@ -55,7 +55,7 @@ async def create_review(
         client_id=current_user.id,
         freelancer_id=review_in.freelancer_id,
     )
-    session.add(review)
+    session.add(instance=review)
     try:
         session.commit()
     except IntegrityError:

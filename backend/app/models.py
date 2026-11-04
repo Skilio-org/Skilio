@@ -790,6 +790,7 @@ class ReviewPublic(ReviewBase):
     client_name: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    client: UserPublic | None = None
 
 
 class ReviewsPublic(SQLModel):
@@ -1050,6 +1051,7 @@ class JobPostPublic(JobPostBase):
     client_company: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    client: UserPublic | None = None
     skills: list[str] = Field(default_factory=list)
     proposals_count: int = 0
     is_saved: bool = False
