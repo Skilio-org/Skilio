@@ -4,7 +4,7 @@ export function LandingHeroCards() {
 	return (
 		<div className="mt-10 sm:mt-12 grid w-full max-w-5xl items-center gap-4 text-left sm:gap-6 md:grid-cols-[240px_1fr_240px]">
 			{/* Left Float: Escrow Safeguard */}
-			<div className="hidden rounded-2xl border border-border/80 bg-card p-4 shadow-sm backdrop-blur-xs md:block">
+			<div className="hidden rounded-xl border border-border bg-card p-4 transition-colors hover:border-outline md:block">
 				<div className="flex items-center gap-2.5">
 					<div className="grid size-8 place-items-center rounded-lg bg-[#EEF8E7] text-[#3E7B3D] dark:bg-[#252A21] dark:text-[#8DD37D] dark:border dark:border-[#384334]">
 						<ShieldCheck className="size-4" />
@@ -24,10 +24,10 @@ export function LandingHeroCards() {
 			</div>
 
 			{/* Center: Live Featured Moroccan Specialist Profile */}
-			<div className="w-full max-w-full overflow-hidden rounded-2xl border border-border/90 bg-card p-4 sm:p-6 shadow-lg transition-transform hover:-translate-y-0.5">
+			<div className="w-full max-w-full overflow-hidden rounded-xl border border-border bg-card p-4 sm:p-6 transition-colors hover:border-outline">
 				<div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
 					<div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
-						<div className="grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl bg-primary/10 border border-primary/20 font-bold text-sm text-primary shadow-xs">
+						<div className="grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl bg-primary/10 border border-primary/20 font-bold text-sm text-primary">
 							YB
 						</div>
 						<div className="min-w-0 flex-1">
@@ -86,7 +86,7 @@ export function LandingHeroCards() {
 			</div>
 
 			{/* Right Float: Fast Match */}
-			<div className="hidden rounded-2xl border border-border/80 bg-card p-4 shadow-sm backdrop-blur-xs md:block">
+			<div className="hidden rounded-xl border border-border bg-card p-4 transition-colors hover:border-outline md:block">
 				<div className="flex items-center gap-2.5">
 					<div className="grid size-8 place-items-center rounded-lg bg-[#FFFBEB] text-[#D97706] dark:bg-[#272318] dark:text-[#FBBF24] dark:border dark:border-[#423920]">
 						<Zap className="size-4" />
@@ -101,10 +101,9 @@ export function LandingHeroCards() {
 					</div>
 				</div>
 				<p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-					Connect directly with verified Moroccan developers and designers ready to start your project.
+					Connect with available freelancers in Casablanca, Rabat, Marrakech, and across Morocco.
 				</p>
 			</div>
 		</div>
 	)
 }
-

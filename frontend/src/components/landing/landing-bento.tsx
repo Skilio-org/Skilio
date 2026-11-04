@@ -7,20 +7,20 @@ export function LandingBento() {
 				{/* Section Header */}
 				<div className="landing-section-header">
 					<div className="landing-eyebrow">
-						<span>THE SKILIO DIFFERENCE</span>
+						<span>WHY SKILIO</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
-						Engineered for speed, transparency, and high trust.
+						Built for trust, speed, and clear results.
 					</h2>
 					<p className="landing-lede">
-						Why top founders and senior specialists are abandoning legacy 20% commission
-						marketplaces for Skilio.
+						Designed specifically for Moroccan founders and freelancers who want direct
+						collaboration without middlemen or excessive fees.
 					</p>
 				</div>
 
 				{/* Bento Grid */}
 				<div className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 md:grid-cols-12">
-					{/* Box 1: Milestone Escrow Protection (8 cols on lg) */}
+					{/* Box 1: Milestone Escrow Protection (7 cols on lg) */}
 					<div className="flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline md:col-span-12 lg:col-span-7">
 						<div>
 							<div className="inline-flex items-center gap-1.5 rounded-md bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-2.5 py-1 text-xs font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
@@ -31,24 +31,24 @@ export function LandingBento() {
 								Milestone Escrow Protection
 							</h3>
 							<p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-								Funds are pre-deposited into tier-1 bank escrow before work begins.
-								Freelancers know they will be paid; clients inspect and approve staging
-								deliverables before releasing a single dollar.
+								Funds are deposited securely into milestone escrow before work begins. Freelancers
+								work with peace of mind; clients review and approve completed work before funds are
+								released.
 							</p>
 						</div>
 
 						{/* Escrow Progress Visual */}
 						<div className="mt-5 sm:mt-6 flex flex-col gap-2.5 rounded-xl border border-border/60 bg-muted/30 p-3.5 sm:p-4">
 							<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs font-medium">
-								<span className="text-foreground">Milestone 1: Architecture & Data Schema</span>
+								<span className="text-foreground">Milestone 1: Data Architecture & API Setup</span>
 								<span className="inline-flex w-fit items-center rounded-md bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-2 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
-									Approved & Paid
+									Approved & Paid (3,500 DH)
 								</span>
 							</div>
 							<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs font-medium">
-								<span className="text-foreground">Milestone 2: Production Staging Review</span>
+								<span className="text-foreground">Milestone 2: UI Implementation & Testing</span>
 								<span className="inline-flex w-fit items-center rounded-md bg-[#FFFBEB] dark:bg-[#272318] dark:border dark:border-[#423920] px-2 py-0.5 text-[10px] font-bold text-warning dark:text-[#FBBF24]">
-									Funds in Escrow ($4,200)
+									Funds in Escrow (6,500 DH)
 								</span>
 							</div>
 						</div>
@@ -65,9 +65,8 @@ export function LandingBento() {
 								Zero Hidden Take Rates
 							</h3>
 							<p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-								Unlike legacy marketplaces that siphon 20% of your earnings, Skilio
-								passes maximum value to talent and founders with flat, transparent
-								pricing.
+								Unlike legacy international platforms that deduct 20% of your earnings, Skilio
+								offers flat and transparent terms. Keep what you earn.
 							</p>
 						</div>
 
@@ -76,7 +75,7 @@ export function LandingBento() {
 								Skilio Direct Guarantee
 							</span>
 							<p className="mt-1 font-display text-base sm:text-lg font-bold text-foreground">
-								0% Cut for First 3 Months · Keep 100%
+								0% Hidden Fees · Keep 100% of Agreed Earnings
 							</p>
 						</div>
 					</div>
@@ -89,44 +88,42 @@ export function LandingBento() {
 								<span>SEAMLESS SYNC</span>
 							</div>
 							<h3 className="mt-4 font-semibold text-lg sm:text-xl text-foreground">
-								Direct Founder-to-Engineer Sync
+								Direct Client-to-Freelancer Sync
 							</h3>
 							<p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-								No agency intermediaries or account managers in the way. Real-time chat,
-								milestone tracking, Git link previews, and contract revisions in one
-								unified workspace.
+								No middle agency or account managers in between. Real-time chat, milestone tracking,
+								file sharing, and contract revisions in one unified place.
 							</p>
 						</div>
 
 						<div className="mt-5 sm:mt-6 flex items-center justify-between rounded-xl bg-muted/40 border border-border/50 p-3.5 text-xs">
 							<span className="text-muted-foreground">Median response time</span>
-							<span className="font-semibold text-[#3E7B3D] dark:text-[#8DD37D]">&lt; 15 minutes</span>
+							<span className="font-semibold text-[#3E7B3D] dark:text-[#8DD37D]">&lt; 30 minutes</span>
 						</div>
 					</div>
 
-					{/* Box 4: Rigorous Top 3% Vetting (7 cols on lg) */}
+					{/* Box 4: Quality & Verification (7 cols on lg) */}
 					<div className="flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline md:col-span-12 lg:col-span-7">
 						<div>
 							<div className="inline-flex items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
 								<Award className="size-3.5" />
-								<span>QUALITY GUARANTEE</span>
+								<span>QUALITY ASSURANCE</span>
 							</div>
 							<h3 className="mt-4 font-semibold text-lg sm:text-xl text-foreground">
-								Vetted for Craft, Code & Communication
+								Verified Moroccan Talent
 							</h3>
 							<p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-								Every specialist completes technical architecture evaluations, portfolio code
-								audits, and English communication assessments. You only interview
-								candidates who can execute immediately without hand-holding.
+								Every specialist profile is reviewed for practical skills, verified portfolios, and
+								professional reliability. Work with confidence from day one.
 							</p>
 						</div>
 
 						{/* Checklist */}
 						<div className="mt-5 sm:mt-6 grid gap-2 grid-cols-1 sm:grid-cols-3">
 							{[
-								"Code Repo Audit",
-								"System Design Review",
-								"Verified Client Calls",
+								"Verified Code & Portfolio",
+								"Practical Experience Check",
+								"Direct Client Feedback",
 							].map((item) => (
 								<div
 									key={item}

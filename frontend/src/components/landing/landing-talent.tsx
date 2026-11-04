@@ -4,17 +4,17 @@ import { freelancers } from "@/data/freelancers"
 
 const CATEGORIES = [
 	"All talent",
-	"AI & Machine Learning",
 	"Full-Stack Engineering",
 	"Product & UI/UX Design",
-	"Growth & Marketing",
+	"Mobile Development",
+	"E-Commerce & Marketing",
 ]
 
 const TERMS_MAP: Record<string, string[]> = {
-	"AI & Machine Learning": ["ai", "python", "automation", "llm", "rag"],
-	"Full-Stack Engineering": ["engineer", "react", "typescript", "full-stack", "postgres"],
+	"Full-Stack Engineering": ["engineer", "react", "typescript", "full-stack", "postgres", "node"],
 	"Product & UI/UX Design": ["design", "product", "figma", "ux", "ui"],
-	"Growth & Marketing": ["brand", "marketing", "growth", "seo", "content"],
+	"Mobile Development": ["mobile", "flutter", "react native", "ios", "android"],
+	"E-Commerce & Marketing": ["brand", "marketing", "growth", "seo", "shopify", "ecommerce", "e-commerce"],
 }
 
 export function LandingTalent({
@@ -39,14 +39,14 @@ export function LandingTalent({
 				{/* Section Header */}
 				<div className="landing-section-header">
 					<div className="landing-eyebrow">
-						<span>PRE-VETTED ROSTER</span>
+						<span>CURATED TALENT</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
-						Curated specialists ready for your next sprint.
+						Skilled Moroccan specialists ready for your project.
 					</h2>
 					<p className="landing-lede">
-						Browse verified portfolios, inspect technical match scores, and interview senior
-						engineers and designers in under 24 hours.
+						Browse verified portfolios, inspect practical experience, and connect with developers
+						and designers directly.
 					</p>
 				</div>
 
@@ -94,7 +94,7 @@ export function LandingTalent({
 												</h3>
 												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
 													<Check className="size-2.5" />
-													Top 3%
+													Verified
 												</span>
 											</div>
 											<p className="text-xs text-muted-foreground truncate">{person.title}</p>
@@ -103,7 +103,7 @@ export function LandingTalent({
 
 									<div className="text-right shrink-0">
 										<p className="font-display font-bold text-base sm:text-lg text-foreground">
-											${person.rate}
+											{person.rate} DH
 											<span className="text-xs font-normal text-muted-foreground">
 												/hr
 											</span>
@@ -165,7 +165,7 @@ export function LandingTalent({
 						search={{ q: undefined, category: undefined }}
 						className="inline-flex w-full sm:w-auto h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
 					>
-						<span>Explore all 12,000+ vetted talent profiles</span>
+						<span>Explore all verified Moroccan talent</span>
 						<ArrowUpRight className="size-4 text-ring" />
 					</Link>
 				</div>

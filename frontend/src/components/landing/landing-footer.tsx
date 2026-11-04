@@ -16,21 +16,20 @@ const FOOTER_SECTIONS = [
 	{
 		title: "Categories",
 		links: [
-			{ label: "AI & Machine Learning", href: "#talent", isAnchor: true },
 			{ label: "Full-Stack Development", href: "#talent", isAnchor: true },
 			{ label: "Product & UI/UX Design", href: "#talent", isAnchor: true },
+			{ label: "Mobile App Development", href: "#talent", isAnchor: true },
+			{ label: "E-Commerce & Marketing", href: "#talent", isAnchor: true },
 			{ label: "Cloud & DevOps", href: "#talent", isAnchor: true },
-			{ label: "Growth & Marketing", href: "#talent", isAnchor: true },
 		],
 	},
 	{
 		title: "Specialists",
 		links: [
-			{ label: "How to Get Vetted", href: "/signup", isAnchor: false },
-			{ label: "Freelancer Earnings", href: "/signup", isAnchor: false },
+			{ label: "How to Join", href: "/signup", isAnchor: false },
 			{ label: "Milestone Escrow", href: "#difference", isAnchor: true },
 			{ label: "Browse Jobs", href: "/freelancer-jobs", isAnchor: false },
-			{ label: "Community", href: "/status", isAnchor: false },
+			{ label: "System Status", href: "/status", isAnchor: false },
 		],
 	},
 	{
@@ -52,16 +51,18 @@ export function LandingFooter() {
 					<div className="flex flex-col gap-4 lg:col-span-4">
 						<Logo className="h-7 sm:h-8 w-auto self-start" />
 						<p className="max-w-sm text-xs leading-relaxed text-neutral-400">
-							The modern freelance marketplace for ambitious builders and elite independent talent. Zero hidden markups,
-							pre-funded escrow milestones, and direct collaboration.
+							The freelance talent network connecting Moroccan businesses with top local developers,
+							designers, and digital specialists. Direct collaboration, milestone escrow, and payments in Dirhams.
 						</p>
 					</div>
 
-					{/* 4 Link Columns (8 cols on lg) */}
+					{/* Link Columns (8 cols on lg) */}
 					<div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-8">
 						{FOOTER_SECTIONS.map((section) => (
 							<div key={section.title} className="flex flex-col gap-3">
-								<h4 className="text-xs font-bold uppercase tracking-wider text-white">{section.title}</h4>
+								<h4 className="text-xs font-bold uppercase tracking-wider text-white">
+									{section.title}
+								</h4>
 								<ul className="flex flex-col gap-2.5 text-xs text-neutral-400">
 									{section.links.map((link) => (
 										<li key={link.label}>
@@ -84,7 +85,7 @@ export function LandingFooter() {
 
 				{/* Bottom Bar */}
 				<div className="mt-12 sm:mt-14 flex flex-col gap-3 sm:gap-4 border-t border-white/10 pt-6 sm:pt-8 text-xs text-neutral-400 sm:flex-row sm:items-center sm:justify-between">
-					<p>© {new Date().getFullYear()} Skilio Inc. All rights reserved.</p>
+					<p>© {new Date().getFullYear()} Skilio. All rights reserved.</p>
 					<div className="flex flex-wrap items-center gap-3 sm:gap-4">
 						<Link to="/privacy" className="hover:text-white transition-colors">
 							Privacy Policy

@@ -6,29 +6,29 @@ import { Card, CardContent } from "@/components/ui/card"
 const TESTIMONIALS = [
 	{
 		quote:
-			"Finding a senior full-stack lead took us less than 36 hours. The technical caliber of specialists on Skilio is noticeably higher than typical freelance marketplaces.",
-		author: "Elena Rostova",
-		role: "VP of Product",
-		company: "FinTech Labs",
-		initials: "ER",
+			"Finding a serious React developer took us less than two days. Being able to pay in Dirhams through milestone escrow makes working with local freelancers worry-free.",
+		author: "Reda El Alami",
+		role: "Founder",
+		company: "Casablanca Logistics",
+		initials: "RA",
 		type: "Client",
 	},
 	{
 		quote:
-			"Skilio creates an environment of mutual respect. Direct communication with founders, crystal-clear milestones, and zero hidden platform cuts taking away 20% of my check.",
-		author: "Marcus Chen",
-		role: "Principal AI Engineer",
-		company: "Independent Specialist",
-		initials: "MC",
+			"Skilio makes it easy to work with real Moroccan companies without losing 20% to middle fees. Clients know what they want and milestones are paid on time.",
+		author: "Siham Mansouri",
+		role: "Senior UI/UX Designer",
+		company: "Independent Specialist · Rabat",
+		initials: "SM",
 		type: "Freelancer",
 	},
 	{
 		quote:
-			"We scaled our product sprint team by three specialists within a week. Every deliverable was polished, production-ready, and executed without hand-holding.",
-		author: "Sarah Jenkins",
-		role: "Founder & Design Director",
-		company: "Studio Lumina",
-		initials: "SJ",
+			"We hired a mobile developer to build our customer app. The communication was direct, deadlines were respected, and the code quality was top-notch.",
+		author: "Tarik Berrada",
+		role: "Co-founder",
+		company: "Atlas E-Com · Marrakech",
+		initials: "TB",
 		type: "Client",
 	},
 ]
@@ -40,14 +40,14 @@ export function LandingTestimonials() {
 				{/* Section Header */}
 				<div className="landing-section-header">
 					<div className="landing-eyebrow">
-						<span>TESTIMONIALS & CASE STUDIES</span>
+						<span>VERIFIED REVIEWS</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
-						Trusted by teams that ship and talent that delivers.
+						Trusted by Moroccan businesses and independent talent.
 					</h2>
 					<p className="landing-lede">
-						See how leading founders and world-class independent specialists collaborate on
-						Skilio to bring ambitious ideas to life.
+						Real experiences from Moroccan founders, startups, and freelancers collaborating on
+						Skilio.
 					</p>
 				</div>
 
@@ -76,7 +76,7 @@ export function LandingTestimonials() {
 								<div className="relative mt-4 sm:mt-5">
 									<Quote className="size-6 text-muted-foreground/20 absolute -top-2 -left-1" />
 									<p className="relative z-10 text-foreground text-xs sm:text-sm leading-relaxed">
-										"{t.quote}"
+										&ldquo;{t.quote}&rdquo;
 									</p>
 								</div>
 							</CardContent>
