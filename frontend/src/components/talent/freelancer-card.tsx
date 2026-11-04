@@ -247,7 +247,7 @@ export function FreelancerCard({
 								placeholder="Add a brief note about your project or why you'd like to collaborate..."
 								value={note}
 								onChange={(e) => setNote(e.target.value)}
-								className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-on-surface-variant focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+								className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-sm leading-6 outline-none transition-[color,box-shadow] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25"
 							/>
 						</div>
 
