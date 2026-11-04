@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 
 import { UsersService } from "@/client"
-import { Button } from "@/components/ui/button"
+import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import {
 	Dialog,
 	DialogClose,
@@ -45,9 +45,9 @@ const DeleteConfirmation = () => {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button variant="destructive" className="h-10 self-start rounded-lg px-5 sm:self-auto">
+				<button type="button" className={workspaceStyles.destructiveAction}>
 					Delete account
-				</Button>
+				</button>
 			</DialogTrigger>
 			<DialogContent>
 				<form onSubmit={handleSubmit(onSubmit)}>
@@ -61,16 +61,11 @@ const DeleteConfirmation = () => {
 
 					<DialogFooter className="mt-4">
 						<DialogClose asChild>
-							<Button variant="outline" disabled={mutation.isPending} className="h-10 rounded-lg px-5">
+							<button type="button" disabled={mutation.isPending} className={workspaceStyles.secondaryAction}>
 								Cancel
-							</Button>
+							</button>
 						</DialogClose>
-						<LoadingButton
-							variant="destructive"
-							type="submit"
-							loading={mutation.isPending}
-							className="h-10 rounded-lg px-5"
-						>
+						<LoadingButton type="submit" loading={mutation.isPending} className={workspaceStyles.destructiveAction}>
 							Delete permanently
 						</LoadingButton>
 					</DialogFooter>

@@ -68,7 +68,7 @@ const ChangePassword = () => {
 					icon={KeyRound}
 				/>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full flex-col gap-5 p-5 sm:p-7">
+					<form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full max-w-xl flex-col gap-5 p-5 sm:p-7">
 						<FormField
 							control={form.control}
 							name="current_password"
@@ -79,7 +79,7 @@ const ChangePassword = () => {
 										<PasswordInput
 											data-testid="current-password-input"
 											placeholder="••••••••"
-											className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+											className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 											aria-invalid={fieldState.invalid}
 											{...field}
 										/>
@@ -99,7 +99,7 @@ const ChangePassword = () => {
 										<PasswordInput
 											data-testid="new-password-input"
 											placeholder="••••••••"
-											className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+											className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 											aria-invalid={fieldState.invalid}
 											{...field}
 										/>
@@ -119,7 +119,7 @@ const ChangePassword = () => {
 										<PasswordInput
 											data-testid="confirm-password-input"
 											placeholder="••••••••"
-											className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+											className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 											aria-invalid={fieldState.invalid}
 											{...field}
 										/>

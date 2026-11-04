@@ -413,7 +413,7 @@ function Field({ label, id, ...props }: { label: string; id: string } & React.Co
 			<Label htmlFor={id}>{label}</Label>
 			<Input
 				id={id}
-				className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+				className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 				{...props}
 			/>
 		</div>

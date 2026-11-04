@@ -5,7 +5,8 @@ import { SettingsPage } from "@/pages/common/settings-page"
 
 export const Route = createFileRoute("/_layout/settings")({
 	component: UserSettings,
-	validateSearch: z.object({ section: settingsSectionSchema.optional() }),
+	// Old links to sections that no longer exist fall back to the profile section instead of erroring.
+	validateSearch: z.object({ section: settingsSectionSchema.optional().catch(undefined) }),
 	head: () => ({ meta: [{ title: "Account settings | Skilio" }] }),
 })
 
