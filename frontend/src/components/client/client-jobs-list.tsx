@@ -46,7 +46,8 @@ export function ClientJobsList({
 					</button>
 				))}
 			</nav>
-			<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
+			{jobs.length > 0 && (
+<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
 				<Search className="size-4 text-on-surface-variant" />
 				<input
 					type="text"
@@ -57,6 +58,7 @@ export function ClientJobsList({
 					className="min-w-0 flex-1 bg-transparent text-sm outline-none"
 				/>
 			</label>
+)}
 			{results.length ? (
 				<div className="divide-y divide-border overflow-hidden rounded-lg border border-outline-variant">
 					{results.map((job) => (
