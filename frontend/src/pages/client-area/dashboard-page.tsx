@@ -1,4 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { JobsService } from "@/client"
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { ProfileProgress } from "@/components/dashboard/dashboard-profile-progress"
 import { RecommendedFreelancers } from "@/components/dashboard/dashboard-recommended"
@@ -9,14 +11,28 @@ import QuickSavedSearch from "../common/quick-search"
 export function ClientDashboardPage() {
 	const { user } = useAuth()
 	const firstName = user?.full_name?.trim().split(/\s+/)[0]
-	const activeJobsCount = 4
+	const { data: activeJobsCount } = useQuery({
+		// Nested under "client-jobs" so saving or deleting a job refreshes this count too.
+		queryKey: ["client-jobs", "active-count"],
+		enabled: Boolean(user),
+		queryFn: async ({ signal }) => {
+			const { data } = await JobsService.readMyJobs({ query: { skip: 0, limit: 1, status: "open" }, signal })
+			return data.count
+		},
+	})
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<WorkspacePageHeader
 				eyebrow="Client workspace"
 				title={firstName ? `Good to see you, ${firstName}.` : "Find your next collaborator."}
 				description="Continue your search or review professionals selected for you."
-				meta={<span className="font-medium text-primary">{activeJobsCount} active jobs</span>}
+				meta={
+					activeJobsCount !== undefined && (
+						<span className="font-medium text-primary">
+							{activeJobsCount} active {activeJobsCount === 1 ? "job" : "jobs"}
+						</span>
+					)
+				}
 				action={
 					<Link to="/client-jobs" className={workspaceStyles.primaryAction} search={{ jobId: undefined }}>
 						Post a job

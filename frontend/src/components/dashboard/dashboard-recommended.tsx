@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Users } from "lucide-react"
 import { ProfilesService } from "@/client"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
 import { talentCardFromApi } from "@/components/talent/talent-api"
@@ -47,7 +47,26 @@ export const RecommendedFreelancers = () => {
 			</div>
 			<div className="flex flex-col gap-3.5">
 				{isPending && <p role="status">Loading professionals…</p>}
-				{!isPending && !isError && matches.length === 0 && <p role="status">No professionals available yet.</p>}
+				{!isPending && !isError && matches.length === 0 && (
+					<div
+						role="status"
+						className="grid min-h-72 place-items-center rounded-lg border border-outline-variant border-dashed bg-surface-container-lowest p-8 text-center"
+					>
+						<div>
+							<span className="mx-auto grid size-14 place-items-center rounded-lg border border-outline-variant bg-surface-container text-primary">
+								<Users className="size-6" strokeWidth={1.5} />
+							</span>
+
+							<h3 className="mt-5 font-headline-lg font-semibold text-headline-lg text-on-surface">
+								No professionals available yet
+							</h3>
+
+							<p className="mx-auto mt-3 max-w-lg font-body-sm text-body-sm text-on-surface-variant leading-6">
+								New freelancers will appear here as they join. You can also browse the full talent directory.
+							</p>
+						</div>
+					</div>
+				)}
 				{matches.map((person) => (
 					<FreelancerCard
 						key={person.id}

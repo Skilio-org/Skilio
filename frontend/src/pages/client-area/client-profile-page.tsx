@@ -14,6 +14,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
+import CitySelect from "@/components/common/city-select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -205,16 +206,18 @@ export function ClientProfilePage() {
 								}}
 								placeholder="https://company.com"
 							/>
-							<Field
-								label="Location"
-								id="location"
-								value={location}
-								onChange={(e) => {
-									setLocation(e.target.value)
-									setSaved(false)
-								}}
-								placeholder="City, country"
-							/>
+							<div className="space-y-2">
+								<Label id="location-label">Location</Label>
+								<CitySelect
+									value={location}
+									emptyLabel="Select city"
+									onValueChange={(city) => {
+										setLocation(city)
+										setSaved(false)
+									}}
+									className="h-11 w-full max-w-none gap-2 rounded-lg border border-input bg-card px-4 text-sm shadow-xs hover:text-foreground focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25 dark:bg-input/30 dark:hover:bg-input/50"
+								/>
+							</div>
 							<div className="space-y-2">
 								<Label id="company-size-label">Company size</Label>
 								<Select

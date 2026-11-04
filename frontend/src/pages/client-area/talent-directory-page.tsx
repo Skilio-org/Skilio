@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
+import CitySelect from "@/components/common/city-select"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -12,7 +13,6 @@ import { useErrorToast } from "@/hooks/useErrorToast"
 import { SearchWithCategories } from "@/components/common/search-with-categories"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 
-const locationOptions = ["Worldwide", "Europe", "North America", "Asia Pacific"]
 const primaryAction =
 	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
 const secondaryAction =
@@ -31,7 +31,7 @@ export function TalentDirectoryPage({
 }) {
 	const [search, setSearch] = useState(initialQuery ?? "")
 	const [category, setCategory] = useState(initialCategory ?? "all")
-	const [location, setLocation] = useState("Worldwide")
+	const [location, setLocation] = useState("")
 	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
 	const [highlyRated, setHighlyRated] = useState(false)
 	const [sort, setSort] = useState("best-match")
@@ -77,7 +77,7 @@ export function TalentDirectoryPage({
 		submitSearch("")
 		setCategory("all")
 		onCategoryChange("all")
-		setLocation("Worldwide")
+		setLocation("")
 		setHourlyRate([0, 120])
 		setHighlyRated(false)
 	}
@@ -88,12 +88,7 @@ export function TalentDirectoryPage({
 					person.rate >= hourlyRate[0] &&
 					(hourlyRate[1] === 120 || person.rate <= hourlyRate[1]) &&
 					(!highlyRated || person.rating >= 4.9) &&
-					(location === "Worldwide" ||
-						(location === "Europe" &&
-							["France", "Portugal", "United Kingdom"].some((country) => person.location.includes(country))) ||
-						(location === "North America" &&
-							["Canada", "United States"].some((country) => person.location.includes(country))) ||
-						(location === "Asia Pacific" && person.location === "Singapore"))
+					(!location || person.location.toLowerCase().includes(location.toLowerCase()))
 				)
 			})
 			.sort((a, b) =>
@@ -103,7 +98,7 @@ export function TalentDirectoryPage({
 	const chips = [
 		...(search ? [{ label: search, remove: () => submitSearch("") }] : []),
 		...(category !== "all" ? [{ label: category, remove: () => setCategory("all") }] : []),
-		...(location !== "Worldwide" ? [{ label: location, remove: () => setLocation("Worldwide") }] : []),
+		...(location ? [{ label: location, remove: () => setLocation("") }] : []),
 		...(highlyRated ? [{ label: "4.9+ rating", remove: () => setHighlyRated(false) }] : []),
 		...(hourlyRate[0] !== 0 || hourlyRate[1] !== 120
 			? [
@@ -123,7 +118,7 @@ export function TalentDirectoryPage({
 			{label}
 		</label>
 	)
-	const filters = (group: string) => (
+	const filters = () => (
 		<div className="divide-y divide-outline-variant/50">
 			<div className="flex items-center justify-between gap-2 pb-4">
 				<h2 className="flex items-center gap-2 font-semibold text-body-md">
@@ -137,18 +132,12 @@ export function TalentDirectoryPage({
 			<fieldset className="space-y-2.5 py-4">
 				<legend className="sr-only">Location</legend>
 				<p className="mb-3 font-medium text-label-sm">Location</p>
-				{locationOptions.map((option) => (
-					<label key={option} className="flex cursor-pointer items-center gap-2 text-body-sm text-on-surface-variant">
-						<input
-							type="radio"
-							name={`${group}-location`}
-							checked={location === option}
-							onChange={() => setLocation(option)}
-							className="size-3.5 accent-primary"
-						/>
-						{option}
-					</label>
-				))}
+				<CitySelect
+					value={location}
+					emptyLabel="Any location"
+					onValueChange={setLocation}
+					className="h-10 w-full max-w-none rounded-lg border border-outline-variant"
+				/>
 			</fieldset>
 			<fieldset className="py-4">
 				<legend className="sr-only">Hourly Rate</legend>
@@ -212,7 +201,7 @@ export function TalentDirectoryPage({
 					aria-label="Talent filters"
 					className="hidden rounded-lg border border-outline-variant bg-surface-container-lowest p-5 lg:block"
 				>
-					{filters("desktop")}
+					{filters()}
 				</aside>
 				<section aria-label="Talent results" className="min-w-0">
 					<div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -321,7 +310,7 @@ export function TalentDirectoryPage({
 						<SheetDescription>Choose the professionals who fit your project.</SheetDescription>
 					</SheetHeader>
 					<div className="p-5">
-						{filters("mobile")}
+						{filters()}
 						<button type="button" onClick={() => setFiltersOpen(false)} className={`${primaryAction} mt-6 w-full`}>
 							Show {results.length} {results.length === 1 ? "professional" : "professionals"}
 						</button>

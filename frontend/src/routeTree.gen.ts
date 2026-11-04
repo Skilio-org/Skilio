@@ -32,7 +32,6 @@ import { Route as LayoutFreelancerProposalsRouteImport } from './routes/_layout/
 import { Route as LayoutFreelancerSavedJobsRouteImport } from './routes/_layout/freelancer-saved-jobs'
 import { Route as LayoutFreelancerSettingsRouteImport } from './routes/_layout/freelancer-settings'
 import { Route as LayoutMessagesRouteImport } from './routes/_layout/messages'
-import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifications'
 import { Route as LayoutOnboardingRouteImport } from './routes/_layout/onboarding'
 import { Route as LayoutSavedRouteImport } from './routes/_layout/saved'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
@@ -158,11 +157,6 @@ const LayoutMessagesRoute = LayoutMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutNotificationsRoute = LayoutNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => LayoutRoute,
-} as any)
 const LayoutOnboardingRoute = LayoutOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -213,7 +207,6 @@ export interface FileRoutesByFullPath {
   '/freelancer-saved-jobs': typeof LayoutFreelancerSavedJobsRoute
   '/freelancer-settings': typeof LayoutFreelancerSettingsRoute
   '/messages': typeof LayoutMessagesRoute
-  '/notifications': typeof LayoutNotificationsRoute
   '/onboarding': typeof LayoutOnboardingRoute
   '/saved': typeof LayoutSavedRoute
   '/settings': typeof LayoutSettingsRoute
@@ -243,7 +236,6 @@ export interface FileRoutesByTo {
   '/freelancer-saved-jobs': typeof LayoutFreelancerSavedJobsRoute
   '/freelancer-settings': typeof LayoutFreelancerSettingsRoute
   '/messages': typeof LayoutMessagesRoute
-  '/notifications': typeof LayoutNotificationsRoute
   '/onboarding': typeof LayoutOnboardingRoute
   '/saved': typeof LayoutSavedRoute
   '/settings': typeof LayoutSettingsRoute
@@ -275,7 +267,6 @@ export interface FileRoutesById {
   '/_layout/freelancer-saved-jobs': typeof LayoutFreelancerSavedJobsRoute
   '/_layout/freelancer-settings': typeof LayoutFreelancerSettingsRoute
   '/_layout/messages': typeof LayoutMessagesRoute
-  '/_layout/notifications': typeof LayoutNotificationsRoute
   '/_layout/onboarding': typeof LayoutOnboardingRoute
   '/_layout/saved': typeof LayoutSavedRoute
   '/_layout/settings': typeof LayoutSettingsRoute
@@ -307,7 +298,6 @@ export interface FileRouteTypes {
     | '/freelancer-saved-jobs'
     | '/freelancer-settings'
     | '/messages'
-    | '/notifications'
     | '/onboarding'
     | '/saved'
     | '/settings'
@@ -337,7 +327,6 @@ export interface FileRouteTypes {
     | '/freelancer-saved-jobs'
     | '/freelancer-settings'
     | '/messages'
-    | '/notifications'
     | '/onboarding'
     | '/saved'
     | '/settings'
@@ -368,7 +357,6 @@ export interface FileRouteTypes {
     | '/_layout/freelancer-saved-jobs'
     | '/_layout/freelancer-settings'
     | '/_layout/messages'
-    | '/_layout/notifications'
     | '/_layout/onboarding'
     | '/_layout/saved'
     | '/_layout/settings'
@@ -553,13 +541,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutMessagesRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/notifications': {
-      id: '/_layout/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof LayoutNotificationsRouteImport
-      parentRoute: typeof LayoutRoute
-    }
     '/_layout/onboarding': {
       id: '/_layout/onboarding'
       path: '/onboarding'
@@ -611,7 +592,6 @@ interface LayoutRouteChildren {
   LayoutFreelancerSavedJobsRoute: typeof LayoutFreelancerSavedJobsRoute
   LayoutFreelancerSettingsRoute: typeof LayoutFreelancerSettingsRoute
   LayoutMessagesRoute: typeof LayoutMessagesRoute
-  LayoutNotificationsRoute: typeof LayoutNotificationsRoute
   LayoutOnboardingRoute: typeof LayoutOnboardingRoute
   LayoutSavedRoute: typeof LayoutSavedRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
@@ -632,7 +612,6 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutFreelancerSavedJobsRoute: LayoutFreelancerSavedJobsRoute,
   LayoutFreelancerSettingsRoute: LayoutFreelancerSettingsRoute,
   LayoutMessagesRoute: LayoutMessagesRoute,
-  LayoutNotificationsRoute: LayoutNotificationsRoute,
   LayoutOnboardingRoute: LayoutOnboardingRoute,
   LayoutSavedRoute: LayoutSavedRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,

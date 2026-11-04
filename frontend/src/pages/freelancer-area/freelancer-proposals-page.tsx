@@ -768,13 +768,13 @@ const ProposalEditor = ({
 	onSend: () => void
 }) => {
 	return (
-		<section className="flex min-h-0 flex-1 flex-col">
+		<section className="flex min-h-0 min-w-0 flex-1 flex-col">
 			<div className="border-border border-b px-6 py-6 sm:px-8">
 				<p className="mb-2 font-semibold text-primary text-xs uppercase tracking-wider">
 					{readOnly ? "Submitted Application" : "Your Next Opportunity"}
 				</p>
 
-				<SheetTitle className="font-semibold text-2xl text-foreground tracking-tight">
+				<SheetTitle className="wrap-break-word font-semibold text-2xl text-foreground tracking-tight">
 					{readOnly ? "Your proposal" : isPendingSubmission ? "Edit your proposal" : "Make your introduction"}
 				</SheetTitle>
 
@@ -788,14 +788,14 @@ const ProposalEditor = ({
 			</div>
 
 			<form
-				className="flex min-h-0 flex-1 flex-col"
+				className="flex min-h-0 min-w-0 flex-1 flex-col"
 				onSubmit={(event) => {
 					event.preventDefault()
 					if (!readOnly && !isPendingSubmission) onSubmit()
 				}}
 			>
-				<div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-6 py-6 sm:px-8">
-					<div className="rounded-xl border border-border bg-muted/40 p-4">
+				<div className="min-h-0 min-w-0 flex-1 space-y-7 overflow-y-auto overflow-x-hidden px-6 py-6 sm:px-8">
+					<div className="rounded-xl border border-border bg-muted/40 p-4 wrap-break-word">
 						<p className="text-muted-foreground text-xs">
 							{readOnly ? "Proposal for" : "Applying to"} · {job.company}
 						</p>
@@ -831,13 +831,13 @@ const ProposalEditor = ({
 				</div>
 
 				<footer className="shrink-0 border-border border-t px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8">
-					<div className="flex items-center justify-between gap-3">
+					<div className="flex flex-wrap items-center justify-between gap-3">
 						<button type="button" onClick={onCancel} className={workspaceStyles.secondaryAction}>
 							{readOnly ? "Close" : "Back"}
 						</button>
 
 						{!readOnly && (
-							<div className="flex items-center justify-end gap-2.5">
+							<div className="flex flex-wrap items-center justify-end gap-2.5">
 								{!isPendingSubmission && (
 									<button type="submit" disabled={isSubmitting} className={workspaceStyles.secondaryAction}>
 										Save as draft

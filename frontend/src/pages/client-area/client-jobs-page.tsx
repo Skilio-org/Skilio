@@ -25,6 +25,7 @@ function clientJobFromApi(job: JobPostPublic): ClientJob {
 		experienceLevel: level,
 		skills: job.skills ?? [],
 		category: job.category ?? "",
+		location: job.location ?? "",
 		type: job.budget_type === "hourly" ? "Hourly" : "Fixed price",
 		budget: String(job.budget),
 		status: job.status === "draft" ? "Draft" : job.status === "closed" ? "Closed" : "Open",
@@ -38,6 +39,7 @@ function clientJobPayload(job: ClientJob): JobPostCreate {
 		budget_type: job.type === "Hourly" ? "hourly" : "fixed",
 		budget: Number(job.budget),
 		category: job.category,
+		location: job.location.trim() || null,
 		status: job.status === "Draft" ? "draft" : job.status === "Closed" ? "closed" : "open",
 		skills: job.skills,
 	}

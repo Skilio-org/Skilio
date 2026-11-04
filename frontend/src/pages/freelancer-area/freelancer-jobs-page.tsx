@@ -1,3 +1,4 @@
+import CitySelect from "@/components/common/city-select"
 import SearchWithCategories from "@/components/common/search-with-categories"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
@@ -31,6 +32,7 @@ export default function FreelancerJobsPage() {
 	const [types, setTypes] = useState<string[]>([])
 	const [credentials, setCredentials] = useState<string[]>([])
 	const [experience, setExperience] = useState<string[]>([])
+	const [location, setLocation] = useState("")
 	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
 	// const [commitment, setCommitment] = useState("")
 	const [sort, setSort] = useState("recommended")
@@ -54,7 +56,7 @@ export default function FreelancerJobsPage() {
 		fetchNextPage,
 		isFetchingNextPage,
 	} = useInfiniteQuery({
-		queryKey: ["freelancer-jobs", search, category, budgetType, hourlyRate, sortBy],
+		queryKey: ["freelancer-jobs", search, category, budgetType, hourlyRate, location, sortBy],
 		initialPageParam: 0,
 		queryFn: async ({ pageParam, signal }) => {
 			const { data } = await JobsService.readJobs({
@@ -64,6 +66,7 @@ export default function FreelancerJobsPage() {
 					q: search,
 					category: category === "all" ? undefined : category,
 					budget_type: budgetType,
+					location: location || undefined,
 					min_budget: hourlyRate[0] || undefined,
 					max_budget: hourlyRate[1] === 120 ? undefined : hourlyRate[1],
 					status: "open",
@@ -93,6 +96,7 @@ export default function FreelancerJobsPage() {
 		setTypes([])
 		setCredentials([])
 		setExperience([])
+		setLocation("")
 		setHourlyRate([0, 120])
 		// setCommitment("")
 		setVisibleCount(4)
@@ -130,6 +134,18 @@ export default function FreelancerJobsPage() {
 			label,
 			remove: () => toggle(experience, label, setExperience),
 		})),
+
+		...(location
+			? [
+					{
+						label: location,
+						remove: () => {
+							setLocation("")
+							setVisibleCount(4)
+						},
+					},
+				]
+			: []),
 
 		...(search
 			? [
@@ -221,6 +237,22 @@ export default function FreelancerJobsPage() {
 				{["Entry level", "Intermediate", "Expert / Principal"].map((label) =>
 					check(label, experience.includes(label), () => toggle(experience, label, setExperience)),
 				)}
+			</fieldset>
+
+			<fieldset className="py-4">
+				<legend className="sr-only">Location</legend>
+
+				<p className="mb-3 font-medium text-label-sm">Location</p>
+
+				<CitySelect
+					value={location}
+					emptyLabel="Any location"
+					onValueChange={(value) => {
+						setLocation(value)
+						setVisibleCount(4)
+					}}
+					className="h-10 w-full max-w-none rounded-lg border border-outline-variant"
+				/>
 			</fieldset>
 
 			<fieldset className="py-4">
