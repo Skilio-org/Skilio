@@ -309,6 +309,52 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 	return null
 }
 
+export function NotificationBody({notification, onMarkAsRead}: {notification: NotificationPublic, onMarkAsRead: (id: string) => void})
+{
+	const role = useAccountRole()
+	let content = notification.content;
+
+	// Ai instructions
+	// Generate content depending on the notification that was received.
+	// If someone sent a connection request.
+	// Then it should be their name + wants to connect.
+	// If someone sent a review.
+	// Then it should be their name + reviewed your account.
+	// If someone accepted your connect.
+	// Then it should be their name + accepted your connection.
+	// and so on..
+	// Micro instructions:
+	// Make the name standout just a bit more than the actual content.
+	// Make the spacing better than whatever there is now.
+	// Make sure the ui is as clean as possible.\
+	// also, dont change anything except this component.
+	return (
+		<span className="min-w-0 flex-1">
+			<span className="flex items-start justify-between gap-3">
+				<span
+					className={cn(
+						"min-w-0 truncate font-label-sm text-label-sm text-on-surface",
+						notification.is_read ? "font-medium" : "font-semibold",
+					)}
+				>
+					{notification.title}
+				</span>
+
+				<span className="mt-0.5 shrink-0 font-caption text-[10px] text-outline">
+					{formatMessageTime(notification.created_at)}
+				</span>
+			</span>
+
+			<span className="mt-1 line-clamp-2 block font-body-sm text-[11px] text-on-surface-variant leading-[17px]">
+				{content}
+			</span>
+
+			{/* Actionable buttons tailored per notification type */}
+			<NotificationActions notification={notification} role={role} onMarkAsRead={onMarkAsRead} />
+		</span>
+	)
+}
+
 export function NotificationDropdown() {
 	const { data: notifications, isPending } = useNotifications()
 	const { sendMessage } = useWebSocket()
@@ -331,17 +377,6 @@ export function NotificationDropdown() {
 	}
 
 	const unreadCount = notifications.filter((notification) => !notification.is_read).length
-
-	const markAllAsRead = () => {
-		sendMessage({
-			type: "read_receipt",
-			notification_id: "all_notifications",
-		})
-		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) =>
-			(current || notifications).map((notification) => ({ ...notification, is_read: true })),
-		)
-	}
-
 	const markAsRead = (notificationId: string) => {
 		sendMessage({
 			type: "read_receipt",
@@ -353,6 +388,17 @@ export function NotificationDropdown() {
 			),
 		)
 	}
+
+	const markAllAsRead = () => {
+		sendMessage({
+			type: "read_receipt",
+			notification_id: "all_notifications",
+		})
+		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) =>
+			(current || notifications).map((notification) => ({ ...notification, is_read: true })),
+		)
+	}
+
 
 	const handleItemClick = (notification: NotificationPublic) => {
 		markAsRead(notification.id)
@@ -488,29 +534,7 @@ export function NotificationDropdown() {
 								</span>
 
 								{/* Body */}
-								<span className="min-w-0 flex-1">
-									<span className="flex items-start justify-between gap-3">
-										<span
-											className={cn(
-												"min-w-0 truncate font-label-sm text-label-sm text-on-surface",
-												notification.is_read ? "font-medium" : "font-semibold",
-											)}
-										>
-											{notification.title}
-										</span>
-
-										<span className="mt-0.5 shrink-0 font-caption text-[10px] text-outline">
-											{formatMessageTime(notification.created_at)}
-										</span>
-									</span>
-
-									<span className="mt-1 line-clamp-2 block font-body-sm text-[11px] text-on-surface-variant leading-[17px]">
-										{notification.content}
-									</span>
-
-									{/* Actionable buttons tailored per notification type */}
-									<NotificationActions notification={notification} role={role} onMarkAsRead={markAsRead} />
-								</span>
+								<NotificationBody notification={notification} onMarkAsRead={markAsRead}/>
 
 								{/* Unread dot */}
 								{!notification.is_read && (
