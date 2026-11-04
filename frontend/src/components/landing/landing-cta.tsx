@@ -3,7 +3,7 @@ import { ArrowUpRight, Check, Sparkles } from "lucide-react"
 
 export function LandingCta() {
 	return (
-		<section className="landing-container px-4 sm:px-6 py-12 sm:py-20 lg:py-24">
+		<section className="landing-container landing-section">
 			<div className="relative overflow-hidden rounded-2xl bg-[#1F2125] dark:bg-[#151719] border border-border px-6 py-10 text-white sm:px-12 sm:py-16 lg:px-16">
 				{/* Background glow decoration */}
 				<div
@@ -12,12 +12,12 @@ export function LandingCta() {
 				/>
 
 				<div className="relative z-10 max-w-3xl">
-					<div className="inline-flex items-center gap-1.5 rounded-md border border-[#B8EF0D]/30 bg-[#25282C] px-2.5 py-1 text-xs font-bold text-[#B8EF0D]">
+					<div className="inline-flex items-center gap-1.5 rounded-md border border-[#B8EF0D]/30 bg-[#25282C] px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-[#B8EF0D]">
 						<Sparkles className="size-3.5" />
 						<span>START TODAY · NO LOCK-IN</span>
 					</div>
 
-					<h2 className="mt-5 sm:mt-6 font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white sm:leading-tight lg:leading-[1.15]">
+					<h2 className="mt-5 sm:mt-6 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-white sm:leading-tight lg:leading-[1.15]">
 						Make room for <br />
 						<span className="text-[#B8EF0D]">your next great project.</span>
 					</h2>

@@ -34,24 +34,24 @@ export function LandingTalent({
 	const displayPeople = (filteredPeople.length > 0 ? filteredPeople : freelancers).slice(0, 3)
 
 	return (
-		<section id="talent" className="scroll-mt-20 py-12 sm:py-20 lg:py-24">
-			<div className="landing-container px-4 sm:px-6">
+		<section id="talent" className="scroll-mt-20 landing-section">
+			<div className="landing-container">
 				{/* Section Header */}
-				<div className="flex flex-col gap-2.5 sm:gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
+				<div className="landing-section-header">
+					<div className="landing-eyebrow">
 						<span>PRE-VETTED ROSTER</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
 						Curated specialists ready for your next sprint.
 					</h2>
-					<p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
+					<p className="landing-lede">
 						Browse verified portfolios, inspect technical match scores, and interview senior
 						engineers and designers in under 24 hours.
 					</p>
 				</div>
 
 				{/* Filter Tabs - horizontally scrollable on mobile */}
-				<div className="mt-6 sm:mt-8 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap no-scrollbar">
+				<div className="mt-8 sm:mt-12 flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap no-scrollbar">
 					{CATEGORIES.map((cat) => {
 						const active = filter === cat
 						return (
@@ -72,7 +72,7 @@ export function LandingTalent({
 				</div>
 
 				{/* Talent Cards Grid */}
-				<div className="mt-6 sm:mt-8 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{displayPeople.map((person) => (
 						<article
 							key={person.id}

@@ -35,17 +35,17 @@ const TESTIMONIALS = [
 
 export function LandingTestimonials() {
 	return (
-		<section id="testimonials" className="scroll-mt-20 py-12 sm:py-20 lg:py-24">
-			<div className="landing-container px-4 sm:px-6">
+		<section id="testimonials" className="scroll-mt-20 landing-section">
+			<div className="landing-container">
 				{/* Section Header */}
-				<div className="flex flex-col gap-2.5 sm:gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
+				<div className="landing-section-header">
+					<div className="landing-eyebrow">
 						<span>TESTIMONIALS & CASE STUDIES</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
 						Trusted by teams that ship and talent that delivers.
 					</h2>
-					<p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
+					<p className="landing-lede">
 						See how leading founders and world-class independent specialists collaborate on
 						Skilio to bring ambitious ideas to life.
 					</p>
@@ -81,7 +81,7 @@ export function LandingTestimonials() {
 								</div>
 							</CardContent>
 
-							<div className="mt-6 sm:mt-8 flex items-center gap-3 sm:gap-3.5 border-t border-border/60 pt-4 sm:pt-5">
+							<div className="mt-8 sm:mt-12 flex items-center gap-3 sm:gap-3.5 border-t border-border/60 pt-4 sm:pt-5">
 								<Avatar className="size-9 sm:size-10 border border-border">
 									<AvatarFallback className="bg-primary font-bold text-xs text-primary-foreground">
 										{t.initials}

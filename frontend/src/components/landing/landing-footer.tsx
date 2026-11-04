@@ -46,7 +46,7 @@ const FOOTER_SECTIONS = [
 export function LandingFooter() {
 	return (
 		<footer className="border-t border-border bg-[#17191C] text-neutral-300">
-			<div className="landing-container px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
+			<div className="landing-container py-12 sm:py-16 lg:py-20">
 				<div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
 					{/* Brand Column (4 cols on lg) */}
 					<div className="flex flex-col gap-4 lg:col-span-4">

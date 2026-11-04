@@ -65,7 +65,7 @@ export function LandingHero({
 	}
 
 	return (
-		<section className="relative overflow-hidden border-b border-border/60 bg-muted/20 py-10 sm:py-16 lg:py-20">
+		<section className="relative overflow-hidden border-b border-border/60 bg-muted/20 py-12 sm:py-16 lg:py-20">
 			{/* Subtle ambient green glow pattern matching platform accent */}
 			<div
 				className="pointer-events-none absolute inset-0 -z-10 opacity-30 dark:opacity-20"
@@ -74,7 +74,7 @@ export function LandingHero({
 				}}
 			/>
 
-			<div className="landing-container flex flex-col items-center text-center px-4 sm:px-6">
+			<div className="landing-container flex flex-col items-center text-center">
 				{/* Eyebrow Pill */}
 				<div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-semibold text-foreground shadow-xs backdrop-blur-xs">
 					<Sparkles className="size-3 sm:size-3.5 text-ring" />
@@ -205,7 +205,7 @@ export function LandingHero({
 				</div>
 
 				{/* Floating Showcase Trio Preview */}
-				<div className="mt-10 sm:mt-12 grid w-full max-w-5xl items-center gap-4 text-left sm:gap-6 md:grid-cols-[240px_1fr_240px]">
+				<div className="mt-10 sm:mt-12 grid w-full max-w-5xl grid-cols-1 items-center gap-4 text-left sm:gap-6 md:grid-cols-[240px_1fr_240px]">
 					{/* Left Float: Escrow Safeguard */}
 					<div className="hidden rounded-xl border border-border bg-card p-4 md:block">
 						<div className="flex items-center gap-2.5">
@@ -227,7 +227,7 @@ export function LandingHero({
 					</div>
 
 					{/* Center: Live Featured Specialist Profile */}
-					<div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+					<div className="min-w-0 rounded-xl border border-border bg-card p-4 sm:p-6">
 						<div className="flex items-start justify-between gap-3">
 							<div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
 								<div className="grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl bg-primary font-bold text-sm text-primary-foreground">

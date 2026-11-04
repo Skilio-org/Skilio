@@ -2,17 +2,17 @@ import { Award, Check, MessageSquare, ShieldCheck, Zap } from "lucide-react"
 
 export function LandingBento() {
 	return (
-		<section id="difference" className="scroll-mt-20 py-12 sm:py-20 lg:py-24">
-			<div className="landing-container px-4 sm:px-6">
+		<section id="difference" className="scroll-mt-20 landing-section">
+			<div className="landing-container">
 				{/* Section Header */}
-				<div className="flex flex-col gap-2.5 sm:gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
+				<div className="landing-section-header">
+					<div className="landing-eyebrow">
 						<span>THE SKILIO DIFFERENCE</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
 						Engineered for speed, transparency, and high trust.
 					</h2>
-					<p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
+					<p className="landing-lede">
 						Why top founders and senior specialists are abandoning legacy 20% commission
 						marketplaces for Skilio.
 					</p>

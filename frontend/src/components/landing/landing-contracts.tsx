@@ -41,26 +41,26 @@ export function LandingContracts() {
 	return (
 		<section
 			id="contracts"
-			className="scroll-mt-20 border-y border-border/70 bg-muted/20 py-12 sm:py-20 lg:py-24"
+			className="scroll-mt-20 border-y border-border bg-card landing-section"
 		>
-			<div className="landing-container px-4 sm:px-6">
+			<div className="landing-container">
 				{/* Section Header */}
-				<div className="flex flex-col gap-2.5 sm:gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
+				<div className="landing-section-header">
+					<div className="landing-eyebrow">
 						<ShieldCheck className="size-3.5" />
 						<span>LIVE MARKETPLACE FEED</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
 						High-budget contracts posted today. Serious builders.
 					</h2>
-					<p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
+					<p className="landing-lede">
 						For independent talent: directly apply to pre-funded milestones, set your own
 						rates, and keep 100% of your earnings with zero hidden platform cut penalties.
 					</p>
 				</div>
 
 				{/* Contract Cards Grid */}
-				<div className="mt-6 sm:mt-8 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{CONTRACTS.map((contract) => (
 						<article
 							key={contract.title}
