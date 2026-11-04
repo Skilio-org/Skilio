@@ -264,7 +264,8 @@ export function ConnectsPage() {
 				))}
 			</nav>
 			{/* Instant Search Filter */}
-			<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
+			{(activeTab === "network" ? acceptedList : activeTab === "received" ? receivedList : sentList).length > 0 && (
+<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
 				<Search className="size-4 text-on-surface-variant" />
 				<input
 					type="text"
@@ -285,6 +286,7 @@ export function ConnectsPage() {
 					</button>
 				)}
 			</label>
+)}
 
 			{/* TAB CONTENT: TAB 1 - ACTIVE CONNECTIONS */}
 			{activeTab === "network" && (

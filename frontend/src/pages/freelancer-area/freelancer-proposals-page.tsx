@@ -255,7 +255,8 @@ const FreelancerProposalsPage = () => {
 			</nav>
 
 			{/* Instant search filter & sort selector */}
-			<div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+			{(tabs.find((t) => t.id === tab)?.count ?? 0) > 0 && (
+<div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<label className="relative flex min-h-12 flex-1 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4 transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
 					<Search className="size-4 shrink-0 text-on-surface-variant" />
 					<input
@@ -310,6 +311,7 @@ const FreelancerProposalsPage = () => {
 					</Select>
 				</div>
 			</div>
+)}
 
 			{/* Main Section Feed */}
 			<section aria-label="Proposals feed" className="min-w-0 space-y-4">
