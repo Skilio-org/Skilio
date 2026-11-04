@@ -1,14 +1,4 @@
 export type InboxFilter = "all" | "unread" | "archived"
-export type ThreadMessage = {
-	id: string
-	body: string
-	time: string
-	own: boolean
-	local?: boolean
-	feedback?: string[]
-	attachment?: { name: string; content: string }
-}
-
 type ClientTheme = {
 	bg: string
 	text: string

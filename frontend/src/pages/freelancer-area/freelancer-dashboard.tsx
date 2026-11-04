@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Bookmark, BriefcaseBusiness, CheckCircle2, ChevronDown, Circle, Search } from "lucide-react"
 import { useState } from "react"
+import { queryKeys } from "@/lib/query-keys"
 
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
@@ -24,7 +25,7 @@ const FreelancerDashboardPage = () => {
 	useErrorToast(error, "freelancer-proposals-load")
 
 	const { data: jobs = [], isPending: jobsPending } = useQuery({
-		queryKey: ["freelancer-jobs", "dashboard"],
+		queryKey: queryKeys.freelancerJobsDashboard,
 		queryFn: async ({ signal }) => {
 			const { data } = await JobsService.readJobs({
 				query: { skip: 0, limit: 100, status: "open", sort_by: "newest" },

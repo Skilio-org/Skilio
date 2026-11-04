@@ -1,28 +1,14 @@
-import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Search, Users } from "lucide-react"
-import { ProfilesService } from "@/client"
 import { EmptyState } from "@/components/common/empty-state"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
-import { talentCardFromApi } from "@/components/talent/talent-api"
+import { useRecommendedTalent } from "@/hooks/useRecommendedTalent"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 import { useErrorToast } from "@/hooks/useErrorToast"
 
 export const RecommendedFreelancers = () => {
-	const {
-		data: matches = [],
-		isPending,
-		isError,
-		errorUpdatedAt,
-		refetch,
-	} = useQuery({
-		queryKey: ["talent-profiles", { limit: 4 }],
-		queryFn: async ({ signal }) => {
-			const { data } = await ProfilesService.readProfiles({ query: { skip: 0, limit: 4 }, signal })
-			return data.data.slice(0, 4).map(talentCardFromApi)
-		},
-	})
+	const { data: matches = [], isPending, isError, errorUpdatedAt, refetch } = useRecommendedTalent()
 	useErrorToast(
 		isError ? "Couldn’t load professionals." : undefined,
 		"recommended-talent-load",

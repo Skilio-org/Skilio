@@ -1,7 +1,6 @@
 import { StarRatingDisplay } from "./review-stars"
 import type { ReviewPublic } from "@/client"
 // import { Monogram } from "@/components/dashboard/dashboard-header"
-// import { getInitials } from "@/utils"
 // import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"

@@ -16,7 +16,7 @@ import { PasswordInput } from "@/components/ui/password-input"
 
 import useCustomToast from "@/hooks/useCustomToast"
 
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 const formSchema = z
 	.object({

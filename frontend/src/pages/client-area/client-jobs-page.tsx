@@ -10,6 +10,7 @@ import useAuth from "@/hooks/useAuth"
 import { useErrorToast } from "@/hooks/useErrorToast"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { queryKeys } from "@/lib/query-keys"
 
 type ClientJobsPageProps = {
 	focusedJobId?: string
@@ -49,7 +50,7 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 	const { user } = useAuth()
 	const queryClient = useQueryClient()
 	const jobsQuery = useQuery({
-		queryKey: ["client-jobs"],
+		queryKey: queryKeys.clientJobs,
 		enabled: Boolean(user),
 		queryFn: async ({ signal }) => {
 			const { data } = await JobsService.readMyJobs({ query: { skip: 0, limit: 100 }, signal })
@@ -67,7 +68,7 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 			return job.id ? JobsService.updateJob({ path: { id: job.id }, body }) : JobsService.createJob({ body })
 		},
 		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ["client-jobs"] })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.clientJobs })
 			onFocusedJobChange(undefined)
 			setEditorJob(null)
 			toast.success("Job saved")
@@ -77,7 +78,7 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 	const deleteMutation = useMutation({
 		mutationFn: (id: string) => JobsService.deleteJob({ path: { id } }),
 		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ["client-jobs"] })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.clientJobs })
 			onFocusedJobChange(undefined)
 			setEditorJob(null)
 			toast.success("Job deleted")

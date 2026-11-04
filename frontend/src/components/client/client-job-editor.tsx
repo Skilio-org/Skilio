@@ -6,8 +6,7 @@ import CitySelect from "@/components/common/city-select"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { CategoriesService } from "@/client"
-import { useQuery } from "@tanstack/react-query"
+import { useCategories } from "@/hooks/useCategories"
 import type { ClientJob } from "./client-job-types"
 import { ClientJobProposals } from "./client-job-proposals"
 
@@ -31,11 +30,7 @@ export function ClientJobEditor({
 	onDelete,
 }: ClientJobEditorProps) {
 	const descriptionLimit = jobDescriptionLimit(job?.experienceLevel ?? "")
-	const { data: categories = [] } = useQuery({
-		queryKey: ["categories"],
-		queryFn: async () => (await CategoriesService.readCategories()).data.data,
-		staleTime: 1000 * 60 * 30,
-	})
+	const { data: categories = [] } = useCategories()
 	return (
 		<Sheet open={!!job} onOpenChange={(open) => !open && onClose()}>
 			<SheetContent className="w-full gap-0 bg-surface-container-lowest p-0 sm:max-w-180">

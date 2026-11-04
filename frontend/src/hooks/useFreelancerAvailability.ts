@@ -2,11 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { ProfilesService } from "@/client"
 import useAuth from "@/hooks/useAuth"
+import { queryKeys } from "@/lib/query-keys"
 
 export function useFreelancerAvailability() {
 	const { user } = useAuth()
 	const client = useQueryClient()
-	const queryKey = ["freelancer-availability", user?.id]
+	const queryKey = queryKeys.freelancerAvailability(user?.id)
 	const query = useQuery({
 		queryKey,
 		enabled: Boolean(user),

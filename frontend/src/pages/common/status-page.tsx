@@ -1,3 +1,4 @@
+import { queryKeys } from "@/lib/query-keys"
 import {
 	AlertOctagon,
 	AlertTriangle,
@@ -42,7 +43,7 @@ function healthFromError(error: Error | null): SystemHealth | null {
 const StatusPage = () => {
 	const [now, setNow] = useState(Date.now)
 	const { data, error, isPending, isFetching, isError, dataUpdatedAt, errorUpdatedAt, refetch } = useQuery({
-		queryKey: ["system-health"],
+		queryKey: queryKeys.systemHealth,
 		queryFn: async ({ signal }) =>
 			(
 				await HealthService.getSystemHealth({

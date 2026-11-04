@@ -16,7 +16,7 @@ import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 import {
 	Dialog,
@@ -42,7 +42,6 @@ const UserInformation = () => {
 	const accountLabel = useAccountRole() === "freelancer" ? "Freelancer account" : "Client account"
 	const avatarUrl = useAccountAvatarUrl(currentUser?.id)
 	const [avatarFailed, setAvatarFailed] = useState(false)
-	useEffect(() => setAvatarFailed(false), [])
 
 	const [emailPasswordDialogOpen, setEmailPasswordDialogOpen] = useState(false)
 
