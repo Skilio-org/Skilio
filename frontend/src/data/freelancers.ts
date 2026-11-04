@@ -239,5 +239,3 @@ export const freelancers: Freelancer[] = [
 		],
 	},
 ]
-
-export const getFreelancer = (id: string) => freelancers.find((freelancer) => freelancer.id === id)

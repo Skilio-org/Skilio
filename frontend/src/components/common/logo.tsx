@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 import skilioLogo from "/assets/images/skilio-logo.svg"
 import skilioTypography from "/assets/images/skilio-typography.svg"
 
-export interface LogoProps {
+interface LogoProps {
 	// Every variant except "typography" renders the Skilio mark (skilio-logo.svg); the others are kept so existing callers keep working.
 	variant?: "full" | "icon" | "typography" | "combined" | "responsive"
 	className?: string

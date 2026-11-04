@@ -7,7 +7,7 @@ import { toast } from "sonner"
 
 export type sendState = "sent" | "failed" | "pending";
 
-export type MessageSendState = Record<string, sendState>
+type MessageSendState = Record<string, sendState>
 const enum WebSocketCloseCodes {
 	NormalClosure = 1000,
 	GoingAway = 1001,

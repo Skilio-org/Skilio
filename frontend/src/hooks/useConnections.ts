@@ -12,7 +12,7 @@ const iscancell = (err:any) => {
     return (err instanceof CanceledError || (err as Error)?.name === "AbortError")
 }
 
-export const connectionKeys = {
+const connectionKeys = {
   all: ["connections"] as const,
   list: (status?: ConnectionStatus | null, direction?: string | null) =>
     [...connectionKeys.all, "list", { status, direction }] as const,

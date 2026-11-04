@@ -4,7 +4,7 @@ import { ReviewsService, type ReviewCreate, type ReviewPublic, type ReviewUpdate
 import useAuth from "./useAuth"
 import { extractErrorMessage } from "@/utils"
 
-export const reviewKeys = {
+const reviewKeys = {
 	all: ["reviews"] as const,
 	freelancer: (freelancerId: string) => [...reviewKeys.all, "freelancer", freelancerId] as const,
 }
