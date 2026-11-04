@@ -13,6 +13,8 @@ export interface LogoProps {
 	gapClassName?: string
 	asLink?: boolean
 	to?: "/" | "/dashboard" | "/freelancer" | "/freelancer-dashboard" | string
+	// Adds the light-mode outline so the lime logo stands out on light backgrounds. Turn off on dark-only surfaces.
+	outlined?: boolean
 }
 
 export function Logo({
@@ -23,6 +25,7 @@ export function Logo({
 	gapClassName = "gap-2.5",
 	asLink = true,
 	to = "/",
+	outlined = true,
 }: LogoProps) {
 	let content: React.ReactNode
 
@@ -99,6 +102,8 @@ export function Logo({
 			)
 			break
 	}
+
+	content = <span className={cn("inline-flex", outlined && "logo-outline")}>{content}</span>
 
 	if (!asLink) {
 		return content
