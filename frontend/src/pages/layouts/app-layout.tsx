@@ -60,7 +60,6 @@ export function AppLayout() {
 				"/client-jobs",
 				"/messages",
 				"/help",
-				"/notifications",
 				"/settings",
 			].some((p) => path === p || path.startsWith(`${p}/`))
 		) {

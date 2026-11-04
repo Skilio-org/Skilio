@@ -11,8 +11,8 @@ import { useConversations } from "@/hooks/useConversations"
 
 const freelancerMenu = [
 	["/freelancer-dashboard", "Overview"],
-	["/freelancer-jobs", "Find Work"],
-	["/freelancer-saved-jobs", "Saved Jobs"],
+	["/freelancer-jobs", "Find work"],
+	["/freelancer-saved-jobs", "Saved jobs"],
 	["/freelancer-proposals", "Proposals"],
 	["/connects", "Connections"],
 	["/freelancer-messages", "Messages"],
@@ -51,9 +51,7 @@ export function TopNav() {
 					<Logo
 						variant="full"
 						to={role === "freelancer" ? "/freelancer-dashboard" : "/dashboard"}
-						iconClassName="size-7"
-						textClassName="h-4.5"
-						gapClassName="gap-2.5"
+						iconClassName="h-8 translate-y-px"
 					/>
 
 					<nav
@@ -70,7 +68,7 @@ export function TopNav() {
 									aria-current={active ? "page" : undefined}
 									className={
 										active
-											? "flex h-full items-center whitespace-nowrap px-0 font-label-md font-medium text-label-md text-primary transition-colors dark:text-on-surface"
+											? "flex h-full items-center whitespace-nowrap px-0 font-label-md font-medium text-label-md text-link transition-colors dark:text-on-surface"
 											: "flex h-full items-center whitespace-nowrap px-0 font-label-md font-medium text-label-md text-on-surface-variant transition-colors hover:text-on-surface"
 									}
 								>
@@ -128,7 +126,7 @@ export function TopNav() {
 								aria-label="Open workspace navigation"
 								className="flex size-8 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface md:hidden"
 							>
-								<Menu className="size-[18px]" />
+								<Menu className="size-4.5" />
 							</button>
 						</DropdownMenuTrigger>
 
@@ -142,7 +140,6 @@ export function TopNav() {
 										<span>{label}</span>
 										{to.includes("messages") && unreadMessages > 0 && (
 											<span
-												aria-label={`${unreadMessages} unread messages`}
 												className="min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-center font-caption text-[10px] font-bold text-on-primary leading-none"
 											>
 												{unreadLabel}

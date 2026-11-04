@@ -16,8 +16,8 @@ function TalentDirectoryRoute() {
 
 	return (
 		<TalentDirectoryPage
-			initialQuery={q}
-			initialCategory={category}
+			query={q}
+			category={category}
 			onQueryChange={(query) => void navigate({ search: (current) => ({ ...current, q: query }), replace: true })}
 			onCategoryChange={(nextCategory) =>
 				void navigate({

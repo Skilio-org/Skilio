@@ -166,6 +166,7 @@
 	--color-border-input: var(--border-input);
 	--color-on-surface-muted: var(--on-surface-muted);
 	--color-primary-hover: var(--primary-hover);
+	--color-link: var(--link);
 	--color-primary-glow: var(--primary-glow);
 	--color-accent-cyan: var(--accent-cyan);
 	--color-accent-lime: var(--accent-lime);
@@ -272,22 +273,24 @@
 	--on-surface-strong: #17191c;
 	--on-surface-variant: #55595e;
 	--on-surface-soft: #666a70;
-	--on-surface-muted: #7a7f85;
-	--on-surface-faint: #979ba0;
+	--on-surface-muted: #62676d;
+	--on-surface-faint: #676c72;
 	--inverse-on-surface: #f7f8f8;
 
-	--outline: #777b80;
-	--outline-variant: #d2d5d7;
+	--outline: #666b71;
+	--outline-variant: #c6cacd;
 	--border-dark: #d2d5d7;
 	--border-subtle: #dde0e2;
-	--border-input: #b8bdc1;
+	--border-input: #8a9096;
 	--border-hover: #9da2a7;
 
-	/* Structural primary is graphite. Acid lime is used as a high-energy accent. */
-	--primary: #1f2125;
-	--primary-hover: #2d3034;
+	/* The brand lime is the primary colour in both themes, with graphite text on it (12:1).
+	   Lime can't be read as text on white, so text accents use --link, which is graphite (15:1 on white). */
+	--primary: #b8ef0d;
+	--primary-hover: #a5d80b;
+	--link: #1f2125;
 	--primary-container: #7fa600;
-	--on-primary: #ffffff;
+	--on-primary: #1f2125;
 	--on-primary-container: #1f2125;
 	--inverse-primary: #b8ef0d;
 	--surface-tint: #1f2125;
@@ -345,15 +348,15 @@
 	--accent-foreground: var(--on-surface);
 	--destructive: var(--error);
 	--danger-soft: var(--error-container);
-	--success: #5f9b52;
+	--success: #3a7430;
 	--success-foreground: #ffffff;
 	--success-soft: #edf7e9;
-	--warning: #9c7a1d;
+	--warning: #7f5f0c;
 	--warning-foreground: #ffffff;
 	--warning-soft: #fbf4dc;
 	--border: var(--outline-variant);
 	--input: var(--border-input);
-	--ring: var(--accent-lime-deep);
+	--ring: #587700;
 
 	/* Brand */
 	--brand-50: #f9fde9;
@@ -376,7 +379,7 @@
 	--sidebar-accent: #eef4d8;
 	--sidebar-accent-foreground: #1f2125;
 	--sidebar-border: #d2d5d7;
-	--sidebar-ring: #7fa600;
+	--sidebar-ring: #587700;
 
 	/* Charts */
 	--chart-1: #b8ef0d;
@@ -415,24 +418,25 @@
 	--surface-variant: #25282c;
 	--surface-footer: #1b1d20;
 
-	--border-dark: #34383d;
+	--border-dark: #3b4046;
 	--border-subtle: #303338;
-	--border-input: #484d53;
-	--border-hover: #5e646b;
-	--outline-variant: #34383d;
-	--outline: #737a82;
+	--border-input: #6a7178;
+	--border-hover: #7b838b;
+	--outline-variant: #3b4046;
+	--outline: #8a9199;
 
 	--on-background: #f7f8f8;
 	--on-surface: #f7f8f8;
 	--on-surface-variant: #b2b6ba;
-	--on-surface-muted: #81878d;
+	--on-surface-muted: #8f959b;
 	--on-surface-strong: #ffffff;
 	--on-surface-soft: #b2b6ba;
-	--on-surface-faint: #777d83;
+	--on-surface-faint: #8a9096;
 	--inverse-on-surface: #1f2125;
 
 	--primary: #b8ef0d;
 	--primary-hover: #c8ff23;
+	--link: #b8ef0d;
 	--primary-container: #d1ff42;
 	--on-primary: #17191c;
 	--on-primary-container: #17191c;
@@ -495,8 +499,8 @@
 	--warning: #c8ff23;
 	--warning-foreground: #17191c;
 	--warning-soft: rgb(184 239 13 / 0.12);
-	--border: #34383d;
-	--input: #484d53;
+	--border: #3b4046;
+	--input: #6a7178;
 	--ring: #b8ef0d;
 
 	--brand-50: #1f2125;
@@ -517,7 +521,7 @@
 	--sidebar-primary-foreground: #17191c;
 	--sidebar-accent: #25282c;
 	--sidebar-accent-foreground: #f7f8f8;
-	--sidebar-border: #34383d;
+	--sidebar-border: #3b4046;
 	--sidebar-ring: #b8ef0d;
 
 	--chart-1: #b8ef0d;
@@ -937,9 +941,26 @@
 		@apply mx-auto w-full max-w-330 px-5 sm:px-8 lg:px-12;
 	}
 
+	/* Shared landing rhythm: every section uses the same vertical padding, header stack and lede. */
+	.landing-section {
+		@apply py-14 sm:py-20 lg:py-24;
+	}
+
+	.landing-section-header {
+		@apply flex flex-col gap-3;
+	}
+
+	.landing-eyebrow {
+		@apply inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-foreground;
+	}
+
+	.landing-lede {
+		@apply max-w-2xl text-base leading-relaxed text-muted-foreground;
+	}
+
 	.landing-heading {
 		font-family: "Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif;
-		font-size: clamp(2rem, 3.7vw, 3.5rem);
+		font-size: clamp(1.75rem, 3.2vw, 3rem);
 		font-weight: 600;
 		line-height: 1.08;
 		letter-spacing: -0.025em;
@@ -1238,19 +1259,19 @@
 		border-color: var(--border-hover);
 	}
 
-	/* Existing bg-primary CTAs are graphite in light mode. */
+	/* Primary CTAs use the brand lime with graphite text in light mode, same as dark mode. */
 	article button.bg-primary,
 	a.bg-primary:not([aria-current="page"]),
 	search button[type="submit"].bg-primary {
-		background: var(--graphite);
-		color: #ffffff;
+		background: var(--primary);
+		color: var(--on-primary);
 		box-shadow: none;
 	}
 
 	article button.bg-primary:hover,
 	a.bg-primary:not([aria-current="page"]):hover,
 	search button[type="submit"].bg-primary:hover {
-		background: var(--graphite-raised);
+		background: var(--primary-hover);
 	}
 
 	/* Important marketplace CTAs can opt into lime simply by using primary-container. */
@@ -1311,7 +1332,6 @@
 	:where(.dark, [data-theme="dark"], [data-mode="dark"]) search button[type="submit"].bg-primary {
 		background: var(--accent-lime);
 		color: #17191c;
-		font-weight: 600;
 		box-shadow: none;
 	}
 

@@ -12,15 +12,18 @@ from sqlalchemy import CheckConstraint  # add to your sqlalchemy import
 def get_datetime_utc() -> datetime:
     return datetime.now(UTC)
 
+
 # ==============================================================================
 # Enums
 # ==============================================================================
+
 
 class NotificationType(StrEnum):
     INFO = "info"
     SUCCESS = "success"
     WARNING = "warning"
     ERROR = "error"
+
 
 class UserRole(StrEnum):
     CLIENT = "client"
@@ -93,6 +96,7 @@ class UserBase(SQLModel):
     is_superuser: bool = False
     full_name: str | None = Field(default=None, max_length=255)
     active_role: UserRole = Field(default=UserRole.CLIENT)
+    is_email_verified: bool = Field(default=False, nullable=True)
 
 
 class AvatarResponse(SQLModel):
@@ -140,6 +144,7 @@ class UserUpdateMe(SQLModel):
     active_role: UserRole | None = None
     password: str | None = Field(default=None, min_length=8, max_length=128)
 
+
 class UpdatePassword(SQLModel):
     current_password: str = Field(min_length=8, max_length=128)
     new_password: str = Field(min_length=8, max_length=128)
@@ -157,9 +162,8 @@ class User(UserBase, table=True):
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
     )
-    is_email_verified: bool = Field(default=False, nullable=True)
     avatar_url: str | None = Field(
-        default=None, max_length=500
+        default=None, max_length=2000
     )  # stores the Cloudinary url
     # items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True) No items anymore
     # For google Auth.
@@ -173,6 +177,7 @@ class User(UserBase, table=True):
         cascade_delete=True,
         sa_relationship_kwargs={"uselist": False},
     )
+
     client_profile: Optional["ClientProfile"] = Relationship(
         back_populates="user",
         cascade_delete=True,
@@ -195,14 +200,20 @@ class User(UserBase, table=True):
     )
     client_conversations: list["Conversation"] = Relationship(
         back_populates="client",
+        cascade_delete=True,
+        passive_deletes=True,
         sa_relationship_kwargs={"foreign_keys": "[Conversation.client_id]"},
     )
     freelancer_conversations: list["Conversation"] = Relationship(
         back_populates="freelancer",
+        cascade_delete=True,
+        passive_deletes=True,
         sa_relationship_kwargs={"foreign_keys": "[Conversation.freelancer_id]"},
     )
     sent_messages: list["ChatMessage"] = Relationship(
         back_populates="sender",
+        cascade_delete=True,
+        passive_deletes=True,
         sa_relationship_kwargs={"foreign_keys": "[ChatMessage.sender_id]"},
     )
     job_posts: list["JobPost"] = Relationship(
@@ -237,6 +248,13 @@ class User(UserBase, table=True):
     )
 
 
+class PasswordResetToken(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    token_hash: str = Field(max_length=64, unique=True, index=True)
+    email: EmailStr = Field(max_length=255, index=True)
+    expires_at: datetime = Field(sa_type=DateTime(timezone=True))
+    used_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
     id: uuid.UUID
@@ -246,7 +264,6 @@ class UserPublic(UserBase):
 class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
-
 
 # ==============================================================================
 # Media Models (Cloudinary Ready)
@@ -882,6 +899,7 @@ class Conversation(SQLModel, table=True):
         back_populates="freelancer_conversations",
         sa_relationship_kwargs={"foreign_keys": "[Conversation.freelancer_id]"},
     )
+    unread_count: int = Field(default=0, sa_column_kwargs={"server_default": "0"})
     messages: list["ChatMessage"] = Relationship(
         back_populates="conversation", cascade_delete=True
     )
@@ -1053,6 +1071,7 @@ class JobPostsPublic(SQLModel):
 # Proposal Models
 # ==============================================================================
 
+
 class ProposalBase(SQLModel):
     cover_letter: str | None = Field(default=None, max_length=3000)
 
@@ -1101,6 +1120,7 @@ class Proposal(ProposalBase, table=True):
         sa_relationship_kwargs={"foreign_keys": "[Proposal.freelancer_id]"},
     )
 
+
 class ProposalPublic(ProposalBase):
     id: uuid.UUID
     job_post_id: uuid.UUID
@@ -1112,6 +1132,7 @@ class ProposalPublic(ProposalBase):
     freelancer_profile: Optional[FreelancerProfilePublic] = None
     job_post: Optional[JobPostPublic] = None
 
+
 class ProposalsPublic(SQLModel):
     data: list[ProposalPublic]
     count: int
@@ -1120,6 +1141,7 @@ class ProposalsPublic(SQLModel):
 # ==============================================================================
 # Saved Job Models
 # ==============================================================================
+
 
 class SavedJobBase(SQLModel):
     job_post_id: uuid.UUID
@@ -1240,6 +1262,7 @@ class RecentSearchesPublic(SQLModel):
 # Health Check & Diagnostic Models (DevOps Minor Module)
 # ==============================================================================
 
+
 class ComponentHealth(SQLModel):
     status: Literal["healthy", "degraded", "unhealthy"]
     latency_ms: float | None = None
@@ -1287,9 +1310,7 @@ class Connection(ConnectionBase, table=True):
         ondelete="SET NULL",
         index=True,
     )
-    status: ConnectionStatus = Field(
-        default=ConnectionStatus.PENDING, index=True
-    )
+    status: ConnectionStatus = Field(default=ConnectionStatus.PENDING, index=True)
     created_at: datetime | None = Field(
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
@@ -1329,13 +1350,16 @@ class ConnectionPublic(ConnectionBase):
     receiver: UserPublic | None = None
     job_post: JobPostPublic | None = None
 
+
 class ConnectionsPublic(SQLModel):
     data: list[ConnectionPublic]
     count: int
 
+
 class ConnectionStatusPublic(SQLModel):
     status: Literal["none", "pending_sent", "pending_received", "connected"]
     connection_id: uuid.UUID | None = None
+
 
 # ==============================================================================
 # Notification Models
@@ -1359,6 +1383,7 @@ class NotificationBase(SQLModel):
     content: str = Field(min_length=1, max_length=5000)
     title: str = Field(default=None, max_length=255)
     link: str = Field(default=None, max_length=2048)
+
 
 class Notification(NotificationBase, table=True):
     __table_args__ = (
@@ -1406,13 +1431,14 @@ class Notification(NotificationBase, table=True):
 class NotificationPublic(NotificationBase):
     id: uuid.UUID
     is_read: bool
-    link: str 
+    link: str
     created_at: datetime | None = None
     proposal: ProposalPublic | None = None
     connection: ConnectionPublic | None = None
     review: ReviewPublic | None = None
     chat_message: ChatMessagePublic | None = None
     job_post: JobPostPublic | None = None
+
 
 class NotificationsPublic(SQLModel):
     data: list[NotificationPublic]

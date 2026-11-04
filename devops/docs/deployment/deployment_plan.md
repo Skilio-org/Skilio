@@ -381,13 +381,12 @@ This implementation transitions the Skilio platform from an isolated `localhost`
          - Executes database migrations (`uv run bash scripts/prestart.sh`).
          - Runs all **173 Pytest tests** with coverage tracking (`pytest-cov`).
          - Strictly enforces minimum **70% test coverage** (our project achieves **83%**).
-         - Uploads interactive HTML coverage report as a downloadable artifact.
          - Filtered with `paths:` targeting `backend/**`, `compose.yml`, and workflow file.
       3. **`test-docker-compose.yml` (Layer 3: Container Build & Smoke Test, ~3m)**:
          - Validates production multi-stage Docker build (`docker compose build`).
          - Runs containerized migrations (`docker compose run --rm backend bash scripts/prestart.sh`).
          - Boots backend application stack in detached mode (`docker compose up -d --wait backend`).
-         - Performs automated HTTP smoke checks with retries (`curl -f --retry 5 http://localhost:8000/api/v1/utils/health-check/`).
+         - Performs automated HTTP smoke checks with retries (`curl -f --retry 5 http://localhost:8000/api/v1/health`).
          - Verifies root frontend web serving (`curl -f --retry 5 http://localhost:8000`).
          - Tears down containers with `if: always()` to ensure clean runner termination.
   - **Repository & Security Hardening**:

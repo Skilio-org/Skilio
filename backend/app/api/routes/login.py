@@ -1,10 +1,12 @@
+import hashlib
 import logging
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import select
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
@@ -18,6 +20,7 @@ from app.api.utils.oauth import (
 )
 from app.core import security
 from app.core.config import settings
+from app.core.limiter import limiter
 from app.models import (
     Message,
     NewPassword,
@@ -45,6 +48,7 @@ def login_google() -> RedirectResponse:
     )
 
 @router.get("/login/google/callback")
+@limiter.limit('5/minute')
 async def google_callback(
     request: Request,
     response: Response,
@@ -92,6 +96,7 @@ def login_linkedin() -> RedirectResponse:
     )
 
 @router.get("/login/linkedin/callback")
+@limiter.limit('5/minute')
 async def linkedin_callback(
     request: Request,
     response: Response,
@@ -130,8 +135,9 @@ async def linkedin_callback(
     return build_access_token_response(user)
 
 @router.post("/login/access-token")
+@limiter.limit('5/minute')
 def login_access_token(
-    session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request
 ) -> Token:
     """
     OAuth2 compatible token login, get an access token for future requests
@@ -166,7 +172,10 @@ async def recover_password(email: str, session: SessionDep) -> Message:
     # Only send email if user actually exists
     if user:
         try:
-            await send_password_reconvery_email(email=email, oauth=False)
+            token = generate_password_reset_token(email=email)
+            await send_password_reconvery_email(
+                email=email, oauth=False, password_reset_token=token
+            )
         except Exception as e:
             logger.error(f"Error sending password recovery email: {e}")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Invalid token")
@@ -175,11 +184,12 @@ async def recover_password(email: str, session: SessionDep) -> Message:
     )
 
 @router.post("/reset-password/")
-def reset_password(session: SessionDep, body: NewPassword) -> Message:
+@limiter.limit('5/minute')
+def reset_password(session: SessionDep, body: NewPassword, request: Request) -> Message:
     """Reset password"""
     email = verify_password_reset_token(token=body.token)
     if not email:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid url, please request a new one.")
     user = crud.get_user_by_email(session=session, email=email)
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")

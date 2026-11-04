@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Bookmark, BriefcaseBusiness, CheckCircle2, ChevronDown, Circle, Search } from "lucide-react"
 import { useState } from "react"
+import { queryKeys } from "@/lib/query-keys"
 
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
@@ -11,7 +12,8 @@ import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
 import QuickSavedSearch from "../common/quick-search"
-import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { EmptyState } from "@/components/common/empty-state"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { useErrorToast } from "@/hooks/useErrorToast"
 
 const FreelancerDashboardPage = () => {
@@ -23,7 +25,7 @@ const FreelancerDashboardPage = () => {
 	useErrorToast(error, "freelancer-proposals-load")
 
 	const { data: jobs = [], isPending: jobsPending } = useQuery({
-		queryKey: ["freelancer-jobs", "dashboard"],
+		queryKey: queryKeys.freelancerJobsDashboard,
 		queryFn: async ({ signal }) => {
 			const { data } = await JobsService.readJobs({
 				query: { skip: 0, limit: 100, status: "open", sort_by: "newest" },
@@ -54,7 +56,7 @@ const FreelancerDashboardPage = () => {
 				description="Keep your profile current and discover verified opportunities curated specifically for your skill stack."
 				meta={
 					<span
-						className={`flex items-center gap-1 font-caption font-medium text-caption ${available ? "text-primary" : "text-secondary"}`}
+						className={`flex items-center gap-1 font-caption font-medium text-caption ${available ? "text-link" : "text-secondary"}`}
 					>
 						<span
 							className={`size-1.5 rounded-full ${available ? "bg-primary-container dark:bg-primary" : "bg-outline"}`}
@@ -82,7 +84,7 @@ const FreelancerDashboardPage = () => {
 						</Link>
 						<Link
 							to="/freelancer-jobs"
-							className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
+							className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary shadow-sm transition-colors hover:bg-primary-hover dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
 						>
 							<Search className="size-4" />
 							Browse all jobs
@@ -93,41 +95,43 @@ const FreelancerDashboardPage = () => {
 
 			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
 				<section className="flex flex-col gap-6 lg:col-span-8">
-					<div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
-						<div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-							{dashboardFilters.map((item) => {
-								const active = filter === item
+					{dashboardFilters.length > 1 && (
+						<div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
+							<div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+								{dashboardFilters.map((item) => {
+									const active = filter === item
 
-								const count = item === "All work" ? jobs.length : jobs.filter((job) => job.category === item).length
+									const count = item === "All work" ? jobs.length : jobs.filter((job) => job.category === item).length
 
-								return (
-									<button
-										key={item}
-										type="button"
-										onClick={() => setFilter(item)}
-										aria-pressed={active}
-										className={
-											active
-												? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors dark:bg-on-surface dark:text-background"
-												: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
-										}
-									>
-										<span>{item === "All work" ? "All matches" : item}</span>
-
-										<span
+									return (
+										<button
+											key={item}
+											type="button"
+											onClick={() => setFilter(item)}
+											aria-pressed={active}
 											className={
 												active
-													? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-background/15 dark:text-background"
-													: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
+													? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-on-primary transition-colors dark:bg-on-surface dark:text-background"
+													: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
 											}
 										>
-											{count}
-										</span>
-									</button>
-								)
-							})}
+											<span>{item === "All work" ? "All matches" : item}</span>
+
+											<span
+												className={
+													active
+														? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-background/15 dark:text-background"
+														: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
+												}
+											>
+												{count}
+											</span>
+										</button>
+									)
+								})}
+							</div>
 						</div>
-					</div>
+					)}
 
 					<div className="flex items-center justify-between px-1">
 						<div className="flex items-center gap-2">
@@ -138,7 +142,7 @@ const FreelancerDashboardPage = () => {
 
 						<Link
 							to="/freelancer-jobs"
-							className="flex items-center gap-0.5 font-label-sm font-medium text-label-sm text-primary transition-colors hover:text-primary-container"
+							className="flex items-center gap-0.5 font-label-sm font-medium text-label-sm text-link hover:underline"
 						>
 							View all
 							<ArrowRight className="size-3.5" />
@@ -154,21 +158,21 @@ const FreelancerDashboardPage = () => {
 							))}
 						</div>
 					) : (
-						<section className="grid min-h-72 place-items-center rounded-lg border border-outline-variant border-dashed bg-surface-container-lowest p-8 text-center">
-							<div>
-								<span className="mx-auto grid size-14 place-items-center rounded-lg border border-outline-variant bg-surface-container text-primary">
-									<BriefcaseBusiness className="size-6" strokeWidth={1.5} />
-								</span>
-
-								<h2 className="mt-5 font-headline-lg font-semibold text-headline-lg text-on-surface">
-									No opportunities in this category
-								</h2>
-
-								<p className="mx-auto mt-3 max-w-lg font-body-sm text-body-sm text-on-surface-variant leading-6">
-									Try another category or browse all available work.
-								</p>
-							</div>
-						</section>
+						<EmptyState
+							icon={BriefcaseBusiness}
+							title={filter === "All work" ? "No opportunities yet" : "No opportunities in this category"}
+							description={
+								filter === "All work"
+									? "New projects will appear here as clients post them. Check back soon, or explore the full job board."
+									: "Try another category or browse all available work."
+							}
+							action={
+								<Link to="/freelancer-jobs" className={workspaceStyles.secondaryAction}>
+									<Search className="size-4" />
+									Browse all jobs
+								</Link>
+							}
+						/>
 					)}
 
 					{filteredJobs.length > 0 && (
@@ -200,19 +204,19 @@ const FreelancerDashboardPage = () => {
 							<div className="mb-1.5 flex items-center justify-between font-caption text-caption">
 								<span className="font-medium text-on-surface dark:text-on-surface-soft">Profile readiness</span>
 
-								<span className="font-medium text-primary dark:text-primary-hover">Review</span>
+								<span className="font-medium text-link dark:text-primary-hover">Review</span>
 							</div>
 
 							<div className="h-px w-full bg-surface-container dark:bg-border-dark" />
 
 							<ul className="mt-3 flex flex-col gap-2 font-caption text-caption text-on-surface-variant">
 								<li className="flex items-center gap-2">
-									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-primary" />
+									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-link" />
 									<span>Keep your skills and rate current</span>
 								</li>
 
 								<li className="flex items-center gap-2">
-									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-primary" />
+									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-link" />
 									<span>Show strong portfolio work</span>
 								</li>
 
@@ -225,7 +229,7 @@ const FreelancerDashboardPage = () => {
 
 						<Link
 							to="/freelancer"
-							className="group flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
+							className="group flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary shadow-sm transition-colors hover:bg-primary-hover dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
 						>
 							Complete profile
 							<ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
@@ -242,7 +246,7 @@ const FreelancerDashboardPage = () => {
 								</span>
 							</div>
 
-							<Link to="/freelancer-proposals" className="font-label-sm text-label-sm text-primary hover:underline">
+							<Link to="/freelancer-proposals" className="font-label-sm text-label-sm text-link hover:underline">
 								View all
 							</Link>
 						</div>

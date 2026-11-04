@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react"
-import { Star, MessageSquarePlus, Sparkles } from "lucide-react"
+import { Star, MessageSquarePlus } from "lucide-react"
 import { StarRatingDisplay } from "./review-stars"
 import { ReviewCard } from "./review-card"
 import { ReviewModal } from "./review-modal"
@@ -116,12 +116,14 @@ export function FreelancerReviewsSection({
 	return (
 		<section id="client-reviews" className={`scroll-mt-28 p-5 sm:p-8 ${className ?? ""}`}>
 			{/* Section Header */}
-			<div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
+			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div>
-					<h3 className="font-semibold text-xl tracking-tight text-foreground">Client feedback & ratings</h3>
-					<p className="mt-1 text-muted-foreground text-sm">
-						Verified reviews from clients who have collaborated with {firstName}.
-					</p>
+					<h3 className="font-semibold text-xl tracking-tight">Client reviews</h3>
+					{totalCount > 0 && (
+						<p className="mt-1 text-on-surface-variant text-sm">
+							Verified reviews from clients who have worked with {firstName}.
+						</p>
+					)}
 				</div>
 
 				{/* Primary Action Button based on auth and role */}
@@ -135,9 +137,9 @@ export function FreelancerReviewsSection({
 							<span>Sign in to review</span>
 						</Link>
 					) : isOwnProfile ? (
-						<p className="text-xs text-muted-foreground italic">Your profile</p>
+						null
 					) : !isClientRole ? (
-						<p className="text-xs text-muted-foreground">Only client accounts can rate</p>
+						<p className="text-xs text-on-surface-variant">Only client accounts can rate</p>
 					) : myReview ? (
 						<button
 							type="button"
@@ -161,17 +163,19 @@ export function FreelancerReviewsSection({
 			</div>
 
 			{/* Ratings Summary Card */}
-			<div className="mt-6 rounded-xl border border-border bg-card p-5 sm:p-6">
+			<div
+				className={`mt-6 rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-6 ${totalCount === 0 ? "hidden" : ""}`}
+			>
 				<div className="grid gap-6 sm:grid-cols-[200px_1fr] sm:items-center">
 					{/* Overall Rating Score */}
-					<div className="flex flex-col items-center justify-center border-b border-border pb-6 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6 text-center">
+					<div className="flex flex-col items-center justify-center border-b border-outline-variant pb-6 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6 text-center">
 						<div className="font-display font-bold text-5xl tracking-tight text-foreground">
 							{totalCount > 0 ? averageRating.toFixed(1) : "—"}
 						</div>
 						<div className="mt-2">
 							<StarRatingDisplay rating={averageRating} size="md" />
 						</div>
-						<p className="mt-2 font-medium text-xs text-muted-foreground">
+						<p className="mt-2 font-medium text-xs text-on-surface-variant">
 							{totalCount > 0 ? (
 								<>
 									Based on {totalCount} {totalCount === 1 ? "review" : "reviews"}
@@ -196,7 +200,7 @@ export function FreelancerReviewsSection({
 									onClick={() => setSelectedStarFilter(isSelected ? null : star)}
 									aria-pressed={isSelected}
 									className={`group flex w-full items-center gap-3 rounded-lg px-2 py-1 text-left text-xs transition-colors hover:bg-muted/50 ${
-										isSelected ? "bg-muted font-medium text-foreground" : "text-muted-foreground"
+										isSelected ? "bg-muted font-medium text-foreground" : "text-on-surface-variant"
 									}`}
 								>
 									<span className="flex w-12 shrink-0 items-center gap-1 font-medium text-foreground">
@@ -214,7 +218,7 @@ export function FreelancerReviewsSection({
 										/>
 									</div>
 
-									<span className="w-10 text-right tabular-nums text-muted-foreground">{count}</span>
+									<span className="w-10 text-right tabular-nums text-on-surface-variant">{count}</span>
 								</button>
 							)
 						})}
@@ -232,7 +236,7 @@ export function FreelancerReviewsSection({
 							aria-pressed={selectedStarFilter === null}
 							className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm flex items-center transition-colors ${
 								selectedStarFilter === null
-									? "border-primary text-primary"
+									? "border-primary text-link"
 									: "border-transparent text-on-surface-variant hover:text-on-surface"
 							}`}
 						>
@@ -250,7 +254,7 @@ export function FreelancerReviewsSection({
 									aria-pressed={active}
 									className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm flex items-center transition-colors ${
 										active
-											? "border-primary text-primary"
+											? "border-primary text-link"
 											: "border-transparent text-on-surface-variant hover:text-on-surface"
 									}`}
 								>
@@ -284,7 +288,7 @@ export function FreelancerReviewsSection({
 									<SelectItem
 										key={value}
 										value={value}
-										className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+										className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
 									>
 										{label}
 									</SelectItem>
@@ -300,7 +304,7 @@ export function FreelancerReviewsSection({
 				{isLoading ? (
 					<div className="space-y-3">
 						{[1, 2].map((i) => (
-							<div key={i} className="animate-pulse rounded-xl border border-border bg-card p-6">
+							<div key={i} className="animate-pulse rounded-lg border border-outline-variant bg-surface-container-lowest p-6">
 								<div className="flex items-center gap-3">
 									<div className="size-10 rounded-full bg-muted" />
 									<div className="space-y-2">
@@ -324,31 +328,27 @@ export function FreelancerReviewsSection({
 					))
 				) : totalCount === 0 ? (
 					/* Completely empty reviews */
-					<div className="rounded-xl border border-dashed border-border p-8 sm:p-12 text-center bg-card/40">
-						<div className="mx-auto grid size-12 place-items-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
-							<Sparkles className="size-6" />
-						</div>
-						<h4 className="mt-4 font-semibold text-foreground text-base">No client reviews yet</h4>
-						<p className="mx-auto mt-2 max-w-md text-muted-foreground text-sm leading-relaxed">
-							Be the first client to work with {firstName} and share your experience with the community.
+					<div>
+						<p className="text-on-surface-variant text-sm">
+							{isOwnProfile
+								? "No reviews yet. They appear here after clients you work with leave one."
+								: `No reviews yet. Be the first to work with ${firstName} and share your experience.`}
 						</p>
 						{canCreateReview && (
-							<div className="mt-6">
-								<button
-									type="button"
-									onClick={handleOpenCreate}
-									className={cn(workspaceStyles.primaryAction, "gap-2")}
-								>
-									<MessageSquarePlus className="size-4" />
-									<span>Write the first review</span>
-								</button>
-							</div>
+							<button
+								type="button"
+								onClick={handleOpenCreate}
+								className={cn(workspaceStyles.primaryAction, "mt-4")}
+							>
+								<MessageSquarePlus className="size-4" />
+								<span>Write the first review</span>
+							</button>
 						)}
 					</div>
 				) : (
 					/* Star filter returned 0 results */
-					<div className="rounded-xl border border-border bg-card p-8 text-center">
-						<p className="text-muted-foreground text-sm">No {selectedStarFilter}-star reviews found.</p>
+					<div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-8 text-center">
+						<p className="text-on-surface-variant text-sm">No {selectedStarFilter}-star reviews found.</p>
 						<button
 							type="button"
 							onClick={() => setSelectedStarFilter(null)}

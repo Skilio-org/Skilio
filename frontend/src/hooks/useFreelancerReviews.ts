@@ -2,9 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { ReviewsService, type ReviewCreate, type ReviewPublic, type ReviewUpdate } from "@/client"
 import useAuth from "./useAuth"
-import { extractErrorMessage } from "@/utils"
+import { extractErrorMessage } from "@/lib/errors"
+import { queryKeys } from "@/lib/query-keys"
 
-export const reviewKeys = {
+const reviewKeys = {
 	all: ["reviews"] as const,
 	freelancer: (freelancerId: string) => [...reviewKeys.all, "freelancer", freelancerId] as const,
 }
@@ -55,11 +56,10 @@ export function useFreelancerReviews(freelancerId?: string, profileUserId?: stri
 		if (freelancerId) {
 			await queryClient.invalidateQueries({ queryKey: reviewKeys.freelancer(freelancerId) })
 			if (profileUserId) {
-				await queryClient.invalidateQueries({ queryKey: ["talent-profile", profileUserId] })
+				await queryClient.invalidateQueries({ queryKey: [...queryKeys.talentProfile, profileUserId] })
 			}
-			await queryClient.invalidateQueries({ queryKey: ["talent-profile", freelancerId] })
+			await queryClient.invalidateQueries({ queryKey: [...queryKeys.talentProfile, freelancerId] })
 		}
-		await queryClient.invalidateQueries({ queryKey: ["profiles"] })
 	}
 
 	const createMutation = useMutation({

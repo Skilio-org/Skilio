@@ -84,7 +84,7 @@ export function MessageThread({
 				aria-label="No conversation selected"
 				className="hidden min-w-0 flex-1 flex-col items-center justify-center bg-surface-container-lowest px-8 text-center lg:flex"
 			>
-				<span className="grid size-16 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-primary">
+				<span className="grid size-16 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-link">
 					<MessageSquare className="size-7" strokeWidth={1.5} />
 				</span>
 				<h2 className="mt-6 max-w-sm font-headline-md font-semibold text-headline-md text-on-surface tracking-tight">
@@ -138,7 +138,7 @@ export function MessageThread({
 							type="button"
 							onClick={onDetails}
 							disabled={!canViewProfile}
-							className="block max-w-full truncate text-left font-headline-sm font-semibold text-headline-sm text-on-surface hover:text-primary transition-colors"
+							className="block max-w-full truncate text-left font-headline-sm font-semibold text-headline-sm text-on-surface hover:text-link transition-colors"
 						>
 							{ Name }
 						</button>
@@ -163,7 +163,7 @@ export function MessageThread({
 						setSearchOpen(!searchOpen)
 						setQuery("")
 					}}
-					className={cn(iconButton, searchOpen && "border-outline bg-surface-container-low text-primary")}
+					className={cn(iconButton, searchOpen && "border-outline bg-surface-container-low text-link")}
 				>
 					<Search className="size-4" />
 				</button>
@@ -231,7 +231,7 @@ export function MessageThread({
 			{archived && (
 				<div className="flex items-center justify-between border-b border-outline-variant bg-surface-container-low px-4 py-2 font-caption text-caption text-on-surface-variant">
 					<span>Archived conversation</span>
-					<button type="button" onClick={onArchive} className="font-medium text-primary hover:underline">
+					<button type="button" onClick={onArchive} className="font-medium text-link hover:underline">
 						Move to inbox
 					</button>
 				</div>
@@ -298,14 +298,23 @@ export function MessageThread({
 							onDraftChange(event.target.value)
 						}}
 						onKeyDown={(event) => {
-							if (
-								event.key === "Enter" &&
-								(event.metaKey || event.ctrlKey) &&
-								!event.nativeEvent.isComposing &&
-								window.matchMedia("(pointer: fine)").matches
-							) {
-								event.preventDefault()
-								onSend()
+							if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+								if (event.metaKey || event.ctrlKey) {
+									event.preventDefault()
+									const textarea = event.currentTarget
+									const start = textarea.selectionStart
+									const end = textarea.selectionEnd
+									const nextValue = `${draft.substring(0, start)}\n${draft.substring(end)}`
+									onDraftChange(nextValue)
+									requestAnimationFrame(() => {
+										textarea.selectionStart = textarea.selectionEnd = start + 1
+									})
+								} else if (!event.shiftKey && window.matchMedia("(pointer: fine)").matches) {
+									event.preventDefault()
+									if (draft.trim()) {
+										onSend()
+									}
+								}
 							}
 						}}
 						rows={3}
@@ -316,7 +325,7 @@ export function MessageThread({
 					/>
 					<div className="flex items-center justify-between gap-2 px-3 pb-2.5 pt-1">
 						<span className="hidden font-caption text-caption text-on-surface-variant sm:block">
-							⌘ / Ctrl + Enter to send
+							Enter to send, Ctrl + Enter for new line
 						</span>
 						<button
 							type="submit"

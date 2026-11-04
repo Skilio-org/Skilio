@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { BadgeCheck, Mail, Pencil, UserRound } from "lucide-react"
+import { Mail, Pencil, UserRound } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -16,7 +16,16 @@ import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
+
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog"
 
 const formSchema = z.object({
 	full_name: z.string().max(30).optional(),
@@ -33,7 +42,12 @@ const UserInformation = () => {
 	const accountLabel = useAccountRole() === "freelancer" ? "Freelancer account" : "Client account"
 	const avatarUrl = useAccountAvatarUrl(currentUser?.id)
 	const [avatarFailed, setAvatarFailed] = useState(false)
-	useEffect(() => setAvatarFailed(false), [])
+
+	const [emailPasswordDialogOpen, setEmailPasswordDialogOpen] = useState(false)
+
+	const [emailChangePassword, setEmailChangePassword] = useState("")
+
+	const [pendingUpdate, setPendingUpdate] = useState<UserUpdateMe | null>(null)
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(formSchema),
@@ -59,6 +73,9 @@ const UserInformation = () => {
 		onSuccess: () => {
 			showSuccessToast("User updated successfully")
 			setEditMode(false)
+			setEmailPasswordDialogOpen(false)
+			setEmailChangePassword("")
+			setPendingUpdate(null)
 		},
 		onError: handleError.bind(showErrorToast),
 		onSettled: () => queryClient.invalidateQueries(),
@@ -66,11 +83,27 @@ const UserInformation = () => {
 
 	const onSubmit = (data: FormData) => {
 		const updateData: UserUpdateMe = {}
-		if (data.full_name !== currentUser?.full_name) {
+
+		if ((data.full_name ?? "") !== (currentUser?.full_name ?? "")) {
 			updateData.full_name = data.full_name
 		}
-		if (data.email !== currentUser?.email) updateData.email = data.email
-		mutation.mutate(updateData)
+
+		if (data.email !== currentUser?.email) {
+			updateData.email = data.email
+		}
+
+		// An email change requires password confirmation.
+		if (updateData.email) {
+			setPendingUpdate(updateData)
+			setEmailChangePassword("")
+			setEmailPasswordDialogOpen(true)
+			return
+		}
+
+		// No email change: save other edits normally.
+		if (Object.keys(updateData).length > 0) {
+			mutation.mutate(updateData)
+		}
 	}
 
 	const onCancel = () => {
@@ -88,36 +121,22 @@ const UserInformation = () => {
 
 	return (
 		<div className="space-y-5">
-			<section className="relative overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-7">
-				<div className="absolute inset-x-0 top-0 h-20 bg-surface-container-low" />
-				<div className="relative flex flex-col justify-between gap-5 pt-7 sm:flex-row sm:items-end">
-					<div className="flex items-end gap-4">
-						<div className="relative">
-							<Monogram className="size-20 overflow-hidden border-4 border-card bg-brand-100 text-brand-800 text-xl dark:bg-brand-950 dark:text-brand-200">
-								{avatarUrl && !avatarFailed ? (
-									<img
-										src={avatarUrl}
-										alt={displayName}
-										className="size-full rounded-lg object-cover"
-										onError={() => setAvatarFailed(true)}
-									/>
-								) : (
-									initials
-								)}
-							</Monogram>
-							<span className="absolute right-0 bottom-0 grid size-6 place-items-center rounded-full border-2 border-card bg-emerald-500 text-white">
-								<BadgeCheck className="size-3.5" />
-							</span>
-						</div>
-						<div className="pb-1">
-							<p className="font-display font-semibold text-xl">{displayName}</p>
-							<p className="mt-1 text-muted-foreground text-sm">{accountLabel}</p>
-						</div>
-					</div>
-					<span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 font-semibold text-emerald-700 text-xs dark:bg-emerald-950/45">
-						<span className="size-1.5 rounded-full bg-emerald-500" />
-						Account active
-					</span>
+			<section className="flex items-center gap-4 rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:px-7">
+				<Monogram className="size-16 shrink-0 overflow-hidden bg-brand-100 text-brand-800 text-lg dark:bg-brand-950 dark:text-brand-200">
+					{avatarUrl && !avatarFailed ? (
+						<img
+							src={avatarUrl}
+							alt={displayName}
+							className="size-full rounded-lg object-cover"
+							onError={() => setAvatarFailed(true)}
+						/>
+					) : (
+						initials
+					)}
+				</Monogram>
+				<div className="min-w-0">
+					<p className="truncate font-semibold text-lg">{displayName}</p>
+					<p className="mt-0.5 text-on-surface-variant text-sm">{accountLabel}</p>
 				</div>
 			</section>
 
@@ -130,15 +149,10 @@ const UserInformation = () => {
 					className="flex-col justify-between gap-4 sm:flex-row sm:items-start"
 					actions={
 						!editMode && (
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setEditMode(true)}
-								className="min-h-9 rounded-lg px-5"
-							>
+							<button type="button" onClick={() => setEditMode(true)} className={workspaceStyles.secondaryAction}>
 								<Pencil className="size-4" />
 								Edit details
-							</Button>
+							</button>
 						)
 					}
 				/>
@@ -157,7 +171,7 @@ const UserInformation = () => {
 												<Input
 													type="text"
 													autoComplete="name"
-													className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+													className="h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 													{...field}
 												/>
 											</FormControl>
@@ -175,7 +189,7 @@ const UserInformation = () => {
 												<Input
 													type="email"
 													autoComplete="email"
-													className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+													className="h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 													{...field}
 												/>
 											</FormControl>
@@ -195,7 +209,7 @@ const UserInformation = () => {
 									icon={Mail}
 									label="Email address"
 									value={form.getValues("email") || "Not available"}
-									badge={currentUser?.email ? "Verified" : undefined}
+									badge={currentUser?.is_email_verified ? "Verified" : "Unverified"}
 								/>
 							</div>
 						)}
@@ -224,32 +238,104 @@ const UserInformation = () => {
 					</form>
 				</Form>
 			</section>
+			<Dialog
+				open={emailPasswordDialogOpen}
+				onOpenChange={(open) => {
+					setEmailPasswordDialogOpen(open)
+
+					if (!open) {
+						setEmailChangePassword("")
+						setPendingUpdate(null)
+					}
+				}}
+			>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>Confirm your password</DialogTitle>
+						<DialogDescription>
+							To change your email address, enter your current password to verify your identity.
+						</DialogDescription>
+					</DialogHeader>
+
+					<form
+						onSubmit={(event) => {
+							event.preventDefault()
+
+							if (!pendingUpdate) return
+
+							mutation.mutate({
+								...pendingUpdate,
+								password: emailChangePassword,
+							})
+						}}
+						className="space-y-4"
+					>
+						<div className="space-y-2">
+							<label htmlFor="email-change-password" className="text-sm font-medium">
+								Current password
+							</label>
+
+							<Input
+								id="email-change-password"
+								type="password"
+								autoComplete="current-password"
+								placeholder="Enter your current password"
+								value={emailChangePassword}
+								onChange={(event) => setEmailChangePassword(event.target.value)}
+								required
+								autoFocus
+								className="mt-1 h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
+							/>
+						</div>
+
+						<DialogFooter>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => {
+									setEmailPasswordDialogOpen(false)
+									setEmailChangePassword("")
+									setPendingUpdate(null)
+								}}
+								disabled={mutation.isPending}
+								className={workspaceStyles.secondaryAction}
+							>
+								Cancel
+							</Button>
+							<LoadingButton
+								className={workspaceStyles.primaryAction}
+								type="submit"
+								loading={mutation.isPending}
+								disabled={!emailChangePassword}
+							>
+								Confirm email change
+							</LoadingButton>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
 }
 
 function InformationRow({
-	icon: Icon,
 	label,
 	value,
 	badge,
 }: {
-	icon: typeof UserRound
+	icon?: typeof UserRound
 	label: string
 	value: string
 	badge?: string
 }) {
 	return (
-		<div className="flex items-center gap-4 py-5">
-			<span className="grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-				<Icon className="size-4" />
-			</span>
-			<div className="min-w-0 flex-1">
-				<p className="font-medium text-muted-foreground text-xs">{label}</p>
-				<p className="mt-1 truncate font-semibold text-sm">{value}</p>
-			</div>
+		<div className="flex items-center gap-4 py-4">
+			<p className="w-36 shrink-0 text-on-surface-variant text-sm">{label}</p>
+			<p className="min-w-0 flex-1 truncate font-medium text-sm">{value}</p>
 			{badge && (
-				<span className="rounded-full bg-emerald-50 px-2.5 py-1 font-semibold text-[11px] text-emerald-700 dark:bg-emerald-950/45">
+				<span
+					className={`shrink-0 rounded px-2 py-0.5 font-medium text-xs ${badge === "Verified" ? "bg-success-soft text-success" : "bg-surface-container text-on-surface-variant"}`}
+				>
 					{badge}
 				</span>
 			)}

@@ -134,6 +134,7 @@ def _create_freelancer(session: Session, index: int, mail_prefix: str) -> bool:
         return False
 
     user.active_role = UserRole.FREELANCER
+    user.is_email_verified = True
     session.add(user)
     session.flush()
 
@@ -212,6 +213,7 @@ def _create_client(session: Session, index: int, mail_prefix: str) -> bool:
         return False
 
     user.active_role = UserRole.CLIENT
+    user.is_email_verified = True
     session.add(user)
     session.flush()
     session.add(

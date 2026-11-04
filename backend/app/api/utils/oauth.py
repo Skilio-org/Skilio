@@ -20,6 +20,7 @@ from app.models import (
     UserRole,
 )
 from app.utils import (
+    generate_password_reset_token,
     send_password_reconvery_email,
 )
 
@@ -60,14 +61,20 @@ def generate_state_and_redirect(
     return resp
 
 
-def verify_state(request: Request, response: Response, cookie_name: str = "oauth_state") -> None:
+def verify_state(
+    request: Request, response: Response, cookie_name: str = "oauth_state"
+) -> None:
     """Validate the ``state`` cookie against the query parameter.
 
     The callback handlers already receive ``state`` as a query argument; this
     function checks that it matches the cookie and removes the cookie.
     """
     cookie_state = request.cookies.get(cookie_name)
-    if cookie_state and request.query_params.get("state") and cookie_state != request.query_params.get("state"):
+    if (
+        cookie_state
+        and request.query_params.get("state")
+        and cookie_state != request.query_params.get("state")
+    ):
         raise HTTPException(status_code=400, detail="Invalid state parameter")
     response.delete_cookie(key=cookie_name)
 
@@ -79,8 +86,7 @@ def exchange_code_for_token(
     client_secret: str,
     redirect_uri: str,
 ) -> dict[str, Any]:
-    """Perform the *authorization_code* exchange and return the JSON payload.
-    """
+    """Perform the *authorization_code* exchange and return the JSON payload."""
     token_response = requests.post(
         token_uri,
         data={
@@ -135,9 +141,11 @@ def upsert_oauth_user(
             user.google_id = provider_user.get("sub")
         if provider == "linkedin" and not user.linkedin_id:
             user.linkedin_id = provider_user.get("sub")
-        user.full_name = provider_user.get("name") or user.full_name
-        avatar = provider_user.get("picture")
-        user.avatar_url = avatar if avatar else (user.avatar_url or settings.DEFAULT_AVATAR_URL)
+        # user.full_name = provider_user.get("name") or user.full_name
+        # avatar = provider_user.get("picture")
+        # user.avatar_url = (
+        #     avatar if avatar else (user.avatar_url or settings.DEFAULT_AVATAR_URL)
+        # )
         if refresh_token:
             user.refresh_token = refresh_token
         session.add(user)
@@ -147,12 +155,14 @@ def upsert_oauth_user(
             "email": email,
             "full_name": provider_user.get("name"),
             "avatar_url": provider_user.get("picture") or settings.DEFAULT_AVATAR_URL,
-            "is_email_verified": False,
+            "is_email_verified": True,
             "is_active": True,
             "hashed_password": get_password_hash(generate_random_password(16)),
         }
         if provider == "google":
-            user_kwargs.update({"google_id": provider_user.get("sub"), "refresh_token": refresh_token})
+            user_kwargs.update(
+                {"google_id": provider_user.get("sub"), "refresh_token": refresh_token}
+            )
         else:
             user_kwargs.update({"linkedin_id": provider_user.get("sub")})
         user = User(**user_kwargs)  # type: ignore[arg-type]
@@ -171,7 +181,12 @@ def upsert_oauth_user(
             # (the original code always passed ``True``).
             import asyncio
 
-            asyncio.create_task(send_password_reconvery_email(user.email, True))
+            password_reset_token = generate_password_reset_token(user.email)
+            asyncio.create_task(
+                send_password_reconvery_email(
+                    user.email, True, password_reset_token
+                )
+            )
         except Exception as exc:  # pragma: no cover – logging only
             logger.error(f"Error sending password recovery email: {exc}")
     return user
@@ -180,5 +195,6 @@ def upsert_oauth_user(
 def build_access_token_response(user: User) -> Token:
     """Create a ``Token`` response for the given user."""
     expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    return Token(access_token=security.create_access_token(user.id, expires_delta=expires))
-
+    return Token(
+        access_token=security.create_access_token(user.id, expires_delta=expires)
+    )

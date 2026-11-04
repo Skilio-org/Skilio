@@ -1,19 +1,17 @@
 import { Link } from "@tanstack/react-router"
-import { useInfiniteQuery } from "@tanstack/react-query"
 import { ArrowUpRight, Inbox, MessageSquare, MessageSquarePlus, Star } from "lucide-react"
 import { useState } from "react"
-import { ProposalsService, type ProposalPublic } from "@/client"
+import type { ProposalPublic } from "@/client"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
-import { getInitials } from "@/utils"
+import { getInitials } from "@/lib/format"
 import { useErrorToast } from "@/hooks/useErrorToast"
 import { ReviewModal } from "@/components/reviews/review-modal"
 import { useFreelancerReviews } from "@/hooks/useFreelancerReviews"
+import { useClientJobProposals } from "@/hooks/useClientJobProposals"
 
-const pageSize = 20
 
 function proposalDate(value?: string | null) {
 	if (!value) return null
@@ -28,7 +26,6 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 	const profile = proposal.freelancer_profile
 	const name = proposal.freelancer?.full_name?.trim() || profile?.full_name?.trim() || "Freelancer"
 	const date = proposalDate(proposal.created_at)
-	const status = proposal.status === "pending" ? "Pending" : proposal.status === "accepted" ? "Accepted" : "Rejected"
 	const letter = proposal.cover_letter?.trim() ?? ""
 	const isLongLetter = letter.length > 240
 	const displayedLetter = expanded || !isLongLetter ? letter : `${letter.slice(0, 240).trimEnd()}…`
@@ -45,7 +42,6 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 					{profile?.title && <p className="mt-0.5 text-on-surface-variant text-sm">{profile.title}</p>}
 					{date && <p className="mt-1 text-on-surface-variant text-xs">Received {date}</p>}
 				</div>
-				<Badge variant={proposal.status === "rejected" ? "outline" : "secondary"}>{status}</Badge>
 			</div>
 			{letter && (
 				<div className="mt-4">
@@ -61,7 +57,7 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 							aria-controls={`proposal-letter-${proposal.id}`}
 							aria-expanded={expanded}
 							onClick={() => setExpanded((value) => !value)}
-							className="mt-2 font-medium text-primary text-sm hover:underline"
+							className="mt-2 font-medium text-link text-sm hover:underline"
 						>
 							{expanded ? "Show less" : "Read full proposal"}
 						</button>
@@ -76,7 +72,7 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 					<>
 						<Link
 							to="/talent/$freelancerId"
-							params={{ freelancerId: profile.id }}
+							params={{ freelancerId: proposal.freelancer_id }}
 							className={workspaceStyles.secondaryAction}
 						>
 							View profile <ArrowUpRight className="size-4" />
@@ -138,7 +134,7 @@ function ProposalRateButton({
 					onClick={() => setModalOpen(true)}
 					className="inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
 				>
-					<MessageSquarePlus className="size-4 text-primary" />
+					<MessageSquarePlus className="size-4 text-link" />
 					<span>Rate freelancer</span>
 				</button>
 			) : null}
@@ -158,22 +154,7 @@ function ProposalRateButton({
 }
 
 export function ClientJobProposals({ jobId }: { jobId: string }) {
-	const proposalsQuery = useInfiniteQuery({
-		queryKey: ["client-job-proposals", jobId],
-		initialPageParam: 0,
-		queryFn: async ({ pageParam, signal }) => {
-			const { data } = await ProposalsService.readProposalsForJob({
-				path: { job_id: jobId },
-				query: { skip: pageParam, limit: pageSize },
-				signal,
-			})
-			return data
-		},
-		getNextPageParam: (lastPage, pages) => {
-			const loaded = pages.reduce((total, page) => total + page.data.length, 0)
-			return loaded < lastPage.count && lastPage.data.length ? loaded : undefined
-		},
-	})
+	const proposalsQuery = useClientJobProposals(jobId)
 	const proposals = proposalsQuery.data?.pages.flatMap((page) => page.data) ?? []
 	const count = proposalsQuery.data?.pages[0]?.count
 	useErrorToast(

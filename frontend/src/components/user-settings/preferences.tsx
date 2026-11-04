@@ -1,124 +1,8 @@
-import {
-	Bell,
-	Check,
-	Eye,
-	type LucideIcon,
-	Mail,
-	MessageSquare,
-	Monitor,
-	Moon,
-	Search,
-	ShieldCheck,
-	Smartphone,
-	Sun,
-	UserRoundSearch,
-} from "lucide-react"
-import { useState } from "react"
+import { Check, type LucideIcon, Monitor, Moon, Sun } from "lucide-react"
 
 import { type Theme, useTheme } from "@/components/theme-provider"
 import { SettingsSectionHeader } from "@/components/user-settings/settings-section-header"
-import { useAccountRole } from "@/hooks/useAccountRole"
 import { cn } from "@/lib/utils"
-
-export function NotificationSettings() {
-	const freelancer = useAccountRole() === "freelancer"
-	const [settings, setSettings] = useState({
-		messages: true,
-		recommendations: true,
-		account: true,
-		digest: false,
-	})
-
-	return (
-		<SettingsPanel
-			eyebrow="Communication"
-			title="Notifications"
-			description="Choose which updates deserve your attention and where you receive them."
-			icon={Bell}
-		>
-			<div className="divide-y divide-border">
-				<ToggleRow
-					icon={MessageSquare}
-					title="New messages"
-					description={`Replies and new conversations from ${freelancer ? "clients" : "freelancers"}.`}
-					checked={settings.messages}
-					onChange={(checked) => setSettings((current) => ({ ...current, messages: checked }))}
-					channel="Email & in-app"
-				/>
-				<ToggleRow
-					icon={UserRoundSearch}
-					title={freelancer ? "Job recommendations" : "Talent recommendations"}
-					description={
-						freelancer
-							? "Projects matched to your skills and interests."
-							: "Shortlists and professionals matched to your interests."
-					}
-					checked={settings.recommendations}
-					onChange={(checked) =>
-						setSettings((current) => ({
-							...current,
-							recommendations: checked,
-						}))
-					}
-					channel="Weekly"
-				/>
-				<ToggleRow
-					icon={ShieldCheck}
-					title="Security and account"
-					description="Important sign-in, password, and account notices."
-					checked={settings.account}
-					onChange={(checked) => setSettings((current) => ({ ...current, account: checked }))}
-					channel="Always on"
-					locked
-				/>
-				<ToggleRow
-					icon={Mail}
-					title="Product digest"
-					description="Occasional platform tips and new feature announcements."
-					checked={settings.digest}
-					onChange={(checked) => setSettings((current) => ({ ...current, digest: checked }))}
-					channel="Monthly"
-				/>
-			</div>
-			<PanelFooter label="Notification preferences are saved automatically." />
-		</SettingsPanel>
-	)
-}
-
-export function PrivacySettings() {
-	const freelancer = useAccountRole() === "freelancer"
-	const [personalization, setPersonalization] = useState(true)
-	const [recentSearches, setRecentSearches] = useState(true)
-	return (
-		<div className="space-y-5">
-			<SettingsPanel
-				eyebrow="Privacy"
-				title="Personalization & data"
-				description={`Control how your activity is used to improve ${freelancer ? "job discovery" : "talent discovery"}.`}
-				icon={Eye}
-			>
-				<div className="divide-y divide-border">
-					<ToggleRow
-						icon={UserRoundSearch}
-						title="Personalized recommendations"
-						description={`Use saved ${freelancer ? "jobs" : "profiles"} and browsing activity to improve your matches.`}
-						checked={personalization}
-						onChange={setPersonalization}
-						channel="Recommended"
-					/>
-					<ToggleRow
-						icon={Search}
-						title="Remember recent searches"
-						description={`Keep recent ${freelancer ? "job" : "talent"} searches available across your sessions.`}
-						checked={recentSearches}
-						onChange={setRecentSearches}
-						channel="On this account"
-					/>
-				</div>
-			</SettingsPanel>
-		</div>
-	)
-}
 
 const themes: {
 	value: Theme
@@ -214,7 +98,6 @@ export function AppearanceSettings() {
 					)
 				})}
 			</div>
-			<PanelFooter label="Your theme preference applies across Skilio." />
 		</SettingsPanel>
 	)
 }
@@ -237,68 +120,5 @@ function SettingsPanel({
 			<SettingsSectionHeader eyebrow={eyebrow} title={title} description={description} icon={Icon} />
 			{children}
 		</section>
-	)
-}
-
-function ToggleRow({
-	icon: Icon,
-	title,
-	description,
-	channel,
-	checked,
-	onChange,
-	locked = false,
-}: {
-	icon: LucideIcon
-	title: string
-	description: string
-	channel: string
-	checked: boolean
-	onChange: (checked: boolean) => void
-	locked?: boolean
-}) {
-	return (
-		<div className="flex items-start gap-3 p-5 sm:items-center sm:gap-4 sm:px-7 sm:py-5">
-			<span className="grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-				<Icon className="size-4" />
-			</span>
-			<div className="min-w-0 flex-1">
-				<div className="flex flex-wrap items-center gap-2">
-					<p className="font-semibold text-sm">{title}</p>
-					<span className="rounded-full bg-muted px-2 py-0.5 font-medium text-[10px] text-muted-foreground">
-						{channel}
-					</span>
-				</div>
-				<p className="mt-1 max-w-xl text-muted-foreground text-xs leading-5 sm:text-sm">{description}</p>
-			</div>
-			<button
-				type="button"
-				role="switch"
-				aria-label={title}
-				aria-checked={checked}
-				disabled={locked}
-				onClick={() => onChange(!checked)}
-				className={cn(
-					"relative mt-1 h-7 w-12 shrink-0 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-70 sm:mt-0",
-					checked ? "bg-brand-600" : "bg-muted-foreground/25",
-				)}
-			>
-				<span
-					className={cn(
-						"absolute top-1 left-1 size-5 rounded-full bg-white shadow-sm transition-transform",
-						checked ? "translate-x-5" : "translate-x-0",
-					)}
-				/>
-			</button>
-		</div>
-	)
-}
-
-function PanelFooter({ label }: { label: string }) {
-	return (
-		<footer className="flex items-center gap-2 border-outline-variant border-t bg-muted/30 px-5 py-3 text-muted-foreground text-xs sm:px-7">
-			<Smartphone className="size-3.5" />
-			{label}
-		</footer>
 	)
 }

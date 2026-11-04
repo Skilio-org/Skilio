@@ -4,10 +4,11 @@ from app.api.routes import (
     categories,
     chat,
     client_profiles,
-    health,
     connections,
+    health,
     jobs,
     login,
+    notifications,
     private,
     profiles,
     proposals,
@@ -15,7 +16,6 @@ from app.api.routes import (
     searches,
     users,
     utils,
-    notifications,
 )
 from app.core.config import settings
 

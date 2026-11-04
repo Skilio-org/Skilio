@@ -1,26 +1,14 @@
-import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { ArrowRight } from "lucide-react"
-import { ProfilesService } from "@/client"
+import { ArrowRight, Search, Users } from "lucide-react"
+import { EmptyState } from "@/components/common/empty-state"
+import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
-import { talentCardFromApi } from "@/components/talent/talent-api"
+import { useRecommendedTalent } from "@/hooks/useRecommendedTalent"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 import { useErrorToast } from "@/hooks/useErrorToast"
 
 export const RecommendedFreelancers = () => {
-	const {
-		data: matches = [],
-		isPending,
-		isError,
-		errorUpdatedAt,
-		refetch,
-	} = useQuery({
-		queryKey: ["talent-profiles", { limit: 4 }],
-		queryFn: async ({ signal }) => {
-			const { data } = await ProfilesService.readProfiles({ query: { skip: 0, limit: 4 }, signal })
-			return data.data.slice(0, 4).map(talentCardFromApi)
-		},
-	})
+	const { data: matches = [], isPending, isError, errorUpdatedAt, refetch } = useRecommendedTalent()
 	useErrorToast(
 		isError ? "Couldn’t load professionals." : undefined,
 		"recommended-talent-load",
@@ -30,24 +18,39 @@ export const RecommendedFreelancers = () => {
 	const { savedIds, toggleSaved } = useSavedTalent()
 	return (
 		<section aria-labelledby="recommended-talent-heading" className="min-w-0">
-			<div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-				<div>
-					<p className="font-medium text-muted-foreground text-xs">Recommended for you</p>
-					<h2 id="recommended-talent-heading" className="mt-2 font-semibold text-headline-md tracking-tight">
-						People worth getting to know
-					</h2>
-				</div>
+			<div className="mb-6 flex items-center justify-between px-1">
+				<h2 id="recommended-talent-heading" className="font-headline-sm font-semibold text-headline-sm text-on-surface">
+					People worth getting to know
+				</h2>
+
 				<Link
 					to="/talent"
 					search={{ q: undefined, category: undefined }}
-					className="inline-flex min-h-11 shrink-0 items-center gap-2 font-medium text-primary text-sm hover:underline"
+					className="flex items-center gap-0.5 font-label-sm font-medium text-label-sm text-link hover:underline"
 				>
-					View all <ArrowRight className="size-4" />
+					View all
+					<ArrowRight className="size-3.5" />
 				</Link>
 			</div>
 			<div className="flex flex-col gap-3.5">
 				{isPending && <p role="status">Loading professionals…</p>}
-				{!isPending && !isError && matches.length === 0 && <p role="status">No professionals available yet.</p>}
+				{!isPending && !isError && matches.length === 0 && (
+					<EmptyState
+						icon={Users}
+						title="No professionals available yet"
+						description="New freelancers will appear here as they join. You can also browse the full talent directory."
+						action={
+							<Link
+								to="/talent"
+								search={{ q: undefined, category: undefined }}
+								className={workspaceStyles.secondaryAction}
+							>
+								<Search className="size-4" />
+								Browse talent
+							</Link>
+						}
+					/>
+				)}
 				{matches.map((person) => (
 					<FreelancerCard
 						key={person.id}

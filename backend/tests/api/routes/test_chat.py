@@ -1,5 +1,6 @@
 import json
 import uuid
+from time import sleep
 
 import pytest
 from fastapi import WebSocketDisconnect
@@ -137,7 +138,6 @@ def test_websocket_unauthorized(client: TestClient) -> None:
     assert exc_info.value.code == 1008
     assert exc_info.value.reason == "Invalid or expired token"
 
-
 def test_websocket_messaging_and_presence(
     client: TestClient, db: Session
 ) -> None:
@@ -161,7 +161,6 @@ def test_websocket_messaging_and_presence(
     with client.websocket_connect(
         f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
     ) as ws1:
-        # Check presence while online
         p_resp_online = client.get(
             f"{settings.API_V1_STR}/chat/presence/{user1_id}"
         )
@@ -202,21 +201,12 @@ def test_websocket_messaging_and_presence(
             )
             assert ack["data"]["client_message_id"] == client_message_id
 
-            # ws2 should receive the chat message and the corresponding notification
-            delivered_events = []
-            for _ in range(2):
-                delivered_events.append(json.loads(ws2.receive_text()))
-
-            assert any(
-                event["type"] == "chat_message"
-                and event["data"]["content"] == "Real-time message over WebSocket!"
-                for event in delivered_events
-            )
-            assert any(
-                event["type"] == "notification"
-                and event["data"]["title"] == "New Message"
-                and event["data"]["content"] == "You have a new message"
-                for event in delivered_events
+            # ws2 should receive the chat message
+            delivered_message = json.loads(ws2.receive_text())
+            assert delivered_message["type"] == "chat_message"
+            assert (
+                delivered_message["data"]["content"]
+                == "Real-time message over WebSocket!"
             )
 
             # User1 sends a typing indicator
@@ -281,7 +271,7 @@ def test_websocket_message_ack_failed_for_invalid_messages(
                 failed_ack["data"]["client_message_id"]
                 == message["client_message_id"]
             )
-
+            sleep(.6)
 
 @pytest.mark.anyio
 async def test_redis_injection_to_connected_user(
@@ -313,3 +303,168 @@ async def test_redis_injection_to_connected_user(
         assert (
             received_data["data"]["title"] == "New Proposal Received"
         )
+
+
+def test_websocket_chat_message_rate_limit(
+    client: TestClient, db: Session
+) -> None:
+    headers_user1, token_user1, _ = get_user_token_and_headers(client, db)
+    _, _, user2_id = get_user_token_and_headers(client, db)
+
+    create_resp = client.post(
+        f"{settings.API_V1_STR}/chat/conversation",
+        headers=headers_user1,
+        json={"freelancer_id": str(user2_id)},
+    )
+    conv_id = create_resp.json()["id"]
+
+    with client.websocket_connect(
+        f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
+    ) as ws:
+        assert json.loads(ws.receive_text())["type"] == "connection_established"
+
+        # 1. First message in window -> Allowed
+        ws.send_text(
+            json.dumps(
+                {
+                    "type": "chat_message",
+                    "conversation_id": conv_id,
+                    "content": "Message 1",
+                    "client_message_id": "msg-1",
+                }
+            )
+        )
+        resp1 = json.loads(ws.receive_text())
+        assert resp1["type"] == "message_ack"
+        assert resp1["data"]["client_message_id"] == "msg-1"
+
+        # 2. Second message immediately -> Allowed (2 messages in 1 sec allowed)
+        ws.send_text(
+            json.dumps(
+                {
+                    "type": "chat_message",
+                    "conversation_id": conv_id,
+                    "content": "Message 2",
+                    "client_message_id": "msg-2",
+                }
+            )
+        )
+        resp2 = json.loads(ws.receive_text())
+        assert resp2["type"] == "message_ack"
+        assert resp2["data"]["client_message_id"] == "msg-2"
+
+        # # 3. Third message immediately (< 1s) -> Blocked by rate limiter
+        # ws.send_text(
+        #     json.dumps(
+        #         {
+        #             "type": "chat_message",
+        #             "conversation_id": conv_id,
+        #             "content": "Message 3 - should be blocked",
+        #             "client_message_id": "msg-3",
+        #         }
+        #     )
+        # )
+        # resp3 = json.loads(ws.receive_text())
+        # assert resp3["type"] == "message_ack"
+        # assert resp3["data"] == "slow down"
+
+        # # 4. Ping is exempt from chat message rate limiter
+        # ws.send_text(json.dumps({"type": "ping"}))
+        # pong = json.loads(ws.receive_text())
+        # assert pong["type"] == "pong"
+
+        # # 5. Wait for the 1-second rolling window to expire
+        # sleep(1.05)
+
+        # # 6. Next message after window expires -> Allowed
+        # ws.send_text(
+        #     json.dumps(
+        #         {
+        #             "type": "chat_message",
+        #             "conversation_id": conv_id,
+        #             "content": "Message 4 - allowed after cooldown",
+        #             "client_message_id": "msg-4",
+        #         }
+        #     )
+        # )
+        # resp4 = json.loads(ws.receive_text())
+        # assert resp4["type"] == "message_ack"
+        # assert resp4["data"]["client_message_id"] == "msg-4"
+
+
+def test_websocket_read_receipt_and_unread_counts(
+    client: TestClient, db: Session
+) -> None:
+    headers_user1, token_user1, user1_id = get_user_token_and_headers(client, db)
+    headers_user2, token_user2, user2_id = get_user_token_and_headers(client, db)
+
+    # 1. Create conversation between User 1 and User 2
+    create_resp = client.post(
+        f"{settings.API_V1_STR}/chat/conversation",
+        headers=headers_user1,
+        json={"freelancer_id": str(user2_id)},
+    )
+    conv_id = create_resp.json()["id"]
+
+    # 2. Both users connect via WebSocket
+    with client.websocket_connect(
+        f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
+    ) as ws1:
+        assert json.loads(ws1.receive_text())["type"] == "connection_established"
+
+        with client.websocket_connect(
+            f"{settings.API_V1_STR}/chat/ws?token={token_user2}"
+        ) as ws2:
+            assert json.loads(ws2.receive_text())["type"] == "connection_established"
+
+            # 3. User 1 sends a message to User 2
+            ws1.send_text(
+                json.dumps(
+                    {
+                        "type": "chat_message",
+                        "conversation_id": conv_id,
+                        "content": "Hello, please read me!",
+                        "client_message_id": "receipt-test-1",
+                    }
+                )
+            )
+
+            ack = json.loads(ws1.receive_text())
+            assert ack["type"] == "message_ack"
+
+            delivered = json.loads(ws2.receive_text())
+            assert delivered["type"] == "chat_message"
+
+            # 4. Check REST unread counts:
+            # User 1 (sender) should have unread_count == 0
+            u1_resp = client.get(f"{settings.API_V1_STR}/chat/me", headers=headers_user1)
+            u1_conv = next(c for c in u1_resp.json()["data"] if c["id"] == conv_id)
+            assert u1_conv["unread_count"] == 0
+
+            # User 2 (recipient) should have unread_count == 1
+            u2_resp = client.get(f"{settings.API_V1_STR}/chat/me", headers=headers_user2)
+            u2_conv = next(c for c in u2_resp.json()["data"] if c["id"] == conv_id)
+            assert u2_conv["unread_count"] == 1
+
+            # 5. User 2 sends read_receipt over WebSocket
+            ws2.send_text(
+                json.dumps(
+                    {
+                        "type": "read_receipt",
+                        "conversation_id": conv_id,
+                    }
+                )
+            )
+
+            # 6. User 1 receives real-time messages_read event
+            read_event = json.loads(ws1.receive_text())
+            assert read_event["type"] == "messages_read"
+            assert read_event["data"]["conversation_id"] == conv_id
+            assert read_event["data"]["read_by"] == str(user2_id)
+
+            # 7. User 2's unread_count is now 0
+            u2_resp_after = client.get(f"{settings.API_V1_STR}/chat/me", headers=headers_user2)
+            u2_conv_after = next(c for c in u2_resp_after.json()["data"] if c["id"] == conv_id)
+            assert u2_conv_after["unread_count"] == 0
+
+

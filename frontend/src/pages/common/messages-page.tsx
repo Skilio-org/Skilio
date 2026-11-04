@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/common/empty-state"
 import { useNavigate } from "@tanstack/react-router"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { useEffect, useRef, useState } from "react"
@@ -19,6 +19,7 @@ import type { ChatMessagePublic, ConversationDetailPublic } from "@/client/types
 import { chatKeys } from "@/data/chat-keys"
 import { useQueryClient } from "@tanstack/react-query"
 import useAuth from "@/hooks/useAuth"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 
 export function MessagesPage({
 	SelectedUserId,
@@ -58,11 +59,6 @@ export function MessagesPage({
 	const queryClient = useQueryClient()
 
 	useEffect(() => {
-		console.log(JSON.stringify(profiles.data?.size))
-		console.log(JSON.stringify(conversations.data?.data.length))
-	}, [profiles.isPending, conversations.isPending])
-
-	useEffect(() => {
 		if (
 			conversations.isSuccess &&
 			SelectedUserId &&
@@ -70,7 +66,6 @@ export function MessagesPage({
 			!createConversation.isPending &&
 			creatingForUserRef.current !== SelectedUserId
 		) {
-			console.log("Creating new conversation with user:", SelectedUserId)
 			void createConversation
 				.mutateAsync(SelectedUserId)
 				.then((newConversation) => {
@@ -93,54 +88,64 @@ export function MessagesPage({
 	])
 
 	useEffect(() => {
-		if (selectedConversationId == undefined) return
-		// mutate the current conversation to mark all messages as read.
-		queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(selectedConversationId), (current) => {
-			if (!current) return current
-			if (current.unread_count === 0 && current.messages?.every((message) => message.is_read)) return current
-			// Send receipt to server for all messages in this conversation.
+		if (!selectedConversationId) return
+
+		const hasUnread =
+			(selectedConversation?.unread_count ?? 0) > 0 ||
+			detailsQuery.data?.messages?.some((message) => message.sender_id !== user?.id && !message.is_read)
+
+		if (hasUnread) {
 			sendMessage({
 				type: "read_receipt",
 				conversation_id: selectedConversationId,
 			})
-			return {
-				...current,
-				unread_count: 0,
-				messages: current.messages?.map((message) => ({
-					...message,
-					is_read: true,
-				})),
-			}
-		})
-		// Also update the conversations list to mark this conversation as read..
-		queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
-			if (!current) return current
-			const updatedConversations = current.data.map((conversation: any) => {
-				if (conversation.id === selectedConversationId) {
+
+			// Mark messages received from the other user as read in the active conversation
+			queryClient.setQueryData<ConversationDetailPublic>(
+				chatKeys.conversation(selectedConversationId),
+				(current) => {
+					if (!current) return current
 					return {
-						...conversation,
+						...current,
 						unread_count: 0,
-						last_message: {
-							...conversation.last_message,
-							is_read: true,
-						},
+						messages: current.messages?.map((message) =>
+							message.sender_id !== user?.id ? { ...message, is_read: true } : message,
+						),
 					}
+				},
+			)
+
+			// Clear unread count and mark last message as read in conversations list
+			queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
+				if (!current) return current
+				const updatedConversations = current.data.map((conversation: any) => {
+					if (conversation.id === selectedConversationId) {
+						return {
+							...conversation,
+							unread_count: 0,
+							last_message: conversation.last_message
+								? {
+										...conversation.last_message,
+										is_read: true,
+									}
+								: conversation.last_message,
+						}
+					}
+					return conversation
+				})
+				return {
+					...current,
+					data: updatedConversations,
 				}
-				return conversation
 			})
-			return {
-				...current,
-				data: updatedConversations,
-			}
-		})
+		}
 	}, [
 		selectedConversationId,
-		detailsQuery.isPending,
+		selectedConversation?.unread_count,
 		detailsQuery.data?.messages,
-		detailsQuery.data?.unread_count,
+		user?.id,
 		sendMessage,
 		queryClient,
-		setMessageSendResult,
 	])
 
 	useEffect(() => {
@@ -183,10 +188,7 @@ export function MessagesPage({
 					return {
 						...conversation,
 						unread_count: 0,
-						last_message: {
-							...rmessage,
-							is_read: true,
-						},
+						last_message: rmessage,
 					}
 				}
 				return conversation
@@ -214,37 +216,23 @@ export function MessagesPage({
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
-			<header className="flex flex-col gap-4 border-outline-variant border-b py-3 pb-8 md:flex-row md:items-end md:justify-between">
-				<div className="flex max-w-2xl flex-col gap-4">
-					<div className="flex flex-wrap items-center gap-2 font-caption text-caption">
-						<span className="font-semibold text-on-surface-variant uppercase tracking-wider">
-							{clientMode ? "Client workspace" : "Freelancer workspace"}
-						</span>
-						<span className="size-1 rounded-full bg-outline-variant" />
-						<span className="flex items-center gap-1 font-medium text-primary">
-							<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
-							{unreadCount ?? 0} unread {unreadCount === 1 ? "message" : "messages"}
-						</span>
-					</div>
-					<h1 className="font-headline-xl font-semibold text-headline-xl text-on-surface tracking-tight">Messages</h1>
-					<p className="font-body-md text-body-md text-on-surface-variant">
-						{clientMode
-							? "Connect with freelancers, discuss your brief, and keep your projects moving."
-							: "Manage client conversations, share design artifacts, and collaborate on active contracts."}
-					</p>
-				</div>
-				{/* <div className="flex shrink-0 flex-wrap items-center gap-2.5">
-					<button
-						type="button"
-						onClick={() => setNewMessageOpen(true)}
-						className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md font-medium text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-					>
-						<SquarePen className="size-4" />
-						New message
-					</button>
-				</div> */}
-			</header>
+		<div className="mx-auto w-full max-w-360 space-y-7 px-4 md:px-6">
+			<WorkspacePageHeader
+				eyebrow={clientMode ? "Client workspace" : "Freelancer workspace"}
+				title="Messages"
+				description={
+					clientMode
+						? "Connect with freelancers, discuss your brief, and keep your projects moving."
+						: "Manage client conversations, share design artifacts, and collaborate on active contracts."
+				}
+				meta={
+					<span className="flex items-center gap-1 font-medium text-link">
+						<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
+						{unreadCount ?? 0} unread {unreadCount === 1 ? "message" : "messages"}
+					</span>
+				}
+				action=""
+			/>
 			{/* <Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
 				<DialogContent className="max-w-md border-outline-variant bg-surface-container-lowest">
 					<DialogHeader>
@@ -339,13 +327,18 @@ export function MessagesPage({
 							</AlertDescription>
 						</Alert>
 						{!profiles.isPending && (
-							<Button variant="outline" disabled={profiles.isFetching} onClick={() => void profiles.refetch()}>
+							<button
+								type="button"
+								disabled={profiles.isFetching}
+								onClick={() => void profiles.refetch()}
+								className={`${workspaceStyles.secondaryAction} disabled:opacity-50`}
+							>
 								{profiles.isFetching ? "Loading…" : "Reload profile"}
-							</Button>
+							</button>
 						)}
-						<Button variant="outline" onClick={() => onSelectContact("")}>
+						<button type="button" onClick={() => onSelectContact("")} className={workspaceStyles.secondaryAction}>
 							Back to conversations
-						</Button>
+						</button>
 					</section>
 				) : selectedConversationId !== undefined ? (
 					<MessageThread
@@ -384,15 +377,12 @@ export function MessagesPage({
 						onSend={() => send(draft)}
 					/>
 				) : (
-					<section className="flex flex-col items-center justify-center gap-4 p-6 text-center">
-						<div className="p-4 flex items-center justify-center rounded-full bg-surface-container-lowest dark:bg-surface-panel">
-							<InboxIcon className="size-12 text-on-surface-variant" />
-						</div>
-						<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Select a conversation</h2>
-						<p className="font-body-md text-body-md text-on-surface-variant">
-							Choose a {clientMode ? "freelancer" : "client"} from the list to view your conversation.
-						</p>
-					</section>
+					<EmptyState
+						icon={InboxIcon}
+						title="Select a conversation"
+						description={`Choose a ${clientMode ? "freelancer" : "client"} from the list to view your conversation.`}
+						className="h-full rounded-none border-0 bg-transparent"
+					/>
 				)}
 			</div>
 		</div>

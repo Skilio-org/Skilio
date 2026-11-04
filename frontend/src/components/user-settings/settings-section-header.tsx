@@ -1,48 +1,36 @@
 import type { ReactNode } from "react"
-import type { LucideIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+// Plain section heading shared by every settings panel. The eyebrow and icon props are still
+// accepted so existing panels keep working, but they are no longer drawn.
 export function SettingsSectionHeader({
-	eyebrow,
 	title,
 	description,
-	icon: Icon,
 	tone = "brand",
 	actions,
 	className,
 }: {
-	eyebrow: string
+	eyebrow?: string
 	title: string
 	description: string
-	icon: LucideIcon
+	icon?: unknown
 	tone?: "brand" | "destructive"
 	actions?: ReactNode
 	className?: string
 }) {
 	return (
-		<header className={cn("flex items-start gap-4 border-outline-variant border-b p-5 sm:p-7", className)}>
-			<span
-				className={cn(
-					"grid size-11 shrink-0 place-items-center rounded-lg",
-					tone === "destructive"
-						? "bg-danger-soft text-destructive"
-						: "bg-brand-50 text-brand-700 dark:bg-muted dark:text-brand-500",
-				)}
-			>
-				<Icon className="size-5" />
-			</span>
+		<header className={cn("flex items-start gap-4 border-outline-variant border-b px-5 py-5 sm:px-7", className)}>
 			<div className="min-w-0 flex-1">
-				<p
+				<h2
 					className={cn(
-						"font-semibold text-xs uppercase tracking-[0.16em]",
-						tone === "destructive" ? "text-destructive" : "text-brand-700",
+						"font-headline-sm font-semibold text-headline-sm",
+						tone === "destructive" ? "text-destructive" : "text-on-surface",
 					)}
 				>
-					{eyebrow}
-				</p>
-				<h2 className="mt-1 font-headline-md font-semibold text-headline-md">{title}</h2>
-				<p className="mt-1 text-muted-foreground text-sm leading-6">{description}</p>
+					{title}
+				</h2>
+				<p className="mt-1 text-on-surface-variant text-sm">{description}</p>
 			</div>
 			{actions}
 		</header>

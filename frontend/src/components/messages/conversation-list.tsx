@@ -39,9 +39,9 @@ export function ConversationList({
 		>
 			<div className="border-b border-outline-variant/60 bg-surface-container-lowest/60 dark:bg-[#181a1d] p-4 pb-3 sm:p-5 sm:pb-3.5">
 				<div className="flex items-center justify-between gap-3">
-					<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Direct Threads</h2>
+					<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Direct threads</h2>
 					<span className="rounded bg-surface-container px-2 py-0.5 font-caption text-caption text-on-surface-variant font-medium">
-						{conversations?.data?.count} Total
+						{conversations?.data?.count ?? 0} total
 					</span>
 				</div>
 				<label className="mt-3.5 flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-body-sm text-body-sm text-on-surface transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20">
@@ -183,7 +183,7 @@ export function ConversationList({
 											{conversation.last_message?.content || "No messages yet"}
 										</span>
 										{(conversation.unread_count ?? 0) > 0 && (
-											<span className="mt-0.5 grid  place-items-center rounded-full bg-primary p-1 font-caption text-[8px] font-bold text-on-primary leading-none shadow-xs">
+											<span className="mt-0.5 grid place-items-center rounded-full bg-primary p-1 font-caption text-[8px] font-bold text-on-primary leading-none shadow-xs w-4 h-4">
 												{conversation.unread_count}
 											</span>
 										)}
@@ -219,18 +219,20 @@ export function ConversationList({
 									? "New messages will appear here."
 									: filter === "archived"
 										? "Conversations you archive will live here."
-										: "Choose a freelancer to start a conversation."}
+										: "Start a conversation from a connection or a profile."}
 						</p>
-						<button
-							type="button"
-							onClick={() => {
-								onQueryChange("")
-								onFilterChange("all")
-							}}
-							className="mt-3 inline-flex h-8 items-center font-label-sm text-label-sm font-medium text-primary hover:underline"
-						>
-							Back to all conversations
-						</button>
+						{(query || filter !== "all") && (
+							<button
+								type="button"
+								onClick={() => {
+									onQueryChange("")
+									onFilterChange("all")
+								}}
+								className="mt-3 inline-flex h-8 items-center font-label-sm text-label-sm font-medium text-link hover:underline"
+							>
+								Back to all conversations
+							</button>
+						)}
 					</div>
 				)}
 			</div>
