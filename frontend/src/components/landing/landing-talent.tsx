@@ -4,17 +4,17 @@ import { freelancers } from "@/data/freelancers"
 
 const CATEGORIES = [
 	"All talent",
-	"AI & Machine Learning",
 	"Full-Stack Engineering",
 	"Product & UI/UX Design",
-	"Growth & Marketing",
+	"Mobile Development",
+	"E-Commerce & Marketing",
 ]
 
 const TERMS_MAP: Record<string, string[]> = {
-	"AI & Machine Learning": ["ai", "python", "automation", "llm", "rag"],
-	"Full-Stack Engineering": ["engineer", "react", "typescript", "full-stack", "postgres"],
+	"Full-Stack Engineering": ["engineer", "react", "typescript", "node", "full-stack", "postgres"],
 	"Product & UI/UX Design": ["design", "product", "figma", "ux", "ui"],
-	"Growth & Marketing": ["brand", "marketing", "growth", "seo", "content"],
+	"Mobile Development": ["mobile", "flutter", "react native", "ios", "android"],
+	"E-Commerce & Marketing": ["shopify", "e-commerce", "growth", "seo", "analytics"],
 }
 
 export function LandingTalent({
@@ -39,19 +39,19 @@ export function LandingTalent({
 				{/* Section Header */}
 				<div className="flex flex-col gap-2.5 sm:gap-3">
 					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
-						<span>PRE-VETTED ROSTER</span>
+						<span>VERIFIED TALENT ROSTER</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
-						Curated specialists ready for your next sprint.
+						Curated specialists ready for your next project.
 					</h2>
 					<p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
 						Browse verified portfolios, inspect technical match scores, and interview senior
-						engineers and designers in under 24 hours.
+						engineers and designers across Morocco.
 					</p>
 				</div>
 
-				{/* Filter Tabs - clean responsive wrapping tabs */}
-				<div className="mt-6 sm:mt-8 flex flex-wrap gap-2">
+				{/* Filter Tabs - horizontally scrollable on mobile */}
+				<div className="mt-6 sm:mt-8 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap no-scrollbar">
 					{CATEGORIES.map((cat) => {
 						const active = filter === cat
 						return (
@@ -59,10 +59,10 @@ export function LandingTalent({
 								key={cat}
 								type="button"
 								onClick={() => onFilter(cat)}
-								className={`rounded-lg px-3.5 py-1.5 sm:py-2 text-xs font-medium transition-all ${
+								className={`shrink-0 rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold transition-all ${
 									active
-										? "bg-foreground text-background font-semibold shadow-xs"
-										: "border border-border/80 bg-card text-muted-foreground hover:border-foreground/30 hover:bg-muted hover:text-foreground"
+										? "bg-primary text-primary-foreground shadow-xs"
+										: "border border-border/80 bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
 								}`}
 							>
 								{cat}
@@ -94,7 +94,7 @@ export function LandingTalent({
 												</h3>
 												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
 													<Check className="size-2.5" />
-													Top 3%
+													Verified
 												</span>
 											</div>
 											<p className="text-xs text-muted-foreground truncate">{person.title}</p>
@@ -103,7 +103,7 @@ export function LandingTalent({
 
 									<div className="text-right shrink-0">
 										<p className="font-display font-bold text-base sm:text-lg text-foreground">
-											${person.rate}
+											{person.rate} DH
 											<span className="text-xs font-normal text-muted-foreground">
 												/hr
 											</span>
@@ -165,7 +165,7 @@ export function LandingTalent({
 						search={{ q: undefined, category: undefined }}
 						className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
 					>
-						<span>Explore all 12,000+ vetted talent profiles</span>
+						<span>Explore all verified Moroccan talent</span>
 						<ArrowUpRight className="size-4 text-[#7FA600] dark:text-primary" />
 					</Link>
 				</div>

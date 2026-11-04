@@ -14,27 +14,27 @@ export function LandingCta() {
 				<div className="relative z-10 max-w-3xl">
 					<div className="inline-flex items-center gap-1.5 rounded-md border border-[#B8EF0D]/30 bg-[#25282C] px-2.5 py-1 text-xs font-bold text-[#B8EF0D]">
 						<Sparkles className="size-3.5" />
-						<span>START TODAY · NO LOCK-IN</span>
+						<span>GET STARTED · NO HIDDEN FEES</span>
 					</div>
 
 					<h2 className="mt-5 sm:mt-6 font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white sm:leading-tight lg:leading-[1.15]">
-						Make room for <br />
-						<span className="text-[#B8EF0D]">your next great project.</span>
+						Ready to build with <br />
+						<span className="text-[#B8EF0D]">skilled Moroccan talent?</span>
 					</h2>
 
 					<p className="mt-4 sm:mt-5 max-w-xl text-sm sm:text-base text-neutral-300 leading-relaxed">
-						Whether you&apos;re hiring a specialist for a critical sprint or seeking your next
-						flagship contract, Skilio is where ambitious builders collaborate with confidence.
+						Whether you need an engineer for an urgent sprint or a dedicated specialist for a complete project,
+						Skilio is where Moroccan businesses and independent builders collaborate with full confidence.
 					</p>
 
-					{/* Dual CTAs - Full width tap targets on mobile */}
+					{/* Dual CTAs */}
 					<div className="mt-7 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
 						<Link
 							to="/signup"
 							search={{ role: "client" }}
 							className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#B8EF0D] px-6 text-sm font-bold text-[#1F2125] shadow-xs transition-all hover:bg-[#A5D80B] active:scale-95"
 						>
-							<span>Hire Top Talent</span>
+							<span>Hire Moroccan Talent</span>
 							<ArrowUpRight className="size-4" />
 						</Link>
 
@@ -43,7 +43,7 @@ export function LandingCta() {
 							search={{ role: "freelancer" }}
 							className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 text-sm font-semibold text-white transition-all hover:border-white/40 hover:bg-white/10"
 						>
-							<span>Apply as a Specialist</span>
+							<span>Apply as a Freelancer</span>
 							<ArrowUpRight className="size-4" />
 						</Link>
 					</div>
@@ -56,11 +56,11 @@ export function LandingCta() {
 						</div>
 						<div className="flex items-center gap-2">
 							<Check className="size-4 text-[#B8EF0D] shrink-0" />
-							<span>100% Milestone Escrow Guarantee</span>
+							<span>100% Milestone Escrow Protection</span>
 						</div>
 						<div className="flex items-center gap-2">
 							<Check className="size-4 text-[#B8EF0D] shrink-0" />
-							<span>Verified Work History & Identity</span>
+							<span>Direct chat with verified specialists</span>
 						</div>
 					</div>
 				</div>

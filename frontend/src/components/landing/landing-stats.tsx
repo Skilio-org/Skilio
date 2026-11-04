@@ -1,39 +1,39 @@
 const STATS = [
 	{
-		value: "12,000+",
-		label: "Vetted Specialists",
-		description: "Top 3% accepted across all technical engineering & design domains",
+		value: "2,500+",
+		label: "Verified Specialists",
+		description: "Skilled developers, designers, and tech experts across Morocco",
 	},
 	{
-		value: "$18.5M+",
-		label: "Direct Talent Earnings",
-		description: "100% direct payouts with zero hidden platform markups or take rates",
+		value: "100%",
+		label: "Escrow Protection",
+		description: "Milestone funds held securely until you inspect and approve deliverables",
 	},
 	{
-		value: "28 Hours",
-		label: "Median Match Time",
-		description: "From project specifications to signed milestone contract",
+		value: "Under 24h",
+		label: "Average Match Time",
+		description: "From project brief to receiving qualified proposals from verified talent",
 	},
 	{
-		value: "99.4%",
-		label: "Contract Success Rate",
-		description: "Verified 5-star milestone completion across 4,800+ engagements",
+		value: "4.9 / 5",
+		label: "Client Satisfaction",
+		description: "Verified ratings and direct feedback from Moroccan founders and businesses",
 	},
 ]
 
-const TRUST_LOGOS = [
-	{ name: "LINEAR", role: "Productivity" },
-	{ name: "VERCEL", role: "Frontend Cloud" },
-	{ name: "SUPABASE", role: "Postgres & Auth" },
-	{ name: "RAMP", role: "Finance Automation" },
-	{ name: "RETOOL", role: "Internal Tools" },
-	{ name: "LATTICE", role: "People Operations" },
+const DOMAINS = [
+	{ name: "E-COMMERCE & RETAIL" },
+	{ name: "TECH STARTUPS" },
+	{ name: "DIGITAL AGENCIES" },
+	{ name: "LOGISTICS & FLEET" },
+	{ name: "HOSPITALITY & TOURS" },
+	{ name: "FINTECH & PAYMENTS" },
 ]
 
 export function LandingStats() {
 	return (
 		<section
-			aria-label="Platform proof metrics and trusted companies"
+			aria-label="Platform proof metrics and trusted domains"
 			className="border-y border-border/70 bg-card py-10 sm:py-12 lg:py-16"
 		>
 			<div className="landing-container px-4 sm:px-6">
@@ -61,18 +61,18 @@ export function LandingStats() {
 					))}
 				</div>
 
-				{/* Trust Logos Banner */}
+				{/* Domain Trust Strip */}
 				<div className="mt-10 sm:mt-14 border-t border-border/50 pt-6 sm:pt-8">
 					<p className="text-center text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/80">
-						Trusted by product & engineering leaders at modern high-velocity companies
+						Trusted for projects across key Moroccan industries
 					</p>
-					<div className="mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-12 lg:gap-16 opacity-75 grayscale hover:grayscale-0 transition-all">
-						{TRUST_LOGOS.map((logo) => (
+					<div className="mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-8 lg:gap-10">
+						{DOMAINS.map((domain) => (
 							<span
-								key={logo.name}
-								className="font-display text-xs sm:text-sm font-bold tracking-widest text-foreground/80 sm:text-base"
+								key={domain.name}
+								className="rounded-lg border border-border/60 bg-muted/30 px-3 py-1.5 text-xs font-semibold tracking-wider text-muted-foreground hover:text-foreground transition-colors"
 							>
-								{logo.name}
+								{domain.name}
 							</span>
 						))}
 					</div>

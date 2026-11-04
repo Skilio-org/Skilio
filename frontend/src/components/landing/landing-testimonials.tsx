@@ -6,29 +6,29 @@ import { Card, CardContent } from "@/components/ui/card"
 const TESTIMONIALS = [
 	{
 		quote:
-			"Finding a senior full-stack lead took us less than 36 hours. The technical caliber of specialists on Skilio is noticeably higher than typical freelance marketplaces.",
-		author: "Elena Rostova",
-		role: "VP of Product",
-		company: "FinTech Labs",
-		initials: "ER",
+			"Finding a dependable React developer in Morocco used to take weeks of asking around. On Skilio, we found an engineer who delivered our client portal within 10 days. Clean code and smooth communication throughout.",
+		author: "Reda El Alami",
+		role: "Founder",
+		company: "Atlas Retail & Media · Casablanca",
+		initials: "RA",
 		type: "Client",
 	},
 	{
 		quote:
-			"Skilio creates an environment of mutual respect. Direct communication with founders, crystal-clear milestones, and zero hidden platform cuts taking away 20% of my check.",
-		author: "Marcus Chen",
-		role: "Principal AI Engineer",
-		company: "Independent Specialist",
-		initials: "MC",
+			"As a freelance designer in Morocco, getting paid on time and fairly has always been stressful. Skilio's milestone system means I can focus on my creative work knowing payments are safely held in escrow.",
+		author: "Siham Mansouri",
+		role: "UI/UX Designer",
+		company: "Freelance Specialist · Rabat",
+		initials: "SM",
 		type: "Freelancer",
 	},
 	{
 		quote:
-			"We scaled our product sprint team by three specialists within a week. Every deliverable was polished, production-ready, and executed without hand-holding.",
-		author: "Sarah Jenkins",
-		role: "Founder & Design Director",
-		company: "Studio Lumina",
-		initials: "SJ",
+			"We needed extra engineering support for our mobile app release. The developer we hired in Marrakech integrated smoothly with our team and delivered clean, well-tested code right on schedule.",
+		author: "Tarik Berrada",
+		role: "Tech Lead",
+		company: "DabaTech · Tangier",
+		initials: "TB",
 		type: "Client",
 	},
 ]
@@ -40,14 +40,13 @@ export function LandingTestimonials() {
 				{/* Section Header */}
 				<div className="flex flex-col gap-2.5 sm:gap-3">
 					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
-						<span>TESTIMONIALS & CASE STUDIES</span>
+						<span>AUTHENTIC REVIEWS & STORIES</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
-						Trusted by teams that ship and talent that delivers.
+						Trusted by Moroccan founders and independent specialists.
 					</h2>
 					<p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
-						See how leading founders and world-class independent specialists collaborate on
-						Skilio to bring ambitious ideas to life.
+						See how Moroccan businesses and skilled freelancers collaborate with confidence on Skilio.
 					</p>
 				</div>
 

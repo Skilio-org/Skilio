@@ -4,36 +4,36 @@ import { ArrowUpRight, Award, Clock, ShieldCheck, Sparkles } from "lucide-react"
 const CONTRACTS = [
 	{
 		tag: "Fixed Scope",
-		budget: "$14,000",
+		budget: "15,000 DH",
 		rateType: "Fixed Budget · 3 Milestones",
-		title: "Autonomous Multi-Agent Orchestration Platform",
-		client: "FinTech Labs · Enterprise Verified",
+		title: "E-Commerce Mobile App for Local Retail Brand",
+		client: "Atlas Retail Group · Casablanca",
 		escrow: "100% Escrow Funded",
 		proposals: "4 Proposals",
 		time: "Posted 2h ago",
-		tags: ["LangChain", "Python", "FastAPI", "Docker", "PostgreSQL"],
+		tags: ["React Native", "Node.js", "Payment Gateway", "Tailwind CSS"],
 	},
 	{
 		tag: "Hourly Contract",
-		budget: "$110 - $140",
-		rateType: "/hour · 3 Month Contract",
-		title: "Core Banking API Architecture & Go Microservices",
-		client: "Vantage Payments · Payment Verified",
-		escrow: "Verified Payment Method",
-		proposals: "7 Proposals",
-		time: "Posted 5h ago",
-		tags: ["Go", "gRPC", "Temporal", "Kubernetes", "AWS"],
+		budget: "250 - 350 DH",
+		rateType: "/hour · 2 Month Contract",
+		title: "Operations Dashboard & Fleet Tracking System",
+		client: "TransMaghreb Logistics · Tangier",
+		escrow: "Verified Payment",
+		proposals: "5 Proposals",
+		time: "Posted 4h ago",
+		tags: ["React", "FastAPI", "Docker", "PostgreSQL", "REST API"],
 	},
 	{
 		tag: "Design Sprint",
-		budget: "$8,500",
+		budget: "8,500 DH",
 		rateType: "Fixed Budget · 2 Sprints",
-		title: "Enterprise Design System & Dashboard Component Library",
-		client: "Studio Lumina · Series A Startup",
+		title: "Corporate Website & Custom Booking Platform",
+		client: "Marrakech Travel Agency · Marrakech",
 		escrow: "Escrow Pre-Funded",
 		proposals: "6 Proposals",
-		time: "Posted 7h ago",
-		tags: ["Figma", "Design Systems", "Tailwind CSS", "React"],
+		time: "Posted 6h ago",
+		tags: ["Next.js", "TypeScript", "Tailwind CSS", "Figma"],
 	},
 ]
 
@@ -48,14 +48,14 @@ export function LandingContracts() {
 				<div className="flex flex-col gap-2.5 sm:gap-3">
 					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
 						<ShieldCheck className="size-3.5" />
-						<span>LIVE MARKETPLACE FEED</span>
+						<span>LIVE PROJECT FEED</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
-						High-budget contracts posted today. Serious builders.
+						Active contracts posted by verified Moroccan businesses.
 					</h2>
 					<p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
 						For independent talent: directly apply to pre-funded milestones, set your own
-						rates, and keep 100% of your earnings with zero hidden platform cut penalties.
+						rates, and keep your earnings with zero hidden platform deductions.
 					</p>
 				</div>
 
@@ -143,7 +143,7 @@ export function LandingContracts() {
 						search={{ role: "freelancer" }}
 						className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/90"
 					>
-						<span>Browse all 340+ open contracts</span>
+						<span>Browse open projects</span>
 						<ArrowUpRight className="size-4" />
 					</Link>
 					<Link
@@ -152,7 +152,7 @@ export function LandingContracts() {
 						className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
 					>
 						<Sparkles className="size-4 text-[#7FA600] dark:text-primary" />
-						<span>Post a new project in 2 minutes</span>
+						<span>Post a project in 2 minutes</span>
 					</Link>
 				</div>
 			</div>

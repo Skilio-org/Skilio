@@ -5,20 +5,20 @@ const STEPS = [
 	{
 		step: "01",
 		icon: ScanSearch,
-		title: "Define Brief or Browse",
-		desc: "Post your project specifications in 2 minutes, or explore curated specialist profiles by exact tech stack and verified hourly rates.",
+		title: "Post Brief or Browse",
+		desc: "Post what you need built in 2 minutes, or browse verified Moroccan developers and designers by skill and hourly rate.",
 	},
 	{
 		step: "02",
 		icon: MessageSquare,
-		title: "Direct Alignment & Chat",
-		desc: "Meet top candidates directly, review code repositories or Figma systems, and align on scope without intermediary delays.",
+		title: "Direct Chat & Agree on Scope",
+		desc: "Connect with candidates in real time, review portfolios, and agree on clear milestones and timelines.",
 	},
 	{
 		step: "03",
 		icon: ShieldCheck,
-		title: "Milestone Delivery & Escrow",
-		desc: "Lock payments safely in tier-1 escrow. Inspect staging deliverables, request revisions, and approve payouts with 1 click.",
+		title: "Review Deliverables & Pay",
+		desc: "Payments are protected in escrow. Inspect finished work, request revisions, and release payouts with confidence.",
 	},
 ]
 
@@ -32,14 +32,13 @@ export function LandingHowItWorks() {
 				{/* Section Header */}
 				<div className="flex flex-col gap-2.5 sm:gap-3">
 					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
-						<span>SIMPLE 3-STEP WORKFLOW</span>
+						<span>SIMPLE 3-STEP PROCESS</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
-						From project brief to production in days.
+						From project brief to completion in days.
 					</h2>
 					<p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
-						A streamlined process engineered to remove bureaucratic friction, long sales cycles,
-						and agency markups.
+						A straightforward process designed to eliminate delays, middleman markups, and communication issues.
 					</p>
 				</div>
 
