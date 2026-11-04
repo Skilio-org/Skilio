@@ -36,7 +36,7 @@ export default function CitySelect({
 					type="button"
 					aria-label="Select city"
 					className={cn(
-						"group flex h-9 min-w-40 items-center justify-between gap-2 px-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors hover:text-primary",
+						"group flex h-9 min-w-40 items-center justify-between gap-2 px-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors hover:text-link",
 						className,
 					)}
 				>
@@ -64,14 +64,14 @@ export default function CitySelect({
 							<CommandItem value={emptyLabel} onSelect={() => choose("")} className="cursor-pointer">
 								<span className="flex-1">{emptyLabel}</span>
 
-								<Check className={cn("size-4 text-primary", !value ? "opacity-100" : "opacity-0")} />
+								<Check className={cn("size-4 text-link", !value ? "opacity-100" : "opacity-0")} />
 							</CommandItem>
 
 							{moroccoCities.map((city) => (
 								<CommandItem key={city} value={city} onSelect={() => choose(city)} className="cursor-pointer">
 									<span className="flex-1 truncate">{city}</span>
 
-									<Check className={cn("size-4 text-primary", value === city ? "opacity-100" : "opacity-0")} />
+									<Check className={cn("size-4 text-link", value === city ? "opacity-100" : "opacity-0")} />
 								</CommandItem>
 							))}
 						</CommandGroup>

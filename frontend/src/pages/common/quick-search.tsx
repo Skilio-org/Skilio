@@ -54,7 +54,7 @@ export const QuickSavedSearch = () => {
 					<Link
 						to="/freelancer-jobs"
 						search={{ q: undefined }}
-						className="font-label-sm text-label-sm text-primary hover:underline"
+						className="font-label-sm text-label-sm text-link hover:underline"
 					>
 						Search
 					</Link>
@@ -62,7 +62,7 @@ export const QuickSavedSearch = () => {
 					<Link
 						to="/talent"
 						search={{ q: undefined, category: undefined }}
-						className="font-label-sm text-label-sm text-primary hover:underline"
+						className="font-label-sm text-label-sm text-link hover:underline"
 					>
 						Search
 					</Link>
@@ -75,7 +75,7 @@ export const QuickSavedSearch = () => {
 							<>
 								<span className="flex items-center gap-2">
 									<Search className="size-4 text-outline" />
-									<span className="font-body-sm text-body-sm text-on-surface transition-colors group-hover:text-primary">
+									<span className="font-body-sm text-body-sm text-on-surface transition-colors group-hover:text-link">
 										{search}
 									</span>
 								</span>

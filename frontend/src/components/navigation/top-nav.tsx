@@ -51,9 +51,7 @@ export function TopNav() {
 					<Logo
 						variant="full"
 						to={role === "freelancer" ? "/freelancer-dashboard" : "/dashboard"}
-						iconClassName="size-7"
-						textClassName="h-4.5"
-						gapClassName="gap-2.5"
+						iconClassName="h-8 translate-y-px"
 					/>
 
 					<nav
@@ -70,7 +68,7 @@ export function TopNav() {
 									aria-current={active ? "page" : undefined}
 									className={
 										active
-											? "flex h-full items-center whitespace-nowrap px-0 font-label-md font-medium text-label-md text-primary transition-colors dark:text-on-surface"
+											? "flex h-full items-center whitespace-nowrap px-0 font-label-md font-medium text-label-md text-link transition-colors dark:text-on-surface"
 											: "flex h-full items-center whitespace-nowrap px-0 font-label-md font-medium text-label-md text-on-surface-variant transition-colors hover:text-on-surface"
 									}
 								>

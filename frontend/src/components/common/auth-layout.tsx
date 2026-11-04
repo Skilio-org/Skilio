@@ -12,7 +12,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 			<header className="border-b border-border/70 bg-card">
 				<div className="mx-auto grid h-18 w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6">
 					<div />
-					<Logo to="/" className="h-8" />
+					<Logo to="/" className="h-10" />
 					<div className="justify-self-end">
 						<ThemeToggle />
 					</div>

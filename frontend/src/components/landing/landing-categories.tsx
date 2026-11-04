@@ -50,7 +50,7 @@ export function LandingCategories({ onSelect }: { onSelect: (value: string) => v
 							className="category-link group rounded-xl border border-border bg-card p-6 text-left transition-colors hover:border-primary/40 hover:bg-accent"
 						>
 							<span className="mb-8 flex justify-between">
-								<Icon className="size-6 text-primary" strokeWidth={1.5} />
+								<Icon className="size-6 text-link" strokeWidth={1.5} />
 								<ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
 							</span>
 							<span className="block font-medium tracking-tight">{name}</span>

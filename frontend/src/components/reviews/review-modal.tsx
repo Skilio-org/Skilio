@@ -103,7 +103,7 @@ export function ReviewModal({
 					<div className="flex items-center gap-3.5 rounded-lg border border-outline-variant bg-muted/40 p-3">
 						<Avatar className="size-11 border border-outline-variant">
 							{freelancerAvatarUrl && <AvatarImage src={freelancerAvatarUrl} alt={freelancerName} />}
-							<AvatarFallback className="bg-primary/10 font-medium text-primary text-sm">
+							<AvatarFallback className="bg-primary/10 font-medium text-link text-sm">
 								{getInitials(freelancerName)}
 							</AvatarFallback>
 						</Avatar>

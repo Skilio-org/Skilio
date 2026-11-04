@@ -46,7 +46,7 @@ export function FreelancerJobFilterFields({
 				</div>
 			</fieldset>
 			{showClear && (
-				<button type="button" onClick={onClear} className="min-h-11 font-medium text-primary text-sm hover:underline">
+				<button type="button" onClick={onClear} className="min-h-11 font-medium text-link text-sm hover:underline">
 					Clear filters
 				</button>
 			)}

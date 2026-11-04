@@ -118,10 +118,10 @@ export function TalentDirectoryPage({
 		<div className="divide-y divide-outline-variant/50">
 			<div className="flex items-center justify-between gap-2 pb-4">
 				<h2 className="flex items-center gap-2 font-semibold text-body-md">
-					<Filter className="size-4 text-primary" />
+					<Filter className="size-4 text-link" />
 					Refine search
 				</h2>
-				<button type="button" onClick={clearAll} className="text-caption text-primary hover:underline">
+				<button type="button" onClick={clearAll} className="text-caption text-link hover:underline">
 					Clear all
 				</button>
 			</div>
@@ -164,7 +164,7 @@ export function TalentDirectoryPage({
 				eyebrow="Client workspace"
 				title="Find your next collaborator."
 				description="Discover freelance professionals for your project, budget, and timeline."
-				meta={<span className="font-medium text-primary">Discover independent talent</span>}
+				meta={<span className="font-medium text-link">Discover independent talent</span>}
 				action={
 					<Link
 						to="/saved"
@@ -251,7 +251,7 @@ export function TalentDirectoryPage({
 											<SelectItem
 												key={value}
 												value={value}
-												className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+												className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
 											>
 												{label}
 											</SelectItem>

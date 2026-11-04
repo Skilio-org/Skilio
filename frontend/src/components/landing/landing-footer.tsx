@@ -39,7 +39,6 @@ const FOOTER_SECTIONS = [
 			{ label: "About Skilio", href: "/", isAnchor: false },
 			{ label: "Privacy Policy", href: "/privacy", isAnchor: false },
 			{ label: "Terms of Service", href: "/terms", isAnchor: false },
-			{ label: "System Status", href: "/status", isAnchor: false },
 		],
 	},
 ]
@@ -47,48 +46,31 @@ const FOOTER_SECTIONS = [
 export function LandingFooter() {
 	return (
 		<footer className="border-t border-border bg-[#17191C] text-neutral-300">
-			<div className="landing-container px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
+			<div className="landing-container py-12 sm:py-16 lg:py-20">
 				<div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
 					{/* Brand Column (4 cols on lg) */}
 					<div className="flex flex-col gap-4 lg:col-span-4">
-						<Logo outlined={false} className="h-7 sm:h-8 w-auto self-start brightness-200" />
+						<Logo outlined={false} className="h-7 sm:h-8 w-auto self-start" />
 						<p className="max-w-sm text-xs leading-relaxed text-neutral-400">
-							The modern freelance marketplace for ambitious builders and elite independent
-							talent. Zero hidden markups, pre-funded escrow milestones, and direct collaboration.
+							The modern freelance marketplace for ambitious builders and elite independent talent. Zero hidden markups,
+							pre-funded escrow milestones, and direct collaboration.
 						</p>
-
-						{/* System Status Pill */}
-						<Link
-							to="/status"
-							className="mt-1 inline-flex w-fit items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-neutral-300 hover:bg-white/10 hover:text-white transition-colors"
-						>
-							<span className="size-2 rounded-full bg-[#B8EF0D] animate-pulse" />
-							<span>All Systems Operational (99.99%)</span>
-						</Link>
 					</div>
 
 					{/* 4 Link Columns (8 cols on lg) */}
 					<div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-8">
 						{FOOTER_SECTIONS.map((section) => (
 							<div key={section.title} className="flex flex-col gap-3">
-								<h4 className="text-xs font-bold uppercase tracking-wider text-white">
-									{section.title}
-								</h4>
+								<h4 className="text-xs font-bold uppercase tracking-wider text-white">{section.title}</h4>
 								<ul className="flex flex-col gap-2.5 text-xs text-neutral-400">
 									{section.links.map((link) => (
 										<li key={link.label}>
 											{link.isAnchor ? (
-												<a
-													href={link.href}
-													className="hover:text-white transition-colors"
-												>
+												<a href={link.href} className="hover:text-white transition-colors">
 													{link.label}
 												</a>
 											) : (
-												<Link
-													to={link.href as any}
-													className="hover:text-white transition-colors"
-												>
+												<Link to={link.href as any} className="hover:text-white transition-colors">
 													{link.label}
 												</Link>
 											)}

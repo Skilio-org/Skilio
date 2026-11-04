@@ -38,7 +38,7 @@ function clientJobPayload(job: ClientJob): JobPostCreate {
 		description: writeJobExperience(job.description, job.experienceLevel),
 		budget_type: job.type === "Hourly" ? "hourly" : "fixed",
 		budget: Number(job.budget),
-		category: job.category,
+		category: job.category || null,
 		location: job.location.trim() || null,
 		status: job.status === "Draft" ? "draft" : job.status === "Closed" ? "closed" : "open",
 		skills: job.skills,
@@ -107,6 +107,10 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 			toast.error("Shorten the project description before saving this job.")
 			return
 		}
+		if (job.status === "Open" && !job.category) {
+			toast.error("Choose a category before posting this job.")
+			return
+		}
 		saveMutation.mutate(job)
 	}
 
@@ -128,7 +132,7 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 				title="Your next great hire starts here."
 				description="Create a clear brief and keep your hiring in one place."
 				meta={
-					<span className="font-medium text-primary">
+					<span className="font-medium text-link">
 						{jobs.filter((job) => job.status === "Open").length} open{" "}
 						{jobs.filter((job) => job.status === "Open").length === 1 ? "job" : "jobs"}
 					</span>

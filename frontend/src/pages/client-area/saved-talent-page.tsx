@@ -30,7 +30,7 @@ export function SavedTalentPage() {
 				title="Saved talent"
 				description="Keep the people you’d like to work with in one place."
 				meta={
-					<span className="font-medium text-primary">
+					<span className="font-medium text-link">
 						{savedCount} saved {savedCount === 1 ? "profile" : "profiles"}
 					</span>
 				}
@@ -83,21 +83,21 @@ export function SavedTalentPage() {
 									>
 										<SelectItem
 											value="newest"
-											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
 										>
 											Recently saved
 										</SelectItem>
 
 										<SelectItem
 											value="rate_asc"
-											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
 										>
 											Lowest hourly rate
 										</SelectItem>
 
 										<SelectItem
 											value="rate_desc"
-											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
 										>
 											Highest hourly rate
 										</SelectItem>

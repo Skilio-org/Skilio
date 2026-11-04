@@ -129,7 +129,7 @@ export function ClientProfilePage() {
 				title="Client profile"
 				description="Help independent professionals understand who you are and what working with you will feel like."
 				meta={
-					<span className="font-medium text-primary">
+					<span className="font-medium text-link">
 						{[company, companyRole, website, location, companySize].filter((value) => value.trim()).length} of 5 details
 						added
 					</span>

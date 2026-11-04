@@ -58,7 +58,7 @@ export default function CategorySelect({
 					disabled={disabled}
 					className={cn(
 						"group hidden h-9 min-w-40 max-w-52 items-center justify-between gap-2 border-outline-variant border-l px-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors sm:flex",
-						"hover:text-primary",
+						"hover:text-link",
 						"disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-on-surface",
 						className,
 					)}
@@ -88,7 +88,7 @@ export default function CategorySelect({
 								<CommandItem value="All categories" onSelect={() => choose("all")} className="cursor-pointer">
 									<span className="flex-1">All categories</span>
 
-									<Check className={cn("size-4 text-primary", value === "all" ? "opacity-100" : "opacity-0")} />
+									<Check className={cn("size-4 text-link", value === "all" ? "opacity-100" : "opacity-0")} />
 								</CommandItem>
 							)}
 
@@ -101,7 +101,7 @@ export default function CategorySelect({
 								>
 									<span className="flex-1 truncate">{category}</span>
 
-									<Check className={cn("size-4 text-primary", value === category ? "opacity-100" : "opacity-0")} />
+									<Check className={cn("size-4 text-link", value === category ? "opacity-100" : "opacity-0")} />
 								</CommandItem>
 							))}
 						</CommandGroup>

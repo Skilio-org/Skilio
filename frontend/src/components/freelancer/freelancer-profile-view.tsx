@@ -192,7 +192,7 @@ export function FreelancerProfileView({
 									e.preventDefault()
 									document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
 								}}
-								className="inline-flex min-h-14 shrink-0 items-center font-medium text-on-surface-variant text-sm hover:text-primary"
+								className="inline-flex min-h-14 shrink-0 items-center font-medium text-on-surface-variant text-sm hover:text-link"
 							>
 								{label}
 							</a>
@@ -338,7 +338,7 @@ export function FreelancerProfileView({
 							<div className="flex flex-wrap items-center justify-between gap-3">
 								<h3 className={heading}>Client feedback</h3>
 								<p className="flex items-center gap-2 text-sm">
-									<Star className="size-4 text-primary" />
+									<Star className="size-4 text-link" />
 									<strong>{feedback.rating.toFixed(1)}</strong>
 									<span className="text-on-surface-variant">/ 5</span>
 								</p>

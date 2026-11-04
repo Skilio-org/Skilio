@@ -69,7 +69,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 					<Link
 						to="/talent"
 						search={{ q: undefined, category: undefined }}
-						className="inline-flex min-h-11 items-center gap-2 font-medium text-on-surface-variant text-sm hover:text-primary"
+						className="inline-flex min-h-11 items-center gap-2 font-medium text-on-surface-variant text-sm hover:text-link"
 					>
 						<ArrowLeft className="size-4" />
 						Back to talent

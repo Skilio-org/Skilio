@@ -34,24 +34,24 @@ export function LandingTalent({
 	const displayPeople = (filteredPeople.length > 0 ? filteredPeople : freelancers).slice(0, 3)
 
 	return (
-		<section id="talent" className="scroll-mt-20 py-12 sm:py-20 lg:py-24">
-			<div className="landing-container px-4 sm:px-6">
+		<section id="talent" className="scroll-mt-20 landing-section">
+			<div className="landing-container">
 				{/* Section Header */}
-				<div className="flex flex-col gap-2.5 sm:gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-foreground">
+				<div className="landing-section-header">
+					<div className="landing-eyebrow">
 						<span>PRE-VETTED ROSTER</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
 						Curated specialists ready for your next sprint.
 					</h2>
-					<p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
+					<p className="landing-lede">
 						Browse verified portfolios, inspect technical match scores, and interview senior
 						engineers and designers in under 24 hours.
 					</p>
 				</div>
 
 				{/* Filter Tabs - horizontally scrollable on mobile */}
-				<div className="mt-6 sm:mt-8 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap no-scrollbar">
+				<div className="mt-8 sm:mt-12 flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap no-scrollbar">
 					{CATEGORIES.map((cat) => {
 						const active = filter === cat
 						return (
@@ -59,9 +59,9 @@ export function LandingTalent({
 								key={cat}
 								type="button"
 								onClick={() => onFilter(cat)}
-								className={`shrink-0 rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold transition-all ${
+								className={`shrink-0 rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-medium transition-colors ${
 									active
-										? "bg-primary text-primary-foreground shadow-xs"
+										? "bg-primary text-primary-foreground"
 										: "border border-border/80 bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
 								}`}
 							>
@@ -72,24 +72,24 @@ export function LandingTalent({
 				</div>
 
 				{/* Talent Cards Grid */}
-				<div className="mt-6 sm:mt-8 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{displayPeople.map((person) => (
 						<article
 							key={person.id}
-							className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
+							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<div>
 								{/* Card Top: Avatar, Name, Rate */}
 								<div className="flex items-start justify-between gap-3">
 									<div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
 										<span
-											className={`grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl font-bold text-sm ${person.background} ${person.foreground} shadow-xs`}
+											className={`grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl font-bold text-sm ${person.background} ${person.foreground}`}
 										>
 											{person.initials}
 										</span>
 										<div className="min-w-0">
 											<div className="flex items-center gap-1.5">
-												<h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors truncate">
+												<h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-link transition-colors truncate">
 													{person.name}
 												</h3>
 												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
@@ -148,7 +148,7 @@ export function LandingTalent({
 								<Link
 									to="/talent"
 									search={{ q: undefined, category: undefined }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-primary hover:underline shrink-0"
+									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-link hover:underline shrink-0"
 								>
 									<span>View</span>
 									<ArrowUpRight className="size-3.5" />
@@ -163,7 +163,7 @@ export function LandingTalent({
 					<Link
 						to="/talent"
 						search={{ q: undefined, category: undefined }}
-						className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
+						className="inline-flex w-full sm:w-auto h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
 					>
 						<span>Explore all 12,000+ vetted talent profiles</span>
 						<ArrowUpRight className="size-4 text-ring" />

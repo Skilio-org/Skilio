@@ -276,7 +276,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 							: "Fill in one section at a time. Your progress is saved when you continue."
 				}
 				meta={
-					<span className="font-medium text-primary">
+					<span className="font-medium text-link">
 						{profile.finished ? "Published" : "Draft"} · {percent}% complete
 					</span>
 				}
@@ -383,7 +383,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 									<button
 										type="button"
 										onClick={() => setView("preview")}
-										className="font-label-sm font-medium text-label-sm text-primary hover:underline"
+										className="font-label-sm font-medium text-label-sm text-link hover:underline"
 									>
 										Read reviews
 									</button>
@@ -398,7 +398,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 										{[1, 2, 3, 4, 5].map((n) => (
 											<Star
 												key={n}
-												className={`size-4 ${n <= Math.round(rating) && reviewCount > 0 ? "fill-primary text-primary" : "text-outline-variant"}`}
+												className={`size-4 ${n <= Math.round(rating) && reviewCount > 0 ? "fill-primary text-link" : "text-outline-variant"}`}
 											/>
 										))}
 									</div>
@@ -710,7 +710,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 													</div>
 													<button
 														type="button"
-														className="shrink-0 font-medium text-primary text-sm hover:underline"
+														className="shrink-0 font-medium text-link text-sm hover:underline"
 														onClick={() => edit(i)}
 													>
 														{done[i] ? "Edit" : "Add"}

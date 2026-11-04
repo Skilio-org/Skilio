@@ -41,7 +41,7 @@ export const ProfileProgress = () => (
 						<span className="block font-label-sm font-medium text-label-sm text-on-surface">{item.title}</span>
 						<span className="mt-0.5 block font-caption text-caption text-on-surface-variant">{item.detail}</span>
 					</span>
-					<ArrowUpRight className="size-3.5 text-on-surface-variant group-hover:text-primary" />
+					<ArrowUpRight className="size-3.5 text-on-surface-variant group-hover:text-link" />
 				</Link>
 			))}
 		</div>

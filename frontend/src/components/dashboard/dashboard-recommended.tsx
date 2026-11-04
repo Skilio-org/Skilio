@@ -40,7 +40,7 @@ export const RecommendedFreelancers = () => {
 				<Link
 					to="/talent"
 					search={{ q: undefined, category: undefined }}
-					className="flex items-center gap-0.5 font-label-sm font-medium text-label-sm text-primary transition-colors hover:text-primary-container"
+					className="flex items-center gap-0.5 font-label-sm font-medium text-label-sm text-link hover:underline"
 				>
 					View all
 					<ArrowRight className="size-3.5" />

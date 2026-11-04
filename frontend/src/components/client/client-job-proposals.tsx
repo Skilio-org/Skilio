@@ -58,7 +58,7 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 							aria-controls={`proposal-letter-${proposal.id}`}
 							aria-expanded={expanded}
 							onClick={() => setExpanded((value) => !value)}
-							className="mt-2 font-medium text-primary text-sm hover:underline"
+							className="mt-2 font-medium text-link text-sm hover:underline"
 						>
 							{expanded ? "Show less" : "Read full proposal"}
 						</button>
@@ -135,7 +135,7 @@ function ProposalRateButton({
 					onClick={() => setModalOpen(true)}
 					className="inline-flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
 				>
-					<MessageSquarePlus className="size-4 text-primary" />
+					<MessageSquarePlus className="size-4 text-link" />
 					<span>Rate freelancer</span>
 				</button>
 			) : null}

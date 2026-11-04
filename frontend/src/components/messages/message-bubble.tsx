@@ -76,12 +76,12 @@ function MessageBubbleRepresentation({
 							{/* {rich && message. && (
 								<section className="mt-3 rounded-lg border border-outline-variant bg-surface-container-low p-3.5 text-on-surface">
 									<h4 className="mb-2 flex items-center gap-2 font-label-md font-semibold text-label-md text-on-surface">
-										<MessageSquareText className="size-4 text-primary" />
+										<MessageSquareText className="size-4 text-link" />
 										Design critique notes
 									</h4>
 									<ul className="space-y-1.5 font-body-sm text-body-sm text-on-surface-variant">
 										{message.feedback.map((note) => (
-											<li key={note} className="ml-4 list-disc marker:text-primary">
+											<li key={note} className="ml-4 list-disc marker:text-link">
 												<strong className="font-medium text-on-surface">{note.split(": ")[0]}:</strong> {note.split(": ").slice(1).join(": ")}
 											</li>
 										))}
@@ -94,7 +94,7 @@ function MessageBubbleRepresentation({
 							!own && (
 								
 								<div className="flex items-center justify-center gap-1">
-									<span className={cn("font-semibold truncate font-label-md text-label-md text-on-surface  text-primary dark:text-primary")}>
+									<span className={cn("font-semibold truncate font-label-md text-label-md text-on-surface  text-link dark:text-link")}>
 										{`${name}`} 
 									</span>
 									<span className="text-outline text-[11px]">
@@ -110,7 +110,7 @@ function MessageBubbleRepresentation({
 									•
 								</span>
 								<span className={cn("truncate text-label-md text-on-surface ", 
-										(sendState === "failed") ? "text-red-500" : "dark:text-primary text-label-md text-on-surface-variant")}>
+										(sendState === "failed") ? "text-red-500" : "dark:text-link text-label-md text-on-surface-variant")}>
 									{sendState === "sent" ? "sent" : sendState === "pending" ? "Sending..." : sendState === "failed" ? "Failed to send" : ""}
 								</span>
 								{sendState === "pending" && <LoaderCircle className="size-2 animate-spin" aria-hidden="true" />}
@@ -134,7 +134,7 @@ function MessageBubbleRepresentation({
 				{/* {rich && message.attachment_id && (
 					<>
 						<div className="message-attachment mt-2 flex w-full flex-wrap items-center gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-3 text-on-surface shadow-xs">
-							<FileText className="size-8 shrink-0 rounded-lg bg-surface-container p-1.5 text-primary" />
+							<FileText className="size-8 shrink-0 rounded-lg bg-surface-container p-1.5 text-link" />
 							<div className="min-w-0 flex-1">
 								<p className="truncate font-label-md font-semibold text-label-md text-on-surface">{message.attachment.name}</p>
 								<p className="font-caption text-caption text-on-surface-variant">Text document · Project handoff</p>

@@ -37,7 +37,7 @@ export function ClientJobsList({
 						key={status}
 						onClick={() => onTabChange(status)}
 						aria-pressed={tab === status}
-						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${tab === status ? "border-primary text-primary" : "border-transparent text-on-surface-variant"}`}
+						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${tab === status ? "border-primary text-link" : "border-transparent text-on-surface-variant"}`}
 					>
 						{status}{" "}
 						<span className="ml-1 text-xs">
@@ -70,7 +70,7 @@ export function ClientJobsList({
 								<span className="rounded-md bg-muted px-2 py-1 text-on-surface-variant text-xs">{job.status}</span>
 								<h2 className="mt-3 break-words font-semibold text-lg">{job.title || "Untitled job"}</h2>
 								<p className="mt-2 text-on-surface-variant text-sm">
-									{job.category} · {job.type}
+									{job.category || "No category"} · {job.type}
 									{job.budget && ` · $${job.budget}${job.type === "Hourly" ? "/hr" : ""}`}
 								</p>
 							</div>

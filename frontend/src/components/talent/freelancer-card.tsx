@@ -119,9 +119,9 @@ export function FreelancerCard({
 					onClick={onToggleSaved}
 					aria-label={`${saved ? "Unsave" : "Save"} ${freelancer.name}`}
 					aria-pressed={saved}
-					className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-primary dark:hover:text-on-surface"
+					className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-link dark:hover:text-on-surface"
 				>
-					<Bookmark className={cn("size-5", saved && "fill-primary text-primary")} />
+					<Bookmark className={cn("size-5", saved && "fill-primary text-link")} />
 				</button>
 			</div>
 
@@ -190,7 +190,7 @@ export function FreelancerCard({
 						<Link
 							to="/messages"
 							search={{ userId: targetUserId }}
-							className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
+							className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
 						>
 							<UserCheck className="size-3.5 text-success" />
 							<span>Message</span>
@@ -218,7 +218,7 @@ export function FreelancerCard({
 				<DialogContent className="sm:max-w-md">
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2">
-							<UserPlus className="size-5 text-primary" />
+							<UserPlus className="size-5 text-link" />
 							<span>Connect with {freelancer.name}</span>
 						</DialogTitle>
 						<DialogDescription>

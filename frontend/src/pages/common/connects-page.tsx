@@ -117,7 +117,7 @@ export function ConnectsPage() {
 				title="Connections"
 				description="Manage verified partnerships, review incoming collaboration requests, and connect with professionals."
 				meta={
-					<span className="font-medium text-primary">
+					<span className="font-medium text-link">
 						{acceptedCount} {acceptedCount === 1 ? "connection" : "connections"}
 						{receivedCount > 0 && ` · ${receivedCount} awaiting your reply`}
 					</span>
@@ -148,7 +148,7 @@ export function ConnectsPage() {
 								"grid size-8 place-items-center rounded-lg transition-colors",
 								activeTab === "network"
 									? "bg-primary text-primary-foreground dark:bg-on-surface dark:text-background"
-									: "bg-primary/10 text-primary"
+									: "bg-primary/10 text-link"
 							)}
 						>
 							<Users className="size-4" />
@@ -257,7 +257,7 @@ export function ConnectsPage() {
 						type="button"
 						onClick={() => setActiveTab(t.id)}
 						aria-pressed={activeTab === t.id}
-						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${activeTab === t.id ? "border-primary text-primary" : "border-transparent text-on-surface-variant"}`}
+						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${activeTab === t.id ? "border-primary text-link" : "border-transparent text-on-surface-variant"}`}
 					>
 						{t.label} <span className="ml-1 text-xs">{t.count}</span>
 					</button>
@@ -355,7 +355,7 @@ export function ConnectsPage() {
 															</h4>
 															<Badge
 																variant="outline"
-																className="bg-primary/10 text-primary border-primary/30 text-[10px] font-medium gap-1"
+																className="bg-primary/10 text-link border-primary/30 text-[10px] font-medium gap-1"
 															>
 																<UserCheck className="size-3" />
 																Connected
@@ -366,7 +366,7 @@ export function ConnectsPage() {
 
 														{conn.job_post && (
 															<div className="mt-1.5 flex items-center gap-1.5 text-xs text-on-surface-variant">
-																<Briefcase className="size-3.5 text-primary shrink-0" />
+																<Briefcase className="size-3.5 text-link shrink-0" />
 																<span className="truncate">{conn.job_post.title}</span>
 															</div>
 														)}
@@ -478,7 +478,7 @@ export function ConnectsPage() {
 													</p>
 
 													{conn.job_post && (
-														<div className="flex items-center gap-1.5 text-xs text-primary font-medium mt-1">
+														<div className="flex items-center gap-1.5 text-xs text-link font-medium mt-1">
 															<Briefcase className="size-3.5 shrink-0" />
 															<span className="truncate">Referencing project: {conn.job_post.title}</span>
 														</div>
@@ -590,7 +590,7 @@ export function ConnectsPage() {
 													</p>
 
 													{conn.job_post && (
-														<div className="flex items-center gap-1.5 text-xs text-primary font-medium mt-1">
+														<div className="flex items-center gap-1.5 text-xs text-link font-medium mt-1">
 															<Briefcase className="size-3.5 shrink-0" />
 															<span className="truncate">Referencing project: {conn.job_post.title}</span>
 														</div>
