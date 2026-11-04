@@ -49,7 +49,7 @@ export function MessageToolDialogView({
 							placeholder={
 								"Project goal\nWhat you'd like to create or improve\n\nScope and deliverables\n\nTimeline and budget"
 							}
-							className="mt-2 w-full resize-y rounded-lg border border-outline-variant bg-surface-container-low/40 px-3.5 py-2.5 font-body-sm text-body-sm leading-relaxed text-on-surface outline-none placeholder:text-outline focus:border-outline focus:bg-surface-container-lowest focus:ring-1 focus:ring-outline"
+							className="mt-2 w-full resize-y rounded-lg border border-input bg-surface-container-low/40 px-3.5 py-2.5 font-body-sm text-body-sm leading-relaxed text-on-surface outline-none placeholder:text-outline focus:border-outline focus:bg-surface-container-lowest focus:ring-1 focus:ring-outline"
 						/>
 					</label>
 					<div className="flex justify-end gap-2.5 pt-1">

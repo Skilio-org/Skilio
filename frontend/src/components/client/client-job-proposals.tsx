@@ -5,7 +5,6 @@ import { useState } from "react"
 import { ProposalsService, type ProposalPublic } from "@/client"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { getInitials } from "@/utils"
@@ -28,7 +27,6 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 	const profile = proposal.freelancer_profile
 	const name = proposal.freelancer?.full_name?.trim() || profile?.full_name?.trim() || "Freelancer"
 	const date = proposalDate(proposal.created_at)
-	const status = proposal.status === "pending" ? "Pending" : proposal.status === "accepted" ? "Accepted" : "Rejected"
 	const letter = proposal.cover_letter?.trim() ?? ""
 	const isLongLetter = letter.length > 240
 	const displayedLetter = expanded || !isLongLetter ? letter : `${letter.slice(0, 240).trimEnd()}…`
@@ -45,7 +43,6 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 					{profile?.title && <p className="mt-0.5 text-on-surface-variant text-sm">{profile.title}</p>}
 					{date && <p className="mt-1 text-on-surface-variant text-xs">Received {date}</p>}
 				</div>
-				<Badge variant={proposal.status === "rejected" ? "outline" : "secondary"}>{status}</Badge>
 			</div>
 			{letter && (
 				<div className="mt-4">
@@ -76,7 +73,7 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 					<>
 						<Link
 							to="/talent/$freelancerId"
-							params={{ freelancerId: profile.id }}
+							params={{ freelancerId: proposal.freelancer_id }}
 							className={workspaceStyles.secondaryAction}
 						>
 							View profile <ArrowUpRight className="size-4" />

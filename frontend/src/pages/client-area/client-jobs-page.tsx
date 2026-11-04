@@ -25,6 +25,7 @@ function clientJobFromApi(job: JobPostPublic): ClientJob {
 		experienceLevel: level,
 		skills: job.skills ?? [],
 		category: job.category ?? "",
+		location: job.location ?? "",
 		type: job.budget_type === "hourly" ? "Hourly" : "Fixed price",
 		budget: String(job.budget),
 		status: job.status === "draft" ? "Draft" : job.status === "closed" ? "Closed" : "Open",
@@ -38,6 +39,7 @@ function clientJobPayload(job: ClientJob): JobPostCreate {
 		budget_type: job.type === "Hourly" ? "hourly" : "fixed",
 		budget: Number(job.budget),
 		category: job.category,
+		location: job.location.trim() || null,
 		status: job.status === "Draft" ? "draft" : job.status === "Closed" ? "closed" : "open",
 		skills: job.skills,
 	}
@@ -125,7 +127,12 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 				eyebrow="Client workspace"
 				title="Your next great hire starts here."
 				description="Create a clear brief and keep your hiring in one place."
-				meta={<span className="font-medium text-primary">Hiring activity</span>}
+				meta={
+					<span className="font-medium text-primary">
+						{jobs.filter((job) => job.status === "Open").length} open{" "}
+						{jobs.filter((job) => job.status === "Open").length === 1 ? "job" : "jobs"}
+					</span>
+				}
 				action={
 					<button
 						type="button"

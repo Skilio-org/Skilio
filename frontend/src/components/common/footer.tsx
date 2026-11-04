@@ -17,7 +17,7 @@ export function Footer({ variant = "workspace" }: { variant?: "workspace" | "aut
 						·
 					</span>
 
-					<p className="hidden truncate text-muted-foreground/80 text-xs sm:block">Better talent. Brighter outcomes.</p>
+					<p className="hidden truncate text-muted-foreground text-xs sm:block">Better talent. Brighter outcomes.</p>
 				</div>
 			</div>
 		</footer>

@@ -151,7 +151,7 @@ export function LandingContracts() {
 						search={{ role: "client" }}
 						className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
 					>
-						<Sparkles className="size-4 text-[#7FA600] dark:text-primary" />
+						<Sparkles className="size-4 text-ring" />
 						<span>Post a new project in 2 minutes</span>
 					</Link>
 				</div>

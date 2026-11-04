@@ -77,7 +77,7 @@ export function LandingHero({
 			<div className="landing-container flex flex-col items-center text-center px-4 sm:px-6">
 				{/* Eyebrow Pill */}
 				<div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-semibold text-foreground shadow-xs backdrop-blur-xs">
-					<Sparkles className="size-3 sm:size-3.5 text-[#7FA600] dark:text-primary" />
+					<Sparkles className="size-3 sm:size-3.5 text-ring" />
 					<span>THE TOP 3% INDEPENDENT TALENT NETWORK</span>
 				</div>
 
@@ -87,7 +87,7 @@ export function LandingHero({
 					<span className="text-foreground">
 						Start shipping with{" "}
 					</span>
-					<span className="relative inline-block text-[#7FA600] dark:text-[#B8EF0D]">
+					<span className="relative inline-block text-ring">
 						elite talent.
 						<span className="absolute bottom-1.5 left-0 -z-10 h-2.5 sm:h-3 w-full bg-[#B8EF0D]/30 dark:bg-[#B8EF0D]/20" />
 					</span>
@@ -144,7 +144,7 @@ export function LandingHero({
 										? "Search by skill, role or domain (e.g. Next.js, PyTorch)..."
 										: "Search open contracts & projects (e.g. Full-Stack, LLM)..."
 								}
-								className="w-full bg-transparent text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/70 outline-hidden"
+								className="w-full bg-transparent text-xs sm:text-sm text-foreground placeholder:text-muted-foreground outline-hidden"
 							/>
 						</div>
 
@@ -293,11 +293,11 @@ export function LandingHero({
 					{/* Right Float: Match Speed */}
 					<div className="hidden rounded-2xl border border-border/80 bg-card p-4 shadow-sm backdrop-blur-xs md:block">
 						<div className="flex items-center gap-2.5">
-							<div className="grid size-8 place-items-center rounded-lg bg-[#FFFBEB] text-[#D97706] dark:bg-[#272318] dark:text-[#FBBF24] dark:border dark:border-[#423920]">
+							<div className="grid size-8 place-items-center rounded-lg bg-[#FFFBEB] text-warning dark:bg-[#272318] dark:text-[#FBBF24] dark:border dark:border-[#423920]">
 								<Zap className="size-4" />
 							</div>
 							<div>
-								<span className="block text-[11px] font-bold uppercase tracking-wider text-[#D97706] dark:text-[#FBBF24]">
+								<span className="block text-[11px] font-bold uppercase tracking-wider text-warning dark:text-[#FBBF24]">
 									Match Velocity
 								</span>
 								<span className="text-sm font-semibold text-foreground">

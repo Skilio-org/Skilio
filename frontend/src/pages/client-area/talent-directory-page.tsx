@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
+import CitySelect from "@/components/common/city-select"
+import { EmptyState } from "@/components/common/empty-state"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -10,13 +12,7 @@ import { loadTalentCards } from "@/components/talent/talent-api"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 import { useErrorToast } from "@/hooks/useErrorToast"
 import { SearchWithCategories } from "@/components/common/search-with-categories"
-import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
-
-const locationOptions = ["Worldwide", "Europe", "North America", "Asia Pacific"]
-const primaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
-const secondaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface hover:bg-surface-container-low"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 
 export function TalentDirectoryPage({
 	initialQuery,
@@ -31,7 +27,7 @@ export function TalentDirectoryPage({
 }) {
 	const [search, setSearch] = useState(initialQuery ?? "")
 	const [category, setCategory] = useState(initialCategory ?? "all")
-	const [location, setLocation] = useState("Worldwide")
+	const [location, setLocation] = useState("")
 	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
 	const [highlyRated, setHighlyRated] = useState(false)
 	const [sort, setSort] = useState("best-match")
@@ -77,7 +73,7 @@ export function TalentDirectoryPage({
 		submitSearch("")
 		setCategory("all")
 		onCategoryChange("all")
-		setLocation("Worldwide")
+		setLocation("")
 		setHourlyRate([0, 120])
 		setHighlyRated(false)
 	}
@@ -88,12 +84,7 @@ export function TalentDirectoryPage({
 					person.rate >= hourlyRate[0] &&
 					(hourlyRate[1] === 120 || person.rate <= hourlyRate[1]) &&
 					(!highlyRated || person.rating >= 4.9) &&
-					(location === "Worldwide" ||
-						(location === "Europe" &&
-							["France", "Portugal", "United Kingdom"].some((country) => person.location.includes(country))) ||
-						(location === "North America" &&
-							["Canada", "United States"].some((country) => person.location.includes(country))) ||
-						(location === "Asia Pacific" && person.location === "Singapore"))
+					(!location || person.location.toLowerCase().includes(location.toLowerCase()))
 				)
 			})
 			.sort((a, b) =>
@@ -103,7 +94,7 @@ export function TalentDirectoryPage({
 	const chips = [
 		...(search ? [{ label: search, remove: () => submitSearch("") }] : []),
 		...(category !== "all" ? [{ label: category, remove: () => setCategory("all") }] : []),
-		...(location !== "Worldwide" ? [{ label: location, remove: () => setLocation("Worldwide") }] : []),
+		...(location ? [{ label: location, remove: () => setLocation("") }] : []),
 		...(highlyRated ? [{ label: "4.9+ rating", remove: () => setHighlyRated(false) }] : []),
 		...(hourlyRate[0] !== 0 || hourlyRate[1] !== 120
 			? [
@@ -123,7 +114,7 @@ export function TalentDirectoryPage({
 			{label}
 		</label>
 	)
-	const filters = (group: string) => (
+	const filters = () => (
 		<div className="divide-y divide-outline-variant/50">
 			<div className="flex items-center justify-between gap-2 pb-4">
 				<h2 className="flex items-center gap-2 font-semibold text-body-md">
@@ -137,23 +128,17 @@ export function TalentDirectoryPage({
 			<fieldset className="space-y-2.5 py-4">
 				<legend className="sr-only">Location</legend>
 				<p className="mb-3 font-medium text-label-sm">Location</p>
-				{locationOptions.map((option) => (
-					<label key={option} className="flex cursor-pointer items-center gap-2 text-body-sm text-on-surface-variant">
-						<input
-							type="radio"
-							name={`${group}-location`}
-							checked={location === option}
-							onChange={() => setLocation(option)}
-							className="size-3.5 accent-primary"
-						/>
-						{option}
-					</label>
-				))}
+				<CitySelect
+					value={location}
+					emptyLabel="Any location"
+					onValueChange={setLocation}
+					className="h-10 w-full max-w-none rounded-lg border border-input"
+				/>
 			</fieldset>
 			<fieldset className="py-4">
-				<legend className="sr-only">Hourly Rate</legend>
+				<legend className="sr-only">Hourly rate</legend>
 				<div className="mb-4 flex items-center justify-between">
-					<span className="font-medium text-label-sm">Hourly Rate</span>
+					<span className="font-medium text-label-sm">Hourly rate</span>
 					<span className="text-caption text-outline">
 						${hourlyRate[0]} – ${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr
 					</span>
@@ -167,8 +152,8 @@ export function TalentDirectoryPage({
 				/>
 			</fieldset>
 			<fieldset className="space-y-2.5 pt-4">
-				<legend className="sr-only">Client Reviews</legend>
-				<p className="mb-3 font-medium text-label-sm">Client Reviews</p>
+				<legend className="sr-only">Client reviews</legend>
+				<p className="mb-3 font-medium text-label-sm">Client reviews</p>
 				{check("Rated 4.9 and above", highlyRated, () => setHighlyRated(!highlyRated))}
 			</fieldset>
 		</div>
@@ -212,7 +197,7 @@ export function TalentDirectoryPage({
 					aria-label="Talent filters"
 					className="hidden rounded-lg border border-outline-variant bg-surface-container-lowest p-5 lg:block"
 				>
-					{filters("desktop")}
+					{filters()}
 				</aside>
 				<section aria-label="Talent results" className="min-w-0">
 					<div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -238,7 +223,7 @@ export function TalentDirectoryPage({
 								type="button"
 								aria-label="Open talent filters"
 								onClick={() => setFiltersOpen(true)}
-								className={`${secondaryAction} lg:hidden`}
+								className={`${workspaceStyles.secondaryAction} lg:hidden`}
 							>
 								<SlidersHorizontal className="size-4" />
 								Filters
@@ -249,7 +234,7 @@ export function TalentDirectoryPage({
 									<SelectTrigger
 										size="sm"
 										aria-label="Sort talent"
-										className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] leading-4 text-on-surface shadow-none hover:border-outline dark:bg-surface-card dark:hover:bg-surface-container data-[state=open]:border-primary [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+										className="w-44 rounded-lg border-input bg-surface-container-lowest px-3 font-normal text-[12px] leading-4 text-on-surface shadow-none hover:border-outline dark:bg-surface-card dark:hover:bg-surface-container data-[state=open]:border-primary [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
 									>
 										<SelectValue />
 									</SelectTrigger>
@@ -288,16 +273,16 @@ export function TalentDirectoryPage({
 					</div>
 					{isPending && <p role="status">Loading professionals…</p>}
 					{!isPending && !isError && !results.length && (
-						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
-							<Search className="mx-auto mb-4 size-6 text-outline" />
-							<h2 className="font-semibold text-headline-md">No matching profiles</h2>
-							<p className="mt-2 text-body-sm text-on-surface-variant">
-								Try a broader skill, another location, or a different hourly rate.
-							</p>
-							<button type="button" onClick={clearAll} className={`${secondaryAction} mt-5`}>
-								Clear filters
-							</button>
-						</div>
+						<EmptyState
+							icon={Search}
+							title="No matching profiles"
+							description="Try a broader skill, another location, or a different hourly rate."
+							action={
+								<button type="button" onClick={clearAll} className={workspaceStyles.secondaryAction}>
+									Clear filters
+								</button>
+							}
+						/>
 					)}
 					{results.length > 0 && (
 						<div className="flex justify-center pt-8 pb-6">
@@ -305,7 +290,7 @@ export function TalentDirectoryPage({
 								type="button"
 								disabled={visibleCount >= results.length}
 								onClick={() => setVisibleCount((count) => count + 4)}
-								className={`${secondaryAction} px-6 disabled:opacity-60`}
+								className={`${workspaceStyles.secondaryAction} px-6 disabled:opacity-60`}
 							>
 								{visibleCount >= results.length ? "All professionals loaded" : "Load more professionals"}
 								<ChevronDown className="size-4 text-outline" />
@@ -321,8 +306,8 @@ export function TalentDirectoryPage({
 						<SheetDescription>Choose the professionals who fit your project.</SheetDescription>
 					</SheetHeader>
 					<div className="p-5">
-						{filters("mobile")}
-						<button type="button" onClick={() => setFiltersOpen(false)} className={`${primaryAction} mt-6 w-full`}>
+						{filters()}
+						<button type="button" onClick={() => setFiltersOpen(false)} className={`${workspaceStyles.primaryAction} mt-6 w-full`}>
 							Show {results.length} {results.length === 1 ? "professional" : "professionals"}
 						</button>
 					</div>

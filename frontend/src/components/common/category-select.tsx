@@ -1,4 +1,5 @@
 import { Check, ChevronDown } from "lucide-react"
+import { useState } from "react"
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -14,6 +15,11 @@ type CategorySelectProps = {
 	showAllCategories?: boolean
 	align?: "start" | "center" | "end"
 	contentClassName?: string
+	placeholder?: string
+	ariaLabel?: string
+	searchPlaceholder?: string
+	emptyText?: string
+	searchable?: boolean
 }
 
 export default function CategorySelect({
@@ -26,22 +32,32 @@ export default function CategorySelect({
 	showAllCategories = true,
 	align = "end",
 	contentClassName,
+	placeholder,
+	ariaLabel = "Select category",
+	searchPlaceholder = "Search categories...",
+	emptyText = "No category found.",
+	searchable = true,
 }: CategorySelectProps) {
 	const disabled = isLoading || isError
+	const [open, setOpen] = useState(false)
+	const choose = (next: string) => {
+		onValueChange(next)
+		setOpen(false)
+	}
 
-	const selectedLabel = value === "all" ? "All categories" : value
+	const selectedLabel = value === "all" ? "All categories" : value || placeholder
 
 	const triggerLabel = isLoading ? "Loading categories..." : isError ? "Failed to load categories" : selectedLabel
 
 	return (
-		<Popover>
+		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
 				<button
 					type="button"
-					aria-label="Select category"
+					aria-label={ariaLabel}
 					disabled={disabled}
 					className={cn(
-						"hidden h-9 min-w-40 max-w-52 items-center justify-between gap-2 border-outline-variant border-l px-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors sm:flex",
+						"group hidden h-9 min-w-40 max-w-52 items-center justify-between gap-2 border-outline-variant border-l px-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors sm:flex",
 						"hover:text-primary",
 						"disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-on-surface",
 						className,
@@ -49,7 +65,7 @@ export default function CategorySelect({
 				>
 					<span className="truncate">{triggerLabel}</span>
 
-					<ChevronDown className="size-3.5 shrink-0 text-current" />
+					<ChevronDown className="size-3.5 shrink-0 text-current transition-transform group-data-[state=open]:rotate-180" />
 				</button>
 			</PopoverTrigger>
 
@@ -57,19 +73,19 @@ export default function CategorySelect({
 				align={align}
 				sideOffset={8}
 				className={cn(
-					"w-64 rounded-lg border border-outline-variant bg-surface-container-lowest p-1 shadow-lg",
+					"w-[max(var(--radix-popover-trigger-width),16rem)] rounded-lg border border-outline-variant bg-surface-container-lowest p-1 shadow-lg",
 					contentClassName,
 				)}
 			>
 				<Command>
-					<CommandInput placeholder="Search categories..." />
+					{searchable && <CommandInput placeholder={searchPlaceholder} />}
 
 					<CommandList>
-						<CommandEmpty>No category found.</CommandEmpty>
+						<CommandEmpty>{emptyText}</CommandEmpty>
 
 						<CommandGroup>
 							{showAllCategories && (
-								<CommandItem value="All categories" onSelect={() => onValueChange("all")} className="cursor-pointer">
+								<CommandItem value="All categories" onSelect={() => choose("all")} className="cursor-pointer">
 									<span className="flex-1">All categories</span>
 
 									<Check className={cn("size-4 text-primary", value === "all" ? "opacity-100" : "opacity-0")} />
@@ -80,7 +96,7 @@ export default function CategorySelect({
 								<CommandItem
 									key={category}
 									value={category}
-									onSelect={() => onValueChange(category)}
+									onSelect={() => choose(category)}
 									className="cursor-pointer"
 								>
 									<span className="flex-1 truncate">{category}</span>

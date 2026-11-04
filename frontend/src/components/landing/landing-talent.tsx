@@ -166,7 +166,7 @@ export function LandingTalent({
 						className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
 					>
 						<span>Explore all 12,000+ vetted talent profiles</span>
-						<ArrowUpRight className="size-4 text-[#7FA600] dark:text-primary" />
+						<ArrowUpRight className="size-4 text-ring" />
 					</Link>
 				</div>
 			</div>

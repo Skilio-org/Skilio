@@ -1,4 +1,5 @@
 import { BriefcaseBusiness, Search } from "lucide-react"
+import { EmptyState } from "@/components/common/empty-state"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import type { ClientJob } from "./client-job-types"
 
@@ -78,25 +79,25 @@ export function ClientJobsList({
 					))}
 				</div>
 			) : (
-				<section className="rounded-lg border bg-surface-container-lowest px-6 py-16 text-center">
-					<BriefcaseBusiness className="mx-auto size-8 text-primary" />
-					<h2 className="mt-5 font-semibold text-xl">
-						{jobs.length ? "No matching jobs" : "Make room for your next project."}
-					</h2>
-					<p className="mx-auto mt-3 max-w-md text-on-surface-variant text-sm leading-6">
-						{jobs.length
+				<EmptyState
+					icon={BriefcaseBusiness}
+					title={jobs.length ? "No matching jobs" : "Make room for your next project"}
+					description={
+						jobs.length
 							? "Try another search or status."
-							: "Describe what you need, choose the skills, and set a budget. You can save a draft and finish it later."}
-					</p>
-					<button
-						type="button"
-						disabled={disabled}
-						onClick={jobs.length ? onClearFilters : onCreateJob}
-						className={`${workspaceStyles.primaryAction} mt-6`}
-					>
-						{jobs.length ? "Show all jobs" : "Create your first job"}
-					</button>
-				</section>
+							: "Describe what you need, choose the skills, and set a budget. You can save a draft and finish it later."
+					}
+					action={
+						<button
+							type="button"
+							disabled={disabled}
+							onClick={jobs.length ? onClearFilters : onCreateJob}
+							className={workspaceStyles.primaryAction}
+						>
+							{jobs.length ? "Show all jobs" : "Create your first job"}
+						</button>
+					}
+				/>
 			)}
 		</>
 	)

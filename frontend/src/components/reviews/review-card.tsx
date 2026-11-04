@@ -41,7 +41,7 @@ export function ReviewCard({ review, isOwnReview = false, onEdit, onDelete }: Re
 
 	return (
 		<article
-			className={`flex justify-between items-between flex-col rounded-xl border p-3  transition-colors ${isOwnReview ? "border-border bg-card hover:border-border/80" : "border-border bg-card hover:border-border/80"
+			className={`flex justify-between items-between flex-col rounded-lg border p-3  transition-colors ${isOwnReview ? "border-outline-variant bg-surface-container-lowest hover:border-outline-variant/80" : "border-outline-variant bg-surface-container-lowest hover:border-outline-variant/80"
 			}`}
 		>
 			<div className="flex flex-wrap items-start justify-between gap-3">
@@ -52,13 +52,13 @@ export function ReviewCard({ review, isOwnReview = false, onEdit, onDelete }: Re
 						className={cn(
 							"size-12 place-items-center border font-label-sm font-semibold shadow-2xs rounded",
 					)}/>
-					{/* <Monogram className="size-10 bg-muted text-muted-foreground text-xs font-medium">{initials}</Monogram> */}
+					{/* <Monogram className="size-10 bg-muted text-on-surface-variant text-xs font-medium">{initials}</Monogram> */}
 					<div>
 						<div className="flex items-center gap-2">
 							<h4 className="font-semibold text-sm text-foreground">{reviewerName}</h4>
 						</div>
 						<StarRatingDisplay rating={review.rating} size="xs" showScore />
-						<div className="mt-0.5 flex flex-wrap items-center gap-2 text-muted-foreground text-xs">
+						<div className="mt-0.5 flex flex-wrap items-center gap-2 text-on-surface-variant text-xs">
 							{formattedDate && <span>{formattedDate}</span>}
 							{isEdited && <span>· edited</span>}
 						</div>
@@ -73,7 +73,7 @@ export function ReviewCard({ review, isOwnReview = false, onEdit, onDelete }: Re
 								<Button
 									variant="ghost"
 									size="icon-sm"
-									className="text-muted-foreground hover:text-foreground"
+									className="text-on-surface-variant hover:text-foreground"
 									aria-label="Review actions"
 								>
 									<MoreHorizontal />
@@ -101,7 +101,7 @@ export function ReviewCard({ review, isOwnReview = false, onEdit, onDelete }: Re
 				</div>
 			</div>
 
-			<p className="mt-2 text-sm! text-muted-foreground text-md! leading-relaxed sm:text-base sm:leading-7">
+			<p className="mt-2 text-sm! text-on-surface-variant text-md! leading-relaxed sm:text-base sm:leading-7">
 				{review.comment}
 				{isOwnReview && (
 					<span className="underline text-xs py-1! px-2 rounded-4xl text-accent-cyan ml-1">

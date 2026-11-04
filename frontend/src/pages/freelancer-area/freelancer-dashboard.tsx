@@ -11,7 +11,8 @@ import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
 import QuickSavedSearch from "../common/quick-search"
-import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { EmptyState } from "@/components/common/empty-state"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { useErrorToast } from "@/hooks/useErrorToast"
 
 const FreelancerDashboardPage = () => {
@@ -93,41 +94,43 @@ const FreelancerDashboardPage = () => {
 
 			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
 				<section className="flex flex-col gap-6 lg:col-span-8">
-					<div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
-						<div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-							{dashboardFilters.map((item) => {
-								const active = filter === item
+					{dashboardFilters.length > 1 && (
+						<div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
+							<div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+								{dashboardFilters.map((item) => {
+									const active = filter === item
 
-								const count = item === "All work" ? jobs.length : jobs.filter((job) => job.category === item).length
+									const count = item === "All work" ? jobs.length : jobs.filter((job) => job.category === item).length
 
-								return (
-									<button
-										key={item}
-										type="button"
-										onClick={() => setFilter(item)}
-										aria-pressed={active}
-										className={
-											active
-												? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors dark:bg-on-surface dark:text-background"
-												: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
-										}
-									>
-										<span>{item === "All work" ? "All matches" : item}</span>
-
-										<span
+									return (
+										<button
+											key={item}
+											type="button"
+											onClick={() => setFilter(item)}
+											aria-pressed={active}
 											className={
 												active
-													? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-background/15 dark:text-background"
-													: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
+													? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors dark:bg-on-surface dark:text-background"
+													: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
 											}
 										>
-											{count}
-										</span>
-									</button>
-								)
-							})}
+											<span>{item === "All work" ? "All matches" : item}</span>
+
+											<span
+												className={
+													active
+														? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-background/15 dark:text-background"
+														: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
+												}
+											>
+												{count}
+											</span>
+										</button>
+									)
+								})}
+							</div>
 						</div>
-					</div>
+					)}
 
 					<div className="flex items-center justify-between px-1">
 						<div className="flex items-center gap-2">
@@ -154,21 +157,21 @@ const FreelancerDashboardPage = () => {
 							))}
 						</div>
 					) : (
-						<section className="grid min-h-72 place-items-center rounded-lg border border-outline-variant border-dashed bg-surface-container-lowest p-8 text-center">
-							<div>
-								<span className="mx-auto grid size-14 place-items-center rounded-lg border border-outline-variant bg-surface-container text-primary">
-									<BriefcaseBusiness className="size-6" strokeWidth={1.5} />
-								</span>
-
-								<h2 className="mt-5 font-headline-lg font-semibold text-headline-lg text-on-surface">
-									No opportunities in this category
-								</h2>
-
-								<p className="mx-auto mt-3 max-w-lg font-body-sm text-body-sm text-on-surface-variant leading-6">
-									Try another category or browse all available work.
-								</p>
-							</div>
-						</section>
+						<EmptyState
+							icon={BriefcaseBusiness}
+							title={filter === "All work" ? "No opportunities yet" : "No opportunities in this category"}
+							description={
+								filter === "All work"
+									? "New projects will appear here as clients post them. Check back soon, or explore the full job board."
+									: "Try another category or browse all available work."
+							}
+							action={
+								<Link to="/freelancer-jobs" className={workspaceStyles.secondaryAction}>
+									<Search className="size-4" />
+									Browse all jobs
+								</Link>
+							}
+						/>
 					)}
 
 					{filteredJobs.length > 0 && (

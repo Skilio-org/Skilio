@@ -11,8 +11,8 @@ import { useConversations } from "@/hooks/useConversations"
 
 const freelancerMenu = [
 	["/freelancer-dashboard", "Overview"],
-	["/freelancer-jobs", "Find Work"],
-	["/freelancer-saved-jobs", "Saved Jobs"],
+	["/freelancer-jobs", "Find work"],
+	["/freelancer-saved-jobs", "Saved jobs"],
 	["/freelancer-proposals", "Proposals"],
 	["/connects", "Connections"],
 	["/freelancer-messages", "Messages"],

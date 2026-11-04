@@ -1,5 +1,7 @@
+import CitySelect from "@/components/common/city-select"
+import { EmptyState } from "@/components/common/empty-state"
 import SearchWithCategories from "@/components/common/search-with-categories"
-import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -15,22 +17,17 @@ import { useState } from "react"
 
 const popularSearches = ["Product design", "React", "Content strategy", "Design systems", "Mobile app"]
 
-const primaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
-
-const secondaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface hover:bg-surface-container-low"
-
-export default function FreelancerJobsPage() {
+export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery?: string }) {
 	const { saved } = useSavedJobs()
 
 	const savedCount = saved.length
 
-	const [search, setSearch] = useState("")
+	const [search, setSearch] = useState(initialQuery)
 	const [category, setCategory] = useState("all")
 	const [types, setTypes] = useState<string[]>([])
 	const [credentials, setCredentials] = useState<string[]>([])
 	const [experience, setExperience] = useState<string[]>([])
+	const [location, setLocation] = useState("")
 	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
 	// const [commitment, setCommitment] = useState("")
 	const [sort, setSort] = useState("recommended")
@@ -54,7 +51,7 @@ export default function FreelancerJobsPage() {
 		fetchNextPage,
 		isFetchingNextPage,
 	} = useInfiniteQuery({
-		queryKey: ["freelancer-jobs", search, category, budgetType, hourlyRate, sortBy],
+		queryKey: ["freelancer-jobs", search, category, budgetType, hourlyRate, location, sortBy],
 		initialPageParam: 0,
 		queryFn: async ({ pageParam, signal }) => {
 			const { data } = await JobsService.readJobs({
@@ -64,6 +61,7 @@ export default function FreelancerJobsPage() {
 					q: search,
 					category: category === "all" ? undefined : category,
 					budget_type: budgetType,
+					location: location || undefined,
 					min_budget: hourlyRate[0] || undefined,
 					max_budget: hourlyRate[1] === 120 ? undefined : hourlyRate[1],
 					status: "open",
@@ -93,6 +91,7 @@ export default function FreelancerJobsPage() {
 		setTypes([])
 		setCredentials([])
 		setExperience([])
+		setLocation("")
 		setHourlyRate([0, 120])
 		// setCommitment("")
 		setVisibleCount(4)
@@ -130,6 +129,18 @@ export default function FreelancerJobsPage() {
 			label,
 			remove: () => toggle(experience, label, setExperience),
 		})),
+
+		...(location
+			? [
+					{
+						label: location,
+						remove: () => {
+							setLocation("")
+							setVisibleCount(4)
+						},
+					},
+				]
+			: []),
 
 		...(search
 			? [
@@ -199,9 +210,9 @@ export default function FreelancerJobsPage() {
 			</div>
 
 			<fieldset className="space-y-2.5 py-4">
-				<legend className="sr-only">Project Type</legend>
+				<legend className="sr-only">Project type</legend>
 
-				<p className="mb-3 font-medium text-label-sm">Project Type</p>
+				<p className="mb-3 font-medium text-label-sm">Project type</p>
 
 				{check("All project types", !types.length, () => {
 					setTypes([])
@@ -214,9 +225,9 @@ export default function FreelancerJobsPage() {
 			</fieldset>
 
 			<fieldset className="space-y-2.5 py-4">
-				<legend className="sr-only">Experience Level</legend>
+				<legend className="sr-only">Experience level</legend>
 
-				<p className="mb-3 font-medium text-label-sm">Experience Level</p>
+				<p className="mb-3 font-medium text-label-sm">Experience level</p>
 
 				{["Entry level", "Intermediate", "Expert / Principal"].map((label) =>
 					check(label, experience.includes(label), () => toggle(experience, label, setExperience)),
@@ -224,10 +235,26 @@ export default function FreelancerJobsPage() {
 			</fieldset>
 
 			<fieldset className="py-4">
-				<legend className="sr-only">Hourly Rate</legend>
+				<legend className="sr-only">Location</legend>
+
+				<p className="mb-3 font-medium text-label-sm">Location</p>
+
+				<CitySelect
+					value={location}
+					emptyLabel="Any location"
+					onValueChange={(value) => {
+						setLocation(value)
+						setVisibleCount(4)
+					}}
+					className="h-9 w-full max-w-none rounded-lg border border-input text-sm"
+				/>
+			</fieldset>
+
+			<fieldset className="py-4">
+				<legend className="sr-only">Hourly rate</legend>
 
 				<div className="mb-4 flex items-center justify-between">
-					<span className="font-medium text-label-sm">Hourly Rate</span>
+					<span className="font-medium text-label-sm">Hourly rate</span>
 
 					<span className="text-caption text-outline">
 						${hourlyRate[0]} – ${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr
@@ -322,7 +349,7 @@ export default function FreelancerJobsPage() {
 								type="button"
 								aria-label="Open job filters"
 								onClick={() => setFiltersOpen(true)}
-								className={`${secondaryAction} lg:hidden`}
+								className={`${workspaceStyles.secondaryAction} lg:hidden`}
 							>
 								<SlidersHorizontal className="size-4" />
 								Filters
@@ -335,7 +362,7 @@ export default function FreelancerJobsPage() {
 									<SelectTrigger
 										size="sm"
 										aria-label="Sort jobs"
-										className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+										className="w-44 rounded-lg border-input bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
 									>
 										<SelectValue />
 									</SelectTrigger>
@@ -370,22 +397,19 @@ export default function FreelancerJobsPage() {
 						))}
 					</div>
 
-					{isPending && <p role="status">Loading opportunities...</p>}
+					{isPending && <p role="status">Loading opportunities…</p>}
 
 					{!isPending && !isError && !filtered.length && !hasNextPage && (
-						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
-							<Search className="mx-auto mb-4 size-6 text-outline" />
-
-							<h2 className="font-semibold text-headline-md">No matching projects</h2>
-
-							<p className="mt-2 text-body-sm text-on-surface-variant">
-								Try a broader search, another category, or fewer filters.
-							</p>
-
-							<button type="button" onClick={clear} className={`${secondaryAction} mt-5`}>
-								Clear filters
-							</button>
-						</div>
+						<EmptyState
+							icon={Search}
+							title="No matching projects"
+							description="Try a broader search, another category, or fewer filters."
+							action={
+								<button type="button" onClick={clear} className={workspaceStyles.secondaryAction}>
+									Clear filters
+								</button>
+							}
+						/>
 					)}
 
 					{(filtered.length > 0 || hasNextPage) && (
@@ -402,7 +426,7 @@ export default function FreelancerJobsPage() {
 										})
 									}
 								}}
-								className={`${secondaryAction} px-6 disabled:opacity-60`}
+								className={`${workspaceStyles.secondaryAction} px-6 disabled:opacity-60`}
 							>
 								{isFetchingNextPage
 									? "Loading opportunities…"
@@ -428,7 +452,7 @@ export default function FreelancerJobsPage() {
 					<div className="p-5">
 						{filters()}
 
-						<button type="button" onClick={() => setFiltersOpen(false)} className={`${primaryAction} mt-6 w-full`}>
+						<button type="button" onClick={() => setFiltersOpen(false)} className={`${workspaceStyles.primaryAction} mt-6 w-full`}>
 							Show {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}
 						</button>
 					</div>

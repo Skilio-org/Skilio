@@ -2,6 +2,7 @@ import { JobFormSection, jobFormField } from "@/components/common/job-form-secti
 import CategorySelect from "@/components/common/category-select"
 import { SkillsSelect } from "@/components/common/skills-select"
 import { experienceLevels, jobDescriptionLimit } from "@/components/common/job-experience"
+import CitySelect from "@/components/common/city-select"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -98,6 +99,16 @@ export function ClientJobEditor({
 									</JobFormSection>
 
 									<div className="border-outline-variant border-t" />
+									<JobFormSection title="Location" description="Choose a Moroccan city, or keep it remote.">
+										<div className="mt-2">
+											<CitySelect
+												value={job.location}
+												onValueChange={(location) => onJobChange({ ...job, location })}
+												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-input"
+											/>
+										</div>
+									</JobFormSection>
+									<div className="border-outline-variant border-t" />
 									<JobFormSection title="Choose a category" description="Help the right freelancers find your project.">
 										<div className="mt-2">
 											<CategorySelect
@@ -106,8 +117,7 @@ export function ClientJobEditor({
 												onValueChange={(category) => onJobChange({ ...job, category })}
 												showAllCategories={false}
 												align="start"
-												contentClassName="w-80"
-												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-outline-variant px-3 hover:border-primary sm:flex"
+												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-input px-3 hover:border-primary sm:flex"
 											/>
 										</div>
 									</JobFormSection>
@@ -234,6 +244,12 @@ function ClientJobDetails({
 					{job.budget ? `$${job.budget}${job.type === "Hourly" ? "/hr" : ""}` : "Not set"} · {job.type}
 				</p>
 			</section>
+			{job.location && (
+				<section>
+					<h3 className="font-semibold">Location</h3>
+					<p className="mt-2 text-sm">{job.location}</p>
+				</section>
+			)}
 			<section>
 				<h3 className="font-semibold">Skills</h3>
 				<div className="mt-3 flex flex-wrap gap-2">

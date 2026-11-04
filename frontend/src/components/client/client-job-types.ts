@@ -7,6 +7,7 @@ export type ClientJob = {
 	skills: string[]
 	experienceLevel: ExperienceLevel | ""
 	category: string
+	location: string
 	type: string
 	budget: string
 	status: "Draft" | "Open" | "Closed"
@@ -19,6 +20,7 @@ export const blankClientJob: ClientJob = {
 	skills: [],
 	experienceLevel: "",
 	category: "Development",
+	location: "",
 	type: "Fixed price",
 	budget: "",
 	status: "Draft",
