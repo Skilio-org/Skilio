@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Search } from "lucide-react"
 import { useAccountRole } from "@/hooks/useAccountRole"
+import { queryKeys } from "@/lib/query-keys"
 
 const rowClass =
 	"group flex items-center justify-between rounded p-2 text-left transition-colors hover:bg-surface-container"
@@ -14,7 +15,7 @@ export const QuickSavedSearch = () => {
 		isLoading,
 		isError,
 	} = useQuery({
-		queryKey: ["recentSearch"],
+		queryKey: queryKeys.recentSearches,
 		queryFn: async () => {
 			const response = await SearchesService.readRecentSearches()
 			return response.data

@@ -17,7 +17,7 @@ import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { setAccountRole, useAccountRole } from "@/hooks/useAccountRole"
 import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
-import { getInitials } from "@/utils"
+import { getInitials } from "@/lib/format"
 
 type AccountRole = "freelancer" | "client"
 

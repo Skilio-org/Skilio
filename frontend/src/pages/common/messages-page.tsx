@@ -59,11 +59,6 @@ export function MessagesPage({
 	const queryClient = useQueryClient()
 
 	useEffect(() => {
-		console.log(JSON.stringify(profiles.data?.size))
-		console.log(JSON.stringify(conversations.data?.data.length))
-	}, [profiles.isPending, conversations.isPending])
-
-	useEffect(() => {
 		if (
 			conversations.isSuccess &&
 			SelectedUserId &&
@@ -71,7 +66,6 @@ export function MessagesPage({
 			!createConversation.isPending &&
 			creatingForUserRef.current !== SelectedUserId
 		) {
-			console.log("Creating new conversation with user:", SelectedUserId)
 			void createConversation
 				.mutateAsync(SelectedUserId)
 				.then((newConversation) => {

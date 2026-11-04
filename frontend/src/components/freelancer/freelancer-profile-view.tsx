@@ -4,7 +4,7 @@ import { type ReactNode, useRef, useState } from "react"
 import { Monogram, SkillTag } from "@/components/dashboard/dashboard-header"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
-export type ProfileViewEntry = {
+type ProfileViewEntry = {
 	id: string
 	title: string
 	category: string
@@ -14,14 +14,14 @@ export type ProfileViewEntry = {
 	imageUrl?: string
 }
 
-export type ProfileViewBackgroundEntry = {
+type ProfileViewBackgroundEntry = {
 	id: string
 	title: string
 	organization?: string
 	detail?: string
 }
 
-export type FreelancerProfileViewData = {
+type FreelancerProfileViewData = {
 	name: string
 	initials: string
 	avatarUrl?: string

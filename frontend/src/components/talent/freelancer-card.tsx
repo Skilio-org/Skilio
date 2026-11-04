@@ -16,7 +16,7 @@ import { useConnectionStatus, useSendConnectionRequest } from "@/hooks/useConnec
 import useAuth from "@/hooks/useAuth"
 import type { TalentCard } from "./talent-api"
 import { cn } from "@/lib/utils"
-import { getInitials } from "@/utils"
+import { getInitials } from "@/lib/format"
 
 export function FreelancerCard({
 	freelancer,

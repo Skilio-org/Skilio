@@ -14,6 +14,7 @@ import { useInfiniteQuery } from "@tanstack/react-query"
 import { JobsService } from "@/client"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useState } from "react"
+import { queryKeys } from "@/lib/query-keys"
 
 const popularSearches = ["Product design", "React", "Content strategy", "Design systems", "Mobile app"]
 
@@ -51,7 +52,7 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 		fetchNextPage,
 		isFetchingNextPage,
 	} = useInfiniteQuery({
-		queryKey: ["freelancer-jobs", search, category, budgetType, hourlyRate, location, sortBy],
+		queryKey: [...queryKeys.freelancerJobs, search, category, budgetType, hourlyRate, location, sortBy],
 		initialPageParam: 0,
 		queryFn: async ({ pageParam, signal }) => {
 			const { data } = await JobsService.readJobs({

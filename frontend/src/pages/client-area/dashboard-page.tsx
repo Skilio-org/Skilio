@@ -7,13 +7,14 @@ import { RecommendedFreelancers } from "@/components/dashboard/dashboard-recomme
 import { TalentSearch } from "@/components/dashboard/dashboard-talent-search"
 import useAuth from "@/hooks/useAuth"
 import QuickSavedSearch from "../common/quick-search"
+import { queryKeys } from "@/lib/query-keys"
 
 export function ClientDashboardPage() {
 	const { user } = useAuth()
 	const firstName = user?.full_name?.trim().split(/\s+/)[0]
 	const { data: activeJobsCount } = useQuery({
 		// Nested under "client-jobs" so saving or deleting a job refreshes this count too.
-		queryKey: ["client-jobs", "active-count"],
+		queryKey: queryKeys.clientJobsActiveCount,
 		enabled: Boolean(user),
 		queryFn: async ({ signal }) => {
 			const { data } = await JobsService.readMyJobs({ query: { skip: 0, limit: 1, status: "open" }, signal })

@@ -4,15 +4,16 @@ import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view"
 import type { FreelancerProfileDetailPublic } from "@/client"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
-import { getInitials } from "@/utils"
+import { getInitials } from "@/lib/format"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 import { FreelancerReviewsSection } from "@/components/reviews/freelancer-reviews-section"
 import { useQuery } from "@tanstack/react-query"
 import { loadTalentProfile } from "@/components/talent/talent-api"
+import { queryKeys } from "@/lib/query-keys"
 
 export function TalentProfilePage({ person: initialPerson }: { person: FreelancerProfileDetailPublic }) {
 	const { data: person } = useQuery({
-		queryKey: ["talent-profile", initialPerson.user_id],
+		queryKey: [...queryKeys.talentProfile, initialPerson.user_id],
 		initialData: initialPerson,
 		queryFn: () => loadTalentProfile(initialPerson.user_id),
 	})
