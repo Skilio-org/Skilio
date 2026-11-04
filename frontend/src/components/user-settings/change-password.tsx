@@ -79,7 +79,7 @@ const ChangePassword = () => {
 										<PasswordInput
 											data-testid="current-password-input"
 											placeholder="••••••••"
-											className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
+											className="h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 											aria-invalid={fieldState.invalid}
 											{...field}
 										/>
@@ -99,7 +99,7 @@ const ChangePassword = () => {
 										<PasswordInput
 											data-testid="new-password-input"
 											placeholder="••••••••"
-											className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
+											className="h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 											aria-invalid={fieldState.invalid}
 											{...field}
 										/>
@@ -119,7 +119,7 @@ const ChangePassword = () => {
 										<PasswordInput
 											data-testid="confirm-password-input"
 											placeholder="••••••••"
-											className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
+											className="h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 											aria-invalid={fieldState.invalid}
 											{...field}
 										/>

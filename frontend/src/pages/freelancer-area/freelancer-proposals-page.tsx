@@ -284,7 +284,7 @@ const FreelancerProposalsPage = () => {
 						<SelectTrigger
 							size="sm"
 							aria-label="Sort proposals"
-							className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-sm text-on-surface shadow-none hover:border-foreground/20 data-[size=sm]:h-12 data-[state=open]:border-primary dark:bg-surface-container-lowest dark:hover:bg-surface-container-lowest [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+							className="w-44 rounded-lg border-input bg-surface-container-lowest px-3 font-normal text-sm text-on-surface shadow-none hover:border-foreground/20 data-[size=sm]:h-12 data-[state=open]:border-primary dark:bg-surface-container-lowest dark:hover:bg-surface-container-lowest [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
 						>
 							<SelectValue />
 						</SelectTrigger>
@@ -484,7 +484,7 @@ const FreelancerProposalsPage = () => {
 
 										{/* Proposal Introduction Note Box (Inspired by connections note box) */}
 										<div className="rounded-lg border border-outline-variant/50 bg-surface-container-low/40 p-3 text-on-surface-variant text-xs leading-relaxed">
-											<div className="mb-1 flex items-center justify-between font-medium text-[11px] text-on-surface-variant/80">
+											<div className="mb-1 flex items-center justify-between font-medium text-[11px] text-on-surface-variant">
 												<span>{isDraft ? "Draft proposal" : "Your cover letter"}</span>
 												{formattedDate && <span className="tabular-nums">{formattedDate}</span>}
 											</div>

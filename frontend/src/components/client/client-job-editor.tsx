@@ -104,7 +104,7 @@ export function ClientJobEditor({
 											<CitySelect
 												value={job.location}
 												onValueChange={(location) => onJobChange({ ...job, location })}
-												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-outline-variant"
+												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-input"
 											/>
 										</div>
 									</JobFormSection>
@@ -117,7 +117,7 @@ export function ClientJobEditor({
 												onValueChange={(category) => onJobChange({ ...job, category })}
 												showAllCategories={false}
 												align="start"
-												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-outline-variant px-3 hover:border-primary sm:flex"
+												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-input px-3 hover:border-primary sm:flex"
 											/>
 										</div>
 									</JobFormSection>

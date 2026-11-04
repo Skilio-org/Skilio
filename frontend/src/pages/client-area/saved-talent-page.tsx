@@ -71,7 +71,7 @@ export function SavedTalentPage() {
 									<SelectTrigger
 										size="sm"
 										aria-label="Sort saved talent"
-										className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-sm text-on-surface shadow-none hover:border-foreground/20 data-[size=sm]:h-12 data-[state=open]:border-primary dark:bg-surface-container-lowest dark:hover:bg-surface-container-lowest [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+										className="w-44 rounded-lg border-input bg-surface-container-lowest px-3 font-normal text-sm text-on-surface shadow-none hover:border-foreground/20 data-[size=sm]:h-12 data-[state=open]:border-primary dark:bg-surface-container-lowest dark:hover:bg-surface-container-lowest [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
 									>
 										<SelectValue />
 									</SelectTrigger>

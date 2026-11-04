@@ -172,7 +172,7 @@ const UserInformation = () => {
 												<Input
 													type="text"
 													autoComplete="name"
-													className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
+													className="h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 													{...field}
 												/>
 											</FormControl>
@@ -190,7 +190,7 @@ const UserInformation = () => {
 												<Input
 													type="email"
 													autoComplete="email"
-													className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
+													className="h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 													{...field}
 												/>
 											</FormControl>
@@ -285,7 +285,7 @@ const UserInformation = () => {
 								onChange={(event) => setEmailChangePassword(event.target.value)}
 								required
 								autoFocus
-								className="mt-1 h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
+								className="mt-1 h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 							/>
 						</div>
 

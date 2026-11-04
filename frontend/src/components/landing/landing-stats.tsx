@@ -63,7 +63,7 @@ export function LandingStats() {
 
 				{/* Trust Logos Banner */}
 				<div className="mt-10 sm:mt-14 border-t border-border/50 pt-6 sm:pt-8">
-					<p className="text-center text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/80">
+					<p className="text-center text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
 						Trusted by product & engineering leaders at modern high-velocity companies
 					</p>
 					<div className="mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-12 lg:gap-16 opacity-75 grayscale hover:grayscale-0 transition-all">

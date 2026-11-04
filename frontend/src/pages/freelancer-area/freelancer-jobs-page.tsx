@@ -246,7 +246,7 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 						setLocation(value)
 						setVisibleCount(4)
 					}}
-					className="h-9 w-full max-w-none rounded-lg border border-outline-variant text-sm"
+					className="h-9 w-full max-w-none rounded-lg border border-input text-sm"
 				/>
 			</fieldset>
 
@@ -362,7 +362,7 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 									<SelectTrigger
 										size="sm"
 										aria-label="Sort jobs"
-										className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+										className="w-44 rounded-lg border-input bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
 									>
 										<SelectValue />
 									</SelectTrigger>

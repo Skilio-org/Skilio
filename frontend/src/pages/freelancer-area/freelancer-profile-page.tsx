@@ -248,7 +248,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			<Select value={profile[name]} onValueChange={(value) => update(name, value)}>
 				<SelectTrigger
 					id={`profile-${name}`}
-					className="mt-2 h-11 w-full rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-sm shadow-none hover:border-foreground/20 dark:bg-surface-container-lowest dark:hover:bg-surface-container-lowest"
+					className="mt-2 h-11 w-full rounded-lg border-input bg-surface-container-lowest px-3 font-normal text-sm shadow-none hover:border-foreground/20 dark:bg-surface-container-lowest dark:hover:bg-surface-container-lowest"
 				>
 					<SelectValue placeholder="Select an option" />
 				</SelectTrigger>
@@ -502,7 +502,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 													value={profile.location}
 													emptyLabel="Select city"
 													onValueChange={(city) => update("location", city)}
-													className="h-11 w-full max-w-none gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-normal text-sm shadow-none hover:border-foreground/20 hover:text-foreground focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25"
+													className="h-11 w-full max-w-none gap-2 rounded-lg border border-input bg-surface-container-lowest px-3 font-normal text-sm shadow-none hover:border-foreground/20 hover:text-foreground focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25"
 												/>
 											</div>
 										</div>
@@ -523,7 +523,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 												onValueChange={(category) => update("category", category)}
 												showAllCategories={false}
 												align="start"
-												className="!flex h-11 w-full min-w-0 max-w-none rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-normal text-sm hover:border-foreground/20 hover:text-foreground"
+												className="!flex h-11 w-full min-w-0 max-w-none rounded-lg border border-input bg-surface-container-lowest px-3 font-normal text-sm hover:border-foreground/20 hover:text-foreground"
 											/>
 										</div>
 									</div>

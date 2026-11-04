@@ -227,7 +227,7 @@ export function ClientProfilePage() {
 										setLocation(city)
 										setSaved(false)
 									}}
-									className="h-11 w-full max-w-none gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-sm shadow-xs hover:border-foreground/20 hover:text-foreground focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25"
+									className="h-11 w-full max-w-none gap-2 rounded-lg border border-input bg-surface-container-lowest px-4 text-sm shadow-xs hover:border-foreground/20 hover:text-foreground focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25"
 								/>
 							</div>
 							<div className="space-y-2">
@@ -413,7 +413,7 @@ function Field({ label, id, ...props }: { label: string; id: string } & React.Co
 			<Label htmlFor={id}>{label}</Label>
 			<Input
 				id={id}
-				className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
+				className="h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 				{...props}
 			/>
 		</div>

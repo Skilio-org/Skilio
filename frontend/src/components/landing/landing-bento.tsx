@@ -47,7 +47,7 @@ export function LandingBento() {
 							</div>
 							<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs font-medium">
 								<span className="text-foreground">Milestone 2: Production Staging Review</span>
-								<span className="inline-flex w-fit items-center rounded-md bg-[#FFFBEB] dark:bg-[#272318] dark:border dark:border-[#423920] px-2 py-0.5 text-[10px] font-bold text-[#D97706] dark:text-[#FBBF24]">
+								<span className="inline-flex w-fit items-center rounded-md bg-[#FFFBEB] dark:bg-[#272318] dark:border dark:border-[#423920] px-2 py-0.5 text-[10px] font-bold text-warning dark:text-[#FBBF24]">
 									Funds in Escrow ($4,200)
 								</span>
 							</div>
@@ -72,7 +72,7 @@ export function LandingBento() {
 						</div>
 
 						<div className="mt-5 sm:mt-6 rounded-xl border border-primary/30 bg-primary/5 p-3.5 sm:p-4">
-							<span className="block text-xs font-semibold uppercase tracking-wider text-[#7FA600] dark:text-primary">
+							<span className="block text-xs font-semibold uppercase tracking-wider text-ring">
 								Skilio Direct Guarantee
 							</span>
 							<p className="mt-1 font-display text-base sm:text-lg font-bold text-foreground">

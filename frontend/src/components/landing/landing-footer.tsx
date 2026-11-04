@@ -101,7 +101,7 @@ export function LandingFooter() {
 				</div>
 
 				{/* Bottom Bar */}
-				<div className="mt-12 sm:mt-14 flex flex-col gap-3 sm:gap-4 border-t border-white/10 pt-6 sm:pt-8 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
+				<div className="mt-12 sm:mt-14 flex flex-col gap-3 sm:gap-4 border-t border-white/10 pt-6 sm:pt-8 text-xs text-neutral-400 sm:flex-row sm:items-center sm:justify-between">
 					<p>© {new Date().getFullYear()} Skilio Inc. All rights reserved.</p>
 					<div className="flex flex-wrap items-center gap-3 sm:gap-4">
 						<Link to="/privacy" className="hover:text-white transition-colors">

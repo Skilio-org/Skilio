@@ -44,7 +44,7 @@ export const descriptions = [
 ]
 // Matches the shared Input used on the other forms (client profile, settings).
 const fieldBase =
-	"mt-2 w-full min-w-0 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 text-sm text-on-surface shadow-none outline-none transition-[color,box-shadow] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:opacity-50"
+	"mt-2 w-full min-w-0 rounded-lg border border-input bg-surface-container-lowest px-3 text-sm text-on-surface shadow-none outline-none transition-[color,box-shadow] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:opacity-50"
 export const fieldClass = `${fieldBase} h-11`
 export const textareaClass = `${fieldBase} min-h-28 resize-y py-2.5 leading-6`
 export const primary = `${workspaceStyles.primaryAction} disabled:opacity-50`

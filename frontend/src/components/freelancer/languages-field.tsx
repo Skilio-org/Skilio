@@ -43,7 +43,7 @@ const maxLength = 500
 
 // Same look as the other form fields (inputs, category and city pickers).
 const triggerClass =
-	"!flex h-11 w-full min-w-0 max-w-none rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-normal text-sm hover:border-foreground/20 hover:text-foreground"
+	"!flex h-11 w-full min-w-0 max-w-none rounded-lg border border-input bg-surface-container-lowest px-3 font-normal text-sm hover:border-foreground/20 hover:text-foreground"
 
 type Item = { name: string; level: string }
 

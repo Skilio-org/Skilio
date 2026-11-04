@@ -144,7 +144,7 @@ export function StarRatingInput({
 						{activeValue} {activeValue === 1 ? "star" : "stars"} — {RATING_LABELS[activeValue]}
 					</span>
 				) : (
-					<span className="text-on-surface-variant/80">Select a rating from 1 to 5 stars</span>
+					<span className="text-on-surface-variant">Select a rating from 1 to 5 stars</span>
 				)}
 			</p>
 		</div>

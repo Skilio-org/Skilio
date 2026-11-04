@@ -132,7 +132,7 @@ export function TalentDirectoryPage({
 					value={location}
 					emptyLabel="Any location"
 					onValueChange={setLocation}
-					className="h-10 w-full max-w-none rounded-lg border border-outline-variant"
+					className="h-10 w-full max-w-none rounded-lg border border-input"
 				/>
 			</fieldset>
 			<fieldset className="py-4">
@@ -234,7 +234,7 @@ export function TalentDirectoryPage({
 									<SelectTrigger
 										size="sm"
 										aria-label="Sort talent"
-										className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] leading-4 text-on-surface shadow-none hover:border-outline dark:bg-surface-card dark:hover:bg-surface-container data-[state=open]:border-primary [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+										className="w-44 rounded-lg border-input bg-surface-container-lowest px-3 font-normal text-[12px] leading-4 text-on-surface shadow-none hover:border-outline dark:bg-surface-card dark:hover:bg-surface-container data-[state=open]:border-primary [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
 									>
 										<SelectValue />
 									</SelectTrigger>

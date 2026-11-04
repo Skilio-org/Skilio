@@ -131,7 +131,7 @@ export function ResetPasswordPage({ token }: { token: string }) {
 												autoComplete="new-password"
 												placeholder="Create a new password"
 												disabled={mutation.isPending}
-												className="h-11 rounded-lg border-input bg-muted/30 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
+												className="h-11 rounded-lg border-input bg-muted/30 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
 												{...field}
 											/>
 										</FormControl>
@@ -153,7 +153,7 @@ export function ResetPasswordPage({ token }: { token: string }) {
 												autoComplete="new-password"
 												placeholder="Confirm your new password"
 												disabled={mutation.isPending}
-												className="h-11 rounded-lg border-input bg-muted/30 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
+												className="h-11 rounded-lg border-input bg-muted/30 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
 												{...field}
 											/>
 										</FormControl>

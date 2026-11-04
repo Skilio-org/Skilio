@@ -149,7 +149,7 @@ export function ReviewModal({
 							disabled={isSubmitting}
 							required
 							placeholder="What did you work on? How was communication, timeliness, and the quality of the deliverables?"
-							className="w-full resize-y rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5 text-on-surface text-sm leading-6 outline-none transition-[color,box-shadow] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50"
+							className="w-full resize-y rounded-lg border border-input bg-surface-container-lowest px-3 py-2.5 text-on-surface text-sm leading-6 outline-none transition-[color,box-shadow] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50"
 						/>
 						<p className="text-on-surface-variant text-xs">
 							Constructive, professional feedback helps freelancers showcase their work and helps other clients make

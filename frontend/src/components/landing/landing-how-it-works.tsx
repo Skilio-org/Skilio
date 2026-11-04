@@ -52,7 +52,7 @@ export function LandingHowItWorks() {
 						>
 							<div>
 								<div className="flex items-center justify-between">
-									<span className="font-display text-3xl font-extrabold text-[#7FA600] dark:text-primary">
+									<span className="font-display text-3xl font-extrabold text-ring">
 										{step}
 									</span>
 									<div className="grid size-11 place-items-center rounded-xl bg-muted/60 text-foreground">

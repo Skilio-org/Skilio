@@ -92,7 +92,7 @@ export const workspaceStyles = {
 		"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
 
 	destructiveAction:
-		"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-destructive px-4 font-label-md text-label-md font-medium text-white transition-colors hover:bg-destructive/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50",
+		"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-destructive px-4 font-label-md text-label-md font-medium text-on-error transition-colors hover:bg-destructive/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50",
 
 	iconButton:
 		"grid size-8 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-outline transition-colors hover:bg-surface-container hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
