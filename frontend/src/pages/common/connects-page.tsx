@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router"
 import { Briefcase, Check, Inbox, MessageSquare, Search, Send, UserCheck, UserMinus, Users, X } from "lucide-react"
 import { useMemo, useState } from "react"
-import { WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "@/components/dashboard/dashboard-header"
+import { EmptyState } from "@/components/common/empty-state"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -113,14 +114,14 @@ export function ConnectsPage() {
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6">
 			{/* Page Header matching Skilio workspace standard */}
 			<WorkspacePageHeader
-				eyebrow="Network & Collaboration"
+				eyebrow={`${role === "client" ? "Client" : "Freelancer"} workspace`}
 				title="Connections"
 				description="Manage verified partnerships, review incoming collaboration requests, and connect with professionals across Skilio."
-				meta={<span className="font-medium text-primary">Direct Messaging Unlocked</span>}
+				meta={<span className="font-medium text-primary">Direct messaging unlocked</span>}
 				action={
 					<Link to="/talent" search={{ q: undefined, category: undefined }} className={workspaceStyles.primaryAction}>
 						<Search className="size-4" />
-						<span>{role === "client" ? "Explore Freelancer Talent" : "Discover Verified Members"}</span>
+						<span>{role === "client" ? "Explore freelancer talent" : "Discover verified members"}</span>
 					</Link>
 				}
 			/>
@@ -246,60 +247,30 @@ export function ConnectsPage() {
 
 			{/* Unified Tab Navigation Bar (Matches Skilio's Dashboard & Proposals Tabbing) */}
 
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-outline-variant border-b">
-				{/* <nav aria-label="Job status" className="">
-				{["All jobs", "Draft", "Open", "Closed"].map((status) => (
+			<nav aria-label="Connection tabs" className="flex gap-6 overflow-x-auto border-outline-variant border-b">
+				{[
+					{ id: "network" as const, label: "My connections", count: acceptedCount },
+					{ id: "received" as const, label: "Received requests", count: receivedCount },
+					{ id: "sent" as const, label: "Sent inquiries", count: sentCount },
+				].map((t) => (
 					<button
+						key={t.id}
 						type="button"
-						key={status}
-						onClick={() => onTabChange(status)}
-						aria-pressed={tab === status}
-						>
-						{status}{" "}
-						<span className="ml-1 text-xs">
-							{jobs.filter((job) => status === "All jobs" || job.status === status).length}
-						</span>
+						onClick={() => setActiveTab(t.id)}
+						aria-pressed={activeTab === t.id}
+						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${activeTab === t.id ? "border-primary text-primary" : "border-transparent text-on-surface-variant"}`}
+					>
+						{t.label} <span className="ml-1 text-xs">{t.count}</span>
 					</button>
 				))}
-			</nav> */}
-				<nav aria-label="Connection tabs" className="flex gap-6 overflow-x-auto">
-					{[
-						{ id: "network" as const, label: "My Connections", icon: Users, count: acceptedCount },
-						{
-							id: "received" as const,
-							label: "Received Requests",
-							icon: Inbox,
-							count: receivedCount,
-							isAlert: receivedCount > 0,
-						},
-						{ id: "sent" as const, label: "Sent Inquiries", icon: Send, count: sentCount },
-					].map((t) => {
-						const active = activeTab === t.id
-
-						return (
-							<button
-								key={t.id}
-								type="button"
-								onClick={() => setActiveTab(t.id)}
-								aria-pressed={active}
-								className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm flex flex-row items-center ${active ? "border-primary text-primary" : "border-transparent text-on-surface-variant"}`}
-							>
-								<span className="m-2">{t.label}</span>
-								<span className="text-xs">
-									<span className="ml-1 text-xs">{t.count}</span>
-								</span>
-							</button>
-						)
-					})}
-				</nav>
-			</div>
+			</nav>
 			{/* Instant Search Filter */}
 			<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
 				<Search className="size-4 text-on-surface-variant" />
 				<input
 					type="text"
-					aria-label="Search your jobs"
-					placeholder="Filter by name, role or job..."
+					aria-label="Filter connections"
+					placeholder="Filter by name, role or job"
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.target.value)}
 					className="min-w-0 flex-1 bg-transparent text-sm outline-none"
@@ -309,7 +280,7 @@ export function ConnectsPage() {
 						type="button"
 						onClick={() => setSearchQuery("")}
 						aria-label="Clear filter"
-						className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-on-surface-variant hover:text-on-surface"
+						className="rounded p-0.5 text-on-surface-variant hover:text-on-surface"
 					>
 						<X className="size-3.5" />
 					</button>
@@ -324,35 +295,31 @@ export function ConnectsPage() {
 							<p className="font-label-md text-sm text-on-surface-variant">Loading your connections...</p>
 						</div>
 					) : filteredAccepted.length === 0 ? (
-						<WorkspaceSurface className="flex flex-col items-center justify-center p-12 text-center">
-							<div className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary mb-3">
-								<Users className="size-6" />
-							</div>
-							<h3 className="font-headline-sm font-semibold text-lg text-on-surface">
-								{searchQuery ? "No matching connections found" : "No active connections yet"}
-							</h3>
-							<p className="mt-1.5 max-w-md font-body-md text-sm text-on-surface-variant leading-relaxed">
-								{searchQuery
+						<EmptyState
+							icon={Users}
+							title={searchQuery ? "No matching connections found" : "No active connections yet"}
+							description={
+								searchQuery
 									? `No connections match "${searchQuery}". Try searching for another name, role, or project.`
-									: "Connect directly with verified clients and specialists to unlock direct messaging, shared proposals, and collaboration."}
-							</p>
-							<div className="mt-5 flex flex-wrap gap-2.5">
-								{searchQuery ? (
-									<Button variant="outline" size="sm" onClick={() => setSearchQuery("")}>
-										Clear Filter
-									</Button>
+									: "Connect directly with verified clients and specialists to unlock direct messaging, shared proposals, and collaboration."
+							}
+							action={
+								searchQuery ? (
+									<button type="button" onClick={() => setSearchQuery("")} className={workspaceStyles.secondaryAction}>
+										Clear filter
+									</button>
 								) : (
 									<Link
 										to="/talent"
 										search={{ q: undefined, category: undefined }}
-										className={workspaceStyles.primaryAction}
+										className={workspaceStyles.secondaryAction}
 									>
 										<Search className="size-4" />
-										<span>Browse Verified Members</span>
+										<span>Browse verified members</span>
 									</Link>
-								)}
-							</div>
-						</WorkspaceSurface>
+								)
+							}
+						/>
 					) : (
 						<div className="grid gap-4 md:grid-cols-2">
 							{filteredAccepted.map((conn) => {
@@ -463,24 +430,22 @@ export function ConnectsPage() {
 							<p className="font-label-md text-sm text-on-surface-variant">Loading incoming requests...</p>
 						</div>
 					) : filteredReceived.length === 0 ? (
-						<WorkspaceSurface className="flex flex-col items-center justify-center p-12 text-center">
-							<div className="grid size-12 place-items-center rounded-full bg-amber-500/10 text-amber-500 mb-3">
-								<Inbox className="size-6" />
-							</div>
-							<h3 className="font-headline-sm font-semibold text-lg text-on-surface">
-								{searchQuery ? "No matching incoming requests" : "No pending requests awaiting your response"}
-							</h3>
-							<p className="mt-1.5 max-w-md font-body-md text-sm text-on-surface-variant leading-relaxed">
-								{searchQuery
+						<EmptyState
+							icon={Inbox}
+							title={searchQuery ? "No matching incoming requests" : "No pending requests awaiting your response"}
+							description={
+								searchQuery
 									? `No requests match "${searchQuery}". Clear your search filter to see all incoming inquiries.`
-									: "When other verified members request to connect with you, their requests will appear here for your review."}
-							</p>
-							{searchQuery && (
-								<Button variant="outline" size="sm" onClick={() => setSearchQuery("")} className="mt-4">
-									Clear Filter
-								</Button>
-							)}
-						</WorkspaceSurface>
+									: "When other verified members request to connect with you, their requests will appear here for your review."
+							}
+							action={
+								searchQuery && (
+									<button type="button" onClick={() => setSearchQuery("")} className={workspaceStyles.secondaryAction}>
+										Clear filter
+									</button>
+								)
+							}
+						/>
 					) : (
 						<div className="space-y-3">
 							{filteredReceived.map((conn) => {
@@ -510,7 +475,7 @@ export function ConnectsPage() {
 															variant="outline"
 															className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]"
 														>
-															Pending Request
+															Pending request
 														</Badge>
 													</div>
 
@@ -521,7 +486,7 @@ export function ConnectsPage() {
 													{conn.job_post && (
 														<div className="flex items-center gap-1.5 text-xs text-primary font-medium mt-1">
 															<Briefcase className="size-3.5 shrink-0" />
-															<span className="truncate">Referencing Project: {conn.job_post.title}</span>
+															<span className="truncate">Referencing project: {conn.job_post.title}</span>
 														</div>
 													)}
 
@@ -535,26 +500,28 @@ export function ConnectsPage() {
 
 											{/* Symmetrical Action Buttons (Decline / Accept) */}
 											<div className="flex shrink-0 items-center gap-2.5 self-end md:self-center">
-												<Button
-													size="sm"
-													variant="secondary"
+												<button
+													type="button"
 													disabled={declineMutation.isPending || acceptMutation.isPending}
 													onClick={() => declineMutation.mutate(conn.id)}
-													className="h-8 min-w-[84px] items-center justify-center border border-outline-variant bg-surface-container-lowest gap-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 hover:border-destructive/30 rounded-lg transition-colors"
+													className={cn(
+														workspaceStyles.secondaryAction,
+														"h-8 px-3 text-xs text-destructive hover:border-destructive/30 hover:bg-destructive/10 disabled:opacity-50",
+													)}
 												>
 													<X className="size-3.5" />
 													<span>Decline</span>
-												</Button>
+												</button>
 
-												<Button
-													size="sm"
+												<button
+													type="button"
 													disabled={acceptMutation.isPending || declineMutation.isPending}
 													onClick={() => acceptMutation.mutate(conn.id)}
-													className="h-8 min-w-[84px] items-center justify-center border-0 border-none gap-1.5 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors"
+													className={cn(workspaceStyles.primaryAction, "h-8 px-3 text-xs disabled:opacity-50")}
 												>
 													<Check className="size-3.5" />
 													<span>Accept</span>
-												</Button>
+												</button>
 											</div>
 										</div>
 									</Card>
@@ -573,23 +540,19 @@ export function ConnectsPage() {
 							<p className="font-label-md text-sm text-on-surface-variant">Loading sent inquiries...</p>
 						</div>
 					) : filteredSent.length === 0 ? (
-						<WorkspaceSurface className="flex flex-col items-center justify-center p-12 text-center">
-							<div className="grid size-12 place-items-center rounded-full bg-sky-500/10 text-sky-500 mb-3">
-								<Send className="size-6" />
-							</div>
-							<h3 className="font-headline-sm font-semibold text-lg text-on-surface">
-								{searchQuery ? "No matching sent inquiries" : "No pending sent requests"}
-							</h3>
-							<p className="mt-1.5 max-w-md font-body-md text-sm text-on-surface-variant leading-relaxed">
-								{searchQuery
+						<EmptyState
+							icon={Send}
+							title={searchQuery ? "No matching sent inquiries" : "No pending sent requests"}
+							description={
+								searchQuery
 									? `No sent inquiries match "${searchQuery}". Clear your search filter to see all.`
-									: "You haven't sent any pending connection inquiries. Discover professionals through job posts and member profiles."}
-							</p>
-							<div className="mt-5">
-								{searchQuery ? (
-									<Button variant="outline" size="sm" onClick={() => setSearchQuery("")}>
-										Clear Filter
-									</Button>
+									: "You haven't sent any pending connection inquiries. Discover professionals through job posts and member profiles."
+							}
+							action={
+								searchQuery ? (
+									<button type="button" onClick={() => setSearchQuery("")} className={workspaceStyles.secondaryAction}>
+										Clear filter
+									</button>
 								) : (
 									<Link
 										to="/talent"
@@ -597,16 +560,17 @@ export function ConnectsPage() {
 										className={workspaceStyles.secondaryAction}
 									>
 										<Search className="size-4" />
-										<span>Browse Verified Members</span>
+										<span>Browse verified members</span>
 									</Link>
-								)}
-							</div>
-						</WorkspaceSurface>
+								)
+							}
+						/>
 					) : (
 						<div className="space-y-3">
 							{filteredSent.map((conn) => {
 								const receiverName = conn.receiver?.full_name || "Platform Member"
 								const receiverId = conn.receiver?.id || conn.receiver_id
+				const receiverRole = conn.receiver?.active_role === "client" ? "Client" : "Specialist"
 
 								return (
 									<Card
@@ -625,42 +589,46 @@ export function ConnectsPage() {
 
 												<div className="min-w-0 space-y-1">
 													<div className="flex flex-wrap items-center gap-2">
-														<span className="font-headline-sm font-semibold text-base text-on-surface">
-															Request to: {receiverName}
-														</span>
+														<h4 className="font-headline-sm font-semibold text-base text-on-surface">{receiverName}</h4>
 														<Badge
 															variant="outline"
 															className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]"
 														>
-															Pending Review
+															Pending review
 														</Badge>
 													</div>
 
+													<p className="text-xs text-on-surface-variant font-medium">
+														{receiverRole} • Awaiting their response
+													</p>
+
 													{conn.job_post && (
-														<p className="text-xs text-on-surface-variant flex items-center gap-1.5">
-															<Briefcase className="size-3.5 text-primary shrink-0" />
-															<span>Project: {conn.job_post.title}</span>
-														</p>
+														<div className="flex items-center gap-1.5 text-xs text-primary font-medium mt-1">
+															<Briefcase className="size-3.5 shrink-0" />
+															<span className="truncate">Referencing project: {conn.job_post.title}</span>
+														</div>
 													)}
 
 													{conn.note && (
-														<p className="mt-1 text-xs text-on-surface-variant italic bg-surface-container-low/40 border border-outline-variant/60 rounded-lg p-2.5 max-w-xl">
+														<div className="mt-2 text-xs rounded-lg border border-outline-variant/60 bg-surface-container-low/40 p-2.5 text-on-surface leading-relaxed max-w-2xl italic">
 															"{conn.note}"
-														</p>
+														</div>
 													)}
 												</div>
 											</div>
 
 											{/* Withdraw Action */}
-											<Button
-												size="sm"
-												variant="ghost"
+											<button
+												type="button"
 												disabled={withdrawMutation.isPending}
 												onClick={() => withdrawMutation.mutate(conn.id)}
-												className="h-8 px-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-xs text-on-surface-variant hover:text-destructive hover:border-destructive/30 transition-colors self-end sm:self-center"
+												className={cn(
+													workspaceStyles.secondaryAction,
+													"h-8 self-end px-3 text-xs hover:border-destructive/30 hover:text-destructive disabled:opacity-50 sm:self-center",
+												)}
 											>
 												Withdraw
-											</Button>
+											</button>
 										</div>
 									</Card>
 								)
@@ -676,7 +644,7 @@ export function ConnectsPage() {
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2 text-destructive">
 							<UserMinus className="size-5" />
-							<span>Remove Connection</span>
+							<span>Remove connection</span>
 						</DialogTitle>
 						<DialogDescription>
 							Are you sure you want to remove your connection with{" "}
@@ -705,7 +673,7 @@ export function ConnectsPage() {
 								}
 							}}
 						>
-							{removeMutation.isPending ? "Removing..." : "Remove Connection"}
+							{removeMutation.isPending ? "Removing..." : "Remove connection"}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

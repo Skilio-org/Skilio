@@ -23,7 +23,6 @@ import { JobFormSection, jobFormField } from "@/components/common/job-form-secti
 import {
 	SkillTag,
 	WorkspacePageHeader,
-	WorkspaceSurface,
 	workspaceStyles,
 } from "@/components/dashboard/dashboard-header"
 import { JobDetails } from "@/components/freelancer/freelancer-job-details"
@@ -40,6 +39,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { EmptyState } from "@/components/common/empty-state"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
@@ -89,7 +89,7 @@ const FreelancerProposalsPage = () => {
 		},
 		{
 			id: "Submitted" as const,
-			label: "Submitted Proposals",
+			label: "Submitted proposals",
 			icon: Send,
 			count: submittedCount,
 			isAlert: acceptedCount > 0,
@@ -238,51 +238,31 @@ const FreelancerProposalsPage = () => {
 				}
 			/>
 
-			{/* Unified Tab Navigation Bar (Styled identically to Connections page) */}
-			<div className="flex min-w-0 max-w-full flex-col gap-3 border-outline-variant border-b sm:flex-row sm:items-center sm:justify-between">
-				<nav aria-label="Proposal tabs" className="flex max-w-full gap-6 overflow-x-auto">
-					{tabs.map((t) => {
-						const active = tab === t.id
+			<nav aria-label="Proposal tabs" className="flex gap-6 overflow-x-auto border-outline-variant border-b">
+				{tabs.map((t) => (
+					<button
+						key={t.id}
+						type="button"
+						onClick={() => {
+							setTab(t.id)
+							setQuery("")
+						}}
+						aria-pressed={tab === t.id}
+						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${tab === t.id ? "border-primary text-primary" : "border-transparent text-on-surface-variant"}`}
+					>
+						{t.label} <span className="ml-1 text-xs">{t.count}</span>
+					</button>
+				))}
+			</nav>
 
-						return (
-							<button
-								key={t.id}
-								type="button"
-								onClick={() => {
-									setTab(t.id)
-									setQuery("")
-								}}
-								aria-pressed={active}
-								className={cn(
-									"flex min-h-12 shrink-0 flex-row items-center border-b-2 px-1 font-medium text-sm transition-colors",
-									active
-										? "border-primary text-primary"
-										: "border-transparent text-on-surface-variant hover:text-on-surface",
-								)}
-							>
-								<span className="py-2 pr-1.5">{t.label}</span>
-								<span
-									className={cn(
-										"ml-1 rounded-full px-2 py-0.5 font-semibold text-xs tabular-nums",
-										active ? "bg-primary/10 text-primary" : "bg-surface-container text-on-surface-variant",
-									)}
-								>
-									{t.count}
-								</span>
-							</button>
-						)
-					})}
-				</nav>
-			</div>
-
-			{/* Instant Search Filter & Sort Selector (Styled identically to Connections page filter) */}
+			{/* Instant search filter & sort selector */}
 			<div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<label className="relative flex min-h-12 flex-1 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4 transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
 					<Search className="size-4 shrink-0 text-on-surface-variant" />
 					<input
 						type="text"
 						aria-label="Filter proposals"
-						placeholder="Filter by project, client, or skill..."
+						placeholder="Filter by project, client, or skill"
 						value={query}
 						onChange={(e) => setQuery(e.target.value)}
 						className="min-w-0 flex-1 bg-transparent text-on-surface text-sm outline-none placeholder:text-outline"
@@ -300,7 +280,7 @@ const FreelancerProposalsPage = () => {
 				</label>
 
 				<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
-					<span className="font-caption text-caption text-outline">Sort by:</span>
+					<span className="font-caption text-caption text-outline">Sort:</span>
 					<Select value={sort} onValueChange={setSort}>
 						<SelectTrigger
 							size="sm"
@@ -317,7 +297,7 @@ const FreelancerProposalsPage = () => {
 							{[
 								["recent", "Newest first"],
 								["title", "Project title"],
-								["budget", "Budget: High to low"],
+								["budget", "Highest budget"],
 							].map(([value, label]) => (
 								<SelectItem
 									key={value}
@@ -360,35 +340,25 @@ const FreelancerProposalsPage = () => {
 						))}
 					</div>
 				) : visibleProposals.length === 0 ? (
-					<WorkspaceSurface className="flex flex-col items-center justify-center p-12 text-center">
-						<div className="mb-3 grid size-12 place-items-center rounded-full bg-primary/10 text-primary">
-							{tab === "Drafts" ? (
-								<FilePenLine className="size-6" />
-							) : tab === "Submitted" ? (
-								<Send className="size-6" />
+					<EmptyState
+						icon={tab === "Drafts" ? FilePenLine : tab === "Submitted" ? Send : Archive}
+						title={query ? "No matching proposals found" : emptyTitle}
+						description={
+							query ? `No proposals match "${query}". Try searching for another keyword or skill.` : emptyDescription
+						}
+						action={
+							query ? (
+								<button type="button" onClick={() => setQuery("")} className={workspaceStyles.secondaryAction}>
+									Clear filter
+								</button>
 							) : (
-								<Archive className="size-6" />
-							)}
-						</div>
-						<h3 className="font-headline-sm font-semibold text-lg text-on-surface">
-							{query ? "No matching proposals found" : emptyTitle}
-						</h3>
-						<p className="mt-1.5 max-w-md font-body-md text-on-surface-variant text-sm leading-relaxed">
-							{query ? `No proposals match "${query}". Try searching for another keyword or skill.` : emptyDescription}
-						</p>
-						<div className="mt-5 flex flex-wrap gap-2.5">
-							{query ? (
-								<Button variant="outline" size="sm" onClick={() => setQuery("")}>
-									Clear Filter
-								</Button>
-							) : (
-								<Link to="/freelancer-jobs" className={workspaceStyles.primaryAction}>
+								<Link to="/freelancer-jobs" className={workspaceStyles.secondaryAction}>
 									<Search className="size-4" />
-									<span>Browse Opportunities</span>
+									<span>Browse opportunities</span>
 								</Link>
-							)}
-						</div>
-					</WorkspaceSurface>
+							)
+						}
+					/>
 				) : (
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 						{visibleProposals.map((draft) => {
@@ -680,10 +650,10 @@ const FreelancerProposalsPage = () => {
 							)}
 							<span>
 								{itemToWithdraw?.rawStatus === "draft"
-									? "Discard Draft"
+									? "Discard draft"
 									: itemToWithdraw?.rawStatus === "rejected"
-										? "Delete Proposal Record"
-										: "Withdraw Proposal"}
+										? "Delete proposal record"
+										: "Withdraw proposal"}
 							</span>
 						</DialogTitle>
 						<DialogDescription>
@@ -771,7 +741,7 @@ const ProposalEditor = ({
 		<section className="flex min-h-0 min-w-0 flex-1 flex-col">
 			<div className="border-border border-b px-6 py-6 sm:px-8">
 				<p className="mb-2 font-semibold text-primary text-xs uppercase tracking-wider">
-					{readOnly ? "Submitted Application" : "Your Next Opportunity"}
+					{readOnly ? "Submitted application" : "Your next opportunity"}
 				</p>
 
 				<SheetTitle className="wrap-break-word font-semibold text-2xl text-foreground tracking-tight">

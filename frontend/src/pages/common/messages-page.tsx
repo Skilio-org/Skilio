@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/common/empty-state"
 import { useNavigate } from "@tanstack/react-router"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { useEffect, useRef, useState } from "react"
@@ -19,7 +19,7 @@ import type { ChatMessagePublic, ConversationDetailPublic } from "@/client/types
 import { chatKeys } from "@/data/chat-keys"
 import { useQueryClient } from "@tanstack/react-query"
 import useAuth from "@/hooks/useAuth"
-import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 
 export function MessagesPage({
 	SelectedUserId,
@@ -333,13 +333,18 @@ export function MessagesPage({
 							</AlertDescription>
 						</Alert>
 						{!profiles.isPending && (
-							<Button variant="outline" disabled={profiles.isFetching} onClick={() => void profiles.refetch()}>
+							<button
+								type="button"
+								disabled={profiles.isFetching}
+								onClick={() => void profiles.refetch()}
+								className={`${workspaceStyles.secondaryAction} disabled:opacity-50`}
+							>
 								{profiles.isFetching ? "Loading…" : "Reload profile"}
-							</Button>
+							</button>
 						)}
-						<Button variant="outline" onClick={() => onSelectContact("")}>
+						<button type="button" onClick={() => onSelectContact("")} className={workspaceStyles.secondaryAction}>
 							Back to conversations
-						</Button>
+						</button>
 					</section>
 				) : selectedConversationId !== undefined ? (
 					<MessageThread
@@ -378,15 +383,12 @@ export function MessagesPage({
 						onSend={() => send(draft)}
 					/>
 				) : (
-					<section className="flex flex-col items-center justify-center gap-4 p-6 text-center">
-						<div className="p-4 flex items-center justify-center rounded-full bg-surface-container-lowest dark:bg-surface-panel">
-							<InboxIcon className="size-12 text-on-surface-variant" />
-						</div>
-						<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Select a conversation</h2>
-						<p className="font-body-md text-body-md text-on-surface-variant">
-							Choose a {clientMode ? "freelancer" : "client"} from the list to view your conversation.
-						</p>
-					</section>
+					<EmptyState
+						icon={InboxIcon}
+						title="Select a conversation"
+						description={`Choose a ${clientMode ? "freelancer" : "client"} from the list to view your conversation.`}
+						className="h-full rounded-none border-0 bg-transparent"
+					/>
 				)}
 			</div>
 		</div>

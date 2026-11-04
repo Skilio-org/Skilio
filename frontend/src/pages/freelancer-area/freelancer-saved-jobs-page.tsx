@@ -1,19 +1,14 @@
 import { Link } from "@tanstack/react-router"
 import { Bookmark, Search, Upload } from "lucide-react"
 import { useState } from "react"
+import { EmptyState } from "@/components/common/empty-state"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
 import QuickSavedSearch from "../common/quick-search"
-import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { useErrorToast } from "@/hooks/useErrorToast"
-
-const primaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
-const secondaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface hover:bg-surface-container-low"
-const panel = "rounded-lg border border-outline-variant bg-surface-container-lowest p-5"
 
 export default function FreelancerSavedJobsPage() {
 	const { saved, savedJobs, savedAt, loaded, error } = useSavedJobs()
@@ -60,33 +55,40 @@ export default function FreelancerSavedJobsPage() {
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<WorkspacePageHeader
 				eyebrow="Freelancer workspace"
-				title="Saved Jobs"
+				title="Saved jobs"
 				description="Review and manage roles you’ve bookmarked. Keep your next opportunity in sight and get ready to apply."
-				meta={<span className="font-medium text-primary">bookmarked opportunities</span>}
+				meta={
+					<span className="font-medium text-primary">
+						{allSaved.length} bookmarked {allSaved.length === 1 ? "job" : "jobs"}
+					</span>
+				}
 				action={
 					<div className="flex shrink-0 flex-wrap items-center gap-2.5">
 						<button
 							type="button"
 							onClick={exportList}
 							disabled={!allSaved.length}
-							className={`${secondaryAction} disabled:opacity-50`}
+							className={`${workspaceStyles.secondaryAction} disabled:opacity-50`}
 						>
 							<Upload className="size-4" />
 							Export list
 						</button>
-						<Link to="/freelancer-jobs" className={primaryAction}>
+						<Link to="/freelancer-jobs" className={workspaceStyles.primaryAction}>
 							<Search className="size-4" />
 							Browse more jobs
 						</Link>
 					</div>
 				}
 			/>
-			<div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2.1fr)_minmax(280px,1fr)] lg:gap-8">
-				<section aria-label="Saved opportunities" className="min-w-0 space-y-5">
+			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+				<section aria-label="Saved opportunities" className="flex min-w-0 flex-col gap-6 lg:col-span-8">
+					{allSaved.length > 0 && (
 					<div className="flex flex-wrap items-center justify-between gap-3">
-						<div className="flex min-w-0 flex-wrap gap-1.5" />
+						<p role="status" className="font-medium text-body-sm">
+							Showing {filtered.length} of {allSaved.length} saved {allSaved.length === 1 ? "job" : "jobs"}
+						</p>
 						<div className="flex items-center gap-2">
-							<span className="font-caption text-caption text-outline">Sort by:</span>
+							<span className="font-caption text-caption text-outline">Sort:</span>
 							<Select value={sort} onValueChange={setSort}>
 								<SelectTrigger
 									size="sm"
@@ -117,49 +119,53 @@ export default function FreelancerSavedJobsPage() {
 							</Select>
 						</div>
 					</div>
-					<div className="flex flex-col gap-3.5">
-						{filtered.map((job) => (
-							<FreelancerJobCard key={job.id} {...job} savedView />
-						))}
-					</div>
+					)}
+					{filtered.length > 0 && (
+						<div className="flex flex-col gap-3.5">
+							{filtered.map((job) => (
+								<FreelancerJobCard key={job.id} {...job} savedView />
+							))}
+						</div>
+					)}
 					{!filtered.length && (
-						<div className={`${panel} py-16 text-center`}>
-							<Bookmark className="mx-auto size-7 text-outline" />
-							<h2 className="mt-4 font-headline-md font-semibold text-headline-md">
-								{!loaded
+						<EmptyState
+							icon={Bookmark}
+							title={
+								!loaded
 									? "Loading your saved jobs…"
 									: allSaved.length
 										? "No matching saved jobs"
-										: "Your shortlist starts here"}
-							</h2>
-							<p className="mx-auto mt-2 max-w-sm text-body-sm text-on-surface-variant leading-relaxed">
-								{allSaved.length
+										: "Your shortlist starts here"
+							}
+							description={
+								allSaved.length
 									? "Try another category or search to find your saved opportunities."
-									: "Bookmark a project on the jobs page and it will appear here."}
-							</p>
-							{allSaved.length ? (
-								<button
-									type="button"
-									onClick={() => {
-										setQuery("")
-										setCategory("all")
-									}}
-									className={`${secondaryAction} mt-5`}
-								>
-									Clear filters
-								</button>
-							) : (
-								<Link to="/freelancer-jobs" className={`${primaryAction} mt-5`}>
-									Explore work
-								</Link>
-							)}
-						</div>
+									: "Bookmark a project on the jobs page and it will appear here. Saved jobs are easy to compare and apply to later."
+							}
+							action={
+								loaded &&
+								(allSaved.length ? (
+									<button
+										type="button"
+										onClick={() => {
+											setQuery("")
+											setCategory("all")
+										}}
+										className={workspaceStyles.secondaryAction}
+									>
+										Clear filters
+									</button>
+								) : (
+									<Link to="/freelancer-jobs" className={workspaceStyles.secondaryAction}>
+										<Search className="size-4" />
+										Browse all jobs
+									</Link>
+								))
+							}
+						/>
 					)}
-					<p role="status" className="pt-3 font-caption text-caption text-outline">
-						Showing {filtered.length} of {allSaved.length} saved {allSaved.length === 1 ? "contract" : "contracts"}
-					</p>
 				</section>
-				<aside aria-label="Application tools" className="flex min-w-0 flex-col gap-5">
+				<aside aria-label="Application tools" className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-20 lg:col-span-4">
 					<QuickSavedSearch />
 				</aside>
 			</div>

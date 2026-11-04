@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import CitySelect from "@/components/common/city-select"
+import { EmptyState } from "@/components/common/empty-state"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -11,12 +12,7 @@ import { loadTalentCards } from "@/components/talent/talent-api"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
 import { useErrorToast } from "@/hooks/useErrorToast"
 import { SearchWithCategories } from "@/components/common/search-with-categories"
-import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
-
-const primaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
-const secondaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface hover:bg-surface-container-low"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 
 export function TalentDirectoryPage({
 	initialQuery,
@@ -140,9 +136,9 @@ export function TalentDirectoryPage({
 				/>
 			</fieldset>
 			<fieldset className="py-4">
-				<legend className="sr-only">Hourly Rate</legend>
+				<legend className="sr-only">Hourly rate</legend>
 				<div className="mb-4 flex items-center justify-between">
-					<span className="font-medium text-label-sm">Hourly Rate</span>
+					<span className="font-medium text-label-sm">Hourly rate</span>
 					<span className="text-caption text-outline">
 						${hourlyRate[0]} – ${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr
 					</span>
@@ -156,8 +152,8 @@ export function TalentDirectoryPage({
 				/>
 			</fieldset>
 			<fieldset className="space-y-2.5 pt-4">
-				<legend className="sr-only">Client Reviews</legend>
-				<p className="mb-3 font-medium text-label-sm">Client Reviews</p>
+				<legend className="sr-only">Client reviews</legend>
+				<p className="mb-3 font-medium text-label-sm">Client reviews</p>
 				{check("Rated 4.9 and above", highlyRated, () => setHighlyRated(!highlyRated))}
 			</fieldset>
 		</div>
@@ -227,7 +223,7 @@ export function TalentDirectoryPage({
 								type="button"
 								aria-label="Open talent filters"
 								onClick={() => setFiltersOpen(true)}
-								className={`${secondaryAction} lg:hidden`}
+								className={`${workspaceStyles.secondaryAction} lg:hidden`}
 							>
 								<SlidersHorizontal className="size-4" />
 								Filters
@@ -277,16 +273,16 @@ export function TalentDirectoryPage({
 					</div>
 					{isPending && <p role="status">Loading professionals…</p>}
 					{!isPending && !isError && !results.length && (
-						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
-							<Search className="mx-auto mb-4 size-6 text-outline" />
-							<h2 className="font-semibold text-headline-md">No matching profiles</h2>
-							<p className="mt-2 text-body-sm text-on-surface-variant">
-								Try a broader skill, another location, or a different hourly rate.
-							</p>
-							<button type="button" onClick={clearAll} className={`${secondaryAction} mt-5`}>
-								Clear filters
-							</button>
-						</div>
+						<EmptyState
+							icon={Search}
+							title="No matching profiles"
+							description="Try a broader skill, another location, or a different hourly rate."
+							action={
+								<button type="button" onClick={clearAll} className={workspaceStyles.secondaryAction}>
+									Clear filters
+								</button>
+							}
+						/>
 					)}
 					{results.length > 0 && (
 						<div className="flex justify-center pt-8 pb-6">
@@ -294,7 +290,7 @@ export function TalentDirectoryPage({
 								type="button"
 								disabled={visibleCount >= results.length}
 								onClick={() => setVisibleCount((count) => count + 4)}
-								className={`${secondaryAction} px-6 disabled:opacity-60`}
+								className={`${workspaceStyles.secondaryAction} px-6 disabled:opacity-60`}
 							>
 								{visibleCount >= results.length ? "All professionals loaded" : "Load more professionals"}
 								<ChevronDown className="size-4 text-outline" />
@@ -311,7 +307,7 @@ export function TalentDirectoryPage({
 					</SheetHeader>
 					<div className="p-5">
 						{filters()}
-						<button type="button" onClick={() => setFiltersOpen(false)} className={`${primaryAction} mt-6 w-full`}>
+						<button type="button" onClick={() => setFiltersOpen(false)} className={`${workspaceStyles.primaryAction} mt-6 w-full`}>
 							Show {results.length} {results.length === 1 ? "professional" : "professionals"}
 						</button>
 					</div>

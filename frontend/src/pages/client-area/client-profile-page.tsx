@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Camera, CheckCircle2, ImageUp } from "lucide-react"
+import { Camera, CheckCircle2, Globe, ImageUp, MapPin, Users } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { type ClientProfilePublic, ClientProfilesService, UsersService } from "@/client"
 
-import { Monogram, WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header"
-import { Button } from "@/components/ui/button"
+import { Monogram, WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import {
 	Dialog,
 	DialogContent,
@@ -21,6 +20,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { markAccountAvatarUpdated, useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import useAuth from "@/hooks/useAuth"
 import { getInitials } from "@/utils"
+
+const companySizeLabels: Record<string, string> = {
+	solo: "Just me",
+	"2-10": "2–10 people",
+	"11-50": "11–50 people",
+	"51-200": "51–200 people",
+	"201-plus": "201+ people",
+}
 
 export function ClientProfilePage() {
 	const { user } = useAuth()
@@ -118,15 +125,20 @@ export function ClientProfilePage() {
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<WorkspacePageHeader
-				eyebrow="Client workspace / Profile"
+				eyebrow="Client workspace"
 				title="Client profile"
 				description="Help independent professionals understand who you are and what working with you will feel like."
-				action=""
+				meta={
+					<span className="font-medium text-primary">
+						{[company, companyRole, website, location, companySize].filter((value) => value.trim()).length} of 5 details
+						added
+					</span>
+				}
 			/>
-			<div className="grid items-start gap-6 lg:grid-cols-[1fr_320px]">
+			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
 				<form
 					onSubmit={handleSubmit}
-					className="space-y-8 rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-8"
+					className="space-y-8 rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-8 lg:col-span-8"
 				>
 					<div className="flex flex-col gap-5 border-outline-variant border-b pb-8 sm:flex-row sm:items-center">
 						<Monogram className="relative size-24 bg-brand-100 text-2xl text-brand-800">
@@ -248,30 +260,67 @@ export function ClientProfilePage() {
 								Changes saved
 							</span>
 						)}
-						<Button type="reset" onClick={handleCancel} variant="outline" className="min-h-9 rounded-lg px-5">
+						<button type="reset" onClick={handleCancel} className={workspaceStyles.secondaryAction}>
 							Cancel
-						</Button>
-						<Button type="submit" disabled={updateMutation.isPending || isLoading} className="min-h-9 rounded-lg px-6">
+						</button>
+						<button
+							type="submit"
+							disabled={updateMutation.isPending || isLoading}
+							className={`${workspaceStyles.primaryAction} disabled:opacity-50`}
+						>
 							{updateMutation.isPending ? "Saving…" : "Save profile"}
-						</Button>
+						</button>
 					</div>
 				</form>
-				<aside className="space-y-5 lg:sticky lg:top-24">
+				<aside className="space-y-5 lg:sticky lg:top-20 lg:col-span-4">
 					<WorkspaceSurface className="p-5">
 						<p className="font-medium text-caption text-on-surface-variant">Your introduction</p>
-						<h2 className="mt-3 break-words font-semibold text-headline-md">{displayName}</h2>
-						<p className="mt-1 break-words text-body-sm text-on-surface-variant">
-							{[companyRole, company].filter(Boolean).join(" · ") || "Add your role and company"}
-						</p>
-						{location && <p className="mt-3 break-words text-body-sm text-on-surface-variant">{location}</p>}
-						{website && <p className="mt-2 break-all text-body-sm text-on-surface-variant">{website}</p>}
+						<div className="mt-4 flex items-center gap-3.5">
+							<Monogram className="relative size-14 shrink-0 bg-brand-100 text-lg text-brand-800">
+								{avatarUrl && !avatarFailed ? (
+									<img
+										src={avatarUrl}
+										alt=""
+										className="absolute inset-0 size-full rounded-lg object-cover"
+										onError={() => setAvatarFailed(true)}
+									/>
+								) : (
+									getInitials(displayName)
+								)}
+							</Monogram>
+							<div className="min-w-0">
+								<h2 className="break-words font-semibold text-headline-sm">{displayName}</h2>
+								<p className="mt-0.5 break-words text-body-sm text-on-surface-variant">
+									{[companyRole, company].filter(Boolean).join(" · ") || "Add your role and company"}
+								</p>
+							</div>
+						</div>
+						{(location || website || companySize) && (
+							<dl className="mt-4 space-y-2 text-body-sm text-on-surface-variant">
+								{location && (
+									<div className="flex items-center gap-2">
+										<MapPin className="size-4 shrink-0 text-outline" />
+										<dd className="break-words">{location}</dd>
+									</div>
+								)}
+								{website && (
+									<div className="flex items-center gap-2">
+										<Globe className="size-4 shrink-0 text-outline" />
+										<dd className="break-all">{website}</dd>
+									</div>
+								)}
+								{companySize && (
+									<div className="flex items-center gap-2">
+										<Users className="size-4 shrink-0 text-outline" />
+										<dd>{companySizeLabels[companySize] ?? companySize}</dd>
+									</div>
+								)}
+							</dl>
+						)}
 						<p className="mt-5 border-t border-outline-variant pt-4 text-caption text-on-surface-variant">
 							A quick preview of the details you’re editing. Save your profile to apply your changes.
 						</p>
 					</WorkspaceSurface>
-					<p className="px-1 text-body-sm text-on-surface-variant leading-6">
-						A complete introduction helps freelancers understand your business before the first conversation.
-					</p>
 				</aside>
 			</div>
 
@@ -312,9 +361,9 @@ export function ClientProfilePage() {
 						)}
 					</div>
 					<DialogFooter>
-						<Button
+						<button
 							type="button"
-							variant="outline"
+							className={workspaceStyles.secondaryAction}
 							onClick={() => {
 								setSelectedPhotoName("")
 								setSelectedPhoto(null)
@@ -322,9 +371,10 @@ export function ClientProfilePage() {
 							}}
 						>
 							Cancel
-						</Button>
-						<Button
+						</button>
+						<button
 							type="button"
+							className={`${workspaceStyles.primaryAction} disabled:opacity-50`}
 							disabled={!selectedPhoto || uploading}
 							onClick={async () => {
 								if (!selectedPhoto || uploading || !user) return
@@ -349,7 +399,7 @@ export function ClientProfilePage() {
 							}}
 						>
 							{uploading ? "Uploading…" : "Apply photo"}
-						</Button>
+						</button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
@@ -363,7 +413,7 @@ function Field({ label, id, ...props }: { label: string; id: string } & React.Co
 			<Label htmlFor={id}>{label}</Label>
 			<Input
 				id={id}
-				className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+				className="h-11 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
 				{...props}
 			/>
 		</div>

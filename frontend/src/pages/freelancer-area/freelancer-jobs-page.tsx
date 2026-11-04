@@ -1,6 +1,7 @@
 import CitySelect from "@/components/common/city-select"
+import { EmptyState } from "@/components/common/empty-state"
 import SearchWithCategories from "@/components/common/search-with-categories"
-import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
+import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -15,12 +16,6 @@ import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "luc
 import { useState } from "react"
 
 const popularSearches = ["Product design", "React", "Content strategy", "Design systems", "Mobile app"]
-
-const primaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary hover:opacity-90 dark:bg-on-surface dark:text-background"
-
-const secondaryAction =
-	"inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 font-label-md text-label-md text-on-surface hover:bg-surface-container-low"
 
 export default function FreelancerJobsPage() {
 	const { saved } = useSavedJobs()
@@ -215,9 +210,9 @@ export default function FreelancerJobsPage() {
 			</div>
 
 			<fieldset className="space-y-2.5 py-4">
-				<legend className="sr-only">Project Type</legend>
+				<legend className="sr-only">Project type</legend>
 
-				<p className="mb-3 font-medium text-label-sm">Project Type</p>
+				<p className="mb-3 font-medium text-label-sm">Project type</p>
 
 				{check("All project types", !types.length, () => {
 					setTypes([])
@@ -230,9 +225,9 @@ export default function FreelancerJobsPage() {
 			</fieldset>
 
 			<fieldset className="space-y-2.5 py-4">
-				<legend className="sr-only">Experience Level</legend>
+				<legend className="sr-only">Experience level</legend>
 
-				<p className="mb-3 font-medium text-label-sm">Experience Level</p>
+				<p className="mb-3 font-medium text-label-sm">Experience level</p>
 
 				{["Entry level", "Intermediate", "Expert / Principal"].map((label) =>
 					check(label, experience.includes(label), () => toggle(experience, label, setExperience)),
@@ -251,15 +246,15 @@ export default function FreelancerJobsPage() {
 						setLocation(value)
 						setVisibleCount(4)
 					}}
-					className="h-10 w-full max-w-none rounded-lg border border-outline-variant"
+					className="h-9 w-full max-w-none rounded-lg border border-outline-variant text-sm"
 				/>
 			</fieldset>
 
 			<fieldset className="py-4">
-				<legend className="sr-only">Hourly Rate</legend>
+				<legend className="sr-only">Hourly rate</legend>
 
 				<div className="mb-4 flex items-center justify-between">
-					<span className="font-medium text-label-sm">Hourly Rate</span>
+					<span className="font-medium text-label-sm">Hourly rate</span>
 
 					<span className="text-caption text-outline">
 						${hourlyRate[0]} – ${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr
@@ -354,7 +349,7 @@ export default function FreelancerJobsPage() {
 								type="button"
 								aria-label="Open job filters"
 								onClick={() => setFiltersOpen(true)}
-								className={`${secondaryAction} lg:hidden`}
+								className={`${workspaceStyles.secondaryAction} lg:hidden`}
 							>
 								<SlidersHorizontal className="size-4" />
 								Filters
@@ -402,22 +397,19 @@ export default function FreelancerJobsPage() {
 						))}
 					</div>
 
-					{isPending && <p role="status">Loading opportunities...</p>}
+					{isPending && <p role="status">Loading opportunities…</p>}
 
 					{!isPending && !isError && !filtered.length && !hasNextPage && (
-						<div className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-16 text-center">
-							<Search className="mx-auto mb-4 size-6 text-outline" />
-
-							<h2 className="font-semibold text-headline-md">No matching projects</h2>
-
-							<p className="mt-2 text-body-sm text-on-surface-variant">
-								Try a broader search, another category, or fewer filters.
-							</p>
-
-							<button type="button" onClick={clear} className={`${secondaryAction} mt-5`}>
-								Clear filters
-							</button>
-						</div>
+						<EmptyState
+							icon={Search}
+							title="No matching projects"
+							description="Try a broader search, another category, or fewer filters."
+							action={
+								<button type="button" onClick={clear} className={workspaceStyles.secondaryAction}>
+									Clear filters
+								</button>
+							}
+						/>
 					)}
 
 					{(filtered.length > 0 || hasNextPage) && (
@@ -434,7 +426,7 @@ export default function FreelancerJobsPage() {
 										})
 									}
 								}}
-								className={`${secondaryAction} px-6 disabled:opacity-60`}
+								className={`${workspaceStyles.secondaryAction} px-6 disabled:opacity-60`}
 							>
 								{isFetchingNextPage
 									? "Loading opportunities…"
@@ -460,7 +452,7 @@ export default function FreelancerJobsPage() {
 					<div className="p-5">
 						{filters()}
 
-						<button type="button" onClick={() => setFiltersOpen(false)} className={`${primaryAction} mt-6 w-full`}>
+						<button type="button" onClick={() => setFiltersOpen(false)} className={`${workspaceStyles.primaryAction} mt-6 w-full`}>
 							Show {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}
 						</button>
 					</div>

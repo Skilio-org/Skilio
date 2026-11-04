@@ -7,14 +7,14 @@ export const TalentSearch = () => {
 	const [category, setCategory] = useState("all")
 
 	return (
-		<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-6">
-			<div className="mb-6 flex items-start justify-between gap-5">
+		<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
+			<div className="mb-5 flex items-start justify-between gap-5">
 				<div>
-					<h2 className="font-headline-md font-semibold text-headline-md tracking-tight">
+					<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
 						Who would make your next project better?
 					</h2>
 
-					<p className="mt-2 text-muted-foreground text-sm leading-6">
+					<p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
 						Find the right person for the work you have in mind.
 					</p>
 				</div>

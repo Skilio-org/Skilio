@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { ArrowRight, Users } from "lucide-react"
+import { ArrowRight, Search, Users } from "lucide-react"
 import { ProfilesService } from "@/client"
+import { EmptyState } from "@/components/common/empty-state"
+import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { FreelancerCard } from "@/components/talent/freelancer-card"
 import { talentCardFromApi } from "@/components/talent/talent-api"
 import { useSavedTalent } from "@/hooks/useSavedTalent"
@@ -30,42 +32,38 @@ export const RecommendedFreelancers = () => {
 	const { savedIds, toggleSaved } = useSavedTalent()
 	return (
 		<section aria-labelledby="recommended-talent-heading" className="min-w-0">
-			<div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-				<div>
-					<p className="font-medium text-muted-foreground text-xs">Recommended for you</p>
-					<h2 id="recommended-talent-heading" className="mt-2 font-semibold text-headline-md tracking-tight">
-						People worth getting to know
-					</h2>
-				</div>
+			<div className="mb-6 flex items-center justify-between px-1">
+				<h2 id="recommended-talent-heading" className="font-headline-sm font-semibold text-headline-sm text-on-surface">
+					People worth getting to know
+				</h2>
+
 				<Link
 					to="/talent"
 					search={{ q: undefined, category: undefined }}
-					className="inline-flex min-h-11 shrink-0 items-center gap-2 font-medium text-primary text-sm hover:underline"
+					className="flex items-center gap-0.5 font-label-sm font-medium text-label-sm text-primary transition-colors hover:text-primary-container"
 				>
-					View all <ArrowRight className="size-4" />
+					View all
+					<ArrowRight className="size-3.5" />
 				</Link>
 			</div>
 			<div className="flex flex-col gap-3.5">
 				{isPending && <p role="status">Loading professionals…</p>}
 				{!isPending && !isError && matches.length === 0 && (
-					<div
-						role="status"
-						className="grid min-h-72 place-items-center rounded-lg border border-outline-variant border-dashed bg-surface-container-lowest p-8 text-center"
-					>
-						<div>
-							<span className="mx-auto grid size-14 place-items-center rounded-lg border border-outline-variant bg-surface-container text-primary">
-								<Users className="size-6" strokeWidth={1.5} />
-							</span>
-
-							<h3 className="mt-5 font-headline-lg font-semibold text-headline-lg text-on-surface">
-								No professionals available yet
-							</h3>
-
-							<p className="mx-auto mt-3 max-w-lg font-body-sm text-body-sm text-on-surface-variant leading-6">
-								New freelancers will appear here as they join. You can also browse the full talent directory.
-							</p>
-						</div>
-					</div>
+					<EmptyState
+						icon={Users}
+						title="No professionals available yet"
+						description="New freelancers will appear here as they join. You can also browse the full talent directory."
+						action={
+							<Link
+								to="/talent"
+								search={{ q: undefined, category: undefined }}
+								className={workspaceStyles.secondaryAction}
+							>
+								<Search className="size-4" />
+								Browse talent
+							</Link>
+						}
+					/>
 				)}
 				{matches.map((person) => (
 					<FreelancerCard

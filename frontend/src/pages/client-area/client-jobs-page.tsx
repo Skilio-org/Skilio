@@ -127,7 +127,12 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 				eyebrow="Client workspace"
 				title="Your next great hire starts here."
 				description="Create a clear brief and keep your hiring in one place."
-				meta={<span className="font-medium text-primary">Hiring activity</span>}
+				meta={
+					<span className="font-medium text-primary">
+						{jobs.filter((job) => job.status === "Open").length} open{" "}
+						{jobs.filter((job) => job.status === "Open").length === 1 ? "job" : "jobs"}
+					</span>
+				}
 				action={
 					<button
 						type="button"

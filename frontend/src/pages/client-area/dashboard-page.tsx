@@ -39,15 +39,17 @@ export function ClientDashboardPage() {
 					</Link>
 				}
 			/>
-			<TalentSearch />
-			<section className="grid gap-6 xl:grid-cols-[1fr_320px]">
-				<RecommendedFreelancers />
+			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+				<section className="flex flex-col gap-6 lg:col-span-8">
+					<TalentSearch />
+					<RecommendedFreelancers />
+				</section>
 
-				<aside className="space-y-6">
+				<aside className="flex flex-col gap-5 lg:sticky lg:top-20 lg:col-span-4">
 					<ProfileProgress />
 					<QuickSavedSearch />
 				</aside>
-			</section>
+			</div>
 		</div>
 	)
 }
