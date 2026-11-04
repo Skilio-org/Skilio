@@ -51,9 +51,7 @@ export function TopNav() {
 					<Logo
 						variant="full"
 						to={role === "freelancer" ? "/freelancer-dashboard" : "/dashboard"}
-						iconClassName="size-7"
-						textClassName="h-4.5"
-						gapClassName="gap-2.5"
+						iconClassName="h-8 translate-y-px"
 					/>
 
 					<nav

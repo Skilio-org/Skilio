@@ -45,7 +45,7 @@ export function ClientJobEditor({
 						{editing ? "Let’s shape your project" : job?.title || "Untitled job"}
 					</SheetTitle>
 					<SheetDescription>
-						{editing ? "A few details to help the right freelancer find you." : `${job?.status} · ${job?.category}`}
+						{editing ? "A few details to help the right freelancer find you." : `${job?.status} · ${job?.category || "No category"}`}
 					</SheetDescription>
 				</SheetHeader>
 				{job && (
@@ -113,6 +113,7 @@ export function ClientJobEditor({
 										<div className="mt-2">
 											<CategorySelect
 												value={job.category}
+												placeholder="Select a category"
 												categories={categories}
 												onValueChange={(category) => onJobChange({ ...job, category })}
 												showAllCategories={false}

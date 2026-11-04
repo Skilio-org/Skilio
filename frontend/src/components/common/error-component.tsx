@@ -8,7 +8,7 @@ const ErrorComponent = ({ error, reset }: { error?: Error; reset?: () => void })
 	return (
 		<div className="min-h-svh bg-background" data-testid="error-component">
 			<header className="mx-auto flex h-[72px] max-w-[1320px] items-center px-5 sm:px-8">
-				<Logo className="h-8" />
+				<Logo className="h-10" />
 			</header>
 			<main className="mx-auto flex min-h-[calc(100svh-72px)] max-w-5xl items-center px-5 pb-24 sm:px-8">
 				<section role="alert" className="w-full border-border border-y py-12 sm:py-16">

@@ -70,7 +70,7 @@ export function ClientJobsList({
 								<span className="rounded-md bg-muted px-2 py-1 text-on-surface-variant text-xs">{job.status}</span>
 								<h2 className="mt-3 break-words font-semibold text-lg">{job.title || "Untitled job"}</h2>
 								<p className="mt-2 text-on-surface-variant text-sm">
-									{job.category} · {job.type}
+									{job.category || "No category"} · {job.type}
 									{job.budget && ` · $${job.budget}${job.type === "Hourly" ? "/hr" : ""}`}
 								</p>
 							</div>
