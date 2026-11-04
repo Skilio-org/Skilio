@@ -1464,19 +1464,6 @@ html[data-theme-transition] *::after {
 	}
 }
 
-@layer utilities {
-	/* Outline so the lime logo stands out: deep olive on light backgrounds, brighter lime on dark ones. The four thin drop-shadows follow the SVG's edges; keep them under 1px or the wordmark gets chunky. */
-	.logo-outline {
-		--logo-outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
-		filter: drop-shadow(0.5px 0 0 var(--logo-outline-color)) drop-shadow(-0.5px 0 0 var(--logo-outline-color))
-			drop-shadow(0 0.5px 0 var(--logo-outline-color)) drop-shadow(0 -0.5px 0 var(--logo-outline-color));
-	}
-
-	:where(.dark, [data-theme="dark"], [data-mode="dark"]) .logo-outline {
-		--logo-outline-color: color-mix(in srgb, var(--primary-container) 50%, transparent);
-	}
-}
-
 @layer base {
 	:where(
 		html.dark,
