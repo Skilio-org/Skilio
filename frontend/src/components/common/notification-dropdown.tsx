@@ -397,6 +397,17 @@ export function NotificationBody({
 	)
 }
 
+function navigateToRecepient(id: string, role: string, navigate: ReturnType<typeof useNavigate>) {
+
+	if (role === "client")
+		void navigate({ to: `/talent/${id}` })
+	else
+		void navigate({
+			to: role === "freelancer" ? "/freelancer-messages" : "/messages",
+			search: { userId: id },
+		})
+}
+
 export function NotificationDropdown() {
 	const { data: notifications, isPending } = useNotifications()
 	const { sendMessage } = useWebSocket()
@@ -457,15 +468,21 @@ export function NotificationDropdown() {
 					search: { userId: notification.chat_message?.sender_id },
 				})
 				break
-			case "connection_request":
-				void navigate({ to: "/connects" })
-				break
-			case "connection_accepted":
-			case "connection_declined":
-				{
-					// I was here.
-					void navigate({ to: `/talent/${notification.connection?.receiver_id}` })
+			case "connection_request": {
+				if (notification.connection?.status === "declined") {
+					return;
 				}
+				if (notification.connection?.status === "pending")
+					void navigate({ to: "/connects" })
+				else {
+					navigateToRecepient(notification.connection?.sender_id || "", role, navigate)
+				}
+			} break;
+			case "connection_accepted":
+				navigateToRecepient(notification.connection?.receiver_id || "", role, navigate)
+				break
+			case "connection_declined":
+				// navigateToRecepient(notification.connection?.sender_id || "", role, navigate)
 				break
 			case "proposal_accepted":
 			case "proposal_rejected":
