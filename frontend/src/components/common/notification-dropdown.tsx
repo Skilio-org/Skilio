@@ -2,15 +2,7 @@
 import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { useQueryClient } from "@tanstack/react-query"
-import {
-	Bell,
-	Check,
-	CheckCheck,
-	FileText,
-	Loader2,
-	UserPlus,
-	X,
-} from "lucide-react"
+import { Bell, Check, CheckCheck, FileText, Loader2, UserPlus, X } from "lucide-react"
 
 import {
 	DropdownMenu,
@@ -23,16 +15,15 @@ import { cn } from "@/lib/utils"
 import type { NotificationPublic } from "@/client/types.gen"
 import { useNotifications } from "@/hooks/useNotifications"
 import { useAccountRole } from "@/hooks/useAccountRole"
-import { useAcceptConnhectionRequest, useDeclineConnectionRequest } from "@/hooks/useConnections"
+import { useAcceptConnectionRequest, useDeclineConnectionRequest } from "@/hooks/useConnections"
 import { chatKeys } from "@/data/chat-keys"
 // import { formatMessageTime } from "@/util/timestampformatter"
 import { formatMessageTime } from "@/lib/format"
-import { useWebSocket } from "@/context/websocketh-context"
+import { useWebSocket } from "@/context/websocket-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 
 function NotificationIcon({ item }: { item: NotificationPublic }) {
-
 	switch (item.event) {
 		// case "message_received":
 		// 	return <MessageSquare className="size-5" />
@@ -47,23 +38,38 @@ function NotificationIcon({ item }: { item: NotificationPublic }) {
 		// 	return <XCircle className="size-5 text-muted-foreground" />
 
 		case "connection_request":
-			return <Avatar className="size-full rounded-none">
-					<AvatarImage src={useAccountAvatarUrl(item.connection?.sender_id)}
-						alt={item.connection?.sender?.full_name ?? "Unknown"} aria-hidden="true" />
+			return (
+				<Avatar className="size-full rounded-none">
+					<AvatarImage
+						src={useAccountAvatarUrl(item.connection?.sender_id)}
+						alt={item.connection?.sender?.full_name ?? "Unknown"}
+						aria-hidden="true"
+					/>
 					<AvatarFallback>{item.connection?.sender?.full_name || "Unknown"}</AvatarFallback>
 				</Avatar>
+			)
 		case "connection_accepted":
-			return <Avatar className="size-full rounded-none">
-				<AvatarImage src={useAccountAvatarUrl(item.connection?.receiver_id)}
-					alt={item.connection?.receiver?.full_name ?? "Unknown"} aria-hidden="true" />
-				<AvatarFallback>{item.connection?.receiver?.full_name || "Unknown"}</AvatarFallback>
-			</Avatar>
+			return (
+				<Avatar className="size-full rounded-none">
+					<AvatarImage
+						src={useAccountAvatarUrl(item.connection?.receiver_id)}
+						alt={item.connection?.receiver?.full_name ?? "Unknown"}
+						aria-hidden="true"
+					/>
+					<AvatarFallback>{item.connection?.receiver?.full_name || "Unknown"}</AvatarFallback>
+				</Avatar>
+			)
 		case "review_received":
-			return <Avatar className="size-full rounded-none">
-				<AvatarImage src={useAccountAvatarUrl(item.review?.client_id)}
-					alt={item.review?.client_name ?? "Unknown"} aria-hidden="true" />
-				<AvatarFallback>{item.review?.client_name || "Unknown"}</AvatarFallback>
-			</Avatar>
+			return (
+				<Avatar className="size-full rounded-none">
+					<AvatarImage
+						src={useAccountAvatarUrl(item.review?.client_id)}
+						alt={item.review?.client_name ?? "Unknown"}
+						aria-hidden="true"
+					/>
+					<AvatarFallback>{item.review?.client_name || "Unknown"}</AvatarFallback>
+				</Avatar>
+			)
 
 		// case "job_closed":
 		// 	return <BriefcaseBusiness className="size-5" />
@@ -83,11 +89,7 @@ function ConnectionStatusBadge({ notification }: { notification: NotificationPub
 	const connectionStatus = notification.connection?.status
 
 	const [actionStatus, _] = useState<"idle" | "accepted" | "declined">(
-		connectionStatus === "accepted"
-			? "accepted"
-			: connectionStatus === "declined"
-				? "declined"
-				: "idle",
+		connectionStatus === "accepted" ? "accepted" : connectionStatus === "declined" ? "declined" : "idle",
 	)
 
 	const isAccepted = actionStatus === "accepted" || connectionStatus === "accepted"
@@ -95,13 +97,14 @@ function ConnectionStatusBadge({ notification }: { notification: NotificationPub
 
 	if (isAccepted || isDeclined) {
 		return (
-			<span 
+			<span
 				className={cn(
 					"ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold leading-none tracking-wide",
 					isAccepted
 						? "bg-emerald-500/10 text-emerald-600 ring-1 ring-inset ring-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-400 dark:ring-emerald-500/25"
 						: "bg-red-500/10 text-red-600 ring-1 ring-inset ring-red-500/20 dark:bg-red-500/15 dark:text-red-400 dark:ring-red-500/25",
-				)}>
+				)}
+			>
 				{isAccepted ? "Accepted" : "Declined"}
 			</span>
 		)
@@ -119,19 +122,14 @@ function NotificationActions({ notification, onMarkAsRead }: NotificationActionP
 	const connectionStatus = notification.connection?.status
 
 	const [actionStatus, setActionStatus] = useState<"idle" | "accepted" | "declined">(
-		connectionStatus === "accepted"
-			? "accepted"
-			: connectionStatus === "declined"
-				? "declined"
-				: "idle",
+		connectionStatus === "accepted" ? "accepted" : connectionStatus === "declined" ? "declined" : "idle",
 	)
 
 	const isAccepted = actionStatus === "accepted" || connectionStatus === "accepted"
 	const isDeclined = actionStatus === "declined" || connectionStatus === "declined"
 
 	if (notification.event === "connection_request") {
-		if (isAccepted || isDeclined)
-			return null
+		if (isAccepted || isDeclined) return null
 
 		if (connectionId) {
 			return (
@@ -243,45 +241,89 @@ function NotificationActions({ notification, onMarkAsRead }: NotificationActionP
 	return null
 }
 
-export function UserName({name}: {name: string | undefined})
-{
+export function UserName({ name }: { name: string | undefined }) {
 	return <span className="underline font-semibold">{name}</span>
 }
 
-export function BakedBody({notification}: {notification: NotificationPublic}) {
+export function BakedBody({ notification }: { notification: NotificationPublic }) {
 	switch (notification.event) {
 		case "connection_request":
-			return <>
-				<UserName name={notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"} /> wants to connect with you.
-			</>
+			return (
+				<>
+					<UserName
+						name={
+							notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"
+						}
+					/>{" "}
+					wants to connect with you.
+				</>
+			)
 		case "connection_accepted":
-			return <>
-				<UserName name={notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"} /> accepted your request.
-			</>	
+			return (
+				<>
+					<UserName
+						name={
+							notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"
+						}
+					/>{" "}
+					accepted your request.
+				</>
+			)
 		case "connection_declined":
-			return <>
-				<UserName name={notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"} /> declined your request.
-			</>
+			return (
+				<>
+					<UserName
+						name={
+							notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"
+						}
+					/>{" "}
+					declined your request.
+				</>
+			)
 		case "review_received":
-			return <>
-				<UserName name={notification.review?.client?.full_name || notification.review?.client_name || notification.connection?.receiver?.full_name || "Someone"} /> left a review for you.
-			</>
+			return (
+				<>
+					<UserName
+						name={
+							notification.review?.client?.full_name ||
+							notification.review?.client_name ||
+							notification.connection?.receiver?.full_name ||
+							"Someone"
+						}
+					/>{" "}
+					left a review for you.
+				</>
+			)
 		case "proposal_received":
-			return <>
-				<UserName name={notification.proposal?.freelancer?.full_name || "Someone"} /> has submitted a proposal for your job.
-			</>
+			return (
+				<>
+					<UserName name={notification.proposal?.freelancer?.full_name || "Someone"} /> has submitted a proposal for
+					your job.
+				</>
+			)
 		case "proposal_accepted":
 		case "proposal_rejected":
-			return <UserName name={notification.proposal?.freelancer?.full_name || "Someone"} /> + notification.content.replace(/.*? accepted your proposal|.*? rejected your proposal/, "")
+			return (
+				<UserName name={notification.proposal?.freelancer?.full_name || "Someone"} /> +
+				notification.content.replace(/.*? accepted your proposal|.*? rejected your proposal/, "")
+			)
 		case "job_closed":
-			return <UserName name={notification.job_post?.title || "Unknown Job"} /> + notification.content.replace(/.*? has been closed/, "")
+			return (
+				<UserName name={notification.job_post?.title || "Unknown Job"} /> +
+				notification.content.replace(/.*? has been closed/, "")
+			)
 		default:
 	}
 	return <>notification.content</>
 }
 
-export function NotificationBody({notification, onMarkAsRead}: {notification: NotificationPublic, onMarkAsRead: (id: string) => void})
-{
+export function NotificationBody({
+	notification,
+	onMarkAsRead,
+}: {
+	notification: NotificationPublic
+	onMarkAsRead: (id: string) => void
+}) {
 	const role = useAccountRole()
 	// let content = notification.content;
 
@@ -399,7 +441,6 @@ export function NotificationDropdown() {
 		)
 	}
 
-
 	const handleItemClick = (notification: NotificationPublic) => {
 		markAsRead(notification.id)
 		setOpen(false)
@@ -420,10 +461,12 @@ export function NotificationDropdown() {
 				void navigate({ to: "/connects" })
 				break
 			case "connection_accepted":
-			case "connection_declined": {
-				// I was here.
-				void navigate({ to: `/talent/${notification.connection?.receiver_id}` })
-			} break;
+			case "connection_declined":
+				{
+					// I was here.
+					void navigate({ to: `/talent/${notification.connection?.receiver_id}` })
+				}
+				break
 			case "proposal_accepted":
 			case "proposal_rejected":
 				void navigate({ to: "/freelancer-proposals" })
@@ -507,45 +550,47 @@ export function NotificationDropdown() {
 				<div className="max-h-[420px] overflow-y-auto px-1.5 pb-1.5">
 					{notifications.length > 0 ? (
 						notifications.map((notification) => {
-							if ((notification.event === "review_received"
-								|| notification.event === "proposal_rejected"
-								|| notification.event === "proposal_accepted") && role === "client")
+							if (
+								(notification.event === "review_received" ||
+									notification.event === "proposal_rejected" ||
+									notification.event === "proposal_accepted") &&
+								role === "client"
+							)
 								return ""
-							if (notification.event === "proposal_received" && role === "freelancer")
-								return ""
+							if (notification.event === "proposal_received" && role === "freelancer") return ""
 
-							return <DropdownMenuItem
-								key={notification.id}
-								onSelect={(event) => {
-									event.preventDefault()
-									handleItemClick(notification)
-								}}
-								className={cn(
-									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
-									!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
-								)}
-							>
-								{/* Icon */}
-								{/* Emm this needs to change, if I have an avatar, I will just use the avatar. */}
-								<span
+							return (
+								<DropdownMenuItem
+									key={notification.id}
+									onSelect={(event) => {
+										event.preventDefault()
+										handleItemClick(notification)
+									}}
 									className={cn(
-										"grid size-10 shrink-0 rounded place-items-center border transition-colors",
-										"border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container"
+										"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
+										!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
 									)}
 								>
-									<NotificationIcon item={notification} />
-								</span>
+									{/* Icon */}
+									{/* Emm this needs to change, if I have an avatar, I will just use the avatar. */}
+									<span
+										className={cn(
+											"grid size-10 shrink-0 rounded place-items-center border transition-colors",
+											"border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container",
+										)}
+									>
+										<NotificationIcon item={notification} />
+									</span>
 
-								{/* Body */}
-								<NotificationBody notification={notification} onMarkAsRead={markAsRead}/>
+									{/* Body */}
+									<NotificationBody notification={notification} onMarkAsRead={markAsRead} />
 
-								{/* Unread dot */}
-								{!notification.is_read && (
-									<span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
-								)}
-							</DropdownMenuItem>
-						}
-					)) : (
+									{/* Unread dot */}
+									{!notification.is_read && <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />}
+								</DropdownMenuItem>
+							)
+						})
+					) : (
 						<div className="px-6 py-12 text-center">
 							<span className="mx-auto grid size-10 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-outline dark:border-border-subtle">
 								<Bell className="size-[18px]" />
