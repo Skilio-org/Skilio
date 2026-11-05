@@ -42,7 +42,6 @@ Rather than treating backups and monitoring as isolated scripts, our architectur
  │   • probe_database() ──▶ SELECT 1 (latency ms)                        │   │
  │   • probe_redis()    ──▶ async PING (latency ms)                      │   │
  │   • probe_disk()     ──▶ shutil.disk_usage('/') (% free)              │   │
- │   • Sanitizes telemetry (OWASP CWE-200; zero secret leakage)          │   │
  └─────────────────────────────────────┬─────────────────────────────────┘   │
                                        │                                     │
                  DOCKER INTERNAL BRIDGE NETWORK                              │
@@ -79,7 +78,6 @@ Rather than treating backups and monitoring as isolated scripts, our architectur
   - `status: "degraded"` (e.g., Redis offline, but DB online) $\rightarrow$ **HTTP 200** (marketplace operational, chat offline).
   - `status: "unhealthy"` (Postgres offline or disk $< 5\%$) $\rightarrow$ **HTTP 503 Service Unavailable**.
 * **Public React Status Page ([`status.tsx`](../../frontend/src/routes/status.tsx)):** Live public UI with countdown auto-polling every 10s and color-coded latency badges.
-* **OWASP CWE-200 Security Sanitization:** Internal server paths, IPs, and environment secrets are strictly stripped from responses.
 
 ---
 
