@@ -40,7 +40,7 @@ Stage 7: Developer Tooling & Team CLI (Makefile)
   * **Environment Isolation**: Local dev automatically uses `compose.override.yml` (debug ports, Mailpit); production locks them out with `COMPOSE_FILE=compose.yml:compose.deploy.yml`.
 
 ### 2. Linux OS Hardening & Bootstrap (The Server)
-* **Documentation Mapping:** Covers [Learning Plan: Level 1](deployment/learning_plan.md#level-1-cloud--linux-infrastructure-iaas--aws) & [Deployment Plan: Phases 1 & 2](deployment/deployment_plan.md#phase-1-cloud-server--network-provisioning-iaas-completed-)
+* **Documentation Mapping:** Covers [Stage 2: Cloud Server & Auto Setup](guides/02_cloud_server_&_auto_setup.md) & [Production Cloud Deployment Spec](DEPLOYMENT.md)
 * **Files & Tools:** [`devops/scripts/server-init.sh`](../scripts/server-init.sh), `make server-init`, `skilio-key.pem`
 * **Core Concepts:**
   * **IaaS & Cloud Networking (Phase 1)**: AWS EC2 (`t3.small`), static Elastic IP (`16.192.59.166`), and Security Group firewall (ports 22, 80, 443 open; DB/Redis strictly blocked).
@@ -64,7 +64,8 @@ Stage 7: Developer Tooling & Team CLI (Makefile)
   * **Zero-Downtime Rolling Swap**: Builds images in background $\rightarrow$ runs migrations in ephemeral container (`run --rm prestart.sh`) $\rightarrow$ swaps live containers (`up -d --remove-orphans`) $\rightarrow$ prunes dangling layers.
 
 ### 5. High Availability & Disaster Recovery (IV.7 Minor)
-* **Files:** [`devops/backup/backup.sh`](../backup/backup.sh), [`restore.sh`](../backup/restore.sh), [`dr-test.sh`](../backup/dr-test.sh), [`entrypoint.sh`](../backup/entrypoint.sh), [`BACKUP.md`](../backup/BACKUP.md), [`backend/app/api/routes/health.py`](../../backend/app/api/routes/health.py), [`frontend/src/routes/status.tsx`](../../frontend/src/routes/status.tsx)
+* **Documentation Mapping:** Covers [Stage 5: Backups & Disaster Recovery](guides/05_backup_&_disaster_recovery.md) & [Resilience & DR Spec](BACKUP.md)
+* **Files:** [`devops/backup/backup.sh`](../backup/backup.sh), [`restore.sh`](../backup/restore.sh), [`dr-test.sh`](../backup/dr-test.sh), [`entrypoint.sh`](../backup/entrypoint.sh), [`backend/app/api/routes/health.py`](../../backend/app/api/routes/health.py), [`frontend/src/routes/status.tsx`](../../frontend/src/routes/status.tsx)
 * **Core Concepts:**
   * **RTO Target**: Recovery Time Objective `< 60s` (our actual drill runs in `< 5s`).
   * **Rolling Retention**: Automated `pg_dump` with `.sql.gz` compression via `entrypoint.sh` cron, keeping the last 7 daily archives.

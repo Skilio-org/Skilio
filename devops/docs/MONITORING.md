@@ -71,7 +71,7 @@ Prometheus stores these samples using **Gorilla Chunk Compression**, encoding fl
 
 ## 1. System Architecture & Network Topology
 
-Our entire monitoring stack is containerized and integrated into the platform's rootless Docker network defined in [compose.yml](file:///home/aysadeq/Desktop/Freelancer/compose.yml) and [compose.override.yml](file:///home/aysadeq/Desktop/Freelancer/compose.override.yml).
+Our entire monitoring stack is containerized and integrated into the platform's rootless Docker network defined in [compose.yml](../../compose.yml) and [compose.override.yml](../../compose.override.yml).
 
 ```text
 ====================================================================================================
@@ -117,7 +117,7 @@ Our entire monitoring stack is containerized and integrated into the platform's 
 
 ## 2. Criterion 1: Prometheus Metrics Collection Engine
 
-The configuration of the Prometheus engine is maintained declaratively in [prometheus.yml](file:///home/aysadeq/Desktop/Freelancer/devops/monitoring/prometheus/prometheus.yml).
+The configuration of the Prometheus engine is maintained declaratively in [prometheus.yml](../monitoring/prometheus/prometheus.yml).
 
 ### Scrape Engine Configuration
 
@@ -199,8 +199,8 @@ Telemetry is gathered across three distinct architectural tiers:
 
 ### Tier 2: Application Layer (FastAPI Telemetry)
 
-* **Package**: `prometheus-fastapi-instrumentator>=8.1.0` added to [backend/pyproject.toml](file:///home/aysadeq/Desktop/Freelancer/backend/pyproject.toml).
-* **Implementation** in [backend/app/main.py](file:///home/aysadeq/Desktop/Freelancer/backend/app/main.py):
+* **Package**: `prometheus-fastapi-instrumentator>=8.1.0` added to [backend/pyproject.toml](../../backend/pyproject.toml).
+* **Implementation** in [backend/app/main.py](../../backend/app/main.py):
   ```python
   from prometheus_fastapi_instrumentator import Instrumentator
 
@@ -225,7 +225,7 @@ Telemetry is gathered across three distinct architectural tiers:
 
 ### Tier 3: Database Layer (PostgreSQL Telemetry)
 
-* **Container Image**: `prometheuscommunity/postgres-exporter:v0.16.0` configured in [compose.yml](file:///home/aysadeq/Desktop/Freelancer/compose.yml).
+* **Container Image**: `prometheuscommunity/postgres-exporter:v0.16.0` configured in [compose.yml](../../compose.yml).
 * **Configuration**:
   ```yaml
     postgres-exporter:
@@ -245,7 +245,7 @@ Telemetry is gathered across three distinct architectural tiers:
 
 ### Tier 4: Hardware & Infrastructure Layer (Google cAdvisor)
 
-* **Container Image**: `gcr.io/cadvisor/cadvisor:v0.49.1` configured in [compose.yml](file:///home/aysadeq/Desktop/Freelancer/compose.yml).
+* **Container Image**: `gcr.io/cadvisor/cadvisor:v0.49.1` configured in [compose.yml](../../compose.yml).
 * **Mount Configuration**:
   ```yaml
     cadvisor:
@@ -270,7 +270,7 @@ Rather than manually creating dashboards in the Grafana UI (which is error-prone
 
 ### Provisioning Architecture
 
-1. **Datasource Provisioning** ([datasource.yml](file:///home/aysadeq/Desktop/Freelancer/devops/monitoring/grafana/provisioning/datasources/datasource.yml)):
+1. **Datasource Provisioning** ([datasource.yml](../monitoring/grafana/provisioning/datasources/datasource.yml)):
    ```yaml
    apiVersion: 1
    datasources:
@@ -283,13 +283,13 @@ Rather than manually creating dashboards in the Grafana UI (which is error-prone
    ```
    *Note: `access: proxy` instructs the Grafana backend server to proxy PromQL queries across internal Docker DNS (`http://prometheus:9090`), so the client's browser does not need direct access.*
 
-2. **Dashboard Provider** ([dashboards.yml](file:///home/aysadeq/Desktop/Freelancer/devops/monitoring/grafana/provisioning/dashboards/dashboards.yml)):
+2. **Dashboard Provider** ([dashboards.yml](../monitoring/grafana/provisioning/dashboards/dashboards.yml)):
    Auto-loads all JSON definitions from `/etc/grafana/provisioning/dashboards/definitions` into a dedicated Grafana folder titled **"Freelancer"**.
 
 ---
 
 ### Dashboard 1: FastAPI Application Telemetry
-*File: [fastapi-dashboard.json](file:///home/aysadeq/Desktop/Freelancer/devops/monitoring/grafana/provisioning/dashboards/definitions/fastapi-dashboard.json)*
+*File: [fastapi-dashboard.json](../monitoring/grafana/provisioning/dashboards/definitions/fastapi-dashboard.json)*
 
 | Panel Title | Visualization | PromQL Query | Engineering Purpose |
 | :--- | :--- | :--- | :--- |
@@ -314,7 +314,7 @@ An average of **109ms** looks completely healthy on a dashboard, hiding the fact
 ---
 
 ### Dashboard 2: PostgreSQL Database Health
-*File: [postgres-dashboard.json](file:///home/aysadeq/Desktop/Freelancer/devops/monitoring/grafana/provisioning/dashboards/definitions/postgres-dashboard.json)*
+*File: [postgres-dashboard.json](../monitoring/grafana/provisioning/dashboards/definitions/postgres-dashboard.json)*
 
 | Panel Title | Visualization | PromQL Query | Engineering Purpose |
 | :--- | :--- | :--- | :--- |
@@ -327,7 +327,7 @@ An average of **109ms** looks completely healthy on a dashboard, hiding the fact
 ---
 
 ### Dashboard 3: Docker Containers & Hardware Infrastructure
-*File: [containers-dashboard.json](file:///home/aysadeq/Desktop/Freelancer/devops/monitoring/grafana/provisioning/dashboards/definitions/containers-dashboard.json)*
+*File: [containers-dashboard.json](../monitoring/grafana/provisioning/dashboards/definitions/containers-dashboard.json)*
 
 | Panel Title | Visualization | PromQL Query | Engineering Purpose |
 | :--- | :--- | :--- | :--- |
@@ -345,7 +345,7 @@ An average of **109ms** looks completely healthy on a dashboard, hiding the fact
 
 In accordance with subject security requirements, Grafana is hardened against unauthorized inspection and public modification.
 
-### Hardening Measures Configured in [compose.yml](file:///home/aysadeq/Desktop/Freelancer/compose.yml)
+### Hardening Measures Configured in [compose.yml](../../compose.yml)
 
 ```yaml
   grafana:
@@ -374,7 +374,7 @@ In accordance with subject security requirements, Grafana is hardened against un
 
 ## 6. Criterion 5: Prometheus Alerting Rules Engine
 
-Alerting rules are declarative threshold assertions evaluated by Prometheus's internal rule evaluation engine. Configured in [alert_rules.yml](file:///home/aysadeq/Desktop/Freelancer/devops/monitoring/prometheus/alert_rules.yml).
+Alerting rules are declarative threshold assertions evaluated by Prometheus's internal rule evaluation engine. Configured in [alert_rules.yml](../monitoring/prometheus/alert_rules.yml).
 
 ### The Alert Lifecycle State Machine
 

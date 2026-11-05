@@ -162,12 +162,9 @@ bash ./scripts/generate-client.sh
 
 ## 📚 Documentation Roadmap
 
+- [DevOps Architecture & Infrastructure Hub](./devops/DevOps.md) — Complete DevOps portal: Cloud Deployment (IV.10 Major), Disaster Recovery & Status Page (IV.7 Minor), and Observability Suite (IV.7 Major).
 - [System Architecture & Technical Design](./docs/architecture.md) — Comprehensive architecture, ERD diagrams, WebSocket pipelines, and feature matrix.
 - [Development Guide](./docs/development.md) — Step-by-step local development instructions and configuration details.
-- [Docker Compose Deployment](./docs/deployment-docker-compose.md) — Self-hosted deployment setup with Traefik and SSL.
-- [Cloud Deployment](./docs/deployment.md) — Cloud hosting guidance.
-- [Monitoring & Observability Suite](./devops/monitoring/MONITORING.md) — Prometheus, Grafana dashboards, alerting rules, and telemetry.
-- [Disaster Recovery Runbook & Backup Suite](./devops/backup/BACKUP.md) — Health checks, backup schedules, rotation, and restoration procedures.
 - [Frontend UI & Design QA](./frontend/UI-POLISH.md) — Design system decisions, typography, and test verification notes.
 - [42 Subject Specification](./docs/subject/en.subject.pdf) — Official project requirements and evaluation criteria.
 
