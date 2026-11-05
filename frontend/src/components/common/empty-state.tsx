@@ -19,7 +19,7 @@ export function EmptyState({ icon: Icon, title, description, action, className }
 			)}
 		>
 			<div>
-				<span className="mx-auto grid size-14 place-items-center rounded-lg border border-outline-variant bg-surface-container text-primary">
+				<span className="mx-auto grid size-14 place-items-center rounded-lg border border-outline-variant bg-surface-container text-link">
 					<Icon className="size-6" strokeWidth={1.5} />
 				</span>
 

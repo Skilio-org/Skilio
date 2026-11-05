@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Camera, CheckCircle2, Globe, ImageUp, MapPin, Users } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 import { type ClientProfilePublic, ClientProfilesService, UsersService } from "@/client"
+import { queryKeys } from "@/lib/query-keys"
 
 import { Monogram, WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import {
@@ -19,7 +20,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { markAccountAvatarUpdated, useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import useAuth from "@/hooks/useAuth"
-import { getInitials } from "@/utils"
+import { getInitials } from "@/lib/format"
 
 const companySizeLabels: Record<string, string> = {
 	solo: "Just me",
@@ -28,6 +29,8 @@ const companySizeLabels: Record<string, string> = {
 	"51-200": "51–200 people",
 	"201-plus": "201+ people",
 }
+
+type FormField = "fullName" | "company" | "companyRole" | "website" | "location" | "companySize"
 
 export function ClientProfilePage() {
 	const { user } = useAuth()
@@ -40,15 +43,8 @@ export function ClientProfilePage() {
 	const [uploading, setUploading] = useState(false)
 	const [avatarFailed, setAvatarFailed] = useState(false)
 
-	const [fullName, setFullName] = useState("")
-	const [company, setCompany] = useState("")
-	const [companyRole, setCompanyRole] = useState("")
-	const [website, setWebsite] = useState("")
-	const [location, setLocation] = useState("")
-	const [companySize, setCompanySize] = useState("")
-
 	const { data: profile, isLoading } = useQuery<ClientProfilePublic>({
-		queryKey: ["clientProfile"],
+		queryKey: queryKeys.clientProfile,
 		queryFn: async () => {
 			const res = await ClientProfilesService.profilesReadClientProfileMe()
 			return res.data
@@ -56,18 +52,18 @@ export function ClientProfilePage() {
 		enabled: !!user,
 	})
 
-	useEffect(() => {
-		if (profile) {
-			setFullName(profile.full_name ?? user?.full_name ?? "")
-			setCompany(profile.company ?? "")
-			setCompanyRole(profile.company_role ?? "")
-			setWebsite(profile.company_website ?? "")
-			setLocation(profile.location ?? "")
-			setCompanySize(profile.company_size ?? "")
-		} else if (user) {
-			setFullName(user.full_name ?? "")
-		}
-	}, [profile, user])
+	// The form shows the saved profile until the user edits a field; edits are kept apart so a refetch never overwrites them.
+	const [edits, setEdits] = useState<Partial<Record<FormField, string>>>({})
+	const field = (key: FormField, saved: string | null | undefined) => [
+		edits[key] ?? saved ?? "",
+		(value: string) => setEdits((current) => ({ ...current, [key]: value })),
+	] as const
+	const [fullName, setFullName] = field("fullName", profile?.full_name ?? user?.full_name)
+	const [company, setCompany] = field("company", profile?.company)
+	const [companyRole, setCompanyRole] = field("companyRole", profile?.company_role)
+	const [website, setWebsite] = field("website", profile?.company_website)
+	const [location, setLocation] = field("location", profile?.location)
+	const [companySize, setCompanySize] = field("companySize", profile?.company_size)
 
 	const updateMutation = useMutation({
 		mutationFn: async () => {
@@ -83,10 +79,13 @@ export function ClientProfilePage() {
 			})
 			return res.data
 		},
-		onSuccess: () => {
+		onSuccess: async () => {
 			setSaved(true)
-			queryClient.invalidateQueries({ queryKey: ["clientProfile"] })
-			queryClient.invalidateQueries({ queryKey: ["currentUser"] })
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: queryKeys.clientProfile }),
+				queryClient.invalidateQueries({ queryKey: queryKeys.currentUser }),
+			])
+			setEdits({})
 			toast.success("Client profile saved")
 		},
 		onError: () => {
@@ -96,7 +95,6 @@ export function ClientProfilePage() {
 
 	const displayName = fullName || profile?.full_name || user?.full_name || "Your name"
 	const avatarUrl = useAccountAvatarUrl(user?.id)
-	useEffect(() => setAvatarFailed(false), [])
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -129,7 +127,7 @@ export function ClientProfilePage() {
 				title="Client profile"
 				description="Help independent professionals understand who you are and what working with you will feel like."
 				meta={
-					<span className="font-medium text-primary">
+					<span className="font-medium text-link">
 						{[company, companyRole, website, location, companySize].filter((value) => value.trim()).length} of 5 details
 						added
 					</span>
@@ -386,7 +384,7 @@ export function ClientProfilePage() {
 									if (response.data.status !== "Ok") throw new Error("Upload failed")
 									markAccountAvatarUpdated(user.id)
 									await queryClient.invalidateQueries({
-										queryKey: ["currentUser"],
+										queryKey: queryKeys.currentUser,
 									})
 									setPhotoUpdated(true)
 									setPhotoDialogOpen(false)

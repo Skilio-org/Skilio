@@ -16,7 +16,7 @@ import { LoadingButton } from "@/components/ui/loading-button"
 
 import useCustomToast from "@/hooks/useCustomToast"
 
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 const formSchema = z.object({
 	email: z.email({
@@ -151,7 +151,7 @@ export function RecoverPasswordPage() {
 							Remember your password?{" "}
 							<RouterLink
 								to="/login"
-								className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary hover:decoration-primary/40"
+								className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:text-link hover:decoration-primary/40"
 							>
 								Log in
 							</RouterLink>

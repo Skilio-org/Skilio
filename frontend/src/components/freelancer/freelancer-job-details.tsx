@@ -114,7 +114,7 @@ export const JobDetails = ({
 			<div className="grid min-h-full md:grid-cols-[minmax(0,1fr)_260px]">
 				<div className="min-w-0">
 					<section className="border-outline-variant/60 border-b px-6 py-7 sm:px-8">
-						<p className="mb-3 font-caption font-medium text-caption text-primary uppercase tracking-wider">
+						<p className="mb-3 font-caption font-medium text-caption text-link uppercase tracking-wider">
 							{job.category} · Opportunity
 						</p>
 						<SheetTitle className="max-w-2xl font-headline-lg font-semibold text-2xl text-on-surface leading-8 tracking-tight">
@@ -170,7 +170,7 @@ export const JobDetails = ({
 					</section>
 					{submitted && (
 						<section className="border-outline-variant/60 border-t px-6 py-6 sm:px-8">
-							<div className="flex items-center gap-2 font-medium text-body-sm text-primary">
+							<div className="flex items-center gap-2 font-medium text-body-sm text-link">
 								<CircleCheck className="size-4" />
 								<span>You have already submitted a proposal for this project.</span>
 							</div>
@@ -252,8 +252,8 @@ export const JobDetails = ({
 				<aside className="border-outline-variant/60 border-t bg-surface-container-low/40 p-6 md:border-t-0 md:border-l">
 					<div className="space-y-2.5">
 						{submitted ? (
-							<div className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 font-label-md text-label-md text-primary dark:border-border-subtle dark:bg-surface-container">
-								<CircleCheck className="size-4 text-primary" />
+							<div className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 font-label-md text-label-md text-link dark:border-border-subtle dark:bg-surface-container">
+								<CircleCheck className="size-4 text-link" />
 								<span>Proposal submitted</span>
 							</div>
 						) : (
@@ -282,7 +282,7 @@ export const JobDetails = ({
 								<Link
 									to="/freelancer-messages"
 									search={{ userId: job.clientId }}
-									className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 font-label-md text-label-md text-primary hover:bg-primary/20"
+									className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 font-label-md text-label-md text-link hover:bg-primary/20"
 								>
 									<MessageSquare className="size-4" />
 									<span>Message client (Connected)</span>
@@ -298,7 +298,7 @@ export const JobDetails = ({
 									onClick={() => setConnectOpen(true)}
 									className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest font-label-md text-label-md text-on-surface hover:bg-surface-container"
 								>
-									<UserPlus className="size-4 text-primary" />
+									<UserPlus className="size-4 text-link" />
 									<span>Connect with client</span>
 								</button>
 							)
@@ -307,7 +307,7 @@ export const JobDetails = ({
 					<section className="mt-7 border-outline-variant/60 border-t pt-6">
 						<h3 className="font-semibold text-headline-sm">About the client</h3>
 						<div className="mt-4 flex items-center gap-3">
-							<span className="grid size-9 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-primary">
+							<span className="grid size-9 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-link">
 								<Building2 className="size-4" />
 							</span>
 							<div>
@@ -335,7 +335,7 @@ export const JobDetails = ({
 				<DialogContent className="sm:max-w-md">
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2">
-							<UserPlus className="size-5 text-primary" />
+							<UserPlus className="size-5 text-link" />
 							<span>Connect with {job.company}</span>
 						</DialogTitle>
 						<DialogDescription>

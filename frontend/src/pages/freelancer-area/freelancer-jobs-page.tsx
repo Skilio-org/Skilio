@@ -14,6 +14,7 @@ import { useInfiniteQuery } from "@tanstack/react-query"
 import { JobsService } from "@/client"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useState } from "react"
+import { queryKeys } from "@/lib/query-keys"
 
 const popularSearches = ["Product design", "React", "Content strategy", "Design systems", "Mobile app"]
 
@@ -51,7 +52,7 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 		fetchNextPage,
 		isFetchingNextPage,
 	} = useInfiniteQuery({
-		queryKey: ["freelancer-jobs", search, category, budgetType, hourlyRate, location, sortBy],
+		queryKey: [...queryKeys.freelancerJobs, search, category, budgetType, hourlyRate, location, sortBy],
 		initialPageParam: 0,
 		queryFn: async ({ pageParam, signal }) => {
 			const { data } = await JobsService.readJobs({
@@ -200,11 +201,11 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 		<div className="divide-y divide-outline-variant/50">
 			<div className="flex items-center justify-between gap-2 pb-4">
 				<h2 className="flex items-center gap-2 font-semibold text-body-md">
-					<Filter className="size-4 text-primary" />
+					<Filter className="size-4 text-link" />
 					Refine search
 				</h2>
 
-				<button type="button" onClick={clear} className="text-caption text-primary hover:underline">
+				<button type="button" onClick={clear} className="text-caption text-link hover:underline">
 					Clear all
 				</button>
 			</div>
@@ -281,7 +282,7 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 				eyebrow="Freelancer workspace"
 				title="Find your next project."
 				description="Discover freelance opportunities curated for your skill set and contract preferences."
-				meta={<span className="font-medium text-primary">Discover verified contracts</span>}
+				meta={<span className="font-medium text-link">Discover verified contracts</span>}
 				action={
 					<Link
 						to="/freelancer-saved-jobs"
@@ -380,7 +381,7 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 											<SelectItem
 												key={value}
 												value={value}
-												className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+												className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
 											>
 												{label}
 											</SelectItem>

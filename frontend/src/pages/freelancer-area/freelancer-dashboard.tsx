@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Bookmark, BriefcaseBusiness, CheckCircle2, ChevronDown, Circle, Search } from "lucide-react"
 import { useState } from "react"
+import { queryKeys } from "@/lib/query-keys"
 
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
 import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
@@ -24,7 +25,7 @@ const FreelancerDashboardPage = () => {
 	useErrorToast(error, "freelancer-proposals-load")
 
 	const { data: jobs = [], isPending: jobsPending } = useQuery({
-		queryKey: ["freelancer-jobs", "dashboard"],
+		queryKey: queryKeys.freelancerJobsDashboard,
 		queryFn: async ({ signal }) => {
 			const { data } = await JobsService.readJobs({
 				query: { skip: 0, limit: 100, status: "open", sort_by: "newest" },
@@ -55,7 +56,7 @@ const FreelancerDashboardPage = () => {
 				description="Keep your profile current and discover verified opportunities curated specifically for your skill stack."
 				meta={
 					<span
-						className={`flex items-center gap-1 font-caption font-medium text-caption ${available ? "text-primary" : "text-secondary"}`}
+						className={`flex items-center gap-1 font-caption font-medium text-caption ${available ? "text-link" : "text-secondary"}`}
 					>
 						<span
 							className={`size-1.5 rounded-full ${available ? "bg-primary-container dark:bg-primary" : "bg-outline"}`}
@@ -83,7 +84,7 @@ const FreelancerDashboardPage = () => {
 						</Link>
 						<Link
 							to="/freelancer-jobs"
-							className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
+							className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary shadow-sm transition-colors hover:bg-primary-hover dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
 						>
 							<Search className="size-4" />
 							Browse all jobs
@@ -110,7 +111,7 @@ const FreelancerDashboardPage = () => {
 											aria-pressed={active}
 											className={
 												active
-													? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-surface-container-lowest transition-colors dark:bg-on-surface dark:text-background"
+													? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-on-primary transition-colors dark:bg-on-surface dark:text-background"
 													: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
 											}
 										>
@@ -141,7 +142,7 @@ const FreelancerDashboardPage = () => {
 
 						<Link
 							to="/freelancer-jobs"
-							className="flex items-center gap-0.5 font-label-sm font-medium text-label-sm text-primary transition-colors hover:text-primary-container"
+							className="flex items-center gap-0.5 font-label-sm font-medium text-label-sm text-link hover:underline"
 						>
 							View all
 							<ArrowRight className="size-3.5" />
@@ -203,19 +204,19 @@ const FreelancerDashboardPage = () => {
 							<div className="mb-1.5 flex items-center justify-between font-caption text-caption">
 								<span className="font-medium text-on-surface dark:text-on-surface-soft">Profile readiness</span>
 
-								<span className="font-medium text-primary dark:text-primary-hover">Review</span>
+								<span className="font-medium text-link dark:text-primary-hover">Review</span>
 							</div>
 
 							<div className="h-px w-full bg-surface-container dark:bg-border-dark" />
 
 							<ul className="mt-3 flex flex-col gap-2 font-caption text-caption text-on-surface-variant">
 								<li className="flex items-center gap-2">
-									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-primary" />
+									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-link" />
 									<span>Keep your skills and rate current</span>
 								</li>
 
 								<li className="flex items-center gap-2">
-									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-primary" />
+									<CheckCircle2 className="size-3.5 shrink-0 text-primary-container dark:text-link" />
 									<span>Show strong portfolio work</span>
 								</li>
 
@@ -228,7 +229,7 @@ const FreelancerDashboardPage = () => {
 
 						<Link
 							to="/freelancer"
-							className="group flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-surface-container-lowest shadow-sm transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
+							className="group flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary shadow-sm transition-colors hover:bg-primary-hover dark:bg-on-surface dark:font-semibold dark:text-background dark:shadow-none dark:hover:bg-white"
 						>
 							Complete profile
 							<ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
@@ -245,7 +246,7 @@ const FreelancerDashboardPage = () => {
 								</span>
 							</div>
 
-							<Link to="/freelancer-proposals" className="font-label-sm text-label-sm text-primary hover:underline">
+							<Link to="/freelancer-proposals" className="font-label-sm text-label-sm text-link hover:underline">
 								View all
 							</Link>
 						</div>

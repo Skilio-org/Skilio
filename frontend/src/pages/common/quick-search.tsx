@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Search } from "lucide-react"
 import { useAccountRole } from "@/hooks/useAccountRole"
+import { queryKeys } from "@/lib/query-keys"
 
 const rowClass =
 	"group flex items-center justify-between rounded p-2 text-left transition-colors hover:bg-surface-container"
@@ -14,7 +15,7 @@ export const QuickSavedSearch = () => {
 		isLoading,
 		isError,
 	} = useQuery({
-		queryKey: ["recentSearch"],
+		queryKey: queryKeys.recentSearches,
 		queryFn: async () => {
 			const response = await SearchesService.readRecentSearches()
 			return response.data
@@ -54,7 +55,7 @@ export const QuickSavedSearch = () => {
 					<Link
 						to="/freelancer-jobs"
 						search={{ q: undefined }}
-						className="font-label-sm text-label-sm text-primary hover:underline"
+						className="font-label-sm text-label-sm text-link hover:underline"
 					>
 						Search
 					</Link>
@@ -62,7 +63,7 @@ export const QuickSavedSearch = () => {
 					<Link
 						to="/talent"
 						search={{ q: undefined, category: undefined }}
-						className="font-label-sm text-label-sm text-primary hover:underline"
+						className="font-label-sm text-label-sm text-link hover:underline"
 					>
 						Search
 					</Link>
@@ -75,7 +76,7 @@ export const QuickSavedSearch = () => {
 							<>
 								<span className="flex items-center gap-2">
 									<Search className="size-4 text-outline" />
-									<span className="font-body-sm text-body-sm text-on-surface transition-colors group-hover:text-primary">
+									<span className="font-body-sm text-body-sm text-on-surface transition-colors group-hover:text-link">
 										{search}
 									</span>
 								</span>

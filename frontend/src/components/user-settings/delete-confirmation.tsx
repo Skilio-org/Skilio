@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
+import { queryKeys } from "@/lib/query-keys"
 
 import { UsersService } from "@/client"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
@@ -17,7 +18,7 @@ import { LoadingButton } from "@/components/ui/loading-button"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 const DeleteConfirmation = () => {
 	const queryClient = useQueryClient()
@@ -34,7 +35,7 @@ const DeleteConfirmation = () => {
 		},
 		onError: handleError.bind(showErrorToast),
 		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: ["currentUser"] })
+			queryClient.invalidateQueries({ queryKey: queryKeys.currentUser })
 		},
 	})
 

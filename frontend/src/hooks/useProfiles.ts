@@ -26,8 +26,7 @@ export function createFallbackProfile(user: UserPublic): ConversationProfile {
 	} as unknown as ConversationProfile
 }
 
-export async function fetchProfile(user: UserPublic, signal: AbortSignal): Promise<ConversationProfile> {
-	console.log("FETCHING PROFILE", user.id, user.active_role)
+async function fetchProfile(user: UserPublic, signal: AbortSignal): Promise<ConversationProfile> {
 	try {
 		if (user.active_role === "freelancer") {
 			const { data } = await ProfilesService.readProfileByUserId({

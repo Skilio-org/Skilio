@@ -8,7 +8,7 @@ const NotFound = () => {
 	return (
 		<div className="min-h-svh bg-muted/35" data-testid="not-found">
 			<header className="mx-auto flex h-18 max-w-330 items-center px-5 sm:px-8">
-				<Logo className="h-8" />
+				<Logo className="h-10" />
 			</header>
 			<main className="mx-auto grid min-h-[calc(100svh-72px)] max-w-330 place-items-center px-5 pb-20 sm:px-8">
 				<section className="relative w-full max-w-xl overflow-hidden rounded-3xl border border-border bg-card p-7 shadow-floating sm:p-11">

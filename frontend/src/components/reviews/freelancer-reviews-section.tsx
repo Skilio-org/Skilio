@@ -236,7 +236,7 @@ export function FreelancerReviewsSection({
 							aria-pressed={selectedStarFilter === null}
 							className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm flex items-center transition-colors ${
 								selectedStarFilter === null
-									? "border-primary text-primary"
+									? "border-primary text-link"
 									: "border-transparent text-on-surface-variant hover:text-on-surface"
 							}`}
 						>
@@ -254,7 +254,7 @@ export function FreelancerReviewsSection({
 									aria-pressed={active}
 									className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm flex items-center transition-colors ${
 										active
-											? "border-primary text-primary"
+											? "border-primary text-link"
 											: "border-transparent text-on-surface-variant hover:text-on-surface"
 									}`}
 								>
@@ -288,7 +288,7 @@ export function FreelancerReviewsSection({
 									<SelectItem
 										key={value}
 										value={value}
-										className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-primary"
+										className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
 									>
 										{label}
 									</SelectItem>

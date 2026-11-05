@@ -241,7 +241,7 @@ export function EntryDialog({
 											{image ? image.name : "Current image"}
 										</span>
 										<div className="flex shrink-0 gap-3 text-xs">
-											<label className="cursor-pointer font-medium text-primary hover:underline">
+											<label className="cursor-pointer font-medium text-link hover:underline">
 												Replace
 												<input
 													className="sr-only"

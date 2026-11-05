@@ -1,109 +1,38 @@
 import { Link } from "@tanstack/react-router"
 import { cn } from "@/lib/utils"
 
-import skilioIcon from "/assets/images/skilio-icon.svg"
 import skilioLogo from "/assets/images/skilio-logo.svg"
 import skilioTypography from "/assets/images/skilio-typography.svg"
 
-export interface LogoProps {
+interface LogoProps {
+	// Every variant except "typography" renders the Skilio mark (skilio-logo.svg); the others are kept so existing callers keep working.
 	variant?: "full" | "icon" | "typography" | "combined" | "responsive"
 	className?: string
 	iconClassName?: string
-	textClassName?: string
-	gapClassName?: string
 	asLink?: boolean
 	to?: "/" | "/dashboard" | "/freelancer" | "/freelancer-dashboard" | string
-	// Adds the light-mode outline so the lime logo stands out on light backgrounds. Turn off on dark-only surfaces.
-	outlined?: boolean
 }
 
-export function Logo({
-	variant = "full",
-	className,
-	iconClassName,
-	textClassName,
-	gapClassName = "gap-2.5",
-	asLink = true,
-	to = "/",
-	outlined = true,
-}: LogoProps) {
-	let content: React.ReactNode
-
-	switch (variant) {
-		case "icon":
-			content = (
-				<img
-					src={skilioIcon}
-					alt="Skilio"
-					draggable={false}
-					className={cn("size-8 select-none object-contain", className)}
-				/>
-			)
-			break
-
-		case "typography":
-			content = (
+export function Logo({ variant = "full", className, iconClassName, asLink = true, to = "/" }: LogoProps) {
+	const content = (
+		<span className="inline-flex">
+			{variant === "typography" ? (
 				<img
 					src={skilioTypography}
 					alt="Skilio"
 					draggable={false}
 					className={cn("h-6 w-auto select-none object-contain", className)}
 				/>
-			)
-			break
-
-		case "combined":
-			content = (
+			) : (
 				<img
 					src={skilioLogo}
 					alt="Skilio"
 					draggable={false}
-					className={cn("h-8 w-auto select-none object-contain", className)}
+					className={cn("h-8 w-auto shrink-0 select-none object-contain", className, iconClassName)}
 				/>
-			)
-			break
-
-		case "responsive":
-			content = (
-				<div className={cn("inline-flex items-center", gapClassName, className)}>
-					<img
-						src={skilioIcon}
-						alt="Skilio"
-						draggable={false}
-						className={cn("size-8 select-none object-contain shrink-0", iconClassName)}
-					/>
-					<img
-						src={skilioTypography}
-						alt="Skilio"
-						draggable={false}
-						className={cn("h-5 w-auto select-none object-contain group-data-[collapsible=icon]:hidden", textClassName)}
-					/>
-				</div>
-			)
-			break
-
-		case "full":
-		default:
-			content = (
-				<div className={cn("inline-flex items-center", gapClassName, className)}>
-					<img
-						src={skilioIcon}
-						alt="Skilio"
-						draggable={false}
-						className={cn("size-8 select-none object-contain shrink-0", iconClassName)}
-					/>
-					<img
-						src={skilioTypography}
-						alt="Skilio"
-						draggable={false}
-						className={cn("h-5 w-auto select-none object-contain", textClassName)}
-					/>
-				</div>
-			)
-			break
-	}
-
-	content = <span className={cn("inline-flex", outlined && "logo-outline")}>{content}</span>
+			)}
+		</span>
+	)
 
 	if (!asLink) {
 		return content

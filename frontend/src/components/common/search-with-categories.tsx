@@ -1,8 +1,10 @@
-import { CategoriesService, SearchesService } from "@/client"
+import { SearchesService } from "@/client"
+import { useCategories } from "@/hooks/useCategories"
 import CategorySelect from "@/components/common/category-select"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Search } from "lucide-react"
 import { useEffect, useState } from "react"
+import { queryKeys } from "@/lib/query-keys"
 
 const defaultPopularSearches = ["Product design", "React", "Brand strategy", "Design systems", "AI"]
 
@@ -31,15 +33,7 @@ export const SearchWithCategories = ({
 		data: categories = [],
 		isLoading: categoriesLoading,
 		isError: categoriesError,
-	} = useQuery({
-		queryKey: ["categories"],
-		queryFn: async () => {
-			const response = await CategoriesService.readCategories()
-
-			return response.data.data
-		},
-		staleTime: 1000 * 60 * 30,
-	})
+	} = useCategories()
 
 	const queryClient = useQueryClient()
 
@@ -53,7 +47,7 @@ export const SearchWithCategories = ({
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: ["recentSearch"],
+				queryKey: queryKeys.recentSearches,
 			})
 		},
 	})
@@ -123,7 +117,7 @@ export const SearchWithCategories = ({
 						key={item}
 						type="button"
 						onClick={() => submitSearch(item)}
-						className="rounded bg-surface-container px-2.5 py-1 text-on-surface-variant hover:text-primary"
+						className="rounded bg-surface-container px-2.5 py-1 text-on-surface-variant hover:text-link"
 					>
 						{item}
 					</button>

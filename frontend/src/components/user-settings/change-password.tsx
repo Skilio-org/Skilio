@@ -10,7 +10,7 @@ import { LoadingButton } from "@/components/ui/loading-button"
 import { PasswordInput } from "@/components/ui/password-input"
 import { SettingsSectionHeader } from "@/components/user-settings/settings-section-header"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 import { workspaceStyles } from "../dashboard/dashboard-header"
 
 const formSchema = z

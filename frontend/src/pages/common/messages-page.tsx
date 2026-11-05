@@ -59,11 +59,6 @@ export function MessagesPage({
 	const queryClient = useQueryClient()
 
 	useEffect(() => {
-		console.log(JSON.stringify(profiles.data?.size))
-		console.log(JSON.stringify(conversations.data?.data.length))
-	}, [profiles.isPending, conversations.isPending])
-
-	useEffect(() => {
 		if (
 			conversations.isSuccess &&
 			SelectedUserId &&
@@ -71,7 +66,6 @@ export function MessagesPage({
 			!createConversation.isPending &&
 			creatingForUserRef.current !== SelectedUserId
 		) {
-			console.log("Creating new conversation with user:", SelectedUserId)
 			void createConversation
 				.mutateAsync(SelectedUserId)
 				.then((newConversation) => {
@@ -217,6 +211,9 @@ export function MessagesPage({
 		if (!sent) {
 			setMessageSendResult(rmessage.id, "failed")
 			toast.error("Failed to send message. Please try again.")
+		} else {
+			// TODO: If a messgae was send the conversation should bubble up to the top of the list.
+			
 		}
 		// }, 1000) // Simulate a delay for sending the message
 	}
@@ -232,7 +229,7 @@ export function MessagesPage({
 						: "Manage client conversations, share design artifacts, and collaborate on active contracts."
 				}
 				meta={
-					<span className="flex items-center gap-1 font-medium text-primary">
+					<span className="flex items-center gap-1 font-medium text-link">
 						<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
 						{unreadCount ?? 0} unread {unreadCount === 1 ? "message" : "messages"}
 					</span>

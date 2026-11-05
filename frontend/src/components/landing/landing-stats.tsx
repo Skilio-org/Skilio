@@ -34,9 +34,9 @@ export function LandingStats() {
 	return (
 		<section
 			aria-label="Platform proof metrics and trusted companies"
-			className="border-y border-border/70 bg-card py-10 sm:py-12 lg:py-16"
+			className="border-y border-border bg-card py-10 sm:py-12 lg:py-16"
 		>
-			<div className="landing-container px-4 sm:px-6">
+			<div className="landing-container">
 				{/* 4 Stats Grid */}
 				<div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-8 md:grid-cols-4 lg:gap-10">
 					{STATS.map((stat, idx) => (

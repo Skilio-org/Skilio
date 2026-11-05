@@ -10,7 +10,8 @@ import {
 import { StarRatingInput } from "./review-stars"
 import type { ReviewPublic } from "@/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { extractErrorMessage, getInitials } from "@/utils"
+import { extractErrorMessage } from "@/lib/errors"
+import { getInitials } from "@/lib/format"
 import { AlertCircle, Loader2 } from "lucide-react"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { cn } from "@/lib/utils"
@@ -103,7 +104,7 @@ export function ReviewModal({
 					<div className="flex items-center gap-3.5 rounded-lg border border-outline-variant bg-muted/40 p-3">
 						<Avatar className="size-11 border border-outline-variant">
 							{freelancerAvatarUrl && <AvatarImage src={freelancerAvatarUrl} alt={freelancerName} />}
-							<AvatarFallback className="bg-primary/10 font-medium text-primary text-sm">
+							<AvatarFallback className="bg-primary/10 font-medium text-link text-sm">
 								{getInitials(freelancerName)}
 							</AvatarFallback>
 						</Avatar>

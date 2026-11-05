@@ -32,7 +32,6 @@ import { Route as LayoutFreelancerProposalsRouteImport } from './routes/_layout/
 import { Route as LayoutFreelancerSavedJobsRouteImport } from './routes/_layout/freelancer-saved-jobs'
 import { Route as LayoutFreelancerSettingsRouteImport } from './routes/_layout/freelancer-settings'
 import { Route as LayoutMessagesRouteImport } from './routes/_layout/messages'
-import { Route as LayoutOnboardingRouteImport } from './routes/_layout/onboarding'
 import { Route as LayoutSavedRouteImport } from './routes/_layout/saved'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutTalentRouteImport } from './routes/_layout/talent'
@@ -157,11 +156,6 @@ const LayoutMessagesRoute = LayoutMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutOnboardingRoute = LayoutOnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => LayoutRoute,
-} as any)
 const LayoutSavedRoute = LayoutSavedRouteImport.update({
   id: '/saved',
   path: '/saved',
@@ -207,7 +201,6 @@ export interface FileRoutesByFullPath {
   '/freelancer-saved-jobs': typeof LayoutFreelancerSavedJobsRoute
   '/freelancer-settings': typeof LayoutFreelancerSettingsRoute
   '/messages': typeof LayoutMessagesRoute
-  '/onboarding': typeof LayoutOnboardingRoute
   '/saved': typeof LayoutSavedRoute
   '/settings': typeof LayoutSettingsRoute
   '/talent': typeof LayoutTalentRoute
@@ -236,7 +229,6 @@ export interface FileRoutesByTo {
   '/freelancer-saved-jobs': typeof LayoutFreelancerSavedJobsRoute
   '/freelancer-settings': typeof LayoutFreelancerSettingsRoute
   '/messages': typeof LayoutMessagesRoute
-  '/onboarding': typeof LayoutOnboardingRoute
   '/saved': typeof LayoutSavedRoute
   '/settings': typeof LayoutSettingsRoute
   '/talent': typeof LayoutTalentRoute
@@ -267,7 +259,6 @@ export interface FileRoutesById {
   '/_layout/freelancer-saved-jobs': typeof LayoutFreelancerSavedJobsRoute
   '/_layout/freelancer-settings': typeof LayoutFreelancerSettingsRoute
   '/_layout/messages': typeof LayoutMessagesRoute
-  '/_layout/onboarding': typeof LayoutOnboardingRoute
   '/_layout/saved': typeof LayoutSavedRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/talent': typeof LayoutTalentRoute
@@ -298,7 +289,6 @@ export interface FileRouteTypes {
     | '/freelancer-saved-jobs'
     | '/freelancer-settings'
     | '/messages'
-    | '/onboarding'
     | '/saved'
     | '/settings'
     | '/talent'
@@ -327,7 +317,6 @@ export interface FileRouteTypes {
     | '/freelancer-saved-jobs'
     | '/freelancer-settings'
     | '/messages'
-    | '/onboarding'
     | '/saved'
     | '/settings'
     | '/talent'
@@ -357,7 +346,6 @@ export interface FileRouteTypes {
     | '/_layout/freelancer-saved-jobs'
     | '/_layout/freelancer-settings'
     | '/_layout/messages'
-    | '/_layout/onboarding'
     | '/_layout/saved'
     | '/_layout/settings'
     | '/_layout/talent'
@@ -541,13 +529,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutMessagesRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/onboarding': {
-      id: '/_layout/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof LayoutOnboardingRouteImport
-      parentRoute: typeof LayoutRoute
-    }
     '/_layout/saved': {
       id: '/_layout/saved'
       path: '/saved'
@@ -592,7 +573,6 @@ interface LayoutRouteChildren {
   LayoutFreelancerSavedJobsRoute: typeof LayoutFreelancerSavedJobsRoute
   LayoutFreelancerSettingsRoute: typeof LayoutFreelancerSettingsRoute
   LayoutMessagesRoute: typeof LayoutMessagesRoute
-  LayoutOnboardingRoute: typeof LayoutOnboardingRoute
   LayoutSavedRoute: typeof LayoutSavedRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutTalentRoute: typeof LayoutTalentRoute
@@ -612,7 +592,6 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutFreelancerSavedJobsRoute: LayoutFreelancerSavedJobsRoute,
   LayoutFreelancerSettingsRoute: LayoutFreelancerSettingsRoute,
   LayoutMessagesRoute: LayoutMessagesRoute,
-  LayoutOnboardingRoute: LayoutOnboardingRoute,
   LayoutSavedRoute: LayoutSavedRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutTalentRoute: LayoutTalentRoute,

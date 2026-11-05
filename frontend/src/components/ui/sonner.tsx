@@ -33,13 +33,13 @@ const Toaster = ({
 			className="toaster group"
 			icons={{
 				success: (
-					<span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
+					<span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-link">
 						<CircleCheckIcon className="size-4" />
 					</span>
 				),
 
 				info: (
-					<span className="grid size-8 place-items-center rounded-lg bg-surface-container text-primary">
+					<span className="grid size-8 place-items-center rounded-lg bg-surface-container text-link">
 						<InfoIcon className="size-4" />
 					</span>
 				),

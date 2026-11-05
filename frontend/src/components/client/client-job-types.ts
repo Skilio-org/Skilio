@@ -19,7 +19,7 @@ export const blankClientJob: ClientJob = {
 	description: "",
 	skills: [],
 	experienceLevel: "",
-	category: "Development",
+	category: "",
 	location: "",
 	type: "Fixed price",
 	budget: "",

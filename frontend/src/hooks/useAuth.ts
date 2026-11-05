@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
+import { queryKeys } from "@/lib/query-keys"
 
 import {
 	type Body_login_login_access_token as AccessToken,
@@ -9,7 +10,7 @@ import {
 	UsersService,
 } from "@/client"
 import { AUTH_TOKEN_CHANGED_EVENT } from "@/context/websocket-context"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 import useCustomToast from "./useCustomToast"
 import { toast } from "sonner"
 
@@ -17,7 +18,7 @@ const isLoggedIn = () => {
 	return localStorage.getItem("access_token") !== null
 }
 
-export const currentUserQueryKey = ["currentUser"] as const
+export const currentUserQueryKey = queryKeys.currentUser
 export const fetchCurrentUser = async () => (await UsersService.readUserMe()).data
 
 const useAuth = () => {
@@ -54,9 +55,6 @@ const useAuth = () => {
 			navigate({ to: "/login" })
 		},
 		onError: handleError.bind(showErrorToast),
-		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: ["users"] })
-		},
 	})
 
 	const login = async (data: AccessToken) => {
@@ -72,7 +70,7 @@ const useAuth = () => {
 		} catch (error) {
 			toast.error("Failed to fetch user data")
 			localStorage.removeItem("access_token")
-			queryClient.removeQueries({ queryKey: ["currentUser"] })
+			queryClient.removeQueries({ queryKey: queryKeys.currentUser })
 			throw error
 		}
 	}

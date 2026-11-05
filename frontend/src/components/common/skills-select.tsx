@@ -77,7 +77,7 @@ export function SkillsSelect({ value, onChange, label, inputId }: SkillsSelectPr
 						type="button"
 						key={skill}
 						aria-label={`Remove ${skill}`}
-						className="flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-primary text-sm"
+						className="flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-link text-sm"
 						onClick={() => {
 							onChange(value.filter((selected) => selected !== skill))
 						}}

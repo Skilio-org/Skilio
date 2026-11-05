@@ -228,7 +228,7 @@ export function ConversationList({
 									onQueryChange("")
 									onFilterChange("all")
 								}}
-								className="mt-3 inline-flex h-8 items-center font-label-sm text-label-sm font-medium text-primary hover:underline"
+								className="mt-3 inline-flex h-8 items-center font-label-sm text-label-sm font-medium text-link hover:underline"
 							>
 								Back to all conversations
 							</button>
