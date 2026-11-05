@@ -2,13 +2,13 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from app.api.routes.notifications import push_notification
 from fastapi import APIRouter, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, SessionDep
+from app.api.routes.notifications import push_notification
 from app.models import (
     FreelancerProfile,
     FreelancerProfilePublic,
@@ -20,10 +20,10 @@ from app.models import (
     Proposal,
     ProposalCreate,
     ProposalPublic,
-    ProposalUpdate,
     ProposalsPublic,
     ProposalStatus,
     ProposalStatusUpdate,
+    ProposalUpdate,
     Review,
     User,
     UserPublic,
@@ -167,7 +167,6 @@ async def submit_proposal(
         user_id=job.client_id,
         event=NotificationEvent.PROPOSAL_RECEIVED,
         title="New proposal",
-        link="bojm3a.com???",
         content="You have a new proposal for your job post.",
         proposal_id=proposal.id,
     )

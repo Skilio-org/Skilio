@@ -206,15 +206,12 @@ async def send_connection_request(
             )
         session.refresh(conn)
 
-    # Dispatch realtime notification via Redis / WebSocket
     try:
-        # print(f"Sending connection request notification to user {connection_in.receiver_id}"   )
         await push_notification(
             user_id=connection_in.receiver_id,
             event= NotificationEvent.CONNECTION_REQUEST,
             title="New connection",
-            link="",
-            content="You have a new connection",
+            content=f"{current_user.full_name} wants to connect!",
             connection_id=str(str(conn.id))
         )
     except Exception as e:
@@ -350,18 +347,12 @@ async def accept_connection_request(
 
     # Dispatch realtime notification to sender
     try:
-        await publish_to_user(
-            conn.sender_id,
-            {
-                "type": "notification",
-                "data": {
-                    "title": "Connection Accepted",
-                    "body": f"{current_user.full_name or 'A user'} accepted your connection request.",
-                    "connection_id": str(conn.id),
-                    "user_id": str(current_user.id),
-                    "event": "connection_accepted",
-                },
-            },
+        await push_notification(
+            user_id=conn.sender_id,
+            event=NotificationEvent.CONNECTION_ACCEPTED,
+            title="Connection Accepted",
+            content=f"connection was accepted by {conn.receiver.full_name}",
+            connection_id=conn.id
         )
     except Exception as e:
         logger.warning("Failed to publish connection accepted notification: %s", e)

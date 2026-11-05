@@ -790,6 +790,7 @@ class ReviewPublic(ReviewBase):
     client_name: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    client: UserPublic | None = None
 
 
 class ReviewsPublic(SQLModel):
@@ -1050,6 +1051,7 @@ class JobPostPublic(JobPostBase):
     client_company: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    client: UserPublic | None = None
     skills: list[str] = Field(default_factory=list)
     proposals_count: int = 0
     is_saved: bool = False
@@ -1382,7 +1384,6 @@ class NotificationBase(SQLModel):
     event: NotificationEvent = Field(index=True)
     content: str = Field(min_length=1, max_length=5000)
     title: str = Field(default=None, max_length=255)
-    link: str = Field(default=None, max_length=2048)
 
 
 class Notification(NotificationBase, table=True):
@@ -1431,7 +1432,6 @@ class Notification(NotificationBase, table=True):
 class NotificationPublic(NotificationBase):
     id: uuid.UUID
     is_read: bool
-    link: str
     created_at: datetime | None = None
     proposal: ProposalPublic | None = None
     connection: ConnectionPublic | None = None

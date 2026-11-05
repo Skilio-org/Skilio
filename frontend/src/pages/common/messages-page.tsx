@@ -211,6 +211,9 @@ export function MessagesPage({
 		if (!sent) {
 			setMessageSendResult(rmessage.id, "failed")
 			toast.error("Failed to send message. Please try again.")
+		} else {
+			// TODO: If a messgae was send the conversation should bubble up to the top of the list.
+			
 		}
 		// }, 1000) // Simulate a delay for sending the message
 	}
