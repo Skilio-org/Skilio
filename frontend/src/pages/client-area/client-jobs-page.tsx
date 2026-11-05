@@ -10,6 +10,7 @@ import useAuth from "@/hooks/useAuth"
 import { useErrorToast } from "@/hooks/useErrorToast"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { queryKeys } from "@/lib/query-keys"
 
 type ClientJobsPageProps = {
 	focusedJobId?: string
@@ -25,6 +26,7 @@ function clientJobFromApi(job: JobPostPublic): ClientJob {
 		experienceLevel: level,
 		skills: job.skills ?? [],
 		category: job.category ?? "",
+		location: job.location ?? "",
 		type: job.budget_type === "hourly" ? "Hourly" : "Fixed price",
 		budget: String(job.budget),
 		status: job.status === "draft" ? "Draft" : job.status === "closed" ? "Closed" : "Open",
@@ -37,7 +39,8 @@ function clientJobPayload(job: ClientJob): JobPostCreate {
 		description: writeJobExperience(job.description, job.experienceLevel),
 		budget_type: job.type === "Hourly" ? "hourly" : "fixed",
 		budget: Number(job.budget),
-		category: job.category,
+		category: job.category || null,
+		location: job.location.trim() || null,
 		status: job.status === "Draft" ? "draft" : job.status === "Closed" ? "closed" : "open",
 		skills: job.skills,
 	}
@@ -47,7 +50,7 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 	const { user } = useAuth()
 	const queryClient = useQueryClient()
 	const jobsQuery = useQuery({
-		queryKey: ["client-jobs"],
+		queryKey: queryKeys.clientJobs,
 		enabled: Boolean(user),
 		queryFn: async ({ signal }) => {
 			const { data } = await JobsService.readMyJobs({ query: { skip: 0, limit: 100 }, signal })
@@ -65,7 +68,7 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 			return job.id ? JobsService.updateJob({ path: { id: job.id }, body }) : JobsService.createJob({ body })
 		},
 		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ["client-jobs"] })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.clientJobs })
 			onFocusedJobChange(undefined)
 			setEditorJob(null)
 			toast.success("Job saved")
@@ -75,7 +78,7 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 	const deleteMutation = useMutation({
 		mutationFn: (id: string) => JobsService.deleteJob({ path: { id } }),
 		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ["client-jobs"] })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.clientJobs })
 			onFocusedJobChange(undefined)
 			setEditorJob(null)
 			toast.success("Job deleted")
@@ -105,6 +108,10 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 			toast.error("Shorten the project description before saving this job.")
 			return
 		}
+		if (job.status === "Open" && !job.category) {
+			toast.error("Choose a category before posting this job.")
+			return
+		}
 		saveMutation.mutate(job)
 	}
 
@@ -125,7 +132,12 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 				eyebrow="Client workspace"
 				title="Your next great hire starts here."
 				description="Create a clear brief and keep your hiring in one place."
-				meta={<span className="font-medium text-primary">Hiring activity</span>}
+				meta={
+					<span className="font-medium text-link">
+						{jobs.filter((job) => job.status === "Open").length} open{" "}
+						{jobs.filter((job) => job.status === "Open").length === 1 ? "job" : "jobs"}
+					</span>
+				}
 				action={
 					<button
 						type="button"

@@ -55,7 +55,7 @@ async def create_review(
         client_id=current_user.id,
         freelancer_id=review_in.freelancer_id,
     )
-    session.add(review)
+    session.add(instance=review)
     try:
         session.commit()
     except IntegrityError:
@@ -70,8 +70,7 @@ async def create_review(
         user_id=profile.user_id,
         event=NotificationEvent.REVIEW_RECEIVED,
         title="New Review",
-        link="",
-        content="You have a new review on your profile.",
+        content=f"{current_user.full_name} made a review for you",
         review_id=review.id,
     )
     return ReviewPublic.model_validate(

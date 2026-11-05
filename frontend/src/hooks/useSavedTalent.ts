@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { ProfilesService } from "@/client"
 import useAuth from "@/hooks/useAuth"
+import { queryKeys } from "@/lib/query-keys"
 
 type SavedTalentOptions = {
 	query?: string
@@ -12,7 +13,7 @@ export function useSavedTalent(options: SavedTalentOptions = {}) {
 	const { user } = useAuth()
 	const queryClient = useQueryClient()
 	const savedQuery = useQuery({
-		queryKey: ["saved-talent", options.query ?? "", options.sortBy ?? "newest"],
+		queryKey: [...queryKeys.savedTalent, options.query ?? "", options.sortBy ?? "newest"],
 		enabled: Boolean(user),
 		queryFn: async ({ signal }) => {
 			const { data } = await ProfilesService.readSavedProfiles({
@@ -31,9 +32,9 @@ export function useSavedTalent(options: SavedTalentOptions = {}) {
 		mutationFn: ({ id, saved }: { id: string; saved: boolean }) =>
 			saved ? ProfilesService.unsaveProfile({ path: { id } }) : ProfilesService.saveProfile({ path: { id } }),
 		onSuccess: async (_, { saved }) => {
-			await queryClient.invalidateQueries({ queryKey: ["saved-talent"] })
-			await queryClient.invalidateQueries({ queryKey: ["talent-profiles"] })
-			await queryClient.invalidateQueries({ queryKey: ["talent-profile"] })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.savedTalent })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.talentProfiles })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.talentProfile })
 			toast.success(saved ? "Removed from saved talent" : "Added to saved talent")
 		},
 		onError: () => toast.error("Could not update saved talent. Please try again."),

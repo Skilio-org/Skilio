@@ -41,63 +41,63 @@ export function LandingContracts() {
 	return (
 		<section
 			id="contracts"
-			className="scroll-mt-20 border-y border-border/70 bg-muted/20 py-16 sm:py-24"
+			className="scroll-mt-20 border-y border-border bg-card landing-section"
 		>
 			<div className="landing-container">
 				{/* Section Header */}
-				<div className="flex flex-col gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md bg-[#EEF8E7] px-2.5 py-1 text-xs font-bold text-[#3E7B3D] dark:bg-[#3E7B3D]/20">
+				<div className="landing-section-header">
+					<div className="landing-eyebrow">
 						<ShieldCheck className="size-3.5" />
 						<span>LIVE MARKETPLACE FEED</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
 						High-budget contracts posted today. Serious builders.
 					</h2>
-					<p className="max-w-2xl text-base text-muted-foreground leading-relaxed">
+					<p className="landing-lede">
 						For independent talent: directly apply to pre-funded milestones, set your own
 						rates, and keep 100% of your earnings with zero hidden platform cut penalties.
 					</p>
 				</div>
 
 				{/* Contract Cards Grid */}
-				<div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{CONTRACTS.map((contract) => (
 						<article
 							key={contract.title}
-							className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
+							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<div>
 								{/* Meta Row: Tag & Escrow Badge */}
 								<div className="flex items-center justify-between gap-2">
 									<div className="flex flex-wrap items-center gap-1.5">
-										<span className="rounded-md bg-[#1F2125] px-2 py-0.5 text-[11px] font-semibold text-white dark:bg-white dark:text-[#1F2125]">
+										<span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-foreground border border-border/60">
 											{contract.tag}
 										</span>
-										<span className="inline-flex items-center gap-1 rounded-md bg-[#EEF8E7] px-2 py-0.5 text-[11px] font-semibold text-[#3E7B3D] dark:bg-[#3E7B3D]/20">
+										<span className="inline-flex items-center gap-1 rounded-md bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-2 py-0.5 text-[11px] font-semibold text-[#3E7B3D] dark:text-[#8DD37D]">
 											<ShieldCheck className="size-3" />
 											{contract.escrow}
 										</span>
 									</div>
-									<span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+									<span className="flex items-center gap-1 text-[11px] text-muted-foreground shrink-0">
 										<Clock className="size-3" />
 										{contract.time}
 									</span>
 								</div>
 
 								{/* Title */}
-								<h3 className="mt-4 font-semibold text-foreground text-base group-hover:text-primary transition-colors leading-snug">
+								<h3 className="mt-4 font-semibold text-foreground text-sm sm:text-base group-hover:text-link transition-colors leading-snug">
 									{contract.title}
 								</h3>
 
 								{/* Client Info */}
 								<div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-									<Award className="size-3.5 text-[#3E7B3D]" />
-									<span>{contract.client}</span>
+									<Award className="size-3.5 text-[#3E7B3D] dark:text-[#8DD37D] shrink-0" />
+									<span className="truncate">{contract.client}</span>
 								</div>
 
 								{/* Budget Box */}
-								<div className="mt-4 flex items-baseline gap-2">
-									<span className="font-display font-bold text-2xl text-foreground">
+								<div className="mt-4 flex flex-wrap items-baseline gap-2">
+									<span className="font-display font-bold text-xl sm:text-2xl text-foreground">
 										{contract.budget}
 									</span>
 									<span className="text-xs text-muted-foreground">
@@ -119,14 +119,14 @@ export function LandingContracts() {
 							</div>
 
 							{/* Footer */}
-							<div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4 text-xs">
+							<div className="mt-5 sm:mt-6 flex items-center justify-between border-t border-border/60 pt-3.5 sm:pt-4 text-xs">
 								<span className="text-muted-foreground font-medium">
 									{contract.proposals}
 								</span>
 								<Link
 									to="/signup"
 									search={{ role: "freelancer" }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground hover:underline"
+									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-link hover:underline"
 								>
 									<span>Submit Proposal</span>
 									<ArrowUpRight className="size-3.5" />
@@ -137,11 +137,11 @@ export function LandingContracts() {
 				</div>
 
 				{/* Bottom Actions */}
-				<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+				<div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
 					<Link
 						to="/signup"
 						search={{ role: "freelancer" }}
-						className="inline-flex items-center gap-2 rounded-xl bg-[#1F2125] dark:bg-white px-6 py-3 text-sm font-semibold text-white dark:text-[#1F2125] shadow-xs transition-all hover:bg-[#2B2E32] dark:hover:bg-neutral-200"
+						className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
 					>
 						<span>Browse all 340+ open contracts</span>
 						<ArrowUpRight className="size-4" />
@@ -149,9 +149,9 @@ export function LandingContracts() {
 					<Link
 						to="/signup"
 						search={{ role: "client" }}
-						className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
+						className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
 					>
-						<Sparkles className="size-4 text-[#7FA600] dark:text-[#B8EF0D]" />
+						<Sparkles className="size-4 text-ring" />
 						<span>Post a new project in 2 minutes</span>
 					</Link>
 				</div>
@@ -159,4 +159,3 @@ export function LandingContracts() {
 		</section>
 	)
 }
-

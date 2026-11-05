@@ -1,23 +1,17 @@
-import { ChatService } from "@/client/sdk.gen"
 import { useQuery } from "@tanstack/react-query"
+import { ChatService } from "@/client"
 
-export function useUserOnlineStatus(uuid: string | undefined) {
-	const { data: presence, isPending: presencePending } = useQuery({
-		queryKey: ["chat", "presence", uuid],
-		enabled: Boolean(uuid),
+export function useUserOnlineStatus(userId: string | undefined) {
+	const { data: presence, isPending } = useQuery({
+		queryKey: ["chat", "presence", userId],
+		enabled: Boolean(userId),
 		refetchInterval: 30_000,
-		queryFn: async ({ signal: signal }) => {
-			if (!uuid) throw new Error("A user is required")
-			const response = await ChatService.checkUserPresence({
-				path: { user_id: uuid },
-				signal: signal,
-			})
+		staleTime: 10_000,
+		queryFn: async ({ signal }) => {
+			if (!userId) throw new Error("A user is required")
+			const response = await ChatService.checkUserPresence({ path: { user_id: userId }, signal })
 			return response.data
 		},
-
-		// Optional extras:
-		refetchIntervalInBackground: false, // Stops polling when browser tab loses focus (default: false)
-		staleTime: 10_000, // Keeps data fresh for 10s before marking stale
 	})
-	return { isOnline: presence?.is_online ?? false, isPending: presencePending }
+	return { isOnline: presence?.is_online ?? false, isPending }
 }

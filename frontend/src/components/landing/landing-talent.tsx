@@ -34,24 +34,24 @@ export function LandingTalent({
 	const displayPeople = (filteredPeople.length > 0 ? filteredPeople : freelancers).slice(0, 3)
 
 	return (
-		<section id="talent" className="scroll-mt-20 py-16 sm:py-24">
+		<section id="talent" className="scroll-mt-20 landing-section">
 			<div className="landing-container">
 				{/* Section Header */}
-				<div className="flex flex-col gap-3">
-					<div className="inline-flex w-fit items-center gap-1.5 rounded-md bg-[#EDF9C5] px-2.5 py-1 text-xs font-bold text-[#4F6500] dark:bg-[#1F2125] dark:text-[#B8EF0D]">
+				<div className="landing-section-header">
+					<div className="landing-eyebrow">
 						<span>PRE-VETTED ROSTER</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
 						Curated specialists ready for your next sprint.
 					</h2>
-					<p className="max-w-2xl text-base text-muted-foreground leading-relaxed">
+					<p className="landing-lede">
 						Browse verified portfolios, inspect technical match scores, and interview senior
 						engineers and designers in under 24 hours.
 					</p>
 				</div>
 
-				{/* Filter Tabs */}
-				<div className="mt-8 flex flex-wrap gap-2">
+				{/* Filter Tabs - horizontally scrollable on mobile */}
+				<div className="mt-8 sm:mt-12 flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap no-scrollbar">
 					{CATEGORIES.map((cat) => {
 						const active = filter === cat
 						return (
@@ -59,9 +59,9 @@ export function LandingTalent({
 								key={cat}
 								type="button"
 								onClick={() => onFilter(cat)}
-								className={`rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+								className={`shrink-0 rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-medium transition-colors ${
 									active
-										? "bg-[#1F2125] text-white shadow-xs dark:bg-white dark:text-[#1F2125]"
+										? "bg-primary text-primary-foreground"
 										: "border border-border/80 bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
 								}`}
 							>
@@ -72,55 +72,55 @@ export function LandingTalent({
 				</div>
 
 				{/* Talent Cards Grid */}
-				<div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{displayPeople.map((person) => (
 						<article
 							key={person.id}
-							className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-6 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
+							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<div>
 								{/* Card Top: Avatar, Name, Rate */}
 								<div className="flex items-start justify-between gap-3">
-									<div className="flex items-center gap-3.5">
+									<div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
 										<span
-											className={`grid size-12 shrink-0 place-items-center rounded-xl font-bold text-sm ${person.background} ${person.foreground} shadow-xs`}
+											className={`grid size-11 sm:size-12 shrink-0 place-items-center rounded-xl font-bold text-sm ${person.background} ${person.foreground}`}
 										>
 											{person.initials}
 										</span>
-										<div>
+										<div className="min-w-0">
 											<div className="flex items-center gap-1.5">
-												<h3 className="font-semibold text-foreground text-base group-hover:text-primary transition-colors">
+												<h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-link transition-colors truncate">
 													{person.name}
 												</h3>
-												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:bg-[#3E7B3D]/20">
+												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
 													<Check className="size-2.5" />
 													Top 3%
 												</span>
 											</div>
-											<p className="text-xs text-muted-foreground">{person.title}</p>
+											<p className="text-xs text-muted-foreground truncate">{person.title}</p>
 										</div>
 									</div>
 
-									<div className="text-right">
-										<p className="font-display font-bold text-base text-foreground sm:text-lg">
+									<div className="text-right shrink-0">
+										<p className="font-display font-bold text-base sm:text-lg text-foreground">
 											${person.rate}
 											<span className="text-xs font-normal text-muted-foreground">
 												/hr
 											</span>
 										</p>
-										<span className="text-[11px] font-medium text-[#3E7B3D]">
+										<span className="text-[11px] font-medium text-[#3E7B3D] dark:text-[#8DD37D]">
 											{person.availability}
 										</span>
 									</div>
 								</div>
 
 								{/* Bio */}
-								<p className="mt-4 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+								<p className="mt-3.5 sm:mt-4 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
 									{person.bio}
 								</p>
 
 								{/* Skills Pills */}
-								<div className="mt-4 flex flex-wrap gap-1.5">
+								<div className="mt-3.5 sm:mt-4 flex flex-wrap gap-1.5">
 									{person.skills.slice(0, 4).map((skill) => (
 										<span
 											key={skill}
@@ -133,22 +133,22 @@ export function LandingTalent({
 							</div>
 
 							{/* Card Footer */}
-							<div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4 text-xs">
-								<div className="flex items-center gap-1">
-									<Star className="size-3.5 fill-amber-400 text-amber-400" />
+							<div className="mt-5 sm:mt-6 flex items-center justify-between border-t border-border/60 pt-3.5 sm:pt-4 text-xs">
+								<div className="flex items-center gap-1 min-w-0">
+									<Star className="size-3.5 fill-amber-400 text-amber-400 shrink-0" />
 									<span className="font-bold text-foreground">{person.rating}</span>
 									<span className="text-muted-foreground">({person.reviews})</span>
 									<span className="mx-1 text-muted-foreground/60">·</span>
-									<span className="flex items-center gap-1 text-muted-foreground">
-										<MapPin className="size-3" />
-										{person.location.split(",")[0]}
+									<span className="flex items-center gap-1 text-muted-foreground truncate">
+										<MapPin className="size-3 shrink-0" />
+										<span className="truncate max-w-[85px] sm:max-w-none">{person.location.split(",")[0]}</span>
 									</span>
 								</div>
 
 								<Link
 									to="/talent"
 									search={{ q: undefined, category: undefined }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground hover:underline"
+									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-link hover:underline shrink-0"
 								>
 									<span>View</span>
 									<ArrowUpRight className="size-3.5" />
@@ -159,14 +159,14 @@ export function LandingTalent({
 				</div>
 
 				{/* Explore All CTA */}
-				<div className="mt-10 flex justify-center">
+				<div className="mt-8 sm:mt-10 flex justify-center">
 					<Link
 						to="/talent"
 						search={{ q: undefined, category: undefined }}
-						className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-foreground/30 hover:bg-muted"
+						className="inline-flex w-full sm:w-auto h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
 					>
 						<span>Explore all 12,000+ vetted talent profiles</span>
-						<ArrowUpRight className="size-4" />
+						<ArrowUpRight className="size-4 text-ring" />
 					</Link>
 				</div>
 			</div>

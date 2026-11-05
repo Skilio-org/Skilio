@@ -177,6 +177,7 @@ class User(UserBase, table=True):
         cascade_delete=True,
         sa_relationship_kwargs={"uselist": False},
     )
+
     client_profile: Optional["ClientProfile"] = Relationship(
         back_populates="user",
         cascade_delete=True,
@@ -199,14 +200,20 @@ class User(UserBase, table=True):
     )
     client_conversations: list["Conversation"] = Relationship(
         back_populates="client",
+        cascade_delete=True,
+        passive_deletes=True,
         sa_relationship_kwargs={"foreign_keys": "[Conversation.client_id]"},
     )
     freelancer_conversations: list["Conversation"] = Relationship(
         back_populates="freelancer",
+        cascade_delete=True,
+        passive_deletes=True,
         sa_relationship_kwargs={"foreign_keys": "[Conversation.freelancer_id]"},
     )
     sent_messages: list["ChatMessage"] = Relationship(
         back_populates="sender",
+        cascade_delete=True,
+        passive_deletes=True,
         sa_relationship_kwargs={"foreign_keys": "[ChatMessage.sender_id]"},
     )
     job_posts: list["JobPost"] = Relationship(
@@ -241,6 +248,13 @@ class User(UserBase, table=True):
     )
 
 
+class PasswordResetToken(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    token_hash: str = Field(max_length=64, unique=True, index=True)
+    email: EmailStr = Field(max_length=255, index=True)
+    expires_at: datetime = Field(sa_type=DateTime(timezone=True))
+    used_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
     id: uuid.UUID
@@ -250,7 +264,6 @@ class UserPublic(UserBase):
 class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
-
 
 # ==============================================================================
 # Media Models (Cloudinary Ready)
@@ -777,6 +790,7 @@ class ReviewPublic(ReviewBase):
     client_name: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    client: UserPublic | None = None
 
 
 class ReviewsPublic(SQLModel):
@@ -1037,6 +1051,7 @@ class JobPostPublic(JobPostBase):
     client_company: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    client: UserPublic | None = None
     skills: list[str] = Field(default_factory=list)
     proposals_count: int = 0
     is_saved: bool = False
@@ -1369,7 +1384,6 @@ class NotificationBase(SQLModel):
     event: NotificationEvent = Field(index=True)
     content: str = Field(min_length=1, max_length=5000)
     title: str = Field(default=None, max_length=255)
-    link: str = Field(default=None, max_length=2048)
 
 
 class Notification(NotificationBase, table=True):
@@ -1418,7 +1432,6 @@ class Notification(NotificationBase, table=True):
 class NotificationPublic(NotificationBase):
     id: uuid.UUID
     is_read: bool
-    link: str
     created_at: datetime | None = None
     proposal: ProposalPublic | None = None
     connection: ConnectionPublic | None = None

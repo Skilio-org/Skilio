@@ -23,7 +23,7 @@ export function LegalPageLayout({
 				<div className="landing-container max-w-4xl">
 					{/* Header */}
 					<div className="border-border border-b pb-8">
-						{eyebrow && <p className="mb-3 font-medium text-primary text-sm">{eyebrow}</p>}
+						{eyebrow && <p className="mb-3 font-medium text-link text-sm">{eyebrow}</p>}
 						<h1 className="font-display font-semibold text-3xl text-foreground tracking-tight sm:text-5xl">{title}</h1>
 						{lastUpdated && <p className="mt-4 text-muted-foreground text-sm sm:text-base">{lastUpdated}</p>}
 					</div>

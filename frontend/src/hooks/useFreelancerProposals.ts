@@ -3,6 +3,7 @@ import { jobFromApi } from "@/components/freelancer/freelancer-job-mapper"
 import useAuth from "@/hooks/useAuth"
 import type { FreelancerJob } from "@/types/job"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { queryKeys } from "@/lib/query-keys"
 
 export type BackendProposal = {
 	proposalId: string
@@ -39,7 +40,7 @@ export function useFreelancerProposals() {
 	const { user } = useAuth()
 	const queryClient = useQueryClient()
 	const proposalsQuery = useQuery({
-		queryKey: ["freelancer-proposals"],
+		queryKey: queryKeys.freelancerProposals,
 		enabled: Boolean(user),
 		queryFn: async ({ signal }) => {
 			const { data } = await ProposalsService.readMyProposals({
@@ -73,14 +74,14 @@ export function useFreelancerProposals() {
 			})
 		},
 		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ["freelancer-proposals"] })
-			await queryClient.invalidateQueries({ queryKey: ["freelancer-jobs"] })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.freelancerProposals })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.freelancerJobs })
 		},
 	})
 	const withdrawMutation = useMutation({
 		mutationFn: (proposalId: string) => ProposalsService.withdrawProposal({ path: { id: proposalId } }),
 		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ["freelancer-proposals"] })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.freelancerProposals })
 		},
 	})
 	const drafts = proposalsQuery.data ?? []

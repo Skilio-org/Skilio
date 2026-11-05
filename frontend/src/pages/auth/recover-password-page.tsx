@@ -16,7 +16,7 @@ import { LoadingButton } from "@/components/ui/loading-button"
 
 import useCustomToast from "@/hooks/useCustomToast"
 
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 const formSchema = z.object({
 	email: z.email({
@@ -125,7 +125,7 @@ export function RecoverPasswordPage() {
 													autoComplete="email"
 													placeholder="you@example.com"
 													disabled={mutation.isPending}
-													className="h-11 rounded-lg border-input bg-muted/30 pr-4 pl-11 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground/65 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
+													className="h-11 rounded-lg border-input bg-muted/30 pr-4 pl-11 text-foreground text-sm shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-60"
 													{...field}
 												/>
 											</div>
@@ -151,7 +151,7 @@ export function RecoverPasswordPage() {
 							Remember your password?{" "}
 							<RouterLink
 								to="/login"
-								className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary hover:decoration-primary/40"
+								className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:text-link hover:decoration-primary/40"
 							>
 								Log in
 							</RouterLink>

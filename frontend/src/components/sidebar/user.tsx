@@ -17,7 +17,7 @@ import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { setAccountRole, useAccountRole } from "@/hooks/useAccountRole"
 import useAuth from "@/hooks/useAuth"
 import { useFreelancerAvailability } from "@/hooks/useFreelancerAvailability"
-import { getInitials } from "@/utils"
+import { getInitials } from "@/lib/format"
 
 type AccountRole = "freelancer" | "client"
 
@@ -212,7 +212,7 @@ export function User({ user }: { user?: UserPublic | null }) {
 								</span>
 							</span>
 
-							{freelancer && <Check className="size-4 shrink-0 text-primary" />}
+							{freelancer && <Check className="size-4 shrink-0 text-link" />}
 						</div>
 					</DropdownMenuItem>
 
@@ -237,7 +237,7 @@ export function User({ user }: { user?: UserPublic | null }) {
 								</span>
 							</span>
 
-							{!freelancer && <Check className="size-4 shrink-0 text-primary" />}
+							{!freelancer && <Check className="size-4 shrink-0 text-link" />}
 						</div>
 					</DropdownMenuItem>
 				</div>

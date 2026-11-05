@@ -1,22 +1,8 @@
+// biome-ignore assist/source/organizeImports: <explanation>
 import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { useQueryClient } from "@tanstack/react-query"
-import {
-	Bell,
-	BriefcaseBusiness,
-	Check,
-	CheckCheck,
-	FileText,
-	Loader2,
-	MessageSquare,
-	Sparkles,
-	Star,
-	UserCheck,
-	UserPlus,
-	UserX,
-	X,
-	XCircle,
-} from "lucide-react"
+import { Bell, Check, CheckCheck, FileText, Loader2, UserPlus, X } from "lucide-react"
 
 import {
 	DropdownMenu,
@@ -25,47 +11,71 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { NotificationEvent, NotificationPublic } from "@/client/types.gen"
+import type { NotificationPublic } from "@/client/types.gen"
 import { useNotifications } from "@/hooks/useNotifications"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import { useAcceptConnectionRequest, useDeclineConnectionRequest } from "@/hooks/useConnections"
 import { chatKeys } from "@/data/chat-keys"
-import { formatMessageTime } from "@/util/timestampformatter"
+// import { formatMessageTime } from "@/util/timestampformatter"
+import { formatMessageTime } from "@/lib/format"
 import { useWebSocket } from "@/context/websocket-context"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 
-function NotificationIcon({ type }: { type: NotificationEvent }) {
-	switch (type) {
-		case "message_received":
-			return <MessageSquare className="size-4" />
+function NotificationIcon({ item }: { item: NotificationPublic }) {
+	switch (item.event) {
+		// case "message_received":
+		// 	return <MessageSquare className="size-5" />
 
 		case "proposal_received":
-			return <FileText className="size-4" />
+			return <FileText className="size-5" />
 
-		case "proposal_accepted":
-			return <Sparkles className="size-4 text-emerald-500" />
+		// case "proposal_accepted":
+		// 	return <Sparkles className="size-5 text-emerald-500" />
 
-		case "proposal_rejected":
-			return <XCircle className="size-4 text-muted-foreground" />
+		// case "proposal_rejected":
+		// 	return <XCircle className="size-5 text-muted-foreground" />
 
 		case "connection_request":
-			return <UserPlus className="size-4 text-primary" />
-
+			return (
+				<Avatar className="size-full rounded-none">
+					<AvatarImage
+						src={useAccountAvatarUrl(item.connection?.sender_id)}
+						alt={item.connection?.sender?.full_name ?? "Unknown"}
+						aria-hidden="true"
+					/>
+					<AvatarFallback>{item.connection?.sender?.full_name || "Unknown"}</AvatarFallback>
+				</Avatar>
+			)
 		case "connection_accepted":
-			return <UserCheck className="size-4 text-emerald-500" />
-
-		case "connection_declined":
-			return <UserX className="size-4 text-muted-foreground" />
-
+			return (
+				<Avatar className="size-full rounded-none">
+					<AvatarImage
+						src={useAccountAvatarUrl(item.connection?.receiver_id)}
+						alt={item.connection?.receiver?.full_name ?? "Unknown"}
+						aria-hidden="true"
+					/>
+					<AvatarFallback>{item.connection?.receiver?.full_name || "Unknown"}</AvatarFallback>
+				</Avatar>
+			)
 		case "review_received":
-			return <Star className="size-4 text-amber-500" />
+			return (
+				<Avatar className="size-full rounded-none">
+					<AvatarImage
+						src={useAccountAvatarUrl(item.review?.client_id)}
+						alt={item.review?.client_name ?? "Unknown"}
+						aria-hidden="true"
+					/>
+					<AvatarFallback>{item.review?.client_name || "Unknown"}</AvatarFallback>
+				</Avatar>
+			)
 
-		case "job_closed":
-			return <BriefcaseBusiness className="size-4" />
+		// case "job_closed":
+		// 	return <BriefcaseBusiness className="size-5" />
 
 		default:
-			return <Bell className="size-4" />
+			return <Bell className="size-5" />
 	}
 }
 
@@ -75,7 +85,34 @@ interface NotificationActionProps {
 	onMarkAsRead: (id: string) => void
 }
 
-function NotificationActions({ notification, role, onMarkAsRead }: NotificationActionProps) {
+function ConnectionStatusBadge({ notification }: { notification: NotificationPublic }) {
+	const connectionStatus = notification.connection?.status
+
+	const [actionStatus, _] = useState<"idle" | "accepted" | "declined">(
+		connectionStatus === "accepted" ? "accepted" : connectionStatus === "declined" ? "declined" : "idle",
+	)
+
+	const isAccepted = actionStatus === "accepted" || connectionStatus === "accepted"
+	const isDeclined = actionStatus === "declined" || connectionStatus === "declined"
+
+	if (isAccepted || isDeclined) {
+		return (
+			<span
+				className={cn(
+					"ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold leading-none tracking-wide",
+					isAccepted
+						? "bg-emerald-500/10 text-emerald-600 ring-1 ring-inset ring-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-400 dark:ring-emerald-500/25"
+						: "bg-red-500/10 text-red-600 ring-1 ring-inset ring-red-500/20 dark:bg-red-500/15 dark:text-red-400 dark:ring-red-500/25",
+				)}
+			>
+				{isAccepted ? "Accepted" : "Declined"}
+			</span>
+		)
+	}
+	return null
+}
+
+function NotificationActions({ notification, onMarkAsRead }: NotificationActionProps) {
 	const navigate = useNavigate()
 	const queryClient = useQueryClient()
 	const acceptConnection = useAcceptConnectionRequest()
@@ -85,43 +122,14 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 	const connectionStatus = notification.connection?.status
 
 	const [actionStatus, setActionStatus] = useState<"idle" | "accepted" | "declined">(
-		connectionStatus === "accepted"
-			? "accepted"
-			: connectionStatus === "declined"
-				? "declined"
-				: "idle",
+		connectionStatus === "accepted" ? "accepted" : connectionStatus === "declined" ? "declined" : "idle",
 	)
 
 	const isAccepted = actionStatus === "accepted" || connectionStatus === "accepted"
 	const isDeclined = actionStatus === "declined" || connectionStatus === "declined"
 
-	// 1. Connection Request Actions (Accept / Decline)
 	if (notification.event === "connection_request") {
-		if (isAccepted) {
-			return (
-				<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-					<Badge
-						variant="secondary"
-						className="h-6 border-0 border-none bg-emerald-500/10 px-2 text-[11px] font-medium text-emerald-600 dark:text-emerald-400"
-					>
-						Connected
-					</Badge>
-				</div>
-			)
-		}
-
-		if (isDeclined) {
-			return (
-				<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-					<Badge
-						variant="secondary"
-						className="h-6 border-0 border-none bg-muted/40 px-2 text-[11px] font-medium text-muted-foreground"
-					>
-						Declined
-					</Badge>
-				</div>
-			)
-		}
+		if (isAccepted || isDeclined) return null
 
 		if (connectionId) {
 			return (
@@ -230,140 +238,163 @@ function NotificationActions({ notification, role, onMarkAsRead }: NotificationA
 		)
 	}
 
-	// 2. Connection Accepted -> Quick Start Message
-	if (notification.event === "connection_accepted") {
-		return (
-			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<button
-					type="button"
-					onClick={(e) => {
-						e.stopPropagation()
-						e.preventDefault()
-						onMarkAsRead(notification.id)
-						void navigate({ to: role === "freelancer" ? "/freelancer-messages" : "/messages" })
-					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
-				>
-					<MessageSquare className="size-3" />
-					Send Message
-				</button>
-			</div>
-		)
-	}
-
-	// 3. Message Received -> Reply
-	if (notification.event === "message_received") {
-		return (
-			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<button
-					type="button"
-					onClick={(e) => {
-						e.stopPropagation()
-						e.preventDefault()
-						onMarkAsRead(notification.id)
-						void navigate({
-							to: role === "freelancer" ? "/freelancer-messages" : "/messages",
-							search: { userId: notification.chat_message?.sender_id },
-						})
-					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
-				>
-					<MessageSquare className="size-3" />
-					Reply
-				</button>
-			</div>
-		)
-	}
-
-	// 4. Proposal Received -> Review
-	if (notification.event === "proposal_received") {
-		return (
-			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<button
-					type="button"
-					onClick={(e) => {
-						e.stopPropagation()
-						e.preventDefault()
-						onMarkAsRead(notification.id)
-						void navigate({
-							to: "/client-jobs",
-							search: { jobId: notification.job_post?.id },
-						})
-					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
-				>
-					<FileText className="size-3" />
-					Review Proposal
-				</button>
-			</div>
-		)
-	}
-
-	// 5. Proposal Accepted -> View Project
-	if (notification.event === "proposal_accepted") {
-		return (
-			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<button
-					type="button"
-					onClick={(e) => {
-						e.stopPropagation()
-						e.preventDefault()
-						onMarkAsRead(notification.id)
-						void navigate({ to: "/freelancer-proposals" })
-					}}
-					className="inline-flex h-6 items-center gap-1.5 rounded-md bg-emerald-500/10 px-2 text-[11px] font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
-				>
-					<Sparkles className="size-3" />
-					View Proposal
-				</button>
-			</div>
-		)
-	}
-
-
-	// 7. Proposal Rejected
-	if (notification.event === "proposal_rejected") {
-		return (
-			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<Badge
-					variant="secondary"
-					className="h-5 border-0 border-none bg-muted/40 px-1.5 text-[10px] font-medium text-muted-foreground"
-				>
-					Proposal Declined
-				</Badge>
-			</div>
-		)
-	}
-
-	// 8. Connection Declined
-	if (notification.event === "connection_declined") {
-		return (
-			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<Badge
-					variant="secondary"
-					className="h-5 border-0 border-none bg-muted/40 px-1.5 text-[10px] font-medium text-muted-foreground"
-				>
-					Declined
-				</Badge>
-			</div>
-		)
-	}
-
-	// 9. Job Closed
-	if (notification.event === "job_closed") {
-		return (
-			<div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-				<Badge
-					variant="secondary"
-					className="h-5 border-0 border-none bg-muted/40 px-1.5 text-[10px] font-medium text-muted-foreground"
-				>
-					Job Closed
-				</Badge>
-			</div>
-		)
-	}
-
 	return null
+}
+
+export function UserName({ name }: { name: string | undefined }) {
+	return <span className="underline font-semibold">{name}</span>
+}
+
+export function BakedBody({ notification }: { notification: NotificationPublic }) {
+	switch (notification.event) {
+		case "connection_request":
+			return (
+				<>
+					<UserName
+						name={
+							notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"
+						}
+					/>{" "}
+					wants to connect with you.
+				</>
+			)
+		case "connection_accepted":
+			return (
+				<>
+					<UserName
+						name={
+							notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"
+						}
+					/>{" "}
+					accepted your request.
+				</>
+			)
+		case "connection_declined":
+			return (
+				<>
+					<UserName
+						name={
+							notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"
+						}
+					/>{" "}
+					declined your request.
+				</>
+			)
+		case "review_received":
+			return (
+				<>
+					<UserName
+						name={
+							notification.review?.client?.full_name ||
+							notification.review?.client_name ||
+							notification.connection?.receiver?.full_name ||
+							"Someone"
+						}
+					/>{" "}
+					left a review for you.
+				</>
+			)
+		case "proposal_received":
+			return (
+				<>
+					<UserName name={notification.proposal?.freelancer?.full_name || "Someone"} /> has submitted a proposal for
+					your job.
+				</>
+			)
+		case "proposal_accepted":
+		case "proposal_rejected":
+			return (
+				<UserName name={notification.proposal?.freelancer?.full_name || "Someone"} /> +
+				notification.content.replace(/.*? accepted your proposal|.*? rejected your proposal/, "")
+			)
+		case "job_closed":
+			return (
+				<UserName name={notification.job_post?.title || "Unknown Job"} /> +
+				notification.content.replace(/.*? has been closed/, "")
+			)
+		default:
+	}
+	return <>notification.content</>
+}
+
+export function NotificationBody({
+	notification,
+	onMarkAsRead,
+}: {
+	notification: NotificationPublic
+	onMarkAsRead: (id: string) => void
+}) {
+	const role = useAccountRole()
+	// let content = notification.content;
+
+	// Generate content depending on the notification that was received.
+	// If someone sent a connection request.
+	// Then it should be their name + wants to connect.
+	// If someone sent a review.
+	// Then it should be their name + reviewed your account.
+	// If someone accepted your connect.
+	// Then it should be their name + accepted your connection.
+	// and so on..
+	// Micro instructions:
+	// Make the name standout just a bit more than the actual content.
+	// Make the spacing better than whatever there is now.
+	// Make sure the ui is as clean as possible.\
+	// also, dont change anything except this component.
+	// switch (notification.event) {
+	// 	case "connection_request":
+	// 		content = `${notification.connection?.sender?.full_name || "Someone"} wants to connect with you.`
+	// 		break
+	// 	case "connection_accepted":
+	// 		content = `${notification.connection?.receiver?.full_name || "Someone"} accepted your connection request.`
+	// 		break
+	// 	case "connection_declined":
+	// 		content = `${notification.connection?.receiver?.full_name || "Someone"} declined your connection request.`
+	// 		break
+	// 	case "review_received":
+	// 		content = `${notification.review?.client?.full_name || "Someone"} left a review for you.`
+	// 		break
+	// 	case "proposal_received":
+	// 		content = `${notification.proposal?.freelancer?.full_name || "Someone"} submitted a proposal for your job.`
+	// 		break
+	// 	case "proposal_accepted":
+	// 		content = `${notification.proposal?.freelancer?.full_name || "Someone"} accepted your proposal.`
+	// 		break
+	// 	case "proposal_rejected":
+	// 		content = `${notification.proposal?.freelancer?.full_name || "Someone"} rejected your proposal.`
+	// 		break
+	// 	case "job_closed":
+	// 		content = `Your job "${notification.job_post?.title || "Unknown Job"}" has been closed.`
+	// 		break
+	// 	default:
+	// 		content = notification.content
+	// }
+
+	return (
+		<span className="min-w-0 flex-1">
+			<span className="flex items-start justify-between gap-3">
+				<span
+					className={cn(
+						"min-w-0 truncate font-label-sm text-label-sm text-on-surface",
+						notification.is_read ? "font-medium" : "font-semibold",
+					)}
+				>
+					{notification.title}
+					<ConnectionStatusBadge notification={notification} />
+				</span>
+
+				<span className="mt-0.5 shrink-0 font-caption text-[10px] text-outline">
+					{formatMessageTime(notification.created_at)}
+				</span>
+			</span>
+
+			<span className="mt-1 line-clamp-2 block font-body-sm text-[11px] text-on-surface-variant leading-[17px]">
+				<BakedBody notification={notification} />
+			</span>
+
+			{/* Actionable buttons tailored per notification type */}
+			<NotificationActions notification={notification} role={role} onMarkAsRead={onMarkAsRead} />
+		</span>
+	)
 }
 
 export function NotificationDropdown() {
@@ -388,17 +419,6 @@ export function NotificationDropdown() {
 	}
 
 	const unreadCount = notifications.filter((notification) => !notification.is_read).length
-
-	const markAllAsRead = () => {
-		sendMessage({
-			type: "read_receipt",
-			notification_id: "all_notifications",
-		})
-		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) =>
-			(current || notifications).map((notification) => ({ ...notification, is_read: true })),
-		)
-	}
-
 	const markAsRead = (notificationId: string) => {
 		sendMessage({
 			type: "read_receipt",
@@ -408,6 +428,16 @@ export function NotificationDropdown() {
 			(current || notifications).map((notification) =>
 				notification.id === notificationId ? { ...notification, is_read: true } : notification,
 			),
+		)
+	}
+
+	const markAllAsRead = () => {
+		sendMessage({
+			type: "read_receipt",
+			notification_id: "all_notifications",
+		})
+		queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) =>
+			(current || notifications).map((notification) => ({ ...notification, is_read: true })),
 		)
 	}
 
@@ -428,9 +458,14 @@ export function NotificationDropdown() {
 				})
 				break
 			case "connection_request":
+				void navigate({ to: "/connects" })
+				break
 			case "connection_accepted":
 			case "connection_declined":
-				void navigate({ to: "/connects" })
+				{
+					// I was here.
+					void navigate({ to: `/talent/${notification.connection?.receiver_id}` })
+				}
 				break
 			case "proposal_accepted":
 			case "proposal_rejected":
@@ -515,68 +550,47 @@ export function NotificationDropdown() {
 				<div className="max-h-[420px] overflow-y-auto px-1.5 pb-1.5">
 					{notifications.length > 0 ? (
 						notifications.map((notification) => {
-							if ((notification.event === "review_received"
-								|| notification.event === "proposal_rejected"
-								|| notification.event === "proposal_accepted") && role === "client")
+							if (
+								(notification.event === "review_received" ||
+									notification.event === "proposal_rejected" ||
+									notification.event === "proposal_accepted") &&
+								role === "client"
+							)
 								return ""
-							if (notification.event === "proposal_received" && role === "freelancer")
-								return ""
+							if (notification.event === "proposal_received" && role === "freelancer") return ""
 
-							return <DropdownMenuItem
-								key={notification.id}
-								onSelect={(event) => {
-									event.preventDefault()
-									handleItemClick(notification)
-								}}
-								className={cn(
-									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
-									!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
-								)}
-							>
-								{/* Icon */}
-								<span
+							return (
+								<DropdownMenuItem
+									key={notification.id}
+									onSelect={(event) => {
+										event.preventDefault()
+										handleItemClick(notification)
+									}}
 									className={cn(
-										"grid size-8 shrink-0 place-items-center rounded-lg border transition-colors",
-										notification.is_read
-											? "border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container"
-											: "border-primary/15 bg-primary/8 text-primary dark:border-primary/20 dark:bg-primary/10",
+										"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
+										!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
 									)}
 								>
-									<NotificationIcon type={notification.event} />
-								</span>
-
-								{/* Body */}
-								<span className="min-w-0 flex-1">
-									<span className="flex items-start justify-between gap-3">
-										<span
-											className={cn(
-												"min-w-0 truncate font-label-sm text-label-sm text-on-surface",
-												notification.is_read ? "font-medium" : "font-semibold",
-											)}
-										>
-											{notification.title}
-										</span>
-
-										<span className="mt-0.5 shrink-0 font-caption text-[10px] text-outline">
-											{formatMessageTime(notification.created_at)}
-										</span>
+									{/* Icon */}
+									{/* Emm this needs to change, if I have an avatar, I will just use the avatar. */}
+									<span
+										className={cn(
+											"grid size-10 shrink-0 rounded place-items-center border transition-colors",
+											"border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container",
+										)}
+									>
+										<NotificationIcon item={notification} />
 									</span>
 
-									<span className="mt-1 line-clamp-2 block font-body-sm text-[11px] text-on-surface-variant leading-[17px]">
-										{notification.content}
-									</span>
+									{/* Body */}
+									<NotificationBody notification={notification} onMarkAsRead={markAsRead} />
 
-									{/* Actionable buttons tailored per notification type */}
-									<NotificationActions notification={notification} role={role} onMarkAsRead={markAsRead} />
-								</span>
-
-								{/* Unread dot */}
-								{!notification.is_read && (
-									<span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
-								)}
-							</DropdownMenuItem>
-						}
-					)) : (
+									{/* Unread dot */}
+									{!notification.is_read && <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />}
+								</DropdownMenuItem>
+							)
+						})
+					) : (
 						<div className="px-6 py-12 text-center">
 							<span className="mx-auto grid size-10 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-outline dark:border-border-subtle">
 								<Bell className="size-[18px]" />

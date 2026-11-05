@@ -7,7 +7,7 @@ import { toast } from "sonner"
 
 export type sendState = "sent" | "failed" | "pending";
 
-export type MessageSendState = Record<string, sendState>
+type MessageSendState = Record<string, sendState>
 const enum WebSocketCloseCodes {
 	NormalClosure = 1000,
 	GoingAway = 1001,
@@ -182,7 +182,13 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 						} break;
 						case "message_ack_failed": {
 							const clientMessageId = data.data?.client_message_id
-							if (clientMessageId) setMessageSendResult(clientMessageId, "failed")
+							const what = data.data?.error;
+							if (what && clientMessageId) 
+								setMessageSendResult(clientMessageId, what)
+							else {
+								if (clientMessageId)
+									setMessageSendResult(clientMessageId, "failed");
+							}
 						} break;
 						case "messages_read": {
 							const convId = data.data?.conversation_id

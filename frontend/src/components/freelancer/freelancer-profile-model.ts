@@ -1,3 +1,4 @@
+import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import type { EducationPublic, ExperiencePublic, FreelancerProfileDetailPublic, PortfolioItemPublic } from "@/client"
 
 type EntryTextField = "title" | "organization" | "detail" | "url"
@@ -29,24 +30,25 @@ export const steps = [
 	"Your introduction",
 	"Work & education",
 	"Portfolio",
-	"Rates & availability",
+	"Rates & hours",
 	"Review",
 ]
 export const descriptions = [
-	"Put a face and a name to your work.",
-	"Help clients find you for the work you do best.",
-	"Tell clients what you bring to their project.",
-	"Give your work some context. You can add these later.",
-	"Show the thinking and craft behind your work.",
-	"Set expectations for your next collaboration.",
-	"Take a moment to see your profile as a client would.",
+	"Your photo, name, title and location.",
+	"Your main field and the skills clients can find you by.",
+	"Tell clients what you do and who you help.",
+	"Optional. Add past roles and education.",
+	"Optional. Add projects that show your work.",
+	"Your hourly rate and weekly hours.",
+	"Check how clients will see your profile, then publish.",
 ]
-export const fieldClass =
-	"mt-2 min-h-12 w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-export const primary =
-	"inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50"
-export const secondary =
-	"inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 text-sm font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+// Matches the shared Input used on the other forms (client profile, settings).
+const fieldBase =
+	"mt-2 w-full min-w-0 rounded-lg border border-input bg-surface-container-lowest px-3 text-sm text-on-surface shadow-none outline-none transition-[color,box-shadow] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:opacity-50"
+export const fieldClass = `${fieldBase} h-11`
+export const textareaClass = `${fieldBase} min-h-28 resize-y py-2.5 leading-6`
+export const primary = `${workspaceStyles.primaryAction} disabled:opacity-50`
+export const secondary = workspaceStyles.secondaryAction
 
 export function completion(p: ProfileForm) {
 	return [
@@ -55,6 +57,6 @@ export function completion(p: ProfileForm) {
 		p.bio.trim().length >= 80 && !!p.languages.trim(),
 		p.experience.length > 0 || p.education.length > 0,
 		p.portfolio.length > 0,
-		Number.isFinite(Number(p.rate)) && Number(p.rate) > 0 && !!p.availability && !!p.hours,
+		Number.isFinite(Number(p.rate)) && Number(p.rate) > 0 && !!p.hours,
 	]
 }

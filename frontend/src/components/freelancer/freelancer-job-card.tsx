@@ -63,9 +63,9 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 						aria-label={`${isSaved ? "Unsave" : "Save"} ${job.title}`}
 						aria-pressed={isSaved}
 						onClick={() => toggleSaved(job.id)}
-						className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-primary dark:hover:text-on-surface"
+						className="flex size-8 shrink-0 items-center justify-center rounded-lg text-outline transition-colors hover:bg-surface-container hover:text-link dark:hover:text-on-surface"
 					>
-						<Bookmark className={`size-5 ${isSaved ? "fill-primary text-primary" : ""}`} />
+						<Bookmark className={`size-5 ${isSaved ? "fill-primary text-link" : ""}`} />
 					</button>
 				</div>
 
@@ -122,7 +122,7 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 							View details
 						</button>
 						{hasApplied ? (
-							<span className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 font-label-md text-label-md text-primary dark:border-border-subtle dark:bg-surface-container">
+							<span className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 font-label-md text-label-md text-link dark:border-border-subtle dark:bg-surface-container">
 								<CircleCheck className="size-3.5" />
 								Applied
 							</span>
@@ -135,7 +135,7 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 									setDetailsOpen(true)
 								}}
 								aria-haspopup="dialog"
-								className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-surface-container-lowest transition-colors hover:bg-[#152243] dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
+								className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
 							>
 								Apply now
 							</button>

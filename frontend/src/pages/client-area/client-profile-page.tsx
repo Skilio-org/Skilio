@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Camera, CheckCircle2, ImageUp } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Camera, CheckCircle2, Globe, ImageUp, MapPin, Users } from "lucide-react"
+import { useState } from "react"
 import { toast } from "sonner"
 import { type ClientProfilePublic, ClientProfilesService, UsersService } from "@/client"
+import { queryKeys } from "@/lib/query-keys"
 
-import { Monogram, WorkspacePageHeader, WorkspaceSurface } from "@/components/dashboard/dashboard-header"
-import { Button } from "@/components/ui/button"
+import { Monogram, WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import {
 	Dialog,
 	DialogContent,
@@ -14,12 +14,23 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
+import CitySelect from "@/components/common/city-select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { markAccountAvatarUpdated, useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import useAuth from "@/hooks/useAuth"
-import { getInitials } from "@/utils"
+import { getInitials } from "@/lib/format"
+
+const companySizeLabels: Record<string, string> = {
+	solo: "Just me",
+	"2-10": "2–10 people",
+	"11-50": "11–50 people",
+	"51-200": "51–200 people",
+	"201-plus": "201+ people",
+}
+
+type FormField = "fullName" | "company" | "companyRole" | "website" | "location" | "companySize"
 
 export function ClientProfilePage() {
 	const { user } = useAuth()
@@ -32,15 +43,8 @@ export function ClientProfilePage() {
 	const [uploading, setUploading] = useState(false)
 	const [avatarFailed, setAvatarFailed] = useState(false)
 
-	const [fullName, setFullName] = useState("")
-	const [company, setCompany] = useState("")
-	const [companyRole, setCompanyRole] = useState("")
-	const [website, setWebsite] = useState("")
-	const [location, setLocation] = useState("")
-	const [companySize, setCompanySize] = useState("")
-
 	const { data: profile, isLoading } = useQuery<ClientProfilePublic>({
-		queryKey: ["clientProfile"],
+		queryKey: queryKeys.clientProfile,
 		queryFn: async () => {
 			const res = await ClientProfilesService.profilesReadClientProfileMe()
 			return res.data
@@ -48,18 +52,18 @@ export function ClientProfilePage() {
 		enabled: !!user,
 	})
 
-	useEffect(() => {
-		if (profile) {
-			setFullName(profile.full_name ?? user?.full_name ?? "")
-			setCompany(profile.company ?? "")
-			setCompanyRole(profile.company_role ?? "")
-			setWebsite(profile.company_website ?? "")
-			setLocation(profile.location ?? "")
-			setCompanySize(profile.company_size ?? "")
-		} else if (user) {
-			setFullName(user.full_name ?? "")
-		}
-	}, [profile, user])
+	// The form shows the saved profile until the user edits a field; edits are kept apart so a refetch never overwrites them.
+	const [edits, setEdits] = useState<Partial<Record<FormField, string>>>({})
+	const field = (key: FormField, saved: string | null | undefined) => [
+		edits[key] ?? saved ?? "",
+		(value: string) => setEdits((current) => ({ ...current, [key]: value })),
+	] as const
+	const [fullName, setFullName] = field("fullName", profile?.full_name ?? user?.full_name)
+	const [company, setCompany] = field("company", profile?.company)
+	const [companyRole, setCompanyRole] = field("companyRole", profile?.company_role)
+	const [website, setWebsite] = field("website", profile?.company_website)
+	const [location, setLocation] = field("location", profile?.location)
+	const [companySize, setCompanySize] = field("companySize", profile?.company_size)
 
 	const updateMutation = useMutation({
 		mutationFn: async () => {
@@ -75,10 +79,13 @@ export function ClientProfilePage() {
 			})
 			return res.data
 		},
-		onSuccess: () => {
+		onSuccess: async () => {
 			setSaved(true)
-			queryClient.invalidateQueries({ queryKey: ["clientProfile"] })
-			queryClient.invalidateQueries({ queryKey: ["currentUser"] })
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: queryKeys.clientProfile }),
+				queryClient.invalidateQueries({ queryKey: queryKeys.currentUser }),
+			])
+			setEdits({})
 			toast.success("Client profile saved")
 		},
 		onError: () => {
@@ -88,7 +95,6 @@ export function ClientProfilePage() {
 
 	const displayName = fullName || profile?.full_name || user?.full_name || "Your name"
 	const avatarUrl = useAccountAvatarUrl(user?.id)
-	useEffect(() => setAvatarFailed(false), [])
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -117,15 +123,20 @@ export function ClientProfilePage() {
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<WorkspacePageHeader
-				eyebrow="Client workspace / Profile"
+				eyebrow="Client workspace"
 				title="Client profile"
 				description="Help independent professionals understand who you are and what working with you will feel like."
-				action=""
+				meta={
+					<span className="font-medium text-link">
+						{[company, companyRole, website, location, companySize].filter((value) => value.trim()).length} of 5 details
+						added
+					</span>
+				}
 			/>
-			<div className="grid items-start gap-6 lg:grid-cols-[1fr_320px]">
+			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
 				<form
 					onSubmit={handleSubmit}
-					className="space-y-8 rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-8"
+					className="space-y-8 rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:p-8 lg:col-span-8"
 				>
 					<div className="flex flex-col gap-5 border-outline-variant border-b pb-8 sm:flex-row sm:items-center">
 						<Monogram className="relative size-24 bg-brand-100 text-2xl text-brand-800">
@@ -205,16 +216,18 @@ export function ClientProfilePage() {
 								}}
 								placeholder="https://company.com"
 							/>
-							<Field
-								label="Location"
-								id="location"
-								value={location}
-								onChange={(e) => {
-									setLocation(e.target.value)
-									setSaved(false)
-								}}
-								placeholder="City, country"
-							/>
+							<div className="space-y-2">
+								<Label id="location-label">Location</Label>
+								<CitySelect
+									value={location}
+									emptyLabel="Select city"
+									onValueChange={(city) => {
+										setLocation(city)
+										setSaved(false)
+									}}
+									className="h-11 w-full max-w-none gap-2 rounded-lg border border-input bg-surface-container-lowest px-4 text-sm shadow-xs hover:border-foreground/20 hover:text-foreground focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25"
+								/>
+							</div>
 							<div className="space-y-2">
 								<Label id="company-size-label">Company size</Label>
 								<Select
@@ -245,30 +258,67 @@ export function ClientProfilePage() {
 								Changes saved
 							</span>
 						)}
-						<Button type="reset" onClick={handleCancel} variant="outline" className="min-h-9 rounded-lg px-5">
+						<button type="reset" onClick={handleCancel} className={workspaceStyles.secondaryAction}>
 							Cancel
-						</Button>
-						<Button type="submit" disabled={updateMutation.isPending || isLoading} className="min-h-9 rounded-lg px-6">
+						</button>
+						<button
+							type="submit"
+							disabled={updateMutation.isPending || isLoading}
+							className={`${workspaceStyles.primaryAction} disabled:opacity-50`}
+						>
 							{updateMutation.isPending ? "Saving…" : "Save profile"}
-						</Button>
+						</button>
 					</div>
 				</form>
-				<aside className="space-y-5 lg:sticky lg:top-24">
+				<aside className="space-y-5 lg:sticky lg:top-20 lg:col-span-4">
 					<WorkspaceSurface className="p-5">
 						<p className="font-medium text-caption text-on-surface-variant">Your introduction</p>
-						<h2 className="mt-3 break-words font-semibold text-headline-md">{displayName}</h2>
-						<p className="mt-1 break-words text-body-sm text-on-surface-variant">
-							{[companyRole, company].filter(Boolean).join(" · ") || "Add your role and company"}
-						</p>
-						{location && <p className="mt-3 break-words text-body-sm text-on-surface-variant">{location}</p>}
-						{website && <p className="mt-2 break-all text-body-sm text-on-surface-variant">{website}</p>}
+						<div className="mt-4 flex items-center gap-3.5">
+							<Monogram className="relative size-14 shrink-0 bg-brand-100 text-lg text-brand-800">
+								{avatarUrl && !avatarFailed ? (
+									<img
+										src={avatarUrl}
+										alt=""
+										className="absolute inset-0 size-full rounded-lg object-cover"
+										onError={() => setAvatarFailed(true)}
+									/>
+								) : (
+									getInitials(displayName)
+								)}
+							</Monogram>
+							<div className="min-w-0">
+								<h2 className="break-words font-semibold text-headline-sm">{displayName}</h2>
+								<p className="mt-0.5 break-words text-body-sm text-on-surface-variant">
+									{[companyRole, company].filter(Boolean).join(" · ") || "Add your role and company"}
+								</p>
+							</div>
+						</div>
+						{(location || website || companySize) && (
+							<dl className="mt-4 space-y-2 text-body-sm text-on-surface-variant">
+								{location && (
+									<div className="flex items-center gap-2">
+										<MapPin className="size-4 shrink-0 text-outline" />
+										<dd className="break-words">{location}</dd>
+									</div>
+								)}
+								{website && (
+									<div className="flex items-center gap-2">
+										<Globe className="size-4 shrink-0 text-outline" />
+										<dd className="break-all">{website}</dd>
+									</div>
+								)}
+								{companySize && (
+									<div className="flex items-center gap-2">
+										<Users className="size-4 shrink-0 text-outline" />
+										<dd>{companySizeLabels[companySize] ?? companySize}</dd>
+									</div>
+								)}
+							</dl>
+						)}
 						<p className="mt-5 border-t border-outline-variant pt-4 text-caption text-on-surface-variant">
 							A quick preview of the details you’re editing. Save your profile to apply your changes.
 						</p>
 					</WorkspaceSurface>
-					<p className="px-1 text-body-sm text-on-surface-variant leading-6">
-						A complete introduction helps freelancers understand your business before the first conversation.
-					</p>
 				</aside>
 			</div>
 
@@ -309,9 +359,9 @@ export function ClientProfilePage() {
 						)}
 					</div>
 					<DialogFooter>
-						<Button
+						<button
 							type="button"
-							variant="outline"
+							className={workspaceStyles.secondaryAction}
 							onClick={() => {
 								setSelectedPhotoName("")
 								setSelectedPhoto(null)
@@ -319,9 +369,10 @@ export function ClientProfilePage() {
 							}}
 						>
 							Cancel
-						</Button>
-						<Button
+						</button>
+						<button
 							type="button"
+							className={`${workspaceStyles.primaryAction} disabled:opacity-50`}
 							disabled={!selectedPhoto || uploading}
 							onClick={async () => {
 								if (!selectedPhoto || uploading || !user) return
@@ -333,7 +384,7 @@ export function ClientProfilePage() {
 									if (response.data.status !== "Ok") throw new Error("Upload failed")
 									markAccountAvatarUpdated(user.id)
 									await queryClient.invalidateQueries({
-										queryKey: ["currentUser"],
+										queryKey: queryKeys.currentUser,
 									})
 									setPhotoUpdated(true)
 									setPhotoDialogOpen(false)
@@ -346,7 +397,7 @@ export function ClientProfilePage() {
 							}}
 						>
 							{uploading ? "Uploading…" : "Apply photo"}
-						</Button>
+						</button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
@@ -360,7 +411,7 @@ function Field({ label, id, ...props }: { label: string; id: string } & React.Co
 			<Label htmlFor={id}>{label}</Label>
 			<Input
 				id={id}
-				className="h-10 rounded-lg border-outline-variant bg-surface-container-lowest shadow-none"
+				className="h-11 rounded-lg border-input bg-surface-container-lowest shadow-none dark:bg-surface-container-lowest"
 				{...props}
 			/>
 		</div>

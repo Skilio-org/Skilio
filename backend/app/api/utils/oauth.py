@@ -20,6 +20,7 @@ from app.models import (
     UserRole,
 )
 from app.utils import (
+    generate_password_reset_token,
     send_password_reconvery_email,
 )
 
@@ -140,11 +141,11 @@ def upsert_oauth_user(
             user.google_id = provider_user.get("sub")
         if provider == "linkedin" and not user.linkedin_id:
             user.linkedin_id = provider_user.get("sub")
-        user.full_name = provider_user.get("name") or user.full_name
-        avatar = provider_user.get("picture")
-        user.avatar_url = (
-            avatar if avatar else (user.avatar_url or settings.DEFAULT_AVATAR_URL)
-        )
+        # user.full_name = provider_user.get("name") or user.full_name
+        # avatar = provider_user.get("picture")
+        # user.avatar_url = (
+        #     avatar if avatar else (user.avatar_url or settings.DEFAULT_AVATAR_URL)
+        # )
         if refresh_token:
             user.refresh_token = refresh_token
         session.add(user)
@@ -180,7 +181,12 @@ def upsert_oauth_user(
             # (the original code always passed ``True``).
             import asyncio
 
-            asyncio.create_task(send_password_reconvery_email(user.email, True))
+            password_reset_token = generate_password_reset_token(user.email)
+            asyncio.create_task(
+                send_password_reconvery_email(
+                    user.email, True, password_reset_token
+                )
+            )
         except Exception as exc:  # pragma: no cover – logging only
             logger.error(f"Error sending password recovery email: {exc}")
     return user

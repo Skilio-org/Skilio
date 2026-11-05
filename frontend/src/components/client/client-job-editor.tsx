@@ -2,11 +2,11 @@ import { JobFormSection, jobFormField } from "@/components/common/job-form-secti
 import CategorySelect from "@/components/common/category-select"
 import { SkillsSelect } from "@/components/common/skills-select"
 import { experienceLevels, jobDescriptionLimit } from "@/components/common/job-experience"
+import CitySelect from "@/components/common/city-select"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { CategoriesService } from "@/client"
-import { useQuery } from "@tanstack/react-query"
+import { useCategories } from "@/hooks/useCategories"
 import type { ClientJob } from "./client-job-types"
 import { ClientJobProposals } from "./client-job-proposals"
 
@@ -30,21 +30,17 @@ export function ClientJobEditor({
 	onDelete,
 }: ClientJobEditorProps) {
 	const descriptionLimit = jobDescriptionLimit(job?.experienceLevel ?? "")
-	const { data: categories = [] } = useQuery({
-		queryKey: ["categories"],
-		queryFn: async () => (await CategoriesService.readCategories()).data.data,
-		staleTime: 1000 * 60 * 30,
-	})
+	const { data: categories = [] } = useCategories()
 	return (
 		<Sheet open={!!job} onOpenChange={(open) => !open && onClose()}>
 			<SheetContent className="w-full gap-0 bg-surface-container-lowest p-0 sm:max-w-180">
 				<SheetHeader className="border-b px-6 py-6 pr-12 sm:px-8 sm:pr-14">
-					<p className="font-semibold text-primary text-xs">{editing ? "FIND YOUR NEXT COLLABORATOR" : "YOUR JOB"}</p>
+					<p className="font-semibold text-link text-xs">{editing ? "FIND YOUR NEXT COLLABORATOR" : "YOUR JOB"}</p>
 					<SheetTitle className="mt-1 font-semibold text-2xl tracking-tight">
 						{editing ? "Let’s shape your project" : job?.title || "Untitled job"}
 					</SheetTitle>
 					<SheetDescription>
-						{editing ? "A few details to help the right freelancer find you." : `${job?.status} · ${job?.category}`}
+						{editing ? "A few details to help the right freelancer find you." : `${job?.status} · ${job?.category || "No category"}`}
 					</SheetDescription>
 				</SheetHeader>
 				{job && (
@@ -98,16 +94,26 @@ export function ClientJobEditor({
 									</JobFormSection>
 
 									<div className="border-outline-variant border-t" />
+									<JobFormSection title="Location" description="Choose a Moroccan city, or keep it remote.">
+										<div className="mt-2">
+											<CitySelect
+												value={job.location}
+												onValueChange={(location) => onJobChange({ ...job, location })}
+												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-input"
+											/>
+										</div>
+									</JobFormSection>
+									<div className="border-outline-variant border-t" />
 									<JobFormSection title="Choose a category" description="Help the right freelancers find your project.">
 										<div className="mt-2">
 											<CategorySelect
 												value={job.category}
+												placeholder="Select a category"
 												categories={categories}
 												onValueChange={(category) => onJobChange({ ...job, category })}
 												showAllCategories={false}
 												align="start"
-												contentClassName="w-80"
-												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-outline-variant px-3 hover:border-primary sm:flex"
+												className="!flex h-12 w-full min-w-0 max-w-none rounded-lg border border-input px-3 hover:border-primary sm:flex"
 											/>
 										</div>
 									</JobFormSection>
@@ -234,6 +240,12 @@ function ClientJobDetails({
 					{job.budget ? `$${job.budget}${job.type === "Hourly" ? "/hr" : ""}` : "Not set"} · {job.type}
 				</p>
 			</section>
+			{job.location && (
+				<section>
+					<h3 className="font-semibold">Location</h3>
+					<p className="mt-2 text-sm">{job.location}</p>
+				</section>
+			)}
 			<section>
 				<h3 className="font-semibold">Skills</h3>
 				<div className="mt-3 flex flex-wrap gap-2">

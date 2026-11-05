@@ -93,31 +93,36 @@ def get_user_id_from_token(token: str) -> uuid.UUID | None:
     except (InvalidTokenError, ValidationError, ValueError):
         return None
 
+async def chat_send_error_message(websocket: WebSocket, message_id: str, what: str):
+    error: dict = {
+        "type": "message_ack_failed",
+        "data": {
+            "error": what,
+            "client_message_id": message_id
+        }
+    }
+    await websocket.send_text(
+        json.dumps(error)
+    )
+
 async def chat_message(data: dict[any, any], websocket: WebSocket, user_id: uuid.UUID) -> None:
-    print("Received chat_message event:", data)
     conv_id_raw = data.get("conversation_id")
     content = (data.get("content") or "").strip()
     client_message_id = data.get("client_message_id")
     if not conv_id_raw or not content:
-        await websocket.send_text(
-            json.dumps(
-                {
-                    "type": "message_ack_failed",
-                    "data": {"client_message_id": client_message_id},
-                }
-            )
+        await chat_send_error_message(
+            websocket,
+            client_message_id,
+            "bad transaction"
         )
         return
     try:
         conv_id = uuid.UUID(str(conv_id_raw))
     except ValueError:
-        await websocket.send_text(
-            json.dumps(
-                {
-                    "type": "message_ack_failed",
-                    "data": {"client_message_id": client_message_id},
-                }
-            )
+        await chat_send_error_message(
+            websocket,
+            client_message_id,
+            "bad transaction"
         )
         return
 
@@ -127,13 +132,10 @@ async def chat_message(data: dict[any, any], websocket: WebSocket, user_id: uuid
             conv.client_id != user_id
             and conv.freelancer_id != user_id
         ):
-            await websocket.send_text(
-                json.dumps(
-                    {
-                        "type": "error",
-                        "data": "Unauthorized conversation",
-                    }
-                )
+            await chat_send_error_message(
+                websocket,
+                client_message_id,
+                "unauthorized"
             )
             return
         new_msg = ChatMessage(
@@ -147,15 +149,10 @@ async def chat_message(data: dict[any, any], websocket: WebSocket, user_id: uuid
                 new_msg
             ).model_dump()
         except Exception:
-            await websocket.send_text(
-                json.dumps(
-                    {
-                        "type": "message_ack_failed",
-                        "data": {
-                            "client_message_id": client_message_id
-                        },
-                    }
-                )
+            await chat_send_error_message(
+                websocket,
+                client_message_id,
+                "bad transaction"
             )
             return
         conv.updated_at = get_datetime_utc()

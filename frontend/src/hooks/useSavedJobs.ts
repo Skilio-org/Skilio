@@ -2,12 +2,13 @@ import { JobsService, type SavedJobPublic, type SavedJobsPublic } from "@/client
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import useAuth from "@/hooks/useAuth"
+import { queryKeys } from "@/lib/query-keys"
 
 export function useSavedJobs() {
 	const { user } = useAuth()
 	const queryClient = useQueryClient()
 	const savedQuery = useQuery({
-		queryKey: ["saved-jobs"],
+		queryKey: queryKeys.savedJobs,
 		enabled: Boolean(user),
 		queryFn: async ({ signal }) => {
 			const { data } = await JobsService.readSavedJobs({
@@ -26,14 +27,14 @@ export function useSavedJobs() {
 			await JobsService.createSavedJob({ body: { job_post_id: id } })
 		},
 		onMutate: async ({ id, saved }) => {
-			await queryClient.cancelQueries({ queryKey: ["saved-jobs"] })
-			const previous = queryClient.getQueryData<SavedJobsPublic>(["saved-jobs"])
+			await queryClient.cancelQueries({ queryKey: queryKeys.savedJobs })
+			const previous = queryClient.getQueryData<SavedJobsPublic>(queryKeys.savedJobs)
 
 			if (previous) {
 				const nextData = saved
 					? previous.data.filter((item) => item.job_post_id !== id)
 					: [...previous.data, { id, job_post_id: id } as SavedJobPublic]
-				queryClient.setQueryData<SavedJobsPublic>(["saved-jobs"], {
+				queryClient.setQueryData<SavedJobsPublic>(queryKeys.savedJobs, {
 					...previous,
 					data: nextData,
 					count: saved ? Math.max(0, previous.count - 1) : previous.count + 1,
@@ -43,12 +44,12 @@ export function useSavedJobs() {
 			return { previous }
 		},
 		onSuccess: async (_, { saved }) => {
-			await queryClient.invalidateQueries({ queryKey: ["saved-jobs"] })
-			await queryClient.invalidateQueries({ queryKey: ["freelancer-jobs"] })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.savedJobs })
+			await queryClient.invalidateQueries({ queryKey: queryKeys.freelancerJobs })
 			toast.success(saved ? "Removed from saved jobs" : "Added to saved jobs")
 		},
 		onError: (_error, _variables, context) => {
-			if (context?.previous) queryClient.setQueryData(["saved-jobs"], context.previous)
+			if (context?.previous) queryClient.setQueryData(queryKeys.savedJobs, context.previous)
 			toast.error("Could not update saved jobs. Please try again.")
 		},
 	})

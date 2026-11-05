@@ -18,9 +18,9 @@ const suggestedSkills = [
 ]
 
 const inputClass =
-	"min-h-12 min-w-0 flex-1 rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+	"min-h-12 min-w-0 flex-1 rounded-lg border border-input bg-surface-container-lowest px-3 py-2.5 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25"
 const actionClass =
-	"inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 text-sm font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+	"inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-sm font-medium hover:bg-surface-container-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 
 type SkillsSelectProps = {
 	value: string[]
@@ -77,7 +77,7 @@ export function SkillsSelect({ value, onChange, label, inputId }: SkillsSelectPr
 						type="button"
 						key={skill}
 						aria-label={`Remove ${skill}`}
-						className="flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-primary text-sm"
+						className="flex min-h-10 items-center gap-2 rounded-lg bg-primary/10 px-3 text-link text-sm"
 						onClick={() => {
 							onChange(value.filter((selected) => selected !== skill))
 						}}

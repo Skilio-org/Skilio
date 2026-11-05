@@ -18,6 +18,7 @@ from app.api.deps import CurrentUser, SessionDep
 from app.api.utils.chat import (
     _build_conversation_public,
     chat_message,
+    chat_send_error_message,
     get_user_id_from_token,
     read_receipt,
     user_typing,
@@ -76,7 +77,7 @@ def get_my_conversations(
 
 
 @router.get("/conversation/{conversation_id}", response_model=ConversationDetailPublic)
-def get_conversation_details(
+async def get_conversation_details(
     conversation_id: uuid.UUID,
     session: SessionDep,
     current_user: CurrentUser,
@@ -115,6 +116,21 @@ def get_conversation_details(
 
     if unreads_marked:
         session.commit()
+        recipient_id = (
+            conversation.freelancer_id
+            if current_user.id == conversation.client_id
+            else conversation.client_id
+        )
+        await publish_to_user(
+            recipient_id,
+            payload={
+                "type": "messages_read",
+                "data": {
+                    "conversation_id": str(conversation_id),
+                    "read_by": str(current_user.id),
+                },
+            },
+        )
 
     conv_summary = _build_conversation_public(conversation, current_user.id, session)
     messages_public = [ChatMessagePublic.model_validate(m) for m in messages]
@@ -127,7 +143,7 @@ def get_conversation_details(
         created_at=conv_summary.created_at,
         updated_at=conv_summary.updated_at,
         last_message=conv_summary.last_message,
-        unread_count=0,
+        unread_count=conv_summary.unread_count,
         other_user=conv_summary.other_user,
         messages=messages_public,
     )
@@ -254,9 +270,7 @@ async def send_message_rest(
         attachment_id=message_in.attachment_id,
         created_at=get_datetime_utc(),
     )
-    # conversation.last_message_id = new_msg.id
     conversation.unread_count += 1
-    # conversation.last_message_content = new_msg.content
     conversation.updated_at = get_datetime_utc()
     session.add(new_msg)
     session.add(conversation)
@@ -288,7 +302,6 @@ def check_user_presence(user_id: uuid.UUID) -> Any:
     """
     is_online = connection_manager.is_user_online(user_id)
     return UserPresence(user_id=user_id, is_online=is_online)
-
 
 @router.post("/inject")
 async def inject_event(
@@ -380,8 +393,10 @@ async def websocket_chat_endpoint(
                     t for t in message_timestamps if current_time - t < settings.RATE_LIMIT_WINDOW
                 ]
                 if len(message_timestamps) >= settings.MAX_MESSAGES_PER_SECOND:
-                    await websocket.send_text(
-                        json.dumps({"type": "error", "data": "Rate limit exceeded. Slow down."})
+                    await chat_send_error_message(
+                        websocket,
+                        data.get("client_message_id"),
+                        "slow down"
                     )
                     continue
                 message_timestamps.append(current_time)

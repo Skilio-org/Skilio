@@ -1,10 +1,12 @@
+import hashlib
 import logging
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import select
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
@@ -170,7 +172,10 @@ async def recover_password(email: str, session: SessionDep) -> Message:
     # Only send email if user actually exists
     if user:
         try:
-            await send_password_reconvery_email(email=email, oauth=False)
+            token = generate_password_reset_token(email=email)
+            await send_password_reconvery_email(
+                email=email, oauth=False, password_reset_token=token
+            )
         except Exception as e:
             logger.error(f"Error sending password recovery email: {e}")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Invalid token")
@@ -184,7 +189,7 @@ def reset_password(session: SessionDep, body: NewPassword, request: Request) -> 
     """Reset password"""
     email = verify_password_reset_token(token=body.token)
     if not email:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid url, please request a new one.")
     user = crud.get_user_by_email(session=session, email=email)
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")

@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
+import { queryKeys } from "@/lib/query-keys"
 
 import { UsersService } from "@/client"
-import { Button } from "@/components/ui/button"
+import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import {
 	Dialog,
 	DialogClose,
@@ -17,7 +18,7 @@ import { LoadingButton } from "@/components/ui/loading-button"
 import { useAccountRole } from "@/hooks/useAccountRole"
 import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 const DeleteConfirmation = () => {
 	const queryClient = useQueryClient()
@@ -34,7 +35,7 @@ const DeleteConfirmation = () => {
 		},
 		onError: handleError.bind(showErrorToast),
 		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: ["currentUser"] })
+			queryClient.invalidateQueries({ queryKey: queryKeys.currentUser })
 		},
 	})
 
@@ -45,9 +46,9 @@ const DeleteConfirmation = () => {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button variant="destructive" className="h-10 self-start rounded-lg px-5 sm:self-auto">
+				<button type="button" className={workspaceStyles.destructiveAction}>
 					Delete account
-				</Button>
+				</button>
 			</DialogTrigger>
 			<DialogContent>
 				<form onSubmit={handleSubmit(onSubmit)}>
@@ -61,16 +62,11 @@ const DeleteConfirmation = () => {
 
 					<DialogFooter className="mt-4">
 						<DialogClose asChild>
-							<Button variant="outline" disabled={mutation.isPending} className="h-10 rounded-lg px-5">
+							<button type="button" disabled={mutation.isPending} className={workspaceStyles.secondaryAction}>
 								Cancel
-							</Button>
+							</button>
 						</DialogClose>
-						<LoadingButton
-							variant="destructive"
-							type="submit"
-							loading={mutation.isPending}
-							className="h-10 rounded-lg px-5"
-						>
+						<LoadingButton type="submit" loading={mutation.isPending} className={workspaceStyles.destructiveAction}>
 							Delete permanently
 						</LoadingButton>
 					</DialogFooter>
