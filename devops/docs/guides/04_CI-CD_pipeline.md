@@ -148,7 +148,7 @@ When a developer runs `git push origin master`, what happens behind the scenes?
 ```
 
 1. **Webhook Event:** GitHub detects the Git `push` or `pull_request` event.
-2. **Orchestrator Queue:** GitHub's workflow scheduler parses [`.github/workflows/ci-cd.yml`](file:///home/aysadeq/Desktop/Freelancer/.github/workflows/ci-cd.yml), evaluates event filters (`branches`, `paths-ignore`), and queues the jobs.
+2. **Orchestrator Queue:** GitHub's workflow scheduler parses [`.github/workflows/ci-cd.yml`](../../../.github/workflows/ci-cd.yml), evaluates event filters (`branches`, `paths-ignore`), and queues the jobs.
 3. **Ephemeral Cloud VM Provisioning:** For each job, GitHub spins up a fresh, isolated virtual machine (e.g., Azure VM running Ubuntu Linux).
 4. **Environment Isolation & Secrets:** The VM injects encrypted secrets into process memory (never writing them as plaintext to disk) and pulls down the code.
 5. **Execution & Log Streaming:** Steps execute in order while ANSI logs stream in real-time to the developer's browser.
@@ -158,9 +158,9 @@ When a developer runs `git push origin master`, what happens behind the scenes?
 
 ### YAML Syntax & Keyword Anatomy (The Skilio Engine Cheat Sheet)
 
-Every directive in [`.github/workflows/ci-cd.yml`](file:///home/aysadeq/Desktop/Freelancer/.github/workflows/ci-cd.yml) serves an intentional purpose:
+Every directive in [`.github/workflows/ci-cd.yml`](../../../.github/workflows/ci-cd.yml) serves an intentional purpose:
 
-| Keyword | Purpose & Architectural Usage | Example from [`ci-cd.yml`](file:///home/aysadeq/Desktop/Freelancer/.github/workflows/ci-cd.yml) |
+| Keyword | Purpose & Architectural Usage | Example from [`ci-cd.yml`](../../../.github/workflows/ci-cd.yml) |
 | :--- | :--- | :--- |
 | **`name`** | The human-readable label displayed in the GitHub UI and Pull Request status checks. | `name: CI/CD Pipeline` |
 | **`on`** | Defines repository events that trigger workflow execution. Supports branch filters and path exclusions. | `on: push: branches: [master]` |
@@ -243,11 +243,11 @@ Before Continuous Integration was formalized, software teams suffered from merge
 3. **Scheduled Workflows (Cron Maintenance):** Time-based triggers (e.g., automated nightly backups or security scans).
 4. **Operations / Housekeeping Workflows:** Repository automations (auto-closing stale issues, PR labeling).
 
-> **Architectural Decision:** In [`ci-cd.yml`](file:///home/aysadeq/Desktop/Freelancer/.github/workflows/ci-cd.yml), we combined **Type 1 (CI Gate)** and **Type 2 (CD Delivery)** into a single unified pipeline driven by a Directed Acyclic Graph (`needs:`).
+> **Architectural Decision:** In [`ci-cd.yml`](../../../.github/workflows/ci-cd.yml), we combined **Type 1 (CI Gate)** and **Type 2 (CD Delivery)** into a single unified pipeline driven by a Directed Acyclic Graph (`needs:`).
 
 ---
 
-## 4. The 3-Tier CI Quality Gate ([`ci-cd.yml`](file:///home/aysadeq/Desktop/Freelancer/.github/workflows/ci-cd.yml))
+## 4. The 3-Tier CI Quality Gate ([`ci-cd.yml`](../../../.github/workflows/ci-cd.yml))
 
 Our pipeline executes four parallel testing jobs across three tiers before deployment:
 
@@ -309,15 +309,15 @@ Our pipeline executes four parallel testing jobs across three tiers before deplo
   docker compose run --rm backend bash scripts/prestart.sh
   docker compose up -d --wait backend
   ```
-* **HTTP Smoke Testing:** Uses `curl -fsSL --retry 5 --retry-delay 2 http://localhost:8000/api/v1/health | grep '"status":"healthy"'` to verify both HTTP 200 and explicit JSON payload health (confirming FastAPI, PostgreSQL, and Redis are fully operational), and probes the compiled React single-page application (`/`) at web root.
-* **Automated Cleanup:** Enforces `docker compose down -v --remove-orphans` using `if: always()` to destroy test volumes cleanly.
+* **HTTP Smoke Testing:** Uses `bash devops/scripts/check-health.sh http://localhost:8000/api/v1/health 5 2` to verify deep diagnostic health (confirming FastAPI, PostgreSQL, and Redis are fully operational with JSON payload validation), followed by probing the compiled React single-page application (`/`) at web root.
+* **Zero State Leakage:** Relies on GitHub's cloud runner lifecycle, which completely destroys the ephemeral virtual machine, containers, and temporary volumes immediately upon job completion.
 
 ---
 
 ## 5. Pipeline Mechanics: Directed Graphs (DAG), Concurrency & Security
 
 ### 1. Directed Acyclic Graph (DAG) Safety Gate
-In [`ci-cd.yml`](file:///home/aysadeq/Desktop/Freelancer/.github/workflows/ci-cd.yml), the `deploy` job declares:
+In [`ci-cd.yml`](../../../.github/workflows/ci-cd.yml), the `deploy` job declares:
 ```yaml
 deploy:
   name: Deploy to AWS
@@ -382,7 +382,7 @@ Evaluators frequently ask how the cloud server communicates with GitHub:
 
 ---
 
-## 6. Secure Transport (`rsync`) & Zero-Downtime Swap ([`deploy.sh`](file:///home/aysadeq/Desktop/Freelancer/devops/scripts/deploy.sh))
+## 6. Secure Transport (`rsync`) & Zero-Downtime Swap ([`deploy.sh`](../../scripts/deploy.sh))
 
 ### Why `rsync` over SSH instead of `git pull` on the Server?
 1. **No Git Overhead:** `git pull` on the server requires installing Git credentials and pulling `.git` commit histories that bloat the 29 GB disk.
@@ -404,7 +404,7 @@ Evaluators frequently ask how the cloud server communicates with GitHub:
 
 ---
 
-### The 4-Step Zero-Downtime Rollout ([`devops/scripts/deploy.sh`](file:///home/aysadeq/Desktop/Freelancer/devops/scripts/deploy.sh))
+### The 4-Step Zero-Downtime Rollout ([`devops/scripts/deploy.sh`](../../scripts/deploy.sh))
 
 Once files are synchronized, GitHub Actions triggers `bash /opt/skilio/devops/scripts/deploy.sh`.
 
@@ -422,7 +422,7 @@ Once files are synchronized, GitHub Actions triggers `bash /opt/skilio/devops/sc
  ┌────────────────────────────────────────────────────────────────────────┐
  │           STEP 2: THE EPHEMERAL PRE-FLIGHT MIGRATION GATE              │
  │                                                                        │
- │  docker compose ... run -T --rm backend bash scripts/prestart.sh       │
+ │  docker compose ... run --rm backend bash scripts/prestart.sh          │
  │                                                                        │
  │  • Spins up ONE-OFF temporary container from the new image.            │
  │  • Probes DB readiness, executes `alembic upgrade head`.               │
@@ -453,20 +453,20 @@ Once files are synchronized, GitHub Actions triggers `bash /opt/skilio/devops/sc
  └────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### Why Line 38 (`docker compose run -T --rm ...`) is Best Practice:
+#### Why Ephemeral Container Migrations (`docker compose run --rm ...`) is Best Practice:
 * **Why not run migrations inside container startup (`CMD` / `entrypoint.sh`)?**  
   If multiple replicas of the backend start simultaneously, all instances race to apply `alembic upgrade head` at the exact same millisecond, corrupting database tables. Furthermore, if a migration fails, the container enters a `CrashLoopBackOff`, dropping user connections.
 * **Our Solution:** An ephemeral one-off container acts as a gatekeeper. If the schema migration fails, the script aborts before the running container is ever touched.
 * **Flag Breakdown:**
-  * `-T`: Disables pseudo-TTY allocation to prevent terminal hangs during automated SSH pipelines.
   * `--rm`: Automatically removes the temporary container upon exit, preventing disk clutter.
+  * *Note on TTY:* Modern Docker Compose v2 auto-detects non-interactive CI/SSH environments (`default: auto-detected`), eliminating the need for legacy `-T` flags.
 
 ---
 
 ## 7. Production Verification, CD Cons & Defense Guide
 
 ### Step 5: Live Production Health Verification Loop (`check-health.sh`)
-After swapping the container, [`ci-cd.yml`](file:///home/aysadeq/Desktop/Freelancer/.github/workflows/ci-cd.yml) invokes our standardized health verification script [`check-health.sh`](file:///home/aysadeq/Desktop/Freelancer/devops/scripts/check-health.sh):
+After swapping the container, [`ci-cd.yml`](../../../.github/workflows/ci-cd.yml) invokes our standardized health verification script [`check-health.sh`](../../scripts/check-health.sh):
 
 ```bash
 bash devops/scripts/check-health.sh https://skilio.works/api/v1/health 12 5

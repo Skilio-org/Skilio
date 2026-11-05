@@ -69,6 +69,7 @@ services:
 
   backend:
     image: backend:latest
+    pull_policy: build
     restart: unless-stopped
     build:
       context: .
