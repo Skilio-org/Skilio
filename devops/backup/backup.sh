@@ -1,14 +1,7 @@
 #!/usr/bin/env bash
-# ──────────────────────────────────────────────────────────────────────────────
-# backup.sh — PostgreSQL Database Backup
-# ──────────────────────────────────────────────────────────────────────────────
-# Backs up the PostgreSQL database, compresses it with gzip, checks for errors,
-# and deletes old backup files to save disk space.
-# Works on the host computer (with docker compose) or inside a container.
 
 set -euo pipefail
 
-# Text colors
 BOLD='\033[1m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -23,9 +16,7 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # Load settings from .env file if it exists
 if [ -f "${ROOT_DIR}/.env" ]; then
-    set -a
     source "${ROOT_DIR}/.env" 2>/dev/null || true
-    set +a
 fi
 
 # Settings and default values
