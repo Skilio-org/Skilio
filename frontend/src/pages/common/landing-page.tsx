@@ -1,10 +1,8 @@
 import { useState } from "react"
 import { LandingHeader } from "@/components/landing/landing-header"
 import { LandingHero } from "@/components/landing/landing-hero"
-import { LandingStats } from "@/components/landing/landing-stats"
 import { LandingTalent } from "@/components/landing/landing-talent"
 import { LandingContracts } from "@/components/landing/landing-contracts"
-import { LandingBento } from "@/components/landing/landing-bento"
 import { LandingHowItWorks } from "@/components/landing/landing-how-it-works"
 import { LandingTestimonials } from "@/components/landing/landing-testimonials"
 import { LandingCta } from "@/components/landing/landing-cta"
@@ -42,17 +40,11 @@ export function LandingPage() {
 				{/* High-Impact Hero with Search & Moroccan Showcase */}
 				<LandingHero onSearchSelect={handleSearchSelect} />
 
-				{/* Key Platform Proof Metrics & Domain Trust Strip */}
-				<LandingStats />
-
 				{/* Curated Moroccan Specialist Roster with Expertise Filters */}
 				<LandingTalent filter={talentFilter} onFilter={setTalentFilter} />
 
 				{/* Live Active Contracts Feed */}
 				<LandingContracts />
-
-				{/* The Skilio Difference Bento Showcase */}
-				<LandingBento />
 
 				{/* Simple 3-Step Workflow */}
 				<LandingHowItWorks />

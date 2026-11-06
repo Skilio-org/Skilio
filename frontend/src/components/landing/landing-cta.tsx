@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight } from "lucide-react"
 
 export function LandingCta() {
 	return (
@@ -20,19 +19,17 @@ export function LandingCta() {
 						<Link
 							to="/signup"
 							search={{ role: "client" }}
-							className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-medium text-on-primary transition-colors hover:bg-primary-hover"
+							className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-5 text-[13px] font-medium text-on-primary transition-colors hover:bg-primary-hover"
 						>
 							<span>Hire Moroccan Talent</span>
-							<ArrowUpRight className="size-4" />
 						</Link>
 
 						<Link
 							to="/signup"
 							search={{ role: "freelancer" }}
-							className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 px-4 text-[13px] font-medium text-white transition-colors hover:border-white/40 hover:bg-white/10"
+							className="inline-flex h-9 items-center justify-center rounded-lg border border-white/20 bg-white/5 px-5 text-[13px] font-medium text-white transition-colors hover:border-white/40 hover:bg-white/10"
 						>
 							<span>Apply as a Freelancer</span>
-							<ArrowUpRight className="size-4" />
 						</Link>
 					</div>
 

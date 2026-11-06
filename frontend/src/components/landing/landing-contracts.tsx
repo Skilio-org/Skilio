@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, Clock, Sparkles } from "lucide-react"
+import { Clock } from "lucide-react"
 
 const CONTRACTS = [
 	{
@@ -120,10 +120,9 @@ export function LandingContracts() {
 								<Link
 									to="/signup"
 									search={{ role: "freelancer" }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-link hover:underline"
+									className="inline-flex items-center font-semibold text-foreground hover:text-link hover:underline"
 								>
 									<span>Submit Proposal</span>
-									<ArrowUpRight className="size-3.5" />
 								</Link>
 							</div>
 						</article>
@@ -131,22 +130,13 @@ export function LandingContracts() {
 				</div>
 
 				{/* Bottom Actions */}
-				<div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
+				<div className="mt-8 sm:mt-10 flex items-center justify-center">
 					<Link
 						to="/signup"
 						search={{ role: "freelancer" }}
-						className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+						className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-5 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
 					>
 						<span>Browse all open contracts</span>
-						<ArrowUpRight className="size-4" />
-					</Link>
-					<Link
-						to="/signup"
-						search={{ role: "client" }}
-						className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
-					>
-						<Sparkles className="size-4 text-ring" />
-						<span>Post a project in 2 minutes</span>
 					</Link>
 				</div>
 			</div>

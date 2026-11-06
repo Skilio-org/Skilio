@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, MessageSquare, ScanSearch, ShieldCheck } from "lucide-react"
+import { MessageSquare, ScanSearch, ShieldCheck } from "lucide-react"
 
 const STEPS = [
 	{
@@ -72,10 +72,9 @@ export function LandingHowItWorks() {
 					<Link
 						to="/signup"
 						search={{ role: "client" }}
-						className="inline-flex w-full sm:w-auto h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+						className="inline-flex w-full sm:w-auto h-9 items-center justify-center rounded-lg bg-primary px-5 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
 					>
 						<span>Get started with your project</span>
-						<ArrowUpRight className="size-4" />
 					</Link>
 				</div>
 			</div>
