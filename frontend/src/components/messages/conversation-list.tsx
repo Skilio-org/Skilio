@@ -7,6 +7,8 @@ import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "
 import { useChatData } from "@/hooks/useChatData"
 import { createFallbackProfile } from "@/hooks/useProfiles"
 import { UserPublic } from "@/client"
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+// import { useAutoAnimate } from "@formkit/auto-animate";
 
 export function ConversationList({
 	me,
@@ -28,6 +30,7 @@ export function ConversationList({
 	onSelect: (id: string) => void
 }) {
 	const { conversations, profiles } = useChatData()
+	const [listRef] = useAutoAnimate({ duration: 250, easing: "ease-in-out" })
 
 	return (
 		<aside
@@ -101,7 +104,7 @@ export function ConversationList({
 					})}
 				</div>
 			</div>
-			<div className="min-h-0 flex-1 overflow-y-auto p-2.5 space-y-1.5">
+			<div ref={listRef} className="min-h-0 flex-1 overflow-y-auto p-2.5 space-y-1.5">
 				{conversations?.data?.data
 					.filter((conversation) => {
 						if (filter === "unread" && (conversation.unread_count ?? 0) === 0) return false

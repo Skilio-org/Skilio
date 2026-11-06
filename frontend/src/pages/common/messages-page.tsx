@@ -193,6 +193,13 @@ export function MessagesPage({
 				}
 				return conversation
 			})
+			const activeIndex = updatedConversations.findIndex(
+				(c: any) => c.id === selectedConversationId
+			)
+			if (activeIndex > 0) {
+				const [active] = updatedConversations.splice(activeIndex, 1)
+				updatedConversations.unshift(active)
+			}
 			return {
 				...current,
 				data: updatedConversations,
