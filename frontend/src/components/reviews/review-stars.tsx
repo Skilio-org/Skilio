@@ -50,10 +50,10 @@ export function StarRatingDisplay({
 							<Star className={cn(sizeMap[size], "text-on-surface-variant/25 stroke-current")} />
 							{(isFilled || isHalfFilled) && (
 								<span
-									className="absolute inset-0 overflow-hidden text-amber-500"
+									className="absolute inset-0 overflow-hidden text-primary"
 									style={{ width: isFilled ? "100%" : `${Math.round((normalizedRating - index) * 100)}%` }}
 								>
-									<Star className={cn(sizeMap[size], "fill-amber-500 text-amber-500")} />
+									<Star className={cn(sizeMap[size], "fill-primary text-primary")} />
 								</span>
 							)}
 						</span>
@@ -129,7 +129,7 @@ export function StarRatingInput({
 								className={cn(
 									"size-6 transition-colors duration-150",
 									isSelectedOrHovered
-										? "fill-amber-400 text-amber-400 drop-shadow-[0_1px_2px_rgba(245,158,11,0.25)]"
+										? "fill-primary text-primary drop-shadow-[0_1px_2px_rgba(184,239,13,0.35)]"
 										: "text-on-surface-variant/35 group-hover:text-on-surface-variant/60",
 								)}
 							/>
@@ -140,7 +140,7 @@ export function StarRatingInput({
 
 			<p className="min-h-5 font-medium text-xs text-on-surface-variant transition-opacity">
 				{activeValue > 0 ? (
-					<span className="font-semibold text-amber-600 dark:text-amber-400">
+					<span className="font-semibold text-primary">
 						{activeValue} {activeValue === 1 ? "star" : "stars"} — {RATING_LABELS[activeValue]}
 					</span>
 				) : (

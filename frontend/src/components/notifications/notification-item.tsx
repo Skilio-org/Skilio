@@ -33,7 +33,7 @@ function NotificationIcon({ type }: { type: NotificationEvent }) {
 		case "connection_declined":
 			return <UserX className="size-4 text-muted-foreground" />
 		case "review_received":
-			return <Star className="size-4 text-amber-500" />
+			return <Star className="size-4 fill-primary text-primary" />
 		case "job_closed":
 			return <BriefcaseBusiness className="size-4" />
 		default:

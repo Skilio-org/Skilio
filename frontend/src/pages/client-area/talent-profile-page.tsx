@@ -105,7 +105,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 							}}
 							className={`${workspaceStyles.secondaryAction} w-full inline-flex items-center justify-center gap-2 cursor-pointer`}
 						>
-							<Star className="size-4 fill-amber-500 text-amber-500" />
+							<Star className="size-4 fill-primary text-primary" />
 							<span>Feedback & Reviews</span>
 						</button>
 					</>

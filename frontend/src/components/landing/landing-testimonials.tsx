@@ -52,9 +52,9 @@ export function LandingTestimonials() {
 							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<CardContent className="p-0">
-								<div className="flex items-center gap-1 text-amber-500">
+								<div className="flex items-center gap-1 text-primary">
 									{Array.from({ length: 5 }).map((_, i) => (
-										<Star key={i} className="size-3.5 sm:size-4 fill-amber-400 text-amber-400" />
+										<Star key={i} className="size-3.5 sm:size-4 fill-primary text-primary" />
 									))}
 								</div>
 
