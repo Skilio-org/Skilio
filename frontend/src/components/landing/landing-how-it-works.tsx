@@ -31,9 +31,6 @@ export function LandingHowItWorks() {
 			<div className="landing-container">
 				{/* Section Header */}
 				<div className="landing-section-header">
-					<div className="landing-eyebrow">
-						<span>HOW IT WORKS</span>
-					</div>
 					<h2 className="landing-heading text-foreground">
 						Simple 3-step process to get work done.
 					</h2>
@@ -51,7 +48,7 @@ export function LandingHowItWorks() {
 						>
 							<div>
 								<div className="flex items-center justify-between">
-									<span className="font-display text-3xl font-extrabold text-ring">
+									<span className="font-display text-3xl font-extrabold text-foreground">
 										{step}
 									</span>
 									<div className="grid size-11 place-items-center rounded-xl bg-muted/60 text-foreground">

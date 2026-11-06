@@ -1,6 +1,5 @@
 import { Quote, Star } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 
 const TESTIMONIALS = [
@@ -11,7 +10,6 @@ const TESTIMONIALS = [
 		role: "Founder",
 		company: "Casablanca Logistics",
 		initials: "RA",
-		type: "Client",
 	},
 	{
 		quote:
@@ -20,7 +18,6 @@ const TESTIMONIALS = [
 		role: "Senior UI/UX Designer",
 		company: "Independent Specialist · Rabat",
 		initials: "SM",
-		type: "Freelancer",
 	},
 	{
 		quote:
@@ -29,7 +26,6 @@ const TESTIMONIALS = [
 		role: "Co-founder",
 		company: "Atlas E-Com · Marrakech",
 		initials: "TB",
-		type: "Client",
 	},
 ]
 
@@ -39,9 +35,6 @@ export function LandingTestimonials() {
 			<div className="landing-container">
 				{/* Section Header */}
 				<div className="landing-section-header">
-					<div className="landing-eyebrow">
-						<span>VERIFIED REVIEWS</span>
-					</div>
 					<h2 className="landing-heading text-foreground">
 						Trusted by Moroccan businesses and independent talent.
 					</h2>
@@ -59,18 +52,10 @@ export function LandingTestimonials() {
 							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<CardContent className="p-0">
-								<div className="flex items-center justify-between gap-2">
-									<div className="flex items-center gap-1 text-amber-500">
-										{Array.from({ length: 5 }).map((_, i) => (
-											<Star key={i} className="size-3.5 sm:size-4 fill-amber-400 text-amber-400" />
-										))}
-									</div>
-									<Badge
-										variant="outline"
-										className="text-[11px] font-semibold text-muted-foreground"
-									>
-										{t.type}
-									</Badge>
+								<div className="flex items-center gap-1 text-amber-500">
+									{Array.from({ length: 5 }).map((_, i) => (
+										<Star key={i} className="size-3.5 sm:size-4 fill-amber-400 text-amber-400" />
+									))}
 								</div>
 
 								<div className="relative mt-4 sm:mt-5">

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, Check, MapPin, Star } from "lucide-react"
+import { ArrowUpRight, MapPin, Star } from "lucide-react"
 import { freelancers } from "@/data/freelancers"
 
 const CATEGORIES = [
@@ -38,9 +38,6 @@ export function LandingTalent({
 			<div className="landing-container">
 				{/* Section Header */}
 				<div className="landing-section-header">
-					<div className="landing-eyebrow">
-						<span>CURATED TALENT</span>
-					</div>
 					<h2 className="landing-heading text-foreground">
 						Skilled Moroccan specialists ready for your project.
 					</h2>
@@ -88,15 +85,9 @@ export function LandingTalent({
 											{person.initials}
 										</span>
 										<div className="min-w-0">
-											<div className="flex items-center gap-1.5">
-												<h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-link transition-colors truncate">
-													{person.name}
-												</h3>
-												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
-													<Check className="size-2.5" />
-													Verified
-												</span>
-											</div>
+											<h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-link transition-colors truncate">
+												{person.name}
+											</h3>
 											<p className="text-xs text-muted-foreground truncate">{person.title}</p>
 										</div>
 									</div>
@@ -108,7 +99,7 @@ export function LandingTalent({
 												/hr
 											</span>
 										</p>
-										<span className="text-[11px] font-medium text-[#3E7B3D] dark:text-[#8DD37D]">
+										<span className="text-[11px] font-medium text-muted-foreground">
 											{person.availability}
 										</span>
 									</div>

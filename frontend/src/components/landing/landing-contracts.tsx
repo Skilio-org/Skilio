@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, Award, Clock, ShieldCheck, Sparkles } from "lucide-react"
+import { ArrowUpRight, Clock, Sparkles } from "lucide-react"
 
 const CONTRACTS = [
 	{
@@ -7,7 +7,7 @@ const CONTRACTS = [
 		budget: "15,000 DH",
 		rateType: "Fixed Budget · 3 Milestones",
 		title: "E-Commerce Mobile App & Customer Loyalty System",
-		client: "Atlas Retail Group · Casablanca (Payment Verified)",
+		client: "Atlas Retail Group · Casablanca",
 		escrow: "100% Escrow Funded",
 		proposals: "4 Proposals",
 		time: "Posted 2h ago",
@@ -18,7 +18,7 @@ const CONTRACTS = [
 		budget: "250 - 350 DH",
 		rateType: "/hour · 3 Month Contract",
 		title: "Logistics & Fleet Tracking Dashboard",
-		client: "Tangier Port Services · Payment Verified",
+		client: "Tangier Port Services",
 		escrow: "Verified Payment Method",
 		proposals: "6 Proposals",
 		time: "Posted 4h ago",
@@ -46,10 +46,6 @@ export function LandingContracts() {
 			<div className="landing-container">
 				{/* Section Header */}
 				<div className="landing-section-header">
-					<div className="landing-eyebrow">
-						<ShieldCheck className="size-3.5" />
-						<span>LIVE PROJECT OPPORTUNITIES</span>
-					</div>
 					<h2 className="landing-heading text-foreground">
 						Active contracts posted by verified Moroccan businesses.
 					</h2>
@@ -67,14 +63,13 @@ export function LandingContracts() {
 							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<div>
-								{/* Meta Row: Tag & Escrow Badge */}
+								{/* Meta Row: Tag & Escrow status */}
 								<div className="flex items-center justify-between gap-2">
-									<div className="flex flex-wrap items-center gap-1.5">
+									<div className="flex flex-wrap items-center gap-2">
 										<span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-foreground border border-border/60">
 											{contract.tag}
 										</span>
-										<span className="inline-flex items-center gap-1 rounded-md bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-2 py-0.5 text-[11px] font-semibold text-[#3E7B3D] dark:text-[#8DD37D]">
-											<ShieldCheck className="size-3" />
+										<span className="text-[11px] text-muted-foreground font-medium">
 											{contract.escrow}
 										</span>
 									</div>
@@ -90,8 +85,7 @@ export function LandingContracts() {
 								</h3>
 
 								{/* Client Info */}
-								<div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-									<Award className="size-3.5 text-[#3E7B3D] dark:text-[#8DD37D] shrink-0" />
+								<div className="mt-2 text-xs text-muted-foreground">
 									<span className="truncate">{contract.client}</span>
 								</div>
 

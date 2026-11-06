@@ -56,3 +56,11 @@ The landing page was refactored and localized for the Moroccan market, eliminati
 - **Build & Compilation Verification**:
   - Validated type checking via `tsc -p tsconfig.build.json --noEmit` $\rightarrow$ 0 errors.
   - Validated dev server boot via `bun run dev` (Vite v8.2.0) $\rightarrow$ HTTP 200 OK.
+
+### Elimination of Generic AI Design Clichés & Badges
+- **Deleted Floating Preview Cards**: Removed the artificial preview cards (`landing-hero-cards.tsx` deleted) containing fake stats ("10,000 DH Escrow", "Fast Local Match") that gave the hero a generic AI template look.
+- **Removed Artificial Badges & Icons**:
+  - Removed sparkle icon pill (`MOROCCO'S FREELANCE TALENT NETWORK`) and radial gradient blobs.
+  - Removed `✓ Verified` and `✓ Verified Specialist` green pill badges from talent and hero components.
+  - Removed tacky colored status badges across the bento grid and contracts feed in favor of clean, understated typography.
+  - Removed fake all-caps eyebrows and decorative glow effects.
