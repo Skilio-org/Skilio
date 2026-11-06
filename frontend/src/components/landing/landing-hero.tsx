@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
-import { ArrowUpRight, ChevronDown, Search, Sparkles } from "lucide-react"
-import { LandingHeroCards } from "@/components/landing/landing-hero-cards"
+import { ArrowUpRight, ChevronDown, Search } from "lucide-react"
 
 const CATEGORIES = [
 	"All Categories",
@@ -57,32 +56,12 @@ export function LandingHero({
 	}
 
 	return (
-		<section className="relative overflow-hidden border-b border-border/60 bg-muted/20 py-12 sm:py-16 lg:py-20">
-			{/* Subtle ambient glow pattern */}
-			<div
-				className="pointer-events-none absolute inset-0 -z-10 opacity-30 dark:opacity-20"
-				style={{
-					backgroundImage: `radial-gradient(circle at 50% 20%, rgba(184, 239, 13, 0.12) 0%, transparent 60%)`,
-				}}
-			/>
-
+		<section className="border-b border-border/60 bg-muted/20 py-16 sm:py-20 lg:py-24">
 			<div className="landing-container flex flex-col items-center text-center">
-				{/* Eyebrow Pill */}
-				<div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-semibold text-foreground shadow-xs backdrop-blur-xs">
-					<Sparkles className="size-3 sm:size-3.5 text-ring" />
-					<span>MOROCCO&apos;S FREELANCE TALENT NETWORK</span>
-				</div>
-
 				{/* Main Headline */}
-				<h1 className="mt-5 sm:mt-6 max-w-4xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl sm:leading-tight lg:leading-[1.12]">
+				<h1 className="max-w-4xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl sm:leading-tight lg:leading-[1.15]">
 					Hire skilled Moroccan freelancers. <br className="hidden xs:inline" />
-					<span className="text-foreground">
-						Get your projects shipped{" "}
-					</span>
-					<span className="relative inline-block text-ring">
-						faster.
-						<span className="absolute bottom-1.5 left-0 -z-10 h-2.5 sm:h-3 w-full bg-[#B8EF0D]/30 dark:bg-[#B8EF0D]/20" />
-					</span>
+					Get your projects shipped faster.
 				</h1>
 
 				{/* Subtitle */}
@@ -92,9 +71,9 @@ export function LandingHero({
 				</p>
 
 				{/* Interactive Search Hub */}
-				<div className="mt-7 sm:mt-8 w-full max-w-3xl">
+				<div className="mt-8 sm:mt-10 w-full max-w-3xl">
 					{/* Role Switcher Tabs */}
-					<div className="mb-2.5 flex items-center justify-center gap-1.5">
+					<div className="mb-3 flex items-center justify-center gap-1.5">
 						<button
 							type="button"
 							onClick={() => setRoleMode("hire")}
@@ -194,9 +173,6 @@ export function LandingHero({
 						))}
 					</div>
 				</div>
-
-				{/* Modular Showcase Trio Preview */}
-				<LandingHeroCards />
 			</div>
 		</section>
 	)
