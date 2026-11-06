@@ -41,7 +41,6 @@ export function FreelancerReviewsSection({
 		myReview,
 		isClientRole,
 		isOwnProfile,
-		canCreateReview,
 		isLoading,
 		createReview,
 		isCreating,
