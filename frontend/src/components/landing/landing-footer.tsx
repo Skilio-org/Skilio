@@ -27,10 +27,10 @@ const FOOTER_SECTIONS = [
 		title: "Company",
 		links: [
 			{ label: "About Skilio", href: "/", isAnchor: false },
-			{ label: "Post a Job", href: "/signup", isAnchor: false },
-			{ label: "Apply as Freelancer", href: "/signup", isAnchor: false },
+			{ label: "System Status", href: "/status", isAnchor: false },
 			{ label: "Terms of Service", href: "/terms", isAnchor: false },
 			{ label: "Privacy Policy", href: "/privacy", isAnchor: false },
+			{ label: "Log In", href: "/login", isAnchor: false },
 		],
 	},
 ]
@@ -47,7 +47,7 @@ export function LandingFooter() {
 			<div className="landing-container py-12 sm:py-16 lg:py-20">
 				<div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
 					{/* Brand Column (5 cols on lg) */}
-					<div className="flex flex-col gap-4 lg:col-span-5">
+					<div className="flex flex-col gap-3.5 lg:col-span-5">
 						<Link to="/" className="group inline-flex items-center gap-2.5 w-fit outline-none">
 							<img
 								src={skilioLogo}
@@ -55,25 +55,12 @@ export function LandingFooter() {
 								className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
 							/>
 							<span className="font-display text-xl font-bold tracking-tight text-white">Skilio</span>
-							<span className="ml-1 inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-neutral-300">
-								🇲🇦 Morocco
-							</span>
 						</Link>
 
 						<p className="max-w-sm text-xs sm:text-[13px] leading-relaxed text-neutral-400">
-							Morocco&apos;s verified freelance talent network. Direct client collaboration, milestone escrow protection,
-							and payments settled in Dirhams (MAD).
+							The freelance talent network connecting businesses with verified Moroccan developers,
+							designers, and digital specialists. Direct collaboration and milestone escrow payments.
 						</p>
-
-						<div className="flex items-center gap-2 text-[11px] text-neutral-500 font-mono tracking-wide">
-							<span>Casablanca</span>
-							<span>·</span>
-							<span>Rabat</span>
-							<span>·</span>
-							<span>Marrakech</span>
-							<span>·</span>
-							<span>Tangier</span>
-						</div>
 					</div>
 
 					{/* Balanced Link Columns (7 cols on lg) */}
@@ -110,34 +97,18 @@ export function LandingFooter() {
 				</div>
 
 				{/* Bottom Bar */}
-				<div className="mt-12 sm:mt-16 flex flex-col gap-4 border-t border-white/10 pt-6 sm:pt-8 text-xs text-neutral-400 md:flex-row md:items-center md:justify-between">
-					<div className="flex items-center gap-2">
-						<span>© {new Date().getFullYear()} Skilio. Built for Moroccan builders &amp; teams.</span>
-					</div>
+				<div className="mt-12 sm:mt-16 flex flex-col gap-4 border-t border-white/10 pt-6 sm:pt-8 text-xs text-neutral-400 sm:flex-row sm:items-center sm:justify-between">
+					<p>© {new Date().getFullYear()} Skilio. All rights reserved.</p>
 
-					{/* Live Status Pill & Back to top */}
-					<div className="flex flex-wrap items-center gap-4 sm:gap-6">
-						<Link
-							to="/status"
-							className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-[11px] font-medium text-emerald-400 transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/15"
-						>
-							<span className="relative flex size-2">
-								<span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-								<span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-							</span>
-							<span>All systems operational</span>
-						</Link>
-
-						<button
-							type="button"
-							onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-							className="inline-flex items-center gap-1.5 text-[11px] text-neutral-400 hover:text-white transition-colors cursor-pointer"
-							aria-label="Back to top"
-						>
-							<span>Back to top</span>
-							<ArrowUp className="size-3" />
-						</button>
-					</div>
+					<button
+						type="button"
+						onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+						className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer w-fit"
+						aria-label="Back to top"
+					>
+						<span>Back to top</span>
+						<ArrowUp className="size-3" />
+					</button>
 				</div>
 			</div>
 		</footer>
