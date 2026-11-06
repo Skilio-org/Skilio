@@ -18,13 +18,13 @@ export function LandingCta() {
 					</div>
 
 					<h2 className="mt-5 sm:mt-6 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-white sm:leading-tight lg:leading-[1.15]">
-						Make room for <br />
-						<span className="text-[#B8EF0D]">your next great project.</span>
+						Ready to build with Morocco&apos;s <br />
+						<span className="text-[#B8EF0D]">best freelance talent?</span>
 					</h2>
 
 					<p className="mt-4 sm:mt-5 max-w-xl text-sm sm:text-base text-neutral-300 leading-relaxed">
-						Whether you&apos;re hiring a specialist for a critical sprint or seeking your next
-						flagship contract, Skilio is where ambitious builders collaborate with confidence.
+						Whether you are hiring for a key milestone or looking for your next contract, Skilio
+						connects you directly with serious builders.
 					</p>
 
 					{/* Dual CTAs - Full width tap targets on mobile */}
@@ -34,7 +34,7 @@ export function LandingCta() {
 							search={{ role: "client" }}
 							className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-medium text-on-primary transition-colors hover:bg-primary-hover"
 						>
-							<span>Hire Top Talent</span>
+							<span>Hire Moroccan Talent</span>
 							<ArrowUpRight className="size-4" />
 						</Link>
 
@@ -43,7 +43,7 @@ export function LandingCta() {
 							search={{ role: "freelancer" }}
 							className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 px-4 text-[13px] font-medium text-white transition-colors hover:border-white/40 hover:bg-white/10"
 						>
-							<span>Apply as a Specialist</span>
+							<span>Apply as a Freelancer</span>
 							<ArrowUpRight className="size-4" />
 						</Link>
 					</div>
@@ -52,15 +52,15 @@ export function LandingCta() {
 					<div className="mt-8 sm:mt-10 grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-6 border-t border-white/10 pt-5 sm:pt-6 text-xs text-neutral-400">
 						<div className="flex items-center gap-2">
 							<Check className="size-4 text-[#B8EF0D] shrink-0" />
-							<span>No credit card required to browse</span>
+							<span>Free to browse and post</span>
 						</div>
 						<div className="flex items-center gap-2">
 							<Check className="size-4 text-[#B8EF0D] shrink-0" />
-							<span>100% Milestone Escrow Guarantee</span>
+							<span>100% Milestone Escrow Protection</span>
 						</div>
 						<div className="flex items-center gap-2">
 							<Check className="size-4 text-[#B8EF0D] shrink-0" />
-							<span>Verified Work History & Identity</span>
+							<span>Direct collaboration in Dirhams</span>
 						</div>
 					</div>
 				</div>

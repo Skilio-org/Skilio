@@ -5,20 +5,20 @@ const STEPS = [
 	{
 		step: "01",
 		icon: ScanSearch,
-		title: "Define Brief or Browse",
-		desc: "Post your project specifications in 2 minutes, or explore curated specialist profiles by exact tech stack and verified hourly rates.",
+		title: "Post Brief or Browse Talent",
+		desc: "Describe what you need in 2 minutes, or browse verified Moroccan developers and designers by skill and hourly rate.",
 	},
 	{
 		step: "02",
 		icon: MessageSquare,
-		title: "Direct Alignment & Chat",
-		desc: "Meet top candidates directly, review code repositories or Figma systems, and align on scope without intermediary delays.",
+		title: "Direct Chat & Agree on Scope",
+		desc: "Talk directly with candidates, check previous work, and agree on milestones, deadlines, and pricing.",
 	},
 	{
 		step: "03",
 		icon: ShieldCheck,
-		title: "Milestone Delivery & Escrow",
-		desc: "Lock payments safely in tier-1 escrow. Inspect staging deliverables, request revisions, and approve payouts with 1 click.",
+		title: "Review Deliverables & Pay Safely",
+		desc: "Milestone funds remain in escrow until you test and approve the work. Release payments with full confidence.",
 	},
 ]
 
@@ -32,14 +32,13 @@ export function LandingHowItWorks() {
 				{/* Section Header */}
 				<div className="landing-section-header">
 					<div className="landing-eyebrow">
-						<span>SIMPLE 3-STEP WORKFLOW</span>
+						<span>HOW IT WORKS</span>
 					</div>
 					<h2 className="landing-heading text-foreground">
-						From project brief to production in days.
+						Simple 3-step process to get work done.
 					</h2>
 					<p className="landing-lede">
-						A streamlined process engineered to remove bureaucratic friction, long sales cycles,
-						and agency markups.
+						No agency layers, no complex sales calls. Direct, fast, and transparent.
 					</p>
 				</div>
 
