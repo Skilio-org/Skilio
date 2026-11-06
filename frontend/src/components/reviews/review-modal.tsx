@@ -87,8 +87,8 @@ export function ReviewModal({
 
 	return (
 		<Dialog open={open} onOpenChange={(val) => !isSubmitting && onOpenChange(val)}>
-			<DialogContent className="sm:max-w-md">
-				<DialogHeader className="gap-1">
+			<DialogContent className="sm:max-w-md overflow-hidden">
+				<DialogHeader className="gap-1 min-w-0">
 					<DialogTitle className="font-display font-semibold text-xl tracking-tight">
 						{isEditing ? "Edit your review" : "Rate this freelancer"}
 					</DialogTitle>
@@ -99,18 +99,25 @@ export function ReviewModal({
 					</DialogDescription>
 				</DialogHeader>
 
-				<form onSubmit={handleSubmit} className="space-y-5 pt-2">
+				<form onSubmit={handleSubmit} className="space-y-5 pt-2 min-w-0">
 					{/* Freelancer Info Card */}
-					<div className="flex items-center gap-3.5 rounded-lg border border-outline-variant bg-muted/40 p-3">
-						<Avatar className="size-11 border border-outline-variant">
+					<div className="flex items-start gap-3.5 rounded-lg border border-outline-variant bg-muted/40 p-3 min-w-0 overflow-hidden">
+						<Avatar className="size-11 shrink-0 border border-outline-variant">
 							{freelancerAvatarUrl && <AvatarImage src={freelancerAvatarUrl} alt={freelancerName} />}
 							<AvatarFallback className="bg-primary/10 font-medium text-link text-sm">
 								{getInitials(freelancerName)}
 							</AvatarFallback>
 						</Avatar>
-						<div className="min-w-0 flex-1">
+						<div className="min-w-0 flex-1 overflow-hidden">
 							<p className="truncate font-semibold text-sm text-foreground">{freelancerName}</p>
-							{freelancerTitle && <p className="truncate text-on-surface-variant text-xs">{freelancerTitle}</p>}
+							{freelancerTitle && (
+								<p
+									title={freelancerTitle}
+									className="mt-0.5 text-xs text-on-surface-variant line-clamp-2 break-words leading-relaxed"
+								>
+									{freelancerTitle}
+								</p>
+							)}
 						</div>
 					</div>
 

@@ -87,13 +87,8 @@ interface NotificationActionProps {
 
 function ConnectionStatusBadge({ notification }: { notification: NotificationPublic }) {
 	const connectionStatus = notification.connection?.status
-
-	const [actionStatus, _] = useState<"idle" | "accepted" | "declined">(
-		connectionStatus === "accepted" ? "accepted" : connectionStatus === "declined" ? "declined" : "idle",
-	)
-
-	const isAccepted = actionStatus === "accepted" || connectionStatus === "accepted"
-	const isDeclined = actionStatus === "declined" || connectionStatus === "declined"
+	const isAccepted = connectionStatus === "accepted"
+	const isDeclined = connectionStatus === "declined"
 
 	if (isAccepted || isDeclined) {
 		return (
@@ -114,19 +109,14 @@ function ConnectionStatusBadge({ notification }: { notification: NotificationPub
 
 function NotificationActions({ notification, onMarkAsRead }: NotificationActionProps) {
 	const navigate = useNavigate()
-	const queryClient = useQueryClient()
 	const acceptConnection = useAcceptConnectionRequest()
 	const declineConnection = useDeclineConnectionRequest()
 
 	const connectionId = notification.connection?.id || (notification as any).connection_id
 	const connectionStatus = notification.connection?.status
 
-	const [actionStatus, setActionStatus] = useState<"idle" | "accepted" | "declined">(
-		connectionStatus === "accepted" ? "accepted" : connectionStatus === "declined" ? "declined" : "idle",
-	)
-
-	const isAccepted = actionStatus === "accepted" || connectionStatus === "accepted"
-	const isDeclined = actionStatus === "declined" || connectionStatus === "declined"
+	const isAccepted = connectionStatus === "accepted"
+	const isDeclined = connectionStatus === "declined"
 
 	if (notification.event === "connection_request") {
 		if (isAccepted || isDeclined) return null
@@ -141,30 +131,7 @@ function NotificationActions({ notification, onMarkAsRead }: NotificationActionP
 							e.stopPropagation()
 							e.preventDefault()
 							acceptConnection.mutate(connectionId, {
-								onSuccess: (data) => {
-									setActionStatus("accepted")
-									queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) => {
-										if (!current) return current
-										return current.map((item) => {
-											if (
-												item.id === notification.id ||
-												item.connection?.id === connectionId ||
-												(item as any).connection_id === connectionId
-											) {
-												return {
-													...item,
-													is_read: true,
-													connection: {
-														...(item.connection || {}),
-														...(data || {}),
-														id: connectionId,
-														status: "accepted",
-													} as any,
-												}
-											}
-											return item
-										})
-									})
+								onSuccess: () => {
 									onMarkAsRead(notification.id)
 								},
 							})
@@ -182,30 +149,7 @@ function NotificationActions({ notification, onMarkAsRead }: NotificationActionP
 							e.stopPropagation()
 							e.preventDefault()
 							declineConnection.mutate(connectionId, {
-								onSuccess: (data) => {
-									setActionStatus("declined")
-									queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) => {
-										if (!current) return current
-										return current.map((item) => {
-											if (
-												item.id === notification.id ||
-												item.connection?.id === connectionId ||
-												(item as any).connection_id === connectionId
-											) {
-												return {
-													...item,
-													is_read: true,
-													connection: {
-														...(item.connection || {}),
-														...(data || {}),
-														id: connectionId,
-														status: "declined",
-													} as any,
-												}
-											}
-											return item
-										})
-									})
+								onSuccess: () => {
 									onMarkAsRead(notification.id)
 								},
 							})

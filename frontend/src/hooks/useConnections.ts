@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { ConnectionsService, type ConnectionCreate, type ConnectionStatus } from "@/client"
+import { ConnectionsService, type ConnectionCreate, type ConnectionStatus, type NotificationPublic } from "@/client"
+import { chatKeys } from "@/data/chat-keys"
 
-const connectionKeys = {
+export const connectionKeys = {
 	all: ["connections"] as const,
 	list: (status?: ConnectionStatus | null, direction?: string | null) =>
 		[...connectionKeys.all, "list", { status, direction }] as const,
@@ -66,6 +67,7 @@ export function useSendConnectionRequest() {
 		mutationFn: (data: ConnectionCreate) => ConnectionsService.sendConnectionRequest({ body: data }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: connectionKeys.all })
+			queryClient.invalidateQueries({ queryKey: chatKeys.notifications() })
 			toast.success("Connection request sent!", {
 				description: "The recipient will be notified. Once accepted, direct chat will unlock.",
 			})
@@ -74,18 +76,39 @@ export function useSendConnectionRequest() {
 	})
 }
 
-// Accept, decline, withdraw and remove all take a connection id and refresh the same cache.
+// Accept, decline, withdraw and remove all take a connection id and refresh both connections and notifications caches.
 function useConnectionAction(
 	action: (connectionId: string) => Promise<unknown>,
 	notify: () => void,
 	failureMessage: string,
+	newStatus?: "accepted" | "declined" | "withdrawn",
 ) {
 	const queryClient = useQueryClient()
 
 	return useMutation({
 		mutationFn: action,
-		onSuccess: () => {
+		onSuccess: (_data, connectionId) => {
 			queryClient.invalidateQueries({ queryKey: connectionKeys.all })
+			queryClient.invalidateQueries({ queryKey: chatKeys.notifications() })
+
+			if (newStatus && connectionId) {
+				queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) => {
+					if (!current) return current
+					return current.map((item) => {
+						if (item.connection?.id === connectionId || (item as any).connection_id === connectionId) {
+							return {
+								...item,
+								is_read: true,
+								connection: item.connection
+									? { ...item.connection, status: newStatus }
+									: ({ id: connectionId, status: newStatus } as any),
+							}
+						}
+						return item
+					})
+				})
+			}
+
 			notify()
 		},
 		onError: (error) => toast.error(errorMessage(error, failureMessage)),
@@ -100,6 +123,7 @@ export const useAcceptConnectionRequest = () =>
 				description: "Direct messaging and collaboration is now unlocked.",
 			}),
 		"Failed to accept connection request",
+		"accepted",
 	)
 
 export const useDeclineConnectionRequest = () =>
@@ -107,6 +131,7 @@ export const useDeclineConnectionRequest = () =>
 		(id) => ConnectionsService.declineConnectionRequest({ path: { connection_id: id } }),
 		() => toast.info("Connection request declined."),
 		"Failed to decline connection request",
+		"declined",
 	)
 
 export const useWithdrawConnectionRequest = () =>
@@ -114,6 +139,7 @@ export const useWithdrawConnectionRequest = () =>
 		(id) => ConnectionsService.withdrawConnectionRequest({ path: { connection_id: id } }),
 		() => toast.info("Connection request withdrawn."),
 		"Failed to withdraw connection request",
+		"withdrawn",
 	)
 
 export const useRemoveConnection = () =>

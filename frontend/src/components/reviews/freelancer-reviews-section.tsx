@@ -129,7 +129,7 @@ export function FreelancerReviewsSection({
 				<div>
 					{!user ? (
 						<Link to="/login" className={cn(workspaceStyles.secondaryAction, "h-8 px-3 text-xs gap-1.5")}>
-							<Star className="size-3.5 text-amber-500 fill-amber-500" />
+							<Star className="size-3.5 text-primary fill-primary" />
 							<span>Sign in to review</span>
 						</Link>
 					) : isOwnProfile ? null : !isClientRole ? (
@@ -140,7 +140,7 @@ export function FreelancerReviewsSection({
 							onClick={() => handleOpenEdit(myReview)}
 							className={cn(workspaceStyles.secondaryAction, "h-8 px-3 text-xs gap-1.5")}
 						>
-							<Star className="size-3.5 text-amber-500 fill-amber-500" />
+							<Star className="size-3.5 text-primary fill-primary" />
 							<span>Edit your review</span>
 						</button>
 					) : (
@@ -199,14 +199,14 @@ export function FreelancerReviewsSection({
 								>
 									<span className="flex w-12 shrink-0 items-center gap-1 font-medium text-foreground">
 										<span>{star}</span>
-										<Star className="size-3 fill-amber-500 text-amber-500" />
+										<Star className="size-3 fill-primary text-primary" />
 									</span>
 
 									{/* Progress Bar */}
 									<div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
 										<div
 											className={`h-full rounded-full transition-all duration-300 ${
-												isSelected ? "bg-amber-500" : "bg-amber-400 group-hover:bg-amber-500"
+												isSelected ? "bg-primary" : "bg-primary/75 group-hover:bg-primary"
 											}`}
 											style={{ width: `${percent}%` }}
 										/>

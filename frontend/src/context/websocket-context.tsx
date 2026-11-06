@@ -172,6 +172,16 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 									}
 									return [data.data, ...currentNotifications]
 								})
+
+							const notifEvent = data.data?.event
+							if (
+								notifEvent === "connection_request" ||
+								notifEvent === "connection_accepted" ||
+								notifEvent === "connection_declined"
+							) {
+								queryClient.invalidateQueries({ queryKey: ["connections"] })
+							}
+
 							toast.info(data.data.title, {
 								description: data.data.content || data.data.body,
 							})

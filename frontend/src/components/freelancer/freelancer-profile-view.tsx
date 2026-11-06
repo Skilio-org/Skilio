@@ -139,7 +139,7 @@ export function FreelancerProfileView({
 									}}
 									className="inline-flex items-center gap-1.5 rounded-md px-1.5 -mx-1.5 py-0.5 text-on-surface-variant transition-colors hover:text-foreground hover:bg-muted/60"
 								>
-									<Star className="size-3.5 fill-amber-500 text-amber-500" />
+									<Star className="size-3.5 fill-primary text-primary" />
 									<strong className="font-semibold text-foreground">
 										{profile.rating > 0 ? profile.rating.toFixed(1) : "New"}
 									</strong>

@@ -126,7 +126,7 @@ export function LandingTalent({
 							{/* Card Footer */}
 							<div className="mt-5 sm:mt-6 flex items-center justify-between border-t border-border/60 pt-3.5 sm:pt-4 text-xs">
 								<div className="flex items-center gap-1 min-w-0">
-									<Star className="size-3.5 fill-amber-400 text-amber-400 shrink-0" />
+									<Star className="size-3.5 fill-primary text-primary shrink-0" />
 									<span className="font-bold text-foreground">{person.rating}</span>
 									<span className="text-muted-foreground">({person.reviews})</span>
 									<span className="mx-1 text-muted-foreground/60">·</span>

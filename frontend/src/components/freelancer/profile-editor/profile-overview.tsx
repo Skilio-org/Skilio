@@ -97,7 +97,7 @@ function FeedbackCard({ rating, reviewCount, onReadReviews }: { rating: number; 
 						{[1, 2, 3, 4, 5].map((n) => (
 							<Star
 								key={n}
-								className={`size-4 ${n <= Math.round(rating) && reviewCount > 0 ? "fill-primary text-link" : "text-outline-variant"}`}
+								className={`size-4 ${n <= Math.round(rating) && reviewCount > 0 ? "fill-primary text-primary" : "text-outline-variant"}`}
 							/>
 						))}
 					</div>
