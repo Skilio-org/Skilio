@@ -8,9 +8,9 @@ const FOOTER_SECTIONS = [
 		links: [
 			{ label: "Find Talent", href: "#talent", isAnchor: true },
 			{ label: "Browse Contracts", href: "#contracts", isAnchor: true },
-			{ label: "Milestone Escrow", href: "#difference", isAnchor: true },
+			{ label: "Milestone Escrow", href: "#how-it-works", isAnchor: true },
 			{ label: "How It Works", href: "#how-it-works", isAnchor: true },
-			{ label: "Why Skilio", href: "#difference", isAnchor: true },
+			{ label: "Stories", href: "#testimonials", isAnchor: true },
 		],
 	},
 	{

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, MapPin, Star } from "lucide-react"
+import { MapPin, Star } from "lucide-react"
 import { freelancers } from "@/data/freelancers"
 
 const CATEGORIES = [
@@ -139,10 +139,9 @@ export function LandingTalent({
 								<Link
 									to="/talent"
 									search={{ q: undefined, category: undefined }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-link hover:underline shrink-0"
+									className="inline-flex items-center font-semibold text-foreground hover:text-link hover:underline shrink-0"
 								>
 									<span>View</span>
-									<ArrowUpRight className="size-3.5" />
 								</Link>
 							</div>
 						</article>
@@ -154,10 +153,9 @@ export function LandingTalent({
 					<Link
 						to="/talent"
 						search={{ q: undefined, category: undefined }}
-						className="inline-flex w-full sm:w-auto h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
+						className="inline-flex w-full sm:w-auto h-9 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-lowest px-5 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
 					>
 						<span>Explore all verified Moroccan talent</span>
-						<ArrowUpRight className="size-4 text-ring" />
 					</Link>
 				</div>
 			</div>

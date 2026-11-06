@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
-import { ArrowUpRight, ChevronDown, Search } from "lucide-react"
+import { ChevronDown, Search } from "lucide-react"
 
 const CATEGORIES = [
 	"All Categories",
@@ -59,9 +59,8 @@ export function LandingHero({
 		<section className="border-b border-border/60 bg-muted/20 py-16 sm:py-20 lg:py-24">
 			<div className="landing-container flex flex-col items-center text-center">
 				{/* Main Headline */}
-				<h1 className="max-w-4xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl sm:leading-tight lg:leading-[1.15]">
-					Hire skilled Moroccan freelancers. <br className="hidden xs:inline" />
-					Get your projects shipped faster.
+				<h1 className="max-w-4xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl sm:leading-tight lg:leading-[1.15] text-center">
+					Hire skilled Moroccan freelancers.
 				</h1>
 
 				{/* Subtitle */}
@@ -154,7 +153,6 @@ export function LandingHero({
 							className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
 						>
 							<span>{roleMode === "hire" ? "Find Talent" : "Find Work"}</span>
-							<ArrowUpRight className="size-4" />
 						</button>
 					</form>
 
