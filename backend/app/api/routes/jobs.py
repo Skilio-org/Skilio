@@ -3,7 +3,6 @@ from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import String, cast
 from sqlalchemy.orm import joinedload, selectinload
 from sqlmodel import col, func, select
 
@@ -30,6 +29,7 @@ from app.models import (
     UserPublic,
     UserRole,
 )
+from app.services.search import build_job_search_filter
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -56,12 +56,12 @@ def read_jobs(
     """
     statement = select(JobPost).join(User, col(JobPost.client_id) == User.id)
 
+    search_rank_expr = None
     if q:
-        statement = statement.where(
-            col(JobPost.title).ilike(f"%{q}%")
-            | col(JobPost.description).ilike(f"%{q}%")
-            | cast(JobPost.skills, String).ilike(f"%{q}%")
-        )
+        search_filter, rank_expr = build_job_search_filter(q)
+        if search_filter is not None:
+            statement = statement.where(search_filter)
+            search_rank_expr = rank_expr
         if current_user:
             record_recent_search(session, current_user.id, q)
 
@@ -99,6 +99,10 @@ def read_jobs(
         statement = statement.order_by(col(JobPost.budget).asc())
     elif sort_by == "oldest":
         statement = statement.order_by(col(JobPost.created_at).asc())
+    elif search_rank_expr is not None:
+        statement = statement.order_by(
+            search_rank_expr.desc(), col(JobPost.created_at).desc()
+        )
     else:  # "newest" is default
         statement = statement.order_by(col(JobPost.created_at).desc())
 
@@ -271,13 +275,12 @@ def read_saved_jobs(
     if category:
         base_query = base_query.where(JobPost.category == category)
 
+    saved_rank_expr = None
     if q:
-        search_pattern = f"%{q.strip()}%"
-        base_query = base_query.where(
-            col(JobPost.title).ilike(search_pattern)
-            | col(JobPost.description).ilike(search_pattern)
-            | cast(JobPost.skills, String).ilike(search_pattern)
-        )
+        search_filter, rank_expr = build_job_search_filter(q)
+        if search_filter is not None:
+            base_query = base_query.where(search_filter)
+            saved_rank_expr = rank_expr
 
     count_statement = select(func.count()).select_from(base_query.subquery())
     count = session.exec(count_statement).one()
@@ -289,6 +292,10 @@ def read_saved_jobs(
         statement = base_query.order_by(col(JobPost.budget).desc())
     elif sort_by == "budget_low":
         statement = base_query.order_by(col(JobPost.budget).asc())
+    elif saved_rank_expr is not None:
+        statement = base_query.order_by(
+            saved_rank_expr.desc(), col(SavedJob.created_at).desc()
+        )
     else:  # "newest" or default
         statement = base_query.order_by(col(SavedJob.created_at).desc())
 

@@ -14,7 +14,6 @@ from fastapi import (
 )
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
-from sqlalchemy import String, cast
 from sqlalchemy.orm import selectinload
 from sqlmodel import col, func, select
 
@@ -52,6 +51,7 @@ from app.models import (
     UserPublic,
     UserRole,
 )
+from app.services.search import build_freelancer_search_filter
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
@@ -178,14 +178,12 @@ def read_profiles(
         User, col(FreelancerProfile.user_id) == User.id
     )
 
+    search_rank_expr = None
     if q:
-        statement = statement.where(
-            col(FreelancerProfile.title).ilike(f"%{q}%")
-            | col(FreelancerProfile.bio).ilike(f"%{q}%")
-            | col(FreelancerProfile.location).ilike(f"%{q}%")
-            | col(User.full_name).ilike(f"%{q}%")
-            | cast(FreelancerProfile.skills, String).ilike(f"%{q}%")
-        )
+        search_filter, rank_expr = build_freelancer_search_filter(q)
+        if search_filter is not None:
+            statement = statement.where(search_filter)
+            search_rank_expr = rank_expr
         if current_user:
             record_recent_search(session, current_user.id, q)
 
@@ -229,6 +227,10 @@ def read_profiles(
         )
     elif sort_by == "newest":
         statement = statement.order_by(col(FreelancerProfile.created_at).desc())
+    elif search_rank_expr is not None:
+        statement = statement.order_by(
+            search_rank_expr.desc(), col(FreelancerProfile.updated_at).desc()
+        )
     else:
         statement = statement.order_by(col(FreelancerProfile.updated_at).desc())
 
@@ -1014,14 +1016,12 @@ def read_saved_profiles(
         .where(LikedFreelancer.client_id == current_user.id)
     )
 
+    saved_rank_expr = None
     if q:
-        statement = statement.where(
-            col(FreelancerProfile.title).ilike(f"%{q}%")
-            | col(FreelancerProfile.bio).ilike(f"%{q}%")
-            | col(FreelancerProfile.location).ilike(f"%{q}%")
-            | col(User.full_name).ilike(f"%{q}%")
-            | cast(FreelancerProfile.skills, String).ilike(f"%{q}%")
-        )
+        search_filter, rank_expr = build_freelancer_search_filter(q)
+        if search_filter is not None:
+            statement = statement.where(search_filter)
+            saved_rank_expr = rank_expr
 
     if category:
         statement = statement.where(col(FreelancerProfile.category).ilike(category))
@@ -1039,6 +1039,10 @@ def read_saved_profiles(
         )
     elif sort_by == "newest":
         statement = statement.order_by(col(LikedFreelancer.created_at).desc())
+    elif saved_rank_expr is not None:
+        statement = statement.order_by(
+            saved_rank_expr.desc(), col(LikedFreelancer.created_at).desc()
+        )
     else:
         statement = statement.order_by(col(LikedFreelancer.created_at).desc())
 
@@ -1264,6 +1268,7 @@ def update_profile(
 
     return _build_profile_public(session, profile)
 
+
 @router.get("/user/{user_id}", response_model=FreelancerProfileDetailPublic)
 def read_profile_by_user_id(
     *,
@@ -1276,9 +1281,7 @@ def read_profile_by_user_id(
         raise HTTPException(status_code=404, detail="Freelancer profile not found")
 
     profile = session.exec(
-        select(FreelancerProfile).where(
-            FreelancerProfile.user_id == user_id
-        )
+        select(FreelancerProfile).where(FreelancerProfile.user_id == user_id)
     ).first()
 
     if not profile:
@@ -1298,6 +1301,7 @@ def read_profile_by_user_id(
         current_user=current_user,
         is_saved=False,
     )
+
 
 @router.delete("/{id}")
 def delete_profile(
