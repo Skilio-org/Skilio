@@ -20,8 +20,9 @@ services:
     image: postgres:18
     restart: unless-stopped
     environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Variable not set}
-      - POSTGRES_DB=app
+      - POSTGRES_DB=${POSTGRES_DB:-app}
     volumes:
       - app-db-data:/var/lib/postgresql
     healthcheck:

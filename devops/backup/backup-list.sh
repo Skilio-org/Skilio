@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-# ──────────────────────────────────────────────────────────────────────────────
-# backup-list.sh — List Available PostgreSQL Backups
-# ──────────────────────────────────────────────────────────────────────────────
-# Lists all backup files with their size, creation date, and status.
 
 set -euo pipefail
 
@@ -20,9 +16,7 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # Load settings from .env file if it exists
 if [ -f "${ROOT_DIR}/.env" ]; then
-    set -a
     source "${ROOT_DIR}/.env" 2>/dev/null || true
-    set +a
 fi
 
 BACKUP_DIR="${BACKUP_DIR:-${SCRIPT_DIR}/dumps}"
