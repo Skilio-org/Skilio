@@ -1,35 +1,31 @@
 import { Quote, Star } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 
 const TESTIMONIALS = [
 	{
 		quote:
-			"Finding a senior full-stack lead took us less than 36 hours. The technical caliber of specialists on Skilio is noticeably higher than typical freelance marketplaces.",
-		author: "Elena Rostova",
-		role: "VP of Product",
-		company: "FinTech Labs",
-		initials: "ER",
-		type: "Client",
+			"Finding a serious React developer took us less than two days. Being able to pay in Dirhams through milestone escrow makes working with local freelancers worry-free.",
+		author: "Reda El Alami",
+		role: "Founder",
+		company: "Casablanca Logistics",
+		initials: "RA",
 	},
 	{
 		quote:
-			"Skilio creates an environment of mutual respect. Direct communication with founders, crystal-clear milestones, and zero hidden platform cuts taking away 20% of my check.",
-		author: "Marcus Chen",
-		role: "Principal AI Engineer",
-		company: "Independent Specialist",
-		initials: "MC",
-		type: "Freelancer",
+			"Skilio makes it easy to work with real Moroccan companies without losing 20% to middle fees. Clients know what they want and milestones are paid on time.",
+		author: "Siham Mansouri",
+		role: "Senior UI/UX Designer",
+		company: "Independent Specialist · Rabat",
+		initials: "SM",
 	},
 	{
 		quote:
-			"We scaled our product sprint team by three specialists within a week. Every deliverable was polished, production-ready, and executed without hand-holding.",
-		author: "Sarah Jenkins",
-		role: "Founder & Design Director",
-		company: "Studio Lumina",
-		initials: "SJ",
-		type: "Client",
+			"We hired a mobile developer to build our customer app. The communication was direct, deadlines were respected, and the code quality was top-notch.",
+		author: "Tarik Berrada",
+		role: "Co-founder",
+		company: "Atlas E-Com · Marrakech",
+		initials: "TB",
 	},
 ]
 
@@ -39,15 +35,12 @@ export function LandingTestimonials() {
 			<div className="landing-container">
 				{/* Section Header */}
 				<div className="landing-section-header">
-					<div className="landing-eyebrow">
-						<span>TESTIMONIALS & CASE STUDIES</span>
-					</div>
 					<h2 className="landing-heading text-foreground">
-						Trusted by teams that ship and talent that delivers.
+						Trusted by Moroccan businesses and independent talent.
 					</h2>
 					<p className="landing-lede">
-						See how leading founders and world-class independent specialists collaborate on
-						Skilio to bring ambitious ideas to life.
+						Real experiences from Moroccan founders, startups, and freelancers collaborating on
+						Skilio.
 					</p>
 				</div>
 
@@ -59,24 +52,16 @@ export function LandingTestimonials() {
 							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<CardContent className="p-0">
-								<div className="flex items-center justify-between gap-2">
-									<div className="flex items-center gap-1 text-amber-500">
-										{Array.from({ length: 5 }).map((_, i) => (
-											<Star key={i} className="size-3.5 sm:size-4 fill-amber-400 text-amber-400" />
-										))}
-									</div>
-									<Badge
-										variant="outline"
-										className="text-[11px] font-semibold text-muted-foreground"
-									>
-										{t.type}
-									</Badge>
+								<div className="flex items-center gap-1 text-primary">
+									{Array.from({ length: 5 }).map((_, i) => (
+										<Star key={i} className="size-3.5 sm:size-4 fill-primary text-primary" />
+									))}
 								</div>
 
 								<div className="relative mt-4 sm:mt-5">
 									<Quote className="size-6 text-muted-foreground/20 absolute -top-2 -left-1" />
 									<p className="relative z-10 text-foreground text-xs sm:text-sm leading-relaxed">
-										"{t.quote}"
+										&ldquo;{t.quote}&rdquo;
 									</p>
 								</div>
 							</CardContent>

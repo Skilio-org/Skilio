@@ -1,39 +1,39 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, Award, Clock, ShieldCheck, Sparkles } from "lucide-react"
+import { Clock } from "lucide-react"
 
 const CONTRACTS = [
 	{
 		tag: "Fixed Scope",
-		budget: "$14,000",
+		budget: "15,000 DH",
 		rateType: "Fixed Budget · 3 Milestones",
-		title: "Autonomous Multi-Agent Orchestration Platform",
-		client: "FinTech Labs · Enterprise Verified",
+		title: "E-Commerce Mobile App & Customer Loyalty System",
+		client: "Atlas Retail Group · Casablanca",
 		escrow: "100% Escrow Funded",
 		proposals: "4 Proposals",
 		time: "Posted 2h ago",
-		tags: ["LangChain", "Python", "FastAPI", "Docker", "PostgreSQL"],
+		tags: ["React Native", "TypeScript", "Node.js", "PostgreSQL", "Tailwind CSS"],
 	},
 	{
 		tag: "Hourly Contract",
-		budget: "$110 - $140",
+		budget: "250 - 350 DH",
 		rateType: "/hour · 3 Month Contract",
-		title: "Core Banking API Architecture & Go Microservices",
-		client: "Vantage Payments · Payment Verified",
+		title: "Logistics & Fleet Tracking Dashboard",
+		client: "Tangier Port Services",
 		escrow: "Verified Payment Method",
-		proposals: "7 Proposals",
-		time: "Posted 5h ago",
-		tags: ["Go", "gRPC", "Temporal", "Kubernetes", "AWS"],
+		proposals: "6 Proposals",
+		time: "Posted 4h ago",
+		tags: ["Next.js", "TypeScript", "Tailwind CSS", "REST API", "Docker"],
 	},
 	{
 		tag: "Design Sprint",
-		budget: "$8,500",
+		budget: "8,500 DH",
 		rateType: "Fixed Budget · 2 Sprints",
-		title: "Enterprise Design System & Dashboard Component Library",
-		client: "Studio Lumina · Series A Startup",
+		title: "Corporate Website Redesign & Booking Flow",
+		client: "Riad & Hotel Group · Marrakech",
 		escrow: "Escrow Pre-Funded",
-		proposals: "6 Proposals",
-		time: "Posted 7h ago",
-		tags: ["Figma", "Design Systems", "Tailwind CSS", "React"],
+		proposals: "5 Proposals",
+		time: "Posted 6h ago",
+		tags: ["Figma", "UI/UX Design", "Wireframing", "Design System"],
 	},
 ]
 
@@ -46,16 +46,12 @@ export function LandingContracts() {
 			<div className="landing-container">
 				{/* Section Header */}
 				<div className="landing-section-header">
-					<div className="landing-eyebrow">
-						<ShieldCheck className="size-3.5" />
-						<span>LIVE MARKETPLACE FEED</span>
-					</div>
 					<h2 className="landing-heading text-foreground">
-						High-budget contracts posted today. Serious builders.
+						Active contracts posted by verified Moroccan businesses.
 					</h2>
 					<p className="landing-lede">
-						For independent talent: directly apply to pre-funded milestones, set your own
-						rates, and keep 100% of your earnings with zero hidden platform cut penalties.
+						For Moroccan freelancers: apply directly to funded milestones, agree on scope, and get
+						paid safely through escrow.
 					</p>
 				</div>
 
@@ -67,14 +63,13 @@ export function LandingContracts() {
 							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<div>
-								{/* Meta Row: Tag & Escrow Badge */}
+								{/* Meta Row: Tag & Escrow status */}
 								<div className="flex items-center justify-between gap-2">
-									<div className="flex flex-wrap items-center gap-1.5">
+									<div className="flex flex-wrap items-center gap-2">
 										<span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-foreground border border-border/60">
 											{contract.tag}
 										</span>
-										<span className="inline-flex items-center gap-1 rounded-md bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-2 py-0.5 text-[11px] font-semibold text-[#3E7B3D] dark:text-[#8DD37D]">
-											<ShieldCheck className="size-3" />
+										<span className="text-[11px] text-muted-foreground font-medium">
 											{contract.escrow}
 										</span>
 									</div>
@@ -90,8 +85,7 @@ export function LandingContracts() {
 								</h3>
 
 								{/* Client Info */}
-								<div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-									<Award className="size-3.5 text-[#3E7B3D] dark:text-[#8DD37D] shrink-0" />
+								<div className="mt-2 text-xs text-muted-foreground">
 									<span className="truncate">{contract.client}</span>
 								</div>
 
@@ -126,10 +120,9 @@ export function LandingContracts() {
 								<Link
 									to="/signup"
 									search={{ role: "freelancer" }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-link hover:underline"
+									className="inline-flex items-center font-semibold text-foreground hover:text-link hover:underline"
 								>
 									<span>Submit Proposal</span>
-									<ArrowUpRight className="size-3.5" />
 								</Link>
 							</div>
 						</article>
@@ -137,22 +130,13 @@ export function LandingContracts() {
 				</div>
 
 				{/* Bottom Actions */}
-				<div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
+				<div className="mt-8 sm:mt-10 flex items-center justify-center">
 					<Link
 						to="/signup"
 						search={{ role: "freelancer" }}
-						className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+						className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-5 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
 					>
-						<span>Browse all 340+ open contracts</span>
-						<ArrowUpRight className="size-4" />
-					</Link>
-					<Link
-						to="/signup"
-						search={{ role: "client" }}
-						className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
-					>
-						<Sparkles className="size-4 text-ring" />
-						<span>Post a new project in 2 minutes</span>
+						<span>Browse all open contracts</span>
 					</Link>
 				</div>
 			</div>

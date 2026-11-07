@@ -41,7 +41,6 @@ export function FreelancerReviewsSection({
 		myReview,
 		isClientRole,
 		isOwnProfile,
-		canCreateReview,
 		isLoading,
 		createReview,
 		isCreating,
@@ -129,16 +128,11 @@ export function FreelancerReviewsSection({
 				{/* Primary Action Button based on auth and role */}
 				<div>
 					{!user ? (
-						<Link
-							to="/login"
-							className={cn(workspaceStyles.secondaryAction, "h-8 px-3 text-xs gap-1.5")}
-						>
-							<Star className="size-3.5 text-amber-500 fill-amber-500" />
+						<Link to="/login" className={cn(workspaceStyles.secondaryAction, "h-8 px-3 text-xs gap-1.5")}>
+							<Star className="size-3.5 text-primary fill-primary" />
 							<span>Sign in to review</span>
 						</Link>
-					) : isOwnProfile ? (
-						null
-					) : !isClientRole ? (
+					) : isOwnProfile ? null : !isClientRole ? (
 						<p className="text-xs text-on-surface-variant">Only client accounts can rate</p>
 					) : myReview ? (
 						<button
@@ -146,7 +140,7 @@ export function FreelancerReviewsSection({
 							onClick={() => handleOpenEdit(myReview)}
 							className={cn(workspaceStyles.secondaryAction, "h-8 px-3 text-xs gap-1.5")}
 						>
-							<Star className="size-3.5 text-amber-500 fill-amber-500" />
+							<Star className="size-3.5 text-primary fill-primary" />
 							<span>Edit your review</span>
 						</button>
 					) : (
@@ -205,14 +199,14 @@ export function FreelancerReviewsSection({
 								>
 									<span className="flex w-12 shrink-0 items-center gap-1 font-medium text-foreground">
 										<span>{star}</span>
-										<Star className="size-3 fill-amber-500 text-amber-500" />
+										<Star className="size-3 fill-primary text-primary" />
 									</span>
 
 									{/* Progress Bar */}
 									<div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
 										<div
 											className={`h-full rounded-full transition-all duration-300 ${
-												isSelected ? "bg-amber-500" : "bg-amber-400 group-hover:bg-amber-500"
+												isSelected ? "bg-primary" : "bg-primary/75 group-hover:bg-primary"
 											}`}
 											style={{ width: `${percent}%` }}
 										/>
@@ -304,7 +298,10 @@ export function FreelancerReviewsSection({
 				{isLoading ? (
 					<div className="space-y-3">
 						{[1, 2].map((i) => (
-							<div key={i} className="animate-pulse rounded-lg border border-outline-variant bg-surface-container-lowest p-6">
+							<div
+								key={i}
+								className="animate-pulse rounded-lg border border-outline-variant bg-surface-container-lowest p-6"
+							>
 								<div className="flex items-center gap-3">
 									<div className="size-10 rounded-full bg-muted" />
 									<div className="space-y-2">
@@ -334,16 +331,6 @@ export function FreelancerReviewsSection({
 								? "No reviews yet. They appear here after clients you work with leave one."
 								: `No reviews yet. Be the first to work with ${firstName} and share your experience.`}
 						</p>
-						{canCreateReview && (
-							<button
-								type="button"
-								onClick={handleOpenCreate}
-								className={cn(workspaceStyles.primaryAction, "mt-4")}
-							>
-								<MessageSquarePlus className="size-4" />
-								<span>Write the first review</span>
-							</button>
-						)}
 					</div>
 				) : (
 					/* Star filter returned 0 results */

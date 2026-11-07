@@ -39,7 +39,7 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 				</Avatar>
 				<div className="min-w-0 flex-1">
 					<h4 className="font-semibold text-sm">{name}</h4>
-					{profile?.title && <p className="mt-0.5 text-on-surface-variant text-sm">{profile.title}</p>}
+					{profile?.title && <p className="mt-0.5 text-on-surface-variant text-sm line-clamp-2 break-words">{profile.title}</p>}
 					{date && <p className="mt-1 text-on-surface-variant text-xs">Received {date}</p>}
 				</div>
 			</div>
@@ -123,9 +123,9 @@ function ProposalRateButton({
 				<button
 					type="button"
 					onClick={() => setModalOpen(true)}
-					className="inline-flex h-9 items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3.5 font-label-md text-label-md font-medium text-amber-700 transition-colors hover:bg-amber-500/20 dark:text-amber-300"
+					className="inline-flex h-9 items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3.5 font-label-md text-label-md font-medium text-foreground transition-colors hover:bg-primary/20"
 				>
-					<Star className="size-4 fill-amber-500 text-amber-500" />
+					<Star className="size-4 fill-primary text-primary" />
 					<span>Reviewed (★{myReview.rating})</span>
 				</button>
 			) : canCreateReview ? (

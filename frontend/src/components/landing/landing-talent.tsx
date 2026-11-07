@@ -1,20 +1,20 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, Check, MapPin, Star } from "lucide-react"
+import { MapPin, Star } from "lucide-react"
 import { freelancers } from "@/data/freelancers"
 
 const CATEGORIES = [
 	"All talent",
-	"AI & Machine Learning",
 	"Full-Stack Engineering",
 	"Product & UI/UX Design",
-	"Growth & Marketing",
+	"Mobile Development",
+	"E-Commerce & Marketing",
 ]
 
 const TERMS_MAP: Record<string, string[]> = {
-	"AI & Machine Learning": ["ai", "python", "automation", "llm", "rag"],
-	"Full-Stack Engineering": ["engineer", "react", "typescript", "full-stack", "postgres"],
+	"Full-Stack Engineering": ["engineer", "react", "typescript", "full-stack", "postgres", "node"],
 	"Product & UI/UX Design": ["design", "product", "figma", "ux", "ui"],
-	"Growth & Marketing": ["brand", "marketing", "growth", "seo", "content"],
+	"Mobile Development": ["mobile", "flutter", "react native", "ios", "android"],
+	"E-Commerce & Marketing": ["brand", "marketing", "growth", "seo", "shopify", "ecommerce", "e-commerce"],
 }
 
 export function LandingTalent({
@@ -38,15 +38,12 @@ export function LandingTalent({
 			<div className="landing-container">
 				{/* Section Header */}
 				<div className="landing-section-header">
-					<div className="landing-eyebrow">
-						<span>PRE-VETTED ROSTER</span>
-					</div>
 					<h2 className="landing-heading text-foreground">
-						Curated specialists ready for your next sprint.
+						Skilled Moroccan specialists ready for your project.
 					</h2>
 					<p className="landing-lede">
-						Browse verified portfolios, inspect technical match scores, and interview senior
-						engineers and designers in under 24 hours.
+						Browse verified portfolios, inspect practical experience, and connect with developers
+						and designers directly.
 					</p>
 				</div>
 
@@ -88,27 +85,21 @@ export function LandingTalent({
 											{person.initials}
 										</span>
 										<div className="min-w-0">
-											<div className="flex items-center gap-1.5">
-												<h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-link transition-colors truncate">
-													{person.name}
-												</h3>
-												<span className="inline-flex items-center gap-0.5 rounded bg-[#EEF8E7] dark:bg-[#252A21] dark:border dark:border-[#384334] px-1.5 py-0.5 text-[10px] font-bold text-[#3E7B3D] dark:text-[#8DD37D]">
-													<Check className="size-2.5" />
-													Top 3%
-												</span>
-											</div>
+											<h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-link transition-colors truncate">
+												{person.name}
+											</h3>
 											<p className="text-xs text-muted-foreground truncate">{person.title}</p>
 										</div>
 									</div>
 
 									<div className="text-right shrink-0">
 										<p className="font-display font-bold text-base sm:text-lg text-foreground">
-											${person.rate}
+											{person.rate} DH
 											<span className="text-xs font-normal text-muted-foreground">
 												/hr
 											</span>
 										</p>
-										<span className="text-[11px] font-medium text-[#3E7B3D] dark:text-[#8DD37D]">
+										<span className="text-[11px] font-medium text-muted-foreground">
 											{person.availability}
 										</span>
 									</div>
@@ -135,7 +126,7 @@ export function LandingTalent({
 							{/* Card Footer */}
 							<div className="mt-5 sm:mt-6 flex items-center justify-between border-t border-border/60 pt-3.5 sm:pt-4 text-xs">
 								<div className="flex items-center gap-1 min-w-0">
-									<Star className="size-3.5 fill-amber-400 text-amber-400 shrink-0" />
+									<Star className="size-3.5 fill-primary text-primary shrink-0" />
 									<span className="font-bold text-foreground">{person.rating}</span>
 									<span className="text-muted-foreground">({person.reviews})</span>
 									<span className="mx-1 text-muted-foreground/60">·</span>
@@ -148,10 +139,9 @@ export function LandingTalent({
 								<Link
 									to="/talent"
 									search={{ q: undefined, category: undefined }}
-									className="inline-flex items-center gap-1 font-semibold text-foreground hover:text-link hover:underline shrink-0"
+									className="inline-flex items-center font-semibold text-foreground hover:text-link hover:underline shrink-0"
 								>
 									<span>View</span>
-									<ArrowUpRight className="size-3.5" />
 								</Link>
 							</div>
 						</article>
@@ -163,10 +153,9 @@ export function LandingTalent({
 					<Link
 						to="/talent"
 						search={{ q: undefined, category: undefined }}
-						className="inline-flex w-full sm:w-auto h-9 items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
+						className="inline-flex w-full sm:w-auto h-9 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-lowest px-5 text-[13px] font-medium text-on-surface transition-colors hover:border-outline hover:bg-surface-container-low"
 					>
-						<span>Explore all 12,000+ vetted talent profiles</span>
-						<ArrowUpRight className="size-4 text-ring" />
+						<span>Explore all verified Moroccan talent</span>
 					</Link>
 				</div>
 			</div>

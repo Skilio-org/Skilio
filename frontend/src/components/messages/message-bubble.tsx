@@ -4,6 +4,7 @@ import type { ChatMessagePublic } from "@/client/types.gen"
 import { formatMessageTime } from "@/lib/format"
 import { useWebSocket } from "@/context/websocket-context"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
+import { MessageContent } from "./MessageContent"
 
 function Time({ created_at = "" }: { created_at: string }) {
 	return (
@@ -49,8 +50,9 @@ function MessageBubbleRepresentation({
 										: "rounded-2xl rounded-tl-none border border-outline-variant/80 bg-surface-container-lowest text-on-surface shadow-xs dark:bg-[#1e2226] dark:border-outline-variant",
 								)}
 							>
+								
 								{match < 0 ? (
-									message.content
+									<MessageContent content={message.content} />
 								) : (
 									<>
 										{message.content.slice(0, match)}

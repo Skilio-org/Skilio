@@ -193,6 +193,13 @@ export function MessagesPage({
 				}
 				return conversation
 			})
+			const activeIndex = updatedConversations.findIndex(
+				(c: any) => c.id === selectedConversationId
+			)
+			if (activeIndex > 0) {
+				const [active] = updatedConversations.splice(activeIndex, 1)
+				updatedConversations.unshift(active)
+			}
 			return {
 				...current,
 				data: updatedConversations,
@@ -211,9 +218,6 @@ export function MessagesPage({
 		if (!sent) {
 			setMessageSendResult(rmessage.id, "failed")
 			toast.error("Failed to send message. Please try again.")
-		} else {
-			// TODO: If a messgae was send the conversation should bubble up to the top of the list.
-			
 		}
 		// }, 1000) // Simulate a delay for sending the message
 	}

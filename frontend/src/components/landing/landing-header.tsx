@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight, Menu } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Logo } from "@/components/common/logo"
 import { ThemeToggle } from "@/components/common/theme-toggle"
 import {
@@ -12,7 +12,6 @@ import {
 const links = [
 	["#talent", "Find talent"],
 	["#contracts", "Active contracts"],
-	["#difference", "Why Skilio"],
 	["#how-it-works", "How it works"],
 	["#testimonials", "Stories"],
 ]
@@ -51,11 +50,10 @@ export function LandingHeader() {
 
 					<Link
 						to="/signup"
-						className="inline-flex h-9 items-center gap-1.5 sm:gap-2 rounded-lg bg-primary px-3.5 sm:px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+						className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-3.5 sm:px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
 					>
 						<span className="hidden xs:inline sm:inline">Join Skilio</span>
 						<span className="xs:hidden sm:hidden">Join</span>
-						<ArrowUpRight className="size-3.5 sm:size-4" />
 					</Link>
 
 					<DropdownMenu>

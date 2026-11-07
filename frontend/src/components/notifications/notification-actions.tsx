@@ -1,10 +1,8 @@
-import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { Check, FileText, Loader2, MessageSquare, Sparkles, UserPlus, X } from "lucide-react"
 import { type ReactNode, useState } from "react"
 import type { NotificationPublic } from "@/client/types.gen"
 import { Badge } from "@/components/ui/badge"
-import { chatKeys } from "@/data/chat-keys"
 import { useAcceptConnectionRequest, useDeclineConnectionRequest } from "@/hooks/useConnections"
 
 const linkButton =
@@ -56,11 +54,10 @@ function ConnectionRequestActions({
 	onMarkAsRead: (id: string) => void
 }) {
 	const navigate = useNavigate()
-	const queryClient = useQueryClient()
 	const acceptConnection = useAcceptConnectionRequest()
 	const declineConnection = useDeclineConnectionRequest()
 
-	const connectionId = notification.connection?.id
+	const connectionId = notification.connection?.id || (notification as any).connection_id
 	const [answer, setAnswer] = useState<"accepted" | "declined" | null>(null)
 	const status = answer ?? notification.connection?.status
 	const busy = acceptConnection.isPending || declineConnection.isPending
@@ -71,18 +68,6 @@ function ConnectionRequestActions({
 		mutation.mutate(connectionId, {
 			onSuccess: () => {
 				setAnswer(newStatus)
-				// Update the cached notifications so the buttons turn into a badge everywhere.
-				queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (current) =>
-					current?.map((item) =>
-						item.id === notification.id || item.connection?.id === connectionId
-							? {
-									...item,
-									is_read: true,
-									connection: item.connection ? { ...item.connection, status: newStatus } : item.connection,
-								}
-							: item,
-					),
-				)
 				onMarkAsRead(notification.id)
 			},
 		})
