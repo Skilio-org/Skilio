@@ -900,6 +900,104 @@ def test_talent_search_filters(client: TestClient, db: Session) -> None:
     assert str(p1.id) in skill_ids
 
 
+def test_search_skill_and_role_combinations(client: TestClient, db: Session) -> None:
+    # 1. Freelancer with React skill and Frontend Developer title
+    dev_profile = create_random_profile(db)
+    dev_profile.title = "Frontend Developer"
+    dev_profile.skills = ["React", "TypeScript"]
+    dev_profile.finished = True
+    db.add(dev_profile)
+
+    # 2. Freelancer with React skill and Frontend Engineer title
+    eng_profile = create_random_profile(db)
+    eng_profile.title = "Frontend Engineer"
+    eng_profile.skills = ["React", "Tailwind CSS"]
+    eng_profile.finished = True
+    db.add(eng_profile)
+
+    # 3. Freelancer with Python skill and Backend Engineer title
+    py_profile = create_random_profile(db)
+    py_profile.title = "Backend Engineer"
+    py_profile.skills = ["Python", "FastAPI"]
+    py_profile.finished = True
+    db.add(py_profile)
+
+    # 4. Negative isolation: Accountant with React in skills
+    acc_profile = create_random_profile(db)
+    acc_profile.title = "Financial Analyst"
+    acc_profile.category = "Accounting & Consulting"
+    acc_profile.bio = "Financial modeling and budgeting"
+    acc_profile.skills = ["React", "Excel"]
+    acc_profile.finished = True
+    db.add(acc_profile)
+    db.commit()
+
+    # Search for "react" - both dev and eng should be returned
+    resp_react = client.get(f"{settings.API_V1_STR}/profiles/?q=react")
+    assert resp_react.status_code == 200
+    react_ids = [p["id"] for p in resp_react.json()["data"]]
+    assert str(dev_profile.id) in react_ids
+    assert str(eng_profile.id) in react_ids
+
+    # Search for "react developer" - Frontend Developer AND Frontend Engineer must be returned!
+    resp_react_dev = client.get(f"{settings.API_V1_STR}/profiles/?q=react%20developer")
+    assert resp_react_dev.status_code == 200
+    react_dev_ids = [p["id"] for p in resp_react_dev.json()["data"]]
+    assert str(dev_profile.id) in react_dev_ids, "Frontend Developer with React skill should show up for 'react developer'"
+    assert str(eng_profile.id) in react_dev_ids, "Frontend Engineer with React skill should show up for 'react developer'"
+    assert str(acc_profile.id) not in react_dev_ids, "Financial Analyst should not show up for 'react developer'"
+
+    # Search for "react engineer" - both should show up
+    resp_react_eng = client.get(f"{settings.API_V1_STR}/profiles/?q=react%20engineer")
+    assert resp_react_eng.status_code == 200
+    react_eng_ids = [p["id"] for p in resp_react_eng.json()["data"]]
+    assert str(dev_profile.id) in react_eng_ids, "Frontend Developer with React skill should show up for 'react engineer'"
+    assert str(eng_profile.id) in react_eng_ids, "Frontend Engineer with React skill should show up for 'react engineer'"
+
+    # Search for "python developer" - Backend Engineer should show up
+    resp_py = client.get(f"{settings.API_V1_STR}/profiles/?q=python%20developer")
+    assert resp_py.status_code == 200
+    py_ids = [p["id"] for p in resp_py.json()["data"]]
+    assert str(py_profile.id) in py_ids, "Backend Engineer with Python skill should show up for 'python developer'"
+
+    # 5. Figma skill + Product Designer
+    figma_profile = create_random_profile(db)
+    figma_profile.title = "Product Designer"
+    figma_profile.skills = ["Figma", "UI/UX"]
+    figma_profile.category = "Design & Creative"
+    figma_profile.finished = True
+    db.add(figma_profile)
+
+    # 6. Flutter skill + Mobile Engineer
+    flutter_profile = create_random_profile(db)
+    flutter_profile.title = "Mobile Engineer"
+    flutter_profile.skills = ["Flutter", "Dart"]
+    flutter_profile.category = "Web Mobile & Software Dev"
+    flutter_profile.finished = True
+    db.add(flutter_profile)
+    db.commit()
+
+    # Search for "figma designer"
+    resp_figma = client.get(f"{settings.API_V1_STR}/profiles/?q=figma%20designer")
+    assert resp_figma.status_code == 200
+    figma_ids = [p["id"] for p in resp_figma.json()["data"]]
+    assert str(figma_profile.id) in figma_ids, "Product Designer with Figma skill should show up for 'figma designer'"
+
+    # Search for "flutter developer"
+    resp_flutter = client.get(f"{settings.API_V1_STR}/profiles/?q=flutter%20developer")
+    assert resp_flutter.status_code == 200
+    flutter_ids = [p["id"] for p in resp_flutter.json()["data"]]
+    assert str(flutter_profile.id) in flutter_ids, "Mobile Engineer with Flutter skill should show up for 'flutter developer'"
+
+    # Typo tolerance via pg_trgm: "reakt developer"
+    resp_typo = client.get(f"{settings.API_V1_STR}/profiles/?q=reakt%20developer")
+    assert resp_typo.status_code == 200
+    typo_ids = [p["id"] for p in resp_typo.json()["data"]]
+    assert str(dev_profile.id) in typo_ids, "Trigram fuzzy matching should match 'reakt developer' to React developer"
+
+
+
+
 def test_draft_profile_privacy(client: TestClient, db: Session) -> None:
     user_a, profile_a, headers_a = create_authenticated_freelancer(client, db)
     profile_a.finished = False
