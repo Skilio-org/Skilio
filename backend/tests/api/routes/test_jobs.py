@@ -184,6 +184,16 @@ def test_read_jobs_feed_filters(client: TestClient, db: Session) -> None:
     assert r_search.status_code == 200
     assert any("Kubernetes" in j["description"] for j in r_search.json()["data"])
 
+    # Multi-term cross-field job search: skill + role
+    r_docker_eng = client.get(f"{settings.API_V1_STR}/jobs/?q=docker%20engineer")
+    assert r_docker_eng.status_code == 200
+    assert any("Docker" in j["skills"] for j in r_docker_eng.json()["data"])
+
+    r_react_dev = client.get(f"{settings.API_V1_STR}/jobs/?q=react%20developer")
+    assert r_react_dev.status_code == 200
+    assert any("React" in j["skills"] for j in r_react_dev.json()["data"])
+
+
 
 def test_save_and_unsave_job(client: TestClient, db: Session) -> None:
     client_headers, _ = _make_client_headers(client, db)
