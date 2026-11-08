@@ -14,7 +14,7 @@ export function getClientTheme(id: string): ClientTheme {
 				bg: "bg-blue-500/12 dark:bg-blue-400/15",
 				text: "text-blue-700 dark:text-blue-300",
 				border: "border-blue-500/30",
-				status: "Active Contract · $2,400",
+				status: "Active Contract",
 				statusTone: "emerald",
 			}
 		case "daniel-kim":
@@ -22,7 +22,7 @@ export function getClientTheme(id: string): ClientTheme {
 				bg: "bg-emerald-500/12 dark:bg-emerald-400/15",
 				text: "text-emerald-700 dark:text-emerald-300",
 				border: "border-emerald-500/30",
-				status: "Active Contract · $3,600",
+				status: "Active Contract",
 				statusTone: "emerald",
 			}
 		case "sarah-mitchell":

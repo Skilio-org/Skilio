@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { type FreelancerProfileDetailPublic, ProfilesService, UsersService } from "@/client"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 import { EntryDialog, ProfilePreview } from "@/components/freelancer/freelancer-profile-components"
+import { formatMoney } from "@/lib/currency"
 import {
 	type ProfileEntryForm,
 	type ProfileForm,
@@ -107,7 +108,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 				step === 2
 					? "Add an introduction of at least 80 characters and your languages."
 					: step === 5
-						? `Enter an hourly rate between $${profileLimits.rateMin} and $${profileLimits.rateMax} and choose your weekly hours.`
+						? `Enter an hourly rate between ${formatMoney(profileLimits.rateMin)} and ${formatMoney(profileLimits.rateMax)} and choose your weekly hours.`
 						: "Complete the required fields before continuing.",
 			)
 			return

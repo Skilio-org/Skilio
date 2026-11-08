@@ -1,5 +1,6 @@
 import type { ExperienceLevel } from "@/components/common/job-experience"
 import { maxSkillLength, maxSkills } from "@/components/common/skills-select"
+import { formatMoney } from "@/lib/currency"
 
 export type ClientJob = {
 	id: string
@@ -52,8 +53,7 @@ export function validateJob(job: ClientJob): string | null {
 	const title = job.title.trim()
 	const description = job.description.trim()
 	const range = budgetRange(job.type)
-	const money = (value: number) => `$${value.toLocaleString("en-US")}`
-
+	
 	if (!title) return "Enter a job title."
 	if (title.length > jobLimits.title) return `The job title can be at most ${jobLimits.title} characters.`
 	if (description.length > jobLimits.descriptionMax) {
@@ -66,7 +66,7 @@ export function validateJob(job: ClientJob): string | null {
 
 	const budget = Number(job.budget)
 	if (job.budget.trim() && (!Number.isFinite(budget) || budget < range.min || budget > range.max)) {
-		return `The ${job.type === "Hourly" ? "hourly rate" : "budget"} must be between ${money(range.min)} and ${money(range.max)}.`
+		return `The ${job.type === "Hourly" ? "hourly rate" : "budget"} must be between ${formatMoney(range.min)} and ${formatMoney(range.max)}.`
 	}
 
 	if (isOpen) {

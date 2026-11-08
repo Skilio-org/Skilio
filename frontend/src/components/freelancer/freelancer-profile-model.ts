@@ -1,6 +1,7 @@
 import { maxSkillLength, maxSkills } from "@/components/common/skills-select"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import type { EducationPublic, ExperiencePublic, FreelancerProfileDetailPublic, PortfolioItemPublic } from "@/client"
+import { formatMoney } from "@/lib/currency"
 
 type EntryTextField = "title" | "organization" | "detail" | "url"
 
@@ -65,7 +66,7 @@ export const profileLimits = {
 	entryOrganization: 100,
 	entryDetail: 1000,
 	projectImageBytes: 5 * 1024 * 1024,
-	// Hourly rate in USD.
+	// Hourly rate in Moroccan dirhams (DH).
 	rateMin: 10,
 	rateMax: 5000,
 }
@@ -102,7 +103,7 @@ export function validateEntry(entry: ProfileEntryForm, label: string): string | 
 // Returns the first problem found in the form, or null when everything is within the limits.
 export function validateProfile(p: ProfileForm): string | null {
 	if (p.rate.trim() && !rateInRange(p.rate)) {
-		return `Your hourly rate must be between $${profileLimits.rateMin} and $${profileLimits.rateMax}.`
+		return `Your hourly rate must be between ${formatMoney(profileLimits.rateMin)} and ${formatMoney(profileLimits.rateMax)}.`
 	}
 	for (const entry of [...p.experience, ...p.education, ...p.portfolio]) {
 		const problem = validateEntry(entry, "The title")

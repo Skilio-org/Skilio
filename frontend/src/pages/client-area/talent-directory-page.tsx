@@ -14,6 +14,7 @@ import { useErrorToast } from "@/hooks/useErrorToast"
 import { SearchWithCategories } from "@/components/common/search-with-categories"
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { queryKeys } from "@/lib/query-keys"
+import { formatRateRange, RATE_FILTER_MAX, RATE_FILTER_STEP } from "@/lib/currency"
 
 // The search text and category live in the URL (the route owns them); everything else is local filter state.
 export function TalentDirectoryPage({
@@ -30,7 +31,7 @@ export function TalentDirectoryPage({
 	const search = query ?? ""
 	const category = categoryParam ?? "all"
 	const [location, setLocation] = useState("")
-	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
+	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, RATE_FILTER_MAX])
 	const [highlyRated, setHighlyRated] = useState(false)
 	const [sort, setSort] = useState("best-match")
 	const [filtersOpen, setFiltersOpen] = useState(false)
@@ -49,7 +50,7 @@ export function TalentDirectoryPage({
 					q: search,
 					category: category === "all" ? undefined : category,
 					minRate: hourlyRate[0] || undefined,
-					maxRate: hourlyRate[1] === 120 ? undefined : hourlyRate[1],
+					maxRate: hourlyRate[1] === RATE_FILTER_MAX ? undefined : hourlyRate[1],
 				},
 				signal,
 			),
@@ -62,7 +63,7 @@ export function TalentDirectoryPage({
 		submitSearch("")
 		onCategoryChange("all")
 		setLocation("")
-		setHourlyRate([0, 120])
+		setHourlyRate([0, RATE_FILTER_MAX])
 		setHighlyRated(false)
 	}
 	const results = useMemo(() => {
@@ -70,7 +71,7 @@ export function TalentDirectoryPage({
 			.filter((person) => {
 				return (
 					person.rate >= hourlyRate[0] &&
-					(hourlyRate[1] === 120 || person.rate <= hourlyRate[1]) &&
+					(hourlyRate[1] === RATE_FILTER_MAX || person.rate <= hourlyRate[1]) &&
 					(!highlyRated || person.rating >= 4.9) &&
 					(!location || person.location.toLowerCase().includes(location.toLowerCase()))
 				)
@@ -84,11 +85,11 @@ export function TalentDirectoryPage({
 		...(category !== "all" ? [{ label: category, remove: () => onCategoryChange("all") }] : []),
 		...(location ? [{ label: location, remove: () => setLocation("") }] : []),
 		...(highlyRated ? [{ label: "4.9+ rating", remove: () => setHighlyRated(false) }] : []),
-		...(hourlyRate[0] !== 0 || hourlyRate[1] !== 120
+		...(hourlyRate[0] !== 0 || hourlyRate[1] !== RATE_FILTER_MAX
 			? [
 					{
-						label: `$${hourlyRate[0]}–$${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr`,
-						remove: () => setHourlyRate([0, 120]),
+						label: formatRateRange(hourlyRate[0], hourlyRate[1]),
+						remove: () => setHourlyRate([0, RATE_FILTER_MAX]),
 					},
 				]
 			: []),
@@ -128,13 +129,13 @@ export function TalentDirectoryPage({
 				<div className="mb-4 flex items-center justify-between">
 					<span className="font-medium text-label-sm">Hourly rate</span>
 					<span className="text-caption text-outline">
-						${hourlyRate[0]} – ${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr
+						{formatRateRange(hourlyRate[0], hourlyRate[1])}
 					</span>
 				</div>
 				<Slider
 					min={0}
-					max={120}
-					step={5}
+					max={RATE_FILTER_MAX}
+					step={RATE_FILTER_STEP}
 					value={hourlyRate}
 					onValueChange={(value) => setHourlyRate(value as [number, number])}
 				/>

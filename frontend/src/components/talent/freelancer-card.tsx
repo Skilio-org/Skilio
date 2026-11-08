@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import { Bookmark, Clock3, MapPin, Send, Star, UserCheck, UserPlus } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { formatMoney } from "@/lib/currency"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -128,7 +129,7 @@ export function FreelancerCard({
 			{/* Rate / rating */}
 			<div className="mb-3 flex flex-wrap items-center gap-3">
 				<div className="flex items-baseline gap-2 font-numeric-data text-numeric-data">
-					<span className="font-semibold text-[15px] text-on-surface">${freelancer.rate}</span>
+					<span className="font-semibold text-[15px] text-on-surface">{formatMoney(freelancer.rate)}</span>
 
 					<span className="font-caption text-caption text-on-surface-variant">/ hour</span>
 				</div>

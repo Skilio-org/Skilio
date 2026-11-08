@@ -7,6 +7,7 @@ import { type ProfileForm, profileLimits, secondary, textareaClass } from "@/com
 import { LanguagesField } from "@/components/freelancer/languages-field"
 import { ProfileSelectField, ProfileTextField } from "@/components/freelancer/profile-editor/profile-fields"
 import type { UpdateProfile } from "@/components/freelancer/profile-editor/profile-form"
+import { formatMoney } from "@/lib/currency"
 
 type StepProps = { profile: ProfileForm; update: UpdateProfile }
 
@@ -130,7 +131,7 @@ export function RatesStep({ profile, update }: StepProps) {
 		<>
 			<div>
 				<ProfileTextField
-					label="Hourly rate (USD) *"
+					label="Hourly rate (DH) *"
 					value={profile.rate}
 					onChange={(value) => update("rate", value)}
 					placeholder="50"
@@ -139,7 +140,7 @@ export function RatesStep({ profile, update }: StepProps) {
 					max={profileLimits.rateMax}
 				/>
 				<p className="mt-1.5 text-on-surface-variant text-xs">
-					Between ${profileLimits.rateMin} and ${profileLimits.rateMax}. Shown on your profile as a starting rate. You agree the final price with each client.
+					Between {formatMoney(profileLimits.rateMin)} and {formatMoney(profileLimits.rateMax)}. Shown on your profile as a starting rate. You agree the final price with each client.
 				</p>
 			</div>
 			<ProfileSelectField

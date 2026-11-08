@@ -1,6 +1,7 @@
 import type { FreelancerProfileDetailPublic, FreelancerProfileUpdate } from "@/client"
 import { completion, type ProfileForm } from "@/components/freelancer/freelancer-profile-model"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
+import { formatRate } from "@/lib/currency"
 
 // Steps that must be complete before a profile can be published (indexes into `steps`).
 export const requiredSteps = [0, 1, 2, 5]
@@ -19,7 +20,7 @@ export function profileProgress(profile: ProfileForm) {
 			profile.bio.trim().slice(0, 90),
 			[plural(profile.experience.length, "job"), `${profile.education.length} education`].join(" · "),
 			plural(profile.portfolio.length, "project"),
-			[profile.rate && `$${profile.rate}/hr`, profile.hours].filter(Boolean).join(" · "),
+			[profile.rate && formatRate(profile.rate), profile.hours].filter(Boolean).join(" · "),
 		],
 	}
 }

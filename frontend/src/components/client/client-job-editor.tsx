@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { useCategories } from "@/hooks/useCategories"
 import { budgetRange, type ClientJob, jobLimits } from "./client-job-types"
 import { ClientJobProposals } from "./client-job-proposals"
+import { formatMoney, formatRate } from "@/lib/currency"
 
 type ClientJobEditorProps = {
 	job: ClientJob | null
@@ -174,7 +175,7 @@ export function ClientJobEditor({
 												</Select>
 											</div>
 											<label className="block font-medium text-sm">
-												{job.type === "Hourly" ? "Hourly rate (USD) *" : "Budget (USD) *"}
+												{job.type === "Hourly" ? "Hourly rate (DH) *" : "Budget (DH) *"}
 												<input
 													required
 													type="number"
@@ -187,7 +188,7 @@ export function ClientJobEditor({
 													onChange={(event) => onJobChange({ ...job, budget: event.target.value })}
 												/>
 												<span className="mt-2 block font-normal text-on-surface-variant text-xs">
-													Between ${budgetLimits.min.toLocaleString()} and ${budgetLimits.max.toLocaleString()}
+													Between {formatMoney(budgetLimits.min)} and {formatMoney(budgetLimits.max)}
 												</span>
 											</label>
 										</div>
@@ -241,7 +242,7 @@ function ClientJobDetails({
 			<section>
 				<h3 className="font-semibold">Budget</h3>
 				<p className="mt-2 text-sm">
-					{job.budget ? `$${job.budget}${job.type === "Hourly" ? "/hr" : ""}` : "Not set"} · {job.type}
+					{job.budget ? (job.type === "Hourly" ? formatRate(job.budget) : formatMoney(job.budget)) : "Not set"} · {job.type}
 				</p>
 			</section>
 			{job.location && (
