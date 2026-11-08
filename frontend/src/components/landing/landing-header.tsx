@@ -3,6 +3,7 @@ import { Menu } from "lucide-react"
 import { Logo } from "@/components/common/logo"
 import { ThemeToggle } from "@/components/common/theme-toggle"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import useAuth from "@/hooks/useAuth"
 
 const links = [
 	["#talent", "Find talent"],
@@ -16,6 +17,7 @@ export function LandingHeader() {
 		select: (state) => state.location.pathname,
 	})
 	const isStatusPage = pathname === "/status"
+	const { user, isFetching } = useAuth()
 
 	return (
 		<header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md transition-colors">
@@ -38,21 +40,32 @@ export function LandingHeader() {
 
 				<div className="flex items-center gap-2 sm:gap-3.5">
 					<ThemeToggle />
+					{!user ? (
+						<>
+							<Link
+								to="/login"
+								className="hidden sm:inline-flex min-h-10 items-center px-3 font-medium text-sm text-foreground/90 hover:text-foreground transition-colors"
+							>
+								Log in
+							</Link>
 
-					<Link
-						to="/login"
-						className="hidden sm:inline-flex min-h-10 items-center px-3 font-medium text-sm text-foreground/90 hover:text-foreground transition-colors"
-					>
-						Log in
-					</Link>
-
-					<Link
-						to="/signup"
-						className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-3.5 sm:px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
-					>
-						<span className="hidden xs:inline sm:inline">Join Skilio</span>
-						<span className="xs:hidden sm:hidden">Join</span>
-					</Link>
+							<Link
+								to="/signup"
+								className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-3.5 sm:px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+							>
+								<span className="hidden xs:inline sm:inline">Join Skilio</span>
+								<span className="xs:hidden sm:hidden">Join Skilio</span>
+							</Link>
+						</>
+					) : (
+						<Link
+							to="/dashboard"
+							className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-3.5 sm:px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+						>
+							<span className="hidden xs:inline sm:inline">Dashboard</span>
+							<span className="xs:hidden sm:hidden">Dashboard</span>
+						</Link>
+					)}
 
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
@@ -73,16 +86,13 @@ export function LandingHeader() {
 										</a>
 									</DropdownMenuItem>
 								))}
-							<DropdownMenuItem asChild>
-								<Link to="/login" className="min-h-10 w-full font-medium">
-									Log in
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
-								<Link to="/signup" className="min-h-10 w-full font-semibold text-link">
-									Create account
-								</Link>
-							</DropdownMenuItem>
+							{!user && (
+								<DropdownMenuItem asChild>
+									<Link to="/login" className="min-h-10 w-full font-semibold text-link">
+										Log in
+									</Link>
+								</DropdownMenuItem>
+							)}
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
