@@ -11,7 +11,7 @@ const googleAuthSearchSchema = z.object({
 })
 
 export const Route = createFileRoute("/googleAuth")({
-	component: GoogleAuthCallbackRoute,
+	component: () => null,
 	validateSearch: (search) => googleAuthSearchSchema.parse(search),
 	loaderDeps: ({ search }) => ({
 		code: search.code,
@@ -57,7 +57,3 @@ export const Route = createFileRoute("/googleAuth")({
 		throw redirect({ to: "/dashboard" })
 	},
 })
-
-function GoogleAuthCallbackRoute() {
-	return null
-}

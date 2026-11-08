@@ -5,18 +5,16 @@ export const Route = createFileRoute("/_layout/client-jobs")({
 	validateSearch: (search: Record<string, unknown>) => ({
 		jobId: typeof search.jobId === "string" ? search.jobId.trim() || undefined : undefined,
 	}),
-	component: ClientJobsRoute,
+	component: () => {
+		const { jobId } = Route.useSearch()
+		const navigate = Route.useNavigate()
+
+		return (
+			<ClientJobsPage
+				focusedJobId={jobId}
+				onFocusedJobChange={(nextJobId) => void navigate({ search: { jobId: nextJobId }, replace: !nextJobId })}
+			/>
+		)
+	},
 	head: () => ({ meta: [{ title: "Your jobs | Skilio" }] }),
 })
-
-function ClientJobsRoute() {
-	const { jobId } = Route.useSearch()
-	const navigate = Route.useNavigate()
-
-	return (
-		<ClientJobsPage
-			focusedJobId={jobId}
-			onFocusedJobChange={(nextJobId) => void navigate({ search: { jobId: nextJobId }, replace: !nextJobId })}
-		/>
-	)
-}

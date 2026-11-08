@@ -6,20 +6,18 @@ import { LoginPage } from "@/pages/auth/login-page"
 const loginSearchSchema = z.object({ error: z.string().optional() })
 
 export const Route = createFileRoute("/login")({
-	component: LoginRoute,
+	component: () => {
+		const { error } = Route.useSearch()
+		const navigate = Route.useNavigate()
+		return <LoginPage error={error} onErrorHandled={() => void navigate({ search: {}, replace: true })} />
+	},
 	validateSearch: (search) => loginSearchSchema.parse(search),
 	beforeLoad: async () => {
 		if (isLoggedIn()) {
 			throw redirect({ to: "/dashboard" })
-		} 
+		}
 	},
 	head: () => ({
 		meta: [{ title: "Log in | Skilio" }, { name: "description", content: "Log in to your Skilio account." }],
 	}),
 })
-
-function LoginRoute() {
-	const { error } = Route.useSearch()
-	const navigate = Route.useNavigate()
-	return <LoginPage error={error} onErrorHandled={() => void navigate({ search: {}, replace: true })} />
-}

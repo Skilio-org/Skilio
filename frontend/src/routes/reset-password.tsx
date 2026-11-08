@@ -7,7 +7,7 @@ import { ResetPasswordPage } from "@/pages/auth/reset-password-page"
 const searchSchema = z.object({ token: z.string().catch("") })
 
 export const Route = createFileRoute("/reset-password")({
-	component: ResetPasswordRoute,
+	component: () => <ResetPasswordPage token={Route.useSearch().token} />,
 	validateSearch: searchSchema,
 	beforeLoad: async ({ search, context }) => {
 		if (!search.token) throw redirect({ to: "/login" })
@@ -24,7 +24,3 @@ export const Route = createFileRoute("/reset-password")({
 		],
 	}),
 })
-
-function ResetPasswordRoute() {
-	return <ResetPasswordPage token={Route.useSearch().token} />
-}
