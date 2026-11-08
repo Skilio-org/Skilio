@@ -289,7 +289,7 @@ export function ClientProfilePage() {
 					</div>
 					<div className="flex flex-col-reverse gap-3 border-outline-variant border-t pt-6 sm:flex-row sm:items-center sm:justify-end">
 						{saved && (
-							<span className="mr-auto inline-flex items-center gap-2 text-emerald-700 text-sm">
+							<span className="mr-auto inline-flex items-center gap-2 text-link text-sm">
 								<CheckCircle2 className="size-4" />
 								Changes saved
 							</span>
@@ -398,7 +398,7 @@ export function ClientProfilePage() {
 							/>
 						</label>
 						{selectedPhotoName && (
-							<p className="mt-3 font-medium text-emerald-700 text-xs">Selected: {selectedPhotoName}</p>
+							<p className="mt-3 font-medium text-link text-xs">Selected: {selectedPhotoName}</p>
 						)}
 					</div>
 					<DialogFooter>

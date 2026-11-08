@@ -149,7 +149,7 @@ export function MessageThread({
 							aria-hidden="true"
 							className={cn(
 								"size-1.5 rounded-full",
-								presencePending ? "bg-outline animate-pulse" : isOnline ? "bg-emerald-500" : "bg-outline",
+								presencePending ? "bg-outline animate-pulse" : isOnline ? "bg-primary" : "bg-outline",
 							)}
 						/>
 						<span>{presencePending ? "Checking status" : isOnline ? "Online" : "Offline"}</span>

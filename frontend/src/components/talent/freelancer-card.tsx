@@ -193,11 +193,11 @@ export function FreelancerCard({
 							search={{ userId: targetUserId }}
 							className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
 						>
-							<UserCheck className="size-3.5 text-success" />
+							<UserCheck className="size-3.5" />
 							<span>Message</span>
 						</Link>
 					) : connectionStatus?.status === "pending_sent" ? (
-						<span className="inline-flex h-8 items-center justify-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 text-caption font-medium text-amber-600 dark:text-amber-400">
+						<span className="inline-flex h-8 items-center justify-center gap-1 rounded-md border border-primary px-3 text-caption font-medium text-link">
 							<Clock3 className="size-3.5" />
 							<span>Pending</span>
 						</span>

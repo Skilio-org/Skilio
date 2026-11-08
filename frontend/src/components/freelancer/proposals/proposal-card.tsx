@@ -56,7 +56,7 @@ export function ProposalCardSkeleton() {
 function StatusBadge({ status }: { status: BackendProposal["rawStatus"] }) {
 	if (status === "accepted") {
 		return (
-			<Badge variant="outline" className="gap-1 border-primary/30 bg-primary/10 font-medium text-[10px] text-link">
+			<Badge variant="success">
 				<UserCheck className="size-3" />
 				Accepted
 			</Badge>
@@ -64,10 +64,7 @@ function StatusBadge({ status }: { status: BackendProposal["rawStatus"] }) {
 	}
 	if (status === "pending") {
 		return (
-			<Badge
-				variant="outline"
-				className="gap-1 border-amber-500/30 bg-amber-500/10 font-medium text-[10px] text-amber-600 dark:text-amber-400"
-			>
+			<Badge variant="pending">
 				<Clock3 className="size-3" />
 				Under review
 			</Badge>
@@ -133,9 +130,9 @@ export function ProposalCard({
 								className={cn(
 									"absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-container-lowest",
 									isAccepted
-										? "bg-emerald-500"
+										? "bg-primary"
 										: isPending
-											? "animate-pulse bg-amber-500"
+											? "animate-pulse bg-primary"
 											: isDraft
 												? "bg-outline"
 												: "bg-muted-foreground/40",
@@ -205,7 +202,7 @@ export function ProposalCard({
 						<span
 							className={cn(
 								"size-2 rounded-full",
-								isAccepted ? "bg-emerald-500" : isPending ? "bg-amber-500" : "bg-outline",
+								isAccepted ? "bg-primary" : isPending ? "bg-primary" : "bg-outline",
 							)}
 						/>
 						<span>
