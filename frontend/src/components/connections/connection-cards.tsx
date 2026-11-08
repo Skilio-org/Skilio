@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router"
+import type { ReactNode } from "react"
 import { Briefcase, Check, MessageSquare, UserCheck, UserMinus, X } from "lucide-react"
 import type { ConnectionPublic } from "@/client"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
@@ -12,6 +13,26 @@ import { cn } from "@/lib/utils"
 type Person = ConnectionPublic["sender"]
 
 const roleLabel = (person: Person) => (person?.active_role === "client" ? "Client" : "Specialist")
+
+// Specialists have a profile page you can open. Clients don't, so for them this just shows the content.
+function ProfileLink({
+	person,
+	id,
+	className,
+	children,
+}: {
+	person: Person
+	id: string
+	className?: string
+	children: ReactNode
+}) {
+	if (person?.active_role === "client") return <>{children}</>
+	return (
+		<Link to="/talent/$freelancerId" params={{ freelancerId: id }} search={{ q: undefined }} className={className}>
+			{children}
+		</Link>
+	)
+}
 
 function PersonAvatar({ id, name, className }: { id: string; name: string; className?: string }) {
 	return (
@@ -43,7 +64,6 @@ function RequestDetails({ connection }: { connection: ConnectionPublic }) {
 	)
 }
 
-const pendingBadge = "border-amber-500/30 bg-amber-500/10 text-[10px] text-amber-600 dark:text-amber-400"
 const requestCard =
 	"rounded-xl border border-outline-variant bg-surface-container-lowest p-5 transition-all duration-150 hover:border-outline"
 
@@ -69,17 +89,23 @@ export function ConnectionCard({
 				<div className="flex items-start justify-between gap-3">
 					<div className="flex min-w-0 items-start gap-3.5">
 						<div className="relative shrink-0">
-							<PersonAvatar id={partnerId} name={partnerName} />
+							<ProfileLink person={partner} id={partnerId} className="shrink-0 rounded-lg">
+								<PersonAvatar id={partnerId} name={partnerName} />
+							</ProfileLink>
 							<span
 								aria-hidden="true"
-								className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-container-lowest bg-emerald-500"
+								className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-container-lowest bg-primary"
 							/>
 						</div>
 
 						<div className="min-w-0 flex-1">
 							<div className="flex flex-wrap items-center gap-2">
-								<h4 className="truncate font-headline-sm font-semibold text-base text-on-surface">{partnerName}</h4>
-								<Badge variant="outline" className="gap-1 border-primary/30 bg-primary/10 font-medium text-[10px] text-link">
+								<h4 className="truncate font-headline-sm font-semibold text-base text-on-surface">
+									<ProfileLink person={partner} id={partnerId} className="hover:underline">
+										{partnerName}
+									</ProfileLink>
+								</h4>
+								<Badge variant="success">
 									<UserCheck className="size-3" />
 									Connected
 								</Badge>
@@ -112,7 +138,7 @@ export function ConnectionCard({
 
 				<div className="flex items-center justify-between border-outline-variant/60 border-t pt-3 text-on-surface-variant text-xs">
 					<span className="flex items-center gap-1.5 font-caption text-caption">
-						<span className="size-1.5 rounded-full bg-emerald-500" />
+						<span className="size-1.5 rounded-full bg-primary" />
 						Collaboration unlocked
 					</span>
 					<Link
@@ -142,16 +168,23 @@ export function ReceivedRequestCard({
 	onDecline: () => void
 }) {
 	const name = connection.sender?.full_name || "Platform Member"
+	const senderId = connection.sender?.id || connection.sender_id
 
 	return (
 		<Card className={requestCard}>
 			<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 				<div className="flex min-w-0 items-start gap-3.5">
-					<PersonAvatar id={connection.sender?.id || connection.sender_id} name={name} />
+					<ProfileLink person={connection.sender} id={senderId} className="shrink-0 rounded-lg">
+						<PersonAvatar id={senderId} name={name} />
+					</ProfileLink>
 					<div className="min-w-0 space-y-1">
 						<div className="flex flex-wrap items-center gap-2">
-							<h4 className="font-headline-sm font-semibold text-base text-on-surface">{name}</h4>
-							<Badge variant="outline" className={pendingBadge}>
+							<h4 className="font-headline-sm font-semibold text-base text-on-surface">
+								<ProfileLink person={connection.sender} id={senderId} className="hover:underline">
+									{name}
+								</ProfileLink>
+							</h4>
+							<Badge variant="pending">
 								Pending request
 							</Badge>
 						</div>
@@ -201,16 +234,23 @@ export function SentRequestCard({
 	onWithdraw: () => void
 }) {
 	const name = connection.receiver?.full_name || "Platform Member"
+	const receiverId = connection.receiver?.id || connection.receiver_id
 
 	return (
 		<Card className={requestCard}>
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div className="flex min-w-0 items-start gap-3.5">
-					<PersonAvatar id={connection.receiver?.id || connection.receiver_id} name={name} />
+					<ProfileLink person={connection.receiver} id={receiverId} className="shrink-0 rounded-lg">
+						<PersonAvatar id={receiverId} name={name} />
+					</ProfileLink>
 					<div className="min-w-0 space-y-1">
 						<div className="flex flex-wrap items-center gap-2">
-							<h4 className="font-headline-sm font-semibold text-base text-on-surface">{name}</h4>
-							<Badge variant="outline" className={pendingBadge}>
+							<h4 className="font-headline-sm font-semibold text-base text-on-surface">
+								<ProfileLink person={connection.receiver} id={receiverId} className="hover:underline">
+									{name}
+								</ProfileLink>
+							</h4>
+							<Badge variant="pending">
 								Pending review
 							</Badge>
 						</div>

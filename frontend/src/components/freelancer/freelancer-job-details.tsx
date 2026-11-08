@@ -288,7 +288,7 @@ export const JobDetails = ({
 									<span>Message client (Connected)</span>
 								</Link>
 							) : connectionStatus?.status === "pending_sent" ? (
-								<div className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 font-label-md text-label-md text-amber-600 dark:text-amber-400">
+								<div className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-primary font-label-md text-label-md text-link">
 									<Clock3 className="size-4" />
 									<span>Connection pending</span>
 								</div>
