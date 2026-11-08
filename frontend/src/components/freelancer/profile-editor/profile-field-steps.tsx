@@ -3,7 +3,7 @@ import CategorySelect from "@/components/common/category-select"
 import CitySelect from "@/components/common/city-select"
 import { SkillsSelect } from "@/components/common/skills-select"
 import { Avatar } from "@/components/freelancer/freelancer-profile-components"
-import { type ProfileForm, secondary, textareaClass } from "@/components/freelancer/freelancer-profile-model"
+import { type ProfileForm, profileLimits, secondary, textareaClass } from "@/components/freelancer/freelancer-profile-model"
 import { LanguagesField } from "@/components/freelancer/languages-field"
 import { ProfileSelectField, ProfileTextField } from "@/components/freelancer/profile-editor/profile-fields"
 import type { UpdateProfile } from "@/components/freelancer/profile-editor/profile-form"
@@ -11,7 +11,6 @@ import type { UpdateProfile } from "@/components/freelancer/profile-editor/profi
 type StepProps = { profile: ProfileForm; update: UpdateProfile }
 
 const weeklyHours = ["Less than 10 hours", "10–20 hours", "20–30 hours", "More than 30 hours"]
-const MIN_BIO_LENGTH = 80
 
 export function BasicsStep({
 	profile,
@@ -33,7 +32,7 @@ export function BasicsStep({
 							onChange={(e) => onPhotoChange(e.target.files?.[0])}
 						/>
 					</label>
-					<p className="mt-1.5 text-on-surface-variant text-xs">Optional. JPG, PNG or WebP, up to 2 MB.</p>
+					<p className="mt-1.5 text-on-surface-variant text-xs">Optional. JPG, PNG or WebP, up to 5 MB.</p>
 				</div>
 			</div>
 			<div className="grid gap-5 sm:grid-cols-2">
@@ -42,6 +41,8 @@ export function BasicsStep({
 					value={profile.name}
 					onChange={(value) => update("name", value)}
 					placeholder="Your name"
+					maxLength={profileLimits.name}
+					showCount
 				/>
 				<div className="block font-medium text-sm">
 					<span id="profile-location-label">City *</span>
@@ -60,6 +61,8 @@ export function BasicsStep({
 				value={profile.title}
 				onChange={(value) => update("title", value)}
 				placeholder="e.g. Product designer for early-stage teams"
+				maxLength={profileLimits.title}
+				showCount
 			/>
 		</>
 	)
@@ -107,14 +110,14 @@ export function IntroductionStep({ profile, update }: StepProps) {
 				<textarea
 					className={textareaClass}
 					rows={7}
-					maxLength={3000}
+					maxLength={profileLimits.bioMax}
 					value={profile.bio}
 					onChange={(e) => update("bio", e.target.value)}
 					placeholder="What you do, who you help, and the kind of projects you take on."
 				/>
 				<span className="mt-1.5 flex justify-between font-normal text-on-surface-variant text-xs">
-					<span>{bioLength < MIN_BIO_LENGTH ? `${MIN_BIO_LENGTH - bioLength} more characters needed` : "Looks good"}</span>
-					<span className="tabular-nums">{profile.bio.length}/3000</span>
+					<span>{bioLength < profileLimits.bioMin ? `${profileLimits.bioMin - bioLength} more characters needed` : "Looks good"}</span>
+					<span className="tabular-nums">{profile.bio.length}/{profileLimits.bioMax}</span>
 				</span>
 			</label>
 			<LanguagesField value={profile.languages} onChange={(languages) => update("languages", languages)} />
@@ -132,9 +135,11 @@ export function RatesStep({ profile, update }: StepProps) {
 					onChange={(value) => update("rate", value)}
 					placeholder="50"
 					type="number"
+					min={profileLimits.rateMin}
+					max={profileLimits.rateMax}
 				/>
 				<p className="mt-1.5 text-on-surface-variant text-xs">
-					Shown on your profile as a starting rate. You agree the final price with each client.
+					Between ${profileLimits.rateMin} and ${profileLimits.rateMax}. Shown on your profile as a starting rate. You agree the final price with each client.
 				</p>
 			</div>
 			<ProfileSelectField

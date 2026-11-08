@@ -1,3 +1,4 @@
+import { maxSkillLength, maxSkills } from "@/components/common/skills-select"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import type { EducationPublic, ExperiencePublic, FreelancerProfileDetailPublic, PortfolioItemPublic } from "@/client"
 
@@ -50,13 +51,82 @@ export const textareaClass = `${fieldBase} min-h-28 resize-y py-2.5 leading-6`
 export const primary = `${workspaceStyles.primaryAction} disabled:opacity-50`
 export const secondary = workspaceStyles.secondaryAction
 
+// Size limits for the profile form. The inputs enforce them while typing, and validateProfile() checks them again before saving.
+export const profileLimits = {
+	name: 100,
+	title: 100,
+	skills: maxSkills,
+	skillLength: maxSkillLength,
+	bioMin: 80,
+	bioMax: 3000,
+	avatarBytes: 5 * 1024 * 1024,
+	// Work experience, education and projects.
+	entryTitle: 100,
+	entryOrganization: 100,
+	entryDetail: 1000,
+	projectImageBytes: 5 * 1024 * 1024,
+	// Hourly rate in USD.
+	rateMin: 10,
+	rateMax: 5000,
+}
+
+export const isHttpsUrl = (value: string) => {
+	try {
+		return new URL(value).protocol === "https:"
+	} catch {
+		return false
+	}
+}
+
+const rateInRange = (rate: string) => {
+	const value = Number(rate)
+	return Number.isFinite(value) && value >= profileLimits.rateMin && value <= profileLimits.rateMax
+}
+
+// Checks one experience, education or project entry. `label` is the name of its title field, e.g. "Job title".
+export function validateEntry(entry: ProfileEntryForm, label: string): string | null {
+	if (!entry.title.trim()) return `${label} is required.`
+	if (entry.title.trim().length > profileLimits.entryTitle) {
+		return `${label} can be at most ${profileLimits.entryTitle} characters.`
+	}
+	if (entry.organization.length > profileLimits.entryOrganization) {
+		return `This field can be at most ${profileLimits.entryOrganization} characters.`
+	}
+	if (entry.detail.length > profileLimits.entryDetail) {
+		return `The description can be at most ${profileLimits.entryDetail} characters.`
+	}
+	if (entry.url.trim() && !isHttpsUrl(entry.url.trim())) return "Enter a valid link that starts with https://"
+	return null
+}
+
+// Returns the first problem found in the form, or null when everything is within the limits.
+export function validateProfile(p: ProfileForm): string | null {
+	if (p.rate.trim() && !rateInRange(p.rate)) {
+		return `Your hourly rate must be between $${profileLimits.rateMin} and $${profileLimits.rateMax}.`
+	}
+	for (const entry of [...p.experience, ...p.education, ...p.portfolio]) {
+		const problem = validateEntry(entry, "The title")
+		if (problem) return problem
+	}
+	if (p.name.trim().length > profileLimits.name) return `Your name can be at most ${profileLimits.name} characters.`
+	if (p.title.trim().length > profileLimits.title) {
+		return `Your professional title can be at most ${profileLimits.title} characters.`
+	}
+	if (p.skills.length > profileLimits.skills) return `Choose up to ${profileLimits.skills} skills.`
+	if (p.skills.some((skill) => skill.length > profileLimits.skillLength)) {
+		return `Each skill can be at most ${profileLimits.skillLength} characters.`
+	}
+	if (p.bio.length > profileLimits.bioMax) return `"About you" can be at most ${profileLimits.bioMax} characters.`
+	return null
+}
+
 export function completion(p: ProfileForm) {
 	return [
 		!!(p.name.trim() && p.title.trim() && p.location.trim()),
 		!!(p.category && p.skills.length),
-		p.bio.trim().length >= 80 && !!p.languages.trim(),
+		p.bio.trim().length >= profileLimits.bioMin && !!p.languages.trim(),
 		p.experience.length > 0 || p.education.length > 0,
 		p.portfolio.length > 0,
-		Number.isFinite(Number(p.rate)) && Number(p.rate) > 0 && !!p.hours,
+		rateInRange(p.rate) && !!p.hours,
 	]
 }

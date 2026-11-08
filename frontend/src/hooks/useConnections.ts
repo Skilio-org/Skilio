@@ -3,6 +3,8 @@ import { toast } from "sonner"
 import { ConnectionsService, type ConnectionCreate, type ConnectionStatus, type NotificationPublic } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
 
+export const connectionNoteMaxLength = 300
+
 export const connectionKeys = {
 	all: ["connections"] as const,
 	list: (status?: ConnectionStatus | null, direction?: string | null) =>

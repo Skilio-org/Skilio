@@ -10,8 +10,10 @@ import {
 	type ProfileEntryForm,
 	type ProfileForm,
 	primary,
+	profileLimits,
 	secondary,
 	steps,
+	validateProfile,
 } from "@/components/freelancer/freelancer-profile-model"
 import { ProfileOverview } from "@/components/freelancer/profile-editor/profile-overview"
 import {
@@ -70,8 +72,9 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 
 	async function save(finished = profile.finished) {
 		if (saveLock.current || uploading) return false
-		if (profile.rate.trim() && (!Number.isFinite(Number(profile.rate)) || Number(profile.rate) < 0)) {
-			toast.error("Enter a valid hourly rate before saving.")
+		const problem = validateProfile(profile)
+		if (problem) {
+			toast.error(problem)
 			return false
 		}
 		saveLock.current = true
@@ -103,7 +106,9 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			toast.error(
 				step === 2
 					? "Add an introduction of at least 80 characters and your languages."
-					: "Complete the required fields before continuing.",
+					: step === 5
+						? `Enter an hourly rate between $${profileLimits.rateMin} and $${profileLimits.rateMax} and choose your weekly hours.`
+						: "Complete the required fields before continuing.",
 			)
 			return
 		}
@@ -128,8 +133,8 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 
 	async function uploadPhoto(file?: File) {
 		if (!file || !user) return
-		if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) {
-			toast.error("Choose a JPG, PNG or WebP image under 2 MB.")
+		if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > profileLimits.avatarBytes) {
+			toast.error("Choose a JPG, PNG or WebP image under 5 MB.")
 			return
 		}
 		setUploading(true)

@@ -1,13 +1,13 @@
 import { JobFormSection, jobFormField } from "@/components/common/job-form-section"
 import CategorySelect from "@/components/common/category-select"
 import { SkillsSelect } from "@/components/common/skills-select"
-import { experienceLevels, jobDescriptionLimit } from "@/components/common/job-experience"
+import { experienceLevels } from "@/components/common/job-experience"
 import CitySelect from "@/components/common/city-select"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useCategories } from "@/hooks/useCategories"
-import type { ClientJob } from "./client-job-types"
+import { budgetRange, type ClientJob, jobLimits } from "./client-job-types"
 import { ClientJobProposals } from "./client-job-proposals"
 
 type ClientJobEditorProps = {
@@ -29,7 +29,7 @@ export function ClientJobEditor({
 	onSave,
 	onDelete,
 }: ClientJobEditorProps) {
-	const descriptionLimit = jobDescriptionLimit(job?.experienceLevel ?? "")
+	const budgetLimits = budgetRange(job?.type ?? "")
 	const { data: categories = [] } = useCategories()
 	return (
 		<Sheet open={!!job} onOpenChange={(open) => !open && onClose()}>
@@ -56,10 +56,10 @@ export function ClientJobEditor({
 								<div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-6 py-6 sm:px-8">
 									<JobFormSection title="" description="">
 										<label className="block font-medium text-sm">
-											Job title
+											Job title *
 											<input
 												required
-												maxLength={120}
+												maxLength={jobLimits.title}
 												pattern=".*\S.*"
 												className={jobFormField}
 												value={job.title}
@@ -68,11 +68,11 @@ export function ClientJobEditor({
 											/>
 										</label>
 										<label className="block font-medium text-sm">
-											Project description
+											Project description *
 											<textarea
 												required
-												minLength={80}
-												maxLength={descriptionLimit}
+												minLength={jobLimits.descriptionMin}
+												maxLength={jobLimits.descriptionMax}
 												rows={5}
 												className={`${jobFormField} min-h-32 resize-y leading-6`}
 												value={job.description}
@@ -85,9 +85,9 @@ export function ClientJobEditor({
 												placeholder={"We’re looking for someone to…\nThe main deliverables are…"}
 											/>
 											<span className="mt-2 flex justify-between gap-3 font-normal text-on-surface-variant text-xs">
-												<span>At least 80 characters</span>
+												<span>At least {jobLimits.descriptionMin} characters</span>
 												<span>
-													{job.description.length.toLocaleString()} / {descriptionLimit.toLocaleString()}
+													{job.description.length.toLocaleString()} / {jobLimits.descriptionMax.toLocaleString()}
 												</span>
 											</span>
 										</label>
@@ -174,17 +174,21 @@ export function ClientJobEditor({
 												</Select>
 											</div>
 											<label className="block font-medium text-sm">
-												{job.type === "Hourly" ? "Hourly rate (USD)" : "Budget (USD)"}
+												{job.type === "Hourly" ? "Hourly rate (USD) *" : "Budget (USD) *"}
 												<input
 													required
 													type="number"
-													min="1"
+													min={budgetLimits.min}
+													max={budgetLimits.max}
 													step="0.01"
 													placeholder={job.type === "Hourly" ? "e.g. 65" : "e.g. 2000"}
 													className={jobFormField}
 													value={job.budget}
 													onChange={(event) => onJobChange({ ...job, budget: event.target.value })}
 												/>
+												<span className="mt-2 block font-normal text-on-surface-variant text-xs">
+													Between ${budgetLimits.min.toLocaleString()} and ${budgetLimits.max.toLocaleString()}
+												</span>
 											</label>
 										</div>
 									</JobFormSection>

@@ -4,7 +4,7 @@ import { toast } from "sonner"
 import { Link } from "@tanstack/react-router"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { SheetDescription, SheetTitle } from "@/components/ui/sheet"
-import { useConnectionStatus, useSendConnectionRequest } from "@/hooks/useConnections"
+import { connectionNoteMaxLength, useConnectionStatus, useSendConnectionRequest } from "@/hooks/useConnections"
 import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
 import type { FreelancerJob } from "@/types/job"
@@ -66,8 +66,8 @@ export const JobDetails = ({
 	const handleSendConnection = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (connectNote.length > 300) {
-			toast.error("Introductory note cannot exceed 300 characters.");
+		if (connectNote.length > connectionNoteMaxLength) {
+			toast.error(`Introductory note cannot exceed ${connectionNoteMaxLength} characters.`);
 			return;
 		}
 		if (job.clientId == undefined || !job.clientId)
@@ -351,16 +351,16 @@ export const JobDetails = ({
 								</label>
 								<span
 									className={`text-[11px] ${
-										connectNote.length > 300 ? "text-destructive font-semibold" : "text-muted-foreground"
+										connectNote.length > connectionNoteMaxLength ? "text-destructive font-semibold" : "text-muted-foreground"
 									}`}
 								>
-									{connectNote.length}/300
+									{connectNote.length}/{connectionNoteMaxLength}
 								</span>
 							</div>
 							<textarea
 								id="connect-note"
 								rows={3}
-								maxLength={300}
+								maxLength={connectionNoteMaxLength}
 								placeholder="Add a brief note about why you are a great fit for this project..."
 								value={connectNote}
 								onChange={(e) => setConnectNote(e.target.value)}
@@ -378,7 +378,7 @@ export const JobDetails = ({
 							</button>
 							<button
 								type="submit"
-								disabled={sendConnectionMutation.isPending || connectNote.length > 300}
+								disabled={sendConnectionMutation.isPending || connectNote.length > connectionNoteMaxLength}
 								className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-on-primary hover:bg-primary/90 disabled:opacity-50"
 							>
 								<Send className="size-3.5" />

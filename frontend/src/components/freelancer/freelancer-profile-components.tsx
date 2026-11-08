@@ -6,8 +6,10 @@ import {
 	fieldClass,
 	type ProfileForm,
 	primary,
+	profileLimits,
 	secondary,
 	textareaClass,
+	validateEntry,
 } from "@/components/freelancer/freelancer-profile-model"
 import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -115,7 +117,6 @@ export function ProfilePreview({
 }
 
 const imageTypes = ["image/jpeg", "image/png", "image/webp"]
-const maxImageSize = 5 * 1024 * 1024
 const uploadTimeoutMs = 60_000
 
 const copy = {
@@ -186,7 +187,7 @@ export function EntryDialog({
 
 	function pickImage(file?: File) {
 		if (!file) return
-		if (!imageTypes.includes(file.type) || file.size > maxImageSize) {
+		if (!imageTypes.includes(file.type) || file.size > profileLimits.projectImageBytes) {
 			toast.error("Choose a JPG, PNG or WebP image under 5 MB.")
 			return
 		}
@@ -210,6 +211,11 @@ export function EntryDialog({
 					onSubmit={async (e) => {
 						e.preventDefault()
 						if (busy) return
+						const problem = validateEntry(value, text.name)
+						if (problem) {
+							toast.error(problem)
+							return
+						}
 						setBusy(true)
 						const controller = new AbortController()
 						abortRef.current = controller
@@ -286,7 +292,7 @@ export function EntryDialog({
 							<input
 								required
 								pattern=".*\S.*"
-								maxLength={120}
+								maxLength={profileLimits.entryTitle}
 								placeholder={text.namePlaceholder}
 								className={fieldClass}
 								value={value.title}
@@ -297,7 +303,7 @@ export function EntryDialog({
 							{text.organization}
 							<input
 								className={fieldClass}
-								maxLength={160}
+								maxLength={profileLimits.entryOrganization}
 								placeholder={text.organizationHint}
 								value={value.organization}
 								onChange={(e) => setValue({ ...value, organization: e.target.value })}
@@ -308,14 +314,14 @@ export function EntryDialog({
 						{text.detail}
 						<textarea
 							rows={4}
-							maxLength={2000}
+							maxLength={profileLimits.entryDetail}
 							placeholder={text.detailPlaceholder}
 							className={textareaClass}
 							value={value.detail}
 							onChange={(e) => setValue({ ...value, detail: e.target.value })}
 						/>
 						<span className="mt-1.5 block text-right font-normal text-on-surface-variant text-xs tabular-nums">
-							{value.detail.length}/2000
+							{value.detail.length}/{profileLimits.entryDetail}
 						</span>
 					</label>
 					{isPortfolio && (
@@ -323,7 +329,8 @@ export function EntryDialog({
 							Project link <span className="font-normal text-on-surface-variant">(optional)</span>
 							<input
 								type="url"
-								pattern="https?://.*"
+								pattern="https://.+"
+								title="Enter a link that starts with https://"
 								placeholder="https://"
 								className={fieldClass}
 								value={value.url}

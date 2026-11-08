@@ -7,12 +7,21 @@ export function ProfileTextField({
 	onChange,
 	placeholder,
 	type = "text",
+	maxLength = 120,
+	min,
+	max,
+	showCount = false,
 }: {
 	label: string
 	value: string
 	onChange: (value: string) => void
 	placeholder: string
 	type?: string
+	maxLength?: number
+	min?: number
+	max?: number
+	// Show "12/100" under the field.
+	showCount?: boolean
 }) {
 	return (
 		<label className="block font-medium text-sm">
@@ -23,9 +32,15 @@ export function ProfileTextField({
 				onChange={(e) => onChange(e.target.value)}
 				placeholder={placeholder}
 				type={type}
-				min={type === "number" ? "1" : undefined}
-				maxLength={120}
+				min={min}
+				max={max}
+				maxLength={maxLength}
 			/>
+			{showCount && (
+				<span className="mt-1.5 block text-right font-normal text-on-surface-variant text-xs tabular-nums">
+					{value.length}/{maxLength}
+				</span>
+			)}
 		</label>
 	)
 }
