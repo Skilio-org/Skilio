@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-# ──────────────────────────────────────────────────────────────────────────────
-# dr-test.sh — Automated Disaster Recovery Verification Drill
-# ──────────────────────────────────────────────────────────────────────────────
-# Tests the backup & restore procedure in an isolated temporary sandbox DB.
-# Verifies 100% data integrity without touching or disrupting the production DB.
-# Works on the host computer (with docker compose) or inside a container.
 
 set -euo pipefail
 
@@ -17,26 +11,23 @@ RED='\033[0;31m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# Find script and project folders
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-# Load settings from .env file if it exists
+
 if [ -f "${ROOT_DIR}/.env" ]; then
-    set -a
     source "${ROOT_DIR}/.env" 2>/dev/null || true
-    set +a
 fi
 
-# Settings and default values
+
 POSTGRES_USER="${POSTGRES_USER:-postgres}"
 POSTGRES_DB="${POSTGRES_DB:-app}"
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
-export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD}}"
+export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD:-}}"
 
 SANDBOX_DB="dr_drill_sandbox"
 
-# Pre-flight check: ensure database is running
+# ensure database is running
 if [ -z "${POSTGRES_HOST:-}" ] && command -v docker >/dev/null 2>&1; then
     cd "${ROOT_DIR}"
     if [ -z "$(docker compose ps --status running -q db 2>/dev/null)" ]; then

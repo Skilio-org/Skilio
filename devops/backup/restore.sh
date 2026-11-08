@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-# ──────────────────────────────────────────────────────────────────────────────
-# restore.sh — PostgreSQL Database Restore
-# ──────────────────────────────────────────────────────────────────────────────
-# Restores the PostgreSQL database from a compressed backup file.
-# Defaults to the latest backup, or accepts a specific file as an argument ($1).
-# Works on the host computer (with docker compose) or inside a container.
 
 set -euo pipefail
 
@@ -23,16 +17,13 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # Load settings from .env file if it exists
 if [ -f "${ROOT_DIR}/.env" ]; then
-    set -a
     source "${ROOT_DIR}/.env" 2>/dev/null || true
-    set +a
 fi
 
 # Settings and default values
 POSTGRES_USER="${POSTGRES_USER:-postgres}"
 POSTGRES_DB="${POSTGRES_DB:-app}"
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
-export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD}}"
+export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD:-}}"
 
 TARGET_DB="${TARGET_DB:-${POSTGRES_DB}}"
 BACKUP_DIR="${BACKUP_DIR:-${SCRIPT_DIR}/dumps}"
@@ -139,9 +130,7 @@ fi
 END_TIME=$(date +%s%N)
 DURATION_MS=$(( (END_TIME - START_TIME) / 1000000 ))
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Summary
-# ──────────────────────────────────────────────────────────────────────────────
+
 echo -e "\n${GREEN}${BOLD}=====================================================${NC}"
 echo -e "${GREEN}${BOLD}      Restore Completed Successfully!                ${NC}"
 echo -e "${GREEN}${BOLD}=====================================================${NC}"
