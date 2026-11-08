@@ -3,8 +3,8 @@ import { useEffect, useState } from "react"
 import { JobsService, type JobPostCreate, type JobPostPublic } from "@/client"
 import { ClientJobEditor } from "@/components/client/client-job-editor"
 import { ClientJobsList } from "@/components/client/client-jobs-list"
-import { blankClientJob, type ClientJob } from "@/components/client/client-job-types"
-import { jobDescriptionLimit, readJobExperience, writeJobExperience } from "@/components/common/job-experience"
+import { blankClientJob, type ClientJob, validateJob } from "@/components/client/client-job-types"
+import { readJobExperience, writeJobExperience } from "@/components/common/job-experience"
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import useAuth from "@/hooks/useAuth"
 import { useErrorToast } from "@/hooks/useErrorToast"
@@ -104,12 +104,10 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 	}, [focusedJobId, jobs, jobsQuery.isSuccess, onFocusedJobChange])
 
 	const persistJob = (job: ClientJob) => {
-		if (job.description.trim().length > jobDescriptionLimit(job.experienceLevel)) {
-			toast.error("Shorten the project description before saving this job.")
-			return
-		}
-		if (job.status === "Open" && !job.category) {
-			toast.error("Choose a category before posting this job.")
+		// Closing a job needs no checks. Drafts and open jobs must pass the limits.
+		const problem = job.status === "Closed" ? null : validateJob(job)
+		if (problem) {
+			toast.error(problem)
 			return
 		}
 		saveMutation.mutate(job)

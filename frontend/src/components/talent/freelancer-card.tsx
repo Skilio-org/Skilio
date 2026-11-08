@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import { Bookmark, Clock3, MapPin, Send, Star, UserCheck, UserPlus } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { formatMoney } from "@/lib/currency"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -12,7 +13,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
-import { useConnectionStatus, useSendConnectionRequest } from "@/hooks/useConnections"
+import { connectionNoteMaxLength, useConnectionStatus, useSendConnectionRequest } from "@/hooks/useConnections"
 import useAuth from "@/hooks/useAuth"
 import type { TalentCard } from "./talent-api"
 import { cn } from "@/lib/utils"
@@ -38,8 +39,8 @@ export function FreelancerCard({
 	const handleSend = async (e: React.FormEvent) => {
 		e.preventDefault()
 		if (!targetUserId || isSelf) return
-		if (note.length > 300) {
-			toast.error("Note cannot exceed 300 characters.")
+		if (note.length > connectionNoteMaxLength) {
+			toast.error(`Note cannot exceed ${connectionNoteMaxLength} characters.`)
 			return
 		}
 		try {
@@ -128,7 +129,7 @@ export function FreelancerCard({
 			{/* Rate / rating */}
 			<div className="mb-3 flex flex-wrap items-center gap-3">
 				<div className="flex items-baseline gap-2 font-numeric-data text-numeric-data">
-					<span className="font-semibold text-[15px] text-on-surface">${freelancer.rate}</span>
+					<span className="font-semibold text-[15px] text-on-surface">{formatMoney(freelancer.rate)}</span>
 
 					<span className="font-caption text-caption text-on-surface-variant">/ hour</span>
 				</div>
@@ -234,16 +235,16 @@ export function FreelancerCard({
 								</label>
 								<span
 									className={`text-[11px] ${
-										note.length > 300 ? "text-destructive font-semibold" : "text-on-surface-variant"
+										note.length > connectionNoteMaxLength ? "text-destructive font-semibold" : "text-on-surface-variant"
 									}`}
 								>
-									{note.length}/300
+									{note.length}/{connectionNoteMaxLength}
 								</span>
 							</div>
 							<textarea
 								id="talent-connect-note"
 								rows={3}
-								maxLength={300}
+								maxLength={connectionNoteMaxLength}
 								placeholder="Add a brief note about your project or why you'd like to collaborate..."
 								value={note}
 								onChange={(e) => setNote(e.target.value)}
@@ -261,7 +262,7 @@ export function FreelancerCard({
 							</button>
 							<button
 								type="submit"
-								disabled={sendMutation.isPending || note.length > 300}
+								disabled={sendMutation.isPending || note.length > connectionNoteMaxLength}
 								className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-on-primary hover:bg-primary/90 disabled:opacity-50"
 							>
 								<Send className="size-3.5" />

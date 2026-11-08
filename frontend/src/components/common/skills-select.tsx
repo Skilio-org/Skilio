@@ -2,6 +2,9 @@ import { Plus, X } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
+export const maxSkills = 15
+export const maxSkillLength = 40
+
 const suggestedSkills = [
 	"Product design",
 	"UX research",
@@ -33,14 +36,18 @@ export function SkillsSelect({ value, onChange, label, inputId }: SkillsSelectPr
 	const [entry, setEntry] = useState("")
 
 	function addSkill(raw: string) {
-		const skill = raw.trim().slice(0, 40)
+		const skill = raw.trim()
 		if (!skill) return
+		if (skill.length > maxSkillLength) {
+			toast.error(`Each skill can be at most ${maxSkillLength} characters.`)
+			return
+		}
 		if (value.some((selected) => selected.toLowerCase() === skill.toLowerCase())) {
 			setEntry("")
 			return
 		}
-		if (value.length >= 15) {
-			toast.error("Choose up to 15 skills.")
+		if (value.length >= maxSkills) {
+			toast.error(`Choose up to ${maxSkills} skills.`)
 			return
 		}
 		onChange([...value, skill])
@@ -50,7 +57,7 @@ export function SkillsSelect({ value, onChange, label, inputId }: SkillsSelectPr
 	return (
 		<div>
 			<label htmlFor={inputId} className="font-medium text-sm">
-				{label} <span className="font-normal text-muted-foreground">({value.length}/15)</span>
+				{label} <span className="font-normal text-muted-foreground">({value.length}/{maxSkills})</span>
 			</label>
 			<div className="mt-2 flex gap-2">
 				<input
@@ -58,7 +65,7 @@ export function SkillsSelect({ value, onChange, label, inputId }: SkillsSelectPr
 					className={inputClass}
 					value={entry}
 					onChange={(event) => setEntry(event.target.value)}
-					maxLength={40}
+					maxLength={maxSkillLength}
 					placeholder="Add a skill"
 					onKeyDown={(event) => {
 						if (event.key === "Enter") {
@@ -71,6 +78,11 @@ export function SkillsSelect({ value, onChange, label, inputId }: SkillsSelectPr
 					Add
 				</button>
 			</div>
+			{entry.length > 0 && (
+				<p className="mt-1.5 text-right text-muted-foreground text-xs tabular-nums">
+					{entry.length}/{maxSkillLength}
+				</p>
+			)}
 			<div className="mt-4 flex flex-wrap gap-2">
 				{value.map((skill) => (
 					<button

@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, ArrowUpRight, Clock3, FileText, MapPin, Star, X } from "lucide-react"
 import { type ReactNode, useRef, useState } from "react"
+import { formatMoney } from "@/lib/currency"
 
 import { Monogram, SkillTag } from "@/components/dashboard/dashboard-header"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -158,9 +159,9 @@ export function FreelancerProfileView({
 						<p className="font-medium text-sm">{contactTitle ?? `Work with ${firstName}`}</p>
 						<div className="mt-4 flex items-baseline gap-2">
 							<p className="font-semibold text-3xl tabular-nums tracking-tight">
-								{profile.rate ? `$${profile.rate}` : "Rate not set"}
+								{profile.rate ? formatMoney(profile.rate) : "Rate not set"}
 							</p>
-							{profile.rate ? <span className="text-on-surface-variant text-sm">USD / hour</span> : null}
+							{profile.rate ? <span className="text-on-surface-variant text-sm">per hour</span> : null}
 						</div>
 						{(profile.availability || profile.weeklyCapacity) && (
 							<ul className="mt-4 space-y-2 border-outline-variant border-t pt-4 text-sm">

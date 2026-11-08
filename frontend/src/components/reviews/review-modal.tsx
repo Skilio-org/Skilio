@@ -27,8 +27,7 @@ type ReviewModalProps = {
 	isSubmitting: boolean
 }
 
-const MIN_COMMENT_LENGTH = 1
-const MAX_COMMENT_LENGTH = 3000
+const MAX_COMMENT_LENGTH = 200
 
 export function ReviewModal({
 	open,
@@ -40,7 +39,7 @@ export function ReviewModal({
 	onSubmit,
 	isSubmitting,
 }: ReviewModalProps) {
-	const [rating, setRating] = useState<number>(existingReview?.rating ?? 5)
+	const [rating, setRating] = useState<number>(existingReview?.rating ?? 0)
 	const [comment, setComment] = useState<string>(existingReview?.comment ?? "")
 	const [error, setError] = useState<string | null>(null)
 
@@ -48,7 +47,7 @@ export function ReviewModal({
 
 	useEffect(() => {
 		if (open) {
-			setRating(existingReview?.rating ?? 5)
+			setRating(existingReview?.rating ?? 0)
 			setComment(existingReview?.comment ?? "")
 			setError(null)
 		}
@@ -58,14 +57,14 @@ export function ReviewModal({
 		e.preventDefault()
 		setError(null)
 
-		if (!rating || rating < 1 || rating > 5) {
-			setError("Please choose a rating between 1 and 5 stars.")
+		if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+			setError("Please choose a rating from 1 to 5 stars.")
 			return
 		}
 
 		const trimmedComment = comment.trim()
-		if (trimmedComment.length < MIN_COMMENT_LENGTH) {
-			setError("Please write a few words about your experience working together.")
+		if (!trimmedComment) {
+			setError("Please write your feedback.")
 			return
 		}
 
@@ -140,7 +139,7 @@ export function ReviewModal({
 					<div className="space-y-2">
 						<div className="flex items-center justify-between">
 							<label htmlFor="review-comment" className="font-medium text-foreground text-sm">
-								Detailed feedback <span className="text-destructive">*</span>
+								Feedback <span className="text-destructive">*</span>
 							</label>
 							<span className={`text-xs ${isOverLimit ? "font-medium text-destructive" : "text-on-surface-variant"}`}>
 								{charCount} / {MAX_COMMENT_LENGTH.toLocaleString()}
@@ -149,6 +148,7 @@ export function ReviewModal({
 						<textarea
 							id="review-comment"
 							rows={4}
+							maxLength={MAX_COMMENT_LENGTH}
 							value={comment}
 							onChange={(e) => {
 								setComment(e.target.value)
@@ -187,7 +187,7 @@ export function ReviewModal({
 						</button>
 						<button
 							type="submit"
-							disabled={isSubmitting || isOverLimit}
+							disabled={isSubmitting || isOverLimit || rating === 0 || !comment.trim()}
 							className={cn(workspaceStyles.primaryAction, "disabled:cursor-not-allowed disabled:opacity-40")}
 						>
 							{isSubmitting && <Loader2 className="size-4 animate-spin" />}
