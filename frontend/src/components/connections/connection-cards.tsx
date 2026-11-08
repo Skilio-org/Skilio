@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import type { ReactNode } from "react"
-import { Briefcase, Check, MessageSquare, UserCheck, UserMinus, X } from "lucide-react"
+import { Briefcase, Check, MessageSquare, UserMinus, X } from "lucide-react"
 import type { ConnectionPublic } from "@/client"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -105,10 +105,6 @@ export function ConnectionCard({
 										{partnerName}
 									</ProfileLink>
 								</h4>
-								<Badge variant="success">
-									<UserCheck className="size-3" />
-									Connected
-								</Badge>
 							</div>
 							<p className="mt-0.5 font-medium text-on-surface-variant text-xs">{roleLabel(partner)}</p>
 							{connection.job_post && (
