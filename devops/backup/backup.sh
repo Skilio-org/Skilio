@@ -1,14 +1,7 @@
 #!/usr/bin/env bash
-# ──────────────────────────────────────────────────────────────────────────────
-# backup.sh — PostgreSQL Database Backup
-# ──────────────────────────────────────────────────────────────────────────────
-# Backs up the PostgreSQL database, compresses it with gzip, checks for errors,
-# and deletes old backup files to save disk space.
-# Works on the host computer (with docker compose) or inside a container.
 
 set -euo pipefail
 
-# Text colors
 BOLD='\033[1m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -23,9 +16,7 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # Load settings from .env file if it exists
 if [ -f "${ROOT_DIR}/.env" ]; then
-    set -a
     source "${ROOT_DIR}/.env" 2>/dev/null || true
-    set +a
 fi
 
 # Settings and default values
@@ -37,7 +28,6 @@ MAX_BACKUPS="${BACKUP_MAX_COUNT:-7}"
 
 BACKUP_DIR="${BACKUP_DIR:-${SCRIPT_DIR}/dumps}"
 
-# Make sure the backup folder exists
 mkdir -p "${BACKUP_DIR}"
 
 TIMESTAMP="$(date +"%Y%m%d_%H%M%S")"
@@ -60,20 +50,12 @@ echo -e "${BOLD}─────────────────────�
 # 1. Dump database and compress with gzip
 # ──────────────────────────────────────────────────────────────────────────────
 echo -e "\n${BLUE}==> [1/3] Dumping database and compressing with gzip...${NC}"
-START_TIME=$(date +%s%N)
 
 # Check if running inside a container or on the host computer
 if [ -n "${POSTGRES_HOST:-}" ] && command -v pg_dump >/dev/null 2>&1; then
     # Running inside container with direct network access to DB
-    pg_dump \
-        -h "${POSTGRES_HOST}" \
-        -p "${POSTGRES_PORT:-5432}" \
-        -U "${POSTGRES_USER}" \
-        -d "${POSTGRES_DB}" \
-        --clean \
-        --if-exists \
-        --no-owner \
-        --no-privileges | gzip -9 > "${BACKUP_FILE}"
+    pg_dump -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT:-5432}" -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" \
+        --clean --if-exists --no-owner --no-privileges | gzip -9 > "${BACKUP_FILE}"
 elif command -v docker >/dev/null 2>&1; then
     # Running on host computer using Docker Compose
     cd "${ROOT_DIR}"
@@ -82,20 +64,14 @@ elif command -v docker >/dev/null 2>&1; then
         echo -e "  Start it first with: ${BOLD}make up${NC}\n" >&2
         exit 1
     fi
-    docker compose exec -T db pg_dump \
-        -U "${POSTGRES_USER}" \
-        -d "${POSTGRES_DB}" \
-        --clean \
-        --if-exists \
-        --no-owner \
-        --no-privileges | gzip -9 > "${BACKUP_FILE}"
+    docker compose exec -T db pg_dump -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" \
+        --clean --if-exists --no-owner --no-privileges | gzip -9 > "${BACKUP_FILE}"
 else
     echo -e "${RED}[ERROR] Neither pg_dump nor docker was found in PATH!${NC}" >&2
     exit 1
 fi
 
-END_TIME=$(date +%s%N)
-DURATION_MS=$(( (END_TIME - START_TIME) / 1000000 ))
+echo -e "  ${GREEN}[✔] Database dump complete${NC}"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 2. Check the backup file
@@ -108,10 +84,10 @@ if [ ! -f "${BACKUP_FILE}" ] || [ ! -s "${BACKUP_FILE}" ]; then
     exit 1
 fi
 
-# Test the file with gzip to verify CRC checksum
+# Test the file with gzip to verify archive integrity
 if gzip -t "${BACKUP_FILE}" >/dev/null 2>&1; then
     FILE_SIZE=$(du -h "${BACKUP_FILE}" | cut -f1)
-    echo -e "  ${GREEN}[✔] File check passed (CRC verified, size: ${FILE_SIZE}, time: ${DURATION_MS}ms)${NC}"
+    echo -e "  ${GREEN}[✔] File check passed (verified, size: ${FILE_SIZE})${NC}"
 else
     echo -e "${RED}[ERROR] Corrupted file detected! gzip test failed.${NC}" >&2
     rm -f "${BACKUP_FILE}"
@@ -136,9 +112,7 @@ else
     echo -e "  [i] All backups are within the limit (${TOTAL_BACKUPS}/${MAX_BACKUPS} files). Nothing to delete."
 fi
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Summary
-# ──────────────────────────────────────────────────────────────────────────────
+
 echo -e "\n${GREEN}${BOLD}=====================================================${NC}"
 echo -e "${GREEN}${BOLD}      Backup Completed Successfully!                 ${NC}"
 echo -e "${GREEN}${BOLD}=====================================================${NC}"

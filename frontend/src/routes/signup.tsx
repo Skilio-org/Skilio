@@ -3,7 +3,7 @@ import { isLoggedIn } from "@/hooks/useAuth"
 import { SignupPage } from "@/pages/auth/signup-page"
 
 export const Route = createFileRoute("/signup")({
-	component: SignupRoute,
+	component: () => <SignupPage role={Route.useSearch().role} />,
 	validateSearch: (search: Record<string, unknown>): { role?: "client" | "freelancer" } => ({
 		role: search.role === "client" || search.role === "freelancer" ? search.role : undefined,
 	}),
@@ -20,7 +20,3 @@ export const Route = createFileRoute("/signup")({
 		],
 	}),
 })
-
-function SignupRoute() {
-	return <SignupPage role={Route.useSearch().role} />
-}

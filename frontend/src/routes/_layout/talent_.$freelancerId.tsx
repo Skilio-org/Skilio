@@ -12,12 +12,8 @@ export const Route = createFileRoute("/_layout/talent_/$freelancerId")({
 			throw error
 		}
 	},
-	component: FreelancerProfileRoute,
+	component: () => <TalentProfilePage person={Route.useLoaderData()} />,
 	head: ({ loaderData }) => ({
 		meta: [{ title: `${loaderData?.full_name ?? "Profile"} | Skilio` }],
 	}),
 })
-
-function FreelancerProfileRoute() {
-	return <TalentProfilePage person={Route.useLoaderData()} />
-}

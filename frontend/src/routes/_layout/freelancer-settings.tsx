@@ -3,18 +3,16 @@ import { z } from "zod"
 import { settingsSectionSchema } from "@/lib/settings"
 import { SettingsPage } from "@/pages/common/settings-page"
 export const Route = createFileRoute("/_layout/freelancer-settings")({
-	component: FreelancerSettings,
+	component: () => {
+		const { section = "profile" } = Route.useSearch()
+		const navigate = Route.useNavigate()
+		return (
+			<SettingsPage
+				section={section}
+				onSectionChange={(value) => void navigate({ search: { section: value }, replace: true })}
+			/>
+		)
+	},
 	validateSearch: z.object({ section: settingsSectionSchema.optional().catch(undefined) }),
 	head: () => ({ meta: [{ title: "Settings | Skilio" }] }),
 })
-
-function FreelancerSettings() {
-	const { section = "profile" } = Route.useSearch()
-	const navigate = Route.useNavigate()
-	return (
-		<SettingsPage
-			section={section}
-			onSectionChange={(value) => void navigate({ search: { section: value }, replace: true })}
-		/>
-	)
-}

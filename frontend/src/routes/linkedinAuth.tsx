@@ -11,7 +11,7 @@ const linkedinAuthSearchSchema = z.object({
 })
 
 export const Route = createFileRoute("/linkedinAuth")({
-	component: LinkedinAuthCallbackRoute,
+	component: () => null,
 	validateSearch: (search) => linkedinAuthSearchSchema.parse(search),
 	loaderDeps: ({ search }) => ({
 		code: search.code,
@@ -57,7 +57,3 @@ export const Route = createFileRoute("/linkedinAuth")({
 		throw redirect({ to: "/dashboard" })
 	},
 })
-
-function LinkedinAuthCallbackRoute() {
-	return null
-}
