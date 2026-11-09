@@ -4583,6 +4583,36 @@ export type chatCreateOrGetConversationResponses = {
 
 export type chatCreateOrGetConversationResponse = chatCreateOrGetConversationResponses[keyof chatCreateOrGetConversationResponses];
 
+export type chatDeleteMessageData = {
+    body?: never;
+    path: {
+        /**
+         * Message Id
+         */
+        message_id: string;
+    };
+    query?: never;
+    url: '/api/v1/chat/conversation/message/{message_id}';
+};
+
+export type chatDeleteMessageErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type chatDeleteMessageError = chatDeleteMessageErrors[keyof chatDeleteMessageErrors];
+
+export type chatDeleteMessageResponses = {
+    /**
+     * Successful Response
+     */
+    200: ChatMessagePublic;
+};
+
+export type chatDeleteMessageResponse = chatDeleteMessageResponses[keyof chatDeleteMessageResponses];
+
 export type chatSendMessageRestData = {
     body: ChatMessagePost;
     path: {

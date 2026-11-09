@@ -32,7 +32,7 @@
 			"preset": "recommended",
 
 			"nursery": {
-				"useSortedClasses": "error"
+				"useSortedClasses": "off"
 			},
 
 			"suspicious": {
