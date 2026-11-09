@@ -2,36 +2,8 @@ import { Link } from "@tanstack/react-router"
 import { MapPin, Star } from "lucide-react"
 import { freelancers } from "@/data/freelancers"
 
-const CATEGORIES = [
-	"All talent",
-	"Full-Stack Engineering",
-	"Product & UI/UX Design",
-	"Mobile Development",
-	"E-Commerce & Marketing",
-]
-
-const TERMS_MAP: Record<string, string[]> = {
-	"Full-Stack Engineering": ["engineer", "react", "typescript", "full-stack", "postgres", "node"],
-	"Product & UI/UX Design": ["design", "product", "figma", "ux", "ui"],
-	"Mobile Development": ["mobile", "flutter", "react native", "ios", "android"],
-	"E-Commerce & Marketing": ["brand", "marketing", "growth", "seo", "shopify", "ecommerce", "e-commerce"],
-}
-
-export function LandingTalent({
-	filter,
-	onFilter,
-}: {
-	filter: string
-	onFilter: (value: string) => void
-}) {
-	const filteredPeople = freelancers.filter((person) => {
-		if (filter === "All talent") return true
-		const searchTerms = TERMS_MAP[filter] || []
-		const content = `${person.title} ${person.skills.join(" ")} ${person.bio}`.toLowerCase()
-		return searchTerms.some((term) => content.includes(term))
-	})
-
-	const displayPeople = (filteredPeople.length > 0 ? filteredPeople : freelancers).slice(0, 3)
+export function LandingTalent() {
+	const displayPeople = freelancers.slice(0, 3)
 
 	return (
 		<section id="talent" className="scroll-mt-20 landing-section">
@@ -45,27 +17,6 @@ export function LandingTalent({
 						Browse verified portfolios, inspect practical experience, and connect with developers
 						and designers directly.
 					</p>
-				</div>
-
-				{/* Filter Tabs - horizontally scrollable on mobile */}
-				<div className="mt-8 sm:mt-12 flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap no-scrollbar">
-					{CATEGORIES.map((cat) => {
-						const active = filter === cat
-						return (
-							<button
-								key={cat}
-								type="button"
-								onClick={() => onFilter(cat)}
-								className={`shrink-0 rounded-full px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-medium transition-colors ${
-									active
-										? "bg-primary text-primary-foreground"
-										: "border border-border/80 bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-								}`}
-							>
-								{cat}
-							</button>
-						)
-					})}
 				</div>
 
 				{/* Talent Cards Grid */}
