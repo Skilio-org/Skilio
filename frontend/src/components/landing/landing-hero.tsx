@@ -1,21 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { Search } from "lucide-react"
-import { useCategories } from "@/hooks/useCategories"
-
-const PLATFORM_CATEGORIES = [
-	"Web Mobile & Software Dev",
-	"Design & Creative",
-	"Ai & Automations",
-	"Data Science & Analytics",
-	"Sales & Marketing",
-	"IT & Networking",
-	"Engineering & Architecture",
-	"Writing",
-	"Accounting & Consulting",
-	"Customer Service",
-	"Legal",
-]
+import { PLATFORM_CATEGORIES, useCategories } from "@/hooks/useCategories"
 
 export function LandingHero() {
 	const [roleMode, setRoleMode] = useState<"hire" | "work">("hire")

@@ -41,7 +41,7 @@ export function LandingHeader() {
 							{links.map(([href, label]) => (
 								<a
 									key={href}
-									href={href}
+									href={pathname === "/" ? href : `/${href}`}
 									className="flex h-full items-center whitespace-nowrap font-label-md font-medium text-label-md text-on-surface-variant transition-colors hover:text-on-surface"
 								>
 									{label}
@@ -96,7 +96,10 @@ export function LandingHeader() {
 							{!isStatusPage &&
 								links.map(([href, label]) => (
 									<DropdownMenuItem key={href} asChild>
-										<a href={href} className="flex min-h-9 items-center font-label-md text-label-md">
+										<a
+											href={pathname === "/" ? href : `/${href}`}
+											className="flex min-h-9 items-center font-label-md text-label-md"
+										>
 											{label}
 										</a>
 									</DropdownMenuItem>
