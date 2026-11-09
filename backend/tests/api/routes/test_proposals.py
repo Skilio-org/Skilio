@@ -40,10 +40,11 @@ def _create_open_job(client: TestClient, client_headers: dict[str, str]) -> str:
         headers=client_headers,
         json={
             "title": "Fullstack Web App Development",
-            "description": "Looking for a fullstack developer with React and FastAPI.",
+            "description": "Experience level: Intermediate\n\nLooking for an experienced fullstack developer with React and FastAPI to build features.",
             "budget_type": "fixed",
             "budget": 2000.0,
             "skills": ["Python", "FastAPI", "React"],
+            "level": "Intermediate",
         },
     )
     assert response.status_code == 200
