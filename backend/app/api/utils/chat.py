@@ -109,6 +109,13 @@ async def chat_message(data: dict[any, any], websocket: WebSocket, user_id: uuid
     conv_id_raw = data.get("conversation_id")
     content = (data.get("content") or "").strip()
     client_message_id = data.get("client_message_id")
+    if client_message_id is None:
+        await chat_send_error_message(
+            websocket,
+            "",
+            "missing client_message_id"
+        )
+        return
     if not conv_id_raw or not content:
         await chat_send_error_message(
             websocket,
@@ -161,6 +168,7 @@ async def chat_message(data: dict[any, any], websocket: WebSocket, user_id: uuid
         session.add(conv)
         session.commit()
         session.refresh(new_msg)
+        # new_msg.id
 
         recipient_id = (
             conv.freelancer_id

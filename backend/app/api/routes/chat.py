@@ -233,6 +233,51 @@ def create_or_get_conversation(
     return _build_conversation_public(new_conv, current_user.id, session)
 
 
+@router.delete("/conversation/message/{message_id}", response_model=ChatMessagePublic)
+async def delete_message(
+    message_id: str,
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> Any:
+    """
+    Delete a message from a conversation.
+    """
+    uuid_message = uuid.UUID(message_id)
+    message = session.get(ChatMessage, uuid_message)
+    if not message:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Message not found",
+        )
+    conversation = session.get(Conversation, message.conversation_id)
+    if not conversation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Conversation not found",
+        )
+
+    if message.sender_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this message",
+        )
+
+    session.delete(message)
+    session.commit()
+
+    await publish_to_user(
+        conversation.client_id if conversation.client_id != current_user.id else conversation.freelancer_id,
+        payload={
+            "type": "message_deleted",
+            "data": {
+                "id": str(message.id),
+                "conversation_id": str(message.conversation_id),
+            },
+        },
+    )
+
+    return ChatMessagePublic.model_validate(message)
+
 @router.post(
     "/conversation/{conversation_id}/messages",
     response_model=ChatMessagePublic,
