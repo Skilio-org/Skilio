@@ -1,6 +1,7 @@
-import { Quote, Star } from "lucide-react"
+import { Quote } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
+import { StarRatingDisplay } from "@/components/reviews/review-stars"
 
 const TESTIMONIALS = [
 	{
@@ -52,11 +53,7 @@ export function LandingTestimonials() {
 							className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 sm:p-6 transition-colors hover:border-outline"
 						>
 							<CardContent className="p-0">
-								<div className="flex items-center gap-1 text-primary">
-									{Array.from({ length: 5 }).map((_, i) => (
-										<Star key={i} className="size-3.5 sm:size-4 fill-primary text-primary" />
-									))}
-								</div>
+								<StarRatingDisplay rating={5} size="sm" />
 
 								<div className="relative mt-4 sm:mt-5">
 									<Quote className="size-6 text-muted-foreground/20 absolute -top-2 -left-1" />

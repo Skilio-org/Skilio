@@ -1,8 +1,23 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowUp } from "lucide-react"
 import skilioLogo from "/assets/images/skilio-logo.svg"
+import { PLATFORM_CATEGORIES } from "@/data/categories"
 
-const FOOTER_SECTIONS = [
+type FooterLink = {
+	label: string
+	href: string
+	isAnchor?: boolean
+	search?: Record<string, string>
+}
+
+type FooterSection = {
+	title: string
+	links: FooterLink[]
+}
+
+const CURRENT_YEAR = new Date().getFullYear()
+
+const FOOTER_SECTIONS: FooterSection[] = [
 	{
 		title: "Platform",
 		links: [
@@ -15,50 +30,12 @@ const FOOTER_SECTIONS = [
 	},
 	{
 		title: "Specialties",
-		links: [
-			{
-				label: "Web Mobile & Software Dev",
-				href: "/talent",
-				search: { category: "Web Mobile & Software Dev" },
-				isAnchor: false,
-			},
-			{
-				label: "Design & Creative",
-				href: "/talent",
-				search: { category: "Design & Creative" },
-				isAnchor: false,
-			},
-			{
-				label: "Ai & Automations",
-				href: "/talent",
-				search: { category: "Ai & Automations" },
-				isAnchor: false,
-			},
-			{
-				label: "Data Science & Analytics",
-				href: "/talent",
-				search: { category: "Data Science & Analytics" },
-				isAnchor: false,
-			},
-			{
-				label: "Sales & Marketing",
-				href: "/talent",
-				search: { category: "Sales & Marketing" },
-				isAnchor: false,
-			},
-			{
-				label: "Engineering & Architecture",
-				href: "/talent",
-				search: { category: "Engineering & Architecture" },
-				isAnchor: false,
-			},
-			{
-				label: "IT & Networking",
-				href: "/talent",
-				search: { category: "IT & Networking" },
-				isAnchor: false,
-			},
-		],
+		links: PLATFORM_CATEGORIES.slice(0, 7).map((category) => ({
+			label: category,
+			href: "/talent",
+			search: { category },
+			isAnchor: false,
+		})),
 	},
 	{
 		title: "Company",
@@ -120,7 +97,7 @@ export function LandingFooter() {
 											) : (
 												<Link
 													to={link.href as any}
-													search={(link as any).search}
+													search={(link.search as any)}
 													className="inline-flex items-center gap-1 hover:text-white transition-colors duration-150"
 												>
 													{link.label}
@@ -136,7 +113,7 @@ export function LandingFooter() {
 
 				{/* Bottom Bar */}
 				<div className="mt-12 sm:mt-16 flex flex-col gap-4 border-t border-white/10 pt-6 sm:pt-8 text-xs text-neutral-400 sm:flex-row sm:items-center sm:justify-between">
-					<p>© {new Date().getFullYear()} Skilio. All rights reserved.</p>
+					<p>© {CURRENT_YEAR} Skilio. All rights reserved.</p>
 
 					<button
 						type="button"
