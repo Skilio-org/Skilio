@@ -16,11 +16,48 @@ const FOOTER_SECTIONS = [
 	{
 		title: "Specialties",
 		links: [
-			{ label: "Full-Stack Dev", href: "#talent", isAnchor: true },
-			{ label: "Product & UI/UX", href: "#talent", isAnchor: true },
-			{ label: "Mobile Development", href: "#talent", isAnchor: true },
-			{ label: "Cloud & DevOps", href: "#talent", isAnchor: true },
-			{ label: "AI & Automation", href: "#talent", isAnchor: true },
+			{
+				label: "Web Mobile & Software Dev",
+				href: "/talent",
+				search: { category: "Web Mobile & Software Dev" },
+				isAnchor: false,
+			},
+			{
+				label: "Design & Creative",
+				href: "/talent",
+				search: { category: "Design & Creative" },
+				isAnchor: false,
+			},
+			{
+				label: "Ai & Automations",
+				href: "/talent",
+				search: { category: "Ai & Automations" },
+				isAnchor: false,
+			},
+			{
+				label: "Data Science & Analytics",
+				href: "/talent",
+				search: { category: "Data Science & Analytics" },
+				isAnchor: false,
+			},
+			{
+				label: "Sales & Marketing",
+				href: "/talent",
+				search: { category: "Sales & Marketing" },
+				isAnchor: false,
+			},
+			{
+				label: "Engineering & Architecture",
+				href: "/talent",
+				search: { category: "Engineering & Architecture" },
+				isAnchor: false,
+			},
+			{
+				label: "IT & Networking",
+				href: "/talent",
+				search: { category: "IT & Networking" },
+				isAnchor: false,
+			},
 		],
 	},
 	{
@@ -83,6 +120,7 @@ export function LandingFooter() {
 											) : (
 												<Link
 													to={link.href as any}
+													search={(link as any).search}
 													className="inline-flex items-center gap-1 hover:text-white transition-colors duration-150"
 												>
 													{link.label}

@@ -1,57 +1,69 @@
 import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { ChevronDown, Search } from "lucide-react"
+import { useCategories } from "@/hooks/useCategories"
 
-const CATEGORIES = [
-	"All Categories",
-	"Full-Stack Development",
-	"Product & UI/UX Design",
-	"Mobile App Development",
-	"E-Commerce & Shopify",
-	"Cloud & DevOps",
-]
-
-const QUICK_TAGS = [
-	{ label: "Next.js & React", query: "React" },
-	{ label: "UI/UX & Figma", query: "Design" },
-	{ label: "Mobile (Flutter / iOS)", query: "Mobile" },
-	{ label: "Shopify & E-Commerce", query: "Shopify" },
-	{ label: "Node.js & Python", query: "Node" },
+const PLATFORM_CATEGORIES = [
+	"Web Mobile & Software Dev",
+	"Design & Creative",
+	"Ai & Automations",
+	"Data Science & Analytics",
+	"Sales & Marketing",
+	"IT & Networking",
+	"Engineering & Architecture",
+	"Writing",
+	"Accounting & Consulting",
+	"Customer Service",
+	"Legal",
 ]
 
 export function LandingHero({
 	onSearchSelect,
 }: {
 	onSearchSelect?: (tag: string) => void
-}) {
+} = {}) {
 	const [roleMode, setRoleMode] = useState<"hire" | "work">("hire")
 	const [searchQuery, setSearchQuery] = useState("")
 	const [category, setCategory] = useState("All Categories")
 	const [isCatOpen, setIsCatOpen] = useState(false)
 	const navigate = useNavigate()
 
+	const { data: remoteCategories } = useCategories()
+	const categories =
+		remoteCategories && remoteCategories.length > 0 ? remoteCategories : PLATFORM_CATEGORIES
+
 	const handleSearch = (e: React.FormEvent) => {
 		e.preventDefault()
 		if (roleMode === "hire") {
-			if (onSearchSelect && searchQuery) {
-				onSearchSelect(searchQuery)
-				document.getElementById("talent")?.scrollIntoView({ behavior: "smooth" })
-			} else {
-				navigate({
-					to: "/talent",
-					search: { q: searchQuery || undefined, category: undefined },
-				})
-			}
+			navigate({
+				to: "/talent",
+				search: {
+					q: searchQuery.trim() || undefined,
+					category: category === "All Categories" ? undefined : category,
+				},
+			})
 		} else {
-			navigate({ to: "/signup", search: { role: "freelancer" } })
+			navigate({
+				to: "/freelancer-jobs",
+				search: {
+					q: searchQuery.trim() || undefined,
+				},
+			})
 		}
 	}
 
-	const handleTagClick = (tag: string) => {
-		setSearchQuery(tag)
-		if (onSearchSelect) {
-			onSearchSelect(tag)
-			document.getElementById("talent")?.scrollIntoView({ behavior: "smooth" })
+	const handleCategoryClick = (cat: string) => {
+		setCategory(cat)
+		if (roleMode === "hire") {
+			navigate({
+				to: "/talent",
+				search: { category: cat },
+			})
+		} else {
+			navigate({
+				to: "/freelancer-jobs",
+				search: { q: cat },
+			})
 		}
 	}
 
@@ -129,8 +141,8 @@ export function LandingHero({
 							</button>
 
 							{isCatOpen && (
-								<div className="absolute top-full left-0 right-0 sm:left-auto sm:right-0 z-30 mt-1.5 w-full sm:w-56 rounded-xl border border-border bg-card p-1.5 shadow-md">
-									{CATEGORIES.map((cat) => (
+								<div className="absolute top-full left-0 right-0 sm:left-auto sm:right-0 z-30 mt-1.5 w-full sm:w-64 max-h-72 overflow-y-auto rounded-xl border border-border bg-card p-1.5 shadow-md">
+									{["All Categories", ...categories].map((cat) => (
 										<button
 											key={cat}
 											type="button"
@@ -159,14 +171,14 @@ export function LandingHero({
 					{/* Trending Pills */}
 					<div className="mt-3.5 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-xs">
 						<span className="text-muted-foreground font-medium text-[11px] sm:text-xs">Trending:</span>
-						{QUICK_TAGS.map((tag) => (
+						{categories.slice(0, 6).map((cat) => (
 							<button
-								key={tag.label}
+								key={cat}
 								type="button"
-								onClick={() => handleTagClick(tag.query)}
+								onClick={() => handleCategoryClick(cat)}
 								className="rounded-full border border-border/80 bg-card/80 px-2.5 py-1 text-[11px] sm:text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:bg-card hover:text-foreground"
 							>
-								{tag.label}
+								{cat}
 							</button>
 						))}
 					</div>
