@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router"
 import { BriefcaseBusiness, Check, ChevronDown, LogOut, Settings, UserRound } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
-import { type UserPublic, UsersService } from "@/client"
+import { type UserMe, UsersService } from "@/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
 	DropdownMenu,
@@ -21,7 +21,7 @@ import { getInitials } from "@/lib/format"
 
 type AccountRole = "freelancer" | "client"
 
-export function User({ user }: { user?: UserPublic | null }) {
+export function User({ user }: { user?: UserMe | null }) {
 	const queryClient = useQueryClient()
 	const navigate = useNavigate()
 	const { logout } = useAuth()

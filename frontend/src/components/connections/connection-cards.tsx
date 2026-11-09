@@ -10,23 +10,21 @@ import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { getInitials } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
-type Person = ConnectionPublic["sender"]
-
-const roleLabel = (person: Person) => (person?.active_role === "client" ? "Client" : "Specialist")
+const roleLabel = (isSpecialist: boolean) => (isSpecialist ? "Specialist" : "Client")
 
 // Specialists have a profile page you can open. Clients don't, so for them this just shows the content.
 function ProfileLink({
-	person,
+	isSpecialist,
 	id,
 	className,
 	children,
 }: {
-	person: Person
+	isSpecialist: boolean
 	id: string
 	className?: string
 	children: ReactNode
 }) {
-	if (person?.active_role === "client") return <>{children}</>
+	if (!isSpecialist) return <>{children}</>
 	return (
 		<Link to="/talent/$freelancerId" params={{ freelancerId: id }} search={{ q: undefined }} className={className}>
 			{children}
@@ -82,6 +80,7 @@ export function ConnectionCard({
 	const partner = connection.sender_id === userId ? connection.receiver : connection.sender
 	const partnerName = partner?.full_name || "Platform Member"
 	const partnerId = partner?.id || (connection.sender_id === userId ? connection.receiver_id : connection.sender_id)
+	const isSpecialist = connection.freelancer_id === partnerId
 
 	return (
 		<Card className="group rounded-xl border border-outline-variant bg-surface-container-lowest p-5 transition-all duration-150 hover:border-outline hover:shadow-xs">
@@ -89,7 +88,7 @@ export function ConnectionCard({
 				<div className="flex items-start justify-between gap-3">
 					<div className="flex min-w-0 items-start gap-3.5">
 						<div className="relative shrink-0">
-							<ProfileLink person={partner} id={partnerId} className="shrink-0 rounded-lg">
+							<ProfileLink isSpecialist={isSpecialist} id={partnerId} className="shrink-0 rounded-lg">
 								<PersonAvatar id={partnerId} name={partnerName} />
 							</ProfileLink>
 							<span
@@ -101,12 +100,12 @@ export function ConnectionCard({
 						<div className="min-w-0 flex-1">
 							<div className="flex flex-wrap items-center gap-2">
 								<h4 className="truncate font-headline-sm font-semibold text-base text-on-surface">
-									<ProfileLink person={partner} id={partnerId} className="hover:underline">
+									<ProfileLink isSpecialist={isSpecialist} id={partnerId} className="hover:underline">
 										{partnerName}
 									</ProfileLink>
 								</h4>
 							</div>
-							<p className="mt-0.5 font-medium text-on-surface-variant text-xs">{roleLabel(partner)}</p>
+							<p className="mt-0.5 font-medium text-on-surface-variant text-xs">{roleLabel(isSpecialist)}</p>
 							{connection.job_post && (
 								<div className="mt-1.5 flex items-center gap-1.5 text-on-surface-variant text-xs">
 									<Briefcase className="size-3.5 shrink-0 text-link" />
@@ -165,18 +164,19 @@ export function ReceivedRequestCard({
 }) {
 	const name = connection.sender?.full_name || "Platform Member"
 	const senderId = connection.sender?.id || connection.sender_id
+	const isSpecialist = connection.freelancer_id === senderId
 
 	return (
 		<Card className={requestCard}>
 			<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 				<div className="flex min-w-0 items-start gap-3.5">
-					<ProfileLink person={connection.sender} id={senderId} className="shrink-0 rounded-lg">
+					<ProfileLink isSpecialist={isSpecialist} id={senderId} className="shrink-0 rounded-lg">
 						<PersonAvatar id={senderId} name={name} />
 					</ProfileLink>
 					<div className="min-w-0 space-y-1">
 						<div className="flex flex-wrap items-center gap-2">
 							<h4 className="font-headline-sm font-semibold text-base text-on-surface">
-								<ProfileLink person={connection.sender} id={senderId} className="hover:underline">
+								<ProfileLink isSpecialist={isSpecialist} id={senderId} className="hover:underline">
 									{name}
 								</ProfileLink>
 							</h4>
@@ -185,7 +185,7 @@ export function ReceivedRequestCard({
 							</Badge>
 						</div>
 						<p className="font-medium text-on-surface-variant text-xs">
-							{roleLabel(connection.sender)} • Wants to connect with you
+							{roleLabel(isSpecialist)} • Wants to connect with you
 						</p>
 						<RequestDetails connection={connection} />
 					</div>
@@ -231,18 +231,19 @@ export function SentRequestCard({
 }) {
 	const name = connection.receiver?.full_name || "Platform Member"
 	const receiverId = connection.receiver?.id || connection.receiver_id
+	const isSpecialist = connection.freelancer_id === receiverId
 
 	return (
 		<Card className={requestCard}>
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div className="flex min-w-0 items-start gap-3.5">
-					<ProfileLink person={connection.receiver} id={receiverId} className="shrink-0 rounded-lg">
+					<ProfileLink isSpecialist={isSpecialist} id={receiverId} className="shrink-0 rounded-lg">
 						<PersonAvatar id={receiverId} name={name} />
 					</ProfileLink>
 					<div className="min-w-0 space-y-1">
 						<div className="flex flex-wrap items-center gap-2">
 							<h4 className="font-headline-sm font-semibold text-base text-on-surface">
-								<ProfileLink person={connection.receiver} id={receiverId} className="hover:underline">
+								<ProfileLink isSpecialist={isSpecialist} id={receiverId} className="hover:underline">
 									{name}
 								</ProfileLink>
 							</h4>
@@ -251,7 +252,7 @@ export function SentRequestCard({
 							</Badge>
 						</div>
 						<p className="font-medium text-on-surface-variant text-xs">
-							{roleLabel(connection.receiver)} • Awaiting their response
+							{roleLabel(isSpecialist)} • Awaiting their response
 						</p>
 						<RequestDetails connection={connection} />
 					</div>

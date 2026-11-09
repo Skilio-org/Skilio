@@ -3,7 +3,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import {
 	type ChatMessagePublic,
 	type ConversationDetailPublic,
-	type ConversationPublic,
 	type ConversationsPublic,
 } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
@@ -44,20 +43,19 @@ export function useChatEventHandlers() {
 			message: ChatMessagePublic,
 			{ incrementUnread = true, isViewingConversation = false }: ChatMessageUpdateOptions = {},
 		) => {
-			const current = queryClient.getQueryData<ConversationsPublic>(chatKeys.conversations())
-			if (current == undefined) {
-				// toast.error("No conversations found in cache for incoming message. reload")
-				return
-			}
-			let conversation: ConversationPublic | undefined = current?.data.find(
-				(item) => item.id === message.conversation_id,
-			)
+			let foundInAny = false
+			const allQueries = queryClient.getQueriesData<ConversationsPublic>({
+				queryKey: [...chatKeys.all, "conversations"],
+			})
 
-			// console.log("handleIncomingMessage called with message
-			// :", message)
-			// alert("M!!!")
-			/// BUG: `useProfiles` takes conversations.. here it does not!!
-			if (!conversation) {
+			for (const [, queryData] of allQueries) {
+				if (queryData?.data?.some((item) => item.id === message.conversation_id)) {
+					foundInAny = true
+					break
+				}
+			}
+
+			if (!foundInAny) {
 				queryClient.setQueryData(
 					chatKeys.conversation(message.conversation_id),
 					(current: ConversationDetailPublic | undefined) => {
@@ -74,22 +72,30 @@ export function useChatEventHandlers() {
 					},
 				)
 				await queryClient.refetchQueries({
-					queryKey: chatKeys.conversations(),
+					queryKey: [...chatKeys.all, "conversations"],
 				})
 				return
 			}
 
-			queryClient.setQueryData<ConversationsPublic>(chatKeys.conversations(), {
-				...current,
-				data: [
-					{
-						...conversation,
-						last_message: message,
-						unread_count: (conversation.unread_count ?? 0) + (incrementUnread && !isViewingConversation ? 1 : 0),
-					},
-					...current.data.filter((item) => item.id !== message.conversation_id),
-				],
-			})
+			queryClient.setQueriesData<ConversationsPublic>(
+				{ queryKey: [...chatKeys.all, "conversations"] },
+				(current) => {
+					if (!current) return current
+					const conversation = current.data.find((item) => item.id === message.conversation_id)
+					if (!conversation) return current
+					return {
+						...current,
+						data: [
+							{
+								...conversation,
+								last_message: message,
+								unread_count: (conversation.unread_count ?? 0) + (incrementUnread && !isViewingConversation ? 1 : 0),
+							},
+							...current.data.filter((item) => item.id !== message.conversation_id),
+						],
+					}
+				},
+			)
 
 			queryClient.setQueryData(
 				chatKeys.conversation(message.conversation_id),
@@ -106,7 +112,6 @@ export function useChatEventHandlers() {
 					}
 				},
 			)
-			// alert("Updated conversation: " + (conversation.unread_count ?? 0) + 1);
 		},
 		[queryClient],
 	)

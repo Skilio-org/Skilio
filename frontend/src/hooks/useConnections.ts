@@ -7,9 +7,10 @@ export const connectionNoteMaxLength = 300
 
 export const connectionKeys = {
 	all: ["connections"] as const,
-	list: (status?: ConnectionStatus | null, direction?: string | null) =>
-		[...connectionKeys.all, "list", { status, direction }] as const,
-	status: (targetUserId: string) => [...connectionKeys.all, "status", targetUserId] as const,
+	list: (status?: ConnectionStatus | null, direction?: string | null, role?: string | null) =>
+		[...connectionKeys.all, "list", { status, direction, role }] as const,
+	status: (targetUserId: string, role?: string | null) =>
+		[...connectionKeys.all, "status", targetUserId, role ?? "active"] as const,
 }
 
 const noConnection = { status: "none" as const, connection_id: null }
@@ -22,16 +23,22 @@ function errorMessage(error: unknown, fallback: string) {
 export function useConnections(options?: {
 	status?: ConnectionStatus | null
 	direction?: "all" | "sent" | "received" | null
+	role?: "client" | "freelancer" | null
 }) {
 	const status = options?.status ?? null
 	const direction = options?.direction ?? null
+	const role = options?.role ?? null
 
 	return useQuery({
-		queryKey: connectionKeys.list(status, direction),
+		queryKey: connectionKeys.list(status, direction, role),
 		queryFn: async ({ signal }) => {
 			try {
 				const response = await ConnectionsService.listConnections({
-					query: { status: status ?? undefined, direction: direction ?? undefined },
+					query: {
+						status: status ?? undefined,
+						direction: direction ?? undefined,
+						role: (role as any) ?? undefined,
+					},
 					signal,
 				})
 				return response.data || []
@@ -43,15 +50,16 @@ export function useConnections(options?: {
 }
 
 // Relationship with one user: "none" | "pending_sent" | "pending_received" | "connected".
-export function useConnectionStatus(targetUserId?: string | null) {
+export function useConnectionStatus(targetUserId?: string | null, role?: "client" | "freelancer" | null) {
 	return useQuery({
-		queryKey: connectionKeys.status(targetUserId || ""),
+		queryKey: connectionKeys.status(targetUserId || "", role),
 		enabled: Boolean(targetUserId),
 		queryFn: async ({ signal }) => {
 			if (!targetUserId) return noConnection
 			try {
 				const response = await ConnectionsService.getConnectionStatus({
 					path: { target_user_id: targetUserId },
+					query: { role: (role as any) ?? undefined },
 					signal,
 				})
 				return response.data

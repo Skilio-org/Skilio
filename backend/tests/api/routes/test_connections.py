@@ -549,3 +549,143 @@ def test_list_connections_pagination_limit(client: TestClient, db: Session) -> N
         headers=headers,
     )
     assert resp.status_code == 422
+
+
+def test_dual_connections_opposite_directions_and_role_filtering(
+    client: TestClient, db: Session
+) -> None:
+    client_a_headers, _, user_a = create_user_with_role(
+        client, db, UserRole.CLIENT
+    )
+    freelancer_b_headers, _, user_b = create_user_with_role(
+        client, db, UserRole.FREELANCER
+    )
+
+    # 1. User A (Client) sends connection request to User B (Freelancer)
+    resp1 = client.post(
+        f"{settings.API_V1_STR}/connections/",
+        headers=client_a_headers,
+        json={"receiver_id": str(user_b.id)},
+    )
+    assert resp1.status_code == 201
+    conn1 = resp1.json()
+    conn1_id = conn1["id"]
+    assert conn1["client_id"] == str(user_a.id)
+    assert conn1["freelancer_id"] == str(user_b.id)
+    assert conn1["sender_id"] == str(user_a.id)
+    assert conn1["receiver_id"] == str(user_b.id)
+
+    # Privacy verification on sender and receiver UserPublic objects
+    assert "active_role" not in conn1["sender"]
+    assert "email" not in conn1["sender"]
+    assert "is_superuser" not in conn1["sender"]
+    assert "active_role" not in conn1["receiver"]
+    assert "email" not in conn1["receiver"]
+    assert "is_superuser" not in conn1["receiver"]
+
+    # User B accepts conn1
+    accept1 = client.post(
+        f"{settings.API_V1_STR}/connections/{conn1_id}/accept",
+        headers=freelancer_b_headers,
+    )
+    assert accept1.status_code == 200
+
+    # 2. User B (now acting as Client) sends connection request to User A (acting as Freelancer)
+    resp2 = client.post(
+        f"{settings.API_V1_STR}/connections/",
+        headers=freelancer_b_headers,
+        json={"receiver_id": str(user_a.id), "as_role": "client"},
+    )
+    assert resp2.status_code == 201
+    conn2 = resp2.json()
+    conn2_id = conn2["id"]
+    assert conn2["client_id"] == str(user_b.id)
+    assert conn2["freelancer_id"] == str(user_a.id)
+    assert conn2["sender_id"] == str(user_b.id)
+    assert conn2["receiver_id"] == str(user_a.id)
+    # The two connection records must be completely distinct
+    assert conn1_id != conn2_id
+
+    # User A accepts conn2
+    accept2 = client.post(
+        f"{settings.API_V1_STR}/connections/{conn2_id}/accept",
+        headers=client_a_headers,
+    )
+    assert accept2.status_code == 200
+
+    # 3. Role filtering on GET /connections/ for User A
+    # As client: User A only sees conn1
+    u_a_client_resp = client.get(
+        f"{settings.API_V1_STR}/connections/?role=client&status=accepted",
+        headers=client_a_headers,
+    )
+    assert u_a_client_resp.status_code == 200
+    u_a_client_ids = [c["id"] for c in u_a_client_resp.json()["data"]]
+    assert conn1_id in u_a_client_ids
+    assert conn2_id not in u_a_client_ids
+
+    # As freelancer: User A only sees conn2
+    u_a_freelancer_resp = client.get(
+        f"{settings.API_V1_STR}/connections/?role=freelancer&status=accepted",
+        headers=client_a_headers,
+    )
+    assert u_a_freelancer_resp.status_code == 200
+    u_a_freelancer_ids = [c["id"] for c in u_a_freelancer_resp.json()["data"]]
+    assert conn2_id in u_a_freelancer_ids
+    assert conn1_id not in u_a_freelancer_ids
+
+    # 4. Role filtering on GET /connections/ for User B
+    # As client: User B only sees conn2
+    u_b_client_resp = client.get(
+        f"{settings.API_V1_STR}/connections/?role=client&status=accepted",
+        headers=freelancer_b_headers,
+    )
+    assert u_b_client_resp.status_code == 200
+    u_b_client_ids = [c["id"] for c in u_b_client_resp.json()["data"]]
+    assert conn2_id in u_b_client_ids
+    assert conn1_id not in u_b_client_ids
+
+    # As freelancer: User B only sees conn1
+    u_b_freelancer_resp = client.get(
+        f"{settings.API_V1_STR}/connections/?role=freelancer&status=accepted",
+        headers=freelancer_b_headers,
+    )
+    assert u_b_freelancer_resp.status_code == 200
+    u_b_freelancer_ids = [c["id"] for c in u_b_freelancer_resp.json()["data"]]
+    assert conn1_id in u_b_freelancer_ids
+    assert conn2_id not in u_b_freelancer_ids
+
+    # 5. Connection status check with role parameter
+    # User A checking status towards User B with role=client -> connected (conn1)
+    status_a_client = client.get(
+        f"{settings.API_V1_STR}/connections/status/{user_b.id}?role=client",
+        headers=client_a_headers,
+    ).json()
+    assert status_a_client["status"] == "connected"
+    assert status_a_client["connection_id"] == conn1_id
+
+    # User A checking status towards User B with role=freelancer -> connected (conn2)
+    status_a_freelancer = client.get(
+        f"{settings.API_V1_STR}/connections/status/{user_b.id}?role=freelancer",
+        headers=client_a_headers,
+    ).json()
+    assert status_a_freelancer["status"] == "connected"
+    assert status_a_freelancer["connection_id"] == conn2_id
+
+    # 6. Privacy: User B switches workspace/role, does not leak to User A's connections view
+    switch_resp = client.post(
+        f"{settings.API_V1_STR}/users/me/switch-role",
+        headers=freelancer_b_headers,
+        json={"role": "client"},
+    )
+    assert switch_resp.status_code == 200
+
+    u_a_list = client.get(
+        f"{settings.API_V1_STR}/connections/?role=client&status=accepted",
+        headers=client_a_headers,
+    ).json()
+    conn1_view = next(c for c in u_a_list["data"] if c["id"] == conn1_id)
+    assert "active_role" not in conn1_view["receiver"]
+    assert "email" not in conn1_view["receiver"]
+    assert "is_superuser" not in conn1_view["receiver"]
+

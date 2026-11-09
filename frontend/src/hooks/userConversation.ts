@@ -69,50 +69,56 @@ export function removeMessageFromCache(
       },
     )
 
-    queryClient.setQueryData<ConversationsPublic>(chatKeys.conversations(), (current) => {
-      if (!current) return current
-      return {
-        ...current,
-        data: current.data.map((conv) => {
-          if (conv.id === conversationId) {
-            return {
-              ...conv,
-              unread_count: wasUnread && conv.unread_count
-                ? Math.max(0, conv.unread_count - 1)
-                : conv.unread_count,
-              last_message: isLastMessage ? newLastMessage : conv.last_message,
+    queryClient.setQueriesData<ConversationsPublic>(
+      { queryKey: [...chatKeys.all, "conversations"] },
+      (current) => {
+        if (!current) return current
+        return {
+          ...current,
+          data: current.data.map((conv) => {
+            if (conv.id === conversationId) {
+              return {
+                ...conv,
+                unread_count: wasUnread && conv.unread_count
+                  ? Math.max(0, conv.unread_count - 1)
+                  : conv.unread_count,
+                last_message: isLastMessage ? newLastMessage : conv.last_message,
+              }
             }
-          }
-          return conv
-        }),
-      }
-    })
+            return conv
+          }),
+        }
+      },
+    )
   } else {
-    queryClient.setQueryData<ConversationsPublic>(chatKeys.conversations(), (current) => {
-      if (!current) return current
-      return {
-        ...current,
-        data: current.data.map((conv) => {
-          if (conv.id === conversationId) {
-            const isLastMessage = conv.last_message?.id === messageId
-            const wasLastUnread = isLastMessage && conv.last_message ? !conv.last_message.is_read : false
+    queryClient.setQueriesData<ConversationsPublic>(
+      { queryKey: [...chatKeys.all, "conversations"] },
+      (current) => {
+        if (!current) return current
+        return {
+          ...current,
+          data: current.data.map((conv) => {
+            if (conv.id === conversationId) {
+              const isLastMessage = conv.last_message?.id === messageId
+              const wasLastUnread = isLastMessage && conv.last_message ? !conv.last_message.is_read : false
 
-            return {
-              ...conv,
-              unread_count: wasLastUnread && conv.unread_count
-                ? Math.max(0, conv.unread_count - 1)
-                : conv.unread_count,
+              return {
+                ...conv,
+                unread_count: wasLastUnread && conv.unread_count
+                  ? Math.max(0, conv.unread_count - 1)
+                  : conv.unread_count,
+              }
             }
-          }
-          return conv
-        }),
-      }
-    })
+            return conv
+          }),
+        }
+      },
+    )
     void queryClient.invalidateQueries({
       queryKey: chatKeys.conversation(conversationId),
     })
     void queryClient.invalidateQueries({
-      queryKey: chatKeys.conversations(),
+      queryKey: [...chatKeys.all, "conversations"],
     })
   }
 }

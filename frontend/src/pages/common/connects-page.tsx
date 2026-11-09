@@ -45,9 +45,9 @@ export function ConnectsPage() {
 	const { user } = useAuth()
 	const role = useAccountRole()
 
-	const accepted = useConnections({ status: "accepted", direction: "all" })
-	const received = useConnections({ status: "pending", direction: "received" })
-	const sent = useConnections({ status: "pending", direction: "sent" })
+	const accepted = useConnections({ role, status: "accepted", direction: "all" })
+	const received = useConnections({ role, status: "pending", direction: "received" })
+	const sent = useConnections({ role, status: "pending", direction: "sent" })
 
 	const acceptMutation = useAcceptConnectionRequest()
 	const declineMutation = useDeclineConnectionRequest()

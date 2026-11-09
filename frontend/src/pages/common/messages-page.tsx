@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import type {
 	ChatMessagePublic,
 	ConversationDetailPublic,
+	ConversationsPublic,
 } from "@/client/types.gen";
 import { EmptyState } from "@/components/common/empty-state";
 import {
@@ -20,9 +21,9 @@ import { useWebSocket } from "@/context/websocket-context";
 import { chatKeys } from "@/data/chat-keys";
 import { useAccountRole } from "@/hooks/useAccountRole";
 import useAuth from "@/hooks/useAuth";
-import { useConversations } from "@/hooks/useConversations";
+import { useChatData } from "@/hooks/useChatData";
 import { useCreateConversation } from "@/hooks/useCreateConversation";
-import { createFallbackProfile, useProfiles } from "@/hooks/useProfiles";
+import { createFallbackProfile } from "@/hooks/useProfiles";
 import {
 	useConversation,
 	useConversationUpdate,
@@ -47,9 +48,10 @@ export function MessagesPage({
 	const creatingForUserRef = useRef<string | null>(null);
 
 	const { sendMessage, setMessageSendResult } = useWebSocket();
-	const conversations = useConversations();
-	const profiles = useProfiles(conversations.data, conversations.isSuccess);
-	const createConversation = useCreateConversation();
+	const role = useAccountRole();
+	const clientMode = role === "client";
+	const { conversations, profiles } = useChatData(role as "client" | "freelancer");
+	const createConversation = useCreateConversation(role as "client" | "freelancer");
 	const MessageUpdate = useConversationUpdate();
 	const selectedConversation = SelectedUserId
 		? conversations.data?.data.find(
@@ -64,7 +66,7 @@ export function MessagesPage({
 		selectedConversation &&
 		(profiles.data?.get(selectedConversation?.other_user?.id ?? "") ??
 			(selectedConversation.other_user
-				? createFallbackProfile(selectedConversation.other_user)
+				? createFallbackProfile(selectedConversation.other_user, selectedConversation.other_user_role)
 				: undefined));
 
 	const { isOnline, isPending: presencePending } = useUserOnlineStatus(
@@ -72,7 +74,6 @@ export function MessagesPage({
 	);
 	const detailsQuery = useConversation(selectedConversationId ?? "");
 	const navigate = useNavigate();
-	const clientMode = useAccountRole() === "client";
 	const queryClient = useQueryClient();
 
 	useEffect(() => {
@@ -137,7 +138,7 @@ export function MessagesPage({
 			);
 
 			// Clear unread count and mark last message as read in conversations list
-			queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
+			queryClient.setQueriesData({ queryKey: [...chatKeys.all, "conversations"] }, (current: any) => {
 				if (!current) return current;
 				const updatedConversations = current.data.map((conversation: any) => {
 					if (conversation.id === selectedConversationId) {
@@ -207,31 +208,34 @@ export function MessagesPage({
 		MessageUpdate(selectedConversationId, rmessage);
 
 		// append the latest message to the conversations list, and set the unread count to 0 for this conversation.
-		queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
-			if (!current) return current;
+		queryClient.setQueriesData<ConversationsPublic>(
+			{ queryKey: [...chatKeys.all, "conversations"] },
+			(current: any) => {
+				if (!current) return current;
 
-			const updatedConversations = current.data.map((conversation: any) => {
-				if (conversation.id === selectedConversationId) {
-					return {
-						...conversation,
-						unread_count: 0,
-						last_message: rmessage,
-					};
+				const updatedConversations = current.data.map((conversation: any) => {
+					if (conversation.id === selectedConversationId) {
+						return {
+							...conversation,
+							unread_count: 0,
+							last_message: rmessage,
+						};
+					}
+					return conversation;
+				});
+				const activeIndex = updatedConversations.findIndex(
+					(c: any) => c.id === selectedConversationId,
+				);
+				if (activeIndex > 0) {
+					const [active] = updatedConversations.splice(activeIndex, 1);
+					updatedConversations.unshift(active);
 				}
-				return conversation;
-			});
-			const activeIndex = updatedConversations.findIndex(
-				(c: any) => c.id === selectedConversationId,
-			);
-			if (activeIndex > 0) {
-				const [active] = updatedConversations.splice(activeIndex, 1);
-				updatedConversations.unshift(active);
-			}
-			return {
-				...current,
-				data: updatedConversations,
-			};
-		});
+				return {
+					...current,
+					data: updatedConversations,
+				};
+			},
+		);
 		setMessageSendResult(rmessage.id, "pending");
 		setDraft("");
 		// setTimeout(() => {
@@ -405,11 +409,11 @@ export function MessagesPage({
 						onDetails={() => {
 							if (
 								clientMode &&
-								selectedConversation?.other_user?.active_role === "freelancer"
+								selectedProfile?.user_id
 							)
 								void navigate({
 									to: "/talent/$freelancerId",
-									params: { freelancerId: selectedProfile?.user_id ?? "" },
+									params: { freelancerId: selectedProfile.user_id },
 									search: { q: undefined },
 								});
 						}}
