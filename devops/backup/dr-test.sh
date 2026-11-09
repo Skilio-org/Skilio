@@ -57,10 +57,8 @@ cleanup_sandbox() {
     run_sql "postgres" "DROP DATABASE IF EXISTS ${SANDBOX_DB};" >/dev/null 2>&1 || true
 }
 
-# Always ensure sandbox is deleted even on failure or Ctrl+C
+# Always ensure sandbox is deleted even on failure
 trap cleanup_sandbox EXIT
-
-START_TIME=$(date +%s%N)
 
 # Query table count in real production database
 REAL_TABLES=$(run_sql "${POSTGRES_DB}" "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null || echo "0")
@@ -107,9 +105,6 @@ fi
 cleanup_sandbox
 echo -e "  ${GREEN}[✔] Sandbox database destroyed cleanly.${NC}"
 
-END_TIME=$(date +%s%N)
-DURATION_MS=$(( (END_TIME - START_TIME) / 1000000 ))
-
 # Summary
 echo -e "\n${GREEN}${BOLD}=====================================================${NC}"
 echo -e "${GREEN}${BOLD}      Disaster Recovery Drill Passed!                 ${NC}"
@@ -118,5 +113,4 @@ echo -e "  Source Archive  : $(basename "${LATEST_BACKUP}")"
 echo -e "  Verified Tables : ${SANDBOX_TABLES} public tables"
 echo -e "  Production DB   : Untouched & 100% Operational"
 echo -e "  Integrity Status: ${GREEN}${BOLD}100% VERIFIED (0 errors)${NC}"
-echo -e "  Total Drill Time: ${DURATION_MS}ms"
 echo -e "${GREEN}${BOLD}=====================================================${NC}\n"

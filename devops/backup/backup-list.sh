@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# Text colors
 BOLD='\033[1m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -10,11 +9,9 @@ CYAN='\033[0;36m'
 DIM='\033[2m'
 NC='\033[0m'
 
-# Find script and project folders
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-# Load settings from .env file if it exists
 if [ -f "${ROOT_DIR}/.env" ]; then
     source "${ROOT_DIR}/.env" 2>/dev/null || true
 fi

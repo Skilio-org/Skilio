@@ -61,9 +61,8 @@ echo -e "  User            : ${CYAN}${POSTGRES_USER}${NC}"
 echo -e "  Restore From    : ${CYAN}$(basename "${BACKUP_FILE}")${NC} (${FILE_SIZE})"
 echo -e "${BOLD}─────────────────────────────────────────────────────${NC}"
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 1. Check the backup file before restoring
-# ──────────────────────────────────────────────────────────────────────────────
+
+# Check the backup file before restoring
 echo -e "\n${BLUE}==> [1/3] Checking backup file for errors...${NC}"
 
 if ! gzip -t "${BACKUP_FILE}" >/dev/null 2>&1; then
@@ -72,22 +71,20 @@ if ! gzip -t "${BACKUP_FILE}" >/dev/null 2>&1; then
 fi
 echo -e "  ${GREEN}[✔] File check passed (valid gzip archive).${NC}"
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 2. Check database status and close active connections
-# ──────────────────────────────────────────────────────────────────────────────
-echo -e "\n${BLUE}==> [2/3] Checking database and closing active connections...${NC}"
 
-START_TIME=$(date +%s%N)
+# Check database status and close active connections
+echo -e "\n${BLUE}==> [2/3] Checking database and closing active connections...${NC}"
 
 # Detect if running inside container or on the host computer
 if [ -n "${POSTGRES_HOST:-}" ] && command -v psql >/dev/null 2>&1; then
-    # Inside container: close connections and stream directly into psql
+    # Inside container close connections and stream directly into psql
     psql \
         -h "${POSTGRES_HOST}" \
         -p "${POSTGRES_PORT:-5432}" \
         -U "${POSTGRES_USER}" \
         -d postgres \
         -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${TARGET_DB}' AND pid <> pg_backend_pid();" >/dev/null 2>&1 || true
+    echo -e "  ${GREEN}[✔] Active connections closed.${NC}"
 
     echo -e "\n${BLUE}==> [3/3] Restoring database tables and data...${NC}"
     gzip -dc "${BACKUP_FILE}" | psql \
@@ -96,11 +93,12 @@ if [ -n "${POSTGRES_HOST:-}" ] && command -v psql >/dev/null 2>&1; then
         -U "${POSTGRES_USER}" \
         -d "${TARGET_DB}" \
         -v ON_ERROR_STOP=1 >/dev/null
+    echo -e "  ${GREEN}[✔] Database restored successfully.${NC}"
 
     TABLE_COUNT=$(psql -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT:-5432}" -U "${POSTGRES_USER}" -d "${TARGET_DB}" -t -A -c "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null || echo "Unknown")
 
 elif command -v docker >/dev/null 2>&1; then
-    # On host computer: verify container is running
+    # On host computer verify container is running
     cd "${ROOT_DIR}"
     if [ -z "$(docker compose ps --status running -q db 2>/dev/null)" ]; then
         echo -e "${RED}[ERROR] Database service 'db' is not running!${NC}" >&2
@@ -113,12 +111,14 @@ elif command -v docker >/dev/null 2>&1; then
         -U "${POSTGRES_USER}" \
         -d postgres \
         -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${TARGET_DB}' AND pid <> pg_backend_pid();" >/dev/null 2>&1 || true
+    echo -e "  ${GREEN}[✔] Active connections closed.${NC}"
 
     echo -e "\n${BLUE}==> [3/3] Restoring database tables and data...${NC}"
     gzip -dc "${BACKUP_FILE}" | docker compose exec -T db psql \
         -U "${POSTGRES_USER}" \
         -d "${TARGET_DB}" \
         -v ON_ERROR_STOP=1 >/dev/null
+    echo -e "  ${GREEN}[✔] Database restored successfully.${NC}"
 
     TABLE_COUNT=$(docker compose exec -T db psql -U "${POSTGRES_USER}" -d "${TARGET_DB}" -t -A -c "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null || echo "Unknown")
 
@@ -127,15 +127,10 @@ else
     exit 1
 fi
 
-END_TIME=$(date +%s%N)
-DURATION_MS=$(( (END_TIME - START_TIME) / 1000000 ))
-
-
 echo -e "\n${GREEN}${BOLD}=====================================================${NC}"
 echo -e "${GREEN}${BOLD}      Restore Completed Successfully!                ${NC}"
 echo -e "${GREEN}${BOLD}=====================================================${NC}"
 echo -e "  Restored From  : ${BOLD}$(basename "${BACKUP_FILE}")${NC}"
 echo -e "  Target Database: ${TARGET_DB}"
 echo -e "  Tables Found   : ${TABLE_COUNT} public tables"
-echo -e "  Restore Time   : ${DURATION_MS}ms"
 echo -e "${GREEN}${BOLD}=====================================================${NC}\n"

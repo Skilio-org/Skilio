@@ -33,7 +33,6 @@ echo -e "  Backup Folder  : ${CYAN}${BACKUP_DIR}${NC}"
 echo -e "  Run on Startup : ${CYAN}${RUN_ON_STARTUP}${NC}"
 echo -e "${BOLD}─────────────────────────────────────────────────────${NC}"
 
-# Make sure the backup folder exists
 mkdir -p "${BACKUP_DIR}"
 
 # Wait for database to be ready
