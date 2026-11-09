@@ -36,9 +36,9 @@ function ProfileLink({
 
 function PersonAvatar({ id, name, className }: { id: string; name: string; className?: string }) {
 	return (
-		<Avatar className={cn("size-11 shrink-0 rounded-lg border border-outline-variant bg-surface-container", className)}>
+		<Avatar className={cn("size-10 sm:size-11 shrink-0 rounded-lg border border-outline-variant bg-surface-container", className)}>
 			<AvatarImage src={accountAvatarUrl(id)} alt={name} className="object-cover" />
-			<AvatarFallback className="rounded-lg bg-surface-container font-label-md font-semibold text-label-md text-on-surface">
+			<AvatarFallback className="rounded-lg bg-surface-container font-label-md font-semibold text-xs sm:text-label-md text-on-surface">
 				{getInitials(name)}
 			</AvatarFallback>
 		</Avatar>
@@ -65,7 +65,7 @@ function RequestDetails({ connection }: { connection: ConnectionPublic }) {
 }
 
 const requestCard =
-	"rounded-xl border border-outline-variant bg-surface-container-lowest p-5 transition-all duration-150 hover:border-outline"
+	"rounded-xl border border-outline-variant bg-surface-container-lowest p-4 sm:p-5 transition-all duration-150 hover:border-outline"
 
 // Someone you are already connected with.
 export function ConnectionCard({
@@ -84,10 +84,10 @@ export function ConnectionCard({
 	const partnerId = partner?.id || (connection.sender_id === userId ? connection.receiver_id : connection.sender_id)
 
 	return (
-		<Card className="group rounded-xl border border-outline-variant bg-surface-container-lowest p-5 transition-all duration-150 hover:border-outline hover:shadow-xs">
-			<CardContent className="flex h-full flex-col justify-between gap-4 p-0">
-				<div className="flex items-start justify-between gap-3">
-					<div className="flex min-w-0 items-start gap-3.5">
+		<Card className="group rounded-xl border border-outline-variant bg-surface-container-lowest p-4 sm:p-5 transition-all duration-150 hover:border-outline hover:shadow-xs">
+			<CardContent className="flex h-full flex-col justify-between gap-3 sm:gap-4 p-0">
+				<div className="flex items-start justify-between gap-2.5 sm:gap-3">
+					<div className="flex min-w-0 items-start gap-3 sm:gap-3.5">
 						<div className="relative shrink-0">
 							<ProfileLink person={partner} id={partnerId} className="shrink-0 rounded-lg">
 								<PersonAvatar id={partnerId} name={partnerName} />
@@ -99,8 +99,8 @@ export function ConnectionCard({
 						</div>
 
 						<div className="min-w-0 flex-1">
-							<div className="flex flex-wrap items-center gap-2">
-								<h4 className="truncate font-headline-sm font-semibold text-base text-on-surface">
+							<div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+								<h4 className="truncate font-headline-sm font-semibold text-sm sm:text-base text-on-surface">
 									<ProfileLink person={partner} id={partnerId} className="hover:underline">
 										{partnerName}
 									</ProfileLink>
@@ -132,7 +132,7 @@ export function ConnectionCard({
 					</div>
 				)}
 
-				<div className="flex items-center justify-between border-outline-variant/60 border-t pt-3 text-on-surface-variant text-xs">
+				<div className="flex flex-wrap items-center justify-between gap-2 border-outline-variant/60 border-t pt-3 text-on-surface-variant text-xs">
 					<span className="flex items-center gap-1.5 font-caption text-caption">
 						<span className="size-1.5 rounded-full bg-primary" />
 						Collaboration unlocked
@@ -140,7 +140,7 @@ export function ConnectionCard({
 					<Link
 						to={messagesPath}
 						search={{ userId: partnerId }}
-						className={cn(workspaceStyles.primaryAction, "h-8 gap-1.5 px-3 text-xs")}
+						className={cn(workspaceStyles.primaryAction, "h-8.5 sm:h-8 gap-1.5 px-3 text-xs shrink-0")}
 					>
 						<MessageSquare className="size-3.5" />
 						<span>Message</span>
@@ -168,14 +168,14 @@ export function ReceivedRequestCard({
 
 	return (
 		<Card className={requestCard}>
-			<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-				<div className="flex min-w-0 items-start gap-3.5">
+			<div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex min-w-0 items-start gap-3 sm:gap-3.5">
 					<ProfileLink person={connection.sender} id={senderId} className="shrink-0 rounded-lg">
 						<PersonAvatar id={senderId} name={name} />
 					</ProfileLink>
 					<div className="min-w-0 space-y-1">
-						<div className="flex flex-wrap items-center gap-2">
-							<h4 className="font-headline-sm font-semibold text-base text-on-surface">
+						<div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+							<h4 className="font-headline-sm font-semibold text-sm sm:text-base text-on-surface">
 								<ProfileLink person={connection.sender} id={senderId} className="hover:underline">
 									{name}
 								</ProfileLink>
@@ -191,14 +191,14 @@ export function ReceivedRequestCard({
 					</div>
 				</div>
 
-				<div className="flex shrink-0 items-center gap-2.5 self-end md:self-center">
+				<div className="flex w-full shrink-0 items-center gap-2 pt-2.5 border-t border-outline-variant/50 sm:w-auto sm:border-t-0 sm:pt-0 sm:self-center">
 					<button
 						type="button"
 						disabled={busy}
 						onClick={onDecline}
 						className={cn(
 							workspaceStyles.secondaryAction,
-							"h-8 px-3 text-destructive text-xs hover:border-destructive/30 hover:bg-destructive/10 disabled:opacity-50",
+							"flex-1 sm:flex-initial h-9 sm:h-8 justify-center px-3.5 text-destructive text-xs hover:border-destructive/30 hover:bg-destructive/10 disabled:opacity-50",
 						)}
 					>
 						<X className="size-3.5" />
@@ -208,7 +208,10 @@ export function ReceivedRequestCard({
 						type="button"
 						disabled={busy}
 						onClick={onAccept}
-						className={cn(workspaceStyles.primaryAction, "h-8 px-3 text-xs disabled:opacity-50")}
+						className={cn(
+							workspaceStyles.primaryAction,
+							"flex-1 sm:flex-initial h-9 sm:h-8 justify-center px-4 text-xs disabled:opacity-50",
+						)}
 					>
 						<Check className="size-3.5" />
 						<span>Accept</span>
@@ -234,14 +237,14 @@ export function SentRequestCard({
 
 	return (
 		<Card className={requestCard}>
-			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<div className="flex min-w-0 items-start gap-3.5">
+			<div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex min-w-0 items-start gap-3 sm:gap-3.5">
 					<ProfileLink person={connection.receiver} id={receiverId} className="shrink-0 rounded-lg">
 						<PersonAvatar id={receiverId} name={name} />
 					</ProfileLink>
 					<div className="min-w-0 space-y-1">
-						<div className="flex flex-wrap items-center gap-2">
-							<h4 className="font-headline-sm font-semibold text-base text-on-surface">
+						<div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+							<h4 className="font-headline-sm font-semibold text-sm sm:text-base text-on-surface">
 								<ProfileLink person={connection.receiver} id={receiverId} className="hover:underline">
 									{name}
 								</ProfileLink>
@@ -257,17 +260,19 @@ export function SentRequestCard({
 					</div>
 				</div>
 
-				<button
-					type="button"
-					disabled={busy}
-					onClick={onWithdraw}
-					className={cn(
-						workspaceStyles.secondaryAction,
-						"h-8 self-end px-3 text-xs hover:border-destructive/30 hover:text-destructive disabled:opacity-50 sm:self-center",
-					)}
-				>
-					Withdraw
-				</button>
+				<div className="w-full pt-2.5 border-t border-outline-variant/50 sm:w-auto sm:border-t-0 sm:pt-0 sm:self-center">
+					<button
+						type="button"
+						disabled={busy}
+						onClick={onWithdraw}
+						className={cn(
+							workspaceStyles.secondaryAction,
+							"w-full sm:w-auto h-9 sm:h-8 justify-center px-4 text-xs hover:border-destructive/30 hover:text-destructive disabled:opacity-50",
+						)}
+					>
+						Withdraw
+					</button>
+				</div>
 			</div>
 		</Card>
 	)
