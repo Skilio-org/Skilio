@@ -258,10 +258,10 @@ export function FreelancerProfileView({
 										type="button"
 										aria-label={`View ${entry.title}`}
 										onClick={() => setProjectId(entry.id)}
-										className="group flex w-[82%] max-w-[22rem] shrink-0 snap-start flex-col rounded-lg border border-outline-variant p-3 text-left transition-colors hover:border-primary/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-[calc((100%_-_1rem)/2)] sm:max-w-none sm:p-4 xl:w-[calc((100%_-_2rem)/3)]"
+										className="group flex w-[82%] max-w-[22rem] shrink-0 snap-start flex-col rounded-lg border border-outline-variant p-3 text-left transition-colors hover:border-primary/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-[calc((100%_-_1rem)/2)] sm:max-w-none sm:p-4"
 									>
 										<span
-											className={`relative grid h-36 w-full place-items-center overflow-hidden rounded-lg text-slate-800 ${entry.color ?? "bg-brand-100"}`}
+											className={`relative grid h-44 w-full place-items-center overflow-hidden rounded-lg text-slate-800 ${entry.color ?? "bg-brand-100"}`}
 										>
 											{entry.imageUrl ? (
 												<img src={entry.imageUrl} alt="" className="absolute inset-0 size-full object-cover" />
@@ -278,7 +278,7 @@ export function FreelancerProfileView({
 												{entry.category}
 											</span>
 											{entry.detail && (
-												<span className="mt-3 line-clamp-2 block text-on-surface-variant text-sm leading-6">
+												<span className="mt-3 line-clamp-3 text-on-surface-variant text-sm leading-6">
 													{entry.detail}
 												</span>
 											)}
