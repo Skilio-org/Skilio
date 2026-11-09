@@ -42,18 +42,19 @@ def test_create_job_by_client(client: TestClient, db: Session) -> None:
     headers, user = _make_client_headers(client, db)
     data = {
         "title": "Build a FastAPI Backend",
-        "description": "Need an expert in FastAPI and PostgreSQL to build API endpoints.",
+        "description": "Experience level: Intermediate\n\nNeed an expert in FastAPI and PostgreSQL to build scalable and robust backend API endpoints for our app.",
         "budget_type": "fixed",
         "budget": 1500.0,
         "location": "Remote",
         "category": "Web Mobile & Software Dev",
         "skills": ["FastAPI", "Python", "PostgreSQL"],
+        "level": "Intermediate",
     }
     response = client.post(f"{settings.API_V1_STR}/jobs/", headers=headers, json=data)
     assert response.status_code == 200
     content = response.json()
     assert content["title"] == data["title"]
-    assert content["description"] == data["description"]
+    assert data["description"] in content["description"]
     assert content["budget_type"] == "fixed"
     assert content["budget"] == 1500.0
     assert content["category"] == "Web Mobile & Software Dev"
@@ -74,9 +75,10 @@ def test_create_job_by_freelancer_forbidden(client: TestClient, db: Session) -> 
     headers, _ = _make_freelancer_headers(client, db)
     data = {
         "title": "Unauthorized Job",
-        "description": "Freelancers cannot post jobs",
+        "description": "Experience level: Intermediate\n\nFreelancers cannot post jobs on the platform, only verified clients are allowed to post.",
         "budget_type": "fixed",
         "budget": 500.0,
+        "level": "Intermediate",
     }
     response = client.post(f"{settings.API_V1_STR}/jobs/", headers=headers, json=data)
     assert response.status_code == 403
@@ -90,9 +92,10 @@ def test_read_jobs_feed_and_sorting(client: TestClient, db: Session) -> None:
         headers=headers,
         json={
             "title": "Low Budget Job",
-            "description": "Simple task",
+            "description": "Experience level: Entry level\n\nSimple task requiring basic frontend updates and layout adjustments across several components.",
             "budget_type": "hourly",
             "budget": 20.0,
+            "level": "Entry level",
         },
     )
     client.post(
@@ -100,9 +103,10 @@ def test_read_jobs_feed_and_sorting(client: TestClient, db: Session) -> None:
         headers=headers,
         json={
             "title": "High Budget Job",
-            "description": "Complex task",
+            "description": "Experience level: Expert / Principal\n\nComplex task requiring deep distributed systems knowledge and high-throughput architectural design.",
             "budget_type": "hourly",
             "budget": 100.0,
+            "level": "Expert / Principal",
         },
     )
 
@@ -134,11 +138,12 @@ def test_read_jobs_feed_filters(client: TestClient, db: Session) -> None:
         headers=headers,
         json={
             "title": "React Frontend Specialist",
-            "description": "Develop modern UI with React and TypeScript",
+            "description": "Experience level: Intermediate\n\nDevelop modern UI with React and TypeScript and connect to our existing GraphQL backend.",
             "budget_type": "fixed",
             "budget": 2500.0,
             "category": "Web Mobile & Software Dev",
             "skills": ["React", "TypeScript"],
+            "level": "Intermediate",
         },
     )
     client.post(
@@ -146,11 +151,12 @@ def test_read_jobs_feed_filters(client: TestClient, db: Session) -> None:
         headers=headers,
         json={
             "title": "DevOps Engineer Needed",
-            "description": "Setup Kubernetes cluster on AWS",
+            "description": "Experience level: Expert / Principal\n\nSetup Kubernetes cluster on AWS and configure automated CI/CD deployment pipelines.",
             "budget_type": "hourly",
             "budget": 75.0,
             "category": "IT & Networking",
             "skills": ["Docker", "Kubernetes", "AWS"],
+            "level": "Expert / Principal",
         },
     )
 
@@ -205,9 +211,10 @@ def test_save_and_unsave_job(client: TestClient, db: Session) -> None:
         headers=client_headers,
         json={
             "title": "Saveable Job",
-            "description": "Bookmark this job to test",
+            "description": "Experience level: Intermediate\n\nBookmark this job to test bookmarking and un-bookmarking functionality across all user sessions.",
             "budget_type": "fixed",
             "budget": 800.0,
+            "level": "Intermediate",
         },
     )
     job_id = create_resp.json()["id"]
@@ -256,9 +263,10 @@ def test_client_cannot_save_job(client: TestClient, db: Session) -> None:
         headers=client_headers,
         json={
             "title": "Job For Client Test",
-            "description": "Testing save permissions",
+            "description": "Experience level: Intermediate\n\nTesting save permissions to make sure clients cannot bookmark their own or other jobs.",
             "budget_type": "fixed",
             "budget": 400.0,
+            "level": "Intermediate",
         },
     )
     job_id = create_resp.json()["id"]
@@ -277,10 +285,11 @@ def test_update_job(client: TestClient, db: Session) -> None:
         headers=client_headers,
         json={
             "title": "Original Job Title",
-            "description": "Original Description",
+            "description": "Experience level: Intermediate\n\nOriginal Description containing enough characters to satisfy the minimum length requirement.",
             "budget_type": "hourly",
             "budget": 50.0,
             "skills": ["Python"],
+            "level": "Intermediate",
         },
     )
     job_id = create_resp.json()["id"]
@@ -323,9 +332,10 @@ def test_delete_job(client: TestClient, db: Session) -> None:
         headers=client_headers,
         json={
             "title": "Job to Delete",
-            "description": "Will be deleted",
+            "description": "Experience level: Intermediate\n\nWill be deleted after testing deletion permissions and verifying 404 response afterwards.",
             "budget_type": "fixed",
             "budget": 300.0,
+            "level": "Intermediate",
         },
     )
     job_id = create_resp.json()["id"]
@@ -352,10 +362,11 @@ def test_create_job_with_custom_skills(client: TestClient, db: Session) -> None:
     client_headers, _ = _make_client_headers(client, db)
     data = {
         "title": "AI Agent Developer",
-        "description": "Need an engineer skilled in prompt engineering and arbitrary tools.",
+        "description": "Experience level: Expert / Principal\n\nNeed an engineer skilled in prompt engineering and arbitrary tools for automated workflows.",
         "budget_type": "fixed",
         "budget": 3000.0,
         "skills": ["Prompt Engineering", "Custom Agentic AI", "FastAPI"],
+        "level": "Expert / Principal",
     }
     response = client.post(
         f"{settings.API_V1_STR}/jobs/", headers=client_headers, json=data
@@ -381,10 +392,11 @@ def test_saved_jobs_crud_and_filters(client: TestClient, db: Session) -> None:
         headers=client_headers,
         json={
             "title": "UI/UX Mobile App Designer",
-            "description": "Figma design for iOS app",
+            "description": "Experience level: Intermediate\n\nFigma design for iOS app with wireframes, user journeys, interactive prototypes and design tokens.",
             "budget_type": "fixed",
             "budget": 1200.0,
             "category": "Design & Creative",
+            "level": "Intermediate",
         },
     )
     job1_id = job1_resp.json()["id"]
@@ -394,10 +406,11 @@ def test_saved_jobs_crud_and_filters(client: TestClient, db: Session) -> None:
         headers=client_headers,
         json={
             "title": "SEO Marketing Specialist",
-            "description": "Improve organic search rankings",
+            "description": "Experience level: Intermediate\n\nImprove organic search rankings and build comprehensive SEO campaigns for our e-commerce platform.",
             "budget_type": "fixed",
             "budget": 800.0,
             "category": "Sales & Marketing",
+            "level": "Intermediate",
         },
     )
     job2_id = job2_resp.json()["id"]
@@ -494,9 +507,10 @@ def test_job_detail_has_draft_and_proposals_count(
         headers=client_headers,
         json={
             "title": "Fullstack Cloud Engineer",
-            "description": "AWS and Docker setup",
+            "description": "Experience level: Expert / Principal\n\nAWS and Docker setup with microservice orchestration, monitoring and automated alerting.",
             "budget_type": "fixed",
             "budget": 2500.0,
+            "level": "Expert / Principal",
         },
     )
     job_id = create_resp.json()["id"]
@@ -631,10 +645,11 @@ def test_draft_job_visible_in_read_my_jobs(client: TestClient, db: Session) -> N
         headers=headers,
         json={
             "title": "Open Job For Client",
-            "description": "An open job post description.",
+            "description": "Experience level: Intermediate\n\nAn open job post description that fulfills the minimum character requirement for testing purposes.",
             "budget_type": "fixed",
             "budget": 500.0,
             "status": "open",
+            "level": "Intermediate",
         },
     )
     draft_resp = client.post(
@@ -721,11 +736,15 @@ def test_publish_draft_job(client: TestClient, db: Session) -> None:
     pub_resp = client.put(
         f"{settings.API_V1_STR}/jobs/{draft_id}",
         headers=client_headers,
-        json={"status": "open", "description": "Final published description."},
+        json={
+            "status": "open",
+            "level": "Intermediate",
+            "description": "Final published description that has more than eighty characters for verification.",
+        },
     )
     assert pub_resp.status_code == 200
     assert pub_resp.json()["status"] == "open"
-    assert pub_resp.json()["description"] == "Final published description."
+    assert "Final published description" in pub_resp.json()["description"]
 
     # Now it is accessible in public feed
     feed_resp = client.get(f"{settings.API_V1_STR}/jobs/")
