@@ -1,62 +1,79 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { EmptyState } from "@/components/common/empty-state"
-import { useNavigate } from "@tanstack/react-router"
-import { useAccountRole } from "@/hooks/useAccountRole"
-import { useEffect, useRef, useState } from "react"
-import { InboxIcon } from "lucide-react"
-import { ConversationList } from "@/components/messages/conversation-list"
-import { MessageThread } from "@/components/messages/message-thread"
-import type { InboxFilter } from "@/components/messages/message-types"
-import { useUserOnlineStatus } from "@/hooks/useUserOnlineStatus"
-import { useCreateConversation } from "@/hooks/useCreateConversation"
-import { useConversations } from "@/hooks/useConversations"
-import { useProfiles, createFallbackProfile } from "@/hooks/useProfiles"
-import { useWebSocket } from "@/context/websocket-context"
-import { toast } from "sonner"
-import { useConversation, useConversationUpdate } from "@/hooks/userConversation"
-import type { ChatMessagePublic, ConversationDetailPublic } from "@/client/types.gen"
-// import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
-import { chatKeys } from "@/data/chat-keys"
-import { useQueryClient } from "@tanstack/react-query"
-import useAuth from "@/hooks/useAuth"
-import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { InboxIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import type {
+	ChatMessagePublic,
+	ConversationDetailPublic,
+} from "@/client/types.gen";
+import { EmptyState } from "@/components/common/empty-state";
+import {
+	WorkspacePageHeader,
+	workspaceStyles,
+} from "@/components/dashboard/dashboard-header";
+import { ConversationList } from "@/components/messages/conversation-list";
+import { MessageThread } from "@/components/messages/message-thread";
+import type { InboxFilter } from "@/components/messages/message-types";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useWebSocket } from "@/context/websocket-context";
+import { chatKeys } from "@/data/chat-keys";
+import { useAccountRole } from "@/hooks/useAccountRole";
+import useAuth from "@/hooks/useAuth";
+import { useConversations } from "@/hooks/useConversations";
+import { useCreateConversation } from "@/hooks/useCreateConversation";
+import { createFallbackProfile, useProfiles } from "@/hooks/useProfiles";
+import {
+	useConversation,
+	useConversationUpdate,
+} from "@/hooks/userConversation";
+import { useUserOnlineStatus } from "@/hooks/useUserOnlineStatus";
 
 export function MessagesPage({
 	SelectedUserId,
 	onSelectContact,
 }: {
-	SelectedUserId: string | undefined
-	onSelectContact: (id: string) => void
+	SelectedUserId: string | undefined;
+	onSelectContact: (id: string) => void;
 }) {
 	// TODO: What if the conversations does not even exist.. yet...
 	// 1. check if the conversation exists.
-	const { user } = useAuth()
+	const { user } = useAuth();
 	// const [recipientQuery, setRecipientQuery] = useState("")
 	// const [newMessageOpen, setNewMessageOpen] = useState(false)
-	const [query, setQuery] = useState("")
-	const [filter, setFilter] = useState<InboxFilter>("all")
-	const [draft, setDraft] = useState("")
-	const creatingForUserRef = useRef<string | null>(null)
+	const [query, setQuery] = useState("");
+	const [filter, setFilter] = useState<InboxFilter>("all");
+	const [draft, setDraft] = useState("");
+	const creatingForUserRef = useRef<string | null>(null);
 
-	const { sendMessage, setMessageSendResult } = useWebSocket()
-	const conversations = useConversations()
-	const profiles = useProfiles(conversations.data, conversations.isSuccess)
-	const createConversation = useCreateConversation()
-	const MessageUpdate = useConversationUpdate()
+	const { sendMessage, setMessageSendResult } = useWebSocket();
+	const conversations = useConversations();
+	const profiles = useProfiles(conversations.data, conversations.isSuccess);
+	const createConversation = useCreateConversation();
+	const MessageUpdate = useConversationUpdate();
 	const selectedConversation = SelectedUserId
-		? conversations.data?.data.find((conversation) => conversation.other_user?.id === SelectedUserId)
-		: undefined
-	const selectedConversationId = selectedConversation == undefined ? selectedConversation : selectedConversation?.id
+		? conversations.data?.data.find(
+				(conversation) => conversation.other_user?.id === SelectedUserId,
+			)
+		: undefined;
+	const selectedConversationId =
+		selectedConversation == undefined
+			? selectedConversation
+			: selectedConversation?.id;
 	const selectedProfile =
 		selectedConversation &&
 		(profiles.data?.get(selectedConversation?.other_user?.id ?? "") ??
-			(selectedConversation.other_user ? createFallbackProfile(selectedConversation.other_user) : undefined))
+			(selectedConversation.other_user
+				? createFallbackProfile(selectedConversation.other_user)
+				: undefined));
 
-	const { isOnline, isPending: presencePending } = useUserOnlineStatus(selectedProfile?.user_id)
-	const detailsQuery = useConversation(selectedConversationId ?? "")
-	const navigate = useNavigate()
-	const clientMode = useAccountRole() === "client"
-	const queryClient = useQueryClient()
+	const { isOnline, isPending: presencePending } = useUserOnlineStatus(
+		selectedProfile?.user_id,
+	);
+	const detailsQuery = useConversation(selectedConversationId ?? "");
+	const navigate = useNavigate();
+	const clientMode = useAccountRole() === "client";
+	const queryClient = useQueryClient();
 
 	useEffect(() => {
 		if (
@@ -69,13 +86,13 @@ export function MessagesPage({
 			void createConversation
 				.mutateAsync(SelectedUserId)
 				.then((newConversation) => {
-					onSelectContact(newConversation.other_user?.id ?? "")
+					onSelectContact(newConversation.other_user?.id ?? "");
 				})
 				.catch((error) => {
-					console.error("Error creating conversation:", error)
-					toast.error("Failed to create conversation. Please try again.")
-				})
-			creatingForUserRef.current = SelectedUserId
+					console.error("Error creating conversation:", error);
+					toast.error("Failed to create conversation. Please try again.");
+				});
+			creatingForUserRef.current = SelectedUserId;
 		}
 		// if (!SelectedUserId && conversations.data?.data[0]?.other_user?.id)
 		// 	onSelectContact(conversations.data?.data[0]?.other_user?.id ?? "")
@@ -85,39 +102,43 @@ export function MessagesPage({
 		// creatingForUserRef,
 		createConversation.isPending,
 		selectedConversation,
-	])
+	]);
 
 	useEffect(() => {
-		if (!selectedConversationId) return
+		if (!selectedConversationId) return;
 
 		const hasUnread =
 			(selectedConversation?.unread_count ?? 0) > 0 ||
-			detailsQuery.data?.messages?.some((message) => message.sender_id !== user?.id && !message.is_read)
+			detailsQuery.data?.messages?.some(
+				(message) => message.sender_id !== user?.id && !message.is_read,
+			);
 
 		if (hasUnread) {
 			sendMessage({
 				type: "read_receipt",
 				conversation_id: selectedConversationId,
-			})
+			});
 
 			// Mark messages received from the other user as read in the active conversation
 			queryClient.setQueryData<ConversationDetailPublic>(
 				chatKeys.conversation(selectedConversationId),
 				(current) => {
-					if (!current) return current
+					if (!current) return current;
 					return {
 						...current,
 						unread_count: 0,
 						messages: current.messages?.map((message) =>
-							message.sender_id !== user?.id ? { ...message, is_read: true } : message,
+							message.sender_id !== user?.id
+								? { ...message, is_read: true }
+								: message,
 						),
-					}
+					};
 				},
-			)
+			);
 
 			// Clear unread count and mark last message as read in conversations list
 			queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
-				if (!current) return current
+				if (!current) return current;
 				const updatedConversations = current.data.map((conversation: any) => {
 					if (conversation.id === selectedConversationId) {
 						return {
@@ -129,15 +150,15 @@ export function MessagesPage({
 										is_read: true,
 									}
 								: conversation.last_message,
-						}
+						};
 					}
-					return conversation
-				})
+					return conversation;
+				});
 				return {
 					...current,
 					data: updatedConversations,
-				}
-			})
+				};
+			});
 		}
 	}, [
 		selectedConversationId,
@@ -146,25 +167,31 @@ export function MessagesPage({
 		user?.id,
 		sendMessage,
 		queryClient,
-	])
+	]);
 
 	useEffect(() => {
-		detailsQuery.data?.messages?.forEach((message) => setMessageSendResult(message.id, "sent"))
-	}, [selectedConversationId, detailsQuery.isPending])
+		detailsQuery.data?.messages?.forEach((message) =>
+			setMessageSendResult(message.id, "sent"),
+		);
+	}, [selectedConversationId, detailsQuery.isPending]);
 	if (conversations.isPending) {
-		return <>Still loading conversations!</>
+		return <>Still loading conversations!</>;
 	}
 
-	if (profiles.isPending && profiles.data?.size === 0 && conversations.data?.data.length !== 0)
-		return <>Still loading profiles!</>
+	if (
+		profiles.isPending &&
+		profiles.data?.size === 0 &&
+		conversations.data?.data.length !== 0
+	)
+		return <>Still loading profiles!</>;
 
 	const unreadCount = conversations.data?.data.reduce(
 		(total, conversation) => total + (conversation.unread_count ?? 0),
 		0,
-	)
+	);
 
 	const send = (message: string) => {
-		const content = message.trim()
+		const content = message.trim();
 		const rmessage: ChatMessagePublic = {
 			id: crypto.randomUUID(),
 			conversation_id: selectedConversationId ?? "",
@@ -172,16 +199,16 @@ export function MessagesPage({
 			sender_id: user?.id ?? "Me",
 			created_at: new Date().toISOString(),
 			is_read: false,
-		}
+		};
 
-		if (!selectedConversationId || !content) return
+		if (!selectedConversationId || !content) return;
 
-		let sent = false
-		MessageUpdate(selectedConversationId, rmessage)
+		let sent = false;
+		MessageUpdate(selectedConversationId, rmessage);
 
 		// append the latest message to the conversations list, and set the unread count to 0 for this conversation.
 		queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
-			if (!current) return current
+			if (!current) return current;
 
 			const updatedConversations = current.data.map((conversation: any) => {
 				if (conversation.id === selectedConversationId) {
@@ -189,24 +216,24 @@ export function MessagesPage({
 						...conversation,
 						unread_count: 0,
 						last_message: rmessage,
-					}
+					};
 				}
-				return conversation
-			})
+				return conversation;
+			});
 			const activeIndex = updatedConversations.findIndex(
-				(c: any) => c.id === selectedConversationId
-			)
+				(c: any) => c.id === selectedConversationId,
+			);
 			if (activeIndex > 0) {
-				const [active] = updatedConversations.splice(activeIndex, 1)
-				updatedConversations.unshift(active)
+				const [active] = updatedConversations.splice(activeIndex, 1);
+				updatedConversations.unshift(active);
 			}
 			return {
 				...current,
 				data: updatedConversations,
-			}
-		})
-		setMessageSendResult(rmessage.id, "pending")
-		setDraft("")
+			};
+		});
+		setMessageSendResult(rmessage.id, "pending");
+		setDraft("");
 		// setTimeout(() => {
 
 		sent = sendMessage({
@@ -214,13 +241,13 @@ export function MessagesPage({
 			conversation_id: selectedConversationId,
 			content,
 			client_message_id: rmessage.id,
-		})
+		});
 		if (!sent) {
-			setMessageSendResult(rmessage.id, "failed")
-			toast.error("Failed to send message. Please try again.")
+			setMessageSendResult(rmessage.id, "failed");
+			toast.error("Failed to send message. Please try again.");
 		}
 		// }, 1000) // Simulate a delay for sending the message
-	}
+	};
 
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4 md:px-6">
@@ -235,7 +262,8 @@ export function MessagesPage({
 				meta={
 					<span className="flex items-center gap-1 font-medium text-link">
 						<span className="size-1.5 rounded-full bg-primary-container dark:bg-primary" />
-						{unreadCount ?? 0} unread {unreadCount === 1 ? "message" : "messages"}
+						{unreadCount ?? 0} unread{" "}
+						{unreadCount === 1 ? "message" : "messages"}
 					</span>
 				}
 				action=""
@@ -302,7 +330,7 @@ export function MessagesPage({
 					</div>
 				</DialogContent>
 			</Dialog> */}
-			<div className="messages-workspace grid min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] h-[calc(100vh-14.5rem)] min-h-[640px] max-h-[880px]">
+			<div className="messages-workspace grid h-[calc(100vh-14.5rem)] max-h-220 min-h-160 min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
 				<ConversationList
 					me={user}
 					selected={selectedProfile}
@@ -343,7 +371,11 @@ export function MessagesPage({
 								{profiles.isFetching ? "Loading…" : "Reload profile"}
 							</button>
 						)}
-						<button type="button" onClick={() => onSelectContact("")} className={workspaceStyles.secondaryAction}>
+						<button
+							type="button"
+							onClick={() => onSelectContact("")}
+							className={workspaceStyles.secondaryAction}
+						>
 							Back to conversations
 						</button>
 					</section>
@@ -357,28 +389,29 @@ export function MessagesPage({
 						draft={draft}
 						archived={false}
 						onBack={() => {
-							onSelectContact("")
+							onSelectContact("");
 						}}
 						onOpenLatest={() => {
 							if (conversations.data?.data[0]?.other_user?.id)
-								onSelectContact(conversations.data?.data[0].other_user?.id)
+								onSelectContact(conversations.data?.data[0].other_user?.id);
 							// else setNewMessageOpen(true)
 						}}
-						hasConversations={conversations.data?.count == undefined ? false : conversations.data?.count > 0}
+						hasConversations={
+							conversations.data?.count === undefined
+								? false
+								: conversations.data?.count > 0
+						}
 						canViewProfile={true}
 						onDetails={() => {
-							if (clientMode && selectedConversation?.other_user?.active_role === "freelancer")
+							if (
+								clientMode &&
+								selectedConversation?.other_user?.active_role === "freelancer"
+							)
 								void navigate({
 									to: "/talent/$freelancerId",
 									params: { freelancerId: selectedProfile?.user_id ?? "" },
 									search: { q: undefined },
-								})
-						}}
-						onArchive={() => {}}
-						onMarkUnread={() => {
-							// markUnread()
-							// select("")
-							;() => {}
+								});
 						}}
 						onDraftChange={setDraft}
 						onSend={() => send(draft)}
@@ -393,5 +426,5 @@ export function MessagesPage({
 				)}
 			</div>
 		</div>
-	)
+	);
 }
