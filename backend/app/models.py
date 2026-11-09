@@ -2,15 +2,68 @@ import uuid
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Literal, Optional, Self
+from urllib.parse import urlparse
 
-from pydantic import BaseModel, EmailStr, model_validator
-from sqlalchemy import JSON, DateTime, UniqueConstraint
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
+from sqlalchemy import JSON, CheckConstraint, DateTime, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
-from sqlalchemy import CheckConstraint  # add to your sqlalchemy import
 
 
 def get_datetime_utc() -> datetime:
     return datetime.now(UTC)
+
+
+def validate_https_url(v: str | None) -> str | None:
+    if v is None:
+        return None
+    trimmed = v.strip()
+    if not trimmed:
+        return None
+    try:
+        parsed = urlparse(trimmed)
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise ValueError("Must be a valid URL starting with https://")
+    except Exception:
+        raise ValueError("Must be a valid URL starting with https://")
+    return trimmed
+
+
+def validate_skills_list(skills: list[str] | None) -> list[str] | None:
+    if skills is None:
+        return None
+    if len(skills) > 15:
+        raise ValueError("Choose up to 15 skills.")
+    cleaned: list[str] = []
+    for skill in skills:
+        s = skill.strip()
+        if not s:
+            continue
+        if len(s) > 40:
+            raise ValueError(f"Each skill can be at most 40 characters: '{s}'")
+        cleaned.append(s)
+    return cleaned
+
+
+JOB_EXPERIENCE_LEVELS = ("Entry level", "Intermediate", "Expert / Principal")
+EXPERIENCE_PREFIX = "Experience level: "
+ALLOWED_COMPANY_SIZES = {"solo", "2-10", "11-50", "51-200", "201-plus"}
+
+
+def parse_job_experience(description: str) -> tuple[str | None, str]:
+    for level in JOB_EXPERIENCE_LEVELS:
+        prefix = f"{EXPERIENCE_PREFIX}{level}\n\n"
+        if description.startswith(prefix):
+            return level, description[len(prefix):]
+    return None, description
+
+
+def format_job_experience(description: str, level: str | None) -> str:
+    core = description.strip()
+    if not level:
+        return core
+    extracted_level, remaining = parse_job_experience(core)
+    actual_core = remaining.strip() if extracted_level else core
+    return f"{EXPERIENCE_PREFIX}{level}\n\n{actual_core}"
 
 
 # ==============================================================================
@@ -94,7 +147,7 @@ class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     is_active: bool = True
     is_superuser: bool = False
-    full_name: str | None = Field(default=None, max_length=255)
+    full_name: str | None = Field(default=None, max_length=100)
     active_role: UserRole = Field(default=UserRole.CLIENT)
     is_email_verified: bool = Field(default=False, nullable=True)
 
@@ -111,7 +164,7 @@ class UserCreate(UserBase):
 class UserRegister(SQLModel):
     email: EmailStr = Field(max_length=255)
     password: str = Field(min_length=8, max_length=128)
-    full_name: str | None = Field(default=None, max_length=255)
+    full_name: str | None = Field(default=None, max_length=100)
     active_role: UserRole = Field(default=UserRole.CLIENT)
     role: UserRole | None = Field(
         default=None, description="Alias for active_role from registration form"
@@ -133,13 +186,13 @@ class UserUpdate(SQLModel):
     email: EmailStr | None = Field(default=None, max_length=255)
     is_active: bool | None = None
     is_superuser: bool | None = None
-    full_name: str | None = Field(default=None, max_length=255)
+    full_name: str | None = Field(default=None, max_length=100)
     active_role: UserRole | None = None
     password: str | None = Field(default=None, min_length=8, max_length=128)
 
 
 class UserUpdateMe(SQLModel):
-    full_name: str | None = Field(default=None, max_length=255)
+    full_name: str | None = Field(default=None, max_length=100)
     email: EmailStr | None = Field(default=None, max_length=255)
     active_role: UserRole | None = None
     password: str | None = Field(default=None, min_length=8, max_length=128)
@@ -335,10 +388,15 @@ class MediasPublic(SQLModel):
 
 
 class ExperienceBase(SQLModel):
-    title: str = Field(max_length=255)
-    organization: str | None = Field(default=None, max_length=255)
-    detail: str | None = Field(default=None, max_length=5000)
+    title: str = Field(min_length=1, max_length=100)
+    organization: str | None = Field(default=None, max_length=100)
+    detail: str | None = Field(default=None, max_length=1000)
     url: str | None = Field(default=None, max_length=2048)
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, v: str | None) -> str | None:
+        return validate_https_url(v)
 
 
 class ExperienceCreate(ExperienceBase):
@@ -346,10 +404,15 @@ class ExperienceCreate(ExperienceBase):
 
 
 class ExperienceUpdate(SQLModel):
-    title: str | None = Field(default=None, max_length=255)
-    organization: str | None = Field(default=None, max_length=255)
-    detail: str | None = Field(default=None, max_length=5000)
+    title: str | None = Field(default=None, min_length=1, max_length=100)
+    organization: str | None = Field(default=None, max_length=100)
+    detail: str | None = Field(default=None, max_length=1000)
     url: str | None = Field(default=None, max_length=2048)
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, v: str | None) -> str | None:
+        return validate_https_url(v)
 
 
 class Experience(ExperienceBase, table=True):
@@ -384,16 +447,21 @@ class ExperiencePublic(ExperienceBase):
 
 
 class EducationBase(SQLModel):
-    institution: str | None = Field(default=None, max_length=255)
-    degree: str | None = Field(default=None, max_length=255)
-    field_of_study: str | None = Field(default=None, max_length=255)
+    institution: str | None = Field(default=None, max_length=100)
+    degree: str | None = Field(default=None, max_length=100)
+    field_of_study: str | None = Field(default=None, max_length=100)
     start_date: str | None = Field(default=None, max_length=50)
     end_date: str | None = Field(default=None, max_length=50)
-    description: str | None = Field(default=None, max_length=2000)
-    title: str | None = Field(default=None, max_length=255)
-    organization: str | None = Field(default=None, max_length=255)
-    detail: str | None = Field(default=None, max_length=5000)
+    description: str | None = Field(default=None, max_length=1000)
+    title: str | None = Field(default=None, max_length=100)
+    organization: str | None = Field(default=None, max_length=100)
+    detail: str | None = Field(default=None, max_length=1000)
     url: str | None = Field(default=None, max_length=2048)
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, v: str | None) -> str | None:
+        return validate_https_url(v)
 
     @model_validator(mode="after")
     def _sync_education_fields(self) -> Self:
@@ -401,6 +469,9 @@ class EducationBase(SQLModel):
             self.degree = self.title
         elif self.degree and not self.title:
             self.title = self.degree
+
+        if not self.degree and not self.title:
+            raise ValueError("Degree or qualification is required.")
 
         if self.organization and not self.institution:
             self.institution = self.organization
@@ -419,16 +490,39 @@ class EducationCreate(EducationBase):
 
 
 class EducationUpdate(SQLModel):
-    institution: str | None = Field(default=None, max_length=255)
-    degree: str | None = Field(default=None, max_length=255)
-    field_of_study: str | None = Field(default=None, max_length=255)
+    institution: str | None = Field(default=None, max_length=100)
+    degree: str | None = Field(default=None, max_length=100)
+    field_of_study: str | None = Field(default=None, max_length=100)
     start_date: str | None = Field(default=None, max_length=50)
     end_date: str | None = Field(default=None, max_length=50)
-    description: str | None = Field(default=None, max_length=2000)
-    title: str | None = Field(default=None, max_length=255)
-    organization: str | None = Field(default=None, max_length=255)
-    detail: str | None = Field(default=None, max_length=5000)
+    description: str | None = Field(default=None, max_length=1000)
+    title: str | None = Field(default=None, max_length=100)
+    organization: str | None = Field(default=None, max_length=100)
+    detail: str | None = Field(default=None, max_length=1000)
     url: str | None = Field(default=None, max_length=2048)
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, v: str | None) -> str | None:
+        return validate_https_url(v)
+
+    @model_validator(mode="after")
+    def _sync_education_fields(self) -> Self:
+        if self.title and not self.degree:
+            self.degree = self.title
+        elif self.degree and not self.title:
+            self.title = self.degree
+
+        if self.organization and not self.institution:
+            self.institution = self.organization
+        elif self.institution and not self.organization:
+            self.organization = self.institution
+
+        if self.detail and not self.description:
+            self.description = self.detail
+        elif self.description and not self.detail:
+            self.detail = self.description
+        return self
 
 
 class Education(EducationBase, table=True):
@@ -458,12 +552,17 @@ class EducationPublic(EducationBase):
 
 
 class PortfolioItemBase(SQLModel):
-    title: str = Field(max_length=255)
-    description: str | None = Field(default=None, max_length=5000)
+    title: str = Field(min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=1000)
     image_url: str | None = Field(default=None, max_length=2048)
-    organization: str | None = Field(default=None, max_length=255)
-    detail: str | None = Field(default=None, max_length=5000)
+    organization: str | None = Field(default=None, max_length=100)
+    detail: str | None = Field(default=None, max_length=1000)
     url: str | None = Field(default=None, max_length=2048)
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, v: str | None) -> str | None:
+        return validate_https_url(v)
 
     @model_validator(mode="after")
     def _sync_portfolio_fields(self) -> Self:
@@ -479,12 +578,25 @@ class PortfolioItemCreate(PortfolioItemBase):
 
 
 class PortfolioItemUpdate(SQLModel):
-    title: str | None = Field(default=None, max_length=255)
-    description: str | None = Field(default=None, max_length=5000)
+    title: str | None = Field(default=None, min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=1000)
     image_url: str | None = Field(default=None, max_length=2048)
-    organization: str | None = Field(default=None, max_length=255)
-    detail: str | None = Field(default=None, max_length=5000)
+    organization: str | None = Field(default=None, max_length=100)
+    detail: str | None = Field(default=None, max_length=1000)
     url: str | None = Field(default=None, max_length=2048)
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, v: str | None) -> str | None:
+        return validate_https_url(v)
+
+    @model_validator(mode="after")
+    def _sync_portfolio_fields(self) -> Self:
+        if self.detail and not self.description:
+            self.description = self.detail
+        elif self.description and not self.detail:
+            self.detail = self.description
+        return self
 
 
 class PortfolioItem(PortfolioItemBase, table=True):
@@ -519,9 +631,9 @@ class PortfolioItemPublic(PortfolioItemBase):
 
 
 class FreelancerProfileBase(SQLModel):
-    title: str | None = Field(default=None, max_length=255)
-    bio: str | None = Field(default=None, max_length=5000)
-    hourly_rate: float | None = Field(default=None, ge=0)
+    title: str | None = Field(default=None, max_length=100)
+    bio: str | None = Field(default=None, max_length=3000)
+    hourly_rate: float | None = Field(default=None, ge=10, le=5000)
     years_of_experience: int | None = Field(default=None, ge=0)
     is_available: bool = True
     availability: str | None = Field(default="Available now", max_length=100)
@@ -536,11 +648,16 @@ class FreelancerProfileBase(SQLModel):
 class FreelancerProfileCreate(FreelancerProfileBase):
     skills: list[str] = Field(default_factory=list)
 
+    @field_validator("skills")
+    @classmethod
+    def validate_skills(cls, v: list[str]) -> list[str]:
+        return validate_skills_list(v) or []
+
 
 class FreelancerProfileUpdate(SQLModel):
-    title: str | None = Field(default=None, max_length=255)
-    bio: str | None = Field(default=None, max_length=5000)
-    hourly_rate: float | None = Field(default=None, ge=0)
+    title: str | None = Field(default=None, max_length=100)
+    bio: str | None = Field(default=None, max_length=3000)
+    hourly_rate: float | None = Field(default=None, ge=10, le=5000)
     years_of_experience: int | None = Field(default=None, ge=0)
     is_available: bool | None = None
     availability: str | None = Field(default=None, max_length=100)
@@ -551,10 +668,24 @@ class FreelancerProfileUpdate(SQLModel):
     timezone: str | None = Field(default=None, max_length=100)
     languages: str | None = Field(default=None, max_length=500)
     skills: list[str] | None = None
-    full_name: str | None = Field(default=None, max_length=255)
+    full_name: str | None = Field(default=None, max_length=100)
     experiences: list[ExperienceCreate] | None = None
     educations: list[EducationCreate] | None = None
     portfolio: list[PortfolioItemCreate] | None = None
+
+    @field_validator("skills")
+    @classmethod
+    def validate_skills(cls, v: list[str] | None) -> list[str] | None:
+        return validate_skills_list(v)
+
+    @field_validator("bio")
+    @classmethod
+    def validate_bio(cls, v: str | None) -> str | None:
+        if v is not None:
+            stripped = v.strip()
+            if stripped and (len(stripped) < 80 or len(stripped) > 3000):
+                raise ValueError('"About you" must be between 80 and 3,000 characters.')
+        return v
 
 
 class FreelancerAvailabilityUpdate(SQLModel):
@@ -653,10 +784,10 @@ class FreelancerAvailabilityPublic(SQLModel):
 
 
 class ClientProfileBase(SQLModel):
-    company: str | None = Field(default=None, max_length=255)
+    company: str | None = Field(default=None, max_length=100)
     company_role: str | None = Field(
         default=None,
-        max_length=255,
+        max_length=100,
         description="Position or title at company, e.g. Product Lead, Founder",
     )
     company_website: str | None = Field(default=None, max_length=2048)
@@ -678,17 +809,43 @@ class ClientProfileCreate(ClientProfileBase):
 
 
 class ClientProfileUpdate(SQLModel):
-    company: str | None = Field(default=None, max_length=255)
-    company_role: str | None = Field(default=None, max_length=255)
+    company: str | None = Field(default=None, max_length=100)
+    company_role: str | None = Field(default=None, max_length=100)
     company_website: str | None = Field(default=None, max_length=2048)
     company_size: str | None = Field(default=None, max_length=50)
     location: str | None = Field(default=None, max_length=255)
     description: str | None = Field(default=None, max_length=5000)
     full_name: str | None = Field(
         default=None,
-        max_length=255,
+        max_length=100,
         description="Optional update to user's full name in the same request",
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_role_alias(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "role" in data and "company_role" not in data:
+                data = dict(data)
+                data["company_role"] = data["role"]
+            elif "company_role" in data and "role" not in data:
+                data = dict(data)
+                data["role"] = data["company_role"]
+        return data
+
+    @field_validator("company_website")
+    @classmethod
+    def validate_website(cls, v: str | None) -> str | None:
+        return validate_https_url(v)
+
+    @field_validator("company_size")
+    @classmethod
+    def validate_company_size(cls, v: str | None) -> str | None:
+        if v is not None and v.strip() and v.strip() not in ALLOWED_COMPANY_SIZES:
+            raise ValueError(
+                f"Company size must be one of: {', '.join(sorted(ALLOWED_COMPANY_SIZES))}"
+            )
+        return v
 
 
 class ClientProfile(ClientProfileBase, table=True):
@@ -736,9 +893,18 @@ class ReviewBase(SQLModel):
     rating: int = Field(ge=1, le=5, description="Stars review between 1 and 5")
     comment: str = Field(
         min_length=1,
-        max_length=3000,
-        description="Review comment on freelancer profile",
+        max_length=200,
+        description="Review feedback on freelancer profile",
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_feedback_alias(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "feedback" in data and "comment" not in data:
+                data = dict(data)
+                data["comment"] = data["feedback"]
+        return data
 
 
 class ReviewCreate(ReviewBase):
@@ -747,7 +913,16 @@ class ReviewCreate(ReviewBase):
 
 class ReviewUpdate(SQLModel):
     rating: int | None = Field(default=None, ge=1, le=5)
-    comment: str | None = Field(default=None, min_length=1, max_length=3000)
+    comment: str | None = Field(default=None, min_length=1, max_length=200)
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_feedback_alias(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "feedback" in data and "comment" not in data:
+                data = dict(data)
+                data["comment"] = data["feedback"]
+        return data
 
 
 class Review(ReviewBase, table=True):
@@ -989,8 +1164,20 @@ class ConversationsPublic(SQLModel):
 # ==============================================================================
 
 
+def normalize_experience_level(val: str | None) -> str | None:
+    if not val:
+        return None
+    val_clean = val.strip().lower()
+    for level in JOB_EXPERIENCE_LEVELS:
+        if val_clean == level.lower():
+            return level
+    raise ValueError(
+        f"Experience level must be one of: {', '.join(repr(lvl) for lvl in JOB_EXPERIENCE_LEVELS)}"
+    )
+
+
 class JobPostBase(SQLModel):
-    title: str = Field(min_length=1, max_length=255)
+    title: str = Field(min_length=1, max_length=100)
     description: str = Field(min_length=1, max_length=5000)
     budget_type: BudgetType = Field(default=BudgetType.FIXED)
     budget: float = Field(ge=0)
@@ -1001,10 +1188,63 @@ class JobPostBase(SQLModel):
 
 class JobPostCreate(JobPostBase):
     skills: list[str] = Field(default_factory=list)
+    level: str | None = Field(default=None, description="Experience level")
+
+    @field_validator("skills")
+    @classmethod
+    def validate_skills(cls, v: list[str]) -> list[str]:
+        return validate_skills_list(v) or []
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_level_alias(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "experience_level" in data and "level" not in data:
+                data = dict(data)
+                data["level"] = data["experience_level"]
+        return data
+
+    @model_validator(mode="after")
+    def validate_job_post(self) -> Self:
+        if self.level:
+            self.level = normalize_experience_level(self.level)
+        else:
+            extracted_level, _ = parse_job_experience(self.description)
+            if extracted_level:
+                self.level = extracted_level
+
+        _, core = parse_job_experience(self.description)
+        core_len = len(core.strip())
+
+        if self.status == JobStatus.OPEN:
+            if not self.level:
+                raise ValueError("Experience level is required.")
+            if core_len < 80:
+                raise ValueError("Project description must be at least 80 characters.")
+            if core_len > 2000:
+                raise ValueError("Project description cannot exceed 2000 characters.")
+            if self.budget_type == BudgetType.HOURLY:
+                if not (10 <= self.budget <= 5000):
+                    raise ValueError("Hourly rate must be between 10 and 5,000 DH.")
+            elif self.budget_type == BudgetType.FIXED:
+                if not (100 <= self.budget <= 500000):
+                    raise ValueError("Fixed price budget must be between 100 and 500,000 DH.")
+        elif self.status == JobStatus.DRAFT:
+            if core_len > 2000:
+                raise ValueError("Project description cannot exceed 2000 characters.")
+            if self.budget > 0:
+                if self.budget_type == BudgetType.HOURLY and not (10 <= self.budget <= 5000):
+                    raise ValueError("Hourly rate must be between 10 and 5,000 DH.")
+                elif self.budget_type == BudgetType.FIXED and not (100 <= self.budget <= 500000):
+                    raise ValueError("Fixed price budget must be between 100 and 500,000 DH.")
+
+        if self.level:
+            self.description = format_job_experience(core, self.level)
+        return self
 
 
 class JobPostUpdate(SQLModel):
-    title: str | None = Field(default=None, min_length=1, max_length=255)
+    title: str | None = Field(default=None, min_length=1, max_length=100)
     description: str | None = Field(default=None, min_length=1, max_length=5000)
     budget_type: BudgetType | None = None
     budget: float | None = Field(default=None, ge=0)
@@ -1012,6 +1252,43 @@ class JobPostUpdate(SQLModel):
     category: str | None = Field(default=None, max_length=100)
     status: JobStatus | None = None
     skills: list[str] | None = None
+    level: str | None = Field(default=None)
+
+    @field_validator("skills")
+    @classmethod
+    def validate_skills(cls, v: list[str] | None) -> list[str] | None:
+        return validate_skills_list(v)
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_level_alias(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "experience_level" in data and "level" not in data:
+                data = dict(data)
+                data["level"] = data["experience_level"]
+        return data
+
+    @model_validator(mode="after")
+    def validate_job_update(self) -> Self:
+        if self.level:
+            self.level = normalize_experience_level(self.level)
+        if self.description:
+            extracted_level, core = parse_job_experience(self.description)
+            if extracted_level and not self.level:
+                self.level = extracted_level
+            core_len = len(core.strip())
+            if self.status == JobStatus.OPEN and core_len < 80:
+                raise ValueError("Project description must be at least 80 characters.")
+            if core_len > 2000:
+                raise ValueError("Project description cannot exceed 2000 characters.")
+            if self.level:
+                self.description = format_job_experience(core, self.level)
+        if self.budget is not None and self.budget_type is not None:
+            if self.budget_type == BudgetType.HOURLY and not (10 <= self.budget <= 5000):
+                raise ValueError("Hourly rate must be between 10 and 5,000 DH.")
+            elif self.budget_type == BudgetType.FIXED and not (100 <= self.budget <= 500000):
+                raise ValueError("Fixed price budget must be between 100 and 500,000 DH.")
+        return self
 
 
 class JobPost(JobPostBase, table=True):
@@ -1283,7 +1560,7 @@ class SystemHealth(SQLModel):
 
 
 class ConnectionBase(SQLModel):
-    note: str | None = Field(default=None, max_length=500)
+    note: str | None = Field(default=None, max_length=300)
 
 
 class ConnectionCreate(ConnectionBase):

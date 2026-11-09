@@ -50,6 +50,7 @@ from app.models import (
     User,
     UserPublic,
     UserRole,
+    validate_https_url,
 )
 from app.services.search import build_freelancer_search_filter
 
@@ -347,6 +348,79 @@ def update_profile_me(
     if current_user.active_role != UserRole.FREELANCER:
         current_user.active_role = UserRole.FREELANCER
         session.add(current_user)
+
+    if profile_in.finished is True:
+        full_name = (profile_in.full_name or current_user.full_name or "").strip()
+        if not full_name:
+            raise HTTPException(
+                status_code=400,
+                detail="Full name is required to complete profile setup.",
+            )
+        if len(full_name) > 100:
+            raise HTTPException(
+                status_code=400,
+                detail="Full name cannot exceed 100 characters.",
+            )
+
+        title = (
+            profile_in.title
+            if profile_in.title is not None
+            else profile.title or ""
+        ).strip()
+        if not title:
+            raise HTTPException(
+                status_code=400,
+                detail="Professional title is required to complete profile setup.",
+            )
+        if len(title) > 100:
+            raise HTTPException(
+                status_code=400,
+                detail="Professional title cannot exceed 100 characters.",
+            )
+
+        bio = (
+            profile_in.bio
+            if profile_in.bio is not None
+            else profile.bio or ""
+        ).strip()
+        if not bio or len(bio) < 80 or len(bio) > 3000:
+            raise HTTPException(
+                status_code=400,
+                detail='"About you" must be between 80 and 3,000 characters to complete profile setup.',
+            )
+
+        hourly_rate = (
+            profile_in.hourly_rate
+            if profile_in.hourly_rate is not None
+            else profile.hourly_rate
+        )
+        if hourly_rate is None or not (10 <= hourly_rate <= 5000):
+            raise HTTPException(
+                status_code=400,
+                detail="Hourly rate is required and must be between 10 and 5,000 DH.",
+            )
+
+        hours = (
+            profile_in.hours
+            if profile_in.hours is not None
+            else profile.hours or ""
+        ).strip()
+        if not hours:
+            raise HTTPException(
+                status_code=400,
+                detail="Weekly hours is required to complete profile setup.",
+            )
+
+        skills = (
+            profile_in.skills
+            if profile_in.skills is not None
+            else profile.skills or []
+        )
+        if not skills:
+            raise HTTPException(
+                status_code=400,
+                detail="At least one skill is required to complete profile setup.",
+            )
 
     update_dict = profile_in.model_dump(
         exclude_unset=True,
@@ -841,6 +915,9 @@ def create_portfolio_item(
     return item
 
 
+MAX_PORTFOLIO_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
+
+
 @router.post("/me/portfolio/upload", response_model=PortfolioItemPublic)
 async def upload_portfolio_item(
     *,
@@ -848,11 +925,50 @@ async def upload_portfolio_item(
     current_user: CurrentUser,
     title: str = Form(...),
     description: str = Form(...),
+    organization: str | None = Form(None),
+    url: str | None = Form(None),
     file: UploadFile = File(...),
 ) -> Any:
     """
     Upload an image for a new portfolio item and save title and description.
     """
+    title_trimmed = title.strip()
+    if not title_trimmed:
+        raise HTTPException(
+            status_code=400, detail="Project title is required."
+        )
+    if len(title_trimmed) > 100:
+        raise HTTPException(
+            status_code=400,
+            detail="Project title cannot exceed 100 characters.",
+        )
+
+    desc_trimmed = description.strip()
+    if len(desc_trimmed) > 1000:
+        raise HTTPException(
+            status_code=400,
+            detail="Description cannot exceed 1000 characters.",
+        )
+
+    org_trimmed = organization.strip() if organization else None
+    if org_trimmed and len(org_trimmed) > 100:
+        raise HTTPException(
+            status_code=400,
+            detail="Client & context cannot exceed 100 characters.",
+        )
+
+    validated_url: str | None = None
+    if url and url.strip():
+        try:
+            validated_url = validate_https_url(url.strip())
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    if file.size is not None and file.size > MAX_PORTFOLIO_IMAGE_SIZE:
+        raise HTTPException(
+            status_code=413, detail="Project image size cannot exceed 5MB."
+        )
+
     profile = session.exec(
         select(FreelancerProfile).where(FreelancerProfile.user_id == current_user.id)
     ).first()
@@ -868,18 +984,25 @@ async def upload_portfolio_item(
 
     item_id = uuid.uuid4()
     contents = await file.read()
-    url = await run_in_threadpool(
+    if len(contents) > MAX_PORTFOLIO_IMAGE_SIZE:
+        raise HTTPException(
+            status_code=413, detail="Project image size cannot exceed 5MB."
+        )
+    url_uploaded = await run_in_threadpool(
         claudinary_upload_media, item_id, contents, media_type="image"
     )
-    if not url:
+    if not url_uploaded:
         raise HTTPException(status_code=500, detail="Failed to upload portfolio image")
 
     item = PortfolioItem(
         id=item_id,
         freelancer_profile_id=profile.id,
-        title=title,
-        description=description,
-        image_url=url,
+        title=title_trimmed,
+        description=desc_trimmed,
+        detail=desc_trimmed,
+        organization=org_trimmed,
+        url=validated_url,
+        image_url=url_uploaded,
     )
     session.add(item)
     session.commit()

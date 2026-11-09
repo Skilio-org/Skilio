@@ -66,9 +66,70 @@ def update_client_profile_me(
         profile = ClientProfile(user_id=current_user.id)
         session.add(profile)
 
+    # Validate required fields
+    full_name = (
+        profile_in.full_name
+        if profile_in.full_name is not None
+        else current_user.full_name or ""
+    ).strip()
+    if not full_name:
+        raise HTTPException(
+            status_code=400,
+            detail="Full name is required.",
+        )
+    if len(full_name) > 100:
+        raise HTTPException(
+            status_code=400,
+            detail="Full name cannot exceed 100 characters.",
+        )
+
+    role = (
+        profile_in.company_role
+        if profile_in.company_role is not None
+        else profile.company_role or ""
+    ).strip()
+    if not role:
+        raise HTTPException(
+            status_code=400,
+            detail="Role is required.",
+        )
+    if len(role) > 100:
+        raise HTTPException(
+            status_code=400,
+            detail="Role cannot exceed 100 characters.",
+        )
+
+    location = (
+        profile_in.location
+        if profile_in.location is not None
+        else profile.location or ""
+    ).strip()
+    if not location:
+        raise HTTPException(
+            status_code=400,
+            detail="Location is required.",
+        )
+
+    size = (
+        profile_in.company_size
+        if profile_in.company_size is not None
+        else profile.company_size or ""
+    ).strip()
+    if not size:
+        raise HTTPException(
+            status_code=400,
+            detail="Company size is required.",
+        )
+
+    if profile_in.company is not None and len(profile_in.company.strip()) > 100:
+        raise HTTPException(
+            status_code=400,
+            detail="Company name cannot exceed 100 characters.",
+        )
+
     # Update full_name on User model if provided
     if profile_in.full_name is not None and profile_in.full_name != current_user.full_name:
-        current_user.full_name = profile_in.full_name
+        current_user.full_name = profile_in.full_name.strip()
         session.add(current_user)
 
     update_data = profile_in.model_dump(exclude_unset=True, exclude={"full_name"})
