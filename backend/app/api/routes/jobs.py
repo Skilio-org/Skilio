@@ -596,7 +596,7 @@ def create_job(
         )
 
     skills = [s.strip() for s in job_in.skills if s.strip()]
-    job_data = job_in.model_dump(exclude={"skills"})
+    job_data = job_in.model_dump(exclude={"skills", "level"})
     job = JobPost(**job_data, skills=skills, client_id=current_user.id)
     session.add(job)
     session.commit()
@@ -715,7 +715,7 @@ def update_job(
     if not current_user.is_superuser and (job.client_id != current_user.id):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
-    update_data = job_in.model_dump(exclude_unset=True, exclude={"skills"})
+    update_data = job_in.model_dump(exclude_unset=True, exclude={"skills", "level"})
     if update_data:
         update_data["updated_at"] = datetime.now(UTC)
         job.sqlmodel_update(update_data)

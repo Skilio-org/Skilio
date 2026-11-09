@@ -41,6 +41,7 @@ from app.utils import (
 )
 
 ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"]
+MAX_AVATAR_SIZE = 5 * 1024 * 1024  # 5MB
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -108,12 +109,27 @@ async def upload_avatar(
     current_user: CurrentUser,
 ) -> AvatarResponse:
     """Uploads avatar asynchronously without blocking the event loop."""
-    if file.size is None or file.size > 1024 * 1024 * 20 or file.content_type not in ALLOWED_MIME_TYPES:
+    if file.content_type not in ALLOWED_MIME_TYPES:
         raise HTTPException(
-                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-                detail="That is not an image buddy.."
-            )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unsupported image format. Allowed formats: JPEG, PNG, WebP.",
+        )
+    if file.size is not None and file.size > MAX_AVATAR_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="Profile avatar size cannot exceed 5MB",
+        )
     contents = await file.read()
+    if len(contents) > MAX_AVATAR_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="Profile avatar size cannot exceed 5MB",
+        )
+    if not contents:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Avatar file cannot be empty",
+        )
     url = await run_in_threadpool(
         claudinary_upload_media, current_user.id, contents, media_type="image"
     )
