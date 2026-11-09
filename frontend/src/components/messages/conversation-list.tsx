@@ -6,7 +6,7 @@ import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "@/hooks/isClientProfile"
 import { useChatData } from "@/hooks/useChatData"
 import { createFallbackProfile } from "@/hooks/useProfiles"
-import { UserPublic } from "@/client"
+import type { UserPublic } from "@/client"
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 // import { useAutoAnimate } from "@formkit/auto-animate";
 
