@@ -26,7 +26,7 @@ Rather than treating backups and monitoring as isolated scripts, our architectur
  │     1. ACTIVE OBSERVABILITY      │ ──▶  │       2. DATA PROTECTION         │ ──▶  │      3. RESILIENCE DRILL         │
  │  • Deep /api/v1/health Probe     │      │  • Streaming pg_dump | gzip -9   │      │  • Non-Destructive Sandbox Drill │
  │  • Public /status Live Dashboard │      │  • Containerized 02:00 UTC Cron  │      │  • RTO < 60s (Runs in < 5s)      │
- │  • 10s Auto-Polling Telemetry    │      │  • 7-Day FIFO Ring Buffer        │      │  • Assert 17/17 Table Integrity  │
+ │  • 10s Auto-Polling Telemetry    │      │  • 7-Day FIFO Ring Buffer        │      │  • Assert 19/19 Table Integrity  │
  └──────────────────────────────────┘      └──────────────────────────────────┘      └──────────────────────────────────┘
 ```
 
@@ -51,7 +51,7 @@ Rather than treating backups and monitoring as isolated scripts, our architectur
  ┌───────────────────┐                                   ┌───────────────────┐
  │ PostgreSQL 18 DB  │                                   │      Redis 8      │
  │ Primary: 'app'    │                                   │ In-Memory Cache   │
- │ (17 Tables)       │                                   │ & Real-Time Chat  │
+ │ (19 Tables)       │                                   │ & Real-Time Chat  │
  └─────────┬─────────┘                                   └───────────────────┘
            │
            │ Automated Backup Stream (crond 02:00 UTC / entrypoint.sh)
@@ -96,7 +96,7 @@ Rather than treating backups and monitoring as isolated scripts, our architectur
 
 ### Key Architecture Features
 * **Single-Command Restoration ([`restore.sh`](../backup/restore.sh)):** Running `make restore` terminates lingering connection locks via `pg_terminate_backend`, resets schema `public`, and streams the latest archive in $< 15\text{s}$.
-* **Automated Sandbox Verification Drill ([`dr-test.sh`](../backup/dr-test.sh)):** An untested backup is not a backup. Running `make dr-test` creates an isolated test database (`dr_drill_sandbox`), restores the latest snapshot, asserts that all 17 public tables match production 100%, and drops the sandbox.
+* **Automated Sandbox Verification Drill ([`dr-test.sh`](../backup/dr-test.sh)):** An untested backup is not a backup. Running `make dr-test` creates an isolated test database (`dr_drill_sandbox`), restores the latest snapshot, asserts that all 19 public tables match production 100%, and drops the sandbox.
 * **RTO Performance Guarantee:** 42 subject requires $\text{RTO} < 60\text{ seconds}$. Our drill completes full verification and table assertion in **$< 5\text{ seconds}$**.
 * **Zero Production Risk:** Drills run in an ephemeral sandbox without downtime or impact on active users.
 

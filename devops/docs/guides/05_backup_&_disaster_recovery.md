@@ -1,5 +1,5 @@
 # 🛡️ Stage 5: Health Check, Automated Backups & Disaster Recovery
-### Presentation & Technical Guide (Module IV.7 Minor — 1 Pt)
+### Technical Architecture & Operations Guide (Module IV.7 Minor — 1 Pt)
 
 ---
 
@@ -41,7 +41,7 @@ flowchart TD
     subgraph BackupLayer["Backup & Disaster Recovery"]
         BackupDaemon["db-backup Container (Alpine)\n• Runs cron at 02:00 UTC daily\n• Runs backup once on container startup\n• Prints logs to terminal"]
         DumpsVolume[("./devops/backup/dumps/\n• Compressed .sql.gz files\n• Keeps the 7 newest files")]
-        Drill["dr-test.sh (Safe Disaster Recovery Test)\n• Creates temporary test database\n• Restores backup into it\n• Confirms all 17 tables match\n• Deletes test database in < 5s"]
+        Drill["dr-test.sh (Safe Disaster Recovery Test)\n• Creates temporary test database\n• Restores backup into it\n• Confirms all 19 tables match\n• Deletes test database in < 5s"]
     end
 
     Browser -->|Opens /status| StatusUI
@@ -190,7 +190,7 @@ make restore FILE=backup_app_20261101_020000.sql.gz
    ```bash
    gzip -dc "${BACKUP_FILE}" | psql -d app
    ```
-5. Confirms all 17 public tables are restored successfully.
+5. Confirms all 19 public tables are restored successfully.
 
 ---
 
@@ -202,10 +202,10 @@ make dr-test
 ```
 
 ```text
- 1. Check production DB ──▶ Counts 17 public tables in 'app'
+ 1. Check production DB ──▶ Counts 19 public tables in 'app'
  2. Create sandbox DB   ──▶ CREATE DATABASE dr_drill_sandbox
  3. Restore backup      ──▶ Restores latest backup into 'dr_drill_sandbox'
- 4. Verify tables       ──▶ Confirms all 17 tables match production
+ 4. Verify tables       ──▶ Confirms all 19 tables match production
  5. Clean up            ──▶ Drops 'dr_drill_sandbox' cleanly in < 5s
 ```
 * **Real site stays online** with zero interruption.
@@ -226,69 +226,3 @@ The endpoint `GET /api/v1/health` actively tests three components:
 * 🔴 **`503 Service Unavailable` (Unhealthy):** PostgreSQL is down (or disk $< 5\%$). Tells Traefik and users the app cannot operate.
 
 The React [`/status`](../../../frontend/src/routes/status.tsx) page automatically polls this endpoint every 10 seconds.
-
----
-
-## 5. 42 Evaluation Defense Script & Cheatsheet
-
-### 5.1 The 3-Minute Live Demo Script
-
-Follow these 4 steps in front of the evaluator:
-
-#### Step 1: Show the Live Status Page (45 seconds)
-1. Open `http://localhost:8080/status` in the browser.
-2. Show the green **"All Systems Operational"** banner.
-3. Point out the live query speed badges:
-   - **Database:** Query speed (e.g., `1.2 ms`).
-   - **Cache:** Redis ping speed (e.g., `0.8 ms`).
-   - **Storage:** Hard drive status.
-4. Point out the **10-second countdown timer** showing active background refresh.
-
-#### Step 2: List & Create a Backup (45 seconds)
-1. In your terminal, show existing backups:
-   ```bash
-   make backup-list
-   ```
-2. Create a new backup on the spot:
-   ```bash
-   make backup
-   ```
-3. Show the output:
-   - Streams through `gzip -9`.
-   - Passes `gzip -t` check.
-   - Enforces the 7-backup limit.
-
-#### Step 3: Run the Disaster Recovery Drill (45 seconds)
-1. In your terminal, run:
-   ```bash
-   make dr-test
-   ```
-2. Explain what just happened in $< 5\text{ seconds}$:
-   - Created a temporary database (`dr_drill_sandbox`).
-   - Restored the backup file into it.
-   - Checked that all 17 public tables match production.
-   - Deleted the temporary database cleanly.
-   - The real database had **zero downtime**. This proves our **$\text{RTO} < 60\text{s}$** requirement.
-
-#### Step 4: Outage Simulation (The "Wow" Factor) (45 seconds)
-1. In the terminal, stop the database:
-   ```bash
-   docker compose stop db
-   ```
-2. Switch back to the `/status` page in the browser:
-   - Within 10 seconds, the banner turns 🔴 **Red ("System Outage")**.
-   - The Database card shows **"UNHEALTHY (Database service unreachable)"**.
-3. Turn the database back on:
-   ```bash
-   docker compose start db
-   ```
-4. Within 10 seconds, the page turns back to 🟢 **Green ("All Systems Operational")**.
-
----
-
-### 5.2 The 30-Second Defense Elevator Pitch
-
-> *"Our high availability and disaster recovery system satisfies Module IV.7 Minor in three steps:  
-> 1. **Detection:** Our `/api/v1/health` endpoint actively tests PostgreSQL query speed (`SELECT 1`), Redis ping, and free disk space, updating our public `/status` page every 10 seconds.  
-> 2. **Protection:** A lightweight Alpine container runs daily at 02:00 UTC, streaming compressed database backups through memory with `gzip -9` without locking database tables (using PostgreSQL MVCC), verified by `gzip -t` and limited to the 7 newest files.  
-> 3. **Verification:** Running `make dr-test` restores our newest backup into a temporary sandbox database, verifies all 17 tables match production, and deletes the sandbox in under 5 seconds—proving a Recovery Time Objective of $\text{RTO} < 5\text{s}$ with zero risk to production data."*

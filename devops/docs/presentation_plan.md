@@ -148,13 +148,16 @@ Phase 4: Observability   ──▶ Phase 5: Disaster Recovery ──▶ Phase 6:
 ### 💾 Phase 5: Deep Health Diagnostics & Disaster Recovery (IV.7 Minor Module)
 * **Requirement:** Section IV.7 DevOps (Minor — 1 Point): Health Check & Disaster Recovery.
 * **Objective:** Prove data resilience, automated retention, and catastrophic recovery in `< 60s`.
-* **Show & Demo:**
-  * Open `/status` on the web app: show live DB query latency (< 2ms) and Redis latency (< 1ms).
-  * Run the live Disaster Recovery drill in terminal:
-    ```bash
-    make dr-test
-    ```
-* **Key Takeaway:** Automated rolling backups protect data with 7-day retention; the automated recovery drill restores the database in `< 5 seconds` (beating the `< 60s` RTO target).
+* **Show & Demo (4-Step Walkthrough):**
+  1. **Live Diagnostics Dashboard:** Open `/status` on the web app to show real-time DB latency (`< 2ms`), Redis latency (`< 1ms`), and the 10-second polling refresh.
+  2. **Automated Daemon:** Run `docker compose logs --tail 20 db-backup` to show the Alpine `crond` background scheduler and startup snapshot.
+  3. **Inventory & Pruning:** Run `make backup-list` to display the rolling 7-backup storage limit (~60KB total). Run `make backup` to demonstrate on-demand streaming and automatic FIFO pruning of the oldest archive.
+  4. **Non-Destructive DR Drill:** Run `make dr-test` in terminal:
+     ```bash
+     make dr-test
+     ```
+     Restores into an isolated `dr_drill_sandbox`, asserts that all 19 public tables match production 100%, and drops the sandbox with zero production downtime in **$< 5\text{ seconds}$** (beating the `< 60s` RTO target).
+* **Key Takeaway:** Real-time health monitoring, automated 7-day rolling backups, and proven point-in-time disaster recovery achieved in `< 5s`.
 
 ---
 
