@@ -1,14 +1,16 @@
-import { NotificationPublic, type ConversationDetailPublic, type ConversationsPublic } from "@/client"
+import type { NotificationPublic, ConversationDetailPublic, ConversationsPublic } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
 import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
+import { removeMessageFromCache } from "@/hooks/userConversation"
 import { useQueryClient } from "@tanstack/react-query"
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
+import type React from "react"
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
-export type sendState = "sent" | "failed" | "pending";
+export type sendState = "sent" | "failed" | "pending"
 
 type MessageSendState = Record<string, sendState>
-const enum WebSocketCloseCodes {
+enum WebSocketCloseCodes {
 	NormalClosure = 1000,
 	GoingAway = 1001,
 	ProtocolError = 1002,
@@ -29,8 +31,8 @@ export const AUTH_TOKEN_CHANGED_EVENT = "auth-token-changed"
 interface WebSocketContextType {
 	isConnected: boolean
 	sendMessage: (payload: any) => boolean
-	subscribe: (eventType: string, handler: WebSocketEventHandler) => () => void,
-	setMessageSendResult: (messageId: string, success: sendState) => void,
+	subscribe: (eventType: string, handler: WebSocketEventHandler) => () => void
+	setMessageSendResult: (messageId: string, success: sendState) => void
 	messageSendState: MessageSendState
 }
 
@@ -103,10 +105,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 			if (ws.readyState === WebSocket.CONNECTING) {
 				// Wait until it's open before cleanly closing, or close gracefully
 				ws.onopen = () => {
-					ws.close(1000);
-				};
+					ws.close(1000)
+				}
 			} else if (ws.readyState === WebSocket.OPEN) {
-				ws.close(1000);
+				ws.close(1000)
 			}
 			wsRef.current = null
 		}
@@ -150,62 +152,91 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 								if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "ping" }))
 							}, 25000)
 							return
-						};
-						case "chat_message": {
-							handleIncomingMessage(data.data, {
-								incrementUnread: true,
-								isViewingConversation: false,
-							})
-						} break;
-						case "notification": {
-							queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(),
-								(currentNotifications) => {
+						}
+						case "chat_message":
+							{
+								handleIncomingMessage(data.data, {
+									incrementUnread: true,
+									isViewingConversation: false,
+								})
+							}
+							break
+						case "notification":
+							{
+								queryClient.setQueryData<NotificationPublic[]>(chatKeys.notifications(), (currentNotifications) => {
 									if (!currentNotifications) {
 										return [data.data]
 									}
 									// Check if the notification already exists in the cache
-									const exists = currentNotifications.some(
-										(notification) => notification.id === data.data.id
-									)
+									const exists = currentNotifications.some((notification) => notification.id === data.data.id)
 									if (exists) {
 										return currentNotifications
 									}
 									return [data.data, ...currentNotifications]
 								})
 
-							const notifEvent = data.data?.event
-							if (
-								notifEvent === "connection_request" ||
-								notifEvent === "connection_accepted" ||
-								notifEvent === "connection_declined"
-							) {
-								queryClient.invalidateQueries({ queryKey: ["connections"] })
-							}
+								const notifEvent = data.data?.event
+								if (
+									notifEvent === "connection_request" ||
+									notifEvent === "connection_accepted" ||
+									notifEvent === "connection_declined"
+								) {
+									queryClient.invalidateQueries({ queryKey: ["connections"] })
+								}
 
-							toast.info(data.data.title, {
-								description: data.data.content || data.data.body,
-							})
-						} break;
-						case "message_ack": {
-							const clientMessageId = data.data?.client_message_id
-							if (clientMessageId) setMessageSendResult(clientMessageId, "sent")
-						} break;
-						case "message_ack_failed": {
-							const clientMessageId = data.data?.client_message_id
-							const what = data.data?.error;
-							if (what && clientMessageId) 
-								setMessageSendResult(clientMessageId, what)
-							else {
-								if (clientMessageId)
-									setMessageSendResult(clientMessageId, "failed");
+								toast.info(data.data.title, {
+									description: data.data.content || data.data.body,
+								})
 							}
-						} break;
-						case "messages_read": {
-							const convId = data.data?.conversation_id
-							if (convId) {
-								queryClient.setQueryData<ConversationDetailPublic>(
-									chatKeys.conversation(convId),
-									(current) => {
+							break
+						case "message_deleted":
+							{
+								const convId = data.data?.conversation_id
+								const messageId = data.data?.id
+
+								if (convId && messageId) {
+									removeMessageFromCache(queryClient, convId, messageId)
+								}
+							}
+							break
+						case "message_ack":
+							{
+								const clientMessageId = data.data?.client_message_id
+								const backendId = data.data?.id;
+								const convId = data.data?.conversation_id;
+								if (clientMessageId && backendId && convId) {
+									queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(convId), (current) => {
+										if (!current) return current
+										current.messages = current.messages?.map((m) => {
+											if (m.id === clientMessageId) {
+												return {
+													...m,
+													id: backendId,
+												}
+											}
+											return m
+										})
+										return current;
+									})
+									setMessageSendResult(clientMessageId, "sent")
+								}
+							}
+							break
+						case "message_ack_failed":
+							{
+								const clientMessageId = data.data?.client_message_id
+								const what = data.data?.error
+								if (what && clientMessageId) setMessageSendResult(clientMessageId, what)
+								else {
+									if (clientMessageId) setMessageSendResult(clientMessageId, "failed")
+								}
+							}
+							break
+						case "messages_read":
+							{
+								const convId = data.data?.conversation_id
+								if (convId) {
+									queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(convId), (current) => {
 										if (!current) return current
 										return {
 											...current,
@@ -214,11 +245,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 												is_read: true,
 											})),
 										}
-									},
-								)
-								queryClient.setQueryData<ConversationsPublic>(
-									chatKeys.conversations(),
-									(current) => {
+									})
+									queryClient.setQueryData<ConversationsPublic>(chatKeys.conversations(), (current) => {
 										if (!current) return current
 										return {
 											...current,
@@ -235,10 +263,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 												return conv
 											}),
 										}
-									},
-								)
+									})
+								}
 							}
-						} break;
+							break
 					}
 
 					const handlers = subscribersRef.current.get(eventType)
@@ -310,22 +338,21 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 		// connect()
 		const timer = setTimeout(() => {
 			if (isMountedRef.current) {
-				connect();
+				connect()
 			}
-	    }, 50);
+		}, 50)
 
 		window.addEventListener("storage", handleStorage)
 		window.addEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
 
 		return () => {
 			isMountedRef.current = false
-			clearTimeout(timer);
+			clearTimeout(timer)
 			window.removeEventListener("storage", handleStorage)
 			window.removeEventListener(AUTH_TOKEN_CHANGED_EVENT, handleAuthTokenChanged)
 			cleanupSocket()
 		}
 	}, [connect, cleanupSocket])
-
 
 	const sendMessage = useCallback((payload: any): boolean => {
 		if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -348,7 +375,9 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 	}, [])
 
 	return (
-		<WebSocketContext.Provider value={{ isConnected, sendMessage, subscribe, setMessageSendResult, messageSendState }}>{children}</WebSocketContext.Provider>
+		<WebSocketContext.Provider value={{ isConnected, sendMessage, subscribe, setMessageSendResult, messageSendState }}>
+			{children}
+		</WebSocketContext.Provider>
 	)
 }
 
