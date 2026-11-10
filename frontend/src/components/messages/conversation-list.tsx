@@ -33,7 +33,7 @@ export function ConversationList({
 	const { conversations, profiles } = useChatData()
 	const [listRef] = useAutoAnimate({ duration: 250, easing: "ease-in-out" })
 	const ids: string[] = conversations?.data?.data.map((conversation) => conversation.other_user?.id ?? "") ?? []
-	const { onlineUsers: _is, isPending, isOnline: _isOnline } = useUsersOnline(ids)
+	const { isPending, isOnline } = useUsersOnline(ids)
 
 	if (conversations.isPending || profiles.isPending || isPending) return "Loading...";
 
@@ -125,6 +125,7 @@ export function ConversationList({
 						if (!person) return null
 						const theme = getClientTheme(person.user_id)
 						const active = selected?.user_id === person.user_id
+						const userOnline = isOnline(person.user_id)
 						let roleAndLocation = ""
 
 						if (isClientProfile(person)) {
@@ -138,7 +139,7 @@ export function ConversationList({
 								key={person.user_id}
 								type="button"
 								aria-pressed={active}
-								aria-label={`${person.full_name ?? "Unknown user"}${(conversation.unread_count ?? 0) > 0 ? `, ${conversation.unread_count} unread messages` : ""}`}
+								aria-label={`${person.full_name ?? "Unknown user"}${userOnline ? ", online" : ", offline"}${(conversation.unread_count ?? 0) > 0 ? `, ${conversation.unread_count} unread messages` : ""}`}
 								onClick={() => onSelect(person.user_id)}
 								className={cn(
 									"group relative flex w-full items-start gap-3 border px-[12px] py-2 text-left transition-all",
@@ -148,16 +149,28 @@ export function ConversationList({
 								)}
 							>
 								{active && <span className="absolute left-0 top-3 bottom-3 w-[5px] rounded-ee rounded-se bg-primary" />}
-								<img
-									src={accountAvatarUrl(person.user_id)}
-									alt=""
-									className={cn(
-										"mt-0.5 grid size-12 shrink-0 place-items-center rounded-sm border font-label-sm font-semibold shadow-2xs transition-transform group-hover:scale-105",
-										theme.bg,
-										theme.text,
-										theme.border,
-									)}
-								/>
+								<div className="relative mt-0.5 shrink-0">
+									<img
+										src={accountAvatarUrl(person.user_id)}
+										alt=""
+										className={cn(
+											"grid size-12 place-items-center rounded-sm border font-label-sm font-semibold shadow-2xs transition-transform group-hover:scale-105",
+											theme.bg,
+											theme.text,
+											theme.border,
+										)}
+									/>
+									<span
+										aria-hidden="true"
+										className={cn(
+											"absolute -bottom-0.5 -right-0.5 z-10 size-2.5 rounded-full border-1",
+											userOnline
+												? "bg-[#b5ce5b] ring-1 ring-neutral-900"
+												: "bg-slate-400 ring-1 ring-neutral-900",
+										)}
+										title={userOnline ? "Online" : "Offline"}
+									/>
+								</div>
 								<span className="min-w-0 flex-1">
 									<span className="flex items-center justify-between gap-2">
 										<span
