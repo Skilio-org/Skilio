@@ -26,7 +26,7 @@ export const JobDetails = ({
 
 	const [connectOpen, setConnectOpen] = useState(false)
 	const [connectNote, setConnectNote] = useState("")
-	const { data: connectionStatus, isLoading: isLoading } = useConnectionStatus(job.clientId)
+	const { data: connectionStatus, isLoading: isLoading } = useConnectionStatus(job.clientId, "freelancer")
 	const sendConnectionMutation = useSendConnectionRequest()
 
 	const [applying, setApplying] = useState(() => initiallyApplying && !submitted)
@@ -77,6 +77,7 @@ export const JobDetails = ({
 				receiver_id: job.clientId,
 				job_post_id: job.id || undefined,
 				note: connectNote.trim() || undefined,
+				as_role: "freelancer",
 			});
 
 			setConnectOpen(false);

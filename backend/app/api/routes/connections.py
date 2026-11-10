@@ -5,11 +5,10 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 from fastapi import status as http_status
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import and_, col, func, or_, select
+from sqlmodel import and_, col, func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.notifications import push_notification
-from app.core.redis import publish_to_user
 from app.models import (
     Connection,
     ConnectionCreate,
@@ -66,6 +65,8 @@ def _build_connection_public(
         id=connection.id,
         sender_id=connection.sender_id,
         receiver_id=connection.receiver_id,
+        client_id=connection.client_id,
+        freelancer_id=connection.freelancer_id,
         job_post_id=connection.job_post_id,
         status=connection.status,
         note=connection.note,
@@ -102,6 +103,14 @@ async def send_connection_request(
             detail="User not found",
         )
 
+    effective_role = connection_in.as_role or current_user.active_role
+    if effective_role == UserRole.CLIENT:
+        client_id = current_user.id
+        freelancer_id = connection_in.receiver_id
+    else:
+        client_id = connection_in.receiver_id
+        freelancer_id = current_user.id
+
     # Validate job_post_id if provided
     if connection_in.job_post_id:
         job = session.get(JobPost, connection_in.job_post_id)
@@ -116,7 +125,7 @@ async def send_connection_request(
                 detail="Cannot connect referencing a draft job post",
             )
         if (
-            current_user.active_role == UserRole.FREELANCER
+            effective_role == UserRole.FREELANCER
             and job.client_id != connection_in.receiver_id
         ):
             raise HTTPException(
@@ -124,7 +133,7 @@ async def send_connection_request(
                 detail="The referenced job does not belong to the recipient",
             )
         if (
-            current_user.active_role == UserRole.CLIENT
+            effective_role == UserRole.CLIENT
             and job.client_id != current_user.id
         ):
             raise HTTPException(
@@ -132,18 +141,10 @@ async def send_connection_request(
                 detail="You can only reference your own job posts",
             )
 
-    # Check existing connection between the pair (in either direction)
+    # Check existing connection strictly between (client_id, freelancer_id)
     existing_stmt = select(Connection).where(
-        or_(
-            and_(
-                Connection.sender_id == current_user.id,
-                Connection.receiver_id == connection_in.receiver_id,
-            ),
-            and_(
-                Connection.sender_id == connection_in.receiver_id,
-                Connection.receiver_id == current_user.id,
-            ),
-        )
+        Connection.client_id == client_id,
+        Connection.freelancer_id == freelancer_id,
     )
     existing = session.exec(existing_stmt).first()
 
@@ -168,6 +169,8 @@ async def send_connection_request(
         # Re-open declined/withdrawn — set new sender/receiver and reset to pending
         existing.sender_id = current_user.id
         existing.receiver_id = connection_in.receiver_id
+        existing.client_id = client_id
+        existing.freelancer_id = freelancer_id
         existing.job_post_id = connection_in.job_post_id
         existing.note = connection_in.note
         existing.status = ConnectionStatus.PENDING
@@ -189,6 +192,8 @@ async def send_connection_request(
         conn = Connection(
             sender_id=current_user.id,
             receiver_id=connection_in.receiver_id,
+            client_id=client_id,
+            freelancer_id=freelancer_id,
             job_post_id=connection_in.job_post_id,
             note=connection_in.note,
             status=ConnectionStatus.PENDING,
@@ -224,6 +229,7 @@ async def send_connection_request(
 def list_connections(
     session: SessionDep,
     current_user: CurrentUser,
+    role: UserRole | None = Query(default=None),
     status: ConnectionStatus | None = Query(default=ConnectionStatus.ACCEPTED),
     type: str = Query(default="all", pattern="^(all|sent|received)$"),
     direction: str | None = Query(default=None, pattern="^(all|sent|received)$"),
@@ -232,23 +238,23 @@ def list_connections(
 ) -> Any:
     """
     List connections for the current user.
+    - filter by role (default current_user.active_role)
     - filter by status (default 'accepted', or 'pending', 'declined', 'withdrawn')
     - filter by type/direction: 'all', 'sent', 'received'
     """
     conditions = []
+    filter_role = role or current_user.active_role
+    if filter_role == UserRole.CLIENT:
+        conditions.append(Connection.client_id == current_user.id)
+    else:
+        conditions.append(Connection.freelancer_id == current_user.id)
+
     filter_dir = direction if direction is not None else type
 
     if filter_dir == "sent":
         conditions.append(Connection.sender_id == current_user.id)
     elif filter_dir == "received":
         conditions.append(Connection.receiver_id == current_user.id)
-    else:
-        conditions.append(
-            or_(
-                Connection.sender_id == current_user.id,
-                Connection.receiver_id == current_user.id,
-            )
-        )
 
     if status:
         conditions.append(Connection.status == status)
@@ -274,6 +280,7 @@ def get_connection_status(
     target_user_id: uuid.UUID,
     session: SessionDep,
     current_user: CurrentUser,
+    role: UserRole | None = Query(default=None),
 ) -> Any:
     """
     Get the relationship state between the current user and target user.
@@ -282,17 +289,17 @@ def get_connection_status(
     if target_user_id == current_user.id:
         return ConnectionStatusPublic(status="none", connection_id=None)
 
+    filter_role = role or current_user.active_role
+    if filter_role == UserRole.CLIENT:
+        client_id = current_user.id
+        freelancer_id = target_user_id
+    else:
+        client_id = target_user_id
+        freelancer_id = current_user.id
+
     stmt = select(Connection).where(
-        or_(
-            and_(
-                Connection.sender_id == current_user.id,
-                Connection.receiver_id == target_user_id,
-            ),
-            and_(
-                Connection.sender_id == target_user_id,
-                Connection.receiver_id == current_user.id,
-            ),
-        )
+        Connection.client_id == client_id,
+        Connection.freelancer_id == freelancer_id,
     )
     conn = session.exec(stmt).first()
 

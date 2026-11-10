@@ -3,8 +3,8 @@ import { ClientProfilesService, ProfilesService, ConversationsPublic, type UserP
 import { chatKeys } from "@/data/chat-keys"
 import type { ConversationProfile } from "@/hooks/isClientProfile"
 
-export function createFallbackProfile(user: UserPublic): ConversationProfile {
-	if (user.active_role === "freelancer") {
+export function createFallbackProfile(user: UserPublic, role?: "client" | "freelancer"): ConversationProfile {
+	if (role === "freelancer") {
 		return {
 			id: user.id,
 			user_id: user.id,
@@ -26,48 +26,55 @@ export function createFallbackProfile(user: UserPublic): ConversationProfile {
 	} as unknown as ConversationProfile
 }
 
-async function fetchProfile(user: UserPublic, signal: AbortSignal): Promise<ConversationProfile> {
+async function fetchProfile(
+	user: UserPublic,
+	role: "client" | "freelancer",
+	signal: AbortSignal,
+): Promise<ConversationProfile> {
 	try {
-		if (user.active_role === "freelancer") {
+		if (role === "freelancer") {
 			const { data } = await ProfilesService.readProfileByUserId({
 				path: { user_id: user.id },
 				signal,
 			})
-			return (data as ConversationProfile) ?? createFallbackProfile(user)
+			return (data as ConversationProfile) ?? createFallbackProfile(user, role)
 		}
 
 		const { data } = await ClientProfilesService.profilesReadClientProfileByUserId({
 			path: { user_id: user.id },
 			signal,
 		})
-		return (data as ConversationProfile) ?? createFallbackProfile(user)
+		return (data as ConversationProfile) ?? createFallbackProfile(user, role)
 	} catch (error) {
 		console.warn("Failed to fetch profile for user, using fallback profile:", user.id, error)
-		return createFallbackProfile(user)
+		return createFallbackProfile(user, role)
 	}
 }
 
 export function useProfiles(conversations: ConversationsPublic | undefined, conversationsLoaded: boolean) {
-	const users = (conversations?.data ?? [])
-		.map((conversation) => conversation.other_user)
-		.filter((user): user is UserPublic => Boolean(user))
+	const userRolePairs = (conversations?.data ?? [])
+		.filter((conv) => Boolean(conv.other_user))
+		.map((conv) => ({
+			user: conv.other_user as UserPublic,
+			role: conv.other_user_role as "client" | "freelancer",
+		}))
 
 	const profilesQueries = useQueries({
-		queries: users.map((user) => ({
-			queryKey: chatKeys.profile(user.id, user.active_role ?? "client"),
+		queries: userRolePairs.map(({ user, role }) => ({
+			queryKey: chatKeys.profile(user.id, role),
 			enabled: conversationsLoaded,
 			staleTime: 5 * 60 * 1000,
-			queryFn: ({ signal }: { signal: AbortSignal }) => fetchProfile(user, signal),
+			queryFn: ({ signal }: { signal: AbortSignal }) => fetchProfile(user, role, signal),
 		})),
 	})
 
 	const profiles = new Map<string, ConversationProfile>()
 	profilesQueries.forEach((query, index) => {
-		const user = users[index]
+		const { user, role } = userRolePairs[index]
 		if (query.data) {
 			profiles.set(user.id, query.data as ConversationProfile)
 		} else if (!query.isPending) {
-			profiles.set(user.id, createFallbackProfile(user))
+			profiles.set(user.id, createFallbackProfile(user, role))
 		}
 	})
 
