@@ -4,6 +4,7 @@ import { Logo } from "@/components/common/logo"
 import { ThemeToggle } from "@/components/common/theme-toggle"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import useAuth from "@/hooks/useAuth"
+import { useAccountRole } from "@/hooks/useAccountRole"
 
 const links = [
 	["#talent", "Find talent"],
@@ -18,6 +19,8 @@ export function LandingHeader() {
 	})
 	const isStatusPage = pathname === "/status"
 	const { user } = useAuth()
+	const role = useAccountRole()
+	const dashboardPath = role === "freelancer" ? "/freelancer-dashboard" : "/dashboard"
 
 	return (
 		<header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md transition-colors">
@@ -59,7 +62,7 @@ export function LandingHeader() {
 						</>
 					) : (
 						<Link
-							to="/dashboard"
+							to={dashboardPath}
 							className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-3.5 sm:px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
 						>
 							<span className="hidden xs:inline sm:inline">Dashboard</span>
