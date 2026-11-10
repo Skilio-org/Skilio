@@ -166,13 +166,14 @@ export function MessageThread({
 					<div className="flex items-center gap-1.5 font-caption text-caption text-on-surface-variant">
 						<span
 							aria-hidden="true"
+							title={isOnline ? "Online" : "Offline"}
 							className={cn(
-								"size-1.5 rounded-full",
+								"size-2.5 rounded-full border-1",
 								presencePending
 									? "animate-pulse bg-outline"
 									: isOnline
-										? "bg-emerald-500"
-										: "bg-outline",
+										? "bg-[#b5ce5b] ring-1 ring-neutral-900"
+										: "bg-slate-400 ring-1 ring-neutral-900",
 							)}
 						/>
 						<span>

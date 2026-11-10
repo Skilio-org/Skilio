@@ -15,3 +15,32 @@ export function useUserOnlineStatus(userId: string | undefined) {
 	})
 	return { isOnline: presence?.is_online ?? false, isPending }
 }
+
+export function useUsersOnline(userIds: string[]) {
+    const { data, isPending } = useQuery({
+        queryKey: ["chat", "presence", userIds],
+        enabled: userIds.length > 0,
+        refetchInterval: 30_000,
+        staleTime: 10_000,
+        queryFn: async ({ signal }) => {
+            const response = await ChatService.checkMultipleUserPresence({
+                query: { user_ids: userIds },
+                signal,
+            })
+
+            return response.data
+        },
+    })
+
+    // Create a Map of user IDs to their online status for quick lookup.
+	const onlineUsers =
+    Object.fromEntries(
+        data?.map((presence) => [presence.user_id, presence.is_online]) ?? [],
+    ) satisfies Record<string, boolean>
+
+    return {
+        onlineUsers,
+        isOnline: (userId: string) => onlineUsers[userId] ?? false,
+        isPending,
+    }
+}

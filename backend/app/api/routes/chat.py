@@ -338,6 +338,17 @@ def check_user_presence(user_id: uuid.UUID) -> Any:
     is_online = connection_manager.is_user_online(user_id)
     return UserPresence(user_id=user_id, is_online=is_online)
 
+@router.get("/presence", response_model=list[UserPresence])
+def check_multiple_user_presence(user_ids: list[uuid.UUID] = Query(...)) -> list[UserPresence]:
+    """
+    Check the presence status of multiple users.
+    """
+    presence_list = [
+        UserPresence(user_id=uid, is_online=connection_manager.is_user_online(uid))
+        for uid in user_ids
+    ]
+    return presence_list
+
 @router.post("/inject")
 async def inject_event(
     body: InjectPayload,
