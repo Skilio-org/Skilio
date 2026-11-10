@@ -100,14 +100,14 @@ export function ConnectsPage() {
 				action={<FindLink role={role} className={workspaceStyles.primaryAction} />}
 			/>
 
-			<nav aria-label="Connection tabs" className="flex gap-6 overflow-x-auto border-outline-variant border-b">
+			<nav aria-label="Connection tabs" className="-mx-4 flex gap-3 overflow-x-auto border-outline-variant border-b px-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:gap-6 sm:px-0">
 				{tabs.map((t) => (
 					<button
 						key={t.id}
 						type="button"
 						onClick={() => setActiveTab(t.id)}
 						aria-pressed={activeTab === t.id}
-						className={`min-h-12 shrink-0 border-b-2 px-1 font-medium text-sm ${activeTab === t.id ? "border-primary text-link" : "border-transparent text-on-surface-variant"}`}
+						className={`min-h-11 shrink-0 border-b-2 px-1 font-medium text-sm transition-colors whitespace-nowrap sm:min-h-12 ${activeTab === t.id ? "border-primary text-link" : "border-transparent text-on-surface-variant hover:text-on-surface"}`}
 					>
 						{t.label} <span className="ml-1 text-xs">{t.count}</span>
 					</button>
@@ -115,8 +115,8 @@ export function ConnectsPage() {
 			</nav>
 
 			{activeListLength > 0 && (
-				<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
-					<Search className="size-4 text-on-surface-variant" />
+				<label className="flex min-h-11 items-center gap-2.5 rounded-lg border border-input bg-surface-container-lowest px-3.5 sm:min-h-12 sm:gap-3 sm:px-4">
+					<Search className="size-4 shrink-0 text-on-surface-variant" />
 					<input
 						type="text"
 						aria-label="Filter connections"
@@ -156,7 +156,7 @@ export function ConnectsPage() {
 							}
 						/>
 					) : (
-						<div className="grid gap-4 md:grid-cols-2">
+						<div className="grid gap-3 sm:gap-4 md:grid-cols-2">
 							{filteredAccepted.map((conn) => (
 								<ConnectionCard
 									key={conn.id}
