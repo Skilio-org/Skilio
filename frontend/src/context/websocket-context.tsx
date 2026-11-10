@@ -3,7 +3,6 @@ import { chatKeys } from "@/data/chat-keys"
 import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
 import { removeMessageFromCache } from "@/hooks/userConversation"
 import { useQueryClient } from "@tanstack/react-query"
-import type React from "react"
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Camera, CheckCircle2, Globe, ImageUp, MapPin, Users } from "lucide-react"
-import { type ComponentProps, useState } from "react"
+import { type ComponentProps, FormEvent, useState } from "react"
 import { toast } from "sonner"
 import { type ClientProfilePublic, ClientProfilesService, UsersService } from "@/client"
 import { queryKeys } from "@/lib/query-keys"
