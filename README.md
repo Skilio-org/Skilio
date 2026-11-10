@@ -132,7 +132,7 @@ make restore      # Restore the database from the latest backup archive (or FILE
 make dr-test      # Execute an automated Disaster Recovery (DR) drill in an isolated sandbox (< 4s)
 ```
 
-For comprehensive disaster recovery protocols, architecture, and RPO/RTO targets, see [devops/backup/BACKUP.md](./devops/backup/BACKUP.md).
+For comprehensive disaster recovery protocols, architecture, and RPO/RTO targets, see [docs/devops/backup.md](./docs/devops/backup.md).
 
 ---
 
@@ -162,7 +162,7 @@ bash ./scripts/generate-client.sh
 
 ## 📚 Documentation Roadmap
 
-- [DevOps Architecture & Infrastructure Hub](./devops/DevOps.md) — Complete DevOps portal: Cloud Deployment (IV.10 Major), Disaster Recovery & Status Page (IV.7 Minor), and Observability Suite (IV.7 Major).
+- [DevOps Architecture & Infrastructure Hub](./docs/devops/README.md) — Complete DevOps portal: Cloud Deployment (IV.10 Major), Disaster Recovery & Status Page (IV.7 Minor), and Observability Suite (IV.7 Major).
 - [System Architecture & Technical Design](./docs/architecture.md) — Comprehensive architecture, ERD diagrams, WebSocket pipelines, and feature matrix.
 - [Development Guide](./docs/development.md) — Step-by-step local development instructions and configuration details.
 - [Frontend UI & Design QA](./frontend/UI-POLISH.md) — Design system decisions, typography, and test verification notes.

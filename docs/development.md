@@ -102,7 +102,7 @@ Copy the template environment file to configure your local environment:
 cp .env.example .env
 ```
 
-Do not store production secrets in git. For cloud deployments, configure production environment variables on the remote server as described in [deployment.md](./deployment.md) or [deployment-docker-compose.md](./deployment-docker-compose.md).
+Do not store production secrets in git. For cloud deployments, configure production environment variables on the remote server as described in [deployment.md](./devops/deployment.md).
 
 ## Pre-commit Hooks and Code Linting
 
