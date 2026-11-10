@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-# ──────────────────────────────────────────────────────────────────────────────
-# dr-test.sh — Automated Disaster Recovery Verification Drill
-# ──────────────────────────────────────────────────────────────────────────────
-# Tests the backup & restore procedure in an isolated temporary sandbox DB.
-# Verifies 100% data integrity without touching or disrupting the production DB.
-# Works on the host computer (with docker compose) or inside a container.
 
 set -euo pipefail
 
@@ -17,26 +11,23 @@ RED='\033[0;31m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# Find script and project folders
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-# Load settings from .env file if it exists
+
 if [ -f "${ROOT_DIR}/.env" ]; then
-    set -a
     source "${ROOT_DIR}/.env" 2>/dev/null || true
-    set +a
 fi
 
-# Settings and default values
+
 POSTGRES_USER="${POSTGRES_USER:-postgres}"
 POSTGRES_DB="${POSTGRES_DB:-app}"
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
-export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD}}"
+export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD:-}}"
 
 SANDBOX_DB="dr_drill_sandbox"
 
-# Pre-flight check: ensure database is running
+# ensure database is running
 if [ -z "${POSTGRES_HOST:-}" ] && command -v docker >/dev/null 2>&1; then
     cd "${ROOT_DIR}"
     if [ -z "$(docker compose ps --status running -q db 2>/dev/null)" ]; then
@@ -66,10 +57,8 @@ cleanup_sandbox() {
     run_sql "postgres" "DROP DATABASE IF EXISTS ${SANDBOX_DB};" >/dev/null 2>&1 || true
 }
 
-# Always ensure sandbox is deleted even on failure or Ctrl+C
+# Always ensure sandbox is deleted even on failure
 trap cleanup_sandbox EXIT
-
-START_TIME=$(date +%s%N)
 
 # Query table count in real production database
 REAL_TABLES=$(run_sql "${POSTGRES_DB}" "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null || echo "0")
@@ -116,9 +105,6 @@ fi
 cleanup_sandbox
 echo -e "  ${GREEN}[✔] Sandbox database destroyed cleanly.${NC}"
 
-END_TIME=$(date +%s%N)
-DURATION_MS=$(( (END_TIME - START_TIME) / 1000000 ))
-
 # Summary
 echo -e "\n${GREEN}${BOLD}=====================================================${NC}"
 echo -e "${GREEN}${BOLD}      Disaster Recovery Drill Passed!                 ${NC}"
@@ -127,5 +113,4 @@ echo -e "  Source Archive  : $(basename "${LATEST_BACKUP}")"
 echo -e "  Verified Tables : ${SANDBOX_TABLES} public tables"
 echo -e "  Production DB   : Untouched & 100% Operational"
 echo -e "  Integrity Status: ${GREEN}${BOLD}100% VERIFIED (0 errors)${NC}"
-echo -e "  Total Drill Time: ${DURATION_MS}ms"
 echo -e "${GREEN}${BOLD}=====================================================${NC}\n"
