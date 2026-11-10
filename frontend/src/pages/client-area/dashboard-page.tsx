@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { JobsService } from "@/client"
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
-import { ProfileProgress } from "@/components/dashboard/dashboard-profile-progress"
 import { RecommendedFreelancers } from "@/components/dashboard/dashboard-recommended"
 import { TalentSearch } from "@/components/dashboard/dashboard-talent-search"
 import useAuth from "@/hooks/useAuth"
@@ -47,7 +46,6 @@ export function ClientDashboardPage() {
 				</section>
 
 				<aside className="flex flex-col gap-5 lg:sticky lg:top-20 lg:col-span-4">
-					<ProfileProgress />
 					<QuickSavedSearch />
 				</aside>
 			</div>

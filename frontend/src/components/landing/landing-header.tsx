@@ -19,6 +19,10 @@ export function LandingHeader() {
 	const isStatusPage = pathname === "/status"
 	const { user } = useAuth()
 
+	const dashboardPath = role === "freelancer" ? "/freelancer-dashboard" : "/dashboard"
+	const loginPath = user ? dashboardPath : "/login"
+	const signupPath = user ? dashboardPath : "/signup"
+
 	return (
 		<header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md transition-colors">
 			<div className="landing-container flex h-[70px] sm:h-[74px] items-center justify-between gap-3 sm:gap-4">
