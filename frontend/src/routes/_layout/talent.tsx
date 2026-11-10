@@ -6,28 +6,26 @@ export const Route = createFileRoute("/_layout/talent")({
 		q: typeof search.q === "string" ? search.q : undefined,
 		category: typeof search.category === "string" ? search.category : undefined,
 	}),
-	component: TalentDirectoryRoute,
+	component: () => {
+		const { q, category } = Route.useSearch()
+		const navigate = Route.useNavigate()
+
+		return (
+			<TalentDirectoryPage
+				query={q}
+				category={category}
+				onQueryChange={(query) => void navigate({ search: (current) => ({ ...current, q: query }), replace: true })}
+				onCategoryChange={(nextCategory) =>
+					void navigate({
+						search: (current) => ({
+							...current,
+							category: nextCategory === "all" ? undefined : nextCategory,
+						}),
+						replace: true,
+					})
+				}
+			/>
+		)
+	},
 	head: () => ({ meta: [{ title: "Find talent | Skilio" }] }),
 })
-
-function TalentDirectoryRoute() {
-	const { q, category } = Route.useSearch()
-	const navigate = Route.useNavigate()
-
-	return (
-		<TalentDirectoryPage
-			query={q}
-			category={category}
-			onQueryChange={(query) => void navigate({ search: (current) => ({ ...current, q: query }), replace: true })}
-			onCategoryChange={(nextCategory) =>
-				void navigate({
-					search: (current) => ({
-						...current,
-						category: nextCategory === "all" ? undefined : nextCategory,
-					}),
-					replace: true,
-				})
-			}
-		/>
-	)
-}

@@ -47,18 +47,18 @@ export function ClientJobsList({
 				))}
 			</nav>
 			{jobs.length > 0 && (
-<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
-				<Search className="size-4 text-on-surface-variant" />
-				<input
-					type="text"
-					aria-label="Search your jobs"
-					placeholder="Search your jobs by title or skill"
-					value={query}
-					onChange={(event) => onQueryChange(event.target.value)}
-					className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-				/>
-			</label>
-)}
+				<label className="flex min-h-12 items-center gap-3 rounded-lg border border-input bg-surface-container-lowest px-4">
+					<Search className="size-4 text-on-surface-variant" />
+					<input
+						type="text"
+						aria-label="Search your jobs"
+						placeholder="Search your jobs by title or skill"
+						value={query}
+						onChange={(event) => onQueryChange(event.target.value)}
+						className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+					/>
+				</label>
+			)}
 			{results.length ? (
 				<div className="divide-y divide-border overflow-hidden rounded-lg border border-outline-variant">
 					{results.map((job) => (
@@ -71,7 +71,7 @@ export function ClientJobsList({
 								<h2 className="mt-3 break-words font-semibold text-lg">{job.title || "Untitled job"}</h2>
 								<p className="mt-2 text-on-surface-variant text-sm">
 									{job.category || "No category"} · {job.type}
-									{job.budget && ` · $${job.budget}${job.type === "Hourly" ? "/hr" : ""}`}
+									{job.budget && ` · ${job.budget} dh${job.type === "Hourly" ? "/hr" : ""}`}
 								</p>
 							</div>
 							<button type="button" className={workspaceStyles.secondaryAction} onClick={() => onOpenJob(job)}>

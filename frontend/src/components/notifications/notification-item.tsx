@@ -23,13 +23,13 @@ function NotificationIcon({ type }: { type: NotificationEvent }) {
 		case "proposal_received":
 			return <FileText className="size-4" />
 		case "proposal_accepted":
-			return <Sparkles className="size-4 text-emerald-500" />
+			return <Sparkles className="size-4 text-link" />
 		case "proposal_rejected":
 			return <XCircle className="size-4 text-muted-foreground" />
 		case "connection_request":
 			return <UserPlus className="size-4 text-link" />
 		case "connection_accepted":
-			return <UserCheck className="size-4 text-emerald-500" />
+			return <UserCheck className="size-4 text-link" />
 		case "connection_declined":
 			return <UserX className="size-4 text-muted-foreground" />
 		case "review_received":

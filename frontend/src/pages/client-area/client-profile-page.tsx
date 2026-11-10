@@ -32,6 +32,17 @@ const companySizeLabels: Record<string, string> = {
 
 type FormField = "fullName" | "company" | "companyRole" | "website" | "location" | "companySize"
 
+// Limits for the client profile form. The inputs stop typing at the limit; validate() checks everything again on save.
+const limits = { name: 100, company: 100, role: 100, avatarBytes: 5 * 1024 * 1024 }
+
+const isHttpsUrl = (value: string) => {
+	try {
+		return new URL(value).protocol === "https:"
+	} catch {
+		return false
+	}
+}
+
 export function ClientProfilePage() {
 	const { user } = useAuth()
 	const queryClient = useQueryClient()
@@ -96,8 +107,26 @@ export function ClientProfilePage() {
 	const displayName = fullName || profile?.full_name || user?.full_name || "Your name"
 	const avatarUrl = useAccountAvatarUrl(user?.id)
 
+	// Returns the first problem with the form, or null when it is fine to save.
+	const validate = () => {
+		if (!fullName.trim()) return "Enter your full name."
+		if (fullName.trim().length > limits.name) return `Your name can be at most ${limits.name} characters.`
+		if (company.trim().length > limits.company) return `Company can be at most ${limits.company} characters.`
+		if (!companyRole.trim()) return "Enter your role."
+		if (companyRole.trim().length > limits.role) return `Role can be at most ${limits.role} characters.`
+		if (website.trim() && !isHttpsUrl(website.trim())) return "Enter a valid company website that starts with https://"
+		if (!location.trim()) return "Select your location."
+		if (!companySize) return "Select your company size."
+		return null
+	}
+
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
+		const problem = validate()
+		if (problem) {
+			toast.error(problem)
+			return
+		}
 		updateMutation.mutate()
 	}
 
@@ -176,8 +205,10 @@ export function ClientProfilePage() {
 						</p>
 						<div className="mt-6 grid gap-5 sm:grid-cols-2">
 							<Field
-								label="Full name"
+								label="Full name *"
 								id="full-name"
+								required
+								maxLength={limits.name}
 								value={fullName}
 								onChange={(e) => {
 									setFullName(e.target.value)
@@ -188,6 +219,7 @@ export function ClientProfilePage() {
 							<Field
 								label="Company"
 								id="company"
+								maxLength={limits.company}
 								value={company}
 								onChange={(e) => {
 									setCompany(e.target.value)
@@ -196,8 +228,10 @@ export function ClientProfilePage() {
 								placeholder="Company or studio"
 							/>
 							<Field
-								label="Role"
+								label="Role *"
 								id="role"
+								required
+								maxLength={limits.role}
 								value={companyRole}
 								onChange={(e) => {
 									setCompanyRole(e.target.value)
@@ -209,6 +243,8 @@ export function ClientProfilePage() {
 								label="Company website"
 								id="website"
 								type="url"
+								pattern="https://.+"
+								title="Enter a link that starts with https://"
 								value={website}
 								onChange={(e) => {
 									setWebsite(e.target.value)
@@ -217,7 +253,7 @@ export function ClientProfilePage() {
 								placeholder="https://company.com"
 							/>
 							<div className="space-y-2">
-								<Label id="location-label">Location</Label>
+								<Label id="location-label">Location *</Label>
 								<CitySelect
 									value={location}
 									emptyLabel="Select city"
@@ -229,7 +265,7 @@ export function ClientProfilePage() {
 								/>
 							</div>
 							<div className="space-y-2">
-								<Label id="company-size-label">Company size</Label>
+								<Label id="company-size-label">Company size *</Label>
 								<Select
 									value={companySize}
 									onValueChange={(val) => {
@@ -253,7 +289,7 @@ export function ClientProfilePage() {
 					</div>
 					<div className="flex flex-col-reverse gap-3 border-outline-variant border-t pt-6 sm:flex-row sm:items-center sm:justify-end">
 						{saved && (
-							<span className="mr-auto inline-flex items-center gap-2 text-emerald-700 text-sm">
+							<span className="mr-auto inline-flex items-center gap-2 text-link text-sm">
 								<CheckCircle2 className="size-4" />
 								Changes saved
 							</span>
@@ -335,7 +371,7 @@ export function ClientProfilePage() {
 							<ImageUp className="size-5" />
 						</span>
 						<p className="mt-3 font-semibold text-sm">Choose a clear headshot or company logo</p>
-						<p className="mt-1 text-on-surface-variant text-xs leading-5">JPG or PNG, at least 400px square.</p>
+						<p className="mt-1 text-on-surface-variant text-xs leading-5">JPG or PNG, up to 5 MB, at least 400px square.</p>
 						<label
 							htmlFor="client-photo-upload"
 							className="mt-5 inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-5 font-semibold text-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
@@ -348,6 +384,13 @@ export function ClientProfilePage() {
 								accept="image/png,image/jpeg"
 								onChange={(event) => {
 									const file = event.target.files?.[0] ?? null
+									if (file && file.size > limits.avatarBytes) {
+										toast.error("Choose an image under 5 MB.")
+										event.target.value = ""
+										setSelectedPhoto(null)
+										setSelectedPhotoName("")
+										return
+									}
 									setSelectedPhoto(file)
 									setSelectedPhotoName(file?.name ?? "")
 								}}
@@ -355,7 +398,7 @@ export function ClientProfilePage() {
 							/>
 						</label>
 						{selectedPhotoName && (
-							<p className="mt-3 font-medium text-emerald-700 text-xs">Selected: {selectedPhotoName}</p>
+							<p className="mt-3 font-medium text-link text-xs">Selected: {selectedPhotoName}</p>
 						)}
 					</div>
 					<DialogFooter>

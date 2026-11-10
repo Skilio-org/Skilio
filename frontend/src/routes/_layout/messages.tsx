@@ -10,17 +10,15 @@ export const Route = createFileRoute("/_layout/messages")({
 					? search.with.trim() || undefined
 					: undefined,
 	}),
-	component: Messages,
+	component: () => {
+		const search = Route.useSearch()
+		const navigate = Route.useNavigate()
+		return (
+			<MessagesPage
+				SelectedUserId={search.userId}
+				onSelectContact={(id) => void navigate({ search: { userId: id || undefined } })}
+			/>
+		)
+	},
 	head: () => ({ meta: [{ title: "Messages | Skilio" }] }),
 })
-
-function Messages() {
-	const search = Route.useSearch()
-	const navigate = Route.useNavigate()
-	return (
-		<MessagesPage
-			SelectedUserId={search.userId}
-			onSelectContact={(id) => void navigate({ search: { userId: id || undefined } })}
-		/>
-	)
-}

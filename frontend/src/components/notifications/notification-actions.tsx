@@ -76,10 +76,7 @@ function ConnectionRequestActions({
 	if (status === "accepted") {
 		return (
 			<ActionRow>
-				<Badge
-					variant="secondary"
-					className="h-6 border-0 bg-emerald-500/10 px-2 font-medium text-[11px] text-emerald-600 dark:text-emerald-400"
-				>
+				<Badge variant="success">
 					Connected
 				</Badge>
 			</ActionRow>
@@ -204,7 +201,7 @@ export function NotificationActions({
 							onMarkAsRead(notification.id)
 							void navigate({ to: "/freelancer-proposals" })
 						}}
-						className="inline-flex h-6 items-center gap-1.5 rounded-md bg-emerald-500/10 px-2 font-medium text-[11px] text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
+						className="inline-flex h-6 items-center gap-1.5 rounded-md bg-primary/10 px-2 font-medium text-[11px] text-link transition-colors hover:bg-primary/20 "
 					>
 						<Sparkles className="size-3" />
 						View Proposal

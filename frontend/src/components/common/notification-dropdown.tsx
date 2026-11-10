@@ -32,7 +32,7 @@ function NotificationIcon({ item }: { item: NotificationPublic }) {
 			return <FileText className="size-5" />
 
 		// case "proposal_accepted":
-		// 	return <Sparkles className="size-5 text-emerald-500" />
+		// 	return <Sparkles className="size-5 text-link" />
 
 		// case "proposal_rejected":
 		// 	return <XCircle className="size-5 text-muted-foreground" />
@@ -94,9 +94,9 @@ function ConnectionStatusBadge({ notification }: { notification: NotificationPub
 		return (
 			<span
 				className={cn(
-					"ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold leading-none tracking-wide",
+					"ml-2 inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-none tracking-wide",
 					isAccepted
-						? "bg-emerald-500/10 text-emerald-600 ring-1 ring-inset ring-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-400 dark:ring-emerald-500/25"
+						? "bg-primary text-on-primary"
 						: "bg-red-500/10 text-red-600 ring-1 ring-inset ring-red-500/20 dark:bg-red-500/15 dark:text-red-400 dark:ring-red-500/25",
 				)}
 			>

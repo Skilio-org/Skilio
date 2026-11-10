@@ -74,8 +74,11 @@ const StatusPage = () => {
 		<div className="landing-page flex min-h-dvh flex-col bg-background text-foreground">
 			<LandingHeader />
 
-			<main id="main-content" tabIndex={-1} className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8 outline-none">
-				{/* Top Bar: Title & Controls */}
+			<main
+				id="main-content"
+				tabIndex={-1}
+				className="flex-1 py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full space-y-8 outline-none"
+			>
 				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-6">
 					<div>
 						<div className="flex items-center gap-2.5">
@@ -121,7 +124,6 @@ const StatusPage = () => {
 						Checking system status…
 					</p>
 				)}
-				{/* 1. Overall System Banner */}
 				<div
 					className={`p-6 rounded-2xl border transition-all ${isPending ? "hidden" : ""} ${
 						overallStatus === "healthy"
@@ -162,41 +164,32 @@ const StatusPage = () => {
 						</div>
 					</div>
 				</div>
-
-				{/* 2. Platform Services Grid */}
 				<div className={`space-y-4 ${isPending ? "hidden" : ""}`}>
 					<h3 className="text-lg font-semibold tracking-tight">Platform Services</h3>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						{/* Database / Marketplace Card */}
 						<ServiceCard
 							icon={<BriefcaseBusiness className="size-5" />}
 							name="Job Marketplace"
 							description="Browsing listings, posting projects, and submitting proposals."
 							status={health?.services?.database?.status || "unhealthy"}
 						/>
-
-						{/* Cache / Chat Card */}
 						<ServiceCard
 							icon={<MessageSquare className="size-5" />}
 							name="Direct Messaging"
 							description="Instant chat between clients and freelancers, plus live alerts."
 							status={health?.services?.cache?.status || "unhealthy"}
 						/>
-
-						{/* Storage Card */}
 						<ServiceCard
 							icon={<HardDrive className="size-5" />}
 							name="Files & Media Storage"
 							description="Profile pictures, portfolio attachments, and platform storage."
 							status={health?.services?.storage?.status || "unhealthy"}
 						/>
-
-						{/* Web Platform & Accounts Card */}
 						<ServiceCard
 							icon={<Globe className="size-5" />}
 							name="Website & User Accounts"
 							description="Platform access, secure sign-in, and member dashboards."
-							status={!isBackendReachable ? "unhealthy" : "healthy"}
+							status={health?.services?.database?.status || "unhealthy"}
 						/>
 					</div>
 				</div>

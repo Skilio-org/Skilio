@@ -15,6 +15,7 @@ import { JobsService } from "@/client"
 import { Bookmark, ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react"
 import { useState } from "react"
 import { queryKeys } from "@/lib/query-keys"
+import { formatRateRange, RATE_FILTER_MAX, RATE_FILTER_STEP } from "@/lib/currency"
 
 const popularSearches = ["Product design", "React", "Content strategy", "Design systems", "Mobile app"]
 
@@ -29,7 +30,7 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 	const [credentials, setCredentials] = useState<string[]>([])
 	const [experience, setExperience] = useState<string[]>([])
 	const [location, setLocation] = useState("")
-	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, 120])
+	const [hourlyRate, setHourlyRate] = useState<[number, number]>([0, RATE_FILTER_MAX])
 	// const [commitment, setCommitment] = useState("")
 	const [sort, setSort] = useState("recommended")
 	const [filtersOpen, setFiltersOpen] = useState(false)
@@ -64,7 +65,7 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 					budget_type: budgetType,
 					location: location || undefined,
 					min_budget: hourlyRate[0] || undefined,
-					max_budget: hourlyRate[1] === 120 ? undefined : hourlyRate[1],
+					max_budget: hourlyRate[1] === RATE_FILTER_MAX ? undefined : hourlyRate[1],
 					status: "open",
 					sort_by: sortBy,
 				},
@@ -93,7 +94,7 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 		setCredentials([])
 		setExperience([])
 		setLocation("")
-		setHourlyRate([0, 120])
+		setHourlyRate([0, RATE_FILTER_MAX])
 		// setCommitment("")
 		setVisibleCount(4)
 		setSearchResetKey((current) => current + 1)
@@ -173,12 +174,12 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 		// 		]
 		// 	: []),
 
-		...(hourlyRate[0] !== 0 || hourlyRate[1] !== 120
+		...(hourlyRate[0] !== 0 || hourlyRate[1] !== RATE_FILTER_MAX
 			? [
 					{
-						label: `$${hourlyRate[0]}–${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr`,
+						label: formatRateRange(hourlyRate[0], hourlyRate[1]),
 						remove: () => {
-							setHourlyRate([0, 120])
+							setHourlyRate([0, RATE_FILTER_MAX])
 							setVisibleCount(4)
 						},
 					},
@@ -258,14 +259,14 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 					<span className="font-medium text-label-sm">Hourly rate</span>
 
 					<span className="text-caption text-outline">
-						${hourlyRate[0]} – ${hourlyRate[1] === 120 ? "120+" : hourlyRate[1]}/hr
+						{formatRateRange(hourlyRate[0], hourlyRate[1])}
 					</span>
 				</div>
 
 				<Slider
 					min={0}
-					max={120}
-					step={5}
+					max={RATE_FILTER_MAX}
+					step={RATE_FILTER_STEP}
 					value={hourlyRate}
 					onValueChange={(value) => {
 						setHourlyRate(value as [number, number])

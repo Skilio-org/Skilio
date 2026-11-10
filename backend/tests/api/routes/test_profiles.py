@@ -183,7 +183,8 @@ def test_update_profile(
     client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     profile = create_random_profile(db)
-    data = {"title": "Updated title", "bio": "Updated bio"}
+    valid_bio = "Experienced full-stack engineer specializing in robust Python APIs and modern frontend architectures."
+    data = {"title": "Updated title", "bio": valid_bio}
     response = client.put(
         f"{settings.API_V1_STR}/profiles/{profile.id}",
         headers=superuser_token_headers,
@@ -749,6 +750,7 @@ def test_update_profile_me_upsert(client: TestClient, db: Session) -> None:
         "hourly_rate": 95.0,
         "availability": "Available now",
         "hours": "More than 30 hrs/week",
+        "bio": "Experienced full-stack architect building cloud services, distributed systems, and modern apps.",
         "skills": ["FastAPI", "React 19", "TailwindCSS"],
         "finished": True,
         "experiences": [

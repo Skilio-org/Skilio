@@ -1,10 +1,10 @@
 import type { JobPostPublic } from "@/client"
 import { readJobExperience } from "@/components/common/job-experience"
 import type { FreelancerJob } from "@/types/job"
+import { formatMoney, formatRate } from "@/lib/currency"
 
 function formatBudget(job: JobPostPublic) {
-	const amount = job.budget.toLocaleString()
-	return job.budget_type === "hourly" ? `$${amount}/hr` : `$${amount}`
+	return job.budget_type === "hourly" ? formatRate(job.budget) : formatMoney(job.budget)
 }
 
 export function jobFromApi(job: JobPostPublic): FreelancerJob {

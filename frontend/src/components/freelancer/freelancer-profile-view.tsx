@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, ArrowUpRight, Clock3, FileText, MapPin, Star, X } from "lucide-react"
 import { type ReactNode, useRef, useState } from "react"
+import { formatMoney } from "@/lib/currency"
 
 import { Monogram, SkillTag } from "@/components/dashboard/dashboard-header"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -158,9 +159,9 @@ export function FreelancerProfileView({
 						<p className="font-medium text-sm">{contactTitle ?? `Work with ${firstName}`}</p>
 						<div className="mt-4 flex items-baseline gap-2">
 							<p className="font-semibold text-3xl tabular-nums tracking-tight">
-								{profile.rate ? `$${profile.rate}` : "Rate not set"}
+								{profile.rate ? formatMoney(profile.rate) : "Rate not set"}
 							</p>
-							{profile.rate ? <span className="text-on-surface-variant text-sm">USD / hour</span> : null}
+							{profile.rate ? <span className="text-on-surface-variant text-sm">per hour</span> : null}
 						</div>
 						{(profile.availability || profile.weeklyCapacity) && (
 							<ul className="mt-4 space-y-2 border-outline-variant border-t pt-4 text-sm">
@@ -257,10 +258,10 @@ export function FreelancerProfileView({
 										type="button"
 										aria-label={`View ${entry.title}`}
 										onClick={() => setProjectId(entry.id)}
-										className="group flex w-[82%] max-w-[22rem] shrink-0 snap-start flex-col rounded-lg border border-outline-variant p-3 text-left transition-colors hover:border-primary/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-[calc((100%_-_1rem)/2)] sm:max-w-none sm:p-4 xl:w-[calc((100%_-_2rem)/3)]"
+										className="group flex w-[82%] max-w-[22rem] shrink-0 snap-start flex-col rounded-lg border border-outline-variant p-3 text-left transition-colors hover:border-primary/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-[calc((100%_-_1rem)/2)] sm:max-w-none sm:p-4"
 									>
 										<span
-											className={`relative grid h-36 w-full place-items-center overflow-hidden rounded-lg text-slate-800 ${entry.color ?? "bg-brand-100"}`}
+											className={`relative grid h-44 w-full place-items-center overflow-hidden rounded-lg text-slate-800 ${entry.color ?? "bg-brand-100"}`}
 										>
 											{entry.imageUrl ? (
 												<img src={entry.imageUrl} alt="" className="absolute inset-0 size-full object-cover" />
@@ -277,7 +278,7 @@ export function FreelancerProfileView({
 												{entry.category}
 											</span>
 											{entry.detail && (
-												<span className="mt-3 line-clamp-2 block text-on-surface-variant text-sm leading-6">
+												<span className="mt-3 line-clamp-3 text-on-surface-variant text-sm leading-6">
 													{entry.detail}
 												</span>
 											)}
