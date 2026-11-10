@@ -4753,6 +4753,38 @@ export type chatCheckUserPresenceResponses = {
 
 export type chatCheckUserPresenceResponse = chatCheckUserPresenceResponses[keyof chatCheckUserPresenceResponses];
 
+export type chatCheckMultipleUserPresenceData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * User Ids
+         */
+        user_ids: Array<string>;
+    };
+    url: '/api/v1/chat/presence';
+};
+
+export type chatCheckMultipleUserPresenceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type chatCheckMultipleUserPresenceError = chatCheckMultipleUserPresenceErrors[keyof chatCheckMultipleUserPresenceErrors];
+
+export type chatCheckMultipleUserPresenceResponses = {
+    /**
+     * Response Chat-Check Multiple User Presence
+     *
+     * Successful Response
+     */
+    200: Array<UserPresence>;
+};
+
+export type chatCheckMultipleUserPresenceResponse = chatCheckMultipleUserPresenceResponses[keyof chatCheckMultipleUserPresenceResponses];
+
 export type chatInjectEventData = {
     body: InjectPayload;
     path?: never;

@@ -7,7 +7,8 @@ import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "
 import { useChatData } from "@/hooks/useChatData"
 import { createFallbackProfile } from "@/hooks/useProfiles"
 import type { UserPublic } from "@/client"
-import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useAutoAnimate } from "@formkit/auto-animate/react"
+import { useUsersOnline } from "@/hooks/useUserOnlineStatus"
 // import { useAutoAnimate } from "@formkit/auto-animate";
 
 export function ConversationList({
@@ -31,6 +32,10 @@ export function ConversationList({
 }) {
 	const { conversations, profiles } = useChatData()
 	const [listRef] = useAutoAnimate({ duration: 250, easing: "ease-in-out" })
+	const ids: string[] = conversations?.data?.data.map((conversation) => conversation.other_user?.id ?? "") ?? []
+	const { onlineUsers: _is, isPending, isOnline: _isOnline } = useUsersOnline(ids)
+
+	if (conversations.isPending || profiles.isPending || isPending) return "Loading...";
 
 	return (
 		<aside
@@ -115,19 +120,17 @@ export function ConversationList({
 					})
 					.map((conversation) => {
 						if (conversation.other_user == undefined) return
-						const person = profiles.data?.get(conversation.other_user.id) ?? createFallbackProfile(conversation.other_user)
+						const person =
+							profiles.data?.get(conversation.other_user.id) ?? createFallbackProfile(conversation.other_user)
 						if (!person) return null
 						const theme = getClientTheme(person.user_id)
 						const active = selected?.user_id === person.user_id
 						let roleAndLocation = ""
 
 						if (isClientProfile(person)) {
-							if (person.company)
-								roleAndLocation = `${person.company}`
-							if (person.company_role)
-								roleAndLocation  += ` . ${person.company_role}`
-						}
-						else if (isFreelancerProfile(person)) {
+							if (person.company) roleAndLocation = `${person.company}`
+							if (person.company_role) roleAndLocation += ` . ${person.company_role}`
+						} else if (isFreelancerProfile(person)) {
 							if (person.title) roleAndLocation = `${person.title}`
 						}
 						return (
@@ -154,7 +157,7 @@ export function ConversationList({
 										theme.text,
 										theme.border,
 									)}
-								></img>
+								/>
 								<span className="min-w-0 flex-1">
 									<span className="flex items-center justify-between gap-2">
 										<span
