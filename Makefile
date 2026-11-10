@@ -33,7 +33,7 @@ help:
 	@echo "    make deploy-restore   Restore database on AWS from latest (or FILE=...)"
 	@echo "    make deploy-dr-test   Run disaster recovery drill on AWS"
 	@echo "    make deploy-db-clean  Safely reset and re-migrate production database on AWS"
-	@echo "    make deploy-db-seed   Seed production database with mock accounts (COUNT=20)"
+	@echo "    make deploy-db-seed   Seed production database on AWS (FLAGS=--dry-run)"
 	@echo ""
 	@echo "  email generation:"
 	@echo "    make mail-pages-gen   generates email pages from react email"
@@ -45,7 +45,7 @@ help:
 	@echo "    make test          Run complete test suite (backend pytest + frontend build)"
 	@echo "    make test-backend  Run backend unit & integration tests only"
 	@echo "    make test-frontend Verify frontend TypeScript types and production build"
-	@echo "    make seed          Seed database with mock accounts (make seed COUNT=20)"
+	@echo "    make seed          Seed database with Moroccan accounts (FLAGS=--clean)"
 	@echo ""
 	@echo "  Cleanup:"
 	@echo "    make clean        Stop services → remove containers & volumes"
@@ -102,10 +102,9 @@ test-backend:
 test-frontend:
 	bun run --filter frontend build
 
-# Seed database with mock accounts (default: 20)
-COUNT ?= 20
+# Seed database with Moroccan mock accounts (make seed [FLAGS=--clean])
 seed:
-	cd backend && uv run python app/seed_data.py $(COUNT)
+	@./scripts/seeder.sh local $(FLAGS)
 
 
 
@@ -194,10 +193,10 @@ deploy-db-clean:
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml exec db psql -U postgres -d postgres -c "DROP DATABASE app WITH (FORCE);" -c "CREATE DATABASE app;" && docker compose -f compose.yml -f compose.deploy.yml run --rm backend bash scripts/prestart.sh && docker compose -f compose.yml -f compose.deploy.yml restart backend'
 	@echo "==> Production database cleaned and re-migrated successfully!"
 
-# Seed production database with mock accounts (default COUNT=20)
+# Seed production database with Moroccan accounts on AWS EC2 (make deploy-db-seed [FLAGS=--dry-run])
 deploy-db-seed:
 	@chmod 400 $(SSH_KEY) 2>/dev/null || true
-	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml run --rm backend python app/seed_data.py $(COUNT)'
+	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml run --rm backend python -m app.seeder prod $(FLAGS)'
 	@echo "==> Production database seeded successfully!"
 
 

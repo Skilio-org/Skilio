@@ -18,3 +18,4 @@ docs/subject/en.subject.pdf
 .ruff_cache/
 .agents/
 .claude/
+.tanstack/
