@@ -1,4 +1,4 @@
-// The app uses Moroccan dirhams everywhere. Change the label here to change it on every screen.
+// The app uses Moroccan dirhams everywhere.
 export const CURRENCY_LABEL = "DH"
 
 // 15000 -> "15,000 DH"
