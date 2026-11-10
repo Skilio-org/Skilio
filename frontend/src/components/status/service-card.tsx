@@ -1,4 +1,5 @@
 import type { HealthState } from "@/types/status"
+import type { ReactNode } from "react"
 
 function ServiceCard({
 	icon,
@@ -6,7 +7,7 @@ function ServiceCard({
 	description,
 	status,
 }: {
-	icon: React.ReactNode
+	icon: ReactNode
 	name: string
 	description: string
 	status: HealthState

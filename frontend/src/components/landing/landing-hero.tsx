@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { FormEvent, useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { Search } from "lucide-react"
 import { PLATFORM_CATEGORIES, useCategories } from "@/hooks/useCategories"
@@ -12,7 +12,7 @@ export function LandingHero() {
 	const categories =
 		remoteCategories && remoteCategories.length > 0 ? remoteCategories : PLATFORM_CATEGORIES
 
-	const handleSearch = (e: React.FormEvent) => {
+	const handleSearch = (e: FormEvent) => {
 		e.preventDefault()
 		if (roleMode === "hire") {
 			navigate({
