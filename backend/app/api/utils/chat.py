@@ -38,6 +38,9 @@ def _build_conversation_public(
         if current_user_id == conversation.client_id
         else conversation.client_id
     )
+    other_user_role = (
+        "freelancer" if current_user_id == conversation.client_id else "client"
+    )
     other_user = session.get(User, other_id)
     other_user_public = UserPublic.model_validate(other_user) if other_user else None
 
@@ -75,6 +78,7 @@ def _build_conversation_public(
         last_message=last_msg_public,
         unread_count=unread_count,
         other_user=other_user_public,
+        other_user_role=other_user_role,
     )
 
 def get_user_id_from_token(token: str) -> uuid.UUID | None:

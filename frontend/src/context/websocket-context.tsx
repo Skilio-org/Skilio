@@ -3,8 +3,7 @@ import { chatKeys } from "@/data/chat-keys"
 import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
 import { removeMessageFromCache } from "@/hooks/userConversation"
 import { useQueryClient } from "@tanstack/react-query"
-import type React from "react"
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 export type sendState = "sent" | "failed" | "pending"
@@ -59,7 +58,7 @@ function getWebSocketUrl(): string {
 	return `${wsHost}/api/v1/chat/ws?token=${encodeURIComponent(token)}`
 }
 
-export function WebSocketProvider({ children }: { children: React.ReactNode }) {
+export function WebSocketProvider({ children }: { children: ReactNode }) {
 	const [messageSendState, setMessageSendState_] = useState<MessageSendState>(() => ({
 		// Initial entries, if any
 	}))
@@ -202,8 +201,8 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 						case "message_ack":
 							{
 								const clientMessageId = data.data?.client_message_id
-								const backendId = data.data?.id;
-								const convId = data.data?.conversation_id;
+								const backendId = data.data?.id
+								const convId = data.data?.conversation_id
 								if (clientMessageId && backendId && convId) {
 									queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(convId), (current) => {
 										if (!current) return current
@@ -216,7 +215,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 											}
 											return m
 										})
-										return current;
+										return current
 									})
 									setMessageSendResult(clientMessageId, "sent")
 								}
@@ -246,24 +245,27 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 											})),
 										}
 									})
-									queryClient.setQueryData<ConversationsPublic>(chatKeys.conversations(), (current) => {
-										if (!current) return current
-										return {
-											...current,
-											data: current.data.map((conv) => {
-												if (conv.id === convId && conv.last_message) {
-													return {
-														...conv,
-														last_message: {
-															...conv.last_message,
-															is_read: true,
-														},
+									queryClient.setQueriesData<ConversationsPublic>(
+										{ queryKey: [...chatKeys.all, "conversations"] },
+										(current) => {
+											if (!current) return current
+											return {
+												...current,
+												data: current.data.map((conv) => {
+													if (conv.id === convId && conv.last_message) {
+														return {
+															...conv,
+															last_message: {
+																...conv.last_message,
+																is_read: true,
+															},
+														}
 													}
-												}
-												return conv
-											}),
-										}
-									})
+													return conv
+												}),
+											}
+										},
+									)
 								}
 							}
 							break

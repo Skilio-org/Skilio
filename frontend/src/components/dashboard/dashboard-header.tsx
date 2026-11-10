@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type { ComponentProps, ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
 type WorkspacePageHeaderProps = {
@@ -47,7 +47,7 @@ export function WorkspacePageHeader({
 	)
 }
 
-export function WorkspaceSurface({ className, children, ...props }: React.ComponentProps<"section">) {
+export function WorkspaceSurface({ className, children, ...props }: ComponentProps<"section">) {
 	return (
 		<section
 			className={cn("workspace-panel rounded-lg border border-outline-variant bg-surface-container-lowest", className)}

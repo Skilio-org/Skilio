@@ -1,9 +1,10 @@
 import { Logo } from "@/components/common/logo"
 import { ThemeToggle } from "@/components/common/theme-toggle"
 import { Footer } from "./footer"
+import type { ReactNode } from "react"
 
 interface AuthLayoutProps {
-	children: React.ReactNode
+	children: ReactNode
 }
 
 export function AuthLayout({ children }: AuthLayoutProps) {

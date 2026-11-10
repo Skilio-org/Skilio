@@ -5,7 +5,7 @@ import { queryKeys } from "@/lib/query-keys"
 import {
 	type Body_login_login_access_token as AccessToken,
 	LoginService,
-	type UserPublic,
+	type UserMe,
 	type UserRegister,
 	UsersService,
 } from "@/client"
@@ -32,7 +32,7 @@ const useAuth = () => {
 		isFetching,
 		error,
 		refetch,
-	} = useQuery<UserPublic | null, Error>({
+	} = useQuery<UserMe | null, Error>({
 		queryKey: currentUserQueryKey,
 		queryFn: fetchCurrentUser,
 		enabled: isLoggedIn(),

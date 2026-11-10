@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { Bookmark, Clock3, MapPin, Send, Star, UserCheck, UserPlus } from "lucide-react"
-import { useState } from "react"
+import { FormEvent, useState } from "react"
 import { toast } from "sonner"
 import { formatMoney } from "@/lib/currency"
 
@@ -31,12 +31,12 @@ export function FreelancerCard({
 	const { user } = useAuth()
 	const targetUserId = freelancer.userId
 	const isSelf = Boolean(user?.id && targetUserId === user.id)
-	const { data: connectionStatus } = useConnectionStatus(!isSelf ? targetUserId : undefined)
+	const { data: connectionStatus } = useConnectionStatus(!isSelf ? targetUserId : undefined, "client")
 	const sendMutation = useSendConnectionRequest()
 	const [connectOpen, setConnectOpen] = useState(false)
 	const [note, setNote] = useState("")
 
-	const handleSend = async (e: React.FormEvent) => {
+	const handleSend = async (e: FormEvent) => {
 		e.preventDefault()
 		if (!targetUserId || isSelf) return
 		if (note.length > connectionNoteMaxLength) {
@@ -47,6 +47,7 @@ export function FreelancerCard({
 			await sendMutation.mutateAsync({
 				receiver_id: targetUserId,
 				note: note.trim() || undefined,
+				as_role: "client",
 			})
 			setConnectOpen(false)
 			setNote("")

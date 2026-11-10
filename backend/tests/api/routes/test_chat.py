@@ -9,14 +9,16 @@ from sqlmodel import Session
 
 from app.core.config import settings
 from app.core.redis import publish_to_user
+from app.models import UserRole
 from tests.utils.user import create_random_user
 from tests.utils.utils import random_lower_string
 
 
 def get_user_token_and_headers(
-    client: TestClient, db: Session
+    client: TestClient, db: Session, role: UserRole = UserRole.CLIENT
 ) -> tuple[dict[str, str], str, uuid.UUID]:
     user = create_random_user(db)
+    user.active_role = role
     password = "secretpassword123"
     # Update password to a known one
     from app.core.security import get_password_hash
@@ -41,8 +43,8 @@ def test_chat_me_unauthorized(client: TestClient) -> None:
 def test_create_conversation_and_chat_me(
     client: TestClient, db: Session
 ) -> None:
-    headers_user1, _, user1_id = get_user_token_and_headers(client, db)
-    headers_user2, _, user2_id = get_user_token_and_headers(client, db)
+    headers_user1, _, user1_id = get_user_token_and_headers(client, db, role=UserRole.CLIENT)
+    headers_user2, _, user2_id = get_user_token_and_headers(client, db, role=UserRole.FREELANCER)
 
     # Cannot create conversation with self
     resp = client.post(
@@ -395,8 +397,8 @@ def test_websocket_chat_message_rate_limit(
 def test_websocket_read_receipt_and_unread_counts(
     client: TestClient, db: Session
 ) -> None:
-    headers_user1, token_user1, user1_id = get_user_token_and_headers(client, db)
-    headers_user2, token_user2, user2_id = get_user_token_and_headers(client, db)
+    headers_user1, token_user1, user1_id = get_user_token_and_headers(client, db, role=UserRole.CLIENT)
+    headers_user2, token_user2, user2_id = get_user_token_and_headers(client, db, role=UserRole.FREELANCER)
 
     # 1. Create conversation between User 1 and User 2
     create_resp = client.post(
@@ -466,5 +468,162 @@ def test_websocket_read_receipt_and_unread_counts(
             u2_resp_after = client.get(f"{settings.API_V1_STR}/chat/me", headers=headers_user2)
             u2_conv_after = next(c for c in u2_resp_after.json()["data"] if c["id"] == conv_id)
             assert u2_conv_after["unread_count"] == 0
+
+
+def test_dual_conversations_opposite_directions_and_role_filtering(
+    client: TestClient, db: Session
+) -> None:
+    headers_user1, _, user1_id = get_user_token_and_headers(client, db, role=UserRole.CLIENT)
+    headers_user2, _, user2_id = get_user_token_and_headers(client, db, role=UserRole.FREELANCER)
+
+    # 1. User 1 (as Client) creates conversation with User 2 (as Freelancer)
+    resp1 = client.post(
+        f"{settings.API_V1_STR}/chat/conversation",
+        headers=headers_user1,
+        json={"freelancer_id": str(user2_id)},
+    )
+    assert resp1.status_code == 200
+    conv1 = resp1.json()
+    conv1_id = conv1["id"]
+    assert conv1["client_id"] == str(user1_id)
+    assert conv1["freelancer_id"] == str(user2_id)
+    assert conv1["other_user"]["id"] == str(user2_id)
+    assert conv1["other_user_role"] == "freelancer"
+    # Privacy check
+    assert "active_role" not in conv1["other_user"]
+    assert "email" not in conv1["other_user"]
+    assert "is_superuser" not in conv1["other_user"]
+
+    # 2. User 2 (acting as Client) creates conversation with User 1 (as Freelancer)
+    resp2 = client.post(
+        f"{settings.API_V1_STR}/chat/conversation",
+        headers=headers_user2,
+        json={"target_user_id": str(user1_id), "as_role": "client"},
+    )
+    assert resp2.status_code == 200
+    conv2 = resp2.json()
+    conv2_id = conv2["id"]
+    assert conv2["client_id"] == str(user2_id)
+    assert conv2["freelancer_id"] == str(user1_id)
+    assert conv2["other_user"]["id"] == str(user1_id)
+    assert conv2["other_user_role"] == "freelancer"
+    # Both conversations must be distinct
+    assert conv1_id != conv2_id
+
+    # 3. Role filtering on GET /chat/me for User 1
+    # As client: should only see conv1
+    u1_client_resp = client.get(
+        f"{settings.API_V1_STR}/chat/me?role=client", headers=headers_user1
+    )
+    assert u1_client_resp.status_code == 200
+    u1_client_conv_ids = [c["id"] for c in u1_client_resp.json()["data"]]
+    assert conv1_id in u1_client_conv_ids
+    assert conv2_id not in u1_client_conv_ids
+
+    # As freelancer: should only see conv2
+    u1_freelancer_resp = client.get(
+        f"{settings.API_V1_STR}/chat/me?role=freelancer", headers=headers_user1
+    )
+    assert u1_freelancer_resp.status_code == 200
+    u1_freelancer_conv_ids = [c["id"] for c in u1_freelancer_resp.json()["data"]]
+    assert conv2_id in u1_freelancer_conv_ids
+    assert conv1_id not in u1_freelancer_conv_ids
+
+    # 4. Role filtering on GET /chat/me for User 2
+    # As client: should only see conv2
+    u2_client_resp = client.get(
+        f"{settings.API_V1_STR}/chat/me?role=client", headers=headers_user2
+    )
+    assert u2_client_resp.status_code == 200
+    u2_client_conv_ids = [c["id"] for c in u2_client_resp.json()["data"]]
+    assert conv2_id in u2_client_conv_ids
+    assert conv1_id not in u2_client_conv_ids
+
+    # As freelancer: should only see conv1
+    u2_freelancer_resp = client.get(
+        f"{settings.API_V1_STR}/chat/me?role=freelancer", headers=headers_user2
+    )
+    assert u2_freelancer_resp.status_code == 200
+    u2_freelancer_conv_ids = [c["id"] for c in u2_freelancer_resp.json()["data"]]
+    assert conv1_id in u2_freelancer_conv_ids
+    assert conv2_id not in u2_freelancer_conv_ids
+
+    # 5. Conversation details check for other_user_role
+    # User 1 viewing conv2 (where user 1 is freelancer): other_user_role must be "client"
+    c2_detail_u1 = client.get(
+        f"{settings.API_V1_STR}/chat/conversation/{conv2_id}", headers=headers_user1
+    ).json()
+    assert c2_detail_u1["other_user_role"] == "client"
+    assert c2_detail_u1["other_user"]["id"] == str(user2_id)
+    assert "active_role" not in c2_detail_u1["other_user"]
+
+    # User 2 viewing conv1 (where user 2 is freelancer): other_user_role must be "client"
+    c1_detail_u2 = client.get(
+        f"{settings.API_V1_STR}/chat/conversation/{conv1_id}", headers=headers_user2
+    ).json()
+    assert c1_detail_u2["other_user_role"] == "client"
+    assert c1_detail_u2["other_user"]["id"] == str(user1_id)
+    assert "active_role" not in c1_detail_u2["other_user"]
+
+    # 6. Privacy: workspace switch does not leak active_role or alter partner's view
+    switch_resp = client.post(
+        f"{settings.API_V1_STR}/users/me/switch-role",
+        headers=headers_user2,
+        json={"role": "client"},
+    )
+    assert switch_resp.status_code == 200
+    assert switch_resp.json()["active_role"] == "client"
+
+    # User 1 views conv1: User 2's role in this conversation is still correctly "freelancer",
+    # and no active_role is leaked
+    c1_detail_after = client.get(
+        f"{settings.API_V1_STR}/chat/conversation/{conv1_id}", headers=headers_user1
+    ).json()
+    assert c1_detail_after["other_user_role"] == "freelancer"
+    assert "active_role" not in c1_detail_after["other_user"]
+
+
+def test_freelancer_cannot_initiate_conversation_without_role_scoped_connection(
+    client: TestClient, db: Session
+) -> None:
+    headers_user1, _, user1_id = get_user_token_and_headers(client, db, role=UserRole.CLIENT)
+    headers_user2, _, user2_id = get_user_token_and_headers(client, db, role=UserRole.FREELANCER)
+
+    # User 1 (Client) creates connection with User 2 (Freelancer)
+    conn_resp = client.post(
+        f"{settings.API_V1_STR}/connections/",
+        headers=headers_user1,
+        json={"receiver_id": str(user2_id)},
+    )
+    assert conn_resp.status_code == 201
+    conn_id = conn_resp.json()["id"]
+
+    # User 2 accepts conn
+    accept_resp = client.post(
+        f"{settings.API_V1_STR}/connections/{conn_id}/accept",
+        headers=headers_user2,
+    )
+    assert accept_resp.status_code == 200
+
+    # User 2 (acting as Freelancer) CAN initiate conversation with User 1 (Client) because connection exists
+    resp_ok = client.post(
+        f"{settings.API_V1_STR}/chat/conversation",
+        headers=headers_user2,
+        json={"target_user_id": str(user1_id), "as_role": "freelancer"},
+    )
+    assert resp_ok.status_code == 200
+
+    # User 1 (acting as Freelancer) tries to initiate conversation with User 2 (Client).
+    # Even though a connection exists where User 1 is Client and User 2 is Freelancer,
+    # NO connection exists where User 2 is Client and User 1 is Freelancer.
+    resp_forbidden = client.post(
+        f"{settings.API_V1_STR}/chat/conversation",
+        headers=headers_user1,
+        json={"target_user_id": str(user2_id), "as_role": "freelancer"},
+    )
+    assert resp_forbidden.status_code == 403
+    assert resp_forbidden.json()["detail"] == "Only clients or connected users can initiate a conversation"
+
+
 
 

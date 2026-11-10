@@ -57,6 +57,14 @@ export type Body_profiles_upload_portfolio_item = {
      */
     description: string;
     /**
+     * Organization
+     */
+    organization?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
+    /**
      * File
      */
     file: Blob | File;
@@ -344,6 +352,7 @@ export type ConnectionCreate = {
      * Job Post Id
      */
     job_post_id?: string | null;
+    as_role?: UserRole | null;
 };
 
 /**
@@ -366,6 +375,14 @@ export type ConnectionPublic = {
      * Receiver Id
      */
     receiver_id: string;
+    /**
+     * Client Id
+     */
+    client_id: string;
+    /**
+     * Freelancer Id
+     */
+    freelancer_id: string;
     /**
      * Job Post Id
      */
@@ -428,7 +445,12 @@ export type ConversationCreate = {
     /**
      * Freelancer Id
      */
-    freelancer_id: string;
+    freelancer_id?: string | null;
+    /**
+     * Target User Id
+     */
+    target_user_id?: string | null;
+    as_role?: UserRole | null;
 };
 
 /**
@@ -465,6 +487,10 @@ export type ConversationDetailPublic = {
      */
     unread_count?: number;
     other_user?: UserPublic | null;
+    /**
+     * Other User Role
+     */
+    other_user_role: 'client' | 'freelancer';
     /**
      * Messages
      */
@@ -505,6 +531,10 @@ export type ConversationPublic = {
      */
     unread_count?: number;
     other_user?: UserPublic | null;
+    /**
+     * Other User Role
+     */
+    other_user_role: 'client' | 'freelancer';
 };
 
 /**
@@ -1192,6 +1222,12 @@ export type JobPostCreate = {
      * Skills
      */
     skills?: Array<string>;
+    /**
+     * Level
+     *
+     * Experience level
+     */
+    level?: string | null;
 };
 
 /**
@@ -1371,6 +1407,10 @@ export type JobPostUpdate = {
      * Skills
      */
     skills?: Array<string> | null;
+    /**
+     * Level
+     */
+    level?: string | null;
 };
 
 /**
@@ -1768,7 +1808,7 @@ export type ReviewCreate = {
     /**
      * Comment
      *
-     * Review comment on freelancer profile
+     * Review feedback on freelancer profile
      */
     comment: string;
     /**
@@ -1790,7 +1830,7 @@ export type ReviewPublic = {
     /**
      * Comment
      *
-     * Review comment on freelancer profile
+     * Review feedback on freelancer profile
      */
     comment: string;
     /**
@@ -1978,23 +2018,9 @@ export type UserCreate = {
 };
 
 /**
- * UserPresence
+ * UserMe
  */
-export type UserPresence = {
-    /**
-     * User Id
-     */
-    user_id: string;
-    /**
-     * Is Online
-     */
-    is_online: boolean;
-};
-
-/**
- * UserPublic
- */
-export type UserPublic = {
+export type UserMe = {
     /**
      * Email
      */
@@ -2020,6 +2046,46 @@ export type UserPublic = {
      * Id
      */
     id: string;
+    /**
+     * Avatar Url
+     */
+    avatar_url?: string | null;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+};
+
+/**
+ * UserPresence
+ */
+export type UserPresence = {
+    /**
+     * User Id
+     */
+    user_id: string;
+    /**
+     * Is Online
+     */
+    is_online: boolean;
+};
+
+/**
+ * UserPublic
+ */
+export type UserPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Full Name
+     */
+    full_name?: string | null;
+    /**
+     * Avatar Url
+     */
+    avatar_url?: string | null;
     /**
      * Created At
      */
@@ -2107,7 +2173,7 @@ export type UsersPublic = {
     /**
      * Data
      */
-    data: Array<UserPublic>;
+    data: Array<UserMe>;
     /**
      * Count
      */
@@ -2290,7 +2356,7 @@ export type loginTestTokenResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMe;
 };
 
 export type loginTestTokenResponse = loginTestTokenResponses[keyof loginTestTokenResponses];
@@ -2434,7 +2500,7 @@ export type usersCreateUserResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMe;
 };
 
 export type usersCreateUserResponse = usersCreateUserResponses[keyof usersCreateUserResponses];
@@ -2537,7 +2603,7 @@ export type usersSwitchRoleResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMe;
 };
 
 export type usersSwitchRoleResponse = usersSwitchRoleResponses[keyof usersSwitchRoleResponses];
@@ -2569,7 +2635,7 @@ export type usersReadUserMeResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMe;
 };
 
 export type usersReadUserMeResponse = usersReadUserMeResponses[keyof usersReadUserMeResponses];
@@ -2594,7 +2660,7 @@ export type usersUpdateUserMeResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMe;
 };
 
 export type usersUpdateUserMeResponse = usersUpdateUserMeResponses[keyof usersUpdateUserMeResponses];
@@ -2619,7 +2685,7 @@ export type usersRegisterUserResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMe;
 };
 
 export type usersRegisterUserResponse = usersRegisterUserResponses[keyof usersRegisterUserResponses];
@@ -2709,7 +2775,7 @@ export type usersReadUserByIdResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMe;
 };
 
 export type usersReadUserByIdResponse = usersReadUserByIdResponses[keyof usersReadUserByIdResponses];
@@ -2739,7 +2805,7 @@ export type usersUpdateUserResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMe;
 };
 
 export type usersUpdateUserResponse = usersUpdateUserResponses[keyof usersUpdateUserResponses];
@@ -4515,9 +4581,23 @@ export type proposalsUpdateProposalStatusResponse = proposalsUpdateProposalStatu
 export type chatGetMyConversationsData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Role
+         */
+        role?: UserRole | null;
+    };
     url: '/api/v1/chat/me';
 };
+
+export type chatGetMyConversationsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type chatGetMyConversationsError = chatGetMyConversationsErrors[keyof chatGetMyConversationsErrors];
 
 export type chatGetMyConversationsResponses = {
     /**
@@ -4673,6 +4753,38 @@ export type chatCheckUserPresenceResponses = {
 
 export type chatCheckUserPresenceResponse = chatCheckUserPresenceResponses[keyof chatCheckUserPresenceResponses];
 
+export type chatCheckMultipleUserPresenceData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * User Ids
+         */
+        user_ids: Array<string>;
+    };
+    url: '/api/v1/chat/presence';
+};
+
+export type chatCheckMultipleUserPresenceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type chatCheckMultipleUserPresenceError = chatCheckMultipleUserPresenceErrors[keyof chatCheckMultipleUserPresenceErrors];
+
+export type chatCheckMultipleUserPresenceResponses = {
+    /**
+     * Response Chat-Check Multiple User Presence
+     *
+     * Successful Response
+     */
+    200: Array<UserPresence>;
+};
+
+export type chatCheckMultipleUserPresenceResponse = chatCheckMultipleUserPresenceResponses[keyof chatCheckMultipleUserPresenceResponses];
+
 export type chatInjectEventData = {
     body: InjectPayload;
     path?: never;
@@ -4702,6 +4814,10 @@ export type connectionsListConnectionsData = {
     body?: never;
     path?: never;
     query?: {
+        /**
+         * Role
+         */
+        role?: UserRole | null;
         /**
          * Status
          */
@@ -4777,7 +4893,12 @@ export type connectionsGetConnectionStatusData = {
          */
         target_user_id: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Role
+         */
+        role?: UserRole | null;
+    };
     url: '/api/v1/connections/status/{target_user_id}';
 };
 
