@@ -246,24 +246,27 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 											})),
 										}
 									})
-									queryClient.setQueryData<ConversationsPublic>(chatKeys.conversations(), (current) => {
-										if (!current) return current
-										return {
-											...current,
-											data: current.data.map((conv) => {
-												if (conv.id === convId && conv.last_message) {
-													return {
-														...conv,
-														last_message: {
-															...conv.last_message,
-															is_read: true,
-														},
+									queryClient.setQueriesData<ConversationsPublic>(
+										{ queryKey: [...chatKeys.all, "conversations"] },
+										(current) => {
+											if (!current) return current
+											return {
+												...current,
+												data: current.data.map((conv) => {
+													if (conv.id === convId && conv.last_message) {
+														return {
+															...conv,
+															last_message: {
+																...conv.last_message,
+																is_read: true,
+															},
+														}
 													}
-												}
-												return conv
-											}),
-										}
-									})
+													return conv
+												}),
+											}
+										},
+									)
 								}
 							}
 							break

@@ -308,14 +308,23 @@ class PasswordResetToken(SQLModel, table=True):
     expires_at: datetime = Field(sa_type=DateTime(timezone=True))
     used_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
 
-# Properties to return via API, id is always required
-class UserPublic(UserBase):
+# Properties to return via API, public info only
+class UserPublic(SQLModel):
     id: uuid.UUID
+    full_name: str | None = Field(default=None, max_length=100)
+    avatar_url: str | None = Field(default=None, max_length=2000)
+    created_at: datetime | None = None
+
+
+# Properties to return via API for authenticated user's private view / admin
+class UserMe(UserBase):
+    id: uuid.UUID
+    avatar_url: str | None = Field(default=None, max_length=2000)
     created_at: datetime | None = None
 
 
 class UsersPublic(SQLModel):
-    data: list[UserPublic]
+    data: list[UserMe]
     count: int
 
 # ==============================================================================
@@ -1038,7 +1047,32 @@ class ConversationBase(SQLModel):
 
 
 class ConversationCreate(SQLModel):
-    freelancer_id: uuid.UUID
+    freelancer_id: uuid.UUID | None = None
+    target_user_id: uuid.UUID | None = None
+    as_role: UserRole | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_target(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            target = data.get("target_user_id") or data.get("freelancer_id")
+            if target is not None:
+                data.setdefault("freelancer_id", target)
+                data.setdefault("target_user_id", target)
+        elif hasattr(data, "target_user_id") or hasattr(data, "freelancer_id"):
+            target = getattr(data, "target_user_id", None) or getattr(data, "freelancer_id", None)
+            if target is not None:
+                if getattr(data, "freelancer_id", None) is None:
+                    data.freelancer_id = target
+                if getattr(data, "target_user_id", None) is None:
+                    data.target_user_id = target
+        return data
+
+    @model_validator(mode="after")
+    def check_has_target(self) -> Self:
+        if not self.freelancer_id and not self.target_user_id:
+            raise ValueError("Either target_user_id or freelancer_id must be provided")
+        return self
 
 
 class Conversation(SQLModel, table=True):
@@ -1148,6 +1182,7 @@ class ConversationPublic(SQLModel):
     last_message: ChatMessagePublic | None = None
     unread_count: int = 0
     other_user: UserPublic | None = None
+    other_user_role: Literal["client", "freelancer"]
 
 
 class ConversationDetailPublic(ConversationPublic):
@@ -1566,12 +1601,13 @@ class ConnectionBase(SQLModel):
 class ConnectionCreate(ConnectionBase):
     receiver_id: uuid.UUID
     job_post_id: uuid.UUID | None = None
+    as_role: UserRole | None = None
 
 
 class Connection(ConnectionBase, table=True):
     __table_args__ = (
         UniqueConstraint(
-            "sender_id", "receiver_id", name="uq_sender_receiver_connection"
+            "client_id", "freelancer_id", name="uq_client_freelancer_connection"
         ),
     )
 
@@ -1580,6 +1616,12 @@ class Connection(ConnectionBase, table=True):
         foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
     )
     receiver_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    client_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    freelancer_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
     )
     job_post_id: uuid.UUID | None = Field(
@@ -1620,6 +1662,8 @@ class ConnectionPublic(ConnectionBase):
     id: uuid.UUID
     sender_id: uuid.UUID
     receiver_id: uuid.UUID
+    client_id: uuid.UUID
+    freelancer_id: uuid.UUID
     job_post_id: uuid.UUID | None = None
     status: ConnectionStatus
     created_at: datetime | None = None

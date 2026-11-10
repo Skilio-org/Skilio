@@ -26,7 +26,7 @@ from app.models import (
     UpdatePassword,
     User,
     UserCreate,
-    UserPublic,
+    UserMe,
     UserRegister,
     UserRole,
     UsersPublic,
@@ -68,12 +68,12 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     )
     users = session.exec(statement).all()
 
-    users_public = [UserPublic.model_validate(user) for user in users]
+    users_public = [UserMe.model_validate(user) for user in users]
     return UsersPublic(data=users_public, count=count)
 
 
 @router.post(
-    "/", dependencies=[Depends(get_current_active_superuser)], response_model=UserPublic
+    "/", dependencies=[Depends(get_current_active_superuser)], response_model=UserMe
 )
 async def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     """
@@ -213,7 +213,7 @@ def update_password_me(
     return Message(message="Password updated successfully")
 
 
-@router.post("/me/switch-role", response_model=UserPublic)
+@router.post("/me/switch-role", response_model=UserMe)
 def switch_role(
     *, session: SessionDep, current_user: CurrentUser, body: SwitchRoleRequest
 ) -> Any:
@@ -252,7 +252,7 @@ def switch_role(
     return current_user
 
 
-@router.get("/me", response_model=UserPublic)
+@router.get("/me", response_model=UserMe)
 def read_user_me(current_user: CurrentUser) -> Any:
     """
     Get current user.
@@ -273,7 +273,7 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     session.commit()
     return Message(message="User deleted successfully")
 
-@router.patch("/me", response_model=UserPublic)
+@router.patch("/me", response_model=UserMe)
 async def update_user_me(
     *, session: SessionDep, user_in: UserUpdateMe, current_user: CurrentUser
 ) -> Any:
@@ -330,7 +330,7 @@ async def update_user_me(
     return current_user
 
 
-@router.post("/signup", response_model=UserPublic)
+@router.post("/signup", response_model=UserMe)
 async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     """
         Create new user without the need to be logged in.
@@ -406,7 +406,7 @@ def verify_email(session: SessionDep, token: str) -> Message:
     return Message(message="Email was verified!")
 
 
-@router.get("/{user_id}", response_model=UserPublic)
+@router.get("/{user_id}", response_model=UserMe)
 def read_user_by_id(
     user_id: uuid.UUID, session: SessionDep, current_user: CurrentUser
 ) -> Any:
@@ -429,7 +429,7 @@ def read_user_by_id(
 @router.patch(
     "/{user_id}",
     dependencies=[Depends(get_current_active_superuser)],
-    response_model=UserPublic,
+    response_model=UserMe,
 )
 def update_user(
     *,

@@ -2,15 +2,23 @@ import { useQuery } from "@tanstack/react-query"
 import { ChatService } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
 
-async function fetchConversations({ signal }: { signal: AbortSignal }) {
-	const response = await ChatService.getMyConversations({ signal })
-	let data = response.data
-	return data
+async function fetchConversations({
+	signal,
+	role,
+}: {
+	signal: AbortSignal
+	role?: "client" | "freelancer"
+}) {
+	const response = await ChatService.getMyConversations({
+		query: { role: (role as any) ?? undefined },
+		signal,
+	})
+	return response.data
 }
 
-export function useConversations() {
+export function useConversations(role?: "client" | "freelancer") {
 	return useQuery({
-		queryKey: chatKeys.conversations(),
-		queryFn: fetchConversations,
+		queryKey: chatKeys.conversations(role),
+		queryFn: ({ signal }) => fetchConversations({ signal, role }),
 	})
 }

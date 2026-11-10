@@ -31,7 +31,7 @@ export function FreelancerCard({
 	const { user } = useAuth()
 	const targetUserId = freelancer.userId
 	const isSelf = Boolean(user?.id && targetUserId === user.id)
-	const { data: connectionStatus } = useConnectionStatus(!isSelf ? targetUserId : undefined)
+	const { data: connectionStatus } = useConnectionStatus(!isSelf ? targetUserId : undefined, "client")
 	const sendMutation = useSendConnectionRequest()
 	const [connectOpen, setConnectOpen] = useState(false)
 	const [note, setNote] = useState("")
@@ -47,6 +47,7 @@ export function FreelancerCard({
 			await sendMutation.mutateAsync({
 				receiver_id: targetUserId,
 				note: note.trim() || undefined,
+				as_role: "client",
 			})
 			setConnectOpen(false)
 			setNote("")
