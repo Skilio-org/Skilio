@@ -1,17 +1,7 @@
-import {
-	Body,
-	Container,
-	Head,
-	Hr,
-	Html,
-	Img,
-	Preview,
-	Section,
-	Tailwind,
-	Text,
-} from "@react-email/components"
+import { Body, Container, Head, Hr, Html, Img, Preview, Section, Tailwind, Text } from "@react-email/components"
+import type { PropsWithChildren } from "react"
 
-type LayoutProps = React.PropsWithChildren & {
+type LayoutProps = PropsWithChildren & {
 	title: string
 	project_name: string
 	preview?: string
@@ -79,16 +69,14 @@ export const Layout = ({ project_name, title, preview, logo_url, children }: Lay
 						<Text className="m-0 mb-4 text-center font-semibold text-[13px] text-body uppercase tracking-[0.1em]">
 							{project_name}
 						</Text>
-						<Section 
+						<Section
 							className="rounded-2xl border border-solid border-[#2e3238] bg-surface"
 							// Ensures Outlook desktop renders the background color
 							// @ts-expect-error - bgcolor is a valid HTML table attribute needed for Outlook
 							bgcolor="#1f2125"
-							>
+						>
 							{/* Apply padding to an inner div or cell rather than the table */}
-							<div className="p-6">
-								{children}
-							</div>
+							<div className="p-6">{children}</div>
 						</Section>
 						<Hr className="my-6 border-rule border-t" />
 						<Section className="text-center">

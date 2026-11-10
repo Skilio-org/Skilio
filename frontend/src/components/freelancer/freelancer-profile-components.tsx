@@ -1,5 +1,5 @@
 import { ImagePlus } from "lucide-react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
 	type ProfileEntryForm,
@@ -46,7 +46,7 @@ export function ProfilePreview({
 	compact?: boolean
 	rating?: number
 	reviewsCount?: number
-	reviewsNode?: React.ReactNode
+	reviewsNode?: ReactNode
 }) {
 	const name = p.name || "Your name"
 	const bio = p.bio || "Your introduction will appear here."
@@ -234,110 +234,110 @@ export function EntryDialog({
 					}}
 				>
 					<fieldset disabled={busy} className="m-0 min-w-0 space-y-5 border-0 p-0">
-					{isPortfolio && (
-						<div>
-							<span className="block font-medium text-sm">
-								Cover image <span className="font-normal text-on-surface-variant">(optional)</span>
-							</span>
-							{shownImage ? (
-								<div className="mt-2 overflow-hidden rounded-lg border border-outline-variant">
-									<img src={shownImage} alt="" className="aspect-video w-full object-cover" />
-									<div className="flex items-center justify-between gap-3 border-outline-variant border-t bg-surface-container-low/50 px-3 py-2">
-										<span className="truncate text-on-surface-variant text-xs">
-											{image ? image.name : "Current image"}
-										</span>
-										<div className="flex shrink-0 gap-3 text-xs">
-											<label className="cursor-pointer font-medium text-link hover:underline">
-												Replace
-												<input
-													className="sr-only"
-													type="file"
-													accept={imageTypes.join(",")}
-													aria-label="Replace cover image"
-													onChange={(e) => pickImage(e.target.files?.[0])}
-												/>
-											</label>
-											<button
-												type="button"
-												className="font-medium text-on-surface-variant hover:text-destructive"
-												onClick={() => {
-													setImage(null)
-													setValue({ ...value, image_url: null })
-												}}
-											>
-												Remove
-											</button>
+						{isPortfolio && (
+							<div>
+								<span className="block font-medium text-sm">
+									Cover image <span className="font-normal text-on-surface-variant">(optional)</span>
+								</span>
+								{shownImage ? (
+									<div className="mt-2 overflow-hidden rounded-lg border border-outline-variant">
+										<img src={shownImage} alt="" className="aspect-video w-full object-cover" />
+										<div className="flex items-center justify-between gap-3 border-outline-variant border-t bg-surface-container-low/50 px-3 py-2">
+											<span className="truncate text-on-surface-variant text-xs">
+												{image ? image.name : "Current image"}
+											</span>
+											<div className="flex shrink-0 gap-3 text-xs">
+												<label className="cursor-pointer font-medium text-link hover:underline">
+													Replace
+													<input
+														className="sr-only"
+														type="file"
+														accept={imageTypes.join(",")}
+														aria-label="Replace cover image"
+														onChange={(e) => pickImage(e.target.files?.[0])}
+													/>
+												</label>
+												<button
+													type="button"
+													className="font-medium text-on-surface-variant hover:text-destructive"
+													onClick={() => {
+														setImage(null)
+														setValue({ ...value, image_url: null })
+													}}
+												>
+													Remove
+												</button>
+											</div>
 										</div>
 									</div>
-								</div>
-							) : (
-								<label className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-outline-variant border-dashed bg-surface-container-low/40 px-4 py-8 text-center transition-colors hover:bg-surface-container-low">
-									<ImagePlus className="size-5 text-on-surface-variant" />
-									<span className="font-medium text-on-surface text-sm">Add a cover image</span>
-									<span className="text-on-surface-variant text-xs">JPG, PNG or WebP, up to 5 MB</span>
-									<input
-										className="sr-only"
-										type="file"
-										accept={imageTypes.join(",")}
-										aria-label="Upload cover image"
-										onChange={(e) => pickImage(e.target.files?.[0])}
-									/>
-								</label>
-							)}
+								) : (
+									<label className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-outline-variant border-dashed bg-surface-container-low/40 px-4 py-8 text-center transition-colors hover:bg-surface-container-low">
+										<ImagePlus className="size-5 text-on-surface-variant" />
+										<span className="font-medium text-on-surface text-sm">Add a cover image</span>
+										<span className="text-on-surface-variant text-xs">JPG, PNG or WebP, up to 5 MB</span>
+										<input
+											className="sr-only"
+											type="file"
+											accept={imageTypes.join(",")}
+											aria-label="Upload cover image"
+											onChange={(e) => pickImage(e.target.files?.[0])}
+										/>
+									</label>
+								)}
+							</div>
+						)}
+						<div className="grid gap-5 sm:grid-cols-2">
+							<label className="block font-medium text-sm">
+								{text.name} *
+								<input
+									required
+									pattern=".*\S.*"
+									maxLength={profileLimits.entryTitle}
+									placeholder={text.namePlaceholder}
+									className={fieldClass}
+									value={value.title}
+									onChange={(e) => setValue({ ...value, title: e.target.value })}
+								/>
+							</label>
+							<label className="block font-medium text-sm">
+								{text.organization}
+								<input
+									className={fieldClass}
+									maxLength={profileLimits.entryOrganization}
+									placeholder={text.organizationHint}
+									value={value.organization}
+									onChange={(e) => setValue({ ...value, organization: e.target.value })}
+								/>
+							</label>
 						</div>
-					)}
-					<div className="grid gap-5 sm:grid-cols-2">
 						<label className="block font-medium text-sm">
-							{text.name} *
-							<input
-								required
-								pattern=".*\S.*"
-								maxLength={profileLimits.entryTitle}
-								placeholder={text.namePlaceholder}
-								className={fieldClass}
-								value={value.title}
-								onChange={(e) => setValue({ ...value, title: e.target.value })}
+							{text.detail}
+							<textarea
+								rows={4}
+								maxLength={profileLimits.entryDetail}
+								placeholder={text.detailPlaceholder}
+								className={textareaClass}
+								value={value.detail}
+								onChange={(e) => setValue({ ...value, detail: e.target.value })}
 							/>
+							<span className="mt-1.5 block text-right font-normal text-on-surface-variant text-xs tabular-nums">
+								{value.detail.length}/{profileLimits.entryDetail}
+							</span>
 						</label>
-						<label className="block font-medium text-sm">
-							{text.organization}
-							<input
-								className={fieldClass}
-								maxLength={profileLimits.entryOrganization}
-								placeholder={text.organizationHint}
-								value={value.organization}
-								onChange={(e) => setValue({ ...value, organization: e.target.value })}
-							/>
-						</label>
-					</div>
-					<label className="block font-medium text-sm">
-						{text.detail}
-						<textarea
-							rows={4}
-							maxLength={profileLimits.entryDetail}
-							placeholder={text.detailPlaceholder}
-							className={textareaClass}
-							value={value.detail}
-							onChange={(e) => setValue({ ...value, detail: e.target.value })}
-						/>
-						<span className="mt-1.5 block text-right font-normal text-on-surface-variant text-xs tabular-nums">
-							{value.detail.length}/{profileLimits.entryDetail}
-						</span>
-					</label>
-					{isPortfolio && (
-						<label className="block font-medium text-sm">
-							Project link <span className="font-normal text-on-surface-variant">(optional)</span>
-							<input
-								type="url"
-								pattern="https://.+"
-								title="Enter a link that starts with https://"
-								placeholder="https://"
-								className={fieldClass}
-								value={value.url}
-								onChange={(e) => setValue({ ...value, url: e.target.value })}
-							/>
-						</label>
-					)}
+						{isPortfolio && (
+							<label className="block font-medium text-sm">
+								Project link <span className="font-normal text-on-surface-variant">(optional)</span>
+								<input
+									type="url"
+									pattern="https://.+"
+									title="Enter a link that starts with https://"
+									placeholder="https://"
+									className={fieldClass}
+									value={value.url}
+									onChange={(e) => setValue({ ...value, url: e.target.value })}
+								/>
+							</label>
+						)}
 					</fieldset>
 					<div className="flex justify-end gap-2.5 border-outline-variant border-t pt-5">
 						<button type="button" className={secondary} onClick={cancel}>

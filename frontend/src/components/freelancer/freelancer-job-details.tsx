@@ -1,5 +1,5 @@
 import { ArrowRight, Banknote, Bookmark, Building2, CircleCheck, Clock3, Globe2, MessageSquare, Send, UserPlus } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { FormEvent, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Link } from "@tanstack/react-router"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -63,7 +63,7 @@ export const JobDetails = ({
 		}
 	}
 
-	const handleSendConnection = async (e: React.FormEvent) => {
+	const handleSendConnection = async (e: FormEvent) => {
 		e.preventDefault();
 
 		if (connectNote.length > connectionNoteMaxLength) {

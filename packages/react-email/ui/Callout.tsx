@@ -1,6 +1,7 @@
 import { Section, Text } from "@react-email/components"
+import type { PropsWithChildren } from "react"
 
-type CalloutProps = React.PropsWithChildren
+type CalloutProps = PropsWithChildren
 
 export const Callout = ({ children }: CalloutProps) => (
 	<Section className="my-7 border-0 border-brand border-l-2 border-solid pl-5">{children}</Section>

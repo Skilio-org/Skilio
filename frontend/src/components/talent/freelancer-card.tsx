@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { Bookmark, Clock3, MapPin, Send, Star, UserCheck, UserPlus } from "lucide-react"
-import { useState } from "react"
+import { FormEvent, useState } from "react"
 import { toast } from "sonner"
 import { formatMoney } from "@/lib/currency"
 
@@ -36,7 +36,7 @@ export function FreelancerCard({
 	const [connectOpen, setConnectOpen] = useState(false)
 	const [note, setNote] = useState("")
 
-	const handleSend = async (e: React.FormEvent) => {
+	const handleSend = async (e: FormEvent) => {
 		e.preventDefault()
 		if (!targetUserId || isSelf) return
 		if (note.length > connectionNoteMaxLength) {

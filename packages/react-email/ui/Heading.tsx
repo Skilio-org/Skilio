@@ -1,6 +1,7 @@
 import { Heading as BaseHeading } from "@react-email/components"
+import type { PropsWithChildren } from "react"
 
-type HeadingProps = React.PropsWithChildren & {
+type HeadingProps = PropsWithChildren & {
 	as?: "h1" | "h2" | "h3"
 	className?: string
 }
