@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import {
-	type ChatMessagePublic,
-	type ConversationDetailPublic,
-	type ConversationsPublic,
+import type {
+	ChatMessagePublic,
+	ConversationDetailPublic,
+	ConversationsPublic,
 } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
 // import { toast } from "sonner"
