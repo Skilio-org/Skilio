@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-# ──────────────────────────────────────────────────────────────────────────────
-# entrypoint.sh — PostgreSQL Backup Service Entrypoint
-# ──────────────────────────────────────────────────────────────────────────────
-# Waits for database to be ready, runs first backup if needed, sets up
-# the cron schedule, and shows logs.
 
 set -euo pipefail
 
@@ -20,8 +15,7 @@ POSTGRES_HOST="${POSTGRES_HOST:-db}"
 POSTGRES_PORT="${POSTGRES_PORT:-5432}"
 POSTGRES_USER="${POSTGRES_USER:-postgres}"
 POSTGRES_DB="${POSTGRES_DB:-app}"
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
-export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD}}"
+export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD:-}}"
 BACKUP_SCHEDULE="${BACKUP_SCHEDULE:-0 2 * * *}"
 BACKUP_DIR="${BACKUP_DIR:-/dumps}"
 BACKUP_MAX_COUNT="${BACKUP_MAX_COUNT:-7}"
@@ -39,7 +33,6 @@ echo -e "  Backup Folder  : ${CYAN}${BACKUP_DIR}${NC}"
 echo -e "  Run on Startup : ${CYAN}${RUN_ON_STARTUP}${NC}"
 echo -e "${BOLD}─────────────────────────────────────────────────────${NC}"
 
-# Make sure the backup folder exists
 mkdir -p "${BACKUP_DIR}"
 
 # Wait for database to be ready
