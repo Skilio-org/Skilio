@@ -16,7 +16,8 @@ export function useUserOnlineStatus(userId: string | undefined) {
 	return { isOnline: presence?.is_online ?? false, isPending }
 }
 
-export function useUsersOnline(userIds: string[]) {
+export function useUsersOnline(userIds: string[])
+{
     const { data, isPending } = useQuery({
         queryKey: ["chat", "presence", userIds],
         enabled: userIds.length > 0,
@@ -32,12 +33,18 @@ export function useUsersOnline(userIds: string[]) {
         },
     })
 
-    // Create a Map of user IDs to their online status for quick lookup.
 	const onlineUsers =
     Object.fromEntries(
         data?.map((presence) => [presence.user_id, presence.is_online]) ?? [],
     ) satisfies Record<string, boolean>
 
+    if (userIds.length === 0) {
+        return {
+            onlineUsers: {},
+            isOnline: () => false,
+            isPending: false,
+        }
+    }
     return {
         onlineUsers,
         isOnline: (userId: string) => onlineUsers[userId] ?? false,
