@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import type {
 	ChatMessagePublic,
 	ConversationDetailPublic,
-	ConversationsPublic,
 } from "@/client/types.gen";
 import { EmptyState } from "@/components/common/empty-state";
 import {
@@ -208,34 +207,32 @@ export function MessagesPage({
 		MessageUpdate(selectedConversationId, rmessage);
 
 		// append the latest message to the conversations list, and set the unread count to 0 for this conversation.
-		queryClient.setQueriesData<ConversationsPublic>(
-			{ queryKey: [...chatKeys.all, "conversations"] },
-			(current: any) => {
-				if (!current) return current;
+		queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
+			if (!current) return current;
 
-				const updatedConversations = current.data.map((conversation: any) => {
-					if (conversation.id === selectedConversationId) {
-						return {
-							...conversation,
-							unread_count: 0,
-							last_message: rmessage,
-						};
-					}
-					return conversation;
-				});
-				const activeIndex = updatedConversations.findIndex(
-					(c: any) => c.id === selectedConversationId,
-				);
-				if (activeIndex > 0) {
-					const [active] = updatedConversations.splice(activeIndex, 1);
-					updatedConversations.unshift(active);
+			const updatedConversations = current.data.map((conversation: any) => {
+				if (conversation.id === selectedConversationId) {
+					return {
+						...conversation,
+						unread_count: 0,
+						last_message: rmessage,
+					};
 				}
-				return {
-					...current,
-					data: updatedConversations,
-				};
-			},
-		);
+				return conversation;
+			});
+			const activeIndex = updatedConversations.findIndex(
+				(c: any) => c.id === selectedConversationId,
+			);
+			if (activeIndex > 0) {
+				const [active] = updatedConversations.splice(activeIndex, 1);
+				updatedConversations.unshift(active);
+			}
+			return {
+				...current,
+				data: updatedConversations,
+			};
+		});
+	
 		setMessageSendResult(rmessage.id, "pending");
 		setDraft("");
 		// setTimeout(() => {
