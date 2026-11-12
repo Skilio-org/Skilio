@@ -80,7 +80,7 @@
 | **`<aysadeq>`** | [Ayman Sadik] | **DevOps Lead / Infra Architect** | AWS EC2 cloud infrastructure, Docker Compose multi-stage builds, Traefik TLS, CI/CD pipeline, DB Backup Daemon & DR, Prometheus/Grafana monitoring. |
 | **`<arajma>`** | [Amine Rajma] | **Backend Lead / Security Lead** | FastAPI REST endpoints, SQLModel relational models, Alembic migrations, JWT/Argon2 security, Google/LinkedIn OAuth 2.0, input validation. |
 | **`<lazmoud>`** | [Lahoucine Azmoud] | **Full-Stack Dev / Real-Time Lead**| Bidirectional WebSocket gateway, Redis Pub/Sub distributed event bus, React chat UI, typing indicators, proposals workflow. |
-| **`<omorakwant>`**| [Osama Dahriz] | **Frontend Developer ** | Product backlog, user stories, landing page, ratings/reviews engine, role route guards. |
+| **`<omorakwant>`**| [Osama Dahriz] | **Frontend Developer** | Product backlog, user stories, landing page, ratings/reviews engine, role route guards. |
 | **`<zbakour>`** | [Zakaria Bakour] | **Frontend Lead / UI-UX Lead** | React 19 architecture, Tailwind CSS v4 design system, dark/light theme, responsive navigation, Talent Directory & search filters, Client Job management,  cross-browser QA. |
 
 👉 **Detailed Guide:** Read the full role definitions and RACI matrix in **[docs/team.md](docs/team.md)**.
