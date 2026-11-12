@@ -1,16 +1,13 @@
 import { Archive, MessageSquare, Search, X } from "lucide-react"
-import { memo, useCallback, useMemo, useRef } from "react"
+import { memo, useCallback, useRef } from "react"
 import { getClientTheme } from "@/components/messages/message-types"
 import type { InboxFilter } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "@/hooks/isClientProfile"
-import { useAccountRole } from "@/hooks/useAccountRole"
-import { useChatData } from "@/hooks/useChatData"
 import { createFallbackProfile } from "@/hooks/useProfiles"
-import type { ConversationPublic, UserPublic } from "@/client"
+import type { ConversationPublic, ConversationsPublic, UserPublic } from "@/client"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
-import { useUsersOnline } from "@/hooks/useUserOnlineStatus"
 
 export type ConversationListItemProps = {
 	conversation: ConversationPublic
@@ -141,6 +138,9 @@ export function ConversationList({
 	onQueryChange,
 	onFilterChange,
 	onSelect,
+	isOnline,
+	conversations,
+	profiles,
 }: {
 	me: UserPublic | null | undefined
 	selected: ConversationProfile | undefined
@@ -150,21 +150,16 @@ export function ConversationList({
 	onQueryChange: (query: string) => void
 	onFilterChange: (filter: InboxFilter) => void
 	onSelect: (id: string) => void
+	isOnline: (id: string) => boolean
+	conversations: ConversationsPublic | undefined
+	profiles: Map<string, ConversationProfile> | undefined
 }) {
-	const role = useAccountRole()
-	const { conversations, profiles } = useChatData(role)
+	// const role = useAccountRole()
 	const [listRef] = useAutoAnimate({ duration: 250, easing: "ease-in-out" })
-	const ids = useMemo(
-		() => conversations?.data?.data.map((conversation) => conversation.other_user?.id ?? "").filter(Boolean) ?? [],
-		[conversations?.data?.data],
-	)
-	const { isOnline } = useUsersOnline(ids)
 
 	const onSelectRef = useRef(onSelect)
 	onSelectRef.current = onSelect
 	const handleSelect = useCallback((id: string) => onSelectRef.current(id), [])
-
-	if (conversations.isPending) return "Loading..."
 
 	return (
 		<aside
@@ -178,7 +173,7 @@ export function ConversationList({
 				<div className="flex items-center justify-between gap-3">
 					<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">Direct threads</h2>
 					<span className="rounded bg-surface-container px-2 py-0.5 font-caption text-caption text-on-surface-variant font-medium">
-						{conversations?.data?.count ?? 0} total
+						{conversations?.count ?? 0} total
 					</span>
 				</div>
 				<label className="mt-3.5 flex h-9 items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-body-sm text-body-sm text-on-surface transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20">
@@ -239,27 +234,27 @@ export function ConversationList({
 				</div>
 			</div>
 			<div ref={listRef} className="min-h-0 flex-1 overflow-y-auto p-2.5 space-y-1.5">
-				{conversations?.data?.data
-					.filter((conversation) => {
+				{conversations?.data
+					.filter((conversation: ConversationPublic) => {
 						if (filter === "unread" && (conversation.unread_count ?? 0) === 0) return false
 						if (query && !conversation.other_user?.full_name?.toLowerCase().includes(query.toLowerCase())) return false
 						if (conversation.last_message == null) return conversation.creator_id === me?.id
 						return true
 					})
-					.map((conversation) => {
+					.map((conversation: ConversationPublic) => {
 						if (!conversation.other_user) return null
 						return (
 							<ConversationListItem
 								key={conversation.id}
 								conversation={conversation}
-								profile={profiles.data?.get(conversation.other_user.id)}
+								profile={profiles?.get(conversation.other_user.id)}
 								active={selected?.user_id === conversation.other_user.id}
 								userOnline={isOnline(conversation.other_user.id)}
 								onSelect={handleSelect}
 							/>
 						)
 					})}
-				{conversations.data?.count === 0 && (
+				{conversations?.count === 0 && (
 					<div className="px-4 py-12 text-center">
 						<span className="mx-auto grid size-12 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant">
 							{filter === "archived" ? (
