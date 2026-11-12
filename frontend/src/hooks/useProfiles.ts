@@ -1,5 +1,6 @@
-import { useQueries } from "@tanstack/react-query"
-import { ClientProfilesService, ProfilesService, ConversationsPublic, type UserPublic } from "@/client"
+import { type UseQueryResult, useQueries } from "@tanstack/react-query"
+import { useCallback, useEffect, useMemo, useRef } from "react"
+import { ClientProfilesService, type ConversationsPublic, ProfilesService, type UserPublic } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
 import type { ConversationProfile } from "@/hooks/isClientProfile"
 
@@ -52,38 +53,71 @@ async function fetchProfile(
 }
 
 export function useProfiles(conversations: ConversationsPublic | undefined, conversationsLoaded: boolean) {
-	const userRolePairs = (conversations?.data ?? [])
-		.filter((conv) => Boolean(conv.other_user))
-		.map((conv) => ({
-			user: conv.other_user as UserPublic,
-			role: conv.other_user_role as "client" | "freelancer",
-		}))
-
-	const profilesQueries = useQueries({
-		queries: userRolePairs.map(({ user, role }) => ({
-			queryKey: chatKeys.profile(user.id, role),
-			enabled: conversationsLoaded,
-			staleTime: 5 * 60 * 1000,
-			queryFn: ({ signal }: { signal: AbortSignal }) => fetchProfile(user, role, signal),
-		})),
-	})
-
-	const profiles = new Map<string, ConversationProfile>()
-	profilesQueries.forEach((query, index) => {
-		const { user, role } = userRolePairs[index]
-		if (query.data) {
-			profiles.set(user.id, query.data as ConversationProfile)
-		} else if (!query.isPending) {
-			profiles.set(user.id, createFallbackProfile(user, role))
+	const { pairs: nextPairs, signature } = useMemo(() => {
+		const seen = new Set<string>()
+		const pairs: Array<{ user: UserPublic; role: "client" | "freelancer"; key: string }> = []
+		for (const conv of conversations?.data ?? []) {
+			if (!conv.other_user) continue
+			const role = conv.other_user_role as "client" | "freelancer"
+			const key = `${conv.other_user.id}:${role}`
+			if (seen.has(key)) continue
+			seen.add(key)
+			pairs.push({ user: conv.other_user, role, key })
 		}
-	})
+		pairs.sort((a, b) => a.key.localeCompare(b.key))
+		return {
+			pairs,
+			signature: pairs.map((p) => `${p.key}:${p.user.full_name ?? ""}`).join("\0"),
+		}
+	}, [conversations?.data])
 
-	return {
-		data: profiles,
-		isPending: !conversationsLoaded || profilesQueries.some((query) => query.isPending),
-		isSuccess: profilesQueries.every((query) => query.isSuccess),
-		isError: profilesQueries.some((query) => query.isError),
-		isFetching: profilesQueries.some((query) => query.isFetching),
-		refetch: () => Promise.all(profilesQueries.map((query) => query.refetch())),
-	}
+	const committedRef = useRef<{ signature: string; pairs: typeof nextPairs }>({
+		signature: "",
+		pairs: [],
+	})
+	const userRolePairs = committedRef.current.signature === signature ? committedRef.current.pairs : nextPairs
+	useEffect(() => {
+		committedRef.current = { signature, pairs: userRolePairs }
+	}, [signature, userRolePairs])
+
+	const combine = useCallback(
+		(results: UseQueryResult<ConversationProfile>[]) => {
+			const profiles = new Map<string, ConversationProfile>()
+			results.forEach((query, index) => {
+				const pair = userRolePairs[index]
+				if (!pair) return
+				if (query.data) {
+					profiles.set(pair.user.id, query.data)
+				} else if (!query.isPending) {
+					profiles.set(pair.user.id, createFallbackProfile(pair.user, pair.role))
+				}
+			})
+
+			return {
+				data: profiles,
+				isPending: !conversationsLoaded || results.some((query) => query.isPending),
+				isSuccess: results.every((query) => query.isSuccess),
+				isError: results.some((query) => query.isError),
+				isFetching: results.some((query) => query.isFetching),
+				refetch: () => Promise.all(results.map((query) => query.refetch())),
+			}
+		},
+		[userRolePairs, conversationsLoaded],
+	)
+
+	const queries = useMemo(
+		() =>
+			userRolePairs.map(({ user, role }) => ({
+				queryKey: chatKeys.profile(user.id, role),
+				enabled: conversationsLoaded,
+				staleTime: 5 * 60 * 1000,
+				queryFn: ({ signal }: { signal: AbortSignal }) => fetchProfile(user, role, signal),
+			})),
+		[userRolePairs, conversationsLoaded],
+	)
+
+	return useQueries({
+		queries,
+		combine,
+	})
 }
