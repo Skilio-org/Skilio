@@ -60,9 +60,7 @@ function getWebSocketUrl(): string {
 }
 
 export function WebSocketProvider({ children }: { children: ReactNode }) {
-	const [messageSendState, setMessageSendState_] = useState<MessageSendState>(() => ({
-		// Initial entries, if any
-	}))
+	const [messageSendState, setMessageSendState_] = useState<MessageSendState>(() => ({}))
 	const [isConnected, setIsConnected] = useState(false)
 	const wsRef = useRef<WebSocket | null>(null)
 	const subscribersRef = useRef<Map<string, Set<WebSocketEventHandler>>>(new Map())
@@ -84,7 +82,6 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 		}))
 	}, [])
 
-	// Keep queryClient ref updated to keep connect reference stable
 	useEffect(() => {
 		queryClientRef.current = queryClient
 	}, [queryClient])
@@ -99,15 +96,12 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 			reconnectTimeoutRef.current = null
 		}
 		if (wsRef.current) {
-			// Nullify event handlers before closing so onclose doesn't trigger a reconnect cycle
 			const ws = wsRef.current
 			ws.onopen = null
 			ws.onmessage = null
 			ws.onclose = null
 			ws.onerror = null
-			// wsRef.current.close()
 			if (ws.readyState === WebSocket.CONNECTING) {
-				// Wait until it's open before cleanly closing, or close gracefully
 				ws.onopen = () => {
 					ws.close(1000)
 				}
@@ -128,7 +122,6 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 		const url = getWebSocketUrl()
 		if (!url) return
 
-		// Clean up active connection/listeners before opening a new one
 		cleanupSocket()
 		try {
 			const ws = new WebSocket(url)
@@ -148,7 +141,6 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 					const eventType = data.type || "custom"
 					switch (eventType) {
 						case "pong":
-							// Ignore pong messages
 							return
 						case "connection_established": {
 							setIsConnected(true)
@@ -345,12 +337,10 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 						}
 					}
 				} catch {
-					// Ignore non-JSON or heartbeat response
 				}
 			}
 			ws.onclose = (e) => {
 				if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
-				// console.log("WebSocket closed:", e.code, e.reason)
 				if (e.code === WebSocketCloseCodes.PolicyViolation) {
 					localStorage.clear()
 					window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
@@ -360,7 +350,6 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 					setIsConnected(false)
 					if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
 
-					// Auto-reconnect after 3s if still logged in
 					if (localStorage.getItem("access_token")) {
 						reconnectTimeoutRef.current = setTimeout(() => {
 							connect()
@@ -375,7 +364,6 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 		}
 	}, [cleanupSocket, handleIncomingMessage, queryClient, setMessageSendResult])
 
-	// let handleStorage: (e: StorageEvent) => void
 	const handleStorage = (e: StorageEvent) => {
 		if (e.newValue) {
 			if (e.key === "access_token") {

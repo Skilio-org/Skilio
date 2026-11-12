@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { InboxIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type {
 	ChatMessagePublic,
@@ -28,7 +28,7 @@ import {
 	useConversation,
 	useConversationUpdate,
 } from "@/hooks/userConversation";
-import { useUserOnlineStatus } from "@/hooks/useUserOnlineStatus";
+import { useUserOnlineStatus, useUsersOnline } from "@/hooks/useUserOnlineStatus";
 
 export function MessagesPage({
 	SelectedUserId,
@@ -59,7 +59,7 @@ export function MessagesPage({
 		)
 		: undefined;
 	const selectedConversationId =
-		selectedConversation == undefined
+		selectedConversation === undefined
 			? selectedConversation
 			: selectedConversation?.id;
 	const selectedProfile =
@@ -68,10 +68,14 @@ export function MessagesPage({
 			(selectedConversation.other_user
 				? createFallbackProfile(selectedConversation.other_user, selectedConversation.other_user_role)
 				: undefined));
-
-	const { isOnline, isPending: presencePending } = useUserOnlineStatus(
-		selectedProfile?.user_id,
-	);
+	const ids = useMemo(
+		() => conversations?.data?.data.map((conversation) => conversation.other_user?.id ?? "").filter(Boolean) ?? [],
+		[conversations?.data?.data],
+	)
+	const { isOnline, isPending: presencePending } = useUsersOnline(ids)
+	// const { isOnline, isPending: presencePending } = useUserOnlineStatus(
+	// 	selectedProfile?.user_id,
+	// );
 	const detailsQuery = useConversation(selectedConversationId ?? "");
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -379,6 +383,9 @@ export function MessagesPage({
 					onQueryChange={setQuery}
 					onFilterChange={setFilter}
 					onSelect={onSelectContact}
+					conversations={conversations.data}
+					profiles={profiles.data}
+					isOnline={isOnline}
 				/>
 				{selectedConversationId && !selectedConversation ? (
 					<section className="flex flex-col gap-4 p-6" aria-live="polite">
@@ -422,7 +429,7 @@ export function MessagesPage({
 					<MessageThread
 						key={selectedProfile?.user_id ?? "no-profile"}
 						selected={selectedProfile}
-						isOnline={isOnline}
+						isOnline={isOnline(selectedProfile?.user_id ?? "")}
 						presencePending={presencePending}
 						messages={detailsQuery.data?.messages ?? []}
 						draft={draft}
