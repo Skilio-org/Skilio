@@ -1,16 +1,13 @@
 import { Archive, MessageSquare, Search, X } from "lucide-react"
-import { memo, useCallback, useMemo, useRef } from "react"
+import { memo, useCallback, useRef } from "react"
 import { getClientTheme } from "@/components/messages/message-types"
 import type { InboxFilter } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "@/hooks/isClientProfile"
-import { useAccountRole } from "@/hooks/useAccountRole"
-import { useChatData } from "@/hooks/useChatData"
 import { createFallbackProfile } from "@/hooks/useProfiles"
 import type { ConversationPublic, ConversationsPublic, UserPublic } from "@/client"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
-import { useUsersOnline } from "@/hooks/useUserOnlineStatus"
 
 export type ConversationListItemProps = {
 	conversation: ConversationPublic

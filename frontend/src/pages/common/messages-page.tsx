@@ -28,7 +28,7 @@ import {
 	useConversation,
 	useConversationUpdate,
 } from "@/hooks/userConversation";
-import { useUserOnlineStatus, useUsersOnline } from "@/hooks/useUserOnlineStatus";
+import { useUsersOnline } from "@/hooks/useUserOnlineStatus";
 
 export function MessagesPage({
 	SelectedUserId,
