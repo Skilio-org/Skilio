@@ -228,10 +228,11 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 												}
 												return m
 											})
-											const nextLastMessage =
-												current.last_message?.id === clientMessageId
-													? ((changed = true), { ...current.last_message, id: backendId })
-													: current.last_message
+											let nextLastMessage = current.last_message
+											if (current.last_message && current.last_message.id === clientMessageId) {
+												changed = true
+												nextLastMessage = { ...current.last_message, id: backendId }
+											}
 											return changed ? { ...current, messages: nextMessages, last_message: nextLastMessage } : current
 										})
 									}
