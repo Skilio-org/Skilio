@@ -3,7 +3,7 @@ import { chatKeys } from "@/data/chat-keys"
 import { useChatEventHandlers } from "@/hooks/useChatEventHandler"
 import { removeMessageFromCache } from "@/hooks/userConversation"
 import { useQueryClient } from "@tanstack/react-query"
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react"
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
 export type sendState = "sent" | "failed" | "pending"
@@ -32,6 +32,7 @@ interface WebSocketContextType {
 	sendMessage: (payload: any) => boolean
 	subscribe: (eventType: string, handler: WebSocketEventHandler) => () => void
 	setMessageSendResult: (messageId: string, success: sendState) => void
+	setActiveConversationId: (conversationId: string | null) => void
 	messageSendState: MessageSendState
 }
 
@@ -71,7 +72,11 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 
 	const queryClient = useQueryClient()
 	const queryClientRef = useRef(queryClient)
+	const activeConversationIdRef = useRef<string | null>(null)
 	const { handleIncomingMessage } = useChatEventHandlers()
+	const setActiveConversationId = useCallback((conversationId: string | null) => {
+		activeConversationIdRef.current = conversationId
+	}, [])
 	const setMessageSendResult = useCallback((messageId: string, state: sendState) => {
 		setMessageSendState_((prev) => ({
 			...prev,
@@ -154,9 +159,10 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 						}
 						case "chat_message":
 							{
+								const convId = data.data?.conversation_id
 								handleIncomingMessage(data.data, {
 									incrementUnread: true,
-									isViewingConversation: false,
+									isViewingConversation: Boolean(convId && convId === activeConversationIdRef.current),
 								})
 							}
 							break
@@ -204,20 +210,62 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 								const backendId = data.data?.id
 								const convId = data.data?.conversation_id
 								if (clientMessageId && backendId && convId) {
-									queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(convId), (current) => {
-										if (!current) return current
-										current.messages = current.messages?.map((m) => {
-											if (m.id === clientMessageId) {
-												return {
-													...m,
-													id: backendId,
+									const cachedDetail = queryClient.getQueryData<ConversationDetailPublic>(chatKeys.conversation(convId))
+									if (
+										cachedDetail?.messages?.some((m) => m.id === clientMessageId) ||
+										cachedDetail?.last_message?.id === clientMessageId
+									) {
+										queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(convId), (current) => {
+											if (!current) return current
+											let changed = false
+											const nextMessages = current.messages?.map((m) => {
+												if (m.id === clientMessageId) {
+													changed = true
+													return {
+														...m,
+														id: backendId,
+													}
 												}
+												return m
+											})
+											let nextLastMessage = current.last_message
+											if (current.last_message && current.last_message.id === clientMessageId) {
+												changed = true
+												nextLastMessage = { ...current.last_message, id: backendId }
 											}
-											return m
+											return changed ? { ...current, messages: nextMessages, last_message: nextLastMessage } : current
 										})
-										return current
-									})
+									}
+									for (const [queryKey, queryData] of queryClient.getQueriesData<ConversationsPublic>({
+										queryKey: [...chatKeys.all, "conversations"],
+									})) {
+										if (
+											!queryData?.data?.some(
+												(conv) => conv.id === convId && conv.last_message?.id === clientMessageId,
+											)
+										) {
+											continue
+										}
+										queryClient.setQueryData<ConversationsPublic>(queryKey, (current) => {
+											if (!current?.data) return current
+											const index = current.data.findIndex(
+												(conv) => conv.id === convId && conv.last_message?.id === clientMessageId,
+											)
+											if (index === -1) return current
+											const conv = current.data[index]
+											const nextData = [...current.data]
+											nextData[index] = {
+												...conv,
+												last_message: conv.last_message ? { ...conv.last_message, id: backendId } : conv.last_message,
+											}
+											return {
+												...current,
+												data: nextData,
+											}
+										})
+									}
 									setMessageSendResult(clientMessageId, "sent")
+									setMessageSendResult(backendId, "sent")
 								}
 							}
 							break
@@ -235,37 +283,49 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 							{
 								const convId = data.data?.conversation_id
 								if (convId) {
-									queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(convId), (current) => {
-										if (!current) return current
-										return {
-											...current,
-											messages: current.messages?.map((m) => ({
-												...m,
-												is_read: true,
-											})),
-										}
-									})
-									queryClient.setQueriesData<ConversationsPublic>(
-										{ queryKey: [...chatKeys.all, "conversations"] },
-										(current) => {
-											if (!current) return current
+									if (
+										queryClient
+											.getQueryData<ConversationDetailPublic>(chatKeys.conversation(convId))
+											?.messages?.some((m) => !m.is_read)
+									) {
+										queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(convId), (current) => {
+											if (!current?.messages?.some((m) => !m.is_read)) return current
 											return {
 												...current,
-												data: current.data.map((conv) => {
-													if (conv.id === convId && conv.last_message) {
-														return {
-															...conv,
-															last_message: {
-																...conv.last_message,
-																is_read: true,
-															},
-														}
-													}
-													return conv
-												}),
+												messages: current.messages.map((m) => (m.is_read ? m : { ...m, is_read: true })),
 											}
-										},
-									)
+										})
+									}
+									for (const [queryKey, queryData] of queryClient.getQueriesData<ConversationsPublic>({
+										queryKey: [...chatKeys.all, "conversations"],
+									})) {
+										if (
+											!queryData?.data?.some(
+												(conv) => conv.id === convId && conv.last_message && !conv.last_message.is_read,
+											)
+										) {
+											continue
+										}
+										queryClient.setQueryData<ConversationsPublic>(queryKey, (current) => {
+											if (!current?.data) return current
+											const index = current.data.findIndex((conv) => conv.id === convId)
+											if (index === -1) return current
+											const conv = current.data[index]
+											if (!conv.last_message || conv.last_message.is_read) return current
+											const nextData = [...current.data]
+											nextData[index] = {
+												...conv,
+												last_message: {
+													...conv.last_message,
+													is_read: true,
+												},
+											}
+											return {
+												...current,
+												data: nextData,
+											}
+										})
+									}
 								}
 							}
 							break
@@ -376,11 +436,12 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 		}
 	}, [])
 
-	return (
-		<WebSocketContext.Provider value={{ isConnected, sendMessage, subscribe, setMessageSendResult, messageSendState }}>
-			{children}
-		</WebSocketContext.Provider>
+	const contextValue = useMemo(
+		() => ({ isConnected, sendMessage, subscribe, setMessageSendResult, setActiveConversationId, messageSendState }),
+		[isConnected, sendMessage, subscribe, setMessageSendResult, setActiveConversationId, messageSendState],
 	)
+
+	return <WebSocketContext.Provider value={contextValue}>{children}</WebSocketContext.Provider>
 }
 
 export function useWebSocket(): WebSocketContextType {

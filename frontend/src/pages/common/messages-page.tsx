@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import type {
 	ChatMessagePublic,
 	ConversationDetailPublic,
+	ConversationsPublic,
 } from "@/client/types.gen";
 import { EmptyState } from "@/components/common/empty-state";
 import {
@@ -46,7 +47,7 @@ export function MessagesPage({
 	const [draft, setDraft] = useState("");
 	const creatingForUserRef = useRef<string | null>(null);
 
-	const { sendMessage, setMessageSendResult } = useWebSocket();
+	const { sendMessage, setMessageSendResult, setActiveConversationId } = useWebSocket();
 	const role = useAccountRole();
 	const clientMode = role === "client";
 	const { conversations, profiles } = useChatData(role as "client" | "freelancer");
@@ -54,8 +55,8 @@ export function MessagesPage({
 	const MessageUpdate = useConversationUpdate();
 	const selectedConversation = SelectedUserId
 		? conversations.data?.data.find(
-				(conversation) => conversation.other_user?.id === SelectedUserId,
-			)
+			(conversation) => conversation.other_user?.id === SelectedUserId,
+		)
 		: undefined;
 	const selectedConversationId =
 		selectedConversation == undefined
@@ -105,6 +106,11 @@ export function MessagesPage({
 	]);
 
 	useEffect(() => {
+		setActiveConversationId(selectedConversationId ?? null);
+		return () => setActiveConversationId(null);
+	}, [selectedConversationId, setActiveConversationId]);
+
+	useEffect(() => {
 		if (!selectedConversationId) return;
 
 		const hasUnread =
@@ -120,45 +126,85 @@ export function MessagesPage({
 			});
 
 			// Mark messages received from the other user as read in the active conversation
-			queryClient.setQueryData<ConversationDetailPublic>(
+			const cachedDetail = queryClient.getQueryData<ConversationDetailPublic>(
 				chatKeys.conversation(selectedConversationId),
-				(current) => {
-					if (!current) return current;
-					return {
-						...current,
-						unread_count: 0,
-						messages: current.messages?.map((message) =>
-							message.sender_id !== user?.id
-								? { ...message, is_read: true }
-								: message,
-						),
-					};
-				},
 			);
+			if (
+				cachedDetail &&
+				((cachedDetail.unread_count ?? 0) > 0 ||
+					cachedDetail.messages?.some(
+						(message) => message.sender_id !== user?.id && !message.is_read,
+					))
+			) {
+				queryClient.setQueryData<ConversationDetailPublic>(
+					chatKeys.conversation(selectedConversationId),
+					(current) => {
+						if (!current) return current;
+						return {
+							...current,
+							unread_count: 0,
+							messages: current.messages?.map((message) =>
+								message.sender_id !== user?.id && !message.is_read
+									? { ...message, is_read: true }
+									: message,
+							),
+						};
+					},
+				);
+			}
 
 			// Clear unread count and mark last message as read in conversations list
-			queryClient.setQueriesData({ queryKey: [...chatKeys.all, "conversations"] }, (current: any) => {
-				if (!current) return current;
-				const updatedConversations = current.data.map((conversation: any) => {
-					if (conversation.id === selectedConversationId) {
-						return {
-							...conversation,
-							unread_count: 0,
-							last_message: conversation.last_message
-								? {
-										...conversation.last_message,
-										is_read: true,
-									}
-								: conversation.last_message,
-						};
+			for (const [queryKey, queryData] of queryClient.getQueriesData<ConversationsPublic>({
+				queryKey: [...chatKeys.all, "conversations"],
+			})) {
+				const matched = queryData?.data?.find(
+					(conversation) => conversation.id === selectedConversationId,
+				);
+				if (!matched) continue;
+				const needsRead =
+					(matched.unread_count ?? 0) > 0 ||
+					Boolean(
+						matched.last_message &&
+						matched.last_message.sender_id !== user?.id &&
+						!matched.last_message.is_read,
+					);
+				if (!needsRead) continue;
+
+				queryClient.setQueryData<ConversationsPublic>(queryKey, (current) => {
+					if (!current?.data) return current;
+					const index = current.data.findIndex(
+						(conversation) => conversation.id === selectedConversationId,
+					);
+					if (index === -1) return current;
+
+					const conversation = current.data[index];
+					const lastMessageNeedsRead = Boolean(
+						conversation.last_message &&
+						conversation.last_message.sender_id !== user?.id &&
+						!conversation.last_message.is_read,
+					);
+					if ((conversation.unread_count ?? 0) === 0 && !lastMessageNeedsRead) {
+						return current;
 					}
-					return conversation;
+
+					const updatedConversations = [...current.data];
+					updatedConversations[index] = {
+						...conversation,
+						unread_count: 0,
+						last_message:
+							lastMessageNeedsRead && conversation.last_message
+								? {
+									...conversation.last_message,
+									is_read: true,
+								}
+								: conversation.last_message,
+					};
+					return {
+						...current,
+						data: updatedConversations,
+					};
 				});
-				return {
-					...current,
-					data: updatedConversations,
-				};
-			});
+			}
 		}
 	}, [
 		selectedConversationId,
@@ -177,13 +223,6 @@ export function MessagesPage({
 	if (conversations.isPending) {
 		return <>Still loading conversations!</>;
 	}
-
-	if (
-		profiles.isPending &&
-		profiles.data?.size === 0 &&
-		conversations.data?.data.length !== 0
-	)
-		return <>Still loading profiles!</>;
 
 	const unreadCount = conversations.data?.data.reduce(
 		(total, conversation) => total + (conversation.unread_count ?? 0),
@@ -207,32 +246,31 @@ export function MessagesPage({
 		MessageUpdate(selectedConversationId, rmessage);
 
 		// append the latest message to the conversations list, and set the unread count to 0 for this conversation.
-		queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
-			if (!current) return current;
+		for (const [queryKey, queryData] of queryClient.getQueriesData<ConversationsPublic>({
+			queryKey: [...chatKeys.all, "conversations"],
+		})) {
+			if (!queryData?.data?.some((c) => c.id === selectedConversationId)) continue;
+			queryClient.setQueryData<ConversationsPublic>(queryKey, (current) => {
+				if (!current?.data) return current;
+				const index = current.data.findIndex(
+					(conversation) => conversation.id === selectedConversationId,
+				);
+				if (index === -1) return current;
 
-			const updatedConversations = current.data.map((conversation: any) => {
-				if (conversation.id === selectedConversationId) {
-					return {
-						...conversation,
-						unread_count: 0,
-						last_message: rmessage,
-					};
-				}
-				return conversation;
+				const nextData = [...current.data];
+				const [conversation] = nextData.splice(index, 1);
+				nextData.unshift({
+					...conversation,
+					unread_count: 0,
+					last_message: rmessage,
+				});
+				return {
+					...current,
+					data: nextData,
+				};
 			});
-			const activeIndex = updatedConversations.findIndex(
-				(c: any) => c.id === selectedConversationId,
-			);
-			if (activeIndex > 0) {
-				const [active] = updatedConversations.splice(activeIndex, 1);
-				updatedConversations.unshift(active);
-			}
-			return {
-				...current,
-				data: updatedConversations,
-			};
-		});
-	
+		}
+
 		setMessageSendResult(rmessage.id, "pending");
 		setDraft("");
 		// setTimeout(() => {
