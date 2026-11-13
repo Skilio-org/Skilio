@@ -89,7 +89,7 @@
 - **Mobile Ergonomics & Responsive UI:** Overhauled `/connects` purchasing interface with sticky viewport-pinned mobile action bars (`fixed bottom-0 z-40 md:static`) and responsive touch-target layouts.
 - **Dashboard Optimization & Onboarding:** Cleaned up client dashboard onboarding clutter and implemented auto-dismissal logic for `FreelancerProfileReadinessCard` when reaching 100% completion.
 - **Scroll Affordances & Accessible Menus:** Resolved global scrollbar suppression issues in `CategorySelect.tsx` with custom thin scrollbars, partial item height slicing (`max-h-[268px]`), and live selection counters.
-- **Documentation & 42 Defense Preparation:** Authored comprehensive frontend architectural specifications and 42 peer/Bocal defense guides in `docs/ossama/`.
+- **Documentation & 42 Defense Preparation:** Authored comprehensive frontend architectural specifications and 42 peer/Bocal defense guides in `docs/osama/`.
 
 #### 🧗 Technical Challenges Faced & Solutions:
 1. **Challenge — Multi-Tab & Dual-Role Synchronization without Concurrent Tearing:**  

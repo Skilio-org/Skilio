@@ -231,3 +231,4 @@ This caused all scrollable popovers and dropdowns (such as `CategorySelect`) to 
    Extracted into [`FreelancerProfileReadinessCard`](file:///home/odahriz/Desktop/Skilio/frontend/src/components/freelancer/freelancer-profile-readiness-card.tsx). Automatically hides itself when profile completion reaches 100%, preventing permanent sidebar noise.
 2. **Client Workspace Cleanup**:
    Eliminated the misleading, static *"Set your project up for success"* card (`dashboard-profile-progress.tsx`) from [`dashboard-page.tsx`](file:///home/odahriz/Desktop/Skilio/frontend/src/pages/client-area/dashboard-page.tsx). The client sidebar now cleanly prioritizes **Saved Talent** (`QuickSavedSearch`).
+

@@ -37,10 +37,10 @@ This dossier documents the architectural decisions, implemented components, UX e
 
 ## 📂 Documentation Directory Structure
 
-This directory (`docs/ossama/` or `docs/osama/`) contains comprehensive references:
+This directory (`docs/osama/`) contains comprehensive references:
 
 ```
-docs/ossama/
+docs/osama/
 ├── README.md                                # This document (Executive summary & module mapping)
 ├── frontend-architecture-and-features.md    # In-depth technical breakdown of all implemented code
 ├── defense-questions-and-drills.md          # 42 evaluation defense guide, tricky Q&A, and live-coding drills
@@ -73,3 +73,4 @@ Below are the primary files and components authored, refactored, and maintained 
 - [`frontend/src/components/connections/connection-cards.tsx`](file:///home/odahriz/Desktop/Skilio/frontend/src/components/connections/connection-cards.tsx) — Mobile-optimized connection request cards with full-width action bars and touch-friendly targets.
 - [`frontend/src/components/common/category-select.tsx`](file:///home/odahriz/Desktop/Skilio/frontend/src/components/common/category-select.tsx) — Accessible dropdown with custom scrollbar, visual cut-off affordance, and live category count footer.
 - [`frontend/src/components/freelancer/freelancer-profile-readiness-card.tsx`](file:///home/odahriz/Desktop/Skilio/frontend/src/components/freelancer/freelancer-profile-readiness-card.tsx) — Profile completion checklist with auto-dismissal upon 100% readiness.
+
