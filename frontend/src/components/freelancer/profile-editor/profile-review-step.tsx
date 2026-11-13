@@ -27,12 +27,12 @@ export function ReviewStep({
 			{ready ? (
 				<p className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-on-surface text-sm">
 					{profile.finished
-						? "Your profile is published. Save to update it."
-						: "Your profile is ready. Publishing makes it visible to clients so they can contact you."}
+						? "Your profile is published. Every time you save, your changes go live."
+						: "Your profile is ready. It goes live as soon as you save."}
 				</p>
 			) : (
 				<p className="rounded-lg border border-outline-variant bg-surface-container-low/50 px-4 py-3 text-on-surface-variant text-sm">
-					Complete the required sections below before you publish.
+					Complete the required sections below. Your profile goes live as soon as they are done.
 				</p>
 			)}
 			<ul className="divide-y divide-outline-variant overflow-hidden rounded-lg border border-outline-variant">

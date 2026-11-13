@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { JobsService, type JobPostCreate, type JobPostPublic } from "@/client"
 import { ClientJobEditor } from "@/components/client/client-job-editor"
 import { ClientJobsList } from "@/components/client/client-jobs-list"
+import { DeleteJobDialog } from "@/components/client/delete-job-dialog"
 import { blankClientJob, type ClientJob, validateJob } from "@/components/client/client-job-types"
 import { readJobExperience, writeJobExperience } from "@/components/common/job-experience"
 import { WorkspacePageHeader, workspaceStyles } from "@/components/dashboard/dashboard-header"
@@ -90,6 +91,7 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 	const [tab, setTab] = useState("All jobs")
 	const [editorJob, setEditorJob] = useState<ClientJob | null>(null)
 	const [isEditing, setIsEditing] = useState(false)
+	const [jobToDelete, setJobToDelete] = useState<ClientJob | null>(null)
 
 	useEffect(() => {
 		if (!focusedJobId || !jobsQuery.isSuccess) return
@@ -177,7 +179,16 @@ export function ClientJobsPage({ focusedJobId, onFocusedJobChange }: ClientJobsP
 				onJobChange={setEditorJob}
 				onSave={persistJob}
 				onDelete={(job) => {
-					if (job.id && window.confirm("Delete this job?")) deleteMutation.mutate(job.id)
+					if (job.id) setJobToDelete(job)
+				}}
+			/>
+
+			<DeleteJobDialog
+				jobTitle={jobToDelete ? jobToDelete.title : null}
+				isDeleting={deleteMutation.isPending}
+				onClose={() => setJobToDelete(null)}
+				onConfirm={() => {
+					if (jobToDelete) deleteMutation.mutate(jobToDelete.id, { onSettled: () => setJobToDelete(null) })
 				}}
 			/>
 		</div>

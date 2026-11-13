@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react"
 import { ArrowLeft, ArrowRight, Check, CheckCircle2 } from "lucide-react"
 import {
 	descriptions,
@@ -7,6 +8,7 @@ import {
 	secondary,
 	steps,
 } from "@/components/freelancer/freelancer-profile-model"
+import { ProfileCvUpload } from "@/components/freelancer/profile-editor/profile-cv-upload"
 import { EntriesStep } from "@/components/freelancer/profile-editor/profile-entries-step"
 import {
 	BasicsStep,
@@ -32,13 +34,14 @@ export function ProfileWizard({
 	categoriesLoading,
 	uploading,
 	uploadProgress,
+	cv,
 	onStepChange,
 	onPhotoChange,
 	onEditEntry,
 	onPreview,
 	onBack,
 	onNext,
-	onPublish,
+	onFinish,
 }: {
 	profile: ProfileForm
 	update: UpdateProfile
@@ -48,13 +51,14 @@ export function ProfileWizard({
 	categoriesLoading: boolean
 	uploading: boolean
 	uploadProgress: number
+	cv: ComponentProps<typeof ProfileCvUpload>
 	onStepChange: (step: number) => void
 	onPhotoChange: (file?: File) => void
 	onEditEntry: (kind: EntryKind, entry: ProfileEntryForm) => void
 	onPreview: () => void
 	onBack: () => void
 	onNext: () => void
-	onPublish: () => void
+	onFinish: () => void
 }) {
 	const isOptional = step === WORK_AND_EDUCATION || step === PORTFOLIO
 
@@ -95,7 +99,13 @@ export function ProfileWizard({
 				</div>
 				<div className="mt-6 space-y-5">
 					{step === 0 && (
-						<BasicsStep profile={profile} update={update} uploading={uploading} uploadProgress={uploadProgress} onPhotoChange={onPhotoChange} />
+						<BasicsStep
+							profile={profile}
+							update={update}
+							uploading={uploading}
+							uploadProgress={uploadProgress}
+							onPhotoChange={onPhotoChange}
+						/>
 					)}
 					{step === 1 && (
 						<ExpertiseStep
@@ -107,7 +117,10 @@ export function ProfileWizard({
 					)}
 					{step === 2 && <IntroductionStep profile={profile} update={update} />}
 					{step === WORK_AND_EDUCATION && (
-						<EntriesStep kinds={["experience", "education"]} profile={profile} update={update} onEdit={onEditEntry} />
+						<>
+							<EntriesStep kinds={["experience", "education"]} profile={profile} update={update} onEdit={onEditEntry} />
+							<ProfileCvUpload {...cv} />
+						</>
 					)}
 					{step === PORTFOLIO && (
 						<EntriesStep kinds={["portfolio"]} profile={profile} update={update} onEdit={onEditEntry} />
@@ -128,9 +141,9 @@ export function ProfileWizard({
 							<ArrowRight className="size-4" />
 						</button>
 					) : (
-						<button type="button" className={primary} onClick={onPublish}>
+						<button type="button" className={primary} onClick={onFinish}>
 							<CheckCircle2 className="size-4" />
-							{profile.finished ? "Save published profile" : "Publish profile"}
+							Save profile
 						</button>
 					)}
 				</footer>

@@ -61,6 +61,7 @@ export function FreelancerProfileView({
 	contactTitle,
 	contactActions,
 	contactFooter,
+	cvCard,
 	feedback,
 	reviewsNode,
 	portfolioDialogAction,
@@ -72,6 +73,7 @@ export function FreelancerProfileView({
 	contactTitle?: string
 	contactActions?: ReactNode
 	contactFooter?: ReactNode
+	cvCard?: ReactNode
 	feedback?: Feedback
 	reviewsNode?: ReactNode
 	portfolioDialogAction?: ReactNode
@@ -180,6 +182,7 @@ export function FreelancerProfileView({
 						{contactActions && <div className="mt-5 grid gap-2">{contactActions}</div>}
 						{contactFooter}
 					</section>
+					{cvCard}
 				</aside>
 				<section
 					aria-label="Professional profile"

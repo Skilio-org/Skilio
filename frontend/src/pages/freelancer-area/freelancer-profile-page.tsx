@@ -4,6 +4,7 @@ import { ArrowLeft, Eye } from "lucide-react"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
 import { type FreelancerProfileDetailPublic, ProfilesService } from "@/client"
+import { LeavePageDialog } from "@/components/common/leave-page-dialog"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 import { EntryDialog, ProfilePreview } from "@/components/freelancer/freelancer-profile-components"
 import { formatMoney } from "@/lib/currency"
@@ -16,6 +17,7 @@ import {
 	steps,
 	validateProfile,
 } from "@/components/freelancer/freelancer-profile-model"
+import { RemoveCvDialog } from "@/components/freelancer/profile-editor/remove-cv-dialog"
 import { ProfileOverview } from "@/components/freelancer/profile-editor/profile-overview"
 import {
 	buildProfileUpdate,
@@ -46,6 +48,13 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	const [saving, setSaving] = useState(false)
 	const [uploading, setUploading] = useState(false)
 	const [uploadProgress, setUploadProgress] = useState(0)
+
+	// The CV is a PDF or DOCX stored on the server. Here we only need to know whether one exists.
+	const [hasCv, setHasCv] = useState(Boolean(initial.resume_url))
+	const [cvUploading, setCvUploading] = useState(false)
+	const [cvProgress, setCvProgress] = useState(0)
+	const [removeCvOpen, setRemoveCvOpen] = useState(false)
+	const [cvRemoving, setCvRemoving] = useState(false)
 	const saveLock = useRef(false)
 	const portfolioTouched = useRef(false)
 
@@ -58,10 +67,11 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 
 	// Warn before leaving the page with unsaved changes.
 	const dirty = JSON.stringify(profile) !== JSON.stringify(savedProfile)
-	useBlocker({
-		shouldBlockFn: () =>
-			saving || uploading || (dirty && !window.confirm("Leave without saving your profile changes?")),
-		enableBeforeUnload: dirty || saving || uploading,
+	const busy = saving || uploading || cvUploading
+	const blocker = useBlocker({
+		shouldBlockFn: () => busy || dirty,
+		enableBeforeUnload: busy || dirty,
+		withResolver: true,
 	})
 
 	const update = <K extends keyof ProfileForm>(name: K, value: ProfileForm[K]) =>
@@ -72,7 +82,14 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 		setView("edit")
 	}
 
-	async function save(finished = profile.finished) {
+	// The profile goes live automatically on every save, as soon as the required sections are filled in.
+	const canPublish = requiredSteps.every((index) => progress.done[index])
+
+	const savedMessage = canPublish
+		? "Profile saved and published"
+		: "Profile saved. It goes live once the required sections are complete."
+
+	async function save() {
 		if (saveLock.current || uploading) return false
 		const problem = validateProfile(profile)
 		if (problem) {
@@ -82,12 +99,12 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 		saveLock.current = true
 		setSaving(true)
 		try {
-			const body = buildProfileUpdate(profile, savedProfile, finished, portfolioTouched.current)
+			const body = buildProfileUpdate(profile, savedProfile, canPublish, portfolioTouched.current)
 			const { data } = await ProfilesService.updateProfileMe({ body })
 			setServerProfile(data)
 			// Keep anything typed while the request was in flight instead of overwriting it with the saved copy.
-			setProfile((current) => ({ ...current, finished }))
-			setSavedProfile({ ...profile, finished })
+			setProfile((current) => ({ ...current, finished: canPublish }))
+			setSavedProfile({ ...profile, finished: canPublish })
 			portfolioTouched.current = false
 			queryClient.setQueryData(queryKeys.freelancerProfile(initial.user_id), data)
 			void queryClient.invalidateQueries({ queryKey: queryKeys.currentUser })
@@ -122,13 +139,10 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 		else if (await save()) setView("home")
 	}
 
-	async function publish() {
-		if (requiredSteps.some((index) => !progress.done[index])) {
-			toast.error("Complete the required sections before finishing.")
-			return
-		}
-		if (await save(true)) {
-			toast.success(profile.finished ? "Profile saved" : "Profile published")
+	// The last step's button: save, tell the user whether the profile is live, and go back to the overview.
+	async function finish() {
+		if (await save()) {
+			toast.success(savedMessage)
 			setView("home")
 		}
 	}
@@ -158,6 +172,48 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			toast.error("This image couldn’t be uploaded. Try again.")
 		} finally {
 			setUploading(false)
+		}
+	}
+
+	async function uploadCv(file?: File) {
+		if (!file || cvUploading) return
+		const name = file.name.toLowerCase()
+		if (!name.endsWith(".pdf") && !name.endsWith(".docx")) {
+			toast.error("Choose a PDF or DOCX file.")
+			return
+		}
+		if (file.size > profileLimits.cvBytes) {
+			toast.error("Choose a CV under 5 MB.")
+			return
+		}
+		setCvProgress(0)
+		setCvUploading(true)
+		try {
+			await ProfilesService.profilesUploadResumeMe({
+				body: { file },
+				onUploadProgress: (event) => setCvProgress(Math.round((event.loaded / (event.total ?? file.size)) * 100)),
+			})
+			setHasCv(true)
+			toast.success("CV uploaded")
+		} catch {
+			toast.error("This CV couldn’t be uploaded. Try again.")
+		} finally {
+			setCvUploading(false)
+		}
+	}
+
+	// Called from the confirmation dialog.
+	async function removeCv() {
+		setCvRemoving(true)
+		try {
+			await ProfilesService.profilesDeleteResumeMe()
+			setHasCv(false)
+			setRemoveCvOpen(false)
+			toast.success("CV removed")
+		} catch {
+			toast.error("Couldn’t remove your CV. Try again.")
+		} finally {
+			setCvRemoving(false)
 		}
 	}
 
@@ -254,7 +310,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 							type="button"
 							className={primary}
 							onClick={async () => {
-								if (await save()) toast.success("Profile saved")
+								if (await save()) toast.success(savedMessage)
 							}}
 						>
 							Save changes
@@ -310,15 +366,40 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 					categoriesLoading={categoriesLoading}
 					uploading={uploading}
 					uploadProgress={uploadProgress}
+					cv={{
+						hasCv,
+						uploading: cvUploading,
+						progress: cvProgress,
+						onPick: (file) => void uploadCv(file),
+						onRemove: () => setRemoveCvOpen(true),
+					}}
 					onStepChange={edit}
 					onPhotoChange={(file) => void uploadPhoto(file)}
 					onEditEntry={(kind, entry) => setEditor({ kind, entry })}
 					onPreview={() => setView("preview")}
 					onBack={() => void back()}
 					onNext={() => void next()}
-					onPublish={() => void publish()}
+					onFinish={() => void finish()}
 				/>
 			)}
+
+			<LeavePageDialog
+				open={blocker.status === "blocked"}
+				message={
+					busy
+						? "A save or an upload is still in progress. If you leave now, it may not finish."
+						: "You have profile changes that are not saved. If you leave now, they will be lost."
+				}
+				onStay={() => blocker.status === "blocked" && blocker.reset()}
+				onLeave={() => blocker.status === "blocked" && blocker.proceed()}
+			/>
+
+			<RemoveCvDialog
+				open={removeCvOpen}
+				isRemoving={cvRemoving}
+				onClose={() => setRemoveCvOpen(false)}
+				onConfirm={() => void removeCv()}
+			/>
 
 			{editor && <EntryDialog kind={editor.kind} entry={editor.entry} close={() => setEditor(null)} save={saveEntry} />}
 		</fieldset>
