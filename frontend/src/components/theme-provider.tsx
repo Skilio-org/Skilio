@@ -1,10 +1,10 @@
-import { createContext, useCallback, useContext, useLayoutEffect, useRef, useState } from "react"
+import { createContext, type ReactNode, useCallback, useContext, useLayoutEffect, useRef, useState } from "react"
 import { flushSync } from "react-dom"
 
 export type Theme = "dark" | "light" | "system"
 
 type ThemeProviderProps = {
-	children: React.ReactNode
+	children: ReactNode
 	defaultTheme?: Theme
 	storageKey?: string
 }

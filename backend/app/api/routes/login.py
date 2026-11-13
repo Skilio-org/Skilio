@@ -25,7 +25,7 @@ from app.models import (
     Message,
     NewPassword,
     Token,
-    UserPublic,
+    UserMe,
     UserUpdate,
 )
 from app.utils import (
@@ -158,7 +158,7 @@ def login_access_token(
         )
     )
 
-@router.post("/login/test-token", response_model=UserPublic)
+@router.post("/login/test-token", response_model=UserMe)
 def test_token(current_user: CurrentUser) -> Any:
     """Test access token"""
     return current_user

@@ -1,12 +1,12 @@
-import type * as React from "react"
 import { LandingFooter } from "@/components/landing/landing-footer"
 import { LandingHeader } from "@/components/landing/landing-header"
+import type { ReactNode } from "react"
 
 interface LegalPageLayoutProps {
 	eyebrow?: string
 	title: string
 	lastUpdated?: string
-	children: React.ReactNode
+	children: ReactNode
 }
 
 export function LegalPageLayout({
@@ -42,7 +42,7 @@ export function LegalPageLayout({
 
 interface LegalSectionProps {
 	title: string
-	children: React.ReactNode
+	children: ReactNode
 }
 
 export function LegalSection({ title, children }: LegalSectionProps) {

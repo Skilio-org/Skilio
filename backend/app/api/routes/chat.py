@@ -12,7 +12,7 @@ from fastapi import (
     WebSocketDisconnect,
     status,
 )
-from sqlmodel import Session, and_, or_, select
+from sqlmodel import Session, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.api.utils.chat import (
@@ -52,19 +52,22 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 
 @router.get("/me", response_model=ConversationsPublic)
 def get_my_conversations(
-    session: SessionDep, current_user: CurrentUser
+    session: SessionDep,
+    current_user: CurrentUser,
+    role: UserRole | None = Query(default=None),
 ) -> Any:
     """
     Get all conversations for the authenticated user (as client or freelancer).
     """
+    filter_role = role or current_user.active_role
+    if filter_role == UserRole.CLIENT:
+        role_filter = Conversation.client_id == current_user.id
+    else:
+        role_filter = Conversation.freelancer_id == current_user.id
+
     statement = (
         select(Conversation)
-        .where(
-            or_(
-                Conversation.client_id == current_user.id,
-                Conversation.freelancer_id == current_user.id,
-            )
-        )
+        .where(role_filter)
         .order_by(Conversation.updated_at.desc())  # type: ignore
     )
     conversations = session.exec(statement).all()
@@ -145,6 +148,7 @@ async def get_conversation_details(
         last_message=conv_summary.last_message,
         unread_count=conv_summary.unread_count,
         other_user=conv_summary.other_user,
+        other_user_role=conv_summary.other_user_role,
         messages=messages_public,
     )
 
@@ -157,7 +161,12 @@ def create_or_get_conversation(
     """
     Create a new conversation or retrieve an existing one between current user and target user.
     """
-    target_id = conversation_in.freelancer_id
+    target_id = conversation_in.target_user_id or conversation_in.freelancer_id
+    if not target_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Either target_user_id or freelancer_id must be provided",
+        )
     if target_id == current_user.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -171,20 +180,19 @@ def create_or_get_conversation(
             detail="Target user not found",
         )
 
-    if current_user.active_role != UserRole.CLIENT and not current_user.is_superuser:
+    effective_role = conversation_in.as_role or current_user.active_role
+    if effective_role == UserRole.CLIENT:
+        conv_client_id = current_user.id
+        conv_freelancer_id = target_id
+    else:
+        conv_client_id = target_id
+        conv_freelancer_id = current_user.id
+
+    if effective_role != UserRole.CLIENT and not current_user.is_superuser:
         conn_stmt = select(Connection).where(
-            or_(
-                and_(
-                    Connection.sender_id == current_user.id,
-                    Connection.receiver_id == target_id,
-                    Connection.status == ConnectionStatus.ACCEPTED,
-                ),
-                and_(
-                    Connection.sender_id == target_id,
-                    Connection.receiver_id == current_user.id,
-                    Connection.status == ConnectionStatus.ACCEPTED,
-                ),
-            )
+            Connection.client_id == conv_client_id,
+            Connection.freelancer_id == conv_freelancer_id,
+            Connection.status == ConnectionStatus.ACCEPTED,
         )
         is_connected = session.exec(conn_stmt).first()
         if not is_connected:
@@ -194,30 +202,12 @@ def create_or_get_conversation(
             )
 
     existing_stmt = select(Conversation).where(
-        or_(
-            and_(
-                Conversation.client_id == current_user.id,
-                Conversation.freelancer_id == target_id,
-            ),
-            and_(
-                Conversation.client_id == target_id,
-                Conversation.freelancer_id == current_user.id,
-            ),
-        )
+        Conversation.client_id == conv_client_id,
+        Conversation.freelancer_id == conv_freelancer_id,
     )
     existing = session.exec(existing_stmt).first()
     if existing:
         return _build_conversation_public(existing, current_user.id, session)
-
-    if current_user.active_role == UserRole.CLIENT:
-        conv_client_id = current_user.id
-        conv_freelancer_id = target_id
-    elif target_user.active_role == UserRole.CLIENT:
-        conv_client_id = target_id
-        conv_freelancer_id = current_user.id
-    else:
-        conv_client_id = current_user.id
-        conv_freelancer_id = target_id
 
     new_conv = Conversation(
         client_id=conv_client_id,
@@ -347,6 +337,17 @@ def check_user_presence(user_id: uuid.UUID) -> Any:
     """
     is_online = connection_manager.is_user_online(user_id)
     return UserPresence(user_id=user_id, is_online=is_online)
+
+@router.get("/presence", response_model=list[UserPresence])
+def check_multiple_user_presence(user_ids: list[uuid.UUID] = Query(...)) -> list[UserPresence]:
+    """
+    Check the presence status of multiple users.
+    """
+    presence_list = [
+        UserPresence(user_id=uid, is_online=connection_manager.is_user_online(uid))
+        for uid in user_ids
+    ]
+    return presence_list
 
 @router.post("/inject")
 async def inject_event(

@@ -3,6 +3,7 @@ import { Check, type LucideIcon, Monitor, Moon, Sun } from "lucide-react"
 import { type Theme, useTheme } from "@/components/theme-provider"
 import { SettingsSectionHeader } from "@/components/user-settings/settings-section-header"
 import { cn } from "@/lib/utils"
+import type { ReactNode } from "react"
 
 const themes: {
 	value: Theme
@@ -113,7 +114,7 @@ function SettingsPanel({
 	title: string
 	description: string
 	icon: LucideIcon
-	children: React.ReactNode
+	children: ReactNode
 }) {
 	return (
 		<section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">

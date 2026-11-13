@@ -67,7 +67,7 @@ def test_submit_proposal(client: TestClient, db: Session) -> None:
     assert content["freelancer_id"] == str(freelancer.id)
     assert content["status"] == "pending"
     assert content["cover_letter"] == data["cover_letter"]
-    assert content["freelancer"]["email"] == freelancer.email
+    assert content["freelancer"]["id"] == str(freelancer.id)
 
 
 def test_duplicate_proposal_conflict(client: TestClient, db: Session) -> None:

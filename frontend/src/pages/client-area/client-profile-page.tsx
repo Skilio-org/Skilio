@@ -1,11 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Camera, CheckCircle2, Globe, ImageUp, MapPin, Users } from "lucide-react"
-import { useState } from "react"
+import { type ComponentProps, FormEvent, useState } from "react"
 import { toast } from "sonner"
-import { type ClientProfilePublic, ClientProfilesService, UsersService } from "@/client"
+import { type ClientProfilePublic, ClientProfilesService } from "@/client"
 import { queryKeys } from "@/lib/query-keys"
-
-import { Monogram, WorkspacePageHeader, WorkspaceSurface, workspaceStyles } from "@/components/dashboard/dashboard-header"
+import {
+	Monogram,
+	WorkspacePageHeader,
+	WorkspaceSurface,
+	workspaceStyles,
+} from "@/components/dashboard/dashboard-header"
 import {
 	Dialog,
 	DialogContent,
@@ -65,10 +69,8 @@ export function ClientProfilePage() {
 
 	// The form shows the saved profile until the user edits a field; edits are kept apart so a refetch never overwrites them.
 	const [edits, setEdits] = useState<Partial<Record<FormField, string>>>({})
-	const field = (key: FormField, saved: string | null | undefined) => [
-		edits[key] ?? saved ?? "",
-		(value: string) => setEdits((current) => ({ ...current, [key]: value })),
-	] as const
+	const field = (key: FormField, saved: string | null | undefined) =>
+		[edits[key] ?? saved ?? "", (value: string) => setEdits((current) => ({ ...current, [key]: value }))] as const
 	const [fullName, setFullName] = field("fullName", profile?.full_name ?? user?.full_name)
 	const [company, setCompany] = field("company", profile?.company)
 	const [companyRole, setCompanyRole] = field("companyRole", profile?.company_role)
@@ -105,7 +107,7 @@ export function ClientProfilePage() {
 	})
 
 	const displayName = fullName || profile?.full_name || user?.full_name || "Your name"
-	const avatarUrl = useAccountAvatarUrl(user?.id)
+	const avatarUrl = profile?.avatar_url || useAccountAvatarUrl(user?.id, "client")
 
 	// Returns the first problem with the form, or null when it is fine to save.
 	const validate = () => {
@@ -120,7 +122,7 @@ export function ClientProfilePage() {
 		return null
 	}
 
-	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		const problem = validate()
 		if (problem) {
@@ -371,7 +373,9 @@ export function ClientProfilePage() {
 							<ImageUp className="size-5" />
 						</span>
 						<p className="mt-3 font-semibold text-sm">Choose a clear headshot or company logo</p>
-						<p className="mt-1 text-on-surface-variant text-xs leading-5">JPG or PNG, up to 5 MB, at least 400px square.</p>
+						<p className="mt-1 text-on-surface-variant text-xs leading-5">
+							JPG or PNG, up to 5 MB, at least 400px square.
+						</p>
 						<label
 							htmlFor="client-photo-upload"
 							className="mt-5 inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-5 font-semibold text-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
@@ -397,9 +401,7 @@ export function ClientProfilePage() {
 								className="sr-only"
 							/>
 						</label>
-						{selectedPhotoName && (
-							<p className="mt-3 font-medium text-link text-xs">Selected: {selectedPhotoName}</p>
-						)}
+						{selectedPhotoName && <p className="mt-3 font-medium text-link text-xs">Selected: {selectedPhotoName}</p>}
 					</div>
 					<DialogFooter>
 						<button
@@ -421,14 +423,19 @@ export function ClientProfilePage() {
 								if (!selectedPhoto || uploading || !user) return
 								setUploading(true)
 								try {
-									const response = await UsersService.uploadAvatar({
+									const response = await ClientProfilesService.profilesUploadClientAvatar({
 										body: { file: selectedPhoto },
 									})
 									if (response.data.status !== "Ok") throw new Error("Upload failed")
-									markAccountAvatarUpdated(user.id)
-									await queryClient.invalidateQueries({
-										queryKey: queryKeys.currentUser,
-									})
+									markAccountAvatarUpdated(user.id, "client")
+									await Promise.all([
+										queryClient.invalidateQueries({
+											queryKey: queryKeys.clientProfile,
+										}),
+										queryClient.invalidateQueries({
+											queryKey: queryKeys.currentUser,
+										}),
+									])
 									setPhotoUpdated(true)
 									setPhotoDialogOpen(false)
 									toast.success("Profile photo uploaded")
@@ -448,7 +455,7 @@ export function ClientProfilePage() {
 	)
 }
 
-function Field({ label, id, ...props }: { label: string; id: string } & React.ComponentProps<typeof Input>) {
+function Field({ label, id, ...props }: { label: string; id: string } & ComponentProps<typeof Input>) {
 	return (
 		<div className="space-y-2">
 			<Label htmlFor={id}>{label}</Label>

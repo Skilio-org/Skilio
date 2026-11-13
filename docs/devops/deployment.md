@@ -1,13 +1,7 @@
 # 🚀 Production Cloud Deployment & Automated Zero-Touch CI/CD
 ### 42 Evaluation Module: **IV.10 Module of Choice (Major — 2 Points)**
 
-> **Project:** Skilio Marketplace Platform (`ft_transcendence` v21.2)  
-> **DevOps Lead:** Aysadeq  
-> **Repository:** [`Skilio-org/Skilio`](https://github.com/Skilio-org/Skilio)  
-> **Live Website:** [https://skilio.works](https://skilio.works)  
-> **Server IP:** `16.192.59.166` (AWS EC2 `t3.small` • Ubuntu 24.04 LTS)
 
----
 
 ## 1. 42 Subject Justification
 
@@ -125,10 +119,3 @@ When code merges into `master`, deployment happens in under 2 minutes:
 
 ---
 
-## 6. The 3 Pillars at a Glance (Architecture Summary)
-
-| Pillar | Technology | Core Responsibility | Deep Dive Reference |
-| :--- | :--- | :--- | :--- |
-| **Pillar 1: Infrastructure** | AWS EC2 • Ubuntu 24.04 • Swap | Cloud compute, static Elastic IP, memory buffer, firewall isolation | [02_cloud_server_&_auto_setup.md](guides/02_cloud_server_&_auto_setup.md) |
-| **Pillar 2: Ingress & TLS** | Traefik 3.6 • Let's Encrypt | Dynamic Docker routing, automated TLS 1.3 certificates, HTTPS redirect | [03_ingress_reverse_proxy_https.md](guides/03_ingress_reverse_proxy_https.md) |
-| **Pillar 3: Automated CI/CD**| GitHub Actions • rsync • Docker | 3-tier testing gate, least-privilege SSH sync, zero-downtime container swap | [04_CI-CD_pipeline.md](guides/04_CI-CD_pipeline.md) |

@@ -165,8 +165,8 @@ echo -e "\n${BLUE}==> [5/5] Running migrations and seeding test data...${NC}"
 echo -e "  --> Running Alembic database migrations (prestart.sh)..."
 (cd backend && uv run bash scripts/prestart.sh)
 
-echo -e "  --> Seeding database with 20 demo clients and freelancers..."
-(cd backend && uv run python app/seed_data.py 20)
+echo -e "  --> Seeding database with Moroccan demo accounts (app.seeder)..."
+(cd backend && uv run python -m app.seeder local)
 echo -e "  ${GREEN}[✔] Database migrations and seeding completed successfully.${NC}"
 
 # ──────────────────────────────────────────────────────────────────────────────

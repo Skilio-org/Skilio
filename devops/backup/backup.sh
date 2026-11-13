@@ -22,8 +22,7 @@ fi
 # Settings and default values
 POSTGRES_USER="${POSTGRES_USER:-postgres}"
 POSTGRES_DB="${POSTGRES_DB:-app}"
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}"
-export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD}}"
+export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD:-}}"
 MAX_BACKUPS="${BACKUP_MAX_COUNT:-7}"
 
 BACKUP_DIR="${BACKUP_DIR:-${SCRIPT_DIR}/dumps}"
@@ -46,9 +45,8 @@ echo -e "  Keep Backups   : ${CYAN}Max ${MAX_BACKUPS} files${NC}"
 echo -e "  Save To        : ${CYAN}${BACKUP_FILE}${NC}"
 echo -e "${BOLD}─────────────────────────────────────────────────────${NC}"
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 1. Dump database and compress with gzip
-# ──────────────────────────────────────────────────────────────────────────────
+
+# Dump database and compress with gzip
 echo -e "\n${BLUE}==> [1/3] Dumping database and compressing with gzip...${NC}"
 
 # Check if running inside a container or on the host computer
@@ -73,9 +71,7 @@ fi
 
 echo -e "  ${GREEN}[✔] Database dump complete${NC}"
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 2. Check the backup file
-# ──────────────────────────────────────────────────────────────────────────────
+# Check the backup file
 echo -e "\n${BLUE}==> [2/3] Checking backup file for errors...${NC}"
 
 if [ ! -f "${BACKUP_FILE}" ] || [ ! -s "${BACKUP_FILE}" ]; then
@@ -94,9 +90,7 @@ else
     exit 1
 fi
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 3. Delete old backups (keep latest MAX_BACKUPS files)
-# ──────────────────────────────────────────────────────────────────────────────
+# Delete old backups (keep latest MAX_BACKUPS files)
 echo -e "\n${BLUE}==> [3/3] Cleaning up old backups (keeping latest ${MAX_BACKUPS} files)...${NC}"
 
 TOTAL_BACKUPS=$(ls -1 "${BACKUP_DIR}"/backup_*.sql.gz 2>/dev/null | wc -l)

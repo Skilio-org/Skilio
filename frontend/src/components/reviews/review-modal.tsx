@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { type FormEvent, useEffect, useState } from "react"
 import {
 	Dialog,
 	DialogContent,
@@ -53,7 +53,7 @@ export function ReviewModal({
 		}
 	}, [open, existingReview])
 
-	const handleSubmit = async (e: React.FormEvent) => {
+	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
 		setError(null)
 

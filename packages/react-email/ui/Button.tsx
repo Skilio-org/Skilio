@@ -1,6 +1,7 @@
 import { Button as EmailButton } from "@react-email/components"
+import type { PropsWithChildren } from "react"
 
-interface LinkButtonProps extends React.PropsWithChildren {
+interface LinkButtonProps extends PropsWithChildren {
 	href: string
 	className?: string
 }

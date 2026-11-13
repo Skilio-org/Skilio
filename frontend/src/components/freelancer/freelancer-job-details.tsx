@@ -1,5 +1,5 @@
 import { ArrowRight, Banknote, Bookmark, Building2, CircleCheck, Clock3, Globe2, MessageSquare, Send, UserPlus } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { FormEvent, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Link } from "@tanstack/react-router"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -26,7 +26,7 @@ export const JobDetails = ({
 
 	const [connectOpen, setConnectOpen] = useState(false)
 	const [connectNote, setConnectNote] = useState("")
-	const { data: connectionStatus, isLoading: isLoading } = useConnectionStatus(job.clientId)
+	const { data: connectionStatus, isLoading: isLoading } = useConnectionStatus(job.clientId, "freelancer")
 	const sendConnectionMutation = useSendConnectionRequest()
 
 	const [applying, setApplying] = useState(() => initiallyApplying && !submitted)
@@ -63,7 +63,7 @@ export const JobDetails = ({
 		}
 	}
 
-	const handleSendConnection = async (e: React.FormEvent) => {
+	const handleSendConnection = async (e: FormEvent) => {
 		e.preventDefault();
 
 		if (connectNote.length > connectionNoteMaxLength) {
@@ -77,6 +77,7 @@ export const JobDetails = ({
 				receiver_id: job.clientId,
 				job_post_id: job.id || undefined,
 				note: connectNote.trim() || undefined,
+				as_role: "freelancer",
 			});
 
 			setConnectOpen(false);

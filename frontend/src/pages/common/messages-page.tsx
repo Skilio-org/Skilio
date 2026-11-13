@@ -1,11 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { InboxIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type {
 	ChatMessagePublic,
 	ConversationDetailPublic,
+	ConversationsPublic,
 } from "@/client/types.gen";
 import { EmptyState } from "@/components/common/empty-state";
 import {
@@ -20,14 +21,14 @@ import { useWebSocket } from "@/context/websocket-context";
 import { chatKeys } from "@/data/chat-keys";
 import { useAccountRole } from "@/hooks/useAccountRole";
 import useAuth from "@/hooks/useAuth";
-import { useConversations } from "@/hooks/useConversations";
+import { useChatData } from "@/hooks/useChatData";
 import { useCreateConversation } from "@/hooks/useCreateConversation";
-import { createFallbackProfile, useProfiles } from "@/hooks/useProfiles";
+import { createFallbackProfile } from "@/hooks/useProfiles";
 import {
 	useConversation,
 	useConversationUpdate,
 } from "@/hooks/userConversation";
-import { useUserOnlineStatus } from "@/hooks/useUserOnlineStatus";
+import { useUsersOnline } from "@/hooks/useUserOnlineStatus";
 
 export function MessagesPage({
 	SelectedUserId,
@@ -46,33 +47,37 @@ export function MessagesPage({
 	const [draft, setDraft] = useState("");
 	const creatingForUserRef = useRef<string | null>(null);
 
-	const { sendMessage, setMessageSendResult } = useWebSocket();
-	const conversations = useConversations();
-	const profiles = useProfiles(conversations.data, conversations.isSuccess);
-	const createConversation = useCreateConversation();
+	const { sendMessage, setMessageSendResult, setActiveConversationId } = useWebSocket();
+	const role = useAccountRole();
+	const clientMode = role === "client";
+	const { conversations, profiles } = useChatData(role as "client" | "freelancer");
+	const createConversation = useCreateConversation(role as "client" | "freelancer");
 	const MessageUpdate = useConversationUpdate();
 	const selectedConversation = SelectedUserId
 		? conversations.data?.data.find(
-				(conversation) => conversation.other_user?.id === SelectedUserId,
-			)
+			(conversation) => conversation.other_user?.id === SelectedUserId,
+		)
 		: undefined;
 	const selectedConversationId =
-		selectedConversation == undefined
+		selectedConversation === undefined
 			? selectedConversation
 			: selectedConversation?.id;
 	const selectedProfile =
 		selectedConversation &&
 		(profiles.data?.get(selectedConversation?.other_user?.id ?? "") ??
 			(selectedConversation.other_user
-				? createFallbackProfile(selectedConversation.other_user)
+				? createFallbackProfile(selectedConversation.other_user, selectedConversation.other_user_role)
 				: undefined));
-
-	const { isOnline, isPending: presencePending } = useUserOnlineStatus(
-		selectedProfile?.user_id,
-	);
+	const ids = useMemo(
+		() => conversations?.data?.data.map((conversation) => conversation.other_user?.id ?? "").filter(Boolean) ?? [],
+		[conversations?.data?.data],
+	)
+	const { isOnline, isPending: presencePending } = useUsersOnline(ids)
+	// const { isOnline, isPending: presencePending } = useUserOnlineStatus(
+	// 	selectedProfile?.user_id,
+	// );
 	const detailsQuery = useConversation(selectedConversationId ?? "");
 	const navigate = useNavigate();
-	const clientMode = useAccountRole() === "client";
 	const queryClient = useQueryClient();
 
 	useEffect(() => {
@@ -105,6 +110,11 @@ export function MessagesPage({
 	]);
 
 	useEffect(() => {
+		setActiveConversationId(selectedConversationId ?? null);
+		return () => setActiveConversationId(null);
+	}, [selectedConversationId, setActiveConversationId]);
+
+	useEffect(() => {
 		if (!selectedConversationId) return;
 
 		const hasUnread =
@@ -120,45 +130,85 @@ export function MessagesPage({
 			});
 
 			// Mark messages received from the other user as read in the active conversation
-			queryClient.setQueryData<ConversationDetailPublic>(
+			const cachedDetail = queryClient.getQueryData<ConversationDetailPublic>(
 				chatKeys.conversation(selectedConversationId),
-				(current) => {
-					if (!current) return current;
-					return {
-						...current,
-						unread_count: 0,
-						messages: current.messages?.map((message) =>
-							message.sender_id !== user?.id
-								? { ...message, is_read: true }
-								: message,
-						),
-					};
-				},
 			);
+			if (
+				cachedDetail &&
+				((cachedDetail.unread_count ?? 0) > 0 ||
+					cachedDetail.messages?.some(
+						(message) => message.sender_id !== user?.id && !message.is_read,
+					))
+			) {
+				queryClient.setQueryData<ConversationDetailPublic>(
+					chatKeys.conversation(selectedConversationId),
+					(current) => {
+						if (!current) return current;
+						return {
+							...current,
+							unread_count: 0,
+							messages: current.messages?.map((message) =>
+								message.sender_id !== user?.id && !message.is_read
+									? { ...message, is_read: true }
+									: message,
+							),
+						};
+					},
+				);
+			}
 
 			// Clear unread count and mark last message as read in conversations list
-			queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
-				if (!current) return current;
-				const updatedConversations = current.data.map((conversation: any) => {
-					if (conversation.id === selectedConversationId) {
-						return {
-							...conversation,
-							unread_count: 0,
-							last_message: conversation.last_message
-								? {
-										...conversation.last_message,
-										is_read: true,
-									}
-								: conversation.last_message,
-						};
+			for (const [queryKey, queryData] of queryClient.getQueriesData<ConversationsPublic>({
+				queryKey: [...chatKeys.all, "conversations"],
+			})) {
+				const matched = queryData?.data?.find(
+					(conversation) => conversation.id === selectedConversationId,
+				);
+				if (!matched) continue;
+				const needsRead =
+					(matched.unread_count ?? 0) > 0 ||
+					Boolean(
+						matched.last_message &&
+						matched.last_message.sender_id !== user?.id &&
+						!matched.last_message.is_read,
+					);
+				if (!needsRead) continue;
+
+				queryClient.setQueryData<ConversationsPublic>(queryKey, (current) => {
+					if (!current?.data) return current;
+					const index = current.data.findIndex(
+						(conversation) => conversation.id === selectedConversationId,
+					);
+					if (index === -1) return current;
+
+					const conversation = current.data[index];
+					const lastMessageNeedsRead = Boolean(
+						conversation.last_message &&
+						conversation.last_message.sender_id !== user?.id &&
+						!conversation.last_message.is_read,
+					);
+					if ((conversation.unread_count ?? 0) === 0 && !lastMessageNeedsRead) {
+						return current;
 					}
-					return conversation;
+
+					const updatedConversations = [...current.data];
+					updatedConversations[index] = {
+						...conversation,
+						unread_count: 0,
+						last_message:
+							lastMessageNeedsRead && conversation.last_message
+								? {
+									...conversation.last_message,
+									is_read: true,
+								}
+								: conversation.last_message,
+					};
+					return {
+						...current,
+						data: updatedConversations,
+					};
 				});
-				return {
-					...current,
-					data: updatedConversations,
-				};
-			});
+			}
 		}
 	}, [
 		selectedConversationId,
@@ -177,13 +227,6 @@ export function MessagesPage({
 	if (conversations.isPending) {
 		return <>Still loading conversations!</>;
 	}
-
-	if (
-		profiles.isPending &&
-		profiles.data?.size === 0 &&
-		conversations.data?.data.length !== 0
-	)
-		return <>Still loading profiles!</>;
 
 	const unreadCount = conversations.data?.data.reduce(
 		(total, conversation) => total + (conversation.unread_count ?? 0),
@@ -207,31 +250,31 @@ export function MessagesPage({
 		MessageUpdate(selectedConversationId, rmessage);
 
 		// append the latest message to the conversations list, and set the unread count to 0 for this conversation.
-		queryClient.setQueryData(chatKeys.conversations(), (current: any) => {
-			if (!current) return current;
+		for (const [queryKey, queryData] of queryClient.getQueriesData<ConversationsPublic>({
+			queryKey: [...chatKeys.all, "conversations"],
+		})) {
+			if (!queryData?.data?.some((c) => c.id === selectedConversationId)) continue;
+			queryClient.setQueryData<ConversationsPublic>(queryKey, (current) => {
+				if (!current?.data) return current;
+				const index = current.data.findIndex(
+					(conversation) => conversation.id === selectedConversationId,
+				);
+				if (index === -1) return current;
 
-			const updatedConversations = current.data.map((conversation: any) => {
-				if (conversation.id === selectedConversationId) {
-					return {
-						...conversation,
-						unread_count: 0,
-						last_message: rmessage,
-					};
-				}
-				return conversation;
+				const nextData = [...current.data];
+				const [conversation] = nextData.splice(index, 1);
+				nextData.unshift({
+					...conversation,
+					unread_count: 0,
+					last_message: rmessage,
+				});
+				return {
+					...current,
+					data: nextData,
+				};
 			});
-			const activeIndex = updatedConversations.findIndex(
-				(c: any) => c.id === selectedConversationId,
-			);
-			if (activeIndex > 0) {
-				const [active] = updatedConversations.splice(activeIndex, 1);
-				updatedConversations.unshift(active);
-			}
-			return {
-				...current,
-				data: updatedConversations,
-			};
-		});
+		}
+
 		setMessageSendResult(rmessage.id, "pending");
 		setDraft("");
 		// setTimeout(() => {
@@ -340,6 +383,9 @@ export function MessagesPage({
 					onQueryChange={setQuery}
 					onFilterChange={setFilter}
 					onSelect={onSelectContact}
+					conversations={conversations.data}
+					profiles={profiles.data}
+					isOnline={isOnline}
 				/>
 				{selectedConversationId && !selectedConversation ? (
 					<section className="flex flex-col gap-4 p-6" aria-live="polite">
@@ -383,7 +429,7 @@ export function MessagesPage({
 					<MessageThread
 						key={selectedProfile?.user_id ?? "no-profile"}
 						selected={selectedProfile}
-						isOnline={isOnline}
+						isOnline={isOnline(selectedProfile?.user_id ?? "")}
 						presencePending={presencePending}
 						messages={detailsQuery.data?.messages ?? []}
 						draft={draft}
@@ -405,11 +451,11 @@ export function MessagesPage({
 						onDetails={() => {
 							if (
 								clientMode &&
-								selectedConversation?.other_user?.active_role === "freelancer"
+								selectedProfile?.user_id
 							)
 								void navigate({
 									to: "/talent/$freelancerId",
-									params: { freelancerId: selectedProfile?.user_id ?? "" },
+									params: { freelancerId: selectedProfile.user_id },
 									search: { q: undefined },
 								});
 						}}

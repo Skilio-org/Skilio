@@ -1,117 +1,80 @@
 import { useCallback, useMemo } from "react"
-import { useQueryClient } from "@tanstack/react-query"
-import {
-	type ChatMessagePublic,
-	type ConversationDetailPublic,
-	type ConversationPublic,
-	type ConversationsPublic,
-} from "@/client"
+import { type QueryClient, useQueryClient } from "@tanstack/react-query"
+import type { ChatMessagePublic, ConversationDetailPublic, ConversationsPublic } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
-// import { toast } from "sonner"
 
-type ChatMessageUpdateOptions = {
+export type ChatMessageUpdateOptions = {
 	incrementUnread?: boolean
 	isViewingConversation?: boolean
 }
 
-// function playBeep(frequency = 440, duration = 150, type = "sine")
-// {
-//       // Reuse or create AudioContext
-//       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+export async function applyIncomingMessageToCache(
+	queryClient: QueryClient,
+	message: ChatMessagePublic,
+	{ incrementUnread = true, isViewingConversation = false }: ChatMessageUpdateOptions = {},
+) {
+	const unreadDelta = incrementUnread && !isViewingConversation ? 1 : 0
 
-//       const oscillator = audioCtx.createOscillator();
-//       const gainNode = audioCtx.createGain();
+	queryClient.setQueryData<ConversationDetailPublic>(chatKeys.conversation(message.conversation_id), (current) => {
+		if (!current) return current
+		if (current.messages?.some((existing) => existing.id === message.id)) {
+			return current
+		}
+		return {
+			...current,
+			last_message: message,
+			messages: [...(current.messages ?? []), message],
+			unread_count: (current.unread_count ?? 0) + unreadDelta,
+		}
+	})
 
-//       oscillator.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
-//       oscillator.frequency.value = frequency; // Hz (440Hz is standard pitch A)
+	let found = false
+	for (const [queryKey, queryData] of queryClient.getQueriesData<ConversationsPublic>({
+		queryKey: [...chatKeys.all, "conversations"],
+	})) {
+		const conv = queryData?.data?.find((item) => item.id === message.conversation_id)
+		if (!conv) continue
+		found = true
+		if (conv.last_message?.id === message.id) continue
 
-//       // Smooth volume fade to avoid harsh clicking sounds
-//       gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // Volume (0.0 to 1.0)
-//       gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration / 1000);
+		queryClient.setQueryData<ConversationsPublic>(queryKey, (current) => {
+			if (!current?.data) return current
+			const index = current.data.findIndex((item) => item.id === message.conversation_id)
+			if (index === -1) return current
 
-//       oscillator.connect(gainNode);
-//       gainNode.connect(audioCtx.destination);
+			const conversation = current.data[index]
+			if (conversation.last_message?.id === message.id) return current
 
-//       oscillator.start();
-//       oscillator.stop(audioCtx.currentTime + duration / 1000);
-// }
+			const nextData = [...current.data]
+			nextData.splice(index, 1)
+			nextData.unshift({
+				...conversation,
+				last_message: message,
+				unread_count: (conversation.unread_count ?? 0) + unreadDelta,
+			})
+			return {
+				...current,
+				data: nextData,
+			}
+		})
+	}
+
+	if (!found) {
+		await queryClient.invalidateQueries({
+			queryKey: [...chatKeys.all, "conversations"],
+			refetchType: "active",
+		})
+	}
+}
 
 export function useChatEventHandlers() {
 	const queryClient = useQueryClient()
 
 	const handleIncomingMessage = useCallback(
-		async (
-			message: ChatMessagePublic,
-			{ incrementUnread = true, isViewingConversation = false }: ChatMessageUpdateOptions = {},
-		) => {
-			const current = queryClient.getQueryData<ConversationsPublic>(chatKeys.conversations())
-			if (current == undefined) {
-				// toast.error("No conversations found in cache for incoming message. reload")
-				return
-			}
-			let conversation: ConversationPublic | undefined = current?.data.find(
-				(item) => item.id === message.conversation_id,
-			)
-
-			// console.log("handleIncomingMessage called with message
-			// :", message)
-			// alert("M!!!")
-			/// BUG: `useProfiles` takes conversations.. here it does not!!
-			if (!conversation) {
-				queryClient.setQueryData(
-					chatKeys.conversation(message.conversation_id),
-					(current: ConversationDetailPublic | undefined) => {
-						if (!current) return current
-						if (current.messages?.some((existing) => existing.id === message.id)) {
-							return current
-						}
-						return {
-							...current,
-							last_message: message,
-							messages: [...(current.messages ?? []), message],
-							unread_count: (current.unread_count ?? 0) + (incrementUnread && !isViewingConversation ? 1 : 0),
-						}
-					},
-				)
-				await queryClient.refetchQueries({
-					queryKey: chatKeys.conversations(),
-				})
-				return
-			}
-
-			queryClient.setQueryData<ConversationsPublic>(chatKeys.conversations(), {
-				...current,
-				data: [
-					{
-						...conversation,
-						last_message: message,
-						unread_count: (conversation.unread_count ?? 0) + (incrementUnread && !isViewingConversation ? 1 : 0),
-					},
-					...current.data.filter((item) => item.id !== message.conversation_id),
-				],
-			})
-
-			queryClient.setQueryData(
-				chatKeys.conversation(message.conversation_id),
-				(current: ConversationDetailPublic | undefined) => {
-					if (!current) return current
-					if (current.messages?.some((existing) => existing.id === message.id)) {
-						return current
-					}
-					return {
-						...current,
-						last_message: message,
-						messages: [...(current.messages ?? []), message],
-						unread_count: (current.unread_count ?? 0) + (incrementUnread && !isViewingConversation ? 1 : 0),
-					}
-				},
-			)
-			// alert("Updated conversation: " + (conversation.unread_count ?? 0) + 1);
-		},
+		(message: ChatMessagePublic, options?: ChatMessageUpdateOptions) =>
+			applyIncomingMessageToCache(queryClient, message, options),
 		[queryClient],
 	)
 
-	return useMemo(() => {
-		return { handleIncomingMessage }
-	}, [handleIncomingMessage])
+	return useMemo(() => ({ handleIncomingMessage }), [handleIncomingMessage])
 }
