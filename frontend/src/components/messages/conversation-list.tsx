@@ -210,7 +210,7 @@ export function ConversationList({
 								className={cn(
 									"relative flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md px-2 font-label-sm font-medium text-label-sm transition-all duration-150",
 									active
-										? "bg-primary text-primary-foreground shadow-sm dark:bg-on-surface dark:text-background"
+										? "bg-primary text-on-primary"
 										: "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
 								)}
 							>
@@ -221,7 +221,7 @@ export function ConversationList({
 										className={cn(
 											"min-w-5 rounded px-1.5 py-0.5 text-center font-caption font-bold text-[10px] leading-none",
 											active
-												? "bg-primary-foreground/15 text-primary-foreground dark:bg-background/10 dark:text-background"
+												? "bg-on-primary/15 text-on-primary"
 												: "bg-surface-container-high text-on-surface-variant",
 										)}
 									>
