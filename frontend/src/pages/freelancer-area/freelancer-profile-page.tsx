@@ -297,6 +297,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 					step={step}
 					categories={categories}
 					categoriesLoading={categoriesLoading}
+					uploading={uploading}
 					onStepChange={edit}
 					onPhotoChange={(file) => void uploadPhoto(file)}
 					onEditEntry={(kind, entry) => setEditor({ kind, entry })}

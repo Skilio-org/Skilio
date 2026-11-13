@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Camera, CheckCircle2, Globe, ImageUp, MapPin, Users } from "lucide-react"
-import { type ComponentProps, FormEvent, useState } from "react"
+import { Camera, CheckCircle2, Globe, Loader2, MapPin, Users } from "lucide-react"
+import { type ComponentProps, FormEvent, useRef, useState } from "react"
 import { toast } from "sonner"
 import { type ClientProfilePublic, ClientProfilesService } from "@/client"
 import { queryKeys } from "@/lib/query-keys"
@@ -10,14 +10,6 @@ import {
 	WorkspaceSurface,
 	workspaceStyles,
 } from "@/components/dashboard/dashboard-header"
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog"
 import CitySelect from "@/components/common/city-select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -51,9 +43,7 @@ export function ClientProfilePage() {
 	const { user } = useAuth()
 	const queryClient = useQueryClient()
 	const [saved, setSaved] = useState(false)
-	const [photoDialogOpen, setPhotoDialogOpen] = useState(false)
-	const [selectedPhotoName, setSelectedPhotoName] = useState("")
-	const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null)
+	const photoInput = useRef<HTMLInputElement>(null)
 	const [photoUpdated, setPhotoUpdated] = useState(false)
 	const [uploading, setUploading] = useState(false)
 	const [avatarFailed, setAvatarFailed] = useState(false)
@@ -107,7 +97,8 @@ export function ClientProfilePage() {
 	})
 
 	const displayName = fullName || profile?.full_name || user?.full_name || "Your name"
-	const avatarUrl = profile?.avatar_url || useAccountAvatarUrl(user?.id, "client")
+	const accountAvatarUrl = useAccountAvatarUrl(user?.id, "client")
+	const avatarUrl = profile?.avatar_url || accountAvatarUrl
 
 	// Returns the first problem with the form, or null when it is fine to save.
 	const validate = () => {
@@ -130,6 +121,36 @@ export function ClientProfilePage() {
 			return
 		}
 		updateMutation.mutate()
+	}
+
+	// Called when a file is picked: checks it, then uploads it straight away.
+	const uploadPhoto = async (file?: File) => {
+		if (!file || uploading || !user) return
+		if (!["image/jpeg", "image/png"].includes(file.type)) {
+			toast.error("Choose a JPG or PNG image.")
+			return
+		}
+		if (file.size > limits.avatarBytes) {
+			toast.error("Choose an image under 5 MB.")
+			return
+		}
+		setUploading(true)
+		try {
+			const response = await ClientProfilesService.profilesUploadClientAvatar({ body: { file } })
+			if (response.data.status !== "Ok") throw new Error("Upload failed")
+			markAccountAvatarUpdated(user.id, "client")
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: queryKeys.clientProfile }),
+				queryClient.invalidateQueries({ queryKey: queryKeys.currentUser }),
+			])
+			setAvatarFailed(false)
+			setPhotoUpdated(true)
+			toast.success("Profile photo uploaded")
+		} catch {
+			toast.error("Couldn’t upload your photo. Please try again.")
+		} finally {
+			setUploading(false)
+		}
 	}
 
 	const handleCancel = () => {
@@ -181,11 +202,29 @@ export function ClientProfilePage() {
 							) : (
 								getInitials(displayName)
 							)}
+							{uploading && (
+								<span className="absolute inset-0 grid place-items-center rounded-lg bg-background/70" role="status">
+									<Loader2 className="size-6 animate-spin text-foreground" />
+									<span className="sr-only">Uploading photo</span>
+								</span>
+							)}
+							<input
+								ref={photoInput}
+								type="file"
+								accept="image/png,image/jpeg"
+								className="sr-only"
+								tabIndex={-1}
+								onChange={(event) => {
+									void uploadPhoto(event.target.files?.[0])
+									event.target.value = ""
+								}}
+							/>
 							<button
 								type="button"
 								aria-label="Change profile photo"
-								onClick={() => setPhotoDialogOpen(true)}
-								className="absolute -right-2 -bottom-2 grid size-10 place-items-center rounded-full border-4 border-card bg-foreground text-background hover:bg-brand-700 hover:text-white"
+								disabled={uploading}
+								onClick={() => photoInput.current?.click()}
+								className="absolute -right-2 -bottom-2 grid size-10 place-items-center rounded-full border-4 border-card bg-foreground text-background hover:bg-primary hover:text-on-primary disabled:opacity-60"
 							>
 								<Camera className="size-4" />
 							</button>
@@ -193,9 +232,11 @@ export function ClientProfilePage() {
 						<div>
 							<h2 className="font-display font-semibold text-xl">Profile photo</h2>
 							<p className="mt-1 text-on-surface-variant text-sm leading-6">
-								{photoUpdated
-									? "Your new profile image is ready across the workspace."
-									: "A clear photo or company logo makes your messages easier to recognize."}
+								{uploading
+									? "Uploading your photo…"
+									: photoUpdated
+										? "Your new profile image is ready across the workspace."
+										: "A clear photo or company logo makes your messages easier to recognize. JPG or PNG, up to 5 MB."}
 							</p>
 						</div>
 					</div>
@@ -359,98 +400,6 @@ export function ClientProfilePage() {
 					</WorkspaceSurface>
 				</aside>
 			</div>
-
-			<Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Update profile photo</DialogTitle>
-						<DialogDescription>
-							Choose the image clients and independent professionals see when they review your workspace.
-						</DialogDescription>
-					</DialogHeader>
-					<div className="rounded-lg border border-brand-200 border-dashed bg-brand-50/45 p-7 text-center dark:border-brand-900 dark:bg-brand-950/25">
-						<span className="mx-auto grid size-12 place-items-center rounded-lg bg-surface-container-lowest text-brand-700 shadow-sm">
-							<ImageUp className="size-5" />
-						</span>
-						<p className="mt-3 font-semibold text-sm">Choose a clear headshot or company logo</p>
-						<p className="mt-1 text-on-surface-variant text-xs leading-5">
-							JPG or PNG, up to 5 MB, at least 400px square.
-						</p>
-						<label
-							htmlFor="client-photo-upload"
-							className="mt-5 inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-5 font-semibold text-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
-						>
-							<Camera className="size-4" />
-							Choose image
-							<input
-								id="client-photo-upload"
-								type="file"
-								accept="image/png,image/jpeg"
-								onChange={(event) => {
-									const file = event.target.files?.[0] ?? null
-									if (file && file.size > limits.avatarBytes) {
-										toast.error("Choose an image under 5 MB.")
-										event.target.value = ""
-										setSelectedPhoto(null)
-										setSelectedPhotoName("")
-										return
-									}
-									setSelectedPhoto(file)
-									setSelectedPhotoName(file?.name ?? "")
-								}}
-								className="sr-only"
-							/>
-						</label>
-						{selectedPhotoName && <p className="mt-3 font-medium text-link text-xs">Selected: {selectedPhotoName}</p>}
-					</div>
-					<DialogFooter>
-						<button
-							type="button"
-							className={workspaceStyles.secondaryAction}
-							onClick={() => {
-								setSelectedPhotoName("")
-								setSelectedPhoto(null)
-								setPhotoDialogOpen(false)
-							}}
-						>
-							Cancel
-						</button>
-						<button
-							type="button"
-							className={`${workspaceStyles.primaryAction} disabled:opacity-50`}
-							disabled={!selectedPhoto || uploading}
-							onClick={async () => {
-								if (!selectedPhoto || uploading || !user) return
-								setUploading(true)
-								try {
-									const response = await ClientProfilesService.profilesUploadClientAvatar({
-										body: { file: selectedPhoto },
-									})
-									if (response.data.status !== "Ok") throw new Error("Upload failed")
-									markAccountAvatarUpdated(user.id, "client")
-									await Promise.all([
-										queryClient.invalidateQueries({
-											queryKey: queryKeys.clientProfile,
-										}),
-										queryClient.invalidateQueries({
-											queryKey: queryKeys.currentUser,
-										}),
-									])
-									setPhotoUpdated(true)
-									setPhotoDialogOpen(false)
-									toast.success("Profile photo uploaded")
-								} catch {
-									toast.error("Couldn’t upload your photo. Please try again.")
-								} finally {
-									setUploading(false)
-								}
-							}}
-						>
-							{uploading ? "Uploading…" : "Apply photo"}
-						</button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
 		</div>
 	)
 }

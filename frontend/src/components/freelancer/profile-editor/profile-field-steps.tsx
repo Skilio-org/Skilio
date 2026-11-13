@@ -1,9 +1,10 @@
-import { Upload } from "lucide-react"
+import { Camera, Loader2 } from "lucide-react"
+import { useRef } from "react"
 import CategorySelect from "@/components/common/category-select"
 import CitySelect from "@/components/common/city-select"
 import { SkillsSelect } from "@/components/common/skills-select"
 import { Avatar } from "@/components/freelancer/freelancer-profile-components"
-import { type ProfileForm, profileLimits, secondary, textareaClass } from "@/components/freelancer/freelancer-profile-model"
+import { type ProfileForm, profileLimits, textareaClass } from "@/components/freelancer/freelancer-profile-model"
 import { LanguagesField } from "@/components/freelancer/languages-field"
 import { ProfileSelectField, ProfileTextField } from "@/components/freelancer/profile-editor/profile-fields"
 import type { UpdateProfile } from "@/components/freelancer/profile-editor/profile-form"
@@ -16,24 +17,48 @@ const weeklyHours = ["Less than 10 hours", "10–20 hours", "20–30 hours", "Mo
 export function BasicsStep({
 	profile,
 	update,
+	uploading,
 	onPhotoChange,
-}: StepProps & { onPhotoChange: (file?: File) => void }) {
+}: StepProps & { uploading: boolean; onPhotoChange: (file?: File) => void }) {
+	const photoInput = useRef<HTMLInputElement>(null)
+
 	return (
 		<>
 			<div className="flex items-center gap-4">
-				<Avatar profile={profile} size="size-16 text-xl" />
+				<div className="relative">
+					<Avatar profile={profile} size="size-16 text-xl" />
+					{uploading && (
+						<span className="absolute inset-0 grid place-items-center rounded-full bg-background/70" role="status">
+							<Loader2 className="size-5 animate-spin text-foreground" />
+							<span className="sr-only">Uploading photo</span>
+						</span>
+					)}
+					<input
+						ref={photoInput}
+						type="file"
+						accept="image/png,image/jpeg,image/webp"
+						className="sr-only"
+						tabIndex={-1}
+						onChange={(event) => {
+							onPhotoChange(event.target.files?.[0])
+							event.target.value = ""
+						}}
+					/>
+					<button
+						type="button"
+						aria-label="Change profile photo"
+						disabled={uploading}
+						onClick={() => photoInput.current?.click()}
+						className="absolute -right-1.5 -bottom-1.5 grid size-8 place-items-center rounded-full border-4 border-card bg-foreground text-background hover:bg-primary hover:text-on-primary disabled:opacity-60"
+					>
+						<Camera className="size-3.5" />
+					</button>
+				</div>
 				<div>
-					<label className={`${secondary} cursor-pointer`}>
-						<Upload className="size-4" /> Change photo
-						<input
-							aria-label="Upload profile photo"
-							className="sr-only"
-							type="file"
-							accept="image/png,image/jpeg,image/webp"
-							onChange={(e) => onPhotoChange(e.target.files?.[0])}
-						/>
-					</label>
-					<p className="mt-1.5 text-on-surface-variant text-xs">Optional. JPG, PNG or WebP, up to 5 MB.</p>
+					<p className="font-medium text-sm">Profile photo</p>
+					<p className="mt-1 text-on-surface-variant text-xs">
+						{uploading ? "Uploading your photo…" : "Optional. JPG, PNG or WebP, up to 5 MB."}
+					</p>
 				</div>
 			</div>
 			<div className="grid gap-5 sm:grid-cols-2">
@@ -117,8 +142,14 @@ export function IntroductionStep({ profile, update }: StepProps) {
 					placeholder="What you do, who you help, and the kind of projects you take on."
 				/>
 				<span className="mt-1.5 flex justify-between font-normal text-on-surface-variant text-xs">
-					<span>{bioLength < profileLimits.bioMin ? `${profileLimits.bioMin - bioLength} more characters needed` : "Looks good"}</span>
-					<span className="tabular-nums">{profile.bio.length}/{profileLimits.bioMax}</span>
+					<span>
+						{bioLength < profileLimits.bioMin
+							? `${profileLimits.bioMin - bioLength} more characters needed`
+							: "Looks good"}
+					</span>
+					<span className="tabular-nums">
+						{profile.bio.length}/{profileLimits.bioMax}
+					</span>
 				</span>
 			</label>
 			<LanguagesField value={profile.languages} onChange={(languages) => update("languages", languages)} />
@@ -140,7 +171,8 @@ export function RatesStep({ profile, update }: StepProps) {
 					max={profileLimits.rateMax}
 				/>
 				<p className="mt-1.5 text-on-surface-variant text-xs">
-					Between {formatMoney(profileLimits.rateMin)} and {formatMoney(profileLimits.rateMax)}. Shown on your profile as a starting rate. You agree the final price with each client.
+					Between {formatMoney(profileLimits.rateMin)} and {formatMoney(profileLimits.rateMax)}. Shown on your profile
+					as a starting rate. You agree the final price with each client.
 				</p>
 			</div>
 			<ProfileSelectField
