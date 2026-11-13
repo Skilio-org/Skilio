@@ -1,4 +1,4 @@
-import { Archive, MessageSquare, Search, X } from "lucide-react"
+import { MessageSquare, Search, X } from "lucide-react"
 import { memo, useCallback, useRef } from "react"
 import { getClientTheme } from "@/components/messages/message-types"
 import type { InboxFilter } from "@/components/messages/message-types"
@@ -257,9 +257,7 @@ export function ConversationList({
 				{conversations?.count === 0 && (
 					<div className="px-4 py-12 text-center">
 						<span className="mx-auto grid size-12 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant">
-							{filter === "archived" ? (
-								<Archive className="size-5" />
-							) : query ? (
+							{query ? (
 								<Search className="size-5" />
 							) : (
 								<MessageSquare className="size-5" />
@@ -270,8 +268,6 @@ export function ConversationList({
 								? "No matching conversations"
 								: filter === "unread"
 									? "You're all caught up"
-									: filter === "archived"
-										? "Nothing archived yet"
 										: "No conversations yet"}
 						</h3>
 						<p className="mt-1.5 font-body-sm text-body-sm text-on-surface-variant">
@@ -279,8 +275,6 @@ export function ConversationList({
 								? "Try a different name, skill, or message."
 								: filter === "unread"
 									? "New messages will appear here."
-									: filter === "archived"
-										? "Conversations you archive will live here."
 										: "Start a conversation from a connection or a profile."}
 						</p>
 						{(query || filter !== "all") && (
