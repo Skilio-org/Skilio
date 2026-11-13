@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Camera, CheckCircle2, Globe, Loader2, MapPin, Users } from "lucide-react"
+import { Camera, CheckCircle2, Globe, MapPin, Users } from "lucide-react"
 import { type ComponentProps, FormEvent, useRef, useState } from "react"
 import { toast } from "sonner"
 import { type ClientProfilePublic, ClientProfilesService } from "@/client"
 import { queryKeys } from "@/lib/query-keys"
+import { LoadingImage } from "@/components/common/loading-image"
 import {
 	Monogram,
 	WorkspacePageHeader,
@@ -46,6 +47,7 @@ export function ClientProfilePage() {
 	const photoInput = useRef<HTMLInputElement>(null)
 	const [photoUpdated, setPhotoUpdated] = useState(false)
 	const [uploading, setUploading] = useState(false)
+	const [uploadProgress, setUploadProgress] = useState(0)
 	const [avatarFailed, setAvatarFailed] = useState(false)
 
 	const { data: profile, isLoading } = useQuery<ClientProfilePublic>({
@@ -134,9 +136,13 @@ export function ClientProfilePage() {
 			toast.error("Choose an image under 5 MB.")
 			return
 		}
+		setUploadProgress(0)
 		setUploading(true)
 		try {
-			const response = await ClientProfilesService.profilesUploadClientAvatar({ body: { file } })
+			const response = await ClientProfilesService.profilesUploadClientAvatar({
+				body: { file },
+				onUploadProgress: (event) => setUploadProgress(Math.round((event.loaded / (event.total ?? file.size)) * 100)),
+			})
 			if (response.data.status !== "Ok") throw new Error("Upload failed")
 			markAccountAvatarUpdated(user.id, "client")
 			await Promise.all([
@@ -193,7 +199,7 @@ export function ClientProfilePage() {
 					<div className="flex flex-col gap-5 border-outline-variant border-b pb-8 sm:flex-row sm:items-center">
 						<Monogram className="relative size-24 bg-brand-100 text-2xl text-brand-800">
 							{avatarUrl && !avatarFailed ? (
-								<img
+								<LoadingImage
 									src={avatarUrl}
 									alt={displayName}
 									className="absolute inset-0 size-full rounded-lg object-cover"
@@ -204,7 +210,7 @@ export function ClientProfilePage() {
 							)}
 							{uploading && (
 								<span className="absolute inset-0 grid place-items-center rounded-lg bg-background/70" role="status">
-									<Loader2 className="size-6 animate-spin text-foreground" />
+									<span className="font-semibold text-foreground text-sm tabular-nums">{uploadProgress}%</span>
 									<span className="sr-only">Uploading photo</span>
 								</span>
 							)}
@@ -233,7 +239,7 @@ export function ClientProfilePage() {
 							<h2 className="font-display font-semibold text-xl">Profile photo</h2>
 							<p className="mt-1 text-on-surface-variant text-sm leading-6">
 								{uploading
-									? "Uploading your photo…"
+									? `Uploading your photo… ${uploadProgress}%`
 									: photoUpdated
 										? "Your new profile image is ready across the workspace."
 										: "A clear photo or company logo makes your messages easier to recognize. JPG or PNG, up to 5 MB."}
@@ -355,7 +361,7 @@ export function ClientProfilePage() {
 						<div className="mt-4 flex items-center gap-3.5">
 							<Monogram className="relative size-14 shrink-0 bg-brand-100 text-lg text-brand-800">
 								{avatarUrl && !avatarFailed ? (
-									<img
+									<LoadingImage
 										src={avatarUrl}
 										alt=""
 										className="absolute inset-0 size-full rounded-lg object-cover"

@@ -1,6 +1,7 @@
 import { Plus, Trash2 } from "lucide-react"
 import { type ProfileEntryForm, type ProfileForm, secondary } from "@/components/freelancer/freelancer-profile-model"
 import type { EntryKind, UpdateProfile } from "@/components/freelancer/profile-editor/profile-form"
+import { LoadingImage } from "@/components/common/loading-image"
 
 const headings: Record<EntryKind, string> = {
 	experience: "Work experience",
@@ -44,7 +45,7 @@ export function EntriesStep({
 					{profile[kind].map((entry) => (
 						<li key={entry.id} className="flex items-center gap-3 px-4 py-3">
 							{kind === "portfolio" && entry.image_url && (
-								<img src={entry.image_url} alt="" className="size-10 shrink-0 rounded-md object-cover" />
+								<LoadingImage src={entry.image_url} alt="" className="size-10 shrink-0 rounded-md object-cover" />
 							)}
 							<button
 								type="button"

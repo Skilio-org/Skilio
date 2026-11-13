@@ -45,6 +45,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	const [savedProfile, setSavedProfile] = useState(profile)
 	const [saving, setSaving] = useState(false)
 	const [uploading, setUploading] = useState(false)
+	const [uploadProgress, setUploadProgress] = useState(0)
 	const saveLock = useRef(false)
 	const portfolioTouched = useRef(false)
 
@@ -138,9 +139,13 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			toast.error("Choose a JPG, PNG or WebP image under 5 MB.")
 			return
 		}
+		setUploadProgress(0)
 		setUploading(true)
 		try {
-			const response = await ProfilesService.uploadFreelancerAvatar({ body: { file } })
+			const response = await ProfilesService.uploadFreelancerAvatar({
+				body: { file },
+				onUploadProgress: (event) => setUploadProgress(Math.round((event.loaded / (event.total ?? file.size)) * 100)),
+			})
 			if (response.data.status !== "Ok") throw new Error("Upload failed")
 			const photo = accountAvatarUrl(user.id, markAccountAvatarUpdated(user.id, "freelancer"), "freelancer")
 			update("photo", photo)
@@ -157,7 +162,12 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	}
 
 	// Called by the entry dialog. Returns false to keep the dialog open.
-	async function saveEntry(entry: ProfileEntryForm, image?: File, signal?: AbortSignal) {
+	async function saveEntry(
+		entry: ProfileEntryForm,
+		image?: File,
+		signal?: AbortSignal,
+		onProgress?: (percent: number) => void,
+	) {
 		if (!editor) return false
 		let saved = entry
 		if (image) {
@@ -167,6 +177,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 				const { data } = await ProfilesService.uploadPortfolioItem({
 					body: { title: entry.title, description: entry.detail.trim() || entry.title, file: image },
 					signal,
+					onUploadProgress: (event) => onProgress?.(Math.round((event.loaded / (event.total ?? image.size)) * 100)),
 				})
 				saved = { ...entry, id: data.id, image_url: data.image_url }
 				// The upload endpoint only stores title, description and image, so write the rest right away
@@ -298,6 +309,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 					categories={categories}
 					categoriesLoading={categoriesLoading}
 					uploading={uploading}
+					uploadProgress={uploadProgress}
 					onStepChange={edit}
 					onPhotoChange={(file) => void uploadPhoto(file)}
 					onEditEntry={(kind, entry) => setEditor({ kind, entry })}

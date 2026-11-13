@@ -8,6 +8,7 @@ import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "
 import { createFallbackProfile } from "@/hooks/useProfiles"
 import type { ConversationPublic, ConversationsPublic, UserPublic } from "@/client"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
+import { LoadingImage } from "@/components/common/loading-image"
 
 export type ConversationListItemProps = {
 	conversation: ConversationPublic
@@ -71,7 +72,7 @@ export const ConversationListItem = memo(function ConversationListItem({
 		>
 			{active && <span className="absolute left-0 top-3 bottom-3 w-[5px] rounded-ee rounded-se bg-primary" />}
 			<div className="relative mt-0.5 shrink-0">
-				<img
+				<LoadingImage
 					src={person.avatar_url || accountAvatarUrl(person.user_id, "", conversation.other_user_role)}
 					alt=""
 					className={cn(

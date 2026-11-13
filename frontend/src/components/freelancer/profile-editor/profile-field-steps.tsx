@@ -1,4 +1,4 @@
-import { Camera, Loader2 } from "lucide-react"
+import { Camera } from "lucide-react"
 import { useRef } from "react"
 import CategorySelect from "@/components/common/category-select"
 import CitySelect from "@/components/common/city-select"
@@ -18,8 +18,9 @@ export function BasicsStep({
 	profile,
 	update,
 	uploading,
+	uploadProgress,
 	onPhotoChange,
-}: StepProps & { uploading: boolean; onPhotoChange: (file?: File) => void }) {
+}: StepProps & { uploading: boolean; uploadProgress: number; onPhotoChange: (file?: File) => void }) {
 	const photoInput = useRef<HTMLInputElement>(null)
 
 	return (
@@ -29,7 +30,7 @@ export function BasicsStep({
 					<Avatar profile={profile} size="size-16 text-xl" />
 					{uploading && (
 						<span className="absolute inset-0 grid place-items-center rounded-full bg-background/70" role="status">
-							<Loader2 className="size-5 animate-spin text-foreground" />
+							<span className="font-semibold text-foreground text-xs tabular-nums">{uploadProgress}%</span>
 							<span className="sr-only">Uploading photo</span>
 						</span>
 					)}
@@ -57,7 +58,7 @@ export function BasicsStep({
 				<div>
 					<p className="font-medium text-sm">Profile photo</p>
 					<p className="mt-1 text-on-surface-variant text-xs">
-						{uploading ? "Uploading your photo…" : "Optional. JPG, PNG or WebP, up to 5 MB."}
+						{uploading ? `Uploading your photo… ${uploadProgress}%` : "Optional. JPG, PNG or WebP, up to 5 MB."}
 					</p>
 				</div>
 			</div>

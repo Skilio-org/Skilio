@@ -31,6 +31,7 @@ export function ProfileWizard({
 	categories,
 	categoriesLoading,
 	uploading,
+	uploadProgress,
 	onStepChange,
 	onPhotoChange,
 	onEditEntry,
@@ -46,6 +47,7 @@ export function ProfileWizard({
 	categories: string[]
 	categoriesLoading: boolean
 	uploading: boolean
+	uploadProgress: number
 	onStepChange: (step: number) => void
 	onPhotoChange: (file?: File) => void
 	onEditEntry: (kind: EntryKind, entry: ProfileEntryForm) => void
@@ -93,7 +95,7 @@ export function ProfileWizard({
 				</div>
 				<div className="mt-6 space-y-5">
 					{step === 0 && (
-						<BasicsStep profile={profile} update={update} uploading={uploading} onPhotoChange={onPhotoChange} />
+						<BasicsStep profile={profile} update={update} uploading={uploading} uploadProgress={uploadProgress} onPhotoChange={onPhotoChange} />
 					)}
 					{step === 1 && (
 						<ExpertiseStep

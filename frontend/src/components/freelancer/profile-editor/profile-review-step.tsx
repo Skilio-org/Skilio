@@ -1,6 +1,7 @@
 import { Check, Eye } from "lucide-react"
 import { type ProfileForm, secondary, steps } from "@/components/freelancer/freelancer-profile-model"
 import { type ProfileProgress, requiredSteps } from "@/components/freelancer/profile-editor/profile-form"
+import { LoadingImage } from "@/components/common/loading-image"
 
 const SECTION_COUNT = 6
 const EXPERTISE_STEP = 1
@@ -61,7 +62,7 @@ export function ReviewStep({
 								{i === PORTFOLIO_STEP && portfolioImages.length > 0 && (
 									<div className="mt-2 flex gap-2">
 										{portfolioImages.map((entry) => (
-											<img
+											<LoadingImage
 												key={entry.id}
 												src={entry.image_url ?? ""}
 												alt={entry.title}

@@ -4,6 +4,7 @@ import { Mail, Pencil, UserRound } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { LoadingImage } from "@/components/common/loading-image"
 
 import { UsersService, type UserUpdateMe } from "@/client"
 import { Monogram, workspaceStyles } from "@/components/dashboard/dashboard-header"
@@ -125,7 +126,7 @@ const UserInformation = () => {
 			<section className="flex items-center gap-4 rounded-lg border border-outline-variant bg-surface-container-lowest p-5 sm:px-7">
 				<Monogram className="size-16 shrink-0 overflow-hidden bg-brand-100 text-brand-800 text-lg dark:bg-brand-950 dark:text-brand-200">
 					{avatarUrl && !avatarFailed ? (
-						<img
+						<LoadingImage
 							src={avatarUrl}
 							alt={displayName}
 							className="size-full rounded-lg object-cover"
