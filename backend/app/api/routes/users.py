@@ -107,6 +107,7 @@ async def upload_avatar(
     session: SessionDep,
     file: UploadFile = File(...),
     current_user: CurrentUser,
+    role: UserRole | None = None,
 ) -> AvatarResponse:
     """Uploads avatar asynchronously without blocking the event loop."""
     if file.content_type not in ALLOWED_MIME_TYPES:
@@ -130,14 +131,33 @@ async def upload_avatar(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Avatar file cannot be empty",
         )
+    avatar_id = uuid.uuid4()
     url = await run_in_threadpool(
-        claudinary_upload_media, current_user.id, contents, media_type="image"
+        claudinary_upload_media, avatar_id, contents, media_type="image"
     )
     if not url:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to upload avatar image"
         )
+
+    target_role = role or current_user.active_role
+    if target_role == UserRole.FREELANCER:
+        if not current_user.freelancer_profile:
+            profile = FreelancerProfile(user_id=current_user.id)
+            session.add(profile)
+            session.flush()
+            current_user.freelancer_profile = profile
+        current_user.freelancer_profile.avatar_url = url
+        session.add(current_user.freelancer_profile)
+    elif target_role == UserRole.CLIENT:
+        if not current_user.client_profile:
+            cprofile = ClientProfile(user_id=current_user.id)
+            session.add(cprofile)
+            session.flush()
+            current_user.client_profile = cprofile
+        current_user.client_profile.avatar_url = url
+        session.add(current_user.client_profile)
 
     current_user.avatar_url = url
     session.add(current_user)
@@ -152,13 +172,26 @@ async def proxy_media(
     *,
     uuid: uuid.UUID,
     session: SessionDep,
+    role: UserRole | None = None,
     client: httpx.AsyncClient = Depends(get_http_client),
 ):
-    """Gets the user's avatar using his uuid."""
+    """Gets the user's avatar using his uuid, optionally for a specific profile role."""
     user = session.get(User, uuid)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    cloudinary_url = user.avatar_url
+
+    target_role = role or user.active_role
+    if target_role == UserRole.FREELANCER:
+        cloudinary_url = (
+            user.freelancer_profile.avatar_url if user.freelancer_profile else None
+        ) or user.avatar_url
+    elif target_role == UserRole.CLIENT:
+        cloudinary_url = (
+            user.client_profile.avatar_url if user.client_profile else None
+        ) or user.avatar_url
+    else:
+        cloudinary_url = user.avatar_url
+
     if not cloudinary_url:
         raise HTTPException(status_code=404, detail="Avatar not found")
     headers = {}

@@ -30,7 +30,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 				profile={{
 					name,
 					initials: getInitials(name),
-					avatarUrl: accountAvatarUrl(person.user_id),
+					avatarUrl: person.avatar_url || accountAvatarUrl(person.user_id, "", "freelancer"),
 					title: person.title ?? "",
 					location: person.location ?? "",
 					summary: person.bio ?? "",
@@ -125,7 +125,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 						profileUserId={person.user_id}
 					freelancerName={name}
 					freelancerTitle={person.title ?? ""}
-						freelancerAvatarUrl={accountAvatarUrl(person.user_id)}
+						freelancerAvatarUrl={person.avatar_url || accountAvatarUrl(person.user_id, "", "freelancer")}
 					/>
 				}
 				portfolioDialogAction={

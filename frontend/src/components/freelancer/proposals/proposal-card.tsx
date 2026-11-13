@@ -116,7 +116,7 @@ export function ProposalCard({
 							<Avatar className="size-11 rounded-lg border border-outline-variant bg-surface-container">
 								{draft.job.clientId && (
 									<AvatarImage
-										src={accountAvatarUrl(draft.job.clientId)}
+										src={accountAvatarUrl(draft.job.clientId, "", "client")}
 										alt={draft.job.company}
 										className="object-cover"
 									/>

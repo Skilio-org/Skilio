@@ -39,8 +39,9 @@ const UserInformation = () => {
 	const { showSuccessToast, showErrorToast } = useCustomToast()
 	const [editMode, setEditMode] = useState(false)
 	const { user: currentUser } = useAuth()
-	const accountLabel = useAccountRole() === "freelancer" ? "Freelancer account" : "Client account"
-	const avatarUrl = useAccountAvatarUrl(currentUser?.id)
+	const role = useAccountRole()
+	const accountLabel = role === "freelancer" ? "Freelancer account" : "Client account"
+	const avatarUrl = useAccountAvatarUrl(currentUser?.id, role)
 	const [avatarFailed, setAvatarFailed] = useState(false)
 
 	const [emailPasswordDialogOpen, setEmailPasswordDialogOpen] = useState(false)

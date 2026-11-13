@@ -32,10 +32,10 @@ function ProfileLink({
 	)
 }
 
-function PersonAvatar({ id, name, className }: { id: string; name: string; className?: string }) {
+function PersonAvatar({ id, name, role, className }: { id: string; name: string; role?: "client" | "freelancer"; className?: string }) {
 	return (
 		<Avatar className={cn("size-10 sm:size-11 shrink-0 rounded-lg border border-outline-variant bg-surface-container", className)}>
-			<AvatarImage src={accountAvatarUrl(id)} alt={name} className="object-cover" />
+			<AvatarImage src={accountAvatarUrl(id, "", role)} alt={name} className="object-cover" />
 			<AvatarFallback className="rounded-lg bg-surface-container font-label-md font-semibold text-xs sm:text-label-md text-on-surface">
 				{getInitials(name)}
 			</AvatarFallback>
@@ -89,7 +89,7 @@ export function ConnectionCard({
 					<div className="flex min-w-0 items-start gap-3 sm:gap-3.5">
 						<div className="relative shrink-0">
 							<ProfileLink isSpecialist={isSpecialist} id={partnerId} className="shrink-0 rounded-lg">
-								<PersonAvatar id={partnerId} name={partnerName} />
+								<PersonAvatar id={partnerId} name={partnerName} role={isSpecialist ? "freelancer" : "client"} />
 							</ProfileLink>
 							<span
 								aria-hidden="true"
@@ -171,7 +171,7 @@ export function ReceivedRequestCard({
 			<div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between">
 				<div className="flex min-w-0 items-start gap-3 sm:gap-3.5">
 					<ProfileLink isSpecialist={isSpecialist} id={senderId} className="shrink-0 rounded-lg">
-						<PersonAvatar id={senderId} name={name} />
+						<PersonAvatar id={senderId} name={name} role={isSpecialist ? "freelancer" : "client"} />
 					</ProfileLink>
 					<div className="min-w-0 space-y-1">
 						<div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -241,7 +241,7 @@ export function SentRequestCard({
 			<div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between">
 				<div className="flex min-w-0 items-start gap-3 sm:gap-3.5">
 					<ProfileLink isSpecialist={isSpecialist} id={receiverId} className="shrink-0 rounded-lg">
-						<PersonAvatar id={receiverId} name={name} />
+						<PersonAvatar id={receiverId} name={name} role={isSpecialist ? "freelancer" : "client"} />
 					</ProfileLink>
 					<div className="min-w-0 space-y-1">
 						<div className="flex flex-wrap items-center gap-1.5 sm:gap-2">

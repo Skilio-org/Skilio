@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Camera, CheckCircle2, Globe, ImageUp, MapPin, Users } from "lucide-react"
 import { type ComponentProps, FormEvent, useState } from "react"
 import { toast } from "sonner"
-import { type ClientProfilePublic, ClientProfilesService, UsersService } from "@/client"
+import { type ClientProfilePublic, ClientProfilesService } from "@/client"
 import { queryKeys } from "@/lib/query-keys"
 import {
 	Monogram,
@@ -107,7 +107,7 @@ export function ClientProfilePage() {
 	})
 
 	const displayName = fullName || profile?.full_name || user?.full_name || "Your name"
-	const avatarUrl = useAccountAvatarUrl(user?.id)
+	const avatarUrl = profile?.avatar_url || useAccountAvatarUrl(user?.id, "client")
 
 	// Returns the first problem with the form, or null when it is fine to save.
 	const validate = () => {
@@ -423,14 +423,19 @@ export function ClientProfilePage() {
 								if (!selectedPhoto || uploading || !user) return
 								setUploading(true)
 								try {
-									const response = await UsersService.uploadAvatar({
+									const response = await ClientProfilesService.profilesUploadClientAvatar({
 										body: { file: selectedPhoto },
 									})
 									if (response.data.status !== "Ok") throw new Error("Upload failed")
-									markAccountAvatarUpdated(user.id)
-									await queryClient.invalidateQueries({
-										queryKey: queryKeys.currentUser,
-									})
+									markAccountAvatarUpdated(user.id, "client")
+									await Promise.all([
+										queryClient.invalidateQueries({
+											queryKey: queryKeys.clientProfile,
+										}),
+										queryClient.invalidateQueries({
+											queryKey: queryKeys.currentUser,
+										}),
+									])
 									setPhotoUpdated(true)
 									setPhotoDialogOpen(false)
 									toast.success("Profile photo uploaded")

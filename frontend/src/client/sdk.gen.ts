@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { categoriesReadCategoriesData, categoriesReadCategoriesResponses, chatCheckMultipleUserPresenceData, chatCheckMultipleUserPresenceErrors, chatCheckMultipleUserPresenceResponses, chatCheckUserPresenceData, chatCheckUserPresenceErrors, chatCheckUserPresenceResponses, chatCreateOrGetConversationData, chatCreateOrGetConversationErrors, chatCreateOrGetConversationResponses, chatDeleteMessageData, chatDeleteMessageErrors, chatDeleteMessageResponses, chatGetConversationDetailsData, chatGetConversationDetailsErrors, chatGetConversationDetailsResponses, chatGetMyConversationsData, chatGetMyConversationsErrors, chatGetMyConversationsResponses, chatInjectEventData, chatInjectEventErrors, chatInjectEventResponses, chatSendMessageRestData, chatSendMessageRestErrors, chatSendMessageRestResponses, clientProfilesReadClientProfileByUserIdData, clientProfilesReadClientProfileByUserIdErrors, clientProfilesReadClientProfileByUserIdResponses, clientProfilesReadClientProfileData, clientProfilesReadClientProfileErrors, clientProfilesReadClientProfileMeData, clientProfilesReadClientProfileMeResponses, clientProfilesReadClientProfileResponses, clientProfilesUpdateClientProfileMeData, clientProfilesUpdateClientProfileMeErrors, clientProfilesUpdateClientProfileMeResponses, connectionsAcceptConnectionRequestData, connectionsAcceptConnectionRequestErrors, connectionsAcceptConnectionRequestResponses, connectionsDeclineConnectionRequestData, connectionsDeclineConnectionRequestErrors, connectionsDeclineConnectionRequestResponses, connectionsGetConnectionStatusData, connectionsGetConnectionStatusErrors, connectionsGetConnectionStatusResponses, connectionsListConnectionsData, connectionsListConnectionsErrors, connectionsListConnectionsResponses, connectionsListJobConnectionsData, connectionsListJobConnectionsErrors, connectionsListJobConnectionsResponses, connectionsRemoveConnectionData, connectionsRemoveConnectionErrors, connectionsRemoveConnectionResponses, connectionsSendConnectionRequestData, connectionsSendConnectionRequestErrors, connectionsSendConnectionRequestResponses, connectionsWithdrawConnectionRequestData, connectionsWithdrawConnectionRequestErrors, connectionsWithdrawConnectionRequestResponses, healthGetSystemHealthData, healthGetSystemHealthResponses, jobsCreateJobData, jobsCreateJobErrors, jobsCreateJobResponses, jobsCreateSavedJobData, jobsCreateSavedJobErrors, jobsCreateSavedJobResponses, jobsDeleteJobData, jobsDeleteJobErrors, jobsDeleteJobResponses, jobsDeleteSavedJobItemData, jobsDeleteSavedJobItemErrors, jobsDeleteSavedJobItemResponses, jobsReadJobData, jobsReadJobErrors, jobsReadJobResponses, jobsReadJobsData, jobsReadJobsErrors, jobsReadJobsResponses, jobsReadMyJobsData, jobsReadMyJobsErrors, jobsReadMyJobsResponses, jobsReadSavedJobItemData, jobsReadSavedJobItemErrors, jobsReadSavedJobItemResponses, jobsReadSavedJobsData, jobsReadSavedJobsErrors, jobsReadSavedJobsResponses, jobsSaveJobData, jobsSaveJobErrors, jobsSaveJobResponses, jobsUnsaveJobData, jobsUnsaveJobErrors, jobsUnsaveJobResponses, jobsUpdateJobData, jobsUpdateJobErrors, jobsUpdateJobResponses, loginGoogleCallbackData, loginGoogleCallbackErrors, loginGoogleCallbackResponses, loginLinkedinCallbackData, loginLinkedinCallbackErrors, loginLinkedinCallbackResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginGoogleData, loginLoginGoogleResponses, loginLoginLinkedinData, loginLoginLinkedinResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, monitoringMetricsData, monitoringMetricsResponses, notificationsGetMyNotificationsData, notificationsGetMyNotificationsResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, profilesCreateEducationData, profilesCreateEducationErrors, profilesCreateEducationResponses, profilesCreateExperienceData, profilesCreateExperienceErrors, profilesCreateExperienceResponses, profilesCreatePortfolioItemData, profilesCreatePortfolioItemErrors, profilesCreatePortfolioItemResponses, profilesCreateProfileData, profilesCreateProfileErrors, profilesCreateProfileResponses, profilesDeleteEducationData, profilesDeleteEducationErrors, profilesDeleteEducationResponses, profilesDeleteExperienceData, profilesDeleteExperienceErrors, profilesDeleteExperienceResponses, profilesDeletePortfolioItemData, profilesDeletePortfolioItemErrors, profilesDeletePortfolioItemResponses, profilesDeleteProfileData, profilesDeleteProfileErrors, profilesDeleteProfileResponses, profilesProxyPortfolioImageData, profilesProxyPortfolioImageErrors, profilesProxyPortfolioImageResponses, profilesProxyResumeData, profilesProxyResumeErrors, profilesProxyResumeResponses, profilesReadAvailabilityMeData, profilesReadAvailabilityMeResponses, profilesReadProfileByUserIdData, profilesReadProfileByUserIdErrors, profilesReadProfileByUserIdResponses, profilesReadProfileData, profilesReadProfileErrors, profilesReadProfileMeData, profilesReadProfileMeResponses, profilesReadProfileResponses, profilesReadProfilesData, profilesReadProfilesErrors, profilesReadProfilesResponses, profilesReadSavedProfilesData, profilesReadSavedProfilesErrors, profilesReadSavedProfilesResponses, profilesSaveProfileData, profilesSaveProfileErrors, profilesSaveProfileResponses, profilesUnsaveProfileData, profilesUnsaveProfileErrors, profilesUnsaveProfileResponses, profilesUpdateAvailabilityMeData, profilesUpdateAvailabilityMeErrors, profilesUpdateAvailabilityMeResponses, profilesUpdateEducationData, profilesUpdateEducationErrors, profilesUpdateEducationResponses, profilesUpdateExperienceData, profilesUpdateExperienceErrors, profilesUpdateExperienceResponses, profilesUpdatePortfolioItemData, profilesUpdatePortfolioItemErrors, profilesUpdatePortfolioItemResponses, profilesUpdateProfileData, profilesUpdateProfileErrors, profilesUpdateProfileMeData, profilesUpdateProfileMeErrors, profilesUpdateProfileMeResponses, profilesUpdateProfileResponses, profilesUploadPortfolioItemData, profilesUploadPortfolioItemErrors, profilesUploadPortfolioItemResponses, profilesUploadResumeData, profilesUploadResumeErrors, profilesUploadResumeResponses, proposalsReadMyProposalsData, proposalsReadMyProposalsErrors, proposalsReadMyProposalsResponses, proposalsReadProposalData, proposalsReadProposalErrors, proposalsReadProposalResponses, proposalsReadProposalsForJobData, proposalsReadProposalsForJobErrors, proposalsReadProposalsForJobResponses, proposalsSubmitProposalData, proposalsSubmitProposalErrors, proposalsSubmitProposalResponses, proposalsUpdateProposalData, proposalsUpdateProposalErrors, proposalsUpdateProposalResponses, proposalsUpdateProposalStatusData, proposalsUpdateProposalStatusErrors, proposalsUpdateProposalStatusResponses, proposalsWithdrawProposalData, proposalsWithdrawProposalErrors, proposalsWithdrawProposalResponses, reviewsCreateReviewData, reviewsCreateReviewErrors, reviewsCreateReviewResponses, reviewsDeleteReviewData, reviewsDeleteReviewErrors, reviewsDeleteReviewResponses, reviewsListReviewsForFreelancerData, reviewsListReviewsForFreelancerErrors, reviewsListReviewsForFreelancerResponses, reviewsReadReviewData, reviewsReadReviewErrors, reviewsReadReviewResponses, reviewsUpdateReviewData, reviewsUpdateReviewErrors, reviewsUpdateReviewResponses, searchesClearRecentSearchesData, searchesClearRecentSearchesResponses, searchesReadRecentSearchesData, searchesReadRecentSearchesResponses, searchesSaveRecentSearchData, searchesSaveRecentSearchErrors, searchesSaveRecentSearchResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersProxyMediaData, usersProxyMediaErrors, usersProxyMediaResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSwitchRoleData, usersSwitchRoleErrors, usersSwitchRoleResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, usersUploadAvatarData, usersUploadAvatarErrors, usersUploadAvatarResponses, usersVerifyEmailData, usersVerifyEmailErrors, usersVerifyEmailResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
+import type { categoriesReadCategoriesData, categoriesReadCategoriesResponses, chatCheckMultipleUserPresenceData, chatCheckMultipleUserPresenceErrors, chatCheckMultipleUserPresenceResponses, chatCheckUserPresenceData, chatCheckUserPresenceErrors, chatCheckUserPresenceResponses, chatCreateOrGetConversationData, chatCreateOrGetConversationErrors, chatCreateOrGetConversationResponses, chatDeleteMessageData, chatDeleteMessageErrors, chatDeleteMessageResponses, chatGetConversationDetailsData, chatGetConversationDetailsErrors, chatGetConversationDetailsResponses, chatGetMyConversationsData, chatGetMyConversationsErrors, chatGetMyConversationsResponses, chatInjectEventData, chatInjectEventErrors, chatInjectEventResponses, chatSendMessageRestData, chatSendMessageRestErrors, chatSendMessageRestResponses, clientProfilesReadClientProfileByUserIdData, clientProfilesReadClientProfileByUserIdErrors, clientProfilesReadClientProfileByUserIdResponses, clientProfilesReadClientProfileData, clientProfilesReadClientProfileErrors, clientProfilesReadClientProfileMeData, clientProfilesReadClientProfileMeResponses, clientProfilesReadClientProfileResponses, clientProfilesUpdateClientProfileMeData, clientProfilesUpdateClientProfileMeErrors, clientProfilesUpdateClientProfileMeResponses, clientProfilesUploadClientAvatarData, clientProfilesUploadClientAvatarErrors, clientProfilesUploadClientAvatarResponses, connectionsAcceptConnectionRequestData, connectionsAcceptConnectionRequestErrors, connectionsAcceptConnectionRequestResponses, connectionsDeclineConnectionRequestData, connectionsDeclineConnectionRequestErrors, connectionsDeclineConnectionRequestResponses, connectionsGetConnectionStatusData, connectionsGetConnectionStatusErrors, connectionsGetConnectionStatusResponses, connectionsListConnectionsData, connectionsListConnectionsErrors, connectionsListConnectionsResponses, connectionsListJobConnectionsData, connectionsListJobConnectionsErrors, connectionsListJobConnectionsResponses, connectionsRemoveConnectionData, connectionsRemoveConnectionErrors, connectionsRemoveConnectionResponses, connectionsSendConnectionRequestData, connectionsSendConnectionRequestErrors, connectionsSendConnectionRequestResponses, connectionsWithdrawConnectionRequestData, connectionsWithdrawConnectionRequestErrors, connectionsWithdrawConnectionRequestResponses, healthGetSystemHealthData, healthGetSystemHealthResponses, jobsCreateJobData, jobsCreateJobErrors, jobsCreateJobResponses, jobsCreateSavedJobData, jobsCreateSavedJobErrors, jobsCreateSavedJobResponses, jobsDeleteJobData, jobsDeleteJobErrors, jobsDeleteJobResponses, jobsDeleteSavedJobItemData, jobsDeleteSavedJobItemErrors, jobsDeleteSavedJobItemResponses, jobsReadJobData, jobsReadJobErrors, jobsReadJobResponses, jobsReadJobsData, jobsReadJobsErrors, jobsReadJobsResponses, jobsReadMyJobsData, jobsReadMyJobsErrors, jobsReadMyJobsResponses, jobsReadSavedJobItemData, jobsReadSavedJobItemErrors, jobsReadSavedJobItemResponses, jobsReadSavedJobsData, jobsReadSavedJobsErrors, jobsReadSavedJobsResponses, jobsSaveJobData, jobsSaveJobErrors, jobsSaveJobResponses, jobsUnsaveJobData, jobsUnsaveJobErrors, jobsUnsaveJobResponses, jobsUpdateJobData, jobsUpdateJobErrors, jobsUpdateJobResponses, loginGoogleCallbackData, loginGoogleCallbackErrors, loginGoogleCallbackResponses, loginLinkedinCallbackData, loginLinkedinCallbackErrors, loginLinkedinCallbackResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginGoogleData, loginLoginGoogleResponses, loginLoginLinkedinData, loginLoginLinkedinResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, monitoringMetricsData, monitoringMetricsResponses, notificationsGetMyNotificationsData, notificationsGetMyNotificationsResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, profilesCreateEducationData, profilesCreateEducationErrors, profilesCreateEducationResponses, profilesCreateExperienceData, profilesCreateExperienceErrors, profilesCreateExperienceResponses, profilesCreatePortfolioItemData, profilesCreatePortfolioItemErrors, profilesCreatePortfolioItemResponses, profilesCreateProfileData, profilesCreateProfileErrors, profilesCreateProfileResponses, profilesDeleteEducationData, profilesDeleteEducationErrors, profilesDeleteEducationResponses, profilesDeleteExperienceData, profilesDeleteExperienceErrors, profilesDeleteExperienceResponses, profilesDeletePortfolioItemData, profilesDeletePortfolioItemErrors, profilesDeletePortfolioItemResponses, profilesDeleteProfileData, profilesDeleteProfileErrors, profilesDeleteProfileResponses, profilesDeleteResumeData, profilesDeleteResumeMeData, profilesDeleteResumeMeResponses, profilesDeleteResumeResponses, profilesProxyMyResumeData, profilesProxyMyResumeResponses, profilesProxyPortfolioImageData, profilesProxyPortfolioImageErrors, profilesProxyPortfolioImageResponses, profilesProxyResumeData, profilesProxyResumeErrors, profilesProxyResumeResponses, profilesReadAvailabilityMeData, profilesReadAvailabilityMeResponses, profilesReadProfileByUserIdData, profilesReadProfileByUserIdErrors, profilesReadProfileByUserIdResponses, profilesReadProfileData, profilesReadProfileErrors, profilesReadProfileMeData, profilesReadProfileMeResponses, profilesReadProfileResponses, profilesReadProfilesData, profilesReadProfilesErrors, profilesReadProfilesResponses, profilesReadSavedProfilesData, profilesReadSavedProfilesErrors, profilesReadSavedProfilesResponses, profilesSaveProfileData, profilesSaveProfileErrors, profilesSaveProfileResponses, profilesUnsaveProfileData, profilesUnsaveProfileErrors, profilesUnsaveProfileResponses, profilesUpdateAvailabilityMeData, profilesUpdateAvailabilityMeErrors, profilesUpdateAvailabilityMeResponses, profilesUpdateEducationData, profilesUpdateEducationErrors, profilesUpdateEducationResponses, profilesUpdateExperienceData, profilesUpdateExperienceErrors, profilesUpdateExperienceResponses, profilesUpdatePortfolioItemData, profilesUpdatePortfolioItemErrors, profilesUpdatePortfolioItemResponses, profilesUpdateProfileData, profilesUpdateProfileErrors, profilesUpdateProfileMeData, profilesUpdateProfileMeErrors, profilesUpdateProfileMeResponses, profilesUpdateProfileResponses, profilesUploadFreelancerAvatarData, profilesUploadFreelancerAvatarErrors, profilesUploadFreelancerAvatarResponses, profilesUploadPortfolioItemData, profilesUploadPortfolioItemErrors, profilesUploadPortfolioItemResponses, profilesUploadResumeData, profilesUploadResumeErrors, profilesUploadResumeMeData, profilesUploadResumeMeErrors, profilesUploadResumeMeResponses, profilesUploadResumeResponses, proposalsReadMyProposalsData, proposalsReadMyProposalsErrors, proposalsReadMyProposalsResponses, proposalsReadProposalData, proposalsReadProposalErrors, proposalsReadProposalResponses, proposalsReadProposalsForJobData, proposalsReadProposalsForJobErrors, proposalsReadProposalsForJobResponses, proposalsSubmitProposalData, proposalsSubmitProposalErrors, proposalsSubmitProposalResponses, proposalsUpdateProposalData, proposalsUpdateProposalErrors, proposalsUpdateProposalResponses, proposalsUpdateProposalStatusData, proposalsUpdateProposalStatusErrors, proposalsUpdateProposalStatusResponses, proposalsWithdrawProposalData, proposalsWithdrawProposalErrors, proposalsWithdrawProposalResponses, reviewsCreateReviewData, reviewsCreateReviewErrors, reviewsCreateReviewResponses, reviewsDeleteReviewData, reviewsDeleteReviewErrors, reviewsDeleteReviewResponses, reviewsListReviewsForFreelancerData, reviewsListReviewsForFreelancerErrors, reviewsListReviewsForFreelancerResponses, reviewsReadReviewData, reviewsReadReviewErrors, reviewsReadReviewResponses, reviewsUpdateReviewData, reviewsUpdateReviewErrors, reviewsUpdateReviewResponses, searchesClearRecentSearchesData, searchesClearRecentSearchesResponses, searchesReadRecentSearchesData, searchesReadRecentSearchesResponses, searchesSaveRecentSearchData, searchesSaveRecentSearchErrors, searchesSaveRecentSearchResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersProxyMediaData, usersProxyMediaErrors, usersProxyMediaResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSwitchRoleData, usersSwitchRoleErrors, usersSwitchRoleResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, usersUploadAvatarData, usersUploadAvatarErrors, usersUploadAvatarResponses, usersVerifyEmailData, usersVerifyEmailErrors, usersVerifyEmailResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -219,7 +219,7 @@ export class UsersService {
     /**
      * Proxy Media
      *
-     * Gets the user's avatar using his uuid.
+     * Gets the user's avatar using his uuid, optionally for a specific profile role.
      */
     public static proxyMedia<ThrowOnError extends boolean = true>(options: Options<usersProxyMediaData, ThrowOnError>) {
         return (options.client ?? client).get<usersProxyMediaResponses, usersProxyMediaErrors, ThrowOnError>({
@@ -626,11 +626,91 @@ export class ProfilesService {
     }
     
     /**
+     * Upload Freelancer Avatar
+     *
+     * Upload avatar for the current user's freelancer profile.
+     */
+    public static uploadFreelancerAvatar<ThrowOnError extends boolean = true>(options: Options<profilesUploadFreelancerAvatarData, ThrowOnError>) {
+        return (options.client ?? client).post<profilesUploadFreelancerAvatarResponses, profilesUploadFreelancerAvatarErrors, ThrowOnError>({
+            ...formDataBodySerializer,
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/profiles/me/avatar',
+            ...options,
+            headers: {
+                'Content-Type': null,
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Delete Resume
+     *
+     * Delete current user's freelancer resume.
+     */
+    public static profilesDeleteResumeMe<ThrowOnError extends boolean = true>(options?: Options<profilesDeleteResumeMeData, ThrowOnError>) {
+        return (options?.client ?? client).delete<profilesDeleteResumeMeResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/profiles/me/resume',
+            ...options
+        });
+    }
+    
+    /**
+     * Proxy My Resume
+     *
+     * Gets the current user's resume.
+     */
+    public static proxyMyResume<ThrowOnError extends boolean = true>(options?: Options<profilesProxyMyResumeData, ThrowOnError>) {
+        return (options?.client ?? client).get<profilesProxyMyResumeResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/profiles/me/resume',
+            ...options
+        });
+    }
+    
+    /**
      * Upload Resume
      *
-     * Uploads resume asynchronously without blocking the event loop.
+     * Upload resume (PDF or DOCX, max 5MB) to the freelancer profile via Cloudinary.
      */
-    public static uploadResume<ThrowOnError extends boolean = true>(options: Options<profilesUploadResumeData, ThrowOnError>) {
+    public static profilesUploadResumeMe<ThrowOnError extends boolean = true>(options: Options<profilesUploadResumeMeData, ThrowOnError>) {
+        return (options.client ?? client).post<profilesUploadResumeMeResponses, profilesUploadResumeMeErrors, ThrowOnError>({
+            ...formDataBodySerializer,
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/profiles/me/resume',
+            ...options,
+            headers: {
+                'Content-Type': null,
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Delete Resume
+     *
+     * Delete current user's freelancer resume.
+     */
+    public static profilesDeleteResume<ThrowOnError extends boolean = true>(options?: Options<profilesDeleteResumeData, ThrowOnError>) {
+        return (options?.client ?? client).delete<profilesDeleteResumeResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/profiles/resume',
+            ...options
+        });
+    }
+    
+    /**
+     * Upload Resume
+     *
+     * Upload resume (PDF or DOCX, max 5MB) to the freelancer profile via Cloudinary.
+     */
+    public static profilesUploadResume<ThrowOnError extends boolean = true>(options: Options<profilesUploadResumeData, ThrowOnError>) {
         return (options.client ?? client).post<profilesUploadResumeResponses, profilesUploadResumeErrors, ThrowOnError>({
             ...formDataBodySerializer,
             responseType: 'json',
@@ -647,7 +727,7 @@ export class ProfilesService {
     /**
      * Proxy Resume
      *
-     * Gets the user's resume using his uuid.
+     * Gets the user's resume using user UUID or profile UUID.
      */
     public static proxyResume<ThrowOnError extends boolean = true>(options: Options<profilesProxyResumeData, ThrowOnError>) {
         return (options.client ?? client).get<profilesProxyResumeResponses, profilesProxyResumeErrors, ThrowOnError>({
@@ -846,6 +926,25 @@ export class ProfilesService {
 }
 
 export class ClientProfilesService {
+    /**
+     * Upload Client Avatar
+     *
+     * Upload avatar for the current user's client profile.
+     */
+    public static profilesUploadClientAvatar<ThrowOnError extends boolean = true>(options: Options<clientProfilesUploadClientAvatarData, ThrowOnError>) {
+        return (options.client ?? client).post<clientProfilesUploadClientAvatarResponses, clientProfilesUploadClientAvatarErrors, ThrowOnError>({
+            ...formDataBodySerializer,
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/client-profiles/me/avatar',
+            ...options,
+            headers: {
+                'Content-Type': null,
+                ...options.headers
+            }
+        });
+    }
+    
     /**
      * Read Client Profile Me
      *

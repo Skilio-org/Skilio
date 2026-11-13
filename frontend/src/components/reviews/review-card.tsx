@@ -46,7 +46,7 @@ export function ReviewCard({ review, isOwnReview = false, onEdit, onDelete }: Re
 			<div className="flex flex-wrap items-start justify-between gap-3 min-w-0">
 				<div className="flex items-start justify-start gap-3 min-w-0 flex-1">
 					<img
-						src={accountAvatarUrl(review.client_id)}
+						src={accountAvatarUrl(review.client_id, "", "client")}
 						alt=""
 						className={cn(
 							"size-12 shrink-0 place-items-center border font-label-sm font-semibold shadow-2xs rounded",

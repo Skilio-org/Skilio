@@ -36,7 +36,7 @@ export function profileFormFromApi(initial: FreelancerProfileDetailPublic): Prof
 		name: initial.full_name ?? initial.user?.full_name ?? "",
 		title: initial.title ?? "",
 		location: initial.location ?? "",
-		photo: accountAvatarUrl(initial.user_id),
+		photo: initial.avatar_url || accountAvatarUrl(initial.user_id, "", "freelancer"),
 		category: initial.category ?? "",
 		skills: initial.skills ?? [],
 		bio: initial.bio ?? "",

@@ -72,7 +72,7 @@ export const ConversationListItem = memo(function ConversationListItem({
 			{active && <span className="absolute left-0 top-3 bottom-3 w-[5px] rounded-ee rounded-se bg-primary" />}
 			<div className="relative mt-0.5 shrink-0">
 				<img
-					src={accountAvatarUrl(person.user_id)}
+					src={person.avatar_url || accountAvatarUrl(person.user_id, "", conversation.other_user_role)}
 					alt=""
 					className={cn(
 						"grid size-12 place-items-center rounded-sm border font-label-sm font-semibold shadow-2xs transition-transform group-hover:scale-105",
