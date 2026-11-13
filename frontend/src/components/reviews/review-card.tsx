@@ -1,5 +1,6 @@
 import { StarRatingDisplay } from "./review-stars"
 import type { ReviewPublic } from "@/client"
+import { LoadingImage } from "@/components/common/loading-image"
 // import { Monogram } from "@/components/dashboard/dashboard-header"
 // import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -45,7 +46,7 @@ export function ReviewCard({ review, isOwnReview = false, onEdit, onDelete }: Re
 		>
 			<div className="flex flex-wrap items-start justify-between gap-3 min-w-0">
 				<div className="flex items-start justify-start gap-3 min-w-0 flex-1">
-					<img
+					<LoadingImage
 						src={accountAvatarUrl(review.client_id, "", "client")}
 						alt=""
 						className={cn(

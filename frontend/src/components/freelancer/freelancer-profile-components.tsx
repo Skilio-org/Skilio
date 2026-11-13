@@ -1,6 +1,7 @@
 import { ImagePlus } from "lucide-react"
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
+import { LoadingImage } from "@/components/common/loading-image"
 import {
 	type ProfileEntryForm,
 	fieldClass,
@@ -17,7 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 export function Avatar({ profile, size = "size-20 text-2xl" }: { profile: ProfileForm; size?: string }) {
 	const [failedPhoto, setFailedPhoto] = useState("")
 	return profile.photo && failedPhoto !== profile.photo ? (
-		<img
+		<LoadingImage
 			className={`${size.split(" ")[0]} shrink-0 rounded-full object-cover`}
 			src={profile.photo}
 			onError={() => setFailedPhoto(profile.photo)}
@@ -161,13 +162,19 @@ export function EntryDialog({
 	kind: string
 	entry: ProfileEntryForm
 	close: () => void
-	save: (e: ProfileEntryForm, image?: File, signal?: AbortSignal) => Promise<boolean>
+	save: (
+		e: ProfileEntryForm,
+		image?: File,
+		signal?: AbortSignal,
+		onProgress?: (percent: number) => void,
+	) => Promise<boolean>
 }) {
 	const text = copy[kind as keyof typeof copy] ?? copy.experience
 	const isPortfolio = kind === "portfolio"
 	const [value, setValue] = useState(entry)
 	const [image, setImage] = useState<File | null>(null)
 	const [busy, setBusy] = useState(false)
+	const [progress, setProgress] = useState(0)
 	const preview = useMemo(() => (image ? URL.createObjectURL(image) : null), [image])
 	useEffect(
 		() => () => {
@@ -207,7 +214,7 @@ export function EntryDialog({
 					<DialogDescription>{text.description}</DialogDescription>
 				</DialogHeader>
 				<form
-					className="space-y-5"
+					className="min-w-0 space-y-5"
 					onSubmit={async (e) => {
 						e.preventDefault()
 						if (busy) return
@@ -216,6 +223,7 @@ export function EntryDialog({
 							toast.error(problem)
 							return
 						}
+						setProgress(0)
 						setBusy(true)
 						const controller = new AbortController()
 						abortRef.current = controller
@@ -224,7 +232,12 @@ export function EntryDialog({
 							timedOut = true
 							controller.abort()
 						}, uploadTimeoutMs)
-						const saved = await save({ ...value, title: value.title.trim() }, image ?? undefined, controller.signal)
+						const saved = await save(
+							{ ...value, title: value.title.trim() },
+							image ?? undefined,
+							controller.signal,
+							setProgress,
+						)
 						clearTimeout(timer)
 						abortRef.current = null
 						if (!saved) {
@@ -241,7 +254,18 @@ export function EntryDialog({
 								</span>
 								{shownImage ? (
 									<div className="mt-2 overflow-hidden rounded-lg border border-outline-variant">
-										<img src={shownImage} alt="" className="aspect-video w-full object-cover" />
+										<LoadingImage src={shownImage} alt="" className="aspect-video w-full object-cover" />
+										{busy && image && (
+											<div
+												className="h-1.5 w-full bg-surface-container"
+												role="progressbar"
+												aria-valuenow={progress}
+												aria-valuemin={0}
+												aria-valuemax={100}
+											>
+												<div className="h-full bg-primary transition-[width]" style={{ width: `${progress}%` }} />
+											</div>
+										)}
 										<div className="flex items-center justify-between gap-3 border-outline-variant border-t bg-surface-container-low/50 px-3 py-2">
 											<span className="truncate text-on-surface-variant text-xs">
 												{image ? image.name : "Current image"}
@@ -344,7 +368,7 @@ export function EntryDialog({
 							{busy ? "Cancel upload" : "Cancel"}
 						</button>
 						<button className={primary} type="submit" disabled={busy}>
-							{busy ? (image ? "Uploading…" : "Saving…") : "Save"}
+							{busy ? (image ? `Uploading… ${progress}%` : "Saving…") : "Save"}
 						</button>
 					</div>
 				</form>

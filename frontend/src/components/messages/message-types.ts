@@ -1,4 +1,4 @@
-export type InboxFilter = "all" | "unread" | "archived"
+export type InboxFilter = "all" | "unread"
 type ClientTheme = {
 	bg: string
 	text: string

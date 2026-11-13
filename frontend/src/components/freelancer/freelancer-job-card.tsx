@@ -135,7 +135,7 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 									setDetailsOpen(true)
 								}}
 								aria-haspopup="dialog"
-								className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover dark:bg-on-surface dark:font-semibold dark:text-background dark:hover:bg-white"
+								className="h-8 rounded-lg bg-primary px-3.5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover"
 							>
 								Apply now
 							</button>
