@@ -2,17 +2,23 @@ import { FileText, Trash2, Upload } from "lucide-react"
 import { useRef } from "react"
 import { secondary } from "@/components/freelancer/freelancer-profile-model"
 
+const formatFileSize = (bytes: number) =>
+	bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+
 // The "CV" box on the profile: upload a PDF or DOCX, replace it, or remove it.
 export function ProfileCvUpload({
 	hasCv,
 	uploading,
 	progress,
+	file,
 	onPick,
 	onRemove,
 }: {
 	hasCv: boolean
 	uploading: boolean
 	progress: number
+	// The file picked in this session, if any. After a page reload only the fact that a CV exists is known.
+	file?: File | null
 	onPick: (file?: File) => void
 	onRemove: () => void
 }) {
@@ -45,7 +51,7 @@ export function ProfileCvUpload({
 			{uploading ? (
 				<div className="rounded-lg border border-outline-variant px-4 py-4" role="status">
 					<div className="flex items-center justify-between text-sm">
-						<span>Uploading your CV…</span>
+						<span className="min-w-0 truncate">Uploading {file ? file.name : "your CV"}…</span>
 						<span className="tabular-nums">{progress}%</span>
 					</div>
 					<div
@@ -61,7 +67,10 @@ export function ProfileCvUpload({
 			) : hasCv ? (
 				<div className="flex items-center gap-3 rounded-lg border border-outline-variant px-4 py-3">
 					<FileText className="size-5 shrink-0 text-on-surface-variant" />
-					<span className="min-w-0 flex-1 truncate font-medium text-on-surface text-sm">Your CV is uploaded</span>
+					<span className="min-w-0 flex-1 truncate font-medium text-on-surface text-sm">
+						{file ? file.name : "Your CV is uploaded"}
+					</span>
+					{file && <span className="shrink-0 text-on-surface-variant text-xs">{formatFileSize(file.size)}</span>}
 					<button
 						type="button"
 						className="grid size-9 shrink-0 place-items-center rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-destructive"

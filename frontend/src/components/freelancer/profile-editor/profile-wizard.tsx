@@ -34,6 +34,7 @@ export function ProfileWizard({
 	categoriesLoading,
 	uploading,
 	uploadProgress,
+	photoPreview,
 	cv,
 	onStepChange,
 	onPhotoChange,
@@ -51,6 +52,7 @@ export function ProfileWizard({
 	categoriesLoading: boolean
 	uploading: boolean
 	uploadProgress: number
+	photoPreview: string | null
 	cv: ComponentProps<typeof ProfileCvUpload>
 	onStepChange: (step: number) => void
 	onPhotoChange: (file?: File) => void
@@ -104,6 +106,7 @@ export function ProfileWizard({
 							update={update}
 							uploading={uploading}
 							uploadProgress={uploadProgress}
+							photoPreview={photoPreview}
 							onPhotoChange={onPhotoChange}
 						/>
 					)}

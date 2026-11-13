@@ -48,6 +48,8 @@ export function ClientProfilePage() {
 	const [photoUpdated, setPhotoUpdated] = useState(false)
 	const [uploading, setUploading] = useState(false)
 	const [uploadProgress, setUploadProgress] = useState(0)
+	// A local copy of the picked image, shown while it uploads so the user sees what they chose.
+	const [photoPreview, setPhotoPreview] = useState<string | null>(null)
 	const [avatarFailed, setAvatarFailed] = useState(false)
 
 	const { data: profile, isLoading } = useQuery<ClientProfilePublic>({
@@ -136,6 +138,8 @@ export function ClientProfilePage() {
 			toast.error("Choose an image under 5 MB.")
 			return
 		}
+		const previewUrl = URL.createObjectURL(file)
+		setPhotoPreview(previewUrl)
 		setUploadProgress(0)
 		setUploading(true)
 		try {
@@ -155,6 +159,8 @@ export function ClientProfilePage() {
 		} catch {
 			toast.error("Couldn’t upload your photo. Please try again.")
 		} finally {
+			setPhotoPreview(null)
+			URL.revokeObjectURL(previewUrl)
 			setUploading(false)
 		}
 	}
@@ -198,9 +204,9 @@ export function ClientProfilePage() {
 				>
 					<div className="flex flex-col gap-5 border-outline-variant border-b pb-8 sm:flex-row sm:items-center">
 						<Monogram className="relative size-24 bg-brand-100 text-2xl text-brand-800">
-							{avatarUrl && !avatarFailed ? (
+							{photoPreview || (avatarUrl && !avatarFailed) ? (
 								<LoadingImage
-									src={avatarUrl}
+									src={photoPreview ?? avatarUrl ?? ""}
 									alt={displayName}
 									className="absolute inset-0 size-full rounded-lg object-cover"
 									onError={() => setAvatarFailed(true)}

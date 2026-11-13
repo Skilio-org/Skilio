@@ -48,11 +48,14 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	const [saving, setSaving] = useState(false)
 	const [uploading, setUploading] = useState(false)
 	const [uploadProgress, setUploadProgress] = useState(0)
+	// A local copy of the picked photo, shown while it uploads.
+	const [photoPreview, setPhotoPreview] = useState<string | null>(null)
 
 	// The CV is a PDF or DOCX stored on the server. Here we only need to know whether one exists.
 	const [hasCv, setHasCv] = useState(Boolean(initial.resume_url))
 	const [cvUploading, setCvUploading] = useState(false)
 	const [cvProgress, setCvProgress] = useState(0)
+	const [cvFile, setCvFile] = useState<File | null>(null)
 	const [removeCvOpen, setRemoveCvOpen] = useState(false)
 	const [cvRemoving, setCvRemoving] = useState(false)
 	const saveLock = useRef(false)
@@ -153,6 +156,8 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			toast.error("Choose a JPG, PNG or WebP image under 5 MB.")
 			return
 		}
+		const previewUrl = URL.createObjectURL(file)
+		setPhotoPreview(previewUrl)
 		setUploadProgress(0)
 		setUploading(true)
 		try {
@@ -171,6 +176,8 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 		} catch {
 			toast.error("This image couldn’t be uploaded. Try again.")
 		} finally {
+			setPhotoPreview(null)
+			URL.revokeObjectURL(previewUrl)
 			setUploading(false)
 		}
 	}
@@ -187,6 +194,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			return
 		}
 		setCvProgress(0)
+		setCvFile(file)
 		setCvUploading(true)
 		try {
 			await ProfilesService.profilesUploadResumeMe({
@@ -196,6 +204,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			setHasCv(true)
 			toast.success("CV uploaded")
 		} catch {
+			setCvFile(null)
 			toast.error("This CV couldn’t be uploaded. Try again.")
 		} finally {
 			setCvUploading(false)
@@ -208,6 +217,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 		try {
 			await ProfilesService.profilesDeleteResumeMe()
 			setHasCv(false)
+			setCvFile(null)
 			setRemoveCvOpen(false)
 			toast.success("CV removed")
 		} catch {
@@ -366,8 +376,10 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 					categoriesLoading={categoriesLoading}
 					uploading={uploading}
 					uploadProgress={uploadProgress}
+					photoPreview={photoPreview}
 					cv={{
 						hasCv,
+						file: cvFile,
 						uploading: cvUploading,
 						progress: cvProgress,
 						onPick: (file) => void uploadCv(file),

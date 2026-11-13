@@ -86,12 +86,12 @@ export function ReviewModal({
 
 	return (
 		<Dialog open={open} onOpenChange={(val) => !isSubmitting && onOpenChange(val)}>
-			<DialogContent className="sm:max-w-md overflow-hidden">
+			<DialogContent className="sm:max-w-md">
 				<DialogHeader className="gap-1 min-w-0">
 					<DialogTitle className="font-display font-semibold text-xl tracking-tight">
 						{isEditing ? "Edit your review" : "Rate this freelancer"}
 					</DialogTitle>
-					<DialogDescription className="text-on-surface-variant text-sm">
+					<DialogDescription className="break-words text-on-surface-variant text-sm">
 						{isEditing
 							? `Update your rating and feedback for ${freelancerName}.`
 							: `Share your experience working with ${freelancerName} to help the community.`}

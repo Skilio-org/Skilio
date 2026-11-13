@@ -19,15 +19,21 @@ export function BasicsStep({
 	update,
 	uploading,
 	uploadProgress,
+	photoPreview,
 	onPhotoChange,
-}: StepProps & { uploading: boolean; uploadProgress: number; onPhotoChange: (file?: File) => void }) {
+}: StepProps & {
+	uploading: boolean
+	uploadProgress: number
+	photoPreview: string | null
+	onPhotoChange: (file?: File) => void
+}) {
 	const photoInput = useRef<HTMLInputElement>(null)
 
 	return (
 		<>
 			<div className="flex items-center gap-4">
 				<div className="relative">
-					<Avatar profile={profile} size="size-16 text-xl" />
+					<Avatar profile={photoPreview ? { ...profile, photo: photoPreview } : profile} size="size-16 text-xl" />
 					{uploading && (
 						<span className="absolute inset-0 grid place-items-center rounded-full bg-background/70" role="status">
 							<span className="font-semibold text-foreground text-xs tabular-nums">{uploadProgress}%</span>

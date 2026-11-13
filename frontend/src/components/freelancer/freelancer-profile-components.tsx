@@ -214,7 +214,7 @@ export function EntryDialog({
 					<DialogDescription>{text.description}</DialogDescription>
 				</DialogHeader>
 				<form
-					className="space-y-5"
+					className="min-w-0 space-y-5"
 					onSubmit={async (e) => {
 						e.preventDefault()
 						if (busy) return
