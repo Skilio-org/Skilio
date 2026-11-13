@@ -1,4 +1,4 @@
-import { Archive, MessageSquare, Search, X } from "lucide-react"
+import { MessageSquare, Search, X } from "lucide-react"
 import { memo, useCallback, useRef } from "react"
 import { getClientTheme } from "@/components/messages/message-types"
 import type { InboxFilter } from "@/components/messages/message-types"
@@ -8,6 +8,7 @@ import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "
 import { createFallbackProfile } from "@/hooks/useProfiles"
 import type { ConversationPublic, ConversationsPublic, UserPublic } from "@/client"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
+import { LoadingImage } from "@/components/common/loading-image"
 
 export type ConversationListItemProps = {
 	conversation: ConversationPublic
@@ -71,7 +72,7 @@ export const ConversationListItem = memo(function ConversationListItem({
 		>
 			{active && <span className="absolute left-0 top-3 bottom-3 w-[5px] rounded-ee rounded-se bg-primary" />}
 			<div className="relative mt-0.5 shrink-0">
-				<img
+				<LoadingImage
 					src={person.avatar_url || accountAvatarUrl(person.user_id, "", conversation.other_user_role)}
 					alt=""
 					className={cn(
@@ -210,7 +211,7 @@ export function ConversationList({
 								className={cn(
 									"relative flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md px-2 font-label-sm font-medium text-label-sm transition-all duration-150",
 									active
-										? "bg-primary text-primary-foreground shadow-sm dark:bg-on-surface dark:text-background"
+										? "bg-primary text-on-primary"
 										: "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
 								)}
 							>
@@ -221,7 +222,7 @@ export function ConversationList({
 										className={cn(
 											"min-w-5 rounded px-1.5 py-0.5 text-center font-caption font-bold text-[10px] leading-none",
 											active
-												? "bg-primary-foreground/15 text-primary-foreground dark:bg-background/10 dark:text-background"
+												? "bg-on-primary/15 text-on-primary"
 												: "bg-surface-container-high text-on-surface-variant",
 										)}
 									>
@@ -257,9 +258,7 @@ export function ConversationList({
 				{conversations?.count === 0 && (
 					<div className="px-4 py-12 text-center">
 						<span className="mx-auto grid size-12 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-on-surface-variant">
-							{filter === "archived" ? (
-								<Archive className="size-5" />
-							) : query ? (
+							{query ? (
 								<Search className="size-5" />
 							) : (
 								<MessageSquare className="size-5" />
@@ -270,8 +269,6 @@ export function ConversationList({
 								? "No matching conversations"
 								: filter === "unread"
 									? "You're all caught up"
-									: filter === "archived"
-										? "Nothing archived yet"
 										: "No conversations yet"}
 						</h3>
 						<p className="mt-1.5 font-body-sm text-body-sm text-on-surface-variant">
@@ -279,8 +276,6 @@ export function ConversationList({
 								? "Try a different name, skill, or message."
 								: filter === "unread"
 									? "New messages will appear here."
-									: filter === "archived"
-										? "Conversations you archive will live here."
 										: "Start a conversation from a connection or a profile."}
 						</p>
 						{(query || filter !== "all") && (

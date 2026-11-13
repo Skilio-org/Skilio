@@ -109,7 +109,7 @@ export const JobDetails = ({
 		}
 	}
 	const primary =
-		"flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container dark:bg-on-surface dark:text-background dark:hover:bg-white"
+		"flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover"
 	return (
 		<div className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest text-on-surface">
 			<div className="grid min-h-full md:grid-cols-[minmax(0,1fr)_260px]">
@@ -239,7 +239,7 @@ export const JobDetails = ({
 											type="button"
 											disabled={cover.trim().length < 40 || cover.length > 5000}
 											onClick={handleApplyNow}
-											className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container disabled:opacity-50 dark:bg-on-surface dark:text-background dark:hover:bg-white"
+											className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover disabled:opacity-50"
 										>
 											<Send className="size-4" />
 											Apply now

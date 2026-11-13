@@ -1,7 +1,7 @@
 import { ArrowRight, Check, Star } from "lucide-react"
 import { Avatar } from "@/components/freelancer/freelancer-profile-components"
 import { descriptions, type ProfileForm, primary, steps } from "@/components/freelancer/freelancer-profile-model"
-import { type ProfileProgress, requiredSteps } from "@/components/freelancer/profile-editor/profile-form"
+import type { ProfileProgress } from "@/components/freelancer/profile-editor/profile-form"
 
 const SECTION_COUNT = 6
 
@@ -33,9 +33,6 @@ function SectionList({ progress: { done, nextStep, summaries }, onEdit }: { prog
 									{done[i] && summaries[i] ? summaries[i] : descriptions[i]}
 								</span>
 							</span>
-							<span className="hidden shrink-0 text-on-surface-variant text-xs sm:inline">
-								{done[i] ? "" : requiredSteps.includes(i) ? "Required" : "Optional"}
-							</span>
 							<ArrowRight className="size-4 shrink-0 text-on-surface-variant transition-transform group-hover:translate-x-0.5" />
 						</button>
 					</li>
@@ -59,14 +56,14 @@ function StatusCard({ profile, nextStep, onEdit }: { profile: ProfileForm; nextS
 			<p className="mt-4 border-outline-variant border-t pt-4 text-on-surface-variant text-sm">
 				{profile.finished
 					? "Your profile is published. Clients can find you and send messages."
-					: "Your profile is not published yet. Only you can see it."}
+					: "Your profile is not published yet. It goes live once the required sections are complete."}
 			</p>
 			<button
 				type="button"
 				className={`${primary} mt-4 w-full`}
 				onClick={() => onEdit(nextStep === -1 ? reviewStep : nextStep)}
 			>
-				{nextStep === -1 ? (profile.finished ? "Review profile" : "Publish profile") : "Continue setup"}
+				{nextStep === -1 ? "Review profile" : "Continue setup"}
 				<ArrowRight className="size-4" />
 			</button>
 		</section>

@@ -433,7 +433,6 @@ export function MessagesPage({
 						presencePending={presencePending}
 						messages={detailsQuery.data?.messages ?? []}
 						draft={draft}
-						archived={false}
 						onBack={() => {
 							onSelectContact("");
 						}}
