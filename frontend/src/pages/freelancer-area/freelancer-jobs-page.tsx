@@ -43,42 +43,34 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 	const [searchResetKey, setSearchResetKey] = useState(0)
 	const budgetType = types.length === 1 ? (types[0] === "Hourly" ? "hourly" : "fixed") : undefined
 	const sortBy = sort === "budget" ? "budget_desc" : "newest"
-	const {
-		data,
-		isPending,
-		isError,
-		errorUpdatedAt,
-		refetch,
-		hasNextPage,
-		fetchNextPage,
-		isFetchingNextPage,
-	} = useInfiniteQuery({
-		queryKey: [...queryKeys.freelancerJobs, search, category, budgetType, hourlyRate, location, sortBy],
-		initialPageParam: 0,
-		queryFn: async ({ pageParam, signal }) => {
-			const { data } = await JobsService.readJobs({
-				query: {
-					skip: pageParam,
-					limit: 100,
-					q: search,
-					category: category === "all" ? undefined : category,
-					budget_type: budgetType,
-					location: location || undefined,
-					min_budget: hourlyRate[0] || undefined,
-					max_budget: hourlyRate[1] === RATE_FILTER_MAX ? undefined : hourlyRate[1],
-					status: "open",
-					sort_by: sortBy,
-				},
-				signal,
-			})
-			return data
-		},
-		getNextPageParam: (lastPage, pages) => {
-			if (lastPage.data.length === 0) return undefined
-			const loaded = pages.reduce((count, page) => count + page.data.length, 0)
-			return loaded < lastPage.count ? loaded : undefined
-		},
-	})
+	const { data, isPending, isError, errorUpdatedAt, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
+		useInfiniteQuery({
+			queryKey: [...queryKeys.freelancerJobs, search, category, budgetType, hourlyRate, location, sortBy],
+			initialPageParam: 0,
+			queryFn: async ({ pageParam, signal }) => {
+				const { data } = await JobsService.readJobs({
+					query: {
+						skip: pageParam,
+						limit: 100,
+						q: search,
+						category: category === "all" ? undefined : category,
+						budget_type: budgetType,
+						location: location || undefined,
+						min_budget: hourlyRate[0] || undefined,
+						max_budget: hourlyRate[1] === RATE_FILTER_MAX ? undefined : hourlyRate[1],
+						status: "open",
+						sort_by: sortBy,
+					},
+					signal,
+				})
+				return data
+			},
+			getNextPageParam: (lastPage, pages) => {
+				if (lastPage.data.length === 0) return undefined
+				const loaded = pages.reduce((count, page) => count + page.data.length, 0)
+				return loaded < lastPage.count ? loaded : undefined
+			},
+		})
 	useErrorToast(isError ? "Could not load opportunities." : undefined, "freelancer-jobs-load", errorUpdatedAt, refetch)
 	const jobs = data?.pages.flatMap((page) => page.data.map(jobFromApi)) ?? []
 
@@ -258,9 +250,7 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 				<div className="mb-4 flex items-center justify-between">
 					<span className="font-medium text-label-sm">Hourly rate</span>
 
-					<span className="text-caption text-outline">
-						{formatRateRange(hourlyRate[0], hourlyRate[1])}
-					</span>
+					<span className="text-caption text-outline">{formatRateRange(hourlyRate[0], hourlyRate[1])}</span>
 				</div>
 
 				<Slider
@@ -454,7 +444,11 @@ export default function FreelancerJobsPage({ initialQuery = "" }: { initialQuery
 					<div className="p-5">
 						{filters()}
 
-						<button type="button" onClick={() => setFiltersOpen(false)} className={`${workspaceStyles.primaryAction} mt-6 w-full`}>
+						<button
+							type="button"
+							onClick={() => setFiltersOpen(false)}
+							className={`${workspaceStyles.primaryAction} mt-6 w-full`}
+						>
 							Show {filtered.length} {filtered.length === 1 ? "opportunity" : "opportunities"}
 						</button>
 					</div>

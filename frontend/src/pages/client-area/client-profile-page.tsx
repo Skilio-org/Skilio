@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Camera, CheckCircle2, Globe, MapPin, Users } from "lucide-react"
-import { type ComponentProps, FormEvent, useRef, useState } from "react"
+import { type ComponentProps, FormEvent, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { type ClientProfilePublic, ClientProfilesService } from "@/client"
 import { queryKeys } from "@/lib/query-keys"
@@ -48,8 +48,15 @@ export function ClientProfilePage() {
 	const [photoUpdated, setPhotoUpdated] = useState(false)
 	const [uploading, setUploading] = useState(false)
 	const [uploadProgress, setUploadProgress] = useState(0)
-	// A local copy of the picked image, shown while it uploads so the user sees what they chose.
-	const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+	// The picked photo is only shown at first. It is uploaded when the user clicks "Save profile".
+	const [pendingPhoto, setPendingPhoto] = useState<File | null>(null)
+	const photoPreview = useMemo(() => (pendingPhoto ? URL.createObjectURL(pendingPhoto) : null), [pendingPhoto])
+	useEffect(
+		() => () => {
+			if (photoPreview) URL.revokeObjectURL(photoPreview)
+		},
+		[photoPreview],
+	)
 	const [avatarFailed, setAvatarFailed] = useState(false)
 
 	const { data: profile, isLoading } = useQuery<ClientProfilePublic>({
@@ -117,19 +124,20 @@ export function ClientProfilePage() {
 		return null
 	}
 
-	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		const problem = validate()
 		if (problem) {
 			toast.error(problem)
 			return
 		}
+		if (pendingPhoto && !(await uploadPhoto(pendingPhoto))) return
 		updateMutation.mutate()
 	}
 
-	// Called when a file is picked: checks it, then uploads it straight away.
-	const uploadPhoto = async (file?: File) => {
-		if (!file || uploading || !user) return
+	// Called when a file is picked: checks it and shows it, but does not upload it yet.
+	const pickPhoto = (file?: File) => {
+		if (!file) return
 		if (!["image/jpeg", "image/png"].includes(file.type)) {
 			toast.error("Choose a JPG or PNG image.")
 			return
@@ -138,8 +146,12 @@ export function ClientProfilePage() {
 			toast.error("Choose an image under 5 MB.")
 			return
 		}
-		const previewUrl = URL.createObjectURL(file)
-		setPhotoPreview(previewUrl)
+		setPendingPhoto(file)
+	}
+
+	// Uploads the picked photo. Returns true when it worked.
+	const uploadPhoto = async (file: File) => {
+		if (uploading || !user) return false
 		setUploadProgress(0)
 		setUploading(true)
 		try {
@@ -155,17 +167,18 @@ export function ClientProfilePage() {
 			])
 			setAvatarFailed(false)
 			setPhotoUpdated(true)
-			toast.success("Profile photo uploaded")
+			setPendingPhoto(null)
+			return true
 		} catch {
 			toast.error("Couldn’t upload your photo. Please try again.")
+			return false
 		} finally {
-			setPhotoPreview(null)
-			URL.revokeObjectURL(previewUrl)
 			setUploading(false)
 		}
 	}
 
 	const handleCancel = () => {
+		setPendingPhoto(null)
 		if (profile) {
 			setFullName(profile.full_name ?? user?.full_name ?? "")
 			setCompany(profile.company ?? "")
@@ -227,7 +240,7 @@ export function ClientProfilePage() {
 								className="sr-only"
 								tabIndex={-1}
 								onChange={(event) => {
-									void uploadPhoto(event.target.files?.[0])
+									pickPhoto(event.target.files?.[0])
 									event.target.value = ""
 								}}
 							/>
@@ -246,10 +259,21 @@ export function ClientProfilePage() {
 							<p className="mt-1 text-on-surface-variant text-sm leading-6">
 								{uploading
 									? `Uploading your photo… ${uploadProgress}%`
-									: photoUpdated
-										? "Your new profile image is ready across the workspace."
-										: "A clear photo or company logo makes your messages easier to recognize. JPG or PNG, up to 5 MB."}
+									: pendingPhoto
+										? "New photo selected. It is uploaded when you click Save profile."
+										: photoUpdated
+											? "Your new profile image is ready across the workspace."
+											: "A clear photo or company logo makes your messages easier to recognize. JPG or PNG, up to 5 MB."}
 							</p>
+							{pendingPhoto && !uploading && (
+								<button
+									type="button"
+									className="mt-1 font-medium text-link text-sm hover:underline"
+									onClick={() => setPendingPhoto(null)}
+								>
+									Discard new photo
+								</button>
+							)}
 						</div>
 					</div>
 

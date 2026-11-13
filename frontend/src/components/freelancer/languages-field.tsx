@@ -129,7 +129,9 @@ export function LanguagesField({ value, onChange }: { value: string; onChange: (
 					<Plus className="size-4" /> Add
 				</button>
 			</div>
-			<p className="mt-1.5 text-on-surface-variant text-xs">Pick each language you can work in, then choose your level.</p>
+			<p className="mt-1.5 text-on-surface-variant text-xs">
+				Pick each language you can work in, then choose your level.
+			</p>
 		</div>
 	)
 }

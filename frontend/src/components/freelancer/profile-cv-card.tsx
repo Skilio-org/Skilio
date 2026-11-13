@@ -4,11 +4,11 @@ import { toast } from "sonner"
 import { ProfilesService } from "@/client"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 
-// Shown on a freelancer's public profile when they have uploaded a CV. Clients can download it.
+// Shown on a freelancer's public profile when they have uploaded a resume. Clients can download it.
 export function ProfileCvCard({ userId, name }: { userId: string; name: string }) {
 	const [downloading, setDownloading] = useState(false)
 
-	// The CV is private to logged-in users, so it is fetched with the login token and saved from the browser.
+	// The resume is private to logged-in users, so it is fetched with the login token and saved from the browser.
 	async function download() {
 		setDownloading(true)
 		try {
@@ -16,11 +16,11 @@ export function ProfileCvCard({ userId, name }: { userId: string; name: string }
 			const blob = response.data as Blob
 			const link = document.createElement("a")
 			link.href = URL.createObjectURL(blob)
-			link.download = `${name} - CV.${blob.type === "application/pdf" ? "pdf" : "docx"}`
+			link.download = `${name} - Resume.${blob.type === "application/pdf" ? "pdf" : "docx"}`
 			link.click()
 			URL.revokeObjectURL(link.href)
 		} catch {
-			toast.error("Couldn’t download the CV. Please try again.")
+			toast.error("Couldn’t download the resume. Please try again.")
 		} finally {
 			setDownloading(false)
 		}
@@ -33,7 +33,7 @@ export function ProfileCvCard({ userId, name }: { userId: string; name: string }
 					<FileText className="size-5" />
 				</span>
 				<div className="min-w-0">
-					<p className="font-medium text-sm">Curriculum vitae</p>
+					<p className="font-medium text-sm">Resume</p>
 					<p className="text-on-surface-variant text-xs">PDF or Word document</p>
 				</div>
 			</div>
@@ -44,7 +44,7 @@ export function ProfileCvCard({ userId, name }: { userId: string; name: string }
 				className={`${workspaceStyles.secondaryAction} mt-4 w-full disabled:opacity-60`}
 			>
 				{downloading ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
-				{downloading ? "Downloading…" : "Download CV"}
+				{downloading ? "Downloading…" : "Download resume"}
 			</button>
 		</section>
 	)

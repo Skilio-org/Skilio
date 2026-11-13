@@ -32,7 +32,9 @@ export function ProposalWithdrawDialog({
 					<span className="mb-1 grid size-10 place-items-center rounded-lg bg-destructive/10 text-destructive">
 						{isDraft || isRejected ? <Trash2 className="size-5" /> : <UserMinus className="size-5" />}
 					</span>
-					<DialogTitle>{isDraft ? "Discard draft" : isRejected ? "Delete proposal record" : "Withdraw proposal"}</DialogTitle>
+					<DialogTitle>
+						{isDraft ? "Discard draft" : isRejected ? "Delete proposal record" : "Withdraw proposal"}
+					</DialogTitle>
 					<DialogDescription>
 						{isDraft ? (
 							<>
@@ -64,7 +66,13 @@ export function ProposalWithdrawDialog({
 						disabled={isWithdrawing}
 						onClick={onConfirm}
 					>
-						{isWithdrawing ? "Processing..." : isDraft ? "Discard draft" : isRejected ? "Delete record" : "Withdraw proposal"}
+						{isWithdrawing
+							? "Processing..."
+							: isDraft
+								? "Discard draft"
+								: isRejected
+									? "Delete record"
+									: "Withdraw proposal"}
 					</button>
 				</DialogFooter>
 			</DialogContent>

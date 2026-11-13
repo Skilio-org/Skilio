@@ -128,9 +128,7 @@ export function TalentDirectoryPage({
 				<legend className="sr-only">Hourly rate</legend>
 				<div className="mb-4 flex items-center justify-between">
 					<span className="font-medium text-label-sm">Hourly rate</span>
-					<span className="text-caption text-outline">
-						{formatRateRange(hourlyRate[0], hourlyRate[1])}
-					</span>
+					<span className="text-caption text-outline">{formatRateRange(hourlyRate[0], hourlyRate[1])}</span>
 				</div>
 				<Slider
 					min={0}
@@ -288,7 +286,11 @@ export function TalentDirectoryPage({
 					</SheetHeader>
 					<div className="p-5">
 						{filters()}
-						<button type="button" onClick={() => setFiltersOpen(false)} className={`${workspaceStyles.primaryAction} mt-6 w-full`}>
+						<button
+							type="button"
+							onClick={() => setFiltersOpen(false)}
+							className={`${workspaceStyles.primaryAction} mt-6 w-full`}
+						>
 							Show {results.length} {results.length === 1 ? "professional" : "professionals"}
 						</button>
 					</div>
