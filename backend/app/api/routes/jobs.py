@@ -678,7 +678,7 @@ def read_job(
             job.client.client_profile,
             update={
                 "full_name": job.client.full_name,
-                "avatar_url": job.client.avatar_url,
+                "avatar_url": job.client.client_profile.avatar_url or job.client.avatar_url,
             },
         )
 

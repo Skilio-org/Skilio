@@ -3,7 +3,7 @@ import { useBlocker } from "@tanstack/react-router"
 import { ArrowLeft, Eye } from "lucide-react"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
-import { type FreelancerProfileDetailPublic, ProfilesService, UsersService } from "@/client"
+import { type FreelancerProfileDetailPublic, ProfilesService } from "@/client"
 import { WorkspacePageHeader } from "@/components/dashboard/dashboard-header"
 import { EntryDialog, ProfilePreview } from "@/components/freelancer/freelancer-profile-components"
 import { formatMoney } from "@/lib/currency"
@@ -140,11 +140,15 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 		}
 		setUploading(true)
 		try {
-			const response = await UsersService.uploadAvatar({ body: { file } })
+			const response = await ProfilesService.uploadFreelancerAvatar({ body: { file } })
 			if (response.data.status !== "Ok") throw new Error("Upload failed")
-			const photo = accountAvatarUrl(user.id, markAccountAvatarUpdated(user.id))
+			const photo = accountAvatarUrl(user.id, markAccountAvatarUpdated(user.id, "freelancer"), "freelancer")
 			update("photo", photo)
 			setSavedProfile((previous) => ({ ...previous, photo }))
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: queryKeys.freelancerProfile(user.id) }),
+				queryClient.invalidateQueries({ queryKey: queryKeys.currentUser }),
+			])
 		} catch {
 			toast.error("This image couldn’t be uploaded. Try again.")
 		} finally {

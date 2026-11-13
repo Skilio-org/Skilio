@@ -2,11 +2,14 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
+from app.claudinary import claudinary_upload_media
 from app.models import (
+    AvatarResponse,
     ClientProfile,
     ClientProfileDetailPublic,
     ClientProfilePublic,
@@ -17,6 +20,50 @@ from app.models import (
 )
 
 router = APIRouter(prefix="/client-profiles", tags=["client-profiles"])
+
+ALLOWED_AVATAR_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
+MAX_AVATAR_SIZE = 5 * 1024 * 1024  # 5MB
+
+
+@router.post("/me/avatar", response_model=AvatarResponse)
+async def upload_client_avatar(
+    *,
+    session: SessionDep,
+    file: UploadFile = File(...),
+    current_user: CurrentUser,
+) -> AvatarResponse:
+    """Upload avatar for the current user's client profile."""
+    if file.content_type not in ALLOWED_AVATAR_MIME_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported image format. Allowed: JPEG, PNG, WebP.",
+        )
+    if file.size is not None and file.size > MAX_AVATAR_SIZE:
+        raise HTTPException(status_code=413, detail="Avatar size cannot exceed 5MB.")
+
+    contents = await file.read()
+    if len(contents) > MAX_AVATAR_SIZE:
+        raise HTTPException(status_code=413, detail="Avatar size cannot exceed 5MB.")
+
+    profile = session.exec(
+        select(ClientProfile).where(ClientProfile.user_id == current_user.id)
+    ).first()
+    if not profile:
+        profile = ClientProfile(user_id=current_user.id)
+        session.add(profile)
+        session.flush()
+
+    avatar_id = uuid.uuid4()
+    url = await run_in_threadpool(
+        claudinary_upload_media, avatar_id, contents, media_type="image"
+    )
+    if not url:
+        raise HTTPException(status_code=500, detail="Failed to upload avatar image")
+
+    profile.avatar_url = url
+    session.add(profile)
+    session.commit()
+    return AvatarResponse(status="Ok")
 
 
 @router.get("/me", response_model=ClientProfilePublic)
@@ -42,7 +89,7 @@ def read_client_profile_me(
         profile,
         update={
             "full_name": current_user.full_name,
-            "avatar_url": current_user.avatar_url,
+            "avatar_url": profile.avatar_url or current_user.avatar_url,
         },
     )
 
@@ -146,7 +193,7 @@ def update_client_profile_me(
         profile,
         update={
             "full_name": current_user.full_name,
-            "avatar_url": current_user.avatar_url,
+            "avatar_url": profile.avatar_url or current_user.avatar_url,
         },
     )
 
@@ -177,7 +224,7 @@ def read_client_profile(
         profile,
         update={
             "full_name": profile.user.full_name if profile.user else None,
-            "avatar_url": profile.user.avatar_url if profile.user else None,
+            "avatar_url": profile.avatar_url or (profile.user.avatar_url if profile.user else None),
             "user": user_public,
             "job_posts_count": job_posts_count,
         },
@@ -221,7 +268,7 @@ def read_client_profile_by_user_id(
         profile,
         update={
             "full_name": user_obj.full_name if user_obj else None,
-            "avatar_url": user_obj.avatar_url if user_obj else None,
+            "avatar_url": profile.avatar_url or (user_obj.avatar_url if user_obj else None),
             "user": user_public,
             "job_posts_count": job_posts_count,
         },

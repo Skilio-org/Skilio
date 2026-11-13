@@ -19,7 +19,7 @@ from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, CurrentUserOptional, SessionDep
 from app.api.routes.searches import record_recent_search
-from app.claudinary import claudinary_delete_media, claudinary_upload_media
+from app.claudinary import claudinary_delete_media, claudinary_delete_raw, claudinary_upload_media, claudinary_upload_raw
 from app.models import (
     AvatarResponse,
     Education,
@@ -103,6 +103,8 @@ def _build_profile_detail_public(
         profile,
         update={
             "full_name": user_obj.full_name if user_obj else None,
+            "avatar_url": profile.avatar_url or (user_obj.avatar_url if user_obj else None),
+            "resume_url": profile.resume_url,
             "average_rating": float(avg_rating) if avg_rating else None,
             "reviews_count": reviews_count,
             "skills": skills,
@@ -146,6 +148,8 @@ def _build_profile_public(
         profile,
         update={
             "full_name": user_obj.full_name if user_obj else None,
+            "avatar_url": profile.avatar_url or (user_obj.avatar_url if user_obj else None),
+            "resume_url": profile.resume_url,
             "average_rating": avg_rating,
             "reviews_count": reviews_count,
             "skills": skills,
@@ -745,32 +749,43 @@ def delete_education(
 
 
 # ==============================================================================
-# Portfolio profile upload and download.
+# Freelancer Profile Avatar & Resume Upload
 # ==============================================================================
 
+ALLOWED_AVATAR_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
+MAX_AVATAR_SIZE = 5 * 1024 * 1024  # 5MB
+ALLOWED_RESUME_MIME_TYPES = {
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+}
+ALLOWED_RESUME_EXTENSIONS = {".pdf", ".docx"}
+MAX_RESUME_SIZE = 5 * 1024 * 1024  # 5MB
 
-@router.post("/resume", response_model=AvatarResponse)
-async def upload_resume(
+
+@router.post("/me/avatar", response_model=AvatarResponse)
+async def upload_freelancer_avatar(
     *,
     session: SessionDep,
     file: UploadFile = File(...),
     current_user: CurrentUser,
 ) -> AvatarResponse:
-    """Uploads resume asynchronously without blocking the event loop."""
-    if file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
-    # if not file.filename.lower().endswith(".pdf"):
-    #     raise HTTPException(
-    #         status_code=400, detail="File must have a .pdf extension"
-    #     )
-    contents = await file.read()
-    url = await run_in_threadpool(
-        claudinary_upload_media, current_user.id, contents, media_type="pdf"
-    )
-    if not url:
-        raise HTTPException(status_code=500, detail="Failed to upload avatar image")
+    """Upload avatar for the current user's freelancer profile."""
+    if file.content_type not in ALLOWED_AVATAR_MIME_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported image format. Allowed: JPEG, PNG, WebP.",
+        )
+    if file.size is not None and file.size > MAX_AVATAR_SIZE:
+        raise HTTPException(status_code=413, detail="Avatar size cannot exceed 5MB.")
 
-    if not current_user.freelancer_profile:
+    contents = await file.read()
+    if len(contents) > MAX_AVATAR_SIZE:
+        raise HTTPException(status_code=413, detail="Avatar size cannot exceed 5MB.")
+
+    profile = session.exec(
+        select(FreelancerProfile).where(FreelancerProfile.user_id == current_user.id)
+    ).first()
+    if not profile:
         profile = FreelancerProfile(
             user_id=current_user.id,
             is_available=True,
@@ -779,35 +794,118 @@ async def upload_resume(
         )
         session.add(profile)
         session.flush()
-        current_user.freelancer_profile = profile
-    current_user.freelancer_profile.resume_url = url
 
-    session.add(current_user)
+    avatar_id = uuid.uuid4()
+    url = await run_in_threadpool(
+        claudinary_upload_media, avatar_id, contents, media_type="image"
+    )
+    if not url:
+        raise HTTPException(status_code=500, detail="Failed to upload avatar image")
+
+    profile.avatar_url = url
+    session.add(profile)
     session.commit()
-    session.refresh(current_user)
+    return AvatarResponse(status="Ok")
+
+
+@router.post("/resume", response_model=AvatarResponse, operation_id="profiles_upload_resume")
+@router.post("/me/resume", response_model=AvatarResponse, operation_id="profiles_upload_resume_me")
+async def upload_resume(
+    *,
+    session: SessionDep,
+    file: UploadFile = File(...),
+    current_user: CurrentUser,
+) -> AvatarResponse:
+    """Upload resume (PDF or DOCX, max 5MB) to the freelancer profile via Cloudinary."""
+    # Validate extension
+    filename = (file.filename or "").lower()
+    if not any(filename.endswith(ext) for ext in ALLOWED_RESUME_EXTENSIONS):
+        raise HTTPException(
+            status_code=400,
+            detail="Only .pdf and .docx files are allowed.",
+        )
+    # Validate MIME type
+    if file.content_type not in ALLOWED_RESUME_MIME_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="Only .pdf and .docx files are allowed.",
+        )
+    # Validate size (header)
+    if file.size is not None and file.size > MAX_RESUME_SIZE:
+        raise HTTPException(status_code=413, detail="Resume size cannot exceed 5MB.")
+
+    contents = await file.read()
+    if len(contents) > MAX_RESUME_SIZE:
+        raise HTTPException(status_code=413, detail="Resume size cannot exceed 5MB.")
+
+    if not contents:
+        raise HTTPException(status_code=400, detail="Resume file cannot be empty.")
+
+    profile = session.exec(
+        select(FreelancerProfile).where(FreelancerProfile.user_id == current_user.id)
+    ).first()
+    if not profile:
+        profile = FreelancerProfile(
+            user_id=current_user.id,
+            is_available=True,
+            availability="Available now",
+            finished=False,
+        )
+        session.add(profile)
+        session.flush()
+
+    # Delete old resume from Cloudinary if exists
+    if profile.resume_public_id:
+        try:
+            await run_in_threadpool(claudinary_delete_raw, profile.resume_public_id)
+        except Exception:
+            pass
+
+    ext = ".pdf" if filename.endswith(".pdf") else ".docx"
+    resume_id = uuid.uuid4()
+    result = await run_in_threadpool(
+        claudinary_upload_raw, resume_id, contents, extension=ext
+    )
+    if not result:
+        raise HTTPException(status_code=500, detail="Failed to upload resume")
+
+    url, public_id = result
+    profile.resume_url = url
+    profile.resume_public_id = public_id
+    session.add(profile)
+    session.commit()
 
     return AvatarResponse(status="Ok")
 
 
-@router.get("/resume/{uuid}")
-async def proxy_resume(
+@router.delete("/resume", response_model=Message, operation_id="profiles_delete_resume")
+@router.delete("/me/resume", response_model=Message, operation_id="profiles_delete_resume_me")
+async def delete_resume(
     *,
-    uuid: uuid.UUID,
     session: SessionDep,
-    client: httpx.AsyncClient = Depends(get_http_client),
-):
-    """Gets the user's resume using his uuid."""
-    user = session.get(User, uuid)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    cloudinary_url = (
-        user.freelancer_profile.resume_url if user.freelancer_profile else None
-    )
-    if not cloudinary_url:
-        raise HTTPException(status_code=404, detail="resume not found")
-    headers = {}
+    current_user: CurrentUser,
+) -> Message:
+    """Delete current user's freelancer resume."""
+    profile = current_user.freelancer_profile
+    if not profile or not profile.resume_url:
+        raise HTTPException(status_code=404, detail="Resume not found")
+
+    if profile.resume_public_id:
+        try:
+            await run_in_threadpool(claudinary_delete_raw, profile.resume_public_id)
+        except Exception:
+            pass
+
+    profile.resume_url = None
+    profile.resume_public_id = None
+    session.add(profile)
+    session.commit()
+    return Message(message="Resume deleted successfully")
+
+
+async def _stream_cloudinary_media(client: httpx.AsyncClient, cloudinary_url: str) -> StreamingResponse:
     try:
-        req = client.build_request("GET", cloudinary_url, headers=headers)
+        req = client.build_request("GET", cloudinary_url)
         response = await client.send(req, stream=True)
     except httpx.PoolTimeout:
         raise HTTPException(
@@ -833,6 +931,34 @@ async def proxy_resume(
         headers=passthrough_headers,
         media_type=response.headers.get("content-type"),
     )
+
+
+@router.get("/me/resume")
+async def proxy_my_resume(
+    *,
+    current_user: CurrentUser,
+    client: httpx.AsyncClient = Depends(get_http_client),
+):
+    """Gets the current user's resume."""
+    profile = current_user.freelancer_profile
+    if not profile or not profile.resume_url:
+        raise HTTPException(status_code=404, detail="Resume not found")
+    return await _stream_cloudinary_media(client, profile.resume_url)
+
+
+@router.get("/resume/{uuid}")
+async def proxy_resume(
+    *,
+    uuid: uuid.UUID,
+    session: SessionDep,
+    client: httpx.AsyncClient = Depends(get_http_client),
+):
+    """Gets the user's resume using user UUID or profile UUID."""
+    user = session.get(User, uuid)
+    profile = user.freelancer_profile if user else session.get(FreelancerProfile, uuid)
+    if not profile or not profile.resume_url:
+        raise HTTPException(status_code=404, detail="Resume not found")
+    return await _stream_cloudinary_media(client, profile.resume_url)
 
 
 # @router.get("/resume/me")
