@@ -58,8 +58,8 @@ Finding and hiring freelance talent often suffers from fragmented tools—client
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Moody-0x01/Freelancer.git
-   cd Freelancer
+   git clone git@github.com:Skilio-org/Skilio.git
+   cd Skilio
    ```
 
 2. **Configure environment secrets:**
@@ -122,18 +122,24 @@ The development team consists of 5 members with clearly separated leadership and
 
 ## 4. Project Management
 
-The team applied an **Agile Scrum/Kanban workflow** tailored to the 42 project timeline:
-- **Sprint Organization:** Development was divided into 2-week iterations:
-  1. *Sprint 1:* Foundation, Docker Compose setup, database schema, CI pipeline.
-  2. *Sprint 2:* User authentication, OAuth, profile management, and CRUD APIs.
-  3. *Sprint 3:* Real-time WebSocket chat, Redis event bus, and proposal engine.
-  4. *Sprint 4:* Frontend layout, talent discovery, responsive styling, and accessibility.
-  5. *Sprint 5:* AWS cloud deployment, Let's Encrypt TLS, backups, and Prometheus monitoring.
-- **Task Tracking:** We used **GitHub Projects & Issues** with a structured Kanban board (`Backlog` $\rightarrow$ `Ready for Dev` $\rightarrow$ `In Progress` $\rightarrow$ `PR Review` $\rightarrow$ `Done`). Every feature was developed on its own branch and linked to an issue.
-- **Communication:**
-  - **Discord:** Daily asynchronous standups, dedicated technical channels (`#backend`, `#frontend`, `#devops`), and screen-share debugging.
-  - **In-Person Syncs:** Weekly architectural whiteboarding and integration testing at the 42 campus.
-- **Code Review & Git Flow:** Protected `master` branch. All Pull Requests required passing the 3-tier automated CI gate before merging.
+The team used a straightforward and collaborative project management approach centered on domain ownership and direct communication:
+
+- **Task Organization & Distribution:**
+  - Work was divided by technical domain based on each member's core focus (DevOps, Backend, Real-Time Systems, Frontend UI, and QA).
+  - Tasks, priorities, and feature requirements were discussed and agreed upon during team meetings.
+
+- **Discord Server as Central Hub:**
+  - All project management and day-to-day coordination took place on a dedicated team Discord server.
+  - **Voice Channels:** Used for regular progress meetings, screen-sharing sessions, and collaborative debugging.
+  - **Text Channels:** Organized into dedicated channels (`#general`, `#backend`, `#frontend`, `#devops`) to share updates, API contracts, documentation, and troubleshoot issues.
+
+- **Meetings & In-Person Syncs:**
+  - Regular online check-ins on Discord to review completed work, resolve blockers, and plan upcoming tasks.
+  - In-person working sessions at the 42 campus for architectural discussions, whiteboarding, and integration testing.
+
+- **Version Control & Integration:**
+  - Each developer worked on their own branch, keeping active features isolated.
+  - Changes were reviewed and merged into `master` after verifying compatibility and passing the automated CI test pipeline.
 
 ---
 
