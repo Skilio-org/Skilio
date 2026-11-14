@@ -3,7 +3,7 @@ import { memo, useCallback, useRef } from "react"
 import { getClientTheme } from "@/components/messages/message-types"
 import type { InboxFilter } from "@/components/messages/message-types"
 import { cn } from "@/lib/utils"
-import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
+import { accountAvatarUrl, useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { type ConversationProfile, isClientProfile, isFreelancerProfile } from "@/hooks/isClientProfile"
 import { createFallbackProfile } from "@/hooks/useProfiles"
 import type { ConversationPublic, ConversationsPublic, UserPublic } from "@/client"
@@ -51,8 +51,7 @@ export const ConversationListItem = memo(function ConversationListItem({
 	let roleAndLocation = ""
 
 	if (isClientProfile(person)) {
-		if (person.company) roleAndLocation = `${person.company}`
-		if (person.company_role) roleAndLocation += ` . ${person.company_role}`
+		roleAndLocation = `${person.company || ""}${(person.company && person.company_role) ? " • " : ""}${person.company_role || ""}`
 	} else if (isFreelancerProfile(person)) {
 		if (person.title) roleAndLocation = `${person.title}`
 	}
@@ -73,7 +72,7 @@ export const ConversationListItem = memo(function ConversationListItem({
 			{active && <span className="absolute left-0 top-3 bottom-3 w-[5px] rounded-ee rounded-se bg-primary" />}
 			<div className="relative mt-0.5 shrink-0">
 				<LoadingImage
-					src={person.avatar_url || accountAvatarUrl(person.user_id, "", conversation.other_user_role)}
+					src={useAccountAvatarUrl(person.user_id)}
 					alt=""
 					className={cn(
 						"grid size-12 place-items-center rounded-sm border font-label-sm font-semibold shadow-2xs transition-transform group-hover:scale-105",

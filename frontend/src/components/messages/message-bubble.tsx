@@ -3,12 +3,14 @@ import { cn } from "@/lib/utils"
 import type { ChatMessagePublic } from "@/client/types.gen"
 import { formatMessageTime } from "@/lib/format"
 import { useWebSocket } from "@/context/websocket-context"
-import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
+import { accountAvatarUrl, useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
 import { MessageContent } from "./MessageContent"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useEffect, useState } from "react"
 import { useDeleteMessage } from "@/hooks/userConversation"
 import { LoadingImage } from "@/components/common/loading-image"
+import useAuth from "@/hooks/useAuth"
+import { useAccountRole } from "@/hooks/useAccountRole"
 
 function Time({ created_at = "" }: { created_at: string }) {
 	return (
@@ -97,6 +99,7 @@ function MessageBubbleRepresentation({
 	onDelete?: () => void
 	isDeleting?: boolean
 }) {
+	const role = useAccountRole()
 	const { messageSendState } = useWebSocket()
 	const sendState = messageSendState[message.id] ?? "sent"
 	const match = highlight ? message.content.toLowerCase().indexOf(highlight.toLowerCase()) : -1
@@ -108,7 +111,7 @@ function MessageBubbleRepresentation({
 					<div className="flex gap-3 w-full">
 						{!own && (
 							<LoadingImage
-								src={accountAvatarUrl(message.sender_id)}
+								src={useAccountAvatarUrl(message.sender_id)}
 								alt=""
 								className={cn("size-8 place-items-center border font-label-sm font-semibold shadow-2xs rounded-4xl")}
 							/>
@@ -185,7 +188,7 @@ function MessageBubbleRepresentation({
 
 						{own && (
 							<LoadingImage
-								src={accountAvatarUrl(message.sender_id)}
+								src={useAccountAvatarUrl(message.sender_id, role)}
 								alt=""
 								className={cn("size-8 place-items-center border font-label-sm font-semibold shadow-2xs rounded-4xl")}
 							/>
