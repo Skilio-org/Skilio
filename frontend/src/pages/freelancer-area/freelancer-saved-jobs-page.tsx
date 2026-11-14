@@ -83,42 +83,42 @@ export default function FreelancerSavedJobsPage() {
 			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
 				<section aria-label="Saved opportunities" className="flex min-w-0 flex-col gap-6 lg:col-span-8">
 					{allSaved.length > 0 && (
-					<div className="flex flex-wrap items-center justify-between gap-3">
-						<p role="status" className="font-medium text-body-sm">
-							Showing {filtered.length} of {allSaved.length} saved {allSaved.length === 1 ? "job" : "jobs"}
-						</p>
-						<div className="flex items-center gap-2">
-							<span className="font-caption text-caption text-outline">Sort:</span>
-							<Select value={sort} onValueChange={setSort}>
-								<SelectTrigger
-									size="sm"
-									aria-label="Sort saved jobs"
-									className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
-								>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent
-									align="end"
-									sideOffset={6}
-									className="w-[var(--radix-select-trigger-width)] min-w-0 rounded-lg border-outline-variant bg-surface-container-lowest p-1 text-on-surface shadow-md [&_[data-radix-select-viewport]]:min-w-0"
-								>
-									{[
-										["recent", "Recently saved"],
-										["budget", "Highest budget"],
-										["title", "Project title"],
-									].map(([value, label]) => (
-										<SelectItem
-											key={value}
-											value={value}
-											className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
-										>
-											{label}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+						<div className="flex flex-wrap items-center justify-between gap-3">
+							<p role="status" className="font-medium text-body-sm">
+								Showing {filtered.length} of {allSaved.length} saved {allSaved.length === 1 ? "job" : "jobs"}
+							</p>
+							<div className="flex items-center gap-2">
+								<span className="font-caption text-caption text-outline">Sort:</span>
+								<Select value={sort} onValueChange={setSort}>
+									<SelectTrigger
+										size="sm"
+										aria-label="Sort saved jobs"
+										className="w-44 rounded-lg border-outline-variant bg-surface-container-lowest px-3 font-normal text-[12px] text-on-surface leading-4 shadow-none hover:border-outline data-[state=open]:border-primary dark:bg-surface-card dark:hover:bg-surface-container [&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180"
+									>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent
+										align="end"
+										sideOffset={6}
+										className="w-[var(--radix-select-trigger-width)] min-w-0 rounded-lg border-outline-variant bg-surface-container-lowest p-1 text-on-surface shadow-md [&_[data-radix-select-viewport]]:min-w-0"
+									>
+										{[
+											["recent", "Recently saved"],
+											["budget", "Highest budget"],
+											["title", "Project title"],
+										].map(([value, label]) => (
+											<SelectItem
+												key={value}
+												value={value}
+												className="min-h-8 cursor-pointer rounded px-3 pr-8 font-normal text-[12px] leading-4 focus:bg-surface-container focus:text-on-surface data-[state=checked]:bg-surface-container data-[state=checked]:text-link"
+											>
+												{label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
 						</div>
-					</div>
 					)}
 					{filtered.length > 0 && (
 						<div className="flex flex-col gap-3.5">

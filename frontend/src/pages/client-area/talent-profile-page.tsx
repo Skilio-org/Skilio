@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowLeft, ArrowUpRight, Bookmark, Check, Star } from "lucide-react"
 import { workspaceStyles } from "@/components/dashboard/dashboard-header"
+import { ProfileCvCard } from "@/components/freelancer/profile-cv-card"
 import { FreelancerProfileView } from "@/components/freelancer/freelancer-profile-view"
 import type { FreelancerProfileDetailPublic } from "@/client"
 import { accountAvatarUrl } from "@/hooks/useAccountAvatar"
@@ -30,7 +31,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 				profile={{
 					name,
 					initials: getInitials(name),
-					avatarUrl: accountAvatarUrl(person.user_id),
+					avatarUrl: person.avatar_url || accountAvatarUrl(person.user_id, "", "freelancer"),
 					title: person.title ?? "",
 					location: person.location ?? "",
 					summary: person.bio ?? "",
@@ -76,6 +77,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 						Back to talent
 					</Link>
 				}
+				cvCard={person.resume_url ? <ProfileCvCard userId={person.user_id} name={name} /> : undefined}
 				contactActions={
 					<>
 						<Link
@@ -123,9 +125,9 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 					<FreelancerReviewsSection
 						freelancerId={person.id}
 						profileUserId={person.user_id}
-					freelancerName={name}
-					freelancerTitle={person.title ?? ""}
-						freelancerAvatarUrl={accountAvatarUrl(person.user_id)}
+						freelancerName={name}
+						freelancerTitle={person.title ?? ""}
+						freelancerAvatarUrl={person.avatar_url || accountAvatarUrl(person.user_id, "", "freelancer")}
 					/>
 				}
 				portfolioDialogAction={

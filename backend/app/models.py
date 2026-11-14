@@ -712,7 +712,9 @@ class FreelancerAvailabilityUpdate(SQLModel):
 
 class FreelancerProfile(FreelancerProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    avatar_url: str | None = Field(default=None, max_length=2000)
     resume_url: str | None = Field(default=None, max_length=2048)
+    resume_public_id: str | None = Field(default=None, max_length=255)
     user_id: uuid.UUID = Field(
         foreign_key="user.id", unique=True, nullable=False, ondelete="CASCADE"
     )
@@ -759,6 +761,8 @@ class FreelancerProfilePublic(FreelancerProfileBase):
     id: uuid.UUID
     user_id: uuid.UUID
     full_name: str | None = None
+    avatar_url: str | None = None
+    resume_url: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
     skills: list[str] = Field(default_factory=list)
@@ -859,6 +863,7 @@ class ClientProfileUpdate(SQLModel):
 
 class ClientProfile(ClientProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    avatar_url: str | None = Field(default=None, max_length=2000)
     user_id: uuid.UUID = Field(
         foreign_key="user.id", unique=True, nullable=False, ondelete="CASCADE"
     )

@@ -1,15 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import {
-	ArrowRight,
-	Briefcase,
-	Clock3,
-	FilePenLine,
-	MessageSquare,
-	Trash2,
-	UserCheck,
-	X,
-	XCircle,
-} from "lucide-react"
+import { ArrowRight, Briefcase, Clock3, FilePenLine, MessageSquare, Trash2, UserCheck, X, XCircle } from "lucide-react"
 import { SkillTag, workspaceStyles } from "@/components/dashboard/dashboard-header"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -116,7 +106,7 @@ export function ProposalCard({
 							<Avatar className="size-11 rounded-lg border border-outline-variant bg-surface-container">
 								{draft.job.clientId && (
 									<AvatarImage
-										src={accountAvatarUrl(draft.job.clientId)}
+										src={accountAvatarUrl(draft.job.clientId, "", "client")}
 										alt={draft.job.company}
 										className="object-cover"
 									/>
@@ -142,7 +132,9 @@ export function ProposalCard({
 
 						<div className="min-w-0 flex-1">
 							<div className="flex flex-wrap items-center gap-2">
-								<h4 className="truncate font-headline-sm font-semibold text-base text-on-surface">{draft.job.company}</h4>
+								<h4 className="truncate font-headline-sm font-semibold text-base text-on-surface">
+									{draft.job.company}
+								</h4>
 								<StatusBadge status={draft.rawStatus} />
 							</div>
 
@@ -200,10 +192,7 @@ export function ProposalCard({
 				<div className="flex items-center justify-between border-outline-variant/60 border-t pt-3 text-on-surface-variant text-xs">
 					<span className="flex items-center gap-1.5 font-caption text-caption">
 						<span
-							className={cn(
-								"size-2 rounded-full",
-								isAccepted ? "bg-primary" : isPending ? "bg-primary" : "bg-outline",
-							)}
+							className={cn("size-2 rounded-full", isAccepted ? "bg-primary" : isPending ? "bg-primary" : "bg-outline")}
 						/>
 						<span>
 							{isAccepted

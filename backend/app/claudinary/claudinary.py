@@ -44,3 +44,27 @@ def claudinary_upload_media(
 def claudinary_delete_media(url: str) -> dict:
     public_id = url.split("/")[-1].split(".")[0]
     return cloudinary.uploader.destroy(public_id, invalidate=True)
+
+
+def claudinary_upload_raw(
+    media_uuid: uuid.UUID,
+    media: MediaInput,
+    *,
+    extension: str = "",
+) -> tuple[str, str] | None:
+    """Upload a raw file (PDF, DOCX) to Cloudinary. Returns (secure_url, public_id) or None."""
+    public_id = f"{media_uuid}{extension}" if extension else str(media_uuid)
+    result = cloudinary.uploader.upload(
+        media,
+        public_id=public_id,
+        resource_type="raw",
+        overwrite=True,
+        invalidate=True,
+    )
+    if not result or "secure_url" not in result:
+        return None
+    return result["secure_url"], result["public_id"]
+
+
+def claudinary_delete_raw(public_id: str) -> dict:
+    return cloudinary.uploader.destroy(public_id, resource_type="raw", invalidate=True)

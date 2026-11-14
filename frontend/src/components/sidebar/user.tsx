@@ -40,7 +40,7 @@ export function User({ user }: { user?: UserMe | null }) {
 
 	const fullName = user?.full_name?.trim() || "My account"
 	const email = user?.email || ""
-	const avatarUrl = useAccountAvatarUrl(user?.id)
+	const avatarUrl = useAccountAvatarUrl(user?.id, freelancer ? "freelancer" : "client")
 
 	const switchWorkspace = async (targetRole: AccountRole) => {
 		if (switching) return

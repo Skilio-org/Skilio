@@ -34,7 +34,12 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 		<article className="rounded-lg border border-outline-variant bg-surface-container-lowest p-4 sm:p-5">
 			<div className="flex flex-wrap items-start gap-3">
 				<Avatar className="size-11">
-					{proposal.freelancer_id && <AvatarImage src={accountAvatarUrl(proposal.freelancer_id)} alt="" />}
+					{proposal.freelancer_id && (
+						<AvatarImage
+							src={profile?.avatar_url || accountAvatarUrl(proposal.freelancer_id, "", "freelancer")}
+							alt=""
+						/>
+					)}
 					<AvatarFallback>{getInitials(name)}</AvatarFallback>
 				</Avatar>
 				<div className="min-w-0 flex-1">
@@ -144,7 +149,7 @@ function ProposalRateButton({
 				onOpenChange={setModalOpen}
 				freelancerName={freelancerName}
 				freelancerTitle={freelancerTitle}
-				freelancerAvatarUrl={freelancerUserId ? accountAvatarUrl(freelancerUserId) : undefined}
+				freelancerAvatarUrl={freelancerUserId ? accountAvatarUrl(freelancerUserId, "", "freelancer") : undefined}
 				existingReview={myReview}
 				onSubmit={handleSubmit}
 				isSubmitting={isCreating || isUpdating}

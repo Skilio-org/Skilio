@@ -7,8 +7,7 @@ type EntryTextField = "title" | "organization" | "detail" | "url"
 
 export type ProfileEntryForm = {
 	[K in EntryTextField]-?: NonNullable<ExperiencePublic[K]>
-} &
-	Pick<ExperiencePublic, "id"> &
+} & Pick<ExperiencePublic, "id"> &
 	Pick<EducationPublic, "field_of_study" | "start_date" | "end_date"> &
 	Pick<PortfolioItemPublic, "image_url">
 
@@ -19,7 +18,7 @@ export type ProfileForm = {
 } & {
 	name: NonNullable<FreelancerProfileDetailPublic["full_name"]>
 	photo: string
-	rate: string // Text inputs hold strings; the API uses hourly_rate as a number.
+	rate: string
 	skills: NonNullable<FreelancerProfileDetailPublic["skills"]>
 	finished: NonNullable<FreelancerProfileDetailPublic["finished"]>
 	experience: ProfileEntryForm[]
@@ -42,9 +41,9 @@ export const descriptions = [
 	"Optional. Add past roles and education.",
 	"Optional. Add projects that show your work.",
 	"Your hourly rate and weekly hours.",
-	"Check how clients will see your profile, then publish.",
+	"Check how clients will see your profile. It goes live when you save.",
 ]
-// Matches the shared Input used on the other forms (client profile, settings).
+
 const fieldBase =
 	"mt-2 w-full min-w-0 rounded-lg border border-input bg-surface-container-lowest px-3 text-sm text-on-surface shadow-none outline-none transition-[color,box-shadow] placeholder:text-muted-foreground hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:opacity-50"
 export const fieldClass = `${fieldBase} h-11`
@@ -52,7 +51,6 @@ export const textareaClass = `${fieldBase} min-h-28 resize-y py-2.5 leading-6`
 export const primary = `${workspaceStyles.primaryAction} disabled:opacity-50`
 export const secondary = workspaceStyles.secondaryAction
 
-// Size limits for the profile form. The inputs enforce them while typing, and validateProfile() checks them again before saving.
 export const profileLimits = {
 	name: 100,
 	title: 100,
@@ -66,6 +64,7 @@ export const profileLimits = {
 	entryOrganization: 100,
 	entryDetail: 1000,
 	projectImageBytes: 5 * 1024 * 1024,
+	cvBytes: 5 * 1024 * 1024,
 	// Hourly rate in Moroccan dirhams (DH).
 	rateMin: 10,
 	rateMax: 5000,
@@ -100,7 +99,6 @@ export function validateEntry(entry: ProfileEntryForm, label: string): string | 
 	return null
 }
 
-// Returns the first problem found in the form, or null when everything is within the limits.
 export function validateProfile(p: ProfileForm): string | null {
 	if (p.rate.trim() && !rateInRange(p.rate)) {
 		return `Your hourly rate must be between ${formatMoney(profileLimits.rateMin)} and ${formatMoney(profileLimits.rateMax)}.`

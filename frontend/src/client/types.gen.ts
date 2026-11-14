@@ -15,6 +15,16 @@ export type AvatarResponse = {
 };
 
 /**
+ * Body_client-profiles-upload_client_avatar
+ */
+export type Body_client_profiles_upload_client_avatar = {
+    /**
+     * File
+     */
+    file: Blob | File;
+};
+
+/**
  * Body_login-login_access_token
  */
 export type Body_login_login_access_token = {
@@ -45,6 +55,16 @@ export type Body_login_login_access_token = {
 };
 
 /**
+ * Body_profiles-upload_freelancer_avatar
+ */
+export type Body_profiles_upload_freelancer_avatar = {
+    /**
+     * File
+     */
+    file: Blob | File;
+};
+
+/**
  * Body_profiles-upload_portfolio_item
  */
 export type Body_profiles_upload_portfolio_item = {
@@ -71,9 +91,19 @@ export type Body_profiles_upload_portfolio_item = {
 };
 
 /**
- * Body_profiles-upload_resume
+ * Body_profiles_upload_resume
  */
 export type Body_profiles_upload_resume = {
+    /**
+     * File
+     */
+    file: Blob | File;
+};
+
+/**
+ * Body_profiles_upload_resume_me
+ */
+export type Body_profiles_upload_resume_me = {
     /**
      * File
      */
@@ -932,6 +962,14 @@ export type FreelancerProfileDetailPublic = {
      */
     full_name?: string | null;
     /**
+     * Avatar Url
+     */
+    avatar_url?: string | null;
+    /**
+     * Resume Url
+     */
+    resume_url?: string | null;
+    /**
      * Created At
      */
     created_at?: string | null;
@@ -1046,6 +1084,14 @@ export type FreelancerProfilePublic = {
      * Full Name
      */
     full_name?: string | null;
+    /**
+     * Avatar Url
+     */
+    avatar_url?: string | null;
+    /**
+     * Resume Url
+     */
+    resume_url?: string | null;
     /**
      * Created At
      */
@@ -2508,7 +2554,12 @@ export type usersCreateUserResponse = usersCreateUserResponses[keyof usersCreate
 export type usersUploadAvatarData = {
     body: Body_users_upload_avatar;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Role
+         */
+        role?: UserRole | null;
+    };
     url: '/api/v1/users/me/avatar';
 };
 
@@ -2538,7 +2589,12 @@ export type usersProxyMediaData = {
          */
         uuid: string;
     };
-    query?: never;
+    query?: {
+        /**
+         * Role
+         */
+        role?: UserRole | null;
+    };
     url: '/api/v1/users/avatar/{uuid}';
 };
 
@@ -3201,6 +3257,102 @@ export type profilesUpdateEducationResponses = {
 
 export type profilesUpdateEducationResponse = profilesUpdateEducationResponses[keyof profilesUpdateEducationResponses];
 
+export type profilesUploadFreelancerAvatarData = {
+    body: Body_profiles_upload_freelancer_avatar;
+    path?: never;
+    query?: never;
+    url: '/api/v1/profiles/me/avatar';
+};
+
+export type profilesUploadFreelancerAvatarErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type profilesUploadFreelancerAvatarError = profilesUploadFreelancerAvatarErrors[keyof profilesUploadFreelancerAvatarErrors];
+
+export type profilesUploadFreelancerAvatarResponses = {
+    /**
+     * Successful Response
+     */
+    200: AvatarResponse;
+};
+
+export type profilesUploadFreelancerAvatarResponse = profilesUploadFreelancerAvatarResponses[keyof profilesUploadFreelancerAvatarResponses];
+
+export type profilesDeleteResumeMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/profiles/me/resume';
+};
+
+export type profilesDeleteResumeMeResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type profilesDeleteResumeMeResponse = profilesDeleteResumeMeResponses[keyof profilesDeleteResumeMeResponses];
+
+export type profilesProxyMyResumeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/profiles/me/resume';
+};
+
+export type profilesProxyMyResumeResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type profilesUploadResumeMeData = {
+    body: Body_profiles_upload_resume_me;
+    path?: never;
+    query?: never;
+    url: '/api/v1/profiles/me/resume';
+};
+
+export type profilesUploadResumeMeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type profilesUploadResumeMeError = profilesUploadResumeMeErrors[keyof profilesUploadResumeMeErrors];
+
+export type profilesUploadResumeMeResponses = {
+    /**
+     * Successful Response
+     */
+    200: AvatarResponse;
+};
+
+export type profilesUploadResumeMeResponse = profilesUploadResumeMeResponses[keyof profilesUploadResumeMeResponses];
+
+export type profilesDeleteResumeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/profiles/resume';
+};
+
+export type profilesDeleteResumeResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type profilesDeleteResumeResponse = profilesDeleteResumeResponses[keyof profilesDeleteResumeResponses];
+
 export type profilesUploadResumeData = {
     body: Body_profiles_upload_resume;
     path?: never;
@@ -3617,6 +3769,31 @@ export type profilesReadProfileByUserIdResponses = {
 };
 
 export type profilesReadProfileByUserIdResponse = profilesReadProfileByUserIdResponses[keyof profilesReadProfileByUserIdResponses];
+
+export type clientProfilesUploadClientAvatarData = {
+    body: Body_client_profiles_upload_client_avatar;
+    path?: never;
+    query?: never;
+    url: '/api/v1/client-profiles/me/avatar';
+};
+
+export type clientProfilesUploadClientAvatarErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type clientProfilesUploadClientAvatarError = clientProfilesUploadClientAvatarErrors[keyof clientProfilesUploadClientAvatarErrors];
+
+export type clientProfilesUploadClientAvatarResponses = {
+    /**
+     * Successful Response
+     */
+    200: AvatarResponse;
+};
+
+export type clientProfilesUploadClientAvatarResponse = clientProfilesUploadClientAvatarResponses[keyof clientProfilesUploadClientAvatarResponses];
 
 export type clientProfilesReadClientProfileMeData = {
     body?: never;

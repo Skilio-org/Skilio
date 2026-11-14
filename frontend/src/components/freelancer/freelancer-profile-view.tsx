@@ -1,9 +1,17 @@
 import { ArrowLeft, ArrowRight, ArrowUpRight, Clock3, FileText, MapPin, Star, X } from "lucide-react"
 import { type ReactNode, useRef, useState } from "react"
 import { formatMoney } from "@/lib/currency"
+import { LoadingImage } from "@/components/common/loading-image"
 
 import { Monogram, SkillTag } from "@/components/dashboard/dashboard-header"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog"
 
 type ProfileViewEntry = {
 	id: string
@@ -60,6 +68,7 @@ export function FreelancerProfileView({
 	contactTitle,
 	contactActions,
 	contactFooter,
+	cvCard,
 	feedback,
 	reviewsNode,
 	portfolioDialogAction,
@@ -71,6 +80,7 @@ export function FreelancerProfileView({
 	contactTitle?: string
 	contactActions?: ReactNode
 	contactFooter?: ReactNode
+	cvCard?: ReactNode
 	feedback?: Feedback
 	reviewsNode?: ReactNode
 	portfolioDialogAction?: ReactNode
@@ -108,7 +118,7 @@ export function FreelancerProfileView({
 			<header className="border-outline-variant border-b pb-6 sm:pb-8">
 				<div className="flex items-start gap-4 sm:gap-6">
 					{profile.avatarUrl ? (
-						<img
+						<LoadingImage
 							src={profile.avatarUrl}
 							alt={profile.name}
 							className="size-16 shrink-0 rounded-lg object-cover sm:size-24"
@@ -152,7 +162,7 @@ export function FreelancerProfileView({
 						</div>
 					</div>
 				</div>
-				</header>
+			</header>
 			<div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px] xl:gap-8">
 				<aside aria-label="Contact and availability" className="lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1">
 					<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
@@ -179,12 +189,16 @@ export function FreelancerProfileView({
 						{contactActions && <div className="mt-5 grid gap-2">{contactActions}</div>}
 						{contactFooter}
 					</section>
+					{cvCard}
 				</aside>
 				<section
 					aria-label="Professional profile"
 					className="min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:col-start-1 lg:row-start-1"
 				>
-					<nav aria-label="Profile sections" className="flex gap-6 overflow-x-auto border-outline-variant border-b px-5 sm:px-8">
+					<nav
+						aria-label="Profile sections"
+						className="flex gap-6 overflow-x-auto border-outline-variant border-b px-5 sm:px-8"
+					>
 						{sections.map(([id, label]) => (
 							<a
 								key={id}
@@ -264,7 +278,7 @@ export function FreelancerProfileView({
 											className={`relative grid h-44 w-full place-items-center overflow-hidden rounded-lg text-slate-800 ${entry.color ?? "bg-brand-100"}`}
 										>
 											{entry.imageUrl ? (
-												<img src={entry.imageUrl} alt="" className="absolute inset-0 size-full object-cover" />
+												<LoadingImage src={entry.imageUrl} alt="" className="absolute inset-0 size-full object-cover" />
 											) : (
 												<FileText className="size-10 opacity-80" strokeWidth={1.35} />
 											)}
@@ -372,7 +386,7 @@ export function FreelancerProfileView({
 							className={`relative grid aspect-[16/8] w-full place-items-center overflow-hidden text-slate-800 ${project?.color ?? "bg-brand-100"}`}
 						>
 							{project?.imageUrl ? (
-								<img src={project.imageUrl} alt="" className="absolute inset-0 size-full object-cover" />
+								<LoadingImage src={project.imageUrl} alt="" className="absolute inset-0 size-full object-cover" />
 							) : (
 								<>
 									<div className="absolute -right-8 -top-16 size-64 rounded-full border border-current/10" />

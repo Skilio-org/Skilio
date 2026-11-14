@@ -1,6 +1,7 @@
 import { Check, Eye } from "lucide-react"
 import { type ProfileForm, secondary, steps } from "@/components/freelancer/freelancer-profile-model"
 import { type ProfileProgress, requiredSteps } from "@/components/freelancer/profile-editor/profile-form"
+import { LoadingImage } from "@/components/common/loading-image"
 
 const SECTION_COUNT = 6
 const EXPERTISE_STEP = 1
@@ -26,12 +27,12 @@ export function ReviewStep({
 			{ready ? (
 				<p className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-on-surface text-sm">
 					{profile.finished
-						? "Your profile is published. Save to update it."
-						: "Your profile is ready. Publishing makes it visible to clients so they can contact you."}
+						? "Your profile is published. Every time you save, your changes go live."
+						: "Your profile is ready. It goes live as soon as you save."}
 				</p>
 			) : (
 				<p className="rounded-lg border border-outline-variant bg-surface-container-low/50 px-4 py-3 text-on-surface-variant text-sm">
-					Complete the required sections below before you publish.
+					Complete the required sections below. Your profile goes live as soon as they are done.
 				</p>
 			)}
 			<ul className="divide-y divide-outline-variant overflow-hidden rounded-lg border border-outline-variant">
@@ -47,13 +48,17 @@ export function ReviewStep({
 							<div className="min-w-0 flex-1">
 								<p className="font-medium text-on-surface text-sm">
 									{name}
-									{!requiredSteps.includes(i) && <span className="font-normal text-on-surface-variant"> · Optional</span>}
+									{!requiredSteps.includes(i) && (
+										<span className="font-normal text-on-surface-variant"> · Optional</span>
+									)}
 								</p>
 								<p className={`mt-0.5 break-words text-xs ${missing ? "text-destructive" : "text-on-surface-variant"}`}>
 									{done[i] ? summaries[i] : missing ? "Required. Nothing added yet." : "Nothing added yet."}
 								</p>
 								{done[i] && i === EXPERTISE_STEP && profile.skills.length > 0 && (
-									<p className="mt-1 line-clamp-2 break-words text-on-surface-variant text-xs">{profile.skills.join(", ")}</p>
+									<p className="mt-1 line-clamp-2 break-words text-on-surface-variant text-xs">
+										{profile.skills.join(", ")}
+									</p>
 								)}
 								{done[i] && i === INTRODUCTION_STEP && profile.languages && (
 									<p className="mt-1 break-words text-on-surface-variant text-xs">{profile.languages}</p>
@@ -61,7 +66,7 @@ export function ReviewStep({
 								{i === PORTFOLIO_STEP && portfolioImages.length > 0 && (
 									<div className="mt-2 flex gap-2">
 										{portfolioImages.map((entry) => (
-											<img
+											<LoadingImage
 												key={entry.id}
 												src={entry.image_url ?? ""}
 												alt={entry.title}

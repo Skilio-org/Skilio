@@ -111,7 +111,7 @@ const FreelancerDashboardPage = () => {
 											aria-pressed={active}
 											className={
 												active
-													? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-on-primary transition-colors dark:bg-on-surface dark:text-background"
+													? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover"
 													: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
 											}
 										>
@@ -120,7 +120,7 @@ const FreelancerDashboardPage = () => {
 											<span
 												className={
 													active
-														? "rounded bg-white/20 px-1.5 py-0.5 font-caption text-caption dark:bg-background/15 dark:text-background"
+														? "rounded bg-on-primary/15 px-1.5 py-0.5 font-caption text-caption text-on-primary"
 														: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
 												}
 											>

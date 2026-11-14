@@ -8,6 +8,7 @@ import { MessageContent } from "./MessageContent"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useEffect, useState } from "react"
 import { useDeleteMessage } from "@/hooks/userConversation"
+import { LoadingImage } from "@/components/common/loading-image"
 
 function Time({ created_at = "" }: { created_at: string }) {
 	return (
@@ -106,7 +107,7 @@ function MessageBubbleRepresentation({
 				<div className={cn("w-full flex flex-col ", own ? "items-end" : "items-start")}>
 					<div className="flex gap-3 w-full">
 						{!own && (
-							<img
+							<LoadingImage
 								src={accountAvatarUrl(message.sender_id)}
 								alt=""
 								className={cn("size-8 place-items-center border font-label-sm font-semibold shadow-2xs rounded-4xl")}
@@ -183,7 +184,7 @@ function MessageBubbleRepresentation({
 						</div>
 
 						{own && (
-							<img
+							<LoadingImage
 								src={accountAvatarUrl(message.sender_id)}
 								alt=""
 								className={cn("size-8 place-items-center border font-label-sm font-semibold shadow-2xs rounded-4xl")}

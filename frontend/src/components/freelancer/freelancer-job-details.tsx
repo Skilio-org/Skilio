@@ -1,8 +1,26 @@
-import { ArrowRight, Banknote, Bookmark, Building2, CircleCheck, Clock3, Globe2, MessageSquare, Send, UserPlus } from "lucide-react"
+import {
+	ArrowRight,
+	Banknote,
+	Bookmark,
+	Building2,
+	CircleCheck,
+	Clock3,
+	Globe2,
+	MessageSquare,
+	Send,
+	UserPlus,
+} from "lucide-react"
 import { FormEvent, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Link } from "@tanstack/react-router"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog"
 import { SheetDescription, SheetTitle } from "@/components/ui/sheet"
 import { connectionNoteMaxLength, useConnectionStatus, useSendConnectionRequest } from "@/hooks/useConnections"
 import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
@@ -64,30 +82,29 @@ export const JobDetails = ({
 	}
 
 	const handleSendConnection = async (e: FormEvent) => {
-		e.preventDefault();
+		e.preventDefault()
 
 		if (connectNote.length > connectionNoteMaxLength) {
-			toast.error(`Introductory note cannot exceed ${connectionNoteMaxLength} characters.`);
-			return;
+			toast.error(`Introductory note cannot exceed ${connectionNoteMaxLength} characters.`)
+			return
 		}
-		if (job.clientId == undefined || !job.clientId)
-			return ;
+		if (job.clientId == undefined || !job.clientId) return
 		try {
 			await sendConnectionMutation.mutateAsync({
 				receiver_id: job.clientId,
 				job_post_id: job.id || undefined,
 				note: connectNote.trim() || undefined,
 				as_role: "freelancer",
-			});
+			})
 
-			setConnectOpen(false);
+			setConnectOpen(false)
 			// setRecipientId("");
 			// setJobPostId("");
-			setConnectNote("");
+			setConnectNote("")
 		} catch {
-		// error handled in mutation hook
+			// error handled in mutation hook
 		}
-  	};
+	}
 
 	const handleApplyNow = async () => {
 		if (submitted) {
@@ -109,7 +126,7 @@ export const JobDetails = ({
 		}
 	}
 	const primary =
-		"flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container dark:bg-on-surface dark:text-background dark:hover:bg-white"
+		"flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover"
 	return (
 		<div className="min-h-0 flex-1 overflow-y-auto bg-surface-container-lowest text-on-surface">
 			<div className="grid min-h-full md:grid-cols-[minmax(0,1fr)_260px]">
@@ -239,7 +256,7 @@ export const JobDetails = ({
 											type="button"
 											disabled={cover.trim().length < 40 || cover.length > 5000}
 											onClick={handleApplyNow}
-											className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-container disabled:opacity-50 dark:bg-on-surface dark:text-background dark:hover:bg-white"
+											className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover disabled:opacity-50"
 										>
 											<Send className="size-4" />
 											Apply now
@@ -258,11 +275,7 @@ export const JobDetails = ({
 								<span>Proposal submitted</span>
 							</div>
 						) : (
-							<button
-								type="button"
-								className={primary}
-								onClick={handleApplyNow}
-							>
+							<button type="button" className={primary} onClick={handleApplyNow}>
 								{existingProposal ? "Continue proposal" : "Apply now"}
 								<ArrowRight className="size-4" />
 							</button>
@@ -278,8 +291,9 @@ export const JobDetails = ({
 						</button>
 
 						{/* Connect with Client Flow (F4, F5, F6) */}
-						{job.clientId && !isLoading && (
-							connectionStatus?.status === "connected" ? (
+						{job.clientId &&
+							!isLoading &&
+							(connectionStatus?.status === "connected" ? (
 								<Link
 									to="/freelancer-messages"
 									search={{ userId: job.clientId }}
@@ -302,8 +316,7 @@ export const JobDetails = ({
 									<UserPlus className="size-4 text-link" />
 									<span>Connect with client</span>
 								</button>
-							)
-						)}
+							))}
 					</div>
 					<section className="mt-7 border-outline-variant/60 border-t pt-6">
 						<h3 className="font-semibold text-headline-sm">About the client</h3>
@@ -340,7 +353,8 @@ export const JobDetails = ({
 							<span>Connect with {job.company}</span>
 						</DialogTitle>
 						<DialogDescription>
-							Send a connection inquiry regarding "{job.title}". Once accepted, direct chat and collaboration will be unlocked.
+							Send a connection inquiry regarding "{job.title}". Once accepted, direct chat and collaboration will be
+							unlocked.
 						</DialogDescription>
 					</DialogHeader>
 
@@ -352,7 +366,9 @@ export const JobDetails = ({
 								</label>
 								<span
 									className={`text-[11px] ${
-										connectNote.length > connectionNoteMaxLength ? "text-destructive font-semibold" : "text-muted-foreground"
+										connectNote.length > connectionNoteMaxLength
+											? "text-destructive font-semibold"
+											: "text-muted-foreground"
 									}`}
 								>
 									{connectNote.length}/{connectionNoteMaxLength}

@@ -10,20 +10,12 @@ import { useEffect, useRef, useState } from "react";
 import type { ChatMessagePublic } from "@/client";
 import { MessageBubble } from "@/components/messages/message-bubble";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import {
-// 	DropdownMenu,
-// 	DropdownMenuContent,
-// 	DropdownMenuItem,
-// 	DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
 import {
 	type ConversationProfile,
 	isClientProfile,
 } from "@/hooks/isClientProfile";
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar";
 import { cn } from "@/lib/utils";
-
-// import { useWebSocket } from "@/context/websocket-context"
 
 const iconButton =
 	"grid size-8.5 shrink-0 place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
@@ -47,7 +39,6 @@ export function MessageThread({
 	presencePending: boolean;
 	messages: ChatMessagePublic[] | undefined;
 	draft: string;
-	archived: boolean;
 	onBack: () => void;
 	onDetails: () => void;
 	onDraftChange: (draft: string) => void;
@@ -200,36 +191,6 @@ export function MessageThread({
 				>
 					<Search className="size-4" />
 				</button>
-				{/* <DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<button
-							type="button"
-							aria-label="Conversation options"
-							className={iconButton}
-						>
-							<MoreHorizontal className="size-4" />
-						</button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent
-						align="end"
-						className="w-52 border-outline-variant bg-surface-container-lowest p-1"
-					>
-						<DropdownMenuItem
-							onSelect={onMarkUnread}
-							className="flex items-center gap-2 font-label-sm text-label-sm text-on-surface"
-						>
-							<Mail className="size-4 text-outline" />
-							Mark as unread
-						</DropdownMenuItem>
-						<DropdownMenuItem
-							onSelect={onArchive}
-							className="flex items-center gap-2 font-label-sm text-label-sm text-on-surface"
-						>
-							<Archive className="size-4 text-outline" />
-							{archived ? "Move to inbox" : "Archive conversation"}
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu> */}
 			</header>
 			{searchOpen && (
 				<div className="border-outline-variant border-b bg-surface-container-lowest px-4 py-2.5 sm:px-6">
@@ -272,18 +233,6 @@ export function MessageThread({
 					)}
 				</div>
 			)}
-			{/* {archived && (
-				<div className="flex items-center justify-between border-outline-variant border-b bg-surface-container-low px-4 py-2 font-caption text-caption text-on-surface-variant">
-					<span>Archived conversation</span>
-					<button
-						type="button"
-						onClick={onArchive}
-						className="font-medium text-link hover:underline"
-					>
-						Move to inbox
-					</button>
-				</div>
-			)} */}
 			<div
 				ref={scrollRef}
 				className="message-history min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#f0f2f5] px-4 py-6 sm:px-8 dark:bg-[#131518]"
