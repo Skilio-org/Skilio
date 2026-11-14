@@ -340,6 +340,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 				}
 			}
 			ws.onclose = (e) => {
+				console.log(e.code)
 				if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
 				if (e.code === WebSocketCloseCodes.PolicyViolation) {
 					localStorage.clear()
