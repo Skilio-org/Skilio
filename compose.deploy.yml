@@ -17,13 +17,10 @@ services:
     volumes:
       - traefik-certificates:/certificates
     ports:
-      # Port 80 (HTTP): Used to redirect to HTTPS and complete Let's Encrypt challenges
       - "80:80"
-      # Port 443 (HTTPS): Secure production traffic
       - "443:443"
 
 
-  # ============== DATA & PERSISTENCE ==============
   db:
     restart: always
 
@@ -31,7 +28,6 @@ services:
     restart: always
 
 
-  # ============== APPLICATION RUNTIME ==============
   backend:
     restart: always
     environment:
@@ -51,7 +47,6 @@ services:
       - traefik.http.services.backend.loadbalancer.healthCheck.timeout=5s
 
 
-  # ============== OBSERVABILITY & MONITORING ==============
   grafana:
     restart: always
     labels:
@@ -64,7 +59,5 @@ services:
       - traefik.http.services.grafana.loadbalancer.server.port=3000
 
 
-# ============== PERSISTENT STORAGE VOLUMES ==============
 volumes:
-  # Persistent storage for Let's Encrypt certificates across container restarts
   traefik-certificates:

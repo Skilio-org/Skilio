@@ -24,9 +24,9 @@
 | **IV.2** | **User Management (Major)** | **Standard User Management & Dual Role** | **2 Pts** | `<arajma>`, `<omorakwant>`| [docs/features.md](features.md) |
 | **IV.2** | **User Management (Major)** | **Remote Authentication (Google & LinkedIn OAuth)** | **2 Pts** | `<arajma>` | [docs/features.md](features.md) |
 | **IV.4** | **AI / Real-Time (Major)** | **Real-Time Live Chat via WebSockets & Redis** | **2 Pts** | `<lazmoud>` | [docs/features.md](features.md) |
-| **IV.7** | **DevOps (Major)** | **Observability Suite (Prometheus & Grafana)** | **2 Pts** | `<aysadeq>` | [devops/docs/MONITORING.md](../devops/docs/MONITORING.md) |
-| **IV.7** | **DevOps (Minor)** | **Health Diagnostics, Status Page & Disaster Recovery** | **1 Pt** | `<aysadeq>` | [devops/docs/BACKUP.md](../devops/docs/BACKUP.md) |
-| **IV.10** | **Module of Choice (Major)**| **Production Cloud Deployment & Zero-Touch CI/CD** | **2 Pts** | `<aysadeq>` | [devops/docs/DEPLOYMENT.md](../devops/docs/DEPLOYMENT.md) |
+| **IV.7** | **DevOps (Major)** | **Observability Suite (Prometheus & Grafana)** | **2 Pts** | `<aysadeq>` | [devops/monitoring.md](devops/monitoring.md) |
+| **IV.7** | **DevOps (Minor)** | **Health Diagnostics, Status Page & Disaster Recovery** | **1 Pt** | `<aysadeq>` | [devops/backup.md](devops/backup.md) |
+| **IV.10** | **Module of Choice (Major)**| **Production Cloud Deployment & Zero-Touch CI/CD** | **2 Pts** | `<aysadeq>` | [devops/deployment.md](devops/deployment.md) |
 | **IV.10** | **Module of Choice (Minor)**| **Cloud Media & Asset Storage (Cloudinary)** | **1 Pt** | `<zbakour>`, `<arajma>` | [docs/features.md](features.md) |
 
 ### 📊 Point Summary:

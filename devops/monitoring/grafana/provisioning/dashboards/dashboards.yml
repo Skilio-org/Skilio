@@ -1,9 +1,9 @@
 apiVersion: 1
 
 providers:
-  - name: "Freelancer"
+  - name: "Skilio"
     orgId: 1
-    folder: "Freelancer"
+    folder: "Skilio"
     type: file
     disableDeletion: false
     editable: true
