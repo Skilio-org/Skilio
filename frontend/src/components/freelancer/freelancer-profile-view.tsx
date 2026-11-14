@@ -4,7 +4,14 @@ import { formatMoney } from "@/lib/currency"
 import { LoadingImage } from "@/components/common/loading-image"
 
 import { Monogram, SkillTag } from "@/components/dashboard/dashboard-header"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog"
 
 type ProfileViewEntry = {
 	id: string
@@ -155,7 +162,7 @@ export function FreelancerProfileView({
 						</div>
 					</div>
 				</div>
-				</header>
+			</header>
 			<div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px] xl:gap-8">
 				<aside aria-label="Contact and availability" className="lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1">
 					<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
@@ -188,7 +195,10 @@ export function FreelancerProfileView({
 					aria-label="Professional profile"
 					className="min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:col-start-1 lg:row-start-1"
 				>
-					<nav aria-label="Profile sections" className="flex gap-6 overflow-x-auto border-outline-variant border-b px-5 sm:px-8">
+					<nav
+						aria-label="Profile sections"
+						className="flex gap-6 overflow-x-auto border-outline-variant border-b px-5 sm:px-8"
+					>
 						{sections.map(([id, label]) => (
 							<a
 								key={id}

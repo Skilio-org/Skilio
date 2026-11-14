@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useBlocker } from "@tanstack/react-router"
 import { ArrowLeft, Eye } from "lucide-react"
-import { useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { type FreelancerProfileDetailPublic, ProfilesService } from "@/client"
 import { LeavePageDialog } from "@/components/common/leave-page-dialog"
@@ -48,10 +48,17 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	const [saving, setSaving] = useState(false)
 	const [uploading, setUploading] = useState(false)
 	const [uploadProgress, setUploadProgress] = useState(0)
-	// A local copy of the picked photo, shown while it uploads.
-	const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+	// The picked photo is only shown at first. It is uploaded when the profile is saved.
+	const [pendingPhoto, setPendingPhoto] = useState<File | null>(null)
+	const photoPreview = useMemo(() => (pendingPhoto ? URL.createObjectURL(pendingPhoto) : null), [pendingPhoto])
+	useEffect(
+		() => () => {
+			if (photoPreview) URL.revokeObjectURL(photoPreview)
+		},
+		[photoPreview],
+	)
 
-	// The CV is a PDF or DOCX stored on the server. Here we only need to know whether one exists.
+	// The resume is a PDF or DOCX stored on the server. Here we only need to know whether one exists.
 	const [hasCv, setHasCv] = useState(Boolean(initial.resume_url))
 	const [cvUploading, setCvUploading] = useState(false)
 	const [cvProgress, setCvProgress] = useState(0)
@@ -69,7 +76,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 	const progress = profileProgress(profile)
 
 	// Warn before leaving the page with unsaved changes.
-	const dirty = JSON.stringify(profile) !== JSON.stringify(savedProfile)
+	const dirty = JSON.stringify(profile) !== JSON.stringify(savedProfile) || pendingPhoto !== null
 	const busy = saving || uploading || cvUploading
 	const blocker = useBlocker({
 		shouldBlockFn: () => busy || dirty,
@@ -99,6 +106,13 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			toast.error(problem)
 			return false
 		}
+		// A photo that was picked but not uploaded yet goes up first, then the rest of the profile.
+		let photo = profile.photo
+		if (pendingPhoto) {
+			const uploaded = await uploadPhoto(pendingPhoto)
+			if (!uploaded) return false
+			photo = uploaded
+		}
 		saveLock.current = true
 		setSaving(true)
 		try {
@@ -107,7 +121,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			setServerProfile(data)
 			// Keep anything typed while the request was in flight instead of overwriting it with the saved copy.
 			setProfile((current) => ({ ...current, finished: canPublish }))
-			setSavedProfile({ ...profile, finished: canPublish })
+			setSavedProfile({ ...profile, photo, finished: canPublish })
 			portfolioTouched.current = false
 			queryClient.setQueryData(queryKeys.freelancerProfile(initial.user_id), data)
 			void queryClient.invalidateQueries({ queryKey: queryKeys.currentUser })
@@ -150,14 +164,19 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 		}
 	}
 
-	async function uploadPhoto(file?: File) {
-		if (!file || !user) return
+	// Called when a file is picked: checks it and shows it, but does not upload it yet.
+	function pickPhoto(file?: File) {
+		if (!file) return
 		if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > profileLimits.avatarBytes) {
 			toast.error("Choose a JPG, PNG or WebP image under 5 MB.")
 			return
 		}
-		const previewUrl = URL.createObjectURL(file)
-		setPhotoPreview(previewUrl)
+		setPendingPhoto(file)
+	}
+
+	// Uploads the picked photo and returns its new address, or null if it failed.
+	async function uploadPhoto(file: File) {
+		if (!user) return null
 		setUploadProgress(0)
 		setUploading(true)
 		try {
@@ -168,16 +187,16 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			if (response.data.status !== "Ok") throw new Error("Upload failed")
 			const photo = accountAvatarUrl(user.id, markAccountAvatarUpdated(user.id, "freelancer"), "freelancer")
 			update("photo", photo)
-			setSavedProfile((previous) => ({ ...previous, photo }))
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: queryKeys.freelancerProfile(user.id) }),
 				queryClient.invalidateQueries({ queryKey: queryKeys.currentUser }),
 			])
+			setPendingPhoto(null)
+			return photo
 		} catch {
 			toast.error("This image couldn’t be uploaded. Try again.")
+			return null
 		} finally {
-			setPhotoPreview(null)
-			URL.revokeObjectURL(previewUrl)
 			setUploading(false)
 		}
 	}
@@ -190,7 +209,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			return
 		}
 		if (file.size > profileLimits.cvBytes) {
-			toast.error("Choose a CV under 5 MB.")
+			toast.error("Choose a resume under 5 MB.")
 			return
 		}
 		setCvProgress(0)
@@ -202,10 +221,10 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 				onUploadProgress: (event) => setCvProgress(Math.round((event.loaded / (event.total ?? file.size)) * 100)),
 			})
 			setHasCv(true)
-			toast.success("CV uploaded")
+			toast.success("Resume uploaded")
 		} catch {
 			setCvFile(null)
-			toast.error("This CV couldn’t be uploaded. Try again.")
+			toast.error("This resume couldn’t be uploaded. Try again.")
 		} finally {
 			setCvUploading(false)
 		}
@@ -219,9 +238,9 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 			setHasCv(false)
 			setCvFile(null)
 			setRemoveCvOpen(false)
-			toast.success("CV removed")
+			toast.success("Resume removed")
 		} catch {
-			toast.error("Couldn’t remove your CV. Try again.")
+			toast.error("Couldn’t remove your resume. Try again.")
 		} finally {
 			setCvRemoving(false)
 		}
@@ -377,6 +396,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 					uploading={uploading}
 					uploadProgress={uploadProgress}
 					photoPreview={photoPreview}
+					onPhotoDiscard={() => setPendingPhoto(null)}
 					cv={{
 						hasCv,
 						file: cvFile,
@@ -386,7 +406,7 @@ const FreelancerProfileEditor = ({ initial }: { initial: FreelancerProfileDetail
 						onRemove: () => setRemoveCvOpen(true),
 					}}
 					onStepChange={edit}
-					onPhotoChange={(file) => void uploadPhoto(file)}
+					onPhotoChange={pickPhoto}
 					onEditEntry={(kind, entry) => setEditor({ kind, entry })}
 					onPreview={() => setView("preview")}
 					onBack={() => void back()}

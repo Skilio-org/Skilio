@@ -48,13 +48,17 @@ export function ReviewStep({
 							<div className="min-w-0 flex-1">
 								<p className="font-medium text-on-surface text-sm">
 									{name}
-									{!requiredSteps.includes(i) && <span className="font-normal text-on-surface-variant"> · Optional</span>}
+									{!requiredSteps.includes(i) && (
+										<span className="font-normal text-on-surface-variant"> · Optional</span>
+									)}
 								</p>
 								<p className={`mt-0.5 break-words text-xs ${missing ? "text-destructive" : "text-on-surface-variant"}`}>
 									{done[i] ? summaries[i] : missing ? "Required. Nothing added yet." : "Nothing added yet."}
 								</p>
 								{done[i] && i === EXPERTISE_STEP && profile.skills.length > 0 && (
-									<p className="mt-1 line-clamp-2 break-words text-on-surface-variant text-xs">{profile.skills.join(", ")}</p>
+									<p className="mt-1 line-clamp-2 break-words text-on-surface-variant text-xs">
+										{profile.skills.join(", ")}
+									</p>
 								)}
 								{done[i] && i === INTRODUCTION_STEP && profile.languages && (
 									<p className="mt-1 break-words text-on-surface-variant text-xs">{profile.languages}</p>

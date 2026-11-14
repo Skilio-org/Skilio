@@ -9,7 +9,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog"
 
-// Asks before removing the CV, the same way the other confirmation dialogs in the app do.
+// Asks before removing the resume, the same way the other confirmation dialogs in the app do.
 export function RemoveCvDialog({
 	open,
 	isRemoving,
@@ -28,9 +28,9 @@ export function RemoveCvDialog({
 					<span className="mb-1 grid size-10 place-items-center rounded-lg bg-destructive/10 text-destructive">
 						<Trash2 className="size-5" />
 					</span>
-					<DialogTitle>Remove your CV</DialogTitle>
+					<DialogTitle>Remove your resume</DialogTitle>
 					<DialogDescription>
-						Clients will no longer be able to download your CV. You can upload a new one at any time.
+						Clients will no longer be able to download your resume. You can upload a new one at any time.
 					</DialogDescription>
 				</DialogHeader>
 
@@ -38,13 +38,8 @@ export function RemoveCvDialog({
 					<button type="button" className={workspaceStyles.secondaryAction} disabled={isRemoving} onClick={onClose}>
 						Cancel
 					</button>
-					<button
-						type="button"
-						className={workspaceStyles.destructiveAction}
-						disabled={isRemoving}
-						onClick={onConfirm}
-					>
-						{isRemoving ? "Removing..." : "Remove CV"}
+					<button type="button" className={workspaceStyles.destructiveAction} disabled={isRemoving} onClick={onConfirm}>
+						{isRemoving ? "Removing..." : "Remove resume"}
 					</button>
 				</DialogFooter>
 			</DialogContent>

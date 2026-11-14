@@ -52,16 +52,9 @@ export function AppLayout() {
 
 	if (role === "freelancer") {
 		if (
-			[
-				"/dashboard",
-				"/talent",
-				"/saved",
-				"/client-profile",
-				"/client-jobs",
-				"/messages",
-				"/help",
-				"/settings",
-			].some((p) => path === p || path.startsWith(`${p}/`))
+			["/dashboard", "/talent", "/saved", "/client-profile", "/client-jobs", "/messages", "/help", "/settings"].some(
+				(p) => path === p || path.startsWith(`${p}/`),
+			)
 		) {
 			return (
 				<Navigate

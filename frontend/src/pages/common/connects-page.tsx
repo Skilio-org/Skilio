@@ -77,7 +77,8 @@ export function ConnectsPage() {
 		{ id: "received" as const, label: "Received requests", count: receivedCount },
 		{ id: "sent" as const, label: "Sent inquiries", count: sentCount },
 	]
-	const activeListLength = activeTab === "network" ? acceptedList.length : activeTab === "received" ? receivedList.length : sentList.length
+	const activeListLength =
+		activeTab === "network" ? acceptedList.length : activeTab === "received" ? receivedList.length : sentList.length
 
 	const clearFilterButton = (
 		<button type="button" onClick={() => setSearchQuery("")} className={workspaceStyles.secondaryAction}>
@@ -100,7 +101,10 @@ export function ConnectsPage() {
 				action={<FindLink role={role} className={workspaceStyles.primaryAction} />}
 			/>
 
-			<nav aria-label="Connection tabs" className="-mx-4 flex gap-3 overflow-x-auto border-outline-variant border-b px-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:gap-6 sm:px-0">
+			<nav
+				aria-label="Connection tabs"
+				className="-mx-4 flex gap-3 overflow-x-auto border-outline-variant border-b px-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:gap-6 sm:px-0"
+			>
 				{tabs.map((t) => (
 					<button
 						key={t.id}
@@ -141,7 +145,9 @@ export function ConnectsPage() {
 			{activeTab === "network" && (
 				<section aria-label="Connected Network" className="space-y-4">
 					{accepted.isLoading ? (
-						<p className="py-16 text-center font-label-md text-on-surface-variant text-sm">Loading your connections...</p>
+						<p className="py-16 text-center font-label-md text-on-surface-variant text-sm">
+							Loading your connections...
+						</p>
 					) : filteredAccepted.length === 0 ? (
 						<EmptyState
 							icon={Users}
@@ -174,7 +180,9 @@ export function ConnectsPage() {
 			{activeTab === "received" && (
 				<section aria-label="Received connection requests" className="space-y-4">
 					{received.isLoading ? (
-						<p className="py-16 text-center font-label-md text-on-surface-variant text-sm">Loading incoming requests...</p>
+						<p className="py-16 text-center font-label-md text-on-surface-variant text-sm">
+							Loading incoming requests...
+						</p>
 					) : filteredReceived.length === 0 ? (
 						<EmptyState
 							icon={Inbox}

@@ -5,7 +5,13 @@ import type { ProfileProgress } from "@/components/freelancer/profile-editor/pro
 
 const SECTION_COUNT = 6
 
-function SectionList({ progress: { done, nextStep, summaries }, onEdit }: { progress: ProfileProgress; onEdit: (step: number) => void }) {
+function SectionList({
+	progress: { done, nextStep, summaries },
+	onEdit,
+}: {
+	progress: ProfileProgress
+	onEdit: (step: number) => void
+}) {
 	return (
 		<section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
 			<div className="flex items-center justify-between border-outline-variant border-b px-5 py-3.5">
@@ -42,7 +48,15 @@ function SectionList({ progress: { done, nextStep, summaries }, onEdit }: { prog
 	)
 }
 
-function StatusCard({ profile, nextStep, onEdit }: { profile: ProfileForm; nextStep: number; onEdit: (step: number) => void }) {
+function StatusCard({
+	profile,
+	nextStep,
+	onEdit,
+}: {
+	profile: ProfileForm
+	nextStep: number
+	onEdit: (step: number) => void
+}) {
 	const reviewStep = steps.length - 1
 	return (
 		<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
@@ -70,7 +84,15 @@ function StatusCard({ profile, nextStep, onEdit }: { profile: ProfileForm; nextS
 	)
 }
 
-function FeedbackCard({ rating, reviewCount, onReadReviews }: { rating: number; reviewCount: number; onReadReviews: () => void }) {
+function FeedbackCard({
+	rating,
+	reviewCount,
+	onReadReviews,
+}: {
+	rating: number
+	reviewCount: number
+	onReadReviews: () => void
+}) {
 	return (
 		<section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-5">
 			<div className="flex items-center justify-between gap-3">
