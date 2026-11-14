@@ -362,7 +362,7 @@
   ],
   "refresh": "10s",
   "schemaVersion": 39,
-  "tags": ["docker", "containers", "cadvisor", "hardware", "freelancer"],
+  "tags": ["docker", "containers", "cadvisor", "hardware", "skilio"],
   "time": {
     "from": "now-1h",
     "to": "now"
@@ -372,6 +372,6 @@
   },
   "timezone": "browser",
   "title": "Docker Containers & System Resources",
-  "uid": "freelancer-containers",
+  "uid": "skilio-containers",
   "version": 1
 }

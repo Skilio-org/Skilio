@@ -213,9 +213,9 @@ erDiagram
 | **IV.2** | **User (Major)**| **User Management & Dual-Role Switching** | **2 Pts** | `<arajma>`, `<omorakwant>`| [docs/features.md](docs/features.md) |
 | **IV.2** | **User (Major)**| **Remote Authentication (Google & LinkedIn OAuth)** | **2 Pts** | `<arajma>` | [docs/features.md](docs/features.md) |
 | **IV.4** | **AI/Realtime (Major)**| **Live Real-Time Chat (WebSockets & Redis)** | **2 Pts** | `<lazmoud>` | [docs/features.md](docs/features.md) |
-| **IV.7** | **DevOps (Major)** | **Observability Suite (Prometheus & Grafana)** | **2 Pts** | `<aysadeq>` | [devops/docs/MONITORING.md](devops/docs/MONITORING.md) |
-| **IV.7** | **DevOps (Minor)** | **Health Diagnostics, Status Page & Disaster Recovery** | **1 Pt** | `<aysadeq>` | [devops/docs/BACKUP.md](devops/docs/BACKUP.md) |
-| **IV.10** | **Choice (Major)** | **Production Cloud Deployment & Zero-Touch CI/CD** | **2 Pts** | `<aysadeq>` | [devops/docs/DEPLOYMENT.md](devops/docs/DEPLOYMENT.md) |
+| **IV.7** | **DevOps (Major)** | **Observability Suite (Prometheus & Grafana)** | **2 Pts** | `<aysadeq>` | [docs/devops/monitoring.md](docs/devops/monitoring.md) |
+| **IV.7** | **DevOps (Minor)** | **Health Diagnostics, Status Page & Disaster Recovery** | **1 Pt** | `<aysadeq>` | [docs/devops/backup.md](docs/devops/backup.md) |
+| **IV.10** | **Choice (Major)** | **Production Cloud Deployment & Zero-Touch CI/CD** | **2 Pts** | `<aysadeq>` | [docs/devops/deployment.md](docs/devops/deployment.md) |
 | **IV.10** | **Choice (Minor)** | **Cloud Media & Asset Storage (Cloudinary)** | **1 Pt** | `<zbakour>`, `<arajma>` | [docs/features.md](docs/features.md) |
 
 ### 📊 Point Summary:
@@ -384,7 +384,7 @@ All detailed documentation files branch out from this root README into dedicated
 | 🏛️ **[docs/architecture.md](docs/architecture.md)** | Comprehensive technical architecture, sequence diagrams, and real-time topology. |
 | 🌿 **[docs/git-workflow.md](docs/git-workflow.md)** | Team Git workflow, branch naming conventions, PR checks, and merge flow. |
 | 💻 **[docs/development.md](docs/development.md)** | Step-by-step local developer environment configuration. |
-| 🛡️ **[devops/DevOps.md](devops/DevOps.md)** | Master DevOps hub: AWS Cloud deployment, Traefik TLS, Backups, and Monitoring. |
+| 🛡️ **[docs/devops/README.md](docs/devops/README.md)** | Master DevOps hub: AWS Cloud deployment, Traefik TLS, Backups, and Monitoring. |
 
 ---
 
