@@ -21,11 +21,13 @@ export function BasicsStep({
 	uploadProgress,
 	photoPreview,
 	onPhotoChange,
+	onPhotoDiscard,
 }: StepProps & {
 	uploading: boolean
 	uploadProgress: number
 	photoPreview: string | null
 	onPhotoChange: (file?: File) => void
+	onPhotoDiscard: () => void
 }) {
 	const photoInput = useRef<HTMLInputElement>(null)
 
@@ -64,8 +66,21 @@ export function BasicsStep({
 				<div>
 					<p className="font-medium text-sm">Profile photo</p>
 					<p className="mt-1 text-on-surface-variant text-xs">
-						{uploading ? `Uploading your photo… ${uploadProgress}%` : "Optional. JPG, PNG or WebP, up to 5 MB."}
+						{uploading
+							? `Uploading your photo… ${uploadProgress}%`
+							: photoPreview
+								? "New photo selected. It is uploaded when you save."
+								: "Optional. JPG, PNG or WebP, up to 5 MB."}
 					</p>
+					{photoPreview && !uploading && (
+						<button
+							type="button"
+							className="mt-1 font-medium text-link text-xs hover:underline"
+							onClick={onPhotoDiscard}
+						>
+							Discard new photo
+						</button>
+					)}
 				</div>
 			</div>
 			<div className="grid gap-5 sm:grid-cols-2">

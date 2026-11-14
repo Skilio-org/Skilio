@@ -20,9 +20,7 @@ export function FreelancerProfileReadinessCard({ userId }: FreelancerProfileRead
 	const progress = profileForm ? profileProgress(profileForm) : null
 
 	const hasSkillsAndRate = Boolean((profile?.skills?.length ?? 0) > 0 && (profile?.hourly_rate ?? 0) > 0)
-	const hasPortfolio = Boolean(
-		(profile?.portfolio?.length ?? 0) > 0 || (profile?.portfolio_media?.length ?? 0) > 0
-	)
+	const hasPortfolio = Boolean((profile?.portfolio?.length ?? 0) > 0 || (profile?.portfolio_media?.length ?? 0) > 0)
 	const isProfileFinished = Boolean(profile?.finished)
 	const isAllDone = isProfileFinished && hasSkillsAndRate && hasPortfolio
 	const completionPercent = isAllDone ? 100 : (progress?.percent ?? 0)
@@ -40,9 +38,7 @@ export function FreelancerProfileReadinessCard({ userId }: FreelancerProfileRead
 				</h2>
 
 				<p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
-					<span className="font-medium text-on-surface">
-						Complete your profile to get higher chances of hiring.
-					</span>{" "}
+					<span className="font-medium text-on-surface">Complete your profile to get higher chances of hiring.</span>{" "}
 					Add your verified skills, set your target rate, and showcase client work you’re proud of.
 				</p>
 			</div>
@@ -50,18 +46,13 @@ export function FreelancerProfileReadinessCard({ userId }: FreelancerProfileRead
 			<div className="my-3.5 rounded-lg border border-outline-variant bg-surface-container-lowest p-3.5 shadow-sm dark:border-border-subtle dark:bg-surface-panel dark:shadow-none">
 				<div className="mb-2 flex items-center justify-between font-caption text-caption">
 					<div className="flex items-center gap-2">
-						<span className="font-medium text-on-surface dark:text-on-surface-soft">
-							Profile readiness
-						</span>
+						<span className="font-medium text-on-surface dark:text-on-surface-soft">Profile readiness</span>
 						<span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold text-on-surface dark:bg-primary/20 dark:text-primary">
 							{completionPercent}%
 						</span>
 					</div>
 
-					<Link
-						to="/freelancer"
-						className="font-medium text-link transition-colors hover:underline dark:text-primary"
-					>
+					<Link to="/freelancer" className="font-medium text-link transition-colors hover:underline dark:text-primary">
 						Review
 					</Link>
 				</div>
@@ -75,21 +66,14 @@ export function FreelancerProfileReadinessCard({ userId }: FreelancerProfileRead
 
 				<ul className="flex flex-col gap-2 font-caption text-caption text-on-surface-variant">
 					<li>
-						<Link
-							to="/freelancer"
-							className="group flex items-center gap-2 transition-colors hover:text-on-surface"
-						>
+						<Link to="/freelancer" className="group flex items-center gap-2 transition-colors hover:text-on-surface">
 							{hasSkillsAndRate ? (
 								<CheckCircle2 className="size-3.5 shrink-0 text-primary dark:text-primary" />
 							) : (
 								<Circle className="size-3.5 shrink-0 text-outline group-hover:text-on-surface-variant" />
 							)}
 							<span
-								className={
-									hasSkillsAndRate
-										? "text-on-surface"
-										: "text-on-surface-variant group-hover:text-on-surface"
-								}
+								className={hasSkillsAndRate ? "text-on-surface" : "text-on-surface-variant group-hover:text-on-surface"}
 							>
 								Keep your skills and rate current
 							</span>
@@ -97,21 +81,14 @@ export function FreelancerProfileReadinessCard({ userId }: FreelancerProfileRead
 					</li>
 
 					<li>
-						<Link
-							to="/freelancer"
-							className="group flex items-center gap-2 transition-colors hover:text-on-surface"
-						>
+						<Link to="/freelancer" className="group flex items-center gap-2 transition-colors hover:text-on-surface">
 							{hasPortfolio ? (
 								<CheckCircle2 className="size-3.5 shrink-0 text-primary dark:text-primary" />
 							) : (
 								<Circle className="size-3.5 shrink-0 text-outline group-hover:text-on-surface-variant" />
 							)}
 							<span
-								className={
-									hasPortfolio
-										? "text-on-surface"
-										: "text-on-surface-variant group-hover:text-on-surface"
-								}
+								className={hasPortfolio ? "text-on-surface" : "text-on-surface-variant group-hover:text-on-surface"}
 							>
 								Show strong portfolio work
 							</span>
@@ -119,10 +96,7 @@ export function FreelancerProfileReadinessCard({ userId }: FreelancerProfileRead
 					</li>
 
 					<li>
-						<Link
-							to="/freelancer"
-							className="group flex items-center gap-2 transition-colors hover:text-on-surface"
-						>
+						<Link to="/freelancer" className="group flex items-center gap-2 transition-colors hover:text-on-surface">
 							{isProfileFinished ? (
 								<CheckCircle2 className="size-3.5 shrink-0 text-primary dark:text-primary" />
 							) : (
@@ -130,9 +104,7 @@ export function FreelancerProfileReadinessCard({ userId }: FreelancerProfileRead
 							)}
 							<span
 								className={
-									isProfileFinished
-										? "text-on-surface"
-										: "text-on-surface-variant group-hover:text-on-surface"
+									isProfileFinished ? "text-on-surface" : "text-on-surface-variant group-hover:text-on-surface"
 								}
 							>
 								Review your public profile before applying
