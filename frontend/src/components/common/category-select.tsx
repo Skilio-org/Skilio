@@ -80,7 +80,7 @@ export default function CategorySelect({
 				<Command>
 					{searchable && <CommandInput placeholder={searchPlaceholder} />}
 
-					<CommandList>
+					<CommandList className="max-h-[268px] overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:var(--color-outline-variant)_transparent] [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-outline-variant hover:[&::-webkit-scrollbar-thumb]:bg-outline">
 						<CommandEmpty>{emptyText}</CommandEmpty>
 
 						<CommandGroup>
@@ -106,6 +106,13 @@ export default function CategorySelect({
 							))}
 						</CommandGroup>
 					</CommandList>
+
+					{categories.length > 5 && (
+						<div className="flex items-center justify-between border-t border-outline-variant/50 px-2.5 py-1.5 font-caption text-[11px] text-on-surface-variant">
+							<span>{categories.length} categories</span>
+							<span className="text-[10px] text-outline">Scroll for more</span>
+						</div>
+					)}
 				</Command>
 			</PopoverContent>
 		</Popover>
