@@ -303,6 +303,6 @@
   },
   "timezone": "browser",
   "title": "PostgreSQL Database Health",
-  "uid": "freelancer-postgres",
+  "uid": "skilio-postgres",
   "version": 1
 }
