@@ -963,6 +963,7 @@ async def proxy_resume(
     profile = user.freelancer_profile if user else session.get(FreelancerProfile, uuid)
     if not profile or not profile.resume_url:
         raise HTTPException(status_code=404, detail="Resume not found")
+    print("Get: ", profile.resume_url)
     return await _stream_cloudinary_media(client, profile.resume_url)
 
 

@@ -145,6 +145,7 @@ def seed_database(
         ).first()
         if client_profile is None:
             client_profile = ClientProfile(
+                avatar_url=avatar_url,
                 user_id=user.id,
                 company=c_data["company"],
                 company_role=c_data["role"],
@@ -195,6 +196,7 @@ def seed_database(
         ).first()
         if profile is None:
             profile = FreelancerProfile(
+                avatar_url=avatar_url,
                 user_id=user.id,
                 title=f_data["title"],
                 bio=f_data["bio"],
@@ -288,7 +290,7 @@ def seed_database(
     # 5. Seed Client -> Freelancer Reviews
     logger.info("Seeding Inter-Entity Client Reviews...")
     for client_idx, freelancer_idx, rating, comment in REVIEWS_TEMPLATES:
-        if client_idx >= len(client_users) or freelancer_idx >= len(freelancer_profiles):
+        if len(comment) > 200 or client_idx >= len(client_users) or freelancer_idx >= len(freelancer_profiles):
             continue
 
         c_user = client_users[client_idx]
