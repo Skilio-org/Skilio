@@ -19,7 +19,12 @@ from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, CurrentUserOptional, SessionDep
 from app.api.routes.searches import record_recent_search
-from app.claudinary import claudinary_delete_media, claudinary_delete_raw, claudinary_upload_media, claudinary_upload_raw
+from app.claudinary import (
+    claudinary_delete_media,
+    claudinary_delete_raw,
+    claudinary_upload_media,
+    claudinary_upload_raw,
+)
 from app.models import (
     AvatarResponse,
     Education,

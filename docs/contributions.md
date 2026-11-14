@@ -17,7 +17,7 @@
 | `<aysadeq>` | [Ayman Sadik] | Cloud Infrastructure (AWS), Docker Compose, Traefik TLS, CI/CD, DB Backup Daemon & DR, Prometheus & Grafana | IV.10 Major, IV.7 Major, IV.7 Minor, Sec III |
 | `<arajma>` | [Amine Rajma] | FastAPI REST API, SQLModel schemas, Alembic migrations, JWT/Argon2 auth, Google/LinkedIn OAuth, Input Validation | IV.1 Major, IV.1 Minor, IV.2 Major |
 | `<lazmoud>` | [Lahoucine Azmoud] | WebSocket messaging server, Redis Pub/Sub event bus, chat frontend UI, message deletion, proposal workflows | IV.4 Major |
-| `<omorakwant>`| [Osama Dahriz] | React 19 SPA setup, Tailwind CSS v4 design system, landing page, responsive navbar, dark/light theme, route guards | IV.1 Major, IV.2 Major |
+| `<omorakwant>`| [Osama Dahriz] | React 19 SPA architecture, Tailwind CSS v4 design system, dual-role state sync (`useSyncExternalStore`), TanStack routing & guards, responsive mobile UX, landing page redesign | IV.1 Major, IV.2 Major |
 | `<zbakour>` | [Zakaria Bakour] | Talent directory & faceted search, job post management, review & rating engine, status page UI, QA & localization | IV.10 Minor |
 
 ---
@@ -81,18 +81,26 @@
 
 ### 👤 `<omorakwant>` — Frontend Lead & UI/UX Architect
 #### 🛠️ Implemented Components & Codebase Footprint:
-- **Frontend Architecture:** Set up React 19 with Vite, TypeScript, and Biome linting/formatting configuration.
-- **Design System & Components:** Configured Tailwind CSS v4 with custom color themes, Radix UI primitives, and shadcn/ui components.
-- **Landing Page & Global Navigation:** Built responsive `TopNav`, hero section, category cards, and trending talent showcase.
-- **Client-Side Routing & Guards:** Configured TanStack Router with dynamic role-based route guards (`/dashboard` vs `/freelancer-dashboard`).
+- **Frontend Architecture & Tooling:** Structured React 19 SPA with Vite, TypeScript 6, Biome linting/formatting, and environment configuration.
+- **Design System & Components:** Configured Tailwind CSS v4 with custom color themes, Radix UI primitives, custom scrollbar utilities, and shadcn/ui components.
+- **Dual-Role State Synchronization:** Engineered multi-tab and multi-component client/freelancer role synchronization using `useSyncExternalStore` in `frontend/src/features/account/useAccountRole.ts` with custom broadcast events (`skilio:account-role-changed`), eliminating reload requirements.
+- **Routing & Route Guards:** Configured TanStack Router file-based routing with programmatic `beforeLoad` authentication and role redirection (`/dashboard` vs `/freelancer-dashboard`), typed Zod URL search validation, and nested layout route outlets.
+- **Landing Page & Navigation UX:** Built Moroccan-localized landing page (`frontend/src/routes/index.tsx`), animated `HeroSection`, category cards, and responsive `TopNav` with auth-aware single-click dashboard navigation.
+- **Mobile Ergonomics & Responsive UI:** Overhauled `/connects` purchasing interface with sticky viewport-pinned mobile action bars (`fixed bottom-0 z-40 md:static`) and responsive touch-target layouts.
+- **Dashboard Optimization & Onboarding:** Cleaned up client dashboard onboarding clutter and implemented auto-dismissal logic for `FreelancerProfileReadinessCard` when reaching 100% completion.
+- **Scroll Affordances & Accessible Menus:** Resolved global scrollbar suppression issues in `CategorySelect.tsx` with custom thin scrollbars, partial item height slicing (`max-h-[268px]`), and live selection counters.
+- **Documentation & 42 Defense Preparation:** Authored comprehensive frontend architectural specifications and 42 peer/Bocal defense guides in `docs/osama/`.
 
 #### 🧗 Technical Challenges Faced & Solutions:
-1. **Challenge — Tailwind CSS v4 Migration & Dynamic Theming:**  
-   - *Problem:* Tailwind v4 introduced fundamental changes to CSS variable handling, causing custom component styles from shadcn/ui to break.  
+1. **Challenge — Multi-Tab & Dual-Role Synchronization without Concurrent Tearing:**  
+   - *Problem:* Switching roles between client and freelancer in one component or browser tab left the top navigation, route guards, and dashboards in inconsistent states, previously requiring full browser reloads (`window.location.reload()`) that wiped out client cache and broke SPA continuity.  
+   - *Solution:* Implemented a native React 19 `useSyncExternalStore` hook in `useAccountRole.ts`. It subscribes simultaneously to browser `storage` events (for cross-tab synchronization) and an internal `CustomEvent('skilio:account-role-changed')` (for intra-tab instant synchronization). All components re-render simultaneously with zero tearing and without refreshing the page.
+2. **Challenge — Global Scrollbar Suppression vs Dropdown Scroll UX:**  
+   - *Problem:* A global `* { scrollbar-width: none; }` and `::-webkit-scrollbar { display: none; }` rule in `globals.css` completely hid scrollbars across the application. In dropdown menus like `CategorySelect`, users had no visual indicator that the list was scrollable beyond the first visible items.  
+   - *Solution:* Configured a scoped `.scrollbar-thin` utility in Tailwind v4 that overrides global hidden styles with high-specificity selectors. In `CategorySelect.tsx`, tuned the container height to `max-h-[268px]` (creating a visual item slice cut-off affordance) and added a sticky live status footer showing exact visible items and scroll hints.
+3. **Challenge — Tailwind CSS v4 Migration & Dynamic Theming:**  
+   - *Problem:* Tailwind v4 introduced fundamental changes to CSS variable handling and build-time pipeline, causing custom component styles from shadcn/ui to break.  
    - *Solution:* Migrated the project to `@tailwindcss/vite` and restructured base styling using modern CSS variables, ensuring seamless dark/light theme switching.
-2. **Challenge — Navigation State Sync across Dual-Role Views:**  
-   - *Problem:* Switching roles occasionally left the top navigation displaying outdated links until a full page reload occurred.  
-   - *Solution:* Connected the active role state to a centralized TanStack Query cache key with automatic query invalidation upon role change.
 
 ---
 
