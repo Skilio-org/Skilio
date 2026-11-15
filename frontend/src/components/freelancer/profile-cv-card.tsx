@@ -8,7 +8,6 @@ import { workspaceStyles } from "@/components/dashboard/dashboard-header"
 export function ProfileCvCard({ userId, name }: { userId: string; name: string }) {
 	const [downloading, setDownloading] = useState(false)
 
-	// The resume is private to logged-in users, so it is fetched with the login token and saved from the browser.
 	async function download() {
 		setDownloading(true)
 		try {
