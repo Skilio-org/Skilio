@@ -18,37 +18,52 @@ The **Freelancer Marketplace** is a high-performance, full-stack platform connec
 
 ## 2. Technology Stack & Ecosystem
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                              CLIENT BROWSER                            │
-│  React 19 • TypeScript • Vite • TanStack Router & Query • Tailwind v4  │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │ HTTP/2 & WebSockets
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                         TRAEFIK REVERSE PROXY 3.6                      │
-│            Port 80/443 Routing • SSL Termination • Host Rules          │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │ (HTTP / WebSockets)
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                     FASTAPI BACKEND (Python 3.14)                      │
-│  FastAPI • SQLModel • Pydantic v2 • Lifespan Engine • Auth & OAuth     │
-└───────┬───────────────────────────┬────────────────────────────────────┘
-        │              │              │
-        ▼              ▼              ▼
-┌──────────────┐ ┌───────────┐ ┌─────────────────────────────────────────┐
-│ POSTGRESQL 18│ │  REDIS 8  │ │           CLOUDINARY CDN                │
-│  Relational  │ │  Pub/Sub  │ │  Avatar / Resume / Portfolio Assets     │
-│   Database   │ │ Event Bus │ └─────────────────────────────────────────┘
-└───────┬──────┘ └───────────┘
-        │
-        ▼
-┌──────────────────────────────┐
-│    BACKUP DAEMON (Postgres)  │
-│ Automated Periodic SQL Dumps │
-│  Retention & DR Verification │
-└──────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Ingress[Public Ingress and Routing]
+        Users[Web Browsers and Public Clients]
+        Traefik[Traefik 3.6 Edge Proxy - TLS 1.3]
+    end
+
+    subgraph AppTier[Application Tier - AWS EC2]
+        Backend[FastAPI Backend and React SPA - Port 8000]
+    end
+
+    subgraph DataTier[Data and Storage Tier]
+        Postgres[(PostgreSQL 18 Database - 19 Tables)]
+        Redis[(Redis 8 Cache and Pub-Sub Bus)]
+        Backup[db-backup Daemon - Daily 02:00 UTC]
+    end
+
+    subgraph TelemetryTier[Observability and Monitoring Tier]
+        Grafana[Grafana Dashboard - Port 3000]
+        Prometheus[(Prometheus TSDB Engine - Port 9090)]
+        PGExporter[postgres-exporter - Port 9187]
+        cAdvisor[Google cAdvisor - Port 8080]
+    end
+
+    subgraph ExternalServices[External Cloud Services]
+        Cloudinary[Cloudinary CDN - Media Storage]
+    end
+
+    Users -->|HTTPS Traffic - Port 443| Traefik
+    Users -.->|Telemetry UI - Port 443| Traefik
+
+    Traefik -->|Forward App Traffic| Backend
+    Traefik -->|Forward Grafana Traffic| Grafana
+
+    Backend -->|Read and Write Queries| Postgres
+    Backend -->|Live Pub-Sub Events| Redis
+    Backend -->|Upload Media and Resumes| Cloudinary
+
+    Backup -->|Daily Backup Stream| Postgres
+
+    Prometheus -->|Scrape Metrics - Port 8000| Backend
+    Prometheus -->|Scrape DB Metrics - Port 9187| PGExporter
+    Prometheus -->|Scrape Container Stats - Port 8080| cAdvisor
+
+    PGExporter -->|Query Performance Stats| Postgres
+    Grafana -->|PromQL Dashboard Queries| Prometheus
 ```
 
 ### Backend Technologies
@@ -84,10 +99,15 @@ The **Freelancer Marketplace** is a high-performance, full-stack platform connec
 ### DevOps & Infrastructure
 | Component | Implementation | Description |
 | :--- | :--- | :--- |
-| **Traefik** | `3.6` | Container-aware reverse proxy routing HTTP/WS traffic and managing TLS certificates. |
-| **Docker Compose** | Multi-file (`compose.yml`, `override`, `deploy`) | Declarative container orchestration for local dev, watch modes, and production deployments. |
-| **Automated Backup Daemon** | Custom container (`devops/backup/`) | Automated periodic database dumps, gzip compression, retention rotation, and recovery drill scripts. |
-| **Mailpit** | `axllent/mailpit` | SMTP sandbox capturing transactional emails (welcome, reset password) locally during development. |
+| **AWS EC2 Hosting** | `t3.small` (Ubuntu 24.04 LTS) | Dedicated cloud VM with static Elastic IP (`16.192.59.166`), security groups, and 2GB swap memory buffer (`vm.swappiness=10`). |
+| **Traefik Ingress** | `3.6` | Dynamic Docker reverse proxy routing HTTP/WS, automated Let's Encrypt TLS 1.3 certificates, and HTTP 308 HTTPS redirects. |
+| **Docker Compose** | Multi-file (`compose.yml`, `override`, `deploy`) | Declarative container orchestration across development, testing, and production environments. |
+| **CI/CD Automation** | GitHub Actions (`ci-cd.yml`) | Automated 3-tier testing gate (lint, pytest, Docker build) and zero-downtime rolling container swap over SSH `rsync`. |
+| **DB Backup Daemon** | Alpine container (`postgres:18-alpine`) | Daily automated streaming `pg_dump \| gzip -9` backups at 02:00 UTC, CRC-32 validation, 7-day retention, and `<5s` DR drill. |
+| **Prometheus TSDB** | `prom/prometheus:v2.54.1` | Time-series metrics engine scraping FastAPI, PostgreSQL, and cAdvisor targets with anti-flapping alerting rules. |
+| **Grafana Telemetry** | `grafana/grafana:11.2.0` | Production telemetry dashboards provisioned as code in the "Skilio" folder (`https://grafana.skilio.works`). |
+| **Telemetry Exporters** | `postgres-exporter:v0.16` & `cAdvisor:v0.51` | Hardware cgroup resource metrics and internal database performance metrics. |
+| **Mailpit Sandbox** | `axllent/mailpit` | SMTP sandbox capturing transactional emails (welcome, reset password) locally during development. |
 
 ---
 
@@ -449,20 +469,26 @@ flowchart LR
 
 ## 8. DevOps, Security & Disaster Recovery
 
-### 8.1 Database Backup Daemon & Disaster Recovery
-A standalone alpine Postgres service (`backup-daemon`) runs continuously in Docker Compose:
-- **Automated Cadence**: Dumps PostgreSQL using `pg_dump` on a configurable schedule (`BACKUP_INTERVAL_SECONDS`, default: 3600s).
-- **Gzip Compression**: Backups are compressed to `.sql.gz` and saved to `./devops/backup/dumps/`.
-- **Retention Management**: Retains the last `N` dumps (`BACKUP_KEEP_LAST`, default: 10) and automatically purges older archives.
-- **Disaster Recovery Drill**: `make dr-test` runs an automated DR drill that spins up an isolated sandbox database, restores the latest backup, verifies table counts and relational integrity, and tears down the sandbox.
+### 8.1 Cloud Infrastructure & Automated CI/CD
+- **Cloud Hosting (AWS EC2):** Hosted on an AWS EC2 instance (`t3.small`, Ubuntu 24.04 LTS) with a permanent static Elastic IP (`16.192.59.166`) and security group firewall isolation.
+- **Memory Safety Buffer:** Automated 2GB swap partition with `vm.swappiness=10`, preventing Linux kernel Out-Of-Memory (OOM) crashes during Vite frontend builds.
+- **Edge Ingress & Automated SSL (Traefik 3.6):** Dynamically listens to `/var/run/docker.sock` to route HTTP/WebSocket traffic, auto-renews Let's Encrypt TLS 1.3 certificates, and enforces HTTP (port 80) to HTTPS (port 443) redirection via HTTP 308.
+- **Automated CI/CD Pipeline (`ci-cd.yml`):** GitHub Actions runs a 3-tier validation gate (code quality checks, 173 pytest integration tests, and Docker stack build). Merges to `master` trigger zero-downtime rolling container swaps over SSH `rsync`.
 
-### 8.2 Deep Health Monitoring & Public Status Page
-The platform features an automated observability system exposed via `/api/v1/utils/health/detailed` and rendered at `/status`:
-- **Database Diagnostic**: Runs an active `SELECT 1` query and measures roundtrip query latency in milliseconds.
-- **Disk Storage Diagnostic**: Checks filesystem storage capacity, reporting free GB, total GB, and percentage available (warning on `<10%`).
-- **Secrets Diagnostic**: Confirms encryption keys and superuser credentials are valid and not using template defaults.
-- **Email Sandbox Status**: Verifies SMTP configuration and reachability.
-- **Interactive UI**: The `/status` page auto-refreshes every 10 seconds, visualizing system uptime, service cards, and real-time latency indicators.
+### 8.2 Database Backups & Instant Disaster Recovery
+- **Dedicated Backup Daemon:** A containerized Alpine service (`postgres:18-alpine`) runs daily at 02:00 UTC, streaming `pg_dump | gzip -9` snapshots directly to `./devops/backup/dumps/`.
+- **Integrity & Retention:** Each archive is verified immediately with CRC-32 checksums (`gzip -t`), and a 7-day FIFO retention ring buffer automatically prunes older snapshots.
+- **Sandbox Disaster Recovery Drill:** `make dr-test` creates an isolated test database, restores the latest backup, asserts 100% table and relational integrity, and tears down the sandbox in under 5 seconds.
+- **Point-in-Time Restore:** `make restore` terminates active connections via `pg_terminate_backend` and resets the `public` schema in seconds.
+
+### 8.3 System Observability & Telemetry
+- **Prometheus TSDB Scraper:** Gathers time-series metrics across four scrape targets: internal Prometheus stats, FastAPI application routes (10s interval), PostgreSQL database activity (15s interval), and cAdvisor container stats (15s interval).
+- **Multi-Tier Exporters:**
+  - *Application:* `prometheus-fastapi-instrumentator` collects HTTP throughput, error rates (2xx, 4xx, 5xx), and p50/p90/p99 latency histograms.
+  - *Database:* `postgres-exporter:v0.16` monitors connection pools, transaction commit rates, and row read/write activity.
+  - *Infrastructure:* Google `cAdvisor:v0.51` mounts Linux kernel cgroups to track real-time container CPU, RAM, and network I/O.
+- **Grafana Telemetry Dashboards:** Pre-provisioned Dashboards-as-Code in the version-controlled "Skilio" folder (`https://grafana.skilio.works`) covering FastAPI performance, database health, and container hardware usage.
+- **Health Diagnostic Endpoint (`GET /api/v1/health`):** Probes database roundtrip latency (`SELECT 1`), Redis ping, and root disk capacity, rendered publicly on the React `/status` dashboard with 10s auto-polling.
 
 ---
 
@@ -492,4 +518,4 @@ The platform features an automated observability system exposed via `/api/v1/uti
 | **Messaging**| WebSocket Chat & Typing | `WS /chat/ws?token=...` | `/messages`, `/freelancer-messages`, `MessageThread` |
 | **Messaging**| Conversation History | `GET /chat/me`, `GET /chat/conversation/{id}/messages` | `ConversationList`, `useMessageContacts` |
 | **Reviews** | Post & View Reviews | `POST /reviews/`, `GET /reviews/freelancer/{id}` | `ReviewCard`, Freelancer Profile |
-| **System** | Deep Health & Status | `GET /utils/health/detailed` | `/status`, `StatusPage` |
+| **System** | Deep Health & Status | `GET /api/v1/health` | `/status`, `StatusPage` |
