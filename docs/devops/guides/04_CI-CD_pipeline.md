@@ -268,9 +268,10 @@ Our pipeline executes four parallel testing jobs across three tiers before deplo
  │ TIER 3: Docker Build & Smoke Test                                      │
  │   • Job: test-docker-compose ──▶ docker compose build                 │
  │                              ──▶ Run ephemeral prestart.sh             │
- │                              ──▶ docker compose up -d --wait backend   │
- │                              ──▶ curl http://localhost:8000/api/v1/health   │
- │                              ──▶ curl http://localhost:8000 (UI root)  │
+ │                              ──▶ docker compose up -d --wait proxy backend │
+ │                              ──▶ curl https://localhost:8443/api/v1/health   │
+ │                              ──▶ curl https://localhost:8443 (UI root)       │
+ │                              ──▶ curl http://localhost:8080 (308 redirect)   │
  └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -307,9 +308,9 @@ Our pipeline executes four parallel testing jobs across three tiers before deplo
   ```bash
   docker compose build
   docker compose run --rm backend bash scripts/prestart.sh
-  docker compose up -d --wait backend
+  docker compose up -d --wait proxy backend
   ```
-* **HTTP Smoke Testing:** Uses `bash devops/scripts/check-health.sh http://localhost:8000/api/v1/health 5 2` to verify deep diagnostic health (confirming FastAPI, PostgreSQL, and Redis are fully operational with JSON payload validation), followed by probing the compiled React single-page application (`/`) at web root.
+* **HTTPS Smoke Testing & Redirect Verification:** Uses `bash devops/scripts/check-health.sh https://localhost:8443/api/v1/health 5 2` to verify deep diagnostic health through the Traefik TLS ingress (confirming FastAPI, PostgreSQL, and Redis are fully operational with JSON payload validation), verifies the compiled React SPA at `https://localhost:8443`, and validates the mandatory `HTTP 308 Permanent Redirect` on port `8080`.
 * **Zero State Leakage:** Relies on GitHub's cloud runner lifecycle, which completely destroys the ephemeral virtual machine, containers, and temporary volumes immediately upon job completion.
 
 ---
@@ -472,7 +473,7 @@ After swapping the container, [`ci-cd.yml`](../../../.github/workflows/ci-cd.yml
 bash devops/scripts/check-health.sh https://skilio.works/api/v1/health 12 5
 ```
 
-* **Architectural Symmetry & Reusability:** Rather than embedding duplicate 20-line bash loops in YAML, `check-health.sh` standardizes health probing across both pre-deployment Docker smoke testing (`http://localhost:8000/api/v1/health 5 2`) and post-deployment AWS live verification (`https://skilio.works/api/v1/health 12 5`).
+* **Architectural Symmetry & Reusability:** Rather than embedding duplicate 20-line bash loops in YAML, `check-health.sh` standardizes health probing across both pre-deployment Docker smoke testing (`https://localhost:8443/api/v1/health 5 2`) and post-deployment AWS live verification (`https://skilio.works/api/v1/health 12 5`).
 * **Accurate JSON Parsing with `jq`:** Uses `jq -e '.status == "healthy"'` to strictly inspect the top-level summary status. This eliminates false positives where a degraded or unhealthy service (e.g., Redis outage) might otherwise pass a naive text `grep`.
 * **Diagnostic Telemetry Output:** On success, outputs the complete formatted JSON telemetry payload (PostgreSQL query latency, Redis ping latency, storage capacity) directly to CI logs.
 * **Timeout Window:** Retries 12 times with 5-second intervals (60-second total window). If the backend fails to become healthy, the script exits with code 1, marking the deployment failed.
