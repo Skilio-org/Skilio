@@ -430,7 +430,6 @@ async def websocket_chat_endpoint(
                 continue
 
             event_type = data.get("type", "custom")
-            # logger.info(f"Event: {event_type} By: {user_id}")
             if event_type == "ping":
                 await websocket.send_text(json.dumps({"type": "pong"}))
                 continue

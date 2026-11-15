@@ -19,7 +19,7 @@ class Settings(BaseSettings):
         env_ignore_empty=True,
         extra="ignore",
     )
-    DEFAULT_AVATAR_URL: str = "https://res.cloudinary.com/vrreelhh/image/upload/070fa03c-8a3a-4b6b-b012-81ab0f0c3f4b.png"
+    DEFAULT_AVATAR_URL: str = "https://res.cloudinary.com/vrreelhh/image/upload/v1794764194/skilio-default.png"
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str
     # 60 minutes * 24 hours * 8 days = 8 days
