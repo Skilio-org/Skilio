@@ -919,7 +919,7 @@ class ReviewBase(SQLModel):
     rating: int = Field(ge=1, le=5, description="Stars review between 1 and 5")
     comment: str = Field(
         min_length=1,
-        max_length=200,
+        max_length=400,
         description="Review feedback on freelancer profile",
     )
 
@@ -939,7 +939,7 @@ class ReviewCreate(ReviewBase):
 
 class ReviewUpdate(SQLModel):
     rating: int | None = Field(default=None, ge=1, le=5)
-    comment: str | None = Field(default=None, min_length=1, max_length=200)
+    comment: str | None = Field(default=None, min_length=1, max_length=400)
 
     @model_validator(mode="before")
     @classmethod

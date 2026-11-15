@@ -27,7 +27,7 @@ type ReviewModalProps = {
 	isSubmitting: boolean
 }
 
-const MAX_COMMENT_LENGTH = 200
+const MAX_COMMENT_LENGTH = 400
 
 export function ReviewModal({
 	open,
