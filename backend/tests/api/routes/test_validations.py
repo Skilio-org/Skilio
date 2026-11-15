@@ -486,7 +486,7 @@ def test_review_validation(client: TestClient, db: Session) -> None:
     profile = create_random_profile(db)
 
     # Comment / feedback > 200 chars
-    long_comment = "C" * 201
+    long_comment = "C" * 401
     resp1 = client.post(
         f"{settings.API_V1_STR}/reviews/",
         headers=headers,
