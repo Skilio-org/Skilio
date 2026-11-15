@@ -88,9 +88,9 @@ Finding and hiring freelance talent often suffers from fragmented tools—client
 
 | Service | Local URL | Description |
 | :--- | :--- | :--- |
-| **Skilio Web Application** | [http://localhost:8000](http://localhost:8000) | Full-stack application (FastAPI + React bundle) |
-| **Interactive API Docs** | [http://localhost:8000/docs](http://localhost:8000/docs) | Swagger UI for exploring backend endpoints |
-| **Public Status Page** | [http://localhost:8000/status](http://localhost:8000/status) | Real-time health diagnostic badges |
+| **Skilio Web Application** | [https://localhost:8443](https://localhost:8443) (or `:8080`) | Full-stack application via Traefik HTTPS |
+| **Interactive API Docs** | [https://localhost:8443/docs](https://localhost:8443/docs) | Swagger UI for exploring backend endpoints |
+| **Public Status Page** | [https://localhost:8443/status](https://localhost:8443/status) | Real-time health diagnostic badges |
 | **Grafana Monitoring** | [http://localhost:3000](http://localhost:3000) | Live telemetry dashboards (User: `admin` / `.env` password) |
 | **Prometheus TSDB** | [http://localhost:9090](http://localhost:9090) | Scrape targets and alerting rules engine |
 | **Mailpit Sandbox** | [http://localhost:8025](http://localhost:8025) | Local SMTP mailbox for password reset emails |
