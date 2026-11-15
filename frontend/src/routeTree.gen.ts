@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LayoutRouteImport } from './routes/_layout'
+import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as GoogleAuthRouteImport } from './routes/googleAuth'
 import { Route as LinkedinAuthRouteImport } from './routes/linkedinAuth'
 import { Route as LoginRouteImport } from './routes/login'
@@ -44,6 +45,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignSystemRoute = DesignSystemRouteImport.update({
+  id: '/design-system',
+  path: '/design-system',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoogleAuthRoute = GoogleAuthRouteImport.update({
@@ -180,6 +186,7 @@ const LayoutTalentFreelancerIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/design-system': typeof DesignSystemRoute
   '/googleAuth': typeof GoogleAuthRoute
   '/linkedinAuth': typeof LinkedinAuthRoute
   '/login': typeof LoginRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/design-system': typeof DesignSystemRoute
   '/googleAuth': typeof GoogleAuthRoute
   '/linkedinAuth': typeof LinkedinAuthRoute
   '/login': typeof LoginRoute
@@ -238,6 +246,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_layout': typeof LayoutRouteWithChildren
+  '/design-system': typeof DesignSystemRoute
   '/googleAuth': typeof GoogleAuthRoute
   '/linkedinAuth': typeof LinkedinAuthRoute
   '/login': typeof LoginRoute
@@ -268,6 +277,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/design-system'
     | '/googleAuth'
     | '/linkedinAuth'
     | '/login'
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/design-system'
     | '/googleAuth'
     | '/linkedinAuth'
     | '/login'
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_layout'
+    | '/design-system'
     | '/googleAuth'
     | '/linkedinAuth'
     | '/login'
@@ -355,6 +367,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LayoutRoute: typeof LayoutRouteWithChildren
+  DesignSystemRoute: typeof DesignSystemRoute
   GoogleAuthRoute: typeof GoogleAuthRoute
   LinkedinAuthRoute: typeof LinkedinAuthRoute
   LoginRoute: typeof LoginRoute
@@ -380,6 +393,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof LayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design-system': {
+      id: '/design-system'
+      path: '/design-system'
+      fullPath: '/design-system'
+      preLoaderRoute: typeof DesignSystemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/googleAuth': {
@@ -604,6 +624,7 @@ const LayoutRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LayoutRoute: LayoutRouteWithChildren,
+  DesignSystemRoute: DesignSystemRoute,
   GoogleAuthRoute: GoogleAuthRoute,
   LinkedinAuthRoute: LinkedinAuthRoute,
   LoginRoute: LoginRoute,
