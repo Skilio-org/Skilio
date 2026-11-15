@@ -174,9 +174,17 @@ Docker Compose automatically detects and merges `compose.override.yml` when runn
  │                                                                        │
  │   HOST MACHINE                                CONTAINERS               │
  │                                                                        │
+ │   Local Browser / Curl      ────────▶   proxy (Port 8080 HTTP Ingress) │
+ │                                               │                        │
+ │                                               ▼ (HTTP 308 Redirect)    │
+ │                             ────────▶   proxy (Port 8443 HTTPS TLS)    │
+ │                                               │ (Forward to backend)   │
+ │                                               ▼                        │
+ │                                         backend (Internal Port 8000)   │
+ │                                         (Port 8000 CLOSED to Host)     │
+ │                                                                        │
  │   DBeaver / DataGrip        ────────▶   db (Port 5432 published)       │
- │   Redis GUI / CLI           ────────▶   redis (Port 6379 published)    │
- │   Local Web Browser / Curl  ────────▶   backend (Port 8000 published)  │
+ │   Redis GUI / CLI           ────────▶   redis (Port 6780 published)    │
  │   Traefik Web Dashboard     ────────▶   proxy (Port 8090 published)    │
  │   Prometheus UI             ────────▶   prometheus (Port 9090)         │
  │   Grafana Dashboard         ────────▶   grafana (Port 3000)            │
@@ -188,7 +196,8 @@ Docker Compose automatically detects and merges `compose.override.yml` when runn
 ```
 
 ### Architectural Decisions in Development:
-* **Host Port Exposure:** Ports `5432` (DB), `6379` (Redis), and `8000` (FastAPI) are published to `localhost` so developers can use native IDEs, debuggers, and database clients.
+* **Mandatory HTTPS & Zero Backdoor Ports (Section III Compliance):** Port `8000` is deliberately **NOT** published on the host. Instead, Traefik exposes `8080` (HTTP) and `8443` (HTTPS). Any incoming request to `http://localhost:8080` is automatically redirected via an `HTTP 308 Permanent Redirect` to `https://localhost:8443`, proving complete subject compliance even in local evaluation.
+* **Host Port Exposure for Datastores:** Ports `5432` (DB) and `6780` (Redis) are published to `localhost` so developers can use native IDEs, debuggers, and database clients.
 * **Mock Email Testing with Mailpit:**
   * Runs `axllent/mailpit` locally on ports `1025` (SMTP) and `8025` (Web UI).
   * Backend points `SMTP_HOST: mailpit`. All verification emails and password resets are captured locally in a web inbox without sending real emails or requiring external SMTP credentials.
@@ -258,11 +267,12 @@ This overlay strips away development tools and hardens the infrastructure for pu
 
 | Dimension | `compose.yml` (Base) | `compose.override.yml` (Dev) | `compose.deploy.yml` (Prod) |
 | :--- | :--- | :--- | :--- |
-| **Target Audience** | Shared blueprint | Local developer laptop | AWS EC2 Cloud Server |
+| **Target Audience** | Shared blueprint | Local developer laptop / Evaluation | AWS EC2 Cloud Server |
 | **Invocation** | Included in all modes | Auto-loaded (`docker compose up`) | Explicit (`-f compose.deploy.yml`) |
-| **Ingress Protocols** | HTTP Port 80 | HTTP 80 + Traefik API (8090) | Strict HTTPS (443) + HTTP (80) redirect |
-| **SSL / TLS** | None (Plain HTTP) | None | Automated Let's Encrypt (TLS 1.3) |
-| **Datastore Ports** | Internal network only | Published (`5432`, `6379`) | **Strictly blocked** from host |
+| **Ingress Protocols** | Defined by overlays | HTTP (8080) $\rightarrow$ HTTPS (8443) redirect + Traefik API (8090) | Strict HTTPS (443) + HTTP (80) redirect |
+| **SSL / TLS** | Defined by overlays | Traefik Default TLS (Localhost) | Automated Let's Encrypt (TLS 1.3) |
+| **Datastore Ports** | Internal network only | Published (`5432`, `6780`) | **Strictly blocked** from host |
+| **Backend Port 8000** | Internal network only | **Internal only (Zero backdoor)** | **Internal only (Zero backdoor)** |
 | **Backend Execution** | `uvicorn app.main:app` (4 workers) | `fastapi dev --host 0.0.0.0` | `uvicorn app.main:app` (4 workers) |
 | **Email Subsystem** | Configured via env | Local Mailpit UI (:8025) | Production SMTP Relay |
 | **Restart Policy** | `unless-stopped` | Default / Inherited | `always` |

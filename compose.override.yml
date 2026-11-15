@@ -1,20 +1,19 @@
 services:
 
   proxy:
-    user: ":0"
     command:
       - --providers.docker
       - --providers.docker.exposedbydefault=false
       - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
       - --accesslog
       - --log
       - --log.level=DEBUG
       - --api
       - --api.insecure=true
-    volumes:
-      - "${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro"
     ports:
-      - "${PROXY_PORT:-80}:80"
+      - "${PROXY_PORT:-8080}:80"
+      - "${HTTPS_PORT:-8443}:443"
       - "8090:8080"
 
 
@@ -34,8 +33,27 @@ services:
       - "bash scripts/prestart.sh && fastapi dev --host 0.0.0.0"
     environment:
       SMTP_HOST: "mailpit"
-    ports:
-      - "8000:8000"
+      HOST: "https://localhost:${HTTPS_PORT:-8443}"
+      FRONTEND_HOST: "https://localhost:${HTTPS_PORT:-8443}"
+      GOOGLE_REDIRECT_URI: "https://localhost:${HTTPS_PORT:-8443}/googleAuth"
+      LINKEDIN_REDIRECT_URI: "https://localhost:${HTTPS_PORT:-8443}/linkedinAuth"
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.backend.loadbalancer.server.port=8000
+
+      # HTTP Router: catches port 80/8080 and redirects to HTTPS on port 8443
+      - traefik.http.routers.backend-http.rule=PathPrefix(`/`)
+      - traefik.http.routers.backend-http.entrypoints=http
+      - traefik.http.routers.backend-http.middlewares=redirect-to-https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.port=${HTTPS_PORT:-8443}
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true
+
+      # HTTPS Router: serves the application over TLS on port 8443
+      - traefik.http.routers.backend-https.rule=PathPrefix(`/`)
+      - traefik.http.routers.backend-https.entrypoints=https
+      - traefik.http.routers.backend-https.service=backend
+      - traefik.http.routers.backend-https.tls=true
 
 
   mailpit:

@@ -104,14 +104,17 @@ jobs:
       - name: Run Migrations
         run: docker compose run --rm backend bash scripts/prestart.sh
 
-      - name: Start Backend
-        run: docker compose up -d --wait backend
+      - name: Start Full Stack
+        run: docker compose up -d --wait proxy backend
 
       - name: Check Full Stack Health
-        run: bash devops/scripts/check-health.sh http://localhost:8000/api/v1/health 5 2
+        run: bash devops/scripts/check-health.sh https://localhost:8443/api/v1/health 5 2
 
-      - name: Check Web Root
-        run: curl -f --retry 5 --retry-delay 2 http://localhost:8000
+      - name: Check Web Root (HTTPS)
+        run: curl -k -f --retry 5 --retry-delay 2 https://localhost:8443
+
+      - name: Verify Mandatory HTTPS Redirect
+        run: curl -Iv http://localhost:8080/ | grep -i "308 Permanent Redirect"
 
 
   deploy:
