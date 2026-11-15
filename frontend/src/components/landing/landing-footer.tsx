@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowUp } from "lucide-react"
 import skilioLogo from "/assets/images/skilio-logo.svg"
-import { PLATFORM_CATEGORIES } from "@/data/categories"
+import { PLATFORM_CATEGORIES, useCategories } from "@/hooks/useCategories"
 
 type FooterLink = {
 	label: string
@@ -17,39 +17,47 @@ type FooterSection = {
 
 const CURRENT_YEAR = new Date().getFullYear()
 
-const FOOTER_SECTIONS: FooterSection[] = [
-	{
-		title: "Platform",
-		links: [
-			{ label: "Find Talent", href: "#talent", isAnchor: true },
-			{ label: "Browse Contracts", href: "#contracts", isAnchor: true },
-			{ label: "Milestone Escrow", href: "#how-it-works", isAnchor: true },
-			{ label: "How It Works", href: "#how-it-works", isAnchor: true },
-			{ label: "Stories", href: "#testimonials", isAnchor: true },
-		],
-	},
-	{
-		title: "Specialties",
-		links: PLATFORM_CATEGORIES.slice(0, 7).map((category) => ({
-			label: category,
-			href: "/talent",
-			search: { category },
-			isAnchor: false,
-		})),
-	},
-	{
-		title: "Company",
-		links: [
-			{ label: "About Skilio", href: "/", isAnchor: false },
-			{ label: "System Status", href: "/status", isAnchor: false },
-			{ label: "Terms of Service", href: "/terms", isAnchor: false },
-			{ label: "Privacy Policy", href: "/privacy", isAnchor: false },
-			{ label: "Log In", href: "/login", isAnchor: false },
-		],
-	},
+const STATIC_PLATFORM_LINKS: FooterLink[] = [
+	{ label: "Find Talent", href: "#talent", isAnchor: true },
+	{ label: "Browse Contracts", href: "#contracts", isAnchor: true },
+	{ label: "Milestone Escrow", href: "#how-it-works", isAnchor: true },
+	{ label: "How It Works", href: "#how-it-works", isAnchor: true },
+	{ label: "Stories", href: "#testimonials", isAnchor: true },
+]
+
+const STATIC_COMPANY_LINKS: FooterLink[] = [
+	{ label: "About Skilio", href: "/", isAnchor: false },
+	{ label: "System Status", href: "/status", isAnchor: false },
+	{ label: "Terms of Service", href: "/terms", isAnchor: false },
+	{ label: "Privacy Policy", href: "/privacy", isAnchor: false },
+	{ label: "Log In", href: "/login", isAnchor: false },
 ]
 
 export function LandingFooter() {
+	const { data: remoteCategories } = useCategories()
+	const categories =
+		remoteCategories && remoteCategories.length > 0 ? remoteCategories : PLATFORM_CATEGORIES
+
+	const footerSections: FooterSection[] = [
+		{
+			title: "Platform",
+			links: STATIC_PLATFORM_LINKS,
+		},
+		{
+			title: "Specialties",
+			links: categories.map((category) => ({
+				label: category,
+				href: "/talent",
+				search: { category },
+				isAnchor: false,
+			})),
+		},
+		{
+			title: "Company",
+			links: STATIC_COMPANY_LINKS,
+		},
+	]
+
 	return (
 		<footer className="relative border-t border-border/70 bg-[#131517] text-neutral-300 overflow-hidden">
 			{/* Subtle brand hairline accent glow */}
@@ -79,7 +87,7 @@ export function LandingFooter() {
 
 					{/* Balanced Link Columns (7 cols on lg) */}
 					<div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
-						{FOOTER_SECTIONS.map((section) => (
+						{footerSections.map((section) => (
 							<div key={section.title} className="flex flex-col gap-3.5">
 								<h4 className="text-[12px] font-semibold tracking-wider text-neutral-200">
 									{section.title}

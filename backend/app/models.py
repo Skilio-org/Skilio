@@ -5,8 +5,10 @@ from typing import Any, Literal, Optional, Self
 from urllib.parse import urlparse
 
 from pydantic import BaseModel, EmailStr, field_validator, model_validator
-from sqlalchemy import JSON, CheckConstraint, DateTime, UniqueConstraint
+from sqlalchemy import JSON, CheckConstraint, DateTime, UniqueConstraint, text
 from sqlmodel import Field, Relationship, SQLModel
+
+from app.core.config import settings
 
 
 def get_datetime_utc() -> datetime:
@@ -216,8 +218,10 @@ class User(UserBase, table=True):
         sa_type=DateTime(timezone=True),  # type: ignore
     )
     avatar_url: str | None = Field(
-        default=None, max_length=2000
-    )  # stores the Cloudinary url
+        default=settings.DEFAULT_AVATAR_URL,
+        sa_column_kwargs={"server_default": text(f"'{settings.DEFAULT_AVATAR_URL}'")},
+        max_length=2000,
+    )
     # items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True) No items anymore
     # For google Auth.
     google_id: str | None = Field(default=None, max_length=255)
@@ -712,7 +716,11 @@ class FreelancerAvailabilityUpdate(SQLModel):
 
 class FreelancerProfile(FreelancerProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    avatar_url: str | None = Field(default=None, max_length=2000)
+    avatar_url: str | None = Field(
+        default=settings.DEFAULT_AVATAR_URL,
+        sa_column_kwargs={"server_default": text(f"'{settings.DEFAULT_AVATAR_URL}'")},
+        max_length=2000,
+    )
     resume_url: str | None = Field(default=None, max_length=2048)
     resume_public_id: str | None = Field(default=None, max_length=255)
     user_id: uuid.UUID = Field(
@@ -863,7 +871,11 @@ class ClientProfileUpdate(SQLModel):
 
 class ClientProfile(ClientProfileBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    avatar_url: str | None = Field(default=None, max_length=2000)
+    avatar_url: str | None = Field(
+        default=settings.DEFAULT_AVATAR_URL,
+        sa_column_kwargs={"server_default": text(f"'{settings.DEFAULT_AVATAR_URL}'")},
+        max_length=2000,
+    )
     user_id: uuid.UUID = Field(
         foreign_key="user.id", unique=True, nullable=False, ondelete="CASCADE"
     )
@@ -907,7 +919,7 @@ class ReviewBase(SQLModel):
     rating: int = Field(ge=1, le=5, description="Stars review between 1 and 5")
     comment: str = Field(
         min_length=1,
-        max_length=200,
+        max_length=400,
         description="Review feedback on freelancer profile",
     )
 
@@ -927,7 +939,7 @@ class ReviewCreate(ReviewBase):
 
 class ReviewUpdate(SQLModel):
     rating: int | None = Field(default=None, ge=1, le=5)
-    comment: str | None = Field(default=None, min_length=1, max_length=200)
+    comment: str | None = Field(default=None, min_length=1, max_length=400)
 
     @model_validator(mode="before")
     @classmethod
@@ -937,7 +949,6 @@ class ReviewUpdate(SQLModel):
                 data = dict(data)
                 data["comment"] = data["feedback"]
         return data
-
 
 class Review(ReviewBase, table=True):
     __table_args__ = (

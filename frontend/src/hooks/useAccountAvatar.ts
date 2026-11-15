@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import useAuth from "./useAuth"
 
 const changed = "account-avatar-updated"
 
@@ -22,6 +23,8 @@ export function markAccountAvatarUpdated(userId: string, role?: "client" | "free
 }
 
 export function useAccountAvatarUrl(userId?: string, role?: "client" | "freelancer") {
+
+	const {user} = useAuth()
 	const [version, setVersion] = useState("")
 	useEffect(() => {
 		const update = () => {
@@ -41,5 +44,21 @@ export function useAccountAvatarUrl(userId?: string, role?: "client" | "freelanc
 			window.removeEventListener("storage", update)
 		}
 	}, [userId, role])
+	// console.log("useAccountAvatarUrl", userId, role, version)
+	if (!userId) return undefined
+	if (!role) {
+		console.log("active role", user?.active_role)
+		if (user?.active_role === "freelancer")
+		{
+			// alert("freelancer get client avatar")
+			return accountAvatarUrl(userId, version, "client")
+		}
+		if (user?.active_role === "client") 
+		{
+			// alert("client get freelancer avatar")
+	
+			return accountAvatarUrl(userId, version, "freelancer")
+	}
+	}
 	return userId ? accountAvatarUrl(userId, version, role) : undefined
 }

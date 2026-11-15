@@ -19,7 +19,12 @@ from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, CurrentUserOptional, SessionDep
 from app.api.routes.searches import record_recent_search
-from app.claudinary import claudinary_delete_media, claudinary_delete_raw, claudinary_upload_media, claudinary_upload_raw
+from app.claudinary import (
+    claudinary_delete_media,
+    claudinary_delete_raw,
+    claudinary_upload_media,
+    claudinary_upload_raw,
+)
 from app.models import (
     AvatarResponse,
     Education,
@@ -958,6 +963,7 @@ async def proxy_resume(
     profile = user.freelancer_profile if user else session.get(FreelancerProfile, uuid)
     if not profile or not profile.resume_url:
         raise HTTPException(status_code=404, detail="Resume not found")
+    print("Get: ", profile.resume_url)
     return await _stream_cloudinary_media(client, profile.resume_url)
 
 

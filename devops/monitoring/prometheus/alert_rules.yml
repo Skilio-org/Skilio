@@ -1,79 +1,45 @@
-# Prometheus Alerting Rules for Freelancer Platform
-# Defines thresholds across Availability, Application Performance (SLO), Database, and Infrastructure.
 
 groups:
-  # ============================================================================
-  # 1. Availability Alerts (Critical)
-  # ============================================================================
-  - name: freelancer_availability_alerts
+  - name: skilio_alerts
     rules:
+      # Application Availability (Critical)
       - alert: BackendDown
         expr: up{job="fastapi-backend"} == 0
         for: 1m
         labels:
           severity: critical
-          tier: application
         annotations:
-          summary: "FastAPI Backend is unreachable"
-          description: "The FastAPI backend container has been down for more than 1 minute."
+          summary: "FastAPI Backend is down"
+          description: "The FastAPI backend container has been unreachable for more than 1 minute."
 
+      # Database Availability (Critical)
       - alert: PostgresDown
-        expr: up{job="postgres"} == 0
+        expr: pg_up == 0 or up{job="postgres"} == 0
         for: 1m
         labels:
           severity: critical
-          tier: database
         annotations:
           summary: "PostgreSQL Database is unreachable"
-          description: "The PostgreSQL exporter has been unable to query PostgreSQL for more than 1 minute."
+          description: "PostgreSQL is unreachable or postgres-exporter cannot connect for more than 1 minute."
 
-      - alert: CadvisorDown
-        expr: up{job="cadvisor"} == 0
+      # HTTP Server Errors (Warning)
+      - alert: HttpServerErrors
+        expr: rate(http_requests_total{job="fastapi-backend", status=~"5.."}[1m]) > 0
         for: 1m
         labels:
           severity: warning
-          tier: infrastructure
         annotations:
-          summary: "cAdvisor telemetry is unreachable"
-          description: "cAdvisor container metrics collector has been unreachable for more than 1 minute."
+          summary: "FastAPI returning 5xx server errors"
+          description: "FastAPI has returned HTTP 5xx errors over the last 1 minute."
 
-  # ============================================================================
-  # 2. Application Performance & Error Rate Alerts (SLO)
-  # ============================================================================
-  - name: freelancer_performance_alerts
-    rules:
-      - alert: HighHttp5xxRate
-        expr: (sum(rate(http_requests_total{job="fastapi-backend", status=~"5.."}[2m])) / sum(rate(http_requests_total{job="fastapi-backend"}[2m]))) * 100 > 5
-        for: 2m
-        labels:
-          severity: warning
-          tier: application
-        annotations:
-          summary: "High HTTP 5xx server error rate"
-          description: "FastAPI is returning > 5% HTTP 5xx errors over the last 2 minutes (current rate: {{ $value | printf \"%.2f\" }}%)."
-
-      - alert: HighHttpLatencyP95
-        expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job="fastapi-backend"}[5m]))) > 1.0
-        for: 3m
-        labels:
-          severity: warning
-          tier: application
-        annotations:
-          summary: "High API request latency (p95)"
-          description: "95% of API requests are taking longer than 1.0s over the last 5 minutes (current p95: {{ $value | humanizeDuration }})."
-
-  # ============================================================================
-  # 3. Infrastructure Saturation Alerts
-  # ============================================================================
-  - name: freelancer_infrastructure_alerts
-    rules:
+      # Infrastructure Memory Threshold (Warning)
       - alert: ContainerHighMemory
-        expr: container_memory_usage_bytes{name=~"freelancer-.*"} > 400 * 1024 * 1024
+        expr: container_memory_usage_bytes{name=~".*(skilio|freelancer).*"} > 700 * 1024 * 1024
         for: 2m
         labels:
           severity: warning
-          tier: infrastructure
         annotations:
-          summary: "Container high memory usage"
-          description: "Container {{ $labels.name }} is using {{ $value | humanize1024 }}B of RAM (threshold > 400MB)."
+          summary: "Container memory exceeded 700MB"
+          description: "A container has exceeded 700MB of RAM usage for more than 2 minutes."
+
 

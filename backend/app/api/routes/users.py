@@ -179,8 +179,7 @@ async def proxy_media(
     user = session.get(User, uuid)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-
-    target_role = role or user.active_role
+    target_role = role
     if target_role == UserRole.FREELANCER:
         cloudinary_url = (
             user.freelancer_profile.avatar_url if user.freelancer_profile else None

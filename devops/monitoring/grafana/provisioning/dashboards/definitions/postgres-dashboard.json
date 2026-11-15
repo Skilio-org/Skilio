@@ -32,7 +32,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
+      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 1 },
       "id": 1,
       "options": {
         "colorMode": "value",
@@ -79,7 +79,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
+      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 1 },
       "id": 2,
       "options": {
         "colorMode": "value",
@@ -117,53 +117,6 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "orange", "value": 80 },
-              { "color": "green", "value": 95 }
-            ]
-          },
-          "max": 100,
-          "min": 0,
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 },
-      "id": 3,
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      },
-      "pluginVersion": "11.2.0",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "editorMode": "code",
-          "expr": "(sum(rate(pg_statio_user_tables_heap_blks_hit{job=\"postgres\"}[5m])) / (sum(rate(pg_statio_user_tables_heap_blks_hit{job=\"postgres\"}[5m])) + sum(rate(pg_statio_user_tables_heap_blks_read{job=\"postgres\"}[5m])) + 0.0001)) * 100",
-          "instant": false,
-          "legendFormat": "Hit Ratio",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Buffer Cache Hit Ratio",
-      "type": "gauge"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
               { "color": "green", "value": null }
             ]
           },
@@ -171,7 +124,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 },
+      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 1 },
       "id": 4,
       "options": {
         "colorMode": "value",
@@ -204,36 +157,33 @@
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
       "id": 101,
-      "title": "Performance & Storage Trends",
+      "title": "Database Activity Trends",
       "type": "row"
     },
     {
       "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
         "defaults": {
+          "color": { "mode": "palette-classic" },
           "custom": {
             "drawStyle": "line",
+            "fillOpacity": 15,
             "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 15
+            "lineWidth": 2
           },
           "unit": "ops"
         },
         "overrides": [
           {
-            "matcher": { "id": "byRegexp", "options": ".*Commit.*" },
+            "matcher": { "id": "byName", "options": "Queries / sec" },
             "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byRegexp", "options": ".*Rollback.*" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
           }
         ]
       },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 },
       "id": 5,
       "options": {
-        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "lastNotNull", "max"] }
+        "legend": { "calcs": ["mean", "lastNotNull", "max"], "displayMode": "table", "placement": "bottom" }
       },
       "pluginVersion": "11.2.0",
       "targets": [
@@ -241,53 +191,66 @@
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
           "expr": "sum(rate(pg_stat_database_xact_commit{job=\"postgres\", datname=\"app\"}[1m]))",
-          "legendFormat": "Commits / sec",
+          "instant": false,
+          "legendFormat": "Queries / sec",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "editorMode": "code",
-          "expr": "sum(rate(pg_stat_database_xact_rollback{job=\"postgres\", datname=\"app\"}[1m]))",
-          "legendFormat": "Rollbacks / sec",
-          "range": true,
-          "refId": "B"
         }
       ],
-      "title": "Database Transactions (Commits vs Rollbacks)",
+      "title": "Database Query Throughput",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "fieldConfig": {
         "defaults": {
+          "color": { "mode": "palette-classic" },
           "custom": {
             "drawStyle": "line",
+            "fillOpacity": 15,
             "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 10
+            "lineWidth": 2
           },
-          "unit": "bytes"
+          "unit": "ops"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Rows Read / sec" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Rows Written / sec" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
+          }
+        ]
       },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
       "id": 6,
       "options": {
-        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "lastNotNull", "max"] }
+        "legend": { "calcs": ["mean", "lastNotNull", "max"], "displayMode": "table", "placement": "bottom" }
       },
       "pluginVersion": "11.2.0",
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "editorMode": "code",
-          "expr": "sum by (datname) (pg_database_size_bytes{job=\"postgres\"})",
-          "legendFormat": "DB: {{datname}}",
+          "expr": "sum(rate(pg_stat_database_tup_returned{job=\"postgres\", datname=\"app\"}[1m]))",
+          "instant": false,
+          "legendFormat": "Rows Read / sec",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+          "editorMode": "code",
+          "expr": "sum(rate(pg_stat_database_tup_inserted{job=\"postgres\", datname=\"app\"}[1m])) + sum(rate(pg_stat_database_tup_updated{job=\"postgres\", datname=\"app\"}[1m]))",
+          "instant": false,
+          "legendFormat": "Rows Written / sec",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Database Size by Database Name",
+      "title": "Row Activity (Reads vs Writes)",
       "type": "timeseries"
     }
   ],
@@ -303,6 +266,6 @@
   },
   "timezone": "browser",
   "title": "PostgreSQL Database Health",
-  "uid": "freelancer-postgres",
+  "uid": "skilio-postgres",
   "version": 1
 }
