@@ -31,19 +31,12 @@ Skilio is a full-stack, production-grade freelancer marketplace connecting indep
 ## 1. Description
 
 ### Project Goal & Overview
-Finding and hiring freelance talent often suffers from fragmented tools—clients and freelancers switch between job boards, messaging apps, and external storage. Skilio solves this by unifying the entire freelance lifecycle into a single platform:
+Finding and hiring freelance talent often suffers from fragmented tools. clients and freelancers switch between job boards, messaging apps, and external storage. Skilio solves this by unifying the entire freelance lifecycle into a single platform:
 1. **Dual-Role Identity:** A single login allows users to switch between Client and Freelancer roles on demand, with automatic profile generation and role-specific navigation.
-2. **Real-Time Communication:** Full-duplex messaging with typing indicators, read receipts, and multi-device synchronization via WebSockets and Redis.
+2. **Live Messaging:** Full-duplex messaging with online status, read receipts, and multi-device synchronization via WebSockets and Redis.
 3. **End-to-End Workflow:** Clients post jobs, freelancers submit bids with cover letters, contracts are negotiated in real time, and verified reviews establish public trust.
-4. **Cloud-Native & Production-Ready:** Deployed on AWS EC2 behind a Traefik 3.6 TLS reverse proxy, automated with 3-tier GitHub Actions CI/CD, daily database backups, and sub-60s disaster recovery drills.
-
-### Key Capabilities at a Glance
-- **One-Click Workspace Switching:** Instant toggle between hiring and working under one identity.
-- **Live Messaging:** WebSocket chat engine backed by Redis Pub/Sub with automatic in-memory fallback.
-- **Faceted Search:** Search and filter freelancers by rate, skills, availability, and ratings.
-- **Job & Proposal Engine:** Post fixed or hourly contracts, review applicant bids, and track hiring status.
-- **Cloud Media Pipeline:** Secure uploads for avatars, portfolio items, and PDF resumes hosted on Cloudinary.
-- **Observability & Status:** Public real-time diagnostic page (`/status`), Prometheus scraping, and Grafana telemetry.
+4. **Observability & Status:** Public real-time diagnostic page (`/status`), Prometheus scraping, and Grafana telemetry.
+5. **Cloud-Native & Production-Ready:** Deployed on AWS EC2 behind a Traefik 3.6 TLS reverse proxy, automated with 3-tier GitHub Actions CI/CD, daily database backups, and sub-60s disaster recovery drills.
 
 ---
 
@@ -53,8 +46,9 @@ Finding and hiring freelance talent often suffers from fragmented tools—client
 - [Docker Engine](https://docs.docker.com/engine/install/) (`>= 24.0`) and Docker Compose (`v2`)
 - [Make](https://www.gnu.org/software/make/) (standard build automation tool)
 - Modern web browser (Google Chrome stable recommended for evaluation)
+- Note that everything else required (React, Python, Typescript...) is installed inside the containers.
 
-### Step-by-Step Execution (Single-Command)
+### Step-by-Step Execution
 
 1. **Clone the repository:**
    ```bash
@@ -110,13 +104,12 @@ make clean         # Stop containers and remove volumes (clean restart)
 
 The development team consists of 5 members with clearly separated leadership and technical ownership:
 
-| 42 Login | Full Name | Assigned Role(s) | Primary Responsibilities |
-| :--- | :--- | :--- | :--- |
-| **`<aysadeq>`** | Ayman Sadik | **DevOps Lead / Infra Architect** | AWS EC2 cloud setup, Docker Compose multi-stage files, Traefik TLS proxy, GitHub Actions CI/CD, backup daemon & disaster recovery drill, Prometheus/Grafana observability. |
-| **`<arajma>`** | Amine Rajma | **Backend Lead / Security Lead** | FastAPI REST endpoints, SQLModel database models, Alembic migrations, JWT/Argon2 security, Google & LinkedIn OAuth 2.0 social login, input validation. |
-| **`<lazmoud>`** | Lahoucine Azmoud | **Full-Stack Developer / Real-Time Lead** | Bidirectional WebSocket server, Redis Pub/Sub event bus, chat frontend UI, typing indicators, proposal submission and negotiation workflows. |
-| **`<omorakwant>`**| Osama Dahriz | **Frontend Developer / QA** | Product backlog organization, landing page, rating and review user journeys, cross-browser QA on Google Chrome. |
-| **`<zbakour>`** | Zakaria Bakour | **Frontend Lead / UI-UX Lead** | React 19 architecture, Tailwind CSS v4 design system, responsive navigation, Talent Directory, job post management, theme switcher (dark/light). |
+- **`Product Owner`** - *(Amine Rajma)* : Maintained the product backlog, decided on features and priorities, validated completed work, and handled internal communication between team members.
+- **`Project Manager`** - *(Ayman Sadik)*: Coordinates the team by running meetings and planning sessions, tracking progress and deadlines, keeping communication clear, and resolving risks and blockers.
+- **`Technical Lead`** *(Lahoucine Azmoud)*: Defines the technical architecture, chooses the tech stack, maintains code quality and best practices, and reviews critical code changes.
+- **`Developers`** *(Osama Dahriz, Zakaria Bakour, and all the others)*: Builds and tests assigned features and modules, participates in code reviews, and documents the work.
+
+**Note:** more details about individual contributions and technical roles can be found in [section 9](#9-individual-contributions).
 
 ---
 
@@ -128,18 +121,14 @@ The team used a straightforward and collaborative project management approach ce
   - Work was divided by technical domain based on each member's core focus (DevOps, Backend, Real-Time Systems, Frontend UI, and QA).
   - Tasks, priorities, and feature requirements were discussed and agreed upon during team meetings.
 
-- **Discord Server as Central Hub:**
+- **Discord Server:**
   - All project management and day-to-day coordination took place on a dedicated team Discord server.
-  - **Voice Channels:** Used for regular progress meetings, screen-sharing sessions, and collaborative debugging.
-  - **Text Channels:** Organized into dedicated channels (`#general`, `#backend`, `#frontend`, `#devops`) to share updates, API contracts, documentation, and troubleshoot issues.
+  - **Issues and Tasks channels:** Used for falagging issues and bugs, and then turn them into tasks tickets for the team member responsible of the domain.
+  - **Meetings and Organization:** Organized into dedicated channels for meetings, task updates, and general communication.
 
 - **Meetings & In-Person Syncs:**
   - Regular online check-ins on Discord to review completed work, resolve blockers, and plan upcoming tasks.
-  - In-person working sessions at the 42 campus for architectural discussions, whiteboarding, and integration testing.
-
-- **Version Control & Integration:**
-  - Each developer worked on their own branch, keeping active features isolated.
-  - Changes were reviewed and merged into `master` after verifying compatibility and passing the automated CI test pipeline.
+  - In-person working sessions in the meeting rooms on campus for architectural discussions, whiteboarding, and integration testing.
 
 ---
 
@@ -148,10 +137,10 @@ The team used a straightforward and collaborative project management approach ce
 | Layer | Technologies | Justification & Purpose |
 | :--- | :--- | :--- |
 | **Frontend** | React 19, TypeScript 6, Vite 8, Tailwind CSS v4, TanStack Router & Query | Modern component architecture, type safety, instant client-side routing, optimistic caching, and fast SWC builds. |
-| **Backend** | Python 3.14, FastAPI, SQLModel, Alembic, Pydantic v2, PyJWT, Pwdlib | Asynchronous high concurrency, automatic OpenAPI schemas, type-safe validation with Rust speed, and smooth migrations. |
-| **Database** | PostgreSQL 18 (`psycopg 3`) | ACID transactions prevent double-bidding or booking conflicts; native JSONB stores dynamic skill arrays. |
-| **Cache & Bus** | Redis 8 (`redis.asyncio`) | In-memory message broker for real-time WebSocket pub/sub across multi-user sessions. |
-| **Cloud Storage** | Cloudinary SDK | Cloud media pipeline for secure user avatars, portfolio media, and streamed PDF resumes. |
+| **Backend** | Python 3.14, FastAPI, SQLModel, Alembic, Pydantic v2 | Asynchronous high concurrency, automatic OpenAPI schemas, type-safe validation, and smooth migrations. |
+| **Database** | PostgreSQL 18 | ACID transactions prevent double-bidding or booking conflicts; native JSONB stores dynamic skill arrays. |
+| **Cache & Bus** | Redis 8 | In-memory message broker for real-time WebSocket pub/sub across multi-user sessions. |
+| **Cloud Storage** | Cloudinary SDK | Dedicated media storage and CDN delivery for user avatars, portfolio assets, and streamed PDF resumes. |
 | **Ingress & Proxy** | Traefik 3.6 | Dynamic Docker socket discovery, automated Let's Encrypt TLS 1.3 certificates, and HTTP 308 redirects. |
 | **Cloud Hosting** | AWS EC2 (`t3.small`), Ubuntu 24.04, 2GB Swap | Dedicated production cloud server with static Elastic IP and memory buffer preventing OOM crashes. |
 | **Observability** | Prometheus 2.54, Grafana 11.2, cAdvisor, postgres-exporter | Metrics pull model, Dashboards-as-Code in "Skilio" folder, and automated threshold alerts. |
@@ -163,53 +152,308 @@ Marketplaces are fundamentally relational. A user owns profiles, a client create
 
 ## 6. Database Schema
 
-The relational database consists of 19 normalized tables managed through SQLModel and Alembic migrations.
+The relational database consists of 18 normalized tables managed through SQLModel and Alembic migrations.
 
 ### Core Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
-    USER ||--o| FREELANCER_PROFILE : "owns 1:1"
-    USER ||--o| CLIENT_PROFILE : "owns 1:1"
-    USER ||--o{ JOB_POST : "creates"
-    USER ||--o{ PROPOSAL : "submits"
-    USER ||--o{ CONVERSATION : "participates"
-    USER ||--o{ CHAT_MESSAGE : "sends"
-    USER ||--o{ REVIEW : "writes/receives"
-    FREELANCER_PROFILE ||--o{ EXPERIENCE : "contains"
-    FREELANCER_PROFILE ||--o{ EDUCATION : "contains"
-    FREELANCER_PROFILE ||--o{ PORTFOLIO_ITEM : "showcases"
-    JOB_POST ||--o{ PROPOSAL : "receives"
-    CONVERSATION ||--o{ CHAT_MESSAGE : "contains"
+    USER ||--o| FREELANCER_PROFILE : "owns (1:1)"
+    USER ||--o| CLIENT_PROFILE : "owns (1:1)"
+    USER ||--o{ JOB_POST : "posts as client (1:N)"
+    USER ||--o{ PROPOSAL : "submits as freelancer (1:N)"
+    USER ||--o{ CONVERSATION : "participates (client or freelancer)"
+    USER ||--o{ CHAT_MESSAGE : "sends (1:N)"
+    USER ||--o{ MEDIA : "uploads (1:N)"
+    USER ||--o{ REVIEW : "authors as client (1:N)"
+    USER ||--o{ LIKED_FREELANCER : "favorites as client (1:N)"
+    USER ||--o{ SAVED_JOB : "bookmarks as freelancer (1:N)"
+    USER ||--o{ RECENT_SEARCH : "records queries (1:N)"
+    USER ||--o{ CONNECTION : "participates (sender or receiver)"
+    USER ||--o{ NOTIFICATION : "receives (1:N)"
+    USER ||--o{ PASSWORD_RESET_TOKEN : "requests via email (1:N)"
+
+    FREELANCER_PROFILE ||--o{ EXPERIENCE : "has (1:N)"
+    FREELANCER_PROFILE ||--o{ EDUCATION : "has (1:N)"
+    FREELANCER_PROFILE ||--o{ PORTFOLIO_ITEM : "showcases (1:N)"
+    FREELANCER_PROFILE ||--o{ MEDIA : "portfolio attachments (1:N)"
+    FREELANCER_PROFILE ||--o{ REVIEW : "receives (1:N)"
+    FREELANCER_PROFILE ||--o{ LIKED_FREELANCER : "targeted by (1:N)"
+
+    JOB_POST ||--o{ PROPOSAL : "receives (1:N)"
+    JOB_POST ||--o{ SAVED_JOB : "saved by (1:N)"
+    JOB_POST ||--o{ CONNECTION : "referenced in (0..1:N)"
+    JOB_POST ||--o{ NOTIFICATION : "target for notification"
+
+    CONVERSATION ||--o{ CHAT_MESSAGE : "contains (1:N)"
+    CHAT_MESSAGE ||--o| MEDIA : "optional attachment (0..1:1)"
+    CHAT_MESSAGE ||--o{ NOTIFICATION : "target for notification"
+
+    PROPOSAL ||--o{ NOTIFICATION : "target for notification"
+    CONNECTION ||--o{ NOTIFICATION : "target for notification"
+    REVIEW ||--o{ NOTIFICATION : "target for notification"
+
+    USER {
+        uuid id PK
+        string email UK "indexed, max 255"
+        string hashed_password
+        string full_name "max 100"
+        string active_role "client | freelancer"
+        boolean is_active "default true"
+        boolean is_superuser "default false"
+        boolean is_email_verified "default false"
+        string avatar_url "max 2000, fallback default"
+        string google_id "max 255"
+        string linkedin_id "max 255"
+        string refresh_token
+        timestamptz created_at
+    }
+
+    PASSWORD_RESET_TOKEN {
+        uuid id PK
+        string token_hash UK "indexed, 64-char sha256"
+        string email "indexed, max 255"
+        timestamptz expires_at
+        timestamptz used_at
+    }
+
+    FREELANCER_PROFILE {
+        uuid id PK
+        uuid user_id FK "UK (1:1 with user)"
+        string title "max 100"
+        string bio "max 3000 chars"
+        float hourly_rate "10 - 5000 DH"
+        int years_of_experience
+        boolean is_available "default true"
+        string availability "max 100"
+        string hours "max 100"
+        string category "indexed, max 100"
+        boolean finished "default false"
+        string location "max 255"
+        string timezone "max 100"
+        string languages "max 500"
+        string avatar_url "max 2000, fallback default"
+        string resume_url "max 2048, Cloudinary PDF"
+        string resume_public_id "max 255"
+        json skills "JSON array of skill tags"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    CLIENT_PROFILE {
+        uuid id PK
+        uuid user_id FK "UK (1:1 with user)"
+        string company "max 100"
+        string company_role "max 100"
+        string company_website "max 2048, https"
+        string company_size "solo | 2-10 | 11-50 | 51-200 | 201-plus"
+        string location "max 255"
+        string description "max 5000 chars"
+        string avatar_url "max 2000, fallback default"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    JOB_POST {
+        uuid id PK
+        uuid client_id FK "user.id"
+        string title "max 100"
+        string description "max 5000 chars, includes experience level"
+        string budget_type "fixed | hourly"
+        float budget "DH"
+        string location "max 255"
+        string category "indexed, max 100"
+        string status "draft | open | closed"
+        json skills "JSON array of skill tags"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    PROPOSAL {
+        uuid id PK
+        uuid job_post_id FK "jobpost.id"
+        uuid freelancer_id FK "user.id"
+        string status "draft | pending | accepted | rejected"
+        string cover_letter "max 3000 chars"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    REVIEW {
+        uuid id PK
+        uuid client_id FK "user.id"
+        uuid freelancer_id FK "freelancerprofile.id"
+        int rating "1 - 5 stars"
+        string comment "max 400 chars"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    LIKED_FREELANCER {
+        uuid id PK
+        uuid client_id FK "user.id"
+        uuid freelancer_id FK "freelancerprofile.id"
+        timestamptz created_at
+    }
+
+    SAVED_JOB {
+        uuid id PK
+        uuid freelancer_id FK "user.id"
+        uuid job_post_id FK "jobpost.id"
+        timestamptz created_at
+    }
+
+    CONVERSATION {
+        uuid id PK
+        uuid client_id FK "user.id"
+        uuid freelancer_id FK "user.id"
+        uuid creator_id FK "user.id"
+        int unread_count "default 0"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    CHAT_MESSAGE {
+        uuid id PK
+        uuid conversation_id FK "conversation.id"
+        uuid sender_id FK "user.id"
+        uuid attachment_id FK "media.id, SET NULL"
+        string content "max 5000 chars"
+        boolean is_read "default false"
+        timestamptz created_at
+    }
+
+    MEDIA {
+        uuid id PK
+        uuid uploader_id FK "user.id"
+        uuid freelancer_profile_id FK "freelancerprofile.id, nullable"
+        string title "max 255"
+        string description "max 1000"
+        string media_type "avatar | resume | portfolio_image | chat_attachment | other"
+        string public_id "indexed Cloudinary public ID"
+        string url "max 2048"
+        string resource_type "default image"
+        string format "max 20"
+        int bytes
+        int width
+        int height
+        timestamptz created_at
+    }
+
+    EXPERIENCE {
+        uuid id PK
+        uuid freelancer_profile_id FK "freelancerprofile.id"
+        string title "max 100"
+        string organization "max 100"
+        string detail "max 1000 chars"
+        string url "max 2048, https"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    EDUCATION {
+        uuid id PK
+        uuid freelancer_profile_id FK "freelancerprofile.id"
+        string institution "max 100"
+        string degree "max 100"
+        string field_of_study "max 100"
+        string start_date "max 50"
+        string end_date "max 50"
+        string description "max 1000"
+        string title "max 100"
+        string organization "max 100"
+        string detail "max 1000"
+        string url "max 2048, https"
+        timestamptz created_at
+    }
+
+    PORTFOLIO_ITEM {
+        uuid id PK
+        uuid freelancer_profile_id FK "freelancerprofile.id"
+        string title "max 100"
+        string description "max 1000"
+        string image_url "max 2048"
+        string organization "max 100"
+        string detail "max 1000"
+        string url "max 2048, https"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    RECENT_SEARCH {
+        uuid id PK
+        uuid user_id FK "user.id, indexed"
+        string query "max 255"
+        timestamptz created_at
+    }
+
+    CONNECTION {
+        uuid id PK
+        uuid sender_id FK "user.id, indexed"
+        uuid receiver_id FK "user.id, indexed"
+        uuid client_id FK "user.id, indexed"
+        uuid freelancer_id FK "user.id, indexed"
+        uuid job_post_id FK "jobpost.id, nullable, indexed"
+        string status "indexed: pending | accepted | declined | withdrawn"
+        string note "max 300 chars"
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz responded_at
+    }
+
+    NOTIFICATION {
+        uuid id PK
+        uuid user_id FK "user.id, indexed recipient"
+        uuid proposal_id FK "proposal.id, nullable, indexed"
+        uuid connection_id FK "connection.id, nullable, indexed"
+        uuid review_id FK "review.id, nullable, indexed"
+        uuid chat_message_id FK "chatmessage.id, nullable, indexed"
+        uuid job_post_id FK "jobpost.id, nullable, indexed"
+        string event "indexed: NotificationEvent"
+        string title "max 255"
+        string content "max 5000 chars"
+        boolean is_read "indexed, default false"
+        timestamptz created_at
+    }
 ```
 
-### Key Entities & Relations
-- **`user`:** Core authentication record (email, hashed password, `active_role`, OAuth provider IDs).
-- **`freelancer_profile` / `client_profile`:** Profiles created automatically when a user switches roles.
-- **`job_post` & `proposal`:** Stores job title, category, budget, status (`open`, `in_progress`, `closed`), and linked proposals with cover letter and bid price.
-- **`conversation` & `chat_message`:** Threaded real-time chat between participants with delivery timestamps and read receipts.
-- **`review`:** 1-to-5 star ratings with composite unique constraints preventing duplicate reviews per contract.
+### Key Entities & Architecture
+
+- **Identity & Profiles:** Unified `user` with OAuth/JWT auth, 1:1 dual workspaces (`client_profile`, `freelancer_profile`), and credential records (`experience`, `education`, `portfolio_item`, `password_reset_token`).
+- **Marketplace & Networking:** Bidding workflow via `job_post` and `proposal`, paired with `connection` networking, bookmarking (`saved_job`, `liked_freelancer`), and verified `review` ratings.
+- **Communication & Platform Services:** Threaded live chat via `conversation` and `chat_message`, Cloudinary `media` assets, `recent_search` caching, and event-driven `notification` alerts.
 
 ---
 
 ## 7. Features List
 
-| Feature Domain | Feature Name | Description | Key Tech / Endpoint | Owner |
-| :--- | :--- | :--- | :--- | :---: |
-| **Authentication** | Social OAuth 2.0 | One-click login with Google OAuth 2.0 and LinkedIn OIDC. | `GET /login/google`, `GET /login/linkedin` | `<arajma>` |
-| **Authentication** | Password Security | Argon2/Bcrypt password hashing with token-based email reset. | `POST /login/access-token`, `POST /password-recovery` | `<arajma>` |
-| **Identity** | Dual-Role Switching | Toggle between Client and Freelancer workspace in real time. | `POST /users/me/switch-role` | `<arajma>`, `<omorakwant>` |
-| **Freelancer** | Profile & Portfolio | Showcase bio, skills, hourly rate, work history, and portfolio items. | `GET /profiles/me`, `POST /profiles/me/portfolio` | `<zbakour>`, `<omorakwant>` |
-| **Freelancer** | Resume Upload | Secure PDF resume upload and inline browser preview via Cloudinary. | `POST /profiles/resume` | `<arajma>`, `<zbakour>` |
-| **Client** | Job Posting Lifecycle | Post, edit, and close fixed or hourly jobs with required skills. | `POST /jobs/`, `PUT /jobs/{id}` | `<zbakour>` |
-| **Talent Search** | Faceted Directory | Search talent by keywords, filter by category, rate, and availability. | `GET /profiles/` | `<zbakour>`, `<omorakwant>` |
-| **Proposals** | Bidding Engine | Freelancers submit bids with cover letters; clients accept or reject. | `POST /proposals/`, `PUT /proposals/{id}/status` | `<lazmoud>` |
-| **Messaging** | Live WebSocket Chat | Real-time chat with typing indicators, read receipts, and Redis pub/sub. | `WS /api/v1/chat/ws` | `<lazmoud>` |
-| **Feedback** | Reviews & Ratings | Clients submit 1-5 star ratings that calculate freelancer public score. | `POST /reviews/`, `GET /reviews/freelancer/{id}` | `<zbakour>` |
-| **DevOps** | Zero-Touch CI/CD | 3-tier GitHub Actions validation and zero-downtime rolling container swap. | `.github/workflows/ci-cd.yml` | `<aysadeq>` |
-| **DevOps** | Automated DB Backups | Daily cron `.sql.gz` dump daemon with sub-60s disaster recovery drill. | `devops/backup/`, `make dr-test` | `<aysadeq>` |
-| **DevOps** | Observability Suite | Prometheus pull metrics, 3 custom Grafana dashboards, threshold alerts. | `devops/monitoring/`, Grafana UI | `<aysadeq>` |
-| **DevOps** | Public Status Page | Live diagnostic page probing database, Redis, and disk space. | `/api/v1/health`, `/status` UI | `<aysadeq>` |
+| Category | Feature | Description | Owner |
+| :--- | :--- | :--- | :---: |
+| **Authentication & Security** | Social OAuth 2.0 | One-click login with Google OAuth 2.0 and LinkedIn OIDC. | `[Owner]` |
+| **Authentication & Security** | Password Security & Recovery | Argon2/Bcrypt password hashing with secure token-based email password reset. | `[Owner]` |
+| **Authentication & Security** | Email Verification & Route Guards | Account email verification tracking and JWT-based protected route authorization. | `[Owner]` |
+| **Identity & Account** | Dual-Role Workspace Switching | Real-time toggle between Client and Freelancer modes under a single user identity. | `[Owner]` |
+| **Identity & Account** | User Settings & Account Management | Self-service profile updating, password management, and account preferences. | `[Owner]` |
+| **Freelancer Workspace** | Profile & Credential Showcase | Public showcase with bio, hourly rate, skill tags, experience, education, and portfolio. | `[Owner]` |
+| **Freelancer Workspace** | Cloud Resume Management | PDF resume upload to Cloudinary with secure inline browser preview. | `[Owner]` |
+| **Freelancer Workspace** | Availability & Hours Settings | Instant availability toggle ("Available now"), working hours, and timezone controls. | `[Owner]` |
+| **Client Workspace** | Company Profile Management | Custom company branding with industry role, website, team size, location, and bio. | `[Owner]` |
+| **Client Workspace** | Job Posting Lifecycle | Draft, publish, edit, and close fixed or hourly jobs with budget and skill tags. | `[Owner]` |
+| **Client Workspace** | Talent Bookmarking | Save and manage favorite freelancer profiles for future project hiring. | `[Owner]` |
+| **Search & Discovery** | Faceted Talent Directory | Full-text and fuzzy search via `pg_trgm`, filtered by category, hourly rate, and skills. | `[Owner]` |
+| **Search & Discovery** | Marketplace Job Discovery | Browse open jobs by category, budget tier, and keyword, with recent search tracking. | `[Owner]` |
+| **Proposals & Bidding** | Proposal Bidding Workflow | Freelancers submit bids with cover letters; clients review, accept, or decline. | `[Owner]` |
+| **Networking & Connections** | Direct Professional Connections | Send, accept, decline, or withdraw networking requests with optional project context. | `[Owner]` |
+| **Real-Time Communication** | Live WebSocket Chat | Threaded full-duplex messaging powered by Redis Pub/Sub with presence and read receipts. | `[Owner]` |
+| **Real-Time Communication** | Chat Media Attachments | Upload and share image or document attachments directly inside conversation threads. | `[Owner]` |
+| **Feedback & Reputation** | Verified Reviews & Ratings | Clients submit 1-to-5 star ratings and comments that aggregate into public freelancer scores. | `[Owner]` |
+| **Notifications & Alerts** | In-App Notification Center | Event-driven alerts for proposals, messages, connections, reviews, and job updates. | `[Owner]` |
+| **DevOps & Reliability** | Public System Status Page | Live diagnostic dashboard probing PostgreSQL, Redis, and disk latency. | `[Owner]` |
+| **DevOps & Reliability** | Zero-Touch CI/CD Pipeline | 3-tier GitHub Actions validation running linters, tests, Docker builds, and cloud delivery. | `[Owner]` |
+| **DevOps & Reliability** | Automated DB Backups & DR | Daily scheduled compressed PostgreSQL dumps with sub-60s disaster recovery test drills. | `[Owner]` |
+| **DevOps & Reliability** | Observability Suite | Prometheus metrics collection, cAdvisor container telemetry, and custom Grafana dashboards. | `[Owner]` |
+| **UI / UX Experience** | Dark & Light Theme System | System-aware theme switcher with persistent user preference across sessions. | `[Owner]` |
+| **UI / UX Experience** | Responsive Mobile Layout | Mobile-first navigation with adaptive sidebars, quick-search modals, and touch controls. | `[Owner]` |
 
 ---
 
@@ -288,15 +532,6 @@ In accordance with 42 academic honesty standards (Chapter I and Chapter VI of th
 - **Where AI was used:** Drafting repetitive boilerplate test fixtures (`tests/`), generating initial Tailwind component structures, exploring syntax examples for Redis async Pub/Sub, and structuring documentation outlines.
 - **Where AI was NOT used:** System architecture decisions, business logic rules, dual-role identity modeling, AWS server configuration, and peer evaluation defense preparation.
 - **Human Verification:** All generated code was manually inspected, modified, and validated through our automated CI testing gates (Pytest, TypeScript type checking, and Docker smoke tests).
-
----
-
-## 11. Known Limitations & Roadmap
-
-- **Redis Standalone Mode:** Redis operates as a single container instance rather than a multi-node cluster. If Redis goes offline, an automatic in-memory fallback handles single-instance WebSockets gracefully.
-- **Local Mail Sandbox:** In local development, outgoing emails are captured by the Mailpit sandbox (`:8025`) rather than delivering to external mail servers.
-- **Media Upload Limits:** Cloudinary file uploads are constrained to 5MB for images and 10MB for PDF resumes to maintain fast load times and comply with free-tier bandwidth limits.
-- **Future Roadmap:** Planned features include Stripe Connect escrow payments, WebRTC video calling for interviews, and vector search (`pgvector`) for smart job-talent matching.
 
 ---
 
