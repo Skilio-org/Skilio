@@ -1002,7 +1002,6 @@ class ReviewsPublic(SQLModel):
 # Liked Freelancers Models
 # ==============================================================================
 
-
 class LikedFreelancerBase(SQLModel):
     freelancer_id: uuid.UUID
 

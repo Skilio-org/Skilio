@@ -22,6 +22,7 @@ import { formatMessageTime } from "@/lib/format"
 import { useWebSocket } from "@/context/websocket-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
+import { workspaceStyles } from "../dashboard/dashboard-header"
 
 function NotificationIcon({ item }: { item: NotificationPublic }) {
 	switch (item.event) {
@@ -136,12 +137,12 @@ function NotificationActions({ notification, onMarkAsRead }: NotificationActionP
 								},
 							})
 						}}
-						className="inline-flex h-7 min-w-[76px] items-center justify-center gap-1.5 rounded-md border-0 border-none bg-primary px-2.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+						className={cn(workspaceStyles.primaryAction, "border-none h-7 min-w-[76px] p-0 text-xs shrink-0")}
+						// className="inline-flex h-7 min-w-[76px] items-center justify-center gap-1.5 rounded-md border-0 border-none bg-primary px-2.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
 					>
-						{acceptConnection.isPending ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
+						{acceptConnection.isPending ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3 text-black" />}
 						Accept
 					</button>
-
 					<button
 						type="button"
 						disabled={acceptConnection.isPending || declineConnection.isPending}
@@ -269,49 +270,6 @@ export function NotificationBody({
 	onMarkAsRead: (id: string) => void
 }) {
 	const role = useAccountRole()
-	// let content = notification.content;
-
-	// Generate content depending on the notification that was received.
-	// If someone sent a connection request.
-	// Then it should be their name + wants to connect.
-	// If someone sent a review.
-	// Then it should be their name + reviewed your account.
-	// If someone accepted your connect.
-	// Then it should be their name + accepted your connection.
-	// and so on..
-	// Micro instructions:
-	// Make the name standout just a bit more than the actual content.
-	// Make the spacing better than whatever there is now.
-	// Make sure the ui is as clean as possible.\
-	// also, dont change anything except this component.
-	// switch (notification.event) {
-	// 	case "connection_request":
-	// 		content = `${notification.connection?.sender?.full_name || "Someone"} wants to connect with you.`
-	// 		break
-	// 	case "connection_accepted":
-	// 		content = `${notification.connection?.receiver?.full_name || "Someone"} accepted your connection request.`
-	// 		break
-	// 	case "connection_declined":
-	// 		content = `${notification.connection?.receiver?.full_name || "Someone"} declined your connection request.`
-	// 		break
-	// 	case "review_received":
-	// 		content = `${notification.review?.client?.full_name || "Someone"} left a review for you.`
-	// 		break
-	// 	case "proposal_received":
-	// 		content = `${notification.proposal?.freelancer?.full_name || "Someone"} submitted a proposal for your job.`
-	// 		break
-	// 	case "proposal_accepted":
-	// 		content = `${notification.proposal?.freelancer?.full_name || "Someone"} accepted your proposal.`
-	// 		break
-	// 	case "proposal_rejected":
-	// 		content = `${notification.proposal?.freelancer?.full_name || "Someone"} rejected your proposal.`
-	// 		break
-	// 	case "job_closed":
-	// 		content = `Your job "${notification.job_post?.title || "Unknown Job"}" has been closed.`
-	// 		break
-	// 	default:
-	// 		content = notification.content
-	// }
 
 	return (
 		<span className="min-w-0 flex-1">

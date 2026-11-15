@@ -78,8 +78,7 @@ export function MessagesPage({
 				.then((newConversation) => {
 					onSelectContact(newConversation.other_user?.id ?? "")
 				})
-				.catch((error) => {
-					console.error("Error creating conversation:", error)
+				.catch((_error) => {
 					toast.error("Failed to create conversation. Please try again.")
 				})
 			creatingForUserRef.current = SelectedUserId
