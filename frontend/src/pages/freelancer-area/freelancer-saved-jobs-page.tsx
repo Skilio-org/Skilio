@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { Bookmark, Search, Upload } from "lucide-react"
+import { Bookmark, Search } from "lucide-react"
 import { useState } from "react"
 import { EmptyState } from "@/components/common/empty-state"
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
@@ -36,21 +36,6 @@ export default function FreelancerSavedJobsPage() {
 				saved.indexOf(b.id) - saved.indexOf(a.id)
 			)
 		})
-	const exportList = () => {
-		const cell = (value: string) => `"${(/^[=+@-]/.test(value) ? "'" : "") + value.replace(/"/g, '""')}"`
-		const rows = [
-			["Title", "Company", "Category", "Budget", "Skills"],
-			...allSaved.map((job) => [job.title, job.company, job.category, job.budget, job.skills.join(", ")]),
-		]
-		const url = URL.createObjectURL(
-			new Blob([rows.map((row) => row.map(cell).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" }),
-		)
-		const link = document.createElement("a")
-		link.href = url
-		link.download = "saved-jobs.csv"
-		link.click()
-		setTimeout(() => URL.revokeObjectURL(url), 1000)
-	}
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
 			<WorkspacePageHeader
@@ -64,15 +49,6 @@ export default function FreelancerSavedJobsPage() {
 				}
 				action={
 					<div className="flex shrink-0 flex-wrap items-center gap-2.5">
-						<button
-							type="button"
-							onClick={exportList}
-							disabled={!allSaved.length}
-							className={`${workspaceStyles.secondaryAction} disabled:opacity-50`}
-						>
-							<Upload className="size-4" />
-							Export list
-						</button>
 						<Link to="/freelancer-jobs" className={workspaceStyles.primaryAction}>
 							<Search className="size-4" />
 							Browse more jobs
