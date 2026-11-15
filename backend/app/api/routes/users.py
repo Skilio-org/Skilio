@@ -425,16 +425,13 @@ def verify_email(session: SessionDep, token: str) -> Message:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
     user = crud.get_user_by_email(session=session, email=email)
     if not user:
-        # Don't reveal that the user doesn't exist - use same error as invalid token
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
     elif not user.is_active:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
-    # TODO: Update user.is_email_verified.
     user.is_email_verified = True
     session.add(user)
     session.commit()
     session.refresh(user)
-    # print(f"User {user.email} has verified their email using token {token}")
     return Message(message="Email was verified!")
 
 

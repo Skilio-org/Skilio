@@ -9,7 +9,6 @@ export function useUsersOnline(userIds: string[]) {
 		queryKey: ["chat", "presence", normalizedIds],
 		enabled: normalizedIds.length > 0,
 		refetchInterval: 7_000,
-		staleTime: 10_000,
 		placeholderData: keepPreviousData,
 		queryFn: async ({ signal }) => {
 			const response = await ChatService.checkMultipleUserPresence({

@@ -190,27 +190,12 @@ async def chat_message(data: dict[any, any], websocket: WebSocket, user_id: uuid
             {"type": "message_ack", "data": ack_data}, default=str
         )
     )
-
-    # I am already sending the  msg why
-    # send the notification again? I will
-    # just send the message to the recipient
-    # and let them handle the notification..
-
-    # await push_notification(
-    #     user_id=recipient_id,
-    #     event=NotificationEvent.MESSAGE_RECEIVED,
-    #     title="New Message",
-    #     link="",
-    #     content="You have a new message",
-    #     chat_message_id=new_msg.id,
-    # )
-
     await publish_to_user(
         recipient_id,
         payload={"type": "chat_message", "data": msg_dict},
     )
 
-async def user_typing(data: dict[any, any], websocket: WebSocket, user_id: uuid.UUID):
+async def user_typing(data: dict[any, any], user_id: uuid.UUID):
     conv_id_raw = data.get("conversation_id")
     if not conv_id_raw:
         return
@@ -238,14 +223,14 @@ async def user_typing(data: dict[any, any], websocket: WebSocket, user_id: uuid.
                 },
             )
 
-async def read_receipt(data: dict[any, any], websocket: WebSocket, user_id: uuid.UUID):
+async def read_receipt(data: dict[any, any], user_id: uuid.UUID):
     if "notification_id" in data:
         notification_id_raw = data.get("notification_id")
         if notification_id_raw:
             if notification_id_raw == "all_notifications":
                 mark_all_notifications_as_read(user_id)
-            else:
-                mark_notification_as_read(user_id, uuid.UUID(str(notification_id_raw)))
+                return
+            mark_notification_as_read(user_id, uuid.UUID(str(notification_id_raw)))
     if "conversation_id" in data:
         conv_id_raw = data.get("conversation_id")
         if conv_id_raw:
