@@ -46,7 +46,6 @@ services:
       - traefik.http.services.backend.loadbalancer.healthCheck.interval=10s
       - traefik.http.services.backend.loadbalancer.healthCheck.timeout=5s
 
-
   grafana:
     restart: always
     labels:
