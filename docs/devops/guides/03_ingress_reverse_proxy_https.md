@@ -224,6 +224,35 @@ command:
 > **Why HTTP 308 instead of 301?**
 > When testing with `curl -sI http://skilio.works`, Traefik responds with `HTTP 308 Permanent Redirect`. Unlike legacy `301`, `308` guarantees that HTTP methods (`POST`, `PUT`, etc.) and request bodies are preserved without being stripped or converted to `GET` during the HTTPS redirect.
 
+### Dual-Environment HTTPS Strategy
+
+1. **AWS Production (`compose.deploy.yml`):**
+   * Uses Traefik native entrypoint redirection (`--entrypoints.http.http.redirections...`).
+   * Cleartext traffic on standard Port `80` is redirected to encrypted HTTPS on standard Port `443` with Let's Encrypt TLS certificates.
+
+2. **Local Evaluation & Dev (`compose.override.yml`):**
+   * Binds non-privileged host ports `8080:80` (HTTP) and `8443:443` (HTTPS) compatible with 42 school rootless Docker.
+   * Employs Traefik's `redirectScheme` middleware targeting port `8443`:
+     ```yaml
+     traefik.http.routers.backend-http.rule=PathPrefix(`/`)
+     traefik.http.routers.backend-http.entrypoints=http
+     traefik.http.routers.backend-http.middlewares=redirect-to-https
+     traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+     traefik.http.middlewares.redirect-to-https.redirectscheme.port=8443
+     traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true
+     ```
+   * Enforces zero backdoor ports: FastAPI port `8000` is kept strictly internal and never exposed to the host.
+   * Local verification:
+     ```bash
+     # 1. Test HTTP to HTTPS redirect
+     curl -Iv http://localhost:8080/
+     # Output: HTTP/1.1 308 Permanent Redirect -> Location: https://localhost:8443/
+
+     # 2. Test port 8000 is blocked externally
+     curl --connect-timeout 2 http://localhost:8000/
+     # Output: Connection refused
+     ```
+
 ---
 
 ## 5. Traefik Configuration in Compose (Labels & Deep Health Routing)
@@ -299,8 +328,10 @@ backend:
 | :--- | :--- | :--- |
 | **Verify Root DNS** | `dig +short skilio.works` | `16.192.59.166` (Returns AWS Elastic IP). |
 | **Verify Wildcard DNS** | `dig +short grafana.skilio.works` | `16.192.59.166` (Proves wildcard routing). |
-| **Inspect HTTP 308 Redirect**| `curl -sI http://skilio.works` | `HTTP/1.1 308 Permanent Redirect` $\rightarrow$ `Location: https://skilio.works/`. |
-| **Inspect TLS 1.3 Certificate**| `curl -vI https://skilio.works 2>&1 \| grep -i "SSL connection"` | Confirms TLS 1.3 handshake with Let's Encrypt certificate. |
+| **Inspect Prod 308 Redirect**| `curl -sI http://skilio.works` | `HTTP/1.1 308 Permanent Redirect` $\rightarrow$ `Location: https://skilio.works/`. |
+| **Inspect Prod TLS 1.3**| `curl -vI https://skilio.works 2>&1 \| grep -i "SSL connection"` | Confirms TLS 1.3 handshake with Let's Encrypt certificate. |
+| **Local 308 Redirect Test**| `curl -Iv http://localhost:8080/` | `HTTP/1.1 308 Permanent Redirect` $\rightarrow$ `Location: https://localhost:8443/`. |
+| **Local Port 8000 Block Test**| `curl --connect-timeout 2 http://localhost:8000/` | `Connection refused` (Proves zero unencrypted backdoor ports). |
 | **Check Traefik Logs** | `docker compose logs -f proxy` | Shows real-time dynamic routing and ACME challenge activity. |
 
 ---
