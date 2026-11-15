@@ -1,3 +1,10 @@
+import { Link } from "@tanstack/react-router"
+
+const legalLinks = [
+	{ to: "/terms", label: "Terms of Service" },
+	{ to: "/privacy", label: "Privacy Policy" },
+] as const
+
 export function Footer({ variant = "workspace" }: { variant?: "workspace" | "auth" }) {
 	const currentYear = new Date().getFullYear()
 
@@ -6,8 +13,8 @@ export function Footer({ variant = "workspace" }: { variant?: "workspace" | "aut
 			<div
 				className={
 					variant === "auth"
-						? "mx-auto flex w-full items-center justify-center gap-6 py-2"
-						: "mx-auto flex w-full max-w-330 items-center justify-between gap-6 px-4 py-5 sm:px-6 lg:px-8"
+						? "mx-auto flex w-full flex-wrap items-center justify-center gap-x-6 gap-y-2 py-2"
+						: "mx-auto flex w-full max-w-330 flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 sm:px-6 lg:px-8"
 				}
 			>
 				<div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
@@ -19,6 +26,18 @@ export function Footer({ variant = "workspace" }: { variant?: "workspace" | "aut
 
 					<p className="hidden truncate text-muted-foreground text-xs sm:block">Better talent. Brighter outcomes.</p>
 				</div>
+
+				<nav aria-label="Legal" className="flex items-center gap-4">
+					{legalLinks.map((link) => (
+						<Link
+							key={link.to}
+							to={link.to}
+							className="text-muted-foreground text-xs transition-colors hover:text-foreground hover:underline"
+						>
+							{link.label}
+						</Link>
+					))}
+				</nav>
 			</div>
 		</footer>
 	)

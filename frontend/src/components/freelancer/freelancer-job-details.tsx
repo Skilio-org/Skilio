@@ -222,7 +222,7 @@ export const JobDetails = ({
 										ref={coverInput}
 										required
 										minLength={40}
-										maxLength={5000}
+										maxLength={3000}
 										rows={5}
 										value={cover}
 										onChange={(event) => setCover(event.target.value)}
@@ -230,7 +230,7 @@ export const JobDetails = ({
 										className="mt-2 w-full rounded-lg border border-outline-variant bg-background p-3 text-body-sm outline-none focus:border-primary"
 									/>
 									<span className="mt-1.5 block text-caption text-outline">
-										At least 40 characters ({cover.length.toLocaleString()} / 5,000)
+										At least 40 characters ({cover.length.toLocaleString()} / 3,000)
 									</span>
 								</label>
 								<div className="flex items-center justify-between gap-3 pt-2">
@@ -254,7 +254,7 @@ export const JobDetails = ({
 										</button>
 										<button
 											type="button"
-											disabled={cover.trim().length < 40 || cover.length > 5000}
+											disabled={cover.trim().length < 40 || cover.length > 3000}
 											onClick={handleApplyNow}
 											className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover disabled:opacity-50"
 										>
