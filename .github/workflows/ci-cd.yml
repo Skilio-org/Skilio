@@ -71,7 +71,7 @@ jobs:
       - name: Start DB & Mailpit
         run: |
           cp .env.example .env
-          docker compose up -d db mailpit
+          docker compose up -d db redis mailpit
 
       - name: Run Migrations
         run: uv run bash scripts/prestart.sh

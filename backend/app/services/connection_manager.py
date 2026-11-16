@@ -31,7 +31,10 @@ class ConnectionManager:
         self._active_connections[user_id].add(websocket)
         if self.redis:
             expires_at = time() + 10
-            await self.redis.zadd("online_users_zset", {str(user_id): expires_at})
+            try:
+                await self.redis.zadd("online_users_zset", {str(user_id): expires_at})
+            except Exception as e:
+                            logger.warning("Redis zadd failed in connect: %s", e)
         logger.info(
             "WebSocket connected for user %s (total sockets for user: %d)",
             user_id,
@@ -41,8 +44,10 @@ class ConnectionManager:
     async def heartbeat(self, user_id: uuid.UUID) -> None:
         if self.redis:
             expires_at = time() + 10
-            await self.redis.zadd("online_users_zset", {str(user_id): expires_at})
-
+            try:
+                await self.redis.zadd("online_users_zset", {str(user_id): expires_at})
+            except Exception as e:
+                logger.warning("Redis zadd failed in connect: %s", e)
     def disconnect(self, user_id: uuid.UUID, websocket: WebSocket) -> None:
         if user_id in self._active_connections:
             self._active_connections[user_id].discard(websocket)
@@ -53,8 +58,11 @@ class ConnectionManager:
     async def is_user_online(self, user_id: uuid.UUID) -> bool:
         if self.redis:
             now = time()
-            score = await self.redis.zscore("online_users_zset", str(user_id))
-            return score is not None and score > now
+            try:
+                score = await self.redis.zscore("online_users_zset", str(user_id))
+                return score is not None and score > now
+            except Exception as e:
+                logger.warning("Redis zadd failed in connect: %s", e)
         return bool(self._active_connections.get(user_id))
 
     async def get_online_users(self) -> list[uuid.UUID]:

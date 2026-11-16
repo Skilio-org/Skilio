@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None
     DATABASE_URL: PostgresDsn
-    REDIS_PORT: str = "6779"
+    REDIS_PORT: str = "6379"
     REDIS_URL: str | None = None
 
     @model_validator(mode="after")
