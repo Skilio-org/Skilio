@@ -5,6 +5,7 @@ import uuid
 from typing import Any
 
 import redis.asyncio as aioredis
+from redis.exceptions import RedisError
 
 from app.core.config import settings
 from app.services.connection_manager import connection_manager
@@ -21,15 +22,20 @@ _redis_client: aioredis.Redis | None = None
 _listener_task: asyncio.Task[None] | None = None
 
 
-def get_redis_client() -> aioredis.Redis:
+def get_redis_client() -> aioredis.Redis | None:
     global _redis_client
-    if _redis_client is None:
-        _redis_client = aioredis.from_url(
-            settings.REDIS_URL,
-            decode_responses=True,
-            socket_connect_timeout=2.0,
-            socket_timeout=2.0,
-        )
+    logger.info(f"Connecting to redis: {settings.REDIS_URL}")
+    if _redis_client:
+        try:
+            _redis_client = aioredis.from_url(
+                settings.REDIS_URL,
+                decode_responses=True,
+                socket_connect_timeout=2.0,
+                socket_timeout=2.0,
+            )
+        except (RedisError, ValueError, Exception) as e:
+            logger.warning("Could not initialize Redis client (%s): %s", settings.REDIS_URL, e)
+            _redis_client = None
     return _redis_client
 
 
@@ -62,8 +68,9 @@ async def publish_to_user(
     published = False
     try:
         client = get_redis_client()
-        await client.publish(channel, serialized)
-        published = True
+        if client:
+            await client.publish(channel, serialized)
+            published = True
     except Exception as e:
         logger.warning(
             "Redis publish failed for user %s (%s). Falling back to direct in-memory delivery.",
@@ -87,8 +94,9 @@ async def broadcast_to_all(
     published = False
     try:
         client = get_redis_client()
-        await client.publish(BROADCAST_CHANNEL, serialized)
-        published = True
+        if client:
+            await client.publish(BROADCAST_CHANNEL, serialized)
+            published = True
     except Exception as e:
         logger.warning(
             "Redis broadcast failed (%s). Falling back to in-memory broadcast.",
@@ -107,6 +115,11 @@ async def redis_pubsub_listener() -> None:
     while True:
         try:
             client = get_redis_client()
+            if client is None:
+                logger.warning("Redis client unavalable retry in %.1fs...", retry_delay)
+                await asyncio.sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, 30.0)
+                continue
             connection_manager.set_redis_client(client)
             pubsub = client.pubsub()
             await pubsub.psubscribe(f"{USER_CHANNEL_PREFIX}*{USER_CHANNEL_SUFFIX}")
