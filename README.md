@@ -42,13 +42,19 @@ Finding and hiring freelance talent often suffers from fragmented tools. clients
 
 ## 2. Instructions & Quick Start
 
-### Prerequisites
-- [Docker Engine](https://docs.docker.com/engine/install/) (`>= 24.0`) and Docker Compose (`v2`)
-- [Make](https://www.gnu.org/software/make/) (standard build automation tool)
-- Modern web browser (Google Chrome stable recommended for evaluation)
-- Note that everything else required (React, Python, Typescript...) is installed inside the containers.
+Get Skilio up and running locally in under two minutes using Docker.
 
-### Step-by-Step Execution
+### Prerequisites
+Before you start, make sure you have installed:
+- [Docker Engine](https://docs.docker.com/engine/install/) (`>= 24.0`) and Docker Compose (`v2`)
+- [GNU Make](https://www.gnu.org/software/make/)
+- Modern web browser (Google Chrome recommended)
+
+> Note: All application runtimes and dependencies (Python 3.14, Node.js, Bun, PostgreSQL 18, Redis) run completely inside containers. No local language setup is needed on your host machine.
+
+---
+
+### Step-by-Step Quick Start
 
 1. **Clone the repository:**
    ```bash
@@ -56,47 +62,35 @@ Finding and hiring freelance talent often suffers from fragmented tools. clients
    cd Skilio
    ```
 
-2. **Configure environment secrets:**
+2. **Set up environment variables:**
    ```bash
    cp .env.example .env
    ```
-   *(The default development variables in `.env.example` work out of the box for local testing).*
+   *(The default values in `.env.example` are pre-configured to work out of the box for local testing).*
 
-3. **Start the complete stack:**
+3. **Start the platform (Single Command):**
    ```bash
    make up
    ```
-   *This single command builds and starts all containers: Traefik, PostgreSQL, Redis, FastAPI, React SPA, Prometheus, Grafana, cAdvisor, postgres-exporter, Mailpit, and the backup daemon.*
+   This single command builds and starts the full stack (Traefik reverse proxy, PostgreSQL, Redis, FastAPI backend, React SPA, Prometheus, Grafana, Mailpit, and the backup daemon). Database migrations and the default administrator account are automatically created on boot.
 
-4. **Initialize database schema & superuser:**
-   ```bash
-   docker compose run --rm backend bash scripts/prestart.sh
-   ```
-
-5. **(Optional) Populate mock marketplace data:**
-   ```bash
-   make seed
-   ```
+---
 
 ### Service Access URLs
 
 | Service | Local URL | Description |
 | :--- | :--- | :--- |
-| **Skilio Web Application** | [https://localhost:8443](https://localhost:8443) (or `:8080`) | Full-stack application via Traefik HTTPS |
+| **Skilio Web App** | [https://localhost:8443](https://localhost:8443) | Full-stack platform via Traefik HTTPS |
 | **Interactive API Docs** | [https://localhost:8443/docs](https://localhost:8443/docs) | Swagger UI for exploring backend endpoints |
 | **Public Status Page** | [https://localhost:8443/status](https://localhost:8443/status) | Real-time health diagnostic badges |
-| **Grafana Monitoring** | [http://localhost:3000](http://localhost:3000) | Live telemetry dashboards (User: `admin` / `.env` password) |
-| **Prometheus TSDB** | [http://localhost:9090](http://localhost:9090) | Scrape targets and alerting rules engine |
-| **Mailpit Sandbox** | [http://localhost:8025](http://localhost:8025) | Local SMTP mailbox for password reset emails |
-| **Traefik Dashboard** | [http://localhost:8090](http://localhost:8090) | Reverse proxy routing rules and ingress status |
+| **Grafana Monitoring** | [http://localhost:3000](http://localhost:3000) | Live telemetry dashboards |
+| **Prometheus TSDB** | [http://localhost:9090](http://localhost:9090) | Scrape metrics and alerting engine |
+| **Mailpit Sandbox** | [http://localhost:8025](http://localhost:8025) | Local SMTP mailbox for password resets |
+| **Traefik Dashboard** | [http://localhost:8090](http://localhost:8090) | Reverse proxy ingress rules & routers |
 
-### Testing & Teardown Commands
-```bash
-make test          # Run full backend pytest suite with code coverage
-make dr-test       # Run automated disaster recovery verification drill (< 5s)
-make down          # Stop all containers safely
-make clean         # Stop containers and remove volumes (clean restart)
-```
+---
+
+> **Note:** Run `make help` to view all available commands.
 
 ---
 
@@ -142,7 +136,7 @@ The team used a straightforward and collaborative project management approach ce
 | **Cache & Bus** | Redis 8 | In-memory message broker for real-time WebSocket pub/sub across multi-user sessions. |
 | **Cloud Storage** | Cloudinary SDK | Dedicated media storage and CDN delivery for user avatars, portfolio assets, and streamed PDF resumes. |
 | **Ingress & Proxy** | Traefik 3.6 | Dynamic Docker socket discovery, automated Let's Encrypt TLS 1.3 certificates, and HTTP 308 redirects. |
-| **Cloud Hosting** | AWS EC2 (`t3.small`), Ubuntu 24.04, 2GB Swap | Dedicated production cloud server with static Elastic IP and memory buffer preventing OOM crashes. |
+| **Cloud Hosting** | AWS EC2, Ubuntu 24.04 | Dedicated production cloud server with static Elastic IP and memory buffer preventing OOM crashes. |
 | **Observability** | Prometheus 2.54, Grafana 11.2, cAdvisor, postgres-exporter | Metrics pull model, Dashboards-as-Code in "Skilio" folder, and automated threshold alerts. |
 
 ### Why PostgreSQL was chosen over NoSQL:
@@ -436,6 +430,9 @@ erDiagram
 - **In-app notifications**  *(Lazmoud)*: sends real-time alerts for messages, proposals, and reviews, with inline actions to accept connections or mark items read.
 - **Reputation & Networking**  *(Arajma, Odahriz)*: features 1–5 star client reviews with aggregated ratings, plus a networking hub for connection requests with personalized messages.
 - **UI & theming**  *(Odahriz, Zbakour)*: pairs Tailwind CSS and Radix UI with TanStack Router/Query for responsive layouts, optimistic caching, and View Transition dark/light mode crossfades.
+- **Health checks, Status page & Disaster recovery** *(Aysadeq)*: monitors database, cache, and disk metrics through `/api/v1/health` with a public `/status` dashboard, paired with an automated PostgreSQL backup daemon and recovery verification drills.
+- **Monitoring & Observability** *(Aysadeq)*: collects application request throughput, container resource usage, and database metrics via Prometheus, visualized through pre-configured Grafana dashboards.
+- **Cloud Infrastructure & CI/CD** *(Aysadeq)*: deploys to AWS EC2 behind a Traefik reverse proxy with automated Let's Encrypt TLS certificates, managed by GitHub Actions for automated testing and rolling container updates.
 
 ---
 
@@ -465,39 +462,27 @@ We implemented 15 modules from the subject, totaling 21 points. This covers the 
 
 ### Justification for Custom Modules of Choice (IV.10)
 
-According to the subject requirements, custom modules must demonstrate technical complexity, add practical value to the application, and provide explicit justification across four criteria.
+As required by the subject, each custom module of choice is justified across the four evaluation criteria:
 
-#### 1. Major Module of Choice (2 Points): Production Cloud Deployment & CI/CD Pipeline
+#### 1. Major Module of Choice (2 Points): Production Cloud Deployment & Automated CI/CD
 
-- **Why we chose this module:**  
-  We wanted Skilio accessible to external users on the public web at `https://skilio.works`. Running the service publicly required automating the build, verification, and deployment pipeline.
+- **Why we chose this module:** To make Skilio publicly accessible at [https://skilio.works](https://skilio.works) with a fully automated, production-grade cloud delivery pipeline.
+- **Technical challenges addressed:**
+  - **AWS EC2 Provisioning:** Configured Ubuntu 24.04 with an Elastic IP and a 2GB swapfile buffer to prevent Linux kernel OOM crashes during builds.
+  - **Traefik 3.6 Ingress:** Implemented dynamic Docker socket discovery, automated Let's Encrypt TLS 1.3 certificates, and mandatory HTTP 308 redirects.
+  - **Zero-Downtime CI/CD:** Built a 3-tier GitHub Actions pipeline (lint, test, smoke check) deploying via SSH `rsync` and rolling container swap in < 2 minutes.
+- **Value added:** Enables live evaluator access on the public internet, prevents broken code from reaching production, and eliminates manual deployment errors.
+- **Why it deserves Major status (2 Points):** Integrates three distinct production domains: cloud infrastructure (AWS), reverse proxy ingress with automated TLS (Traefik), and automated CI/CD pipelines (GitHub Actions).
 
-- **What technical challenges it addresses:**  
-  - Cloud server provisioning: Configured an AWS EC2 instance (`t3.small`, Ubuntu 24.04 LTS) with an Elastic IP and a 2GB swap space buffer to handle memory spikes during frontend builds.
-  - Ingress and TLS routing: Set up Traefik 3.6 as an edge reverse proxy with dynamic Docker socket discovery, automatic Let's Encrypt TLS 1.3 certificates, and HTTP 308 redirects.
-  - Continuous delivery: Built a GitHub Actions pipeline that lints, runs Pytest suites, and builds Docker images on every pull request, followed by zero-downtime container updates over SSH with `rsync`.
+#### 2. Minor Module of Choice (1 Point): Automated Backend Testing Suite (Pytest)
 
-- **How it adds value to the project:**  
-  Anyone can test the platform without compiling it locally. Commits merged into `master` deploy automatically in under two minutes once all checks pass, removing manual deployment errors.
-
-- **Why it deserves Major module status (2 Points):**  
-  This module spans three distinct infrastructure domains: cloud server provisioning (AWS), reverse proxy orchestration with automated certificates (Traefik), and automated continuous delivery (GitHub Actions). Operating these services together in production represents significant engineering effort.
-
-#### 2. Minor Module of Choice (1 Point): Automated Backend Testing Suite with Pytest
-
-- **Why we chose this module:**  
-  Skilio handles dual-role transitions, relational bidding workflows, role-based access control, and password resets. Automated tests were necessary to catch regressions and verify business logic before deploying changes.
-
-- **What technical challenges it addresses:**  
-  - Database isolation: Built Pytest fixtures that set up isolated test sessions with transactional rollbacks, preventing test data leakage across runs.
-  - Mocking external services: Implemented mocked fixtures for asynchronous Redis messaging, Cloudinary asset uploads, and OAuth token exchanges.
-  - End-to-end endpoint coverage: Wrote automated tests covering user authentication, profile updates, proposal status transitions, and permission guards.
-
-- **How it adds value to the project:**  
-  Developers can run the test suite locally with `make test` before pushing changes. The same tests run inside the CI pipeline, blocking broken builds from reaching the production server.
-
-- **Why it deserves Minor module status (1 Point):**  
-  Creating an automated test suite with isolated fixtures and continuous integration gating requires real technical effort. It provides immediate reliability benefits while remaining focused in scope compared to a major infrastructure implementation.
+- **Why we chose this module:** To protect complex platform workflows (dual-role switching, bidding transitions, and auth security) against regressions.
+- **Technical challenges addressed:**
+  - **Database Isolation:** Designed transactional rollback fixtures to prevent test data leakage across runs.
+  - **External Mocking:** Built mock fixtures for asynchronous Redis Pub/Sub, Cloudinary uploads, and OAuth token exchanges.
+  - **High Coverage Gate:** Authored 173 automated tests achieving 83% backend coverage, enforced by CI (`--fail-under=70`).
+- **Value added:** Allows instant local validation (`make test`) and gates the CI/CD pipeline against regressions before deployment.
+- **Why it deserves Minor status (1 Point):** Comprehensive integration and unit testing with transactional fixtures and CI gating provides critical reliability while maintaining a focused, minor scope.
 
 ---
 
@@ -505,23 +490,23 @@ According to the subject requirements, custom modules must demonstrate technical
 
 Each team member took full ownership of specific technical domains and solved real engineering challenges:
 
-- **`<aysadeq>` (DevOps Lead):**  
-  *Contributions:* Designed AWS EC2 server architecture, Traefik reverse proxy with Let's Encrypt SSL, GitHub Actions CI/CD pipeline, automated PostgreSQL backup daemon, sandbox disaster recovery drill, and Prometheus/Grafana observability suite.  
-  *Challenge Solved:* Frontend builds spiked memory usage on AWS, causing Linux kernel Out-Of-Memory crashes (Exit Code 137). Solved by creating an automated 2GB swap file with `vm.swappiness=10`, giving the compiler a safety buffer while keeping physical RAM priority for active services.
+- **`aysadeq` (DevOps Lead):**  
+  *Contributions:* Built the Docker Compose stack, Traefik reverse proxy, GitHub Actions CI/CD pipeline, automated PostgreSQL backup and restore suite , public `/status` page, and Prometheus/Grafana monitoring.  
+  *Challenge Solved:* Frontend builds spiked memory on the AWS EC2 instance, causing Linux Out-Of-Memory crashes. Solved by provisioning an automated 2GB swap partition to handle build spikes safely.
 
-- **`<arajma>` (Backend Lead):**  
+- **`arajma` (Backend Lead):**  
   *Contributions:* Architected FastAPI backend, SQLModel models, Alembic migrations, JWT token generation, Argon2/Bcrypt password hashing, Google & LinkedIn OAuth 2.0 social login, and comprehensive input validation.  
   *Challenge Solved:* Race conditions during user role-switching created duplicate profile rows. Solved by wrapping role switching inside atomic database transactions that query or provision profiles safely.
 
-- **`<lazmoud>` (Real-Time Systems Lead):**  
+- **`lazmoud` (Real-Time Systems Lead):**  
   *Contributions:* Built the bidirectional WebSocket chat server (`/api/v1/chat/ws`), Redis Pub/Sub event dispatcher, client-side chat UI, live typing indicators, and proposals submission workflow.  
   *Challenge Solved:* Users with multiple browser tabs were missing messages in background tabs. Solved by implementing user-centric connection pooling that broadcasts incoming WebSocket frames across all active sessions belonging to the same user.
 
-- **`<omorakwant>` (Frontend Developer / QA):**  
+- **`omorakwant` (Frontend Developer / QA):**  
   *Contributions:* Contributed to product requirements, user flow design, responsive landing page implementation, and conducted cross-browser QA on Google Chrome to ensure zero console errors.  
   *Challenge Solved:* Solved UI alignment and layout shifts on small mobile viewports by restructuring flex/grid layouts with mobile-first breakpoints.
 
-- **`<zbakour>` (Frontend Lead / UI-UX Lead):**  
+- **`zbakour` (Frontend Lead / UI-UX Lead):**  
   *Contributions:* Built the React 19 Single-Page Application, configured Vite with SWC, implemented Tailwind CSS v4 theming, created the Talent Directory with faceted search, client job management views, and review system.  
   *Challenge Solved:* Upgrading to Tailwind CSS v4 introduced breaking changes to theme configuration. Solved by migrating color tokens into standard CSS custom properties compatible with shadcn/ui and Radix primitives.
 
