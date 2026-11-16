@@ -41,11 +41,6 @@ services:
       - traefik.http.routers.backend-https.tls.certresolver=le
       - traefik.http.services.backend.loadbalancer.server.port=8000
 
-      # Deep diagnostic health check — pauses routing if DB/Redis fails
-      - traefik.http.services.backend.loadbalancer.healthCheck.path=/api/v1/health
-      - traefik.http.services.backend.loadbalancer.healthCheck.interval=10s
-      - traefik.http.services.backend.loadbalancer.healthCheck.timeout=5s
-
   grafana:
     restart: always
     labels:
