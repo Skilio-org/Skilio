@@ -146,7 +146,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 							setIsConnected(true)
 							pingIntervalRef.current = setInterval(() => {
 								if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "ping" }))
-							}, 25000)
+							}, 9000)
 							return
 						}
 						case "chat_message":

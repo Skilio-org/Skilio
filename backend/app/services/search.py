@@ -32,7 +32,6 @@ ROLE_SYNONYMS: dict[str, list[str]] = {
     "mobile": ["ios", "android", "flutter", "react native"],
 }
 
-
 def build_tsquery_string(q: str) -> str | None:
     """
     Parse a user query string into a PostgreSQL tsquery string with:

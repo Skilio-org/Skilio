@@ -44,6 +44,12 @@ async def probe_redis() -> ComponentHealth:
     start_time = time.perf_counter()
     try:
         client = get_redis_client()
+        if not client:
+            return ComponentHealth(
+                status="degraded",
+                latency_ms=None,
+                message="Cache ping did not respond with PONG",
+            )
         pong = await client.ping()
         if not pong:
             return ComponentHealth(

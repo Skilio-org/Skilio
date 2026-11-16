@@ -30,7 +30,14 @@ class Settings(BaseSettings):
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None
     DATABASE_URL: PostgresDsn
-    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_PORT: str = "6379"
+    REDIS_URL: str | None = None
+
+    @model_validator(mode="after")
+    def _assemble_redis_url(self) -> Self:
+        if not self.REDIS_URL:
+            self.REDIS_URL = f"redis://localhost:{self.REDIS_PORT}/0"
+        return self
 
     CLOUDINARY_CLOUD_NAME: str
     CLOUDINARY_API_KEY: str
