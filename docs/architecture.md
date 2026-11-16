@@ -350,8 +350,10 @@ flowchart TD
 
     C --> F[Google Callback Handler]
     D --> G[LinkedIn Callback Handler]
-    F --> H[Lookup or Create User with Random Password]
-    G --> H
+    F --> X[Lookup or Create User with Random Password]
+    G --> X
+
+    X --> H[Send reset Password Email when signup]
     E --> I[Verify Argon2/Bcrypt Hash in PostgreSQL]
 
     H --> J[Issue Signed JWT Access Token]

@@ -331,20 +331,20 @@ async def send_message_rest(
 
 
 @router.get("/presence/{user_id}", response_model=UserPresence)
-def check_user_presence(user_id: uuid.UUID) -> Any:
+async def check_user_presence(user_id: uuid.UUID) -> Any:
     """
     Check if a given user currently has active WebSocket connections.
     """
-    is_online = connection_manager.is_user_online(user_id)
+    is_online = await connection_manager.is_user_online(user_id)
     return UserPresence(user_id=user_id, is_online=is_online)
 
 @router.get("/presence", response_model=list[UserPresence])
-def check_multiple_user_presence(user_ids: list[uuid.UUID] = Query(...)) -> list[UserPresence]:
+async def check_multiple_user_presence(user_ids: list[uuid.UUID] = Query(...)) -> list[UserPresence]:
     """
     Check the presence status of multiple users.
     """
     presence_list = [
-        UserPresence(user_id=uid, is_online=connection_manager.is_user_online(uid))
+        UserPresence(user_id=uid, is_online=await connection_manager.is_user_online(uid))
         for uid in user_ids
     ]
     return presence_list
@@ -431,6 +431,7 @@ async def websocket_chat_endpoint(
 
             event_type = data.get("type", "custom")
             if event_type == "ping":
+                await connection_manager.heartbeat(user_id)
                 await websocket.send_text(json.dumps({"type": "pong"}))
                 continue
             if event_type == "chat_message":
