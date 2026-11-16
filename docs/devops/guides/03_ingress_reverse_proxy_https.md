@@ -304,20 +304,13 @@ backend:
     - traefik.http.routers.backend-https.tls=true
     - traefik.http.routers.backend-https.tls.certresolver=le
     - traefik.http.services.backend.loadbalancer.server.port=8000
-
-    # Deep diagnostic health check — pauses routing if DB/Redis fails
-    - traefik.http.services.backend.loadbalancer.healthCheck.path=/api/v1/health
-    - traefik.http.services.backend.loadbalancer.healthCheck.interval=10s
-    - traefik.http.services.backend.loadbalancer.healthCheck.timeout=5s
 ```
 
-#### Why Deep Healthcheck Routing is an Architectural Superpower:
-* Traefik does not simply check if the container process is running. Every 10 seconds, it issues an HTTP probe to `/api/v1/health`.
-* That endpoint executes active diagnostic checks:
-  1. Executes `SELECT 1` on PostgreSQL 18.
-  2. Sends a `PING` to Redis 8.
-  3. Validates host storage capacity.
-* **Circuit Breaker Behavior:** If PostgreSQL crashes or locks up, `/api/v1/health` returns `HTTP 503 Service Unavailable`. Traefik immediately flags the container as unhealthy and **stops routing external traffic to it**, preventing broken transactions and data corruption.
+#### Separation of Ingress Routing & Deep Diagnostics:
+* Traefik forwards incoming traffic to the backend on internal port `8000`.
+* **Container Lifecycle vs. Diagnostic Probing:**
+  1. Docker's internal engine monitors container process health via `compose.yml` (`/api/v1/utils/health-check/`) and restarts containers on failure.
+  2. Traefik does not block traffic to the container when downstream databases are degraded; this allows users and evaluators to open `https://skilio.works/status` and view live diagnostics (`/api/v1/health`) rather than an opaque Traefik 503 gateway error screen.
 
 ---
 
