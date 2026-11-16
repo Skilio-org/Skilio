@@ -20,7 +20,7 @@ Skilio is a full-stack, production-grade freelancer marketplace connecting indep
 5. [Technical Stack](#5-technical-stack)
 6. [Database Schema](#6-database-schema)
 7. [Features List](#7-features-list)
-8. [42 Evaluation Modules](#8-42-evaluation-modules)
+8. [Subject Modules](#8-subject-modules)
 9. [Individual Contributions](#9-individual-contributions)
 10. [Resources & AI Usage Disclosure](#10-resources--ai-usage-disclosure)
 11. [Known Limitations & Roadmap](#11-known-limitations--roadmap)
@@ -427,66 +427,77 @@ erDiagram
 
 ## 7. Features List
 
-| Category | Feature | Description | Owner |
-| :--- | :--- | :--- | :---: |
-| **Authentication & Security** | Social OAuth 2.0 | One-click login with Google OAuth 2.0 and LinkedIn OIDC. | `[Owner]` |
-| **Authentication & Security** | Password Security & Recovery | Argon2/Bcrypt password hashing with secure token-based email password reset. | `[Owner]` |
-| **Authentication & Security** | Email Verification & Route Guards | Account email verification tracking and JWT-based protected route authorization. | `[Owner]` |
-| **Identity & Account** | Dual-Role Workspace Switching | Real-time toggle between Client and Freelancer modes under a single user identity. | `[Owner]` |
-| **Identity & Account** | User Settings & Account Management | Self-service profile updating, password management, and account preferences. | `[Owner]` |
-| **Freelancer Workspace** | Profile & Credential Showcase | Public showcase with bio, hourly rate, skill tags, experience, education, and portfolio. | `[Owner]` |
-| **Freelancer Workspace** | Cloud Resume Management | PDF resume upload to Cloudinary with secure inline browser preview. | `[Owner]` |
-| **Freelancer Workspace** | Availability & Hours Settings | Instant availability toggle ("Available now"), working hours, and timezone controls. | `[Owner]` |
-| **Client Workspace** | Company Profile Management | Custom company branding with industry role, website, team size, location, and bio. | `[Owner]` |
-| **Client Workspace** | Job Posting Lifecycle | Draft, publish, edit, and close fixed or hourly jobs with budget and skill tags. | `[Owner]` |
-| **Client Workspace** | Talent Bookmarking | Save and manage favorite freelancer profiles for future project hiring. | `[Owner]` |
-| **Search & Discovery** | Faceted Talent Directory | Full-text and fuzzy search via `pg_trgm`, filtered by category, hourly rate, and skills. | `[Owner]` |
-| **Search & Discovery** | Marketplace Job Discovery | Browse open jobs by category, budget tier, and keyword, with recent search tracking. | `[Owner]` |
-| **Proposals & Bidding** | Proposal Bidding Workflow | Freelancers submit bids with cover letters; clients review, accept, or decline. | `[Owner]` |
-| **Networking & Connections** | Direct Professional Connections | Send, accept, decline, or withdraw networking requests with optional project context. | `[Owner]` |
-| **Real-Time Communication** | Live WebSocket Chat | Threaded full-duplex messaging powered by Redis Pub/Sub with presence and read receipts. | `[Owner]` |
-| **Real-Time Communication** | Chat Media Attachments | Upload and share image or document attachments directly inside conversation threads. | `[Owner]` |
-| **Feedback & Reputation** | Verified Reviews & Ratings | Clients submit 1-to-5 star ratings and comments that aggregate into public freelancer scores. | `[Owner]` |
-| **Notifications & Alerts** | In-App Notification Center | Event-driven alerts for proposals, messages, connections, reviews, and job updates. | `[Owner]` |
-| **DevOps & Reliability** | Public System Status Page | Live diagnostic dashboard probing PostgreSQL, Redis, and disk latency. | `[Owner]` |
-| **DevOps & Reliability** | Zero-Touch CI/CD Pipeline | 3-tier GitHub Actions validation running linters, tests, Docker builds, and cloud delivery. | `[Owner]` |
-| **DevOps & Reliability** | Automated DB Backups & DR | Daily scheduled compressed PostgreSQL dumps with sub-60s disaster recovery test drills. | `[Owner]` |
-| **DevOps & Reliability** | Observability Suite | Prometheus metrics collection, cAdvisor container telemetry, and custom Grafana dashboards. | `[Owner]` |
-| **UI / UX Experience** | Dark & Light Theme System | System-aware theme switcher with persistent user preference across sessions. | `[Owner]` |
-| **UI / UX Experience** | Responsive Mobile Layout | Mobile-first navigation with adaptive sidebars, quick-search modals, and touch controls. | `[Owner]` |
+- **Authentication & Security**  *(Lazmoud)*: supports Google OAuth 2.0, LinkedIn OIDC, and local sign-in with Argon2 password hashing, JWT sessions, email verification.
+- **Dual-Role Workspace Switching**  *(Arajma, Zbakour, Odahriz)*: Real-time toggle between Client and Freelancer modes under a single user identity, with diffrent UI for each role selected.
+- **Freelancer Showcase**  *(Arajma, Odahriz)*: presents freelancer's preferences and expertise, supported by work history, portfolio samples and resume and other sections.
+- **Client workspace**  *(Arajma, Zbakour)*: manage company profiles, publish and close job listings, review incoming proposals, message candidates directly, and shortlist freelancers by saving their profiles.
+- **Search & discovery engine**  *(Arajma, Zbakour)*: combines typo-tolerant PostgreSQL search with filters like hourly rate, budget, and ratings, plus saved recent searches and live application badges on job cards.
+- **Real-time chat**  *(Lazmoud)*: uses FastAPI WebSockets and Redis pub/sub for messaging across tabs, with typing indicators, read receipts, online status, and a REST fallback.
+- **In-app notifications**  *(Lazmoud)*: sends real-time alerts for messages, proposals, and reviews, with inline actions to accept connections or mark items read.
+- **Reputation & Networking**  *(Arajma, Odahriz)*: features 1–5 star client reviews with aggregated ratings, plus a networking hub for connection requests with personalized messages.
+- **UI & theming**  *(Odahriz, Zbakour)*: pairs Tailwind CSS and Radix UI with TanStack Router/Query for responsive layouts, optimistic caching, and View Transition dark/light mode crossfades.
 
 ---
 
-## 8. 42 Evaluation Modules
+## 8. Subject Modules
 
-We selected **10 modules** totaling **17 points** (exceeding the 14-point minimum requirement):
+We implemented 15 modules from the subject, totaling 21 points. This covers the 14 mandatory points and the 5 bonus points, with 2 buffer points:
 
-| Module ID | Classification | Module Description | Points | Owner | Documentation Link |
-| :--- | :---: | :--- | :---: | :--- | :--- |
-| **IV.1** | **Web (Major)** | Backend Framework (FastAPI) | **2 Pts** | `<arajma>` | [Section 5: Tech Stack](#5-technical-stack) • [docs/architecture.md](docs/architecture.md) |
-| **IV.1** | **Web (Major)** | Frontend Framework (React 19) | **2 Pts** | `<omorakwant>` | [Section 5: Tech Stack](#5-technical-stack) • [docs/architecture.md](docs/architecture.md) |
-| **IV.1** | **Web (Minor)** | Database System (PostgreSQL 18) | **1 Pt** | `<arajma>` | [Section 6: Database Schema](#6-database-schema) • [docs/architecture.md](docs/architecture.md) |
-| **IV.2** | **User (Major)** | User Management & Dual-Role Switching | **2 Pts** | `<arajma>`, `<omorakwant>` | [Section 7: Features List](#7-features-list) |
-| **IV.2** | **User (Major)** | Remote Authentication (Google & LinkedIn OAuth) | **2 Pts** | `<arajma>` | [Section 7: Features List](#7-features-list) |
-| **IV.4** | **AI/Real-Time (Major)**| Live Real-Time Chat (WebSockets & Redis) | **2 Pts** | `<lazmoud>` | [Section 7: Features List](#7-features-list) • [docs/architecture.md](docs/architecture.md) |
-| **IV.7** | **DevOps (Major)** | Observability Suite (Prometheus & Grafana) | **2 Pts** | `<aysadeq>` | [docs/devops/monitoring.md](docs/devops/monitoring.md) |
-| **IV.7** | **DevOps (Minor)** | Health Diagnostics, Status Page & Disaster Recovery | **1 Pt** | `<aysadeq>` | [docs/devops/backup.md](docs/devops/backup.md) |
-| **IV.10** | **Choice (Major)** | Production Cloud Deployment & Zero-Touch CI/CD | **2 Pts** | `<aysadeq>` | [docs/devops/deployment.md](docs/devops/deployment.md) |
-| **IV.10** | **Choice (Minor)** | Cloud Media & Asset Storage (Cloudinary) | **1 Pt** | `<zbakour>`, `<arajma>` | [Section 7: Features List](#7-features-list) |
+| Category | Module | Description | Owner |
+| :--- | :--- | :--- | :---: |
+| **Web (Major)** | **Frontend & Backend Frameworks** | React 19 single-page application and FastAPI asynchronous REST API. | `Team` |
+| **Web (Major)** | **Real-Time Features** | Full-duplex WebSocket chat with Redis Pub/Sub multi-device synchronization. | `Lazmoud` |
+| **Web (Major)** | **User Interactions & Social Features** | Direct messaging, user profiles, connection requests, and reviews. | `Arajma, Odahriz` |
+| **Web (Minor)** | **Database ORM & Migrations** | SQLModel / SQLAlchemy 2.0 object-relational mapping with Alembic migrations. | `Arajma, Lazmoud` |
+| **Web (Minor)** | **Complete Notification System** | In-app notification engine with database constraints for all platform events. | `Lazmoud` |
+| **Web (Minor)** | **Custom Design System** | Component library with Tailwind CSS v4, custom theme tokens, and dark/light mode. | `Zbakour, Odahriz` |
+| **Web (Minor)** | **Advanced Search & Filtering** | Faceted search with PostgreSQL pg_trgm fuzzy matching, sorting, and pagination. | `Arajma, Zbakour` |
+| **Web (Minor)** | **File Upload & Asset Pipeline** | Cloudinary media pipeline for avatars, portfolio images, and PDF resumes. | `Lazmoud, Zbakour` |
+| **Accessibility (Minor)** | **Cross-Browser Compatibility** | Verified responsive layout and feature compatibility on Chrome, Firefox, Safari, and Edge. | `Odahriz, Zbakour` |
+| **User Management (Major)** | **Standard User Management & Auth** | Argon2/Bcrypt password security, JWT session tokens, and dual-role switching. | `Lazmoud, Zbakour, Arajma` |
+| **User Management (Minor)** | **Remote Authentication (OAuth 2.0)** | Social sign-in with Google OAuth 2.0 and LinkedIn OpenID Connect. | `Lazmoud` |
+| **DevOps (Major)** | **Observability & Monitoring** | Prometheus metrics scraping, cAdvisor container stats, and Grafana dashboards. | `Aysadeq` |
+| **DevOps (Minor)** | **Health Checks, Status Page & DR** | Public /status health probe, automated PostgreSQL backup daemon, and <60s DR drill. | `Aysadeq` |
+| **Choice (Major)** | **Production Cloud Deployment & CI/CD** | AWS EC2 cloud infrastructure, Traefik Let's Encrypt TLS, and 3-tier GitHub Actions CI/CD. | `Aysadeq` |
+| **Choice (Minor)** | **Automated Backend Testing Suite** | Pytest unit and integration test suite covering auth, models, and API endpoints. | `Arajma, Lazmoud` |
 
-**Total Points Claimed:** 7 Major (14 Pts) + 3 Minor (3 Pts) = **17 Points**
+**Total Points Claimed:** 6 Major (12 Pts) + 9 Minor (9 Pts) = **21 Points** (14 mandatory + 5 bonus + 2 buffer)
 
-### Mandatory Justification for Module of Choice (IV.10 Major — Cloud Deployment & CI/CD)
-According to the 42 subject (`en.subject.pdf`, page 20), custom Modules of Choice must justify four specific criteria:
+### Justification for Custom Modules of Choice (IV.10)
 
-1. **Why did you choose this module?**  
-   We wanted Skilio to be a real, accessible SaaS on the internet (`https://skilio.works`) rather than an app that only runs locally on `localhost`.
-2. **What technical challenges does it address?**  
-   Provisioning and securing an AWS EC2 cloud instance, configuring dynamic Let's Encrypt TLS 1.3 certificates via Traefik, building an automated 3-tier GitHub Actions testing gate (lint, pytest, Docker build), and orchestrating zero-downtime container swaps over SSH `rsync` within a tight 2GB RAM budget.
-3. **How does it add value to the project?**  
-   It eliminates the *"it works on my machine"* problem. Every code change is verified automatically, and commits to `master` deploy to production in under 2 minutes without user downtime.
-4. **Why does it deserve Major module status (2 Points)?**  
-   It combines the three core pillars of modern production engineering: Infrastructure-as-a-Service (AWS), Ingress & TLS automation (Traefik), and Automated Continuous Delivery (GitHub Actions).
+According to the subject requirements, custom modules must demonstrate technical complexity, add practical value to the application, and provide explicit justification across four criteria.
+
+#### 1. Major Module of Choice (2 Points): Production Cloud Deployment & CI/CD Pipeline
+
+- **Why we chose this module:**  
+  We wanted Skilio accessible to external users on the public web at `https://skilio.works`. Running the service publicly required automating the build, verification, and deployment pipeline.
+
+- **What technical challenges it addresses:**  
+  - Cloud server provisioning: Configured an AWS EC2 instance (`t3.small`, Ubuntu 24.04 LTS) with an Elastic IP and a 2GB swap space buffer to handle memory spikes during frontend builds.
+  - Ingress and TLS routing: Set up Traefik 3.6 as an edge reverse proxy with dynamic Docker socket discovery, automatic Let's Encrypt TLS 1.3 certificates, and HTTP 308 redirects.
+  - Continuous delivery: Built a GitHub Actions pipeline that lints, runs Pytest suites, and builds Docker images on every pull request, followed by zero-downtime container updates over SSH with `rsync`.
+
+- **How it adds value to the project:**  
+  Anyone can test the platform without compiling it locally. Commits merged into `master` deploy automatically in under two minutes once all checks pass, removing manual deployment errors.
+
+- **Why it deserves Major module status (2 Points):**  
+  This module spans three distinct infrastructure domains: cloud server provisioning (AWS), reverse proxy orchestration with automated certificates (Traefik), and automated continuous delivery (GitHub Actions). Operating these services together in production represents significant engineering effort.
+
+#### 2. Minor Module of Choice (1 Point): Automated Backend Testing Suite with Pytest
+
+- **Why we chose this module:**  
+  Skilio handles dual-role transitions, relational bidding workflows, role-based access control, and password resets. Automated tests were necessary to catch regressions and verify business logic before deploying changes.
+
+- **What technical challenges it addresses:**  
+  - Database isolation: Built Pytest fixtures that set up isolated test sessions with transactional rollbacks, preventing test data leakage across runs.
+  - Mocking external services: Implemented mocked fixtures for asynchronous Redis messaging, Cloudinary asset uploads, and OAuth token exchanges.
+  - End-to-end endpoint coverage: Wrote automated tests covering user authentication, profile updates, proposal status transitions, and permission guards.
+
+- **How it adds value to the project:**  
+  Developers can run the test suite locally with `make test` before pushing changes. The same tests run inside the CI pipeline, blocking broken builds from reaching the production server.
+
+- **Why it deserves Minor module status (1 Point):**  
+  Creating an automated test suite with isolated fixtures and continuous integration gating requires real technical effort. It provides immediate reliability benefits while remaining focused in scope compared to a major infrastructure implementation.
 
 ---
 
