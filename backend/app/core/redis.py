@@ -98,7 +98,6 @@ async def broadcast_to_all(
     if not published:
         await connection_manager.broadcast(envelope)
 
-
 async def redis_pubsub_listener() -> None:
     """
     Background listener that subscribes to Redis pattern channels.
@@ -108,6 +107,7 @@ async def redis_pubsub_listener() -> None:
     while True:
         try:
             client = get_redis_client()
+            connection_manager.set_redis_client(client)
             pubsub = client.pubsub()
             await pubsub.psubscribe(f"{USER_CHANNEL_PREFIX}*{USER_CHANNEL_SUFFIX}")
             await pubsub.subscribe(BROADCAST_CHANNEL)
@@ -132,7 +132,6 @@ async def redis_pubsub_listener() -> None:
                 if channel == BROADCAST_CHANNEL:
                     await connection_manager.broadcast(payload)
                 elif channel.startswith(USER_CHANNEL_PREFIX) and channel.endswith(USER_CHANNEL_SUFFIX):
-                    # Extract user_id string between prefix and suffix
                     uid_str = channel[len(USER_CHANNEL_PREFIX) : -len(USER_CHANNEL_SUFFIX)]
                     try:
                         uid = uuid.UUID(uid_str)

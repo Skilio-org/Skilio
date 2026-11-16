@@ -2,9 +2,11 @@ import json
 import logging
 import uuid
 from collections import defaultdict
+from time import time
 from typing import Any
 
 from fastapi import WebSocket
+from redis.asyncio import Redis
 
 logger = logging.getLogger(__name__)
 
@@ -17,16 +19,26 @@ def _serialize_payload(payload: Any) -> str:
 
 class ConnectionManager:
     def __init__(self) -> None:
-        # Maps user_id -> set of active WebSockets (supports multiple devices/tabs per user)
+
+        self.redis: Redis | None = None
         self._active_connections: dict[uuid.UUID, set[WebSocket]] = defaultdict(set)
+
+    def set_redis_client(self, redis: Redis):
+        self.redis = redis
 
     async def connect(self, user_id: uuid.UUID, websocket: WebSocket) -> None:
         self._active_connections[user_id].add(websocket)
+        expires_at = time() + 10
+        await self.redis.zadd("online_users_zset", {str(user_id): expires_at})
         logger.info(
             "WebSocket connected for user %s (total sockets for user: %d)",
             user_id,
             len(self._active_connections[user_id]),
         )
+
+    async def heartbeat(self, user_id: uuid.UUID) -> None:
+        expires_at = time() + 10
+        await self.redis.zadd("online_users_zset", {str(user_id): expires_at})
 
     def disconnect(self, user_id: uuid.UUID, websocket: WebSocket) -> None:
         if user_id in self._active_connections:
@@ -35,11 +47,16 @@ class ConnectionManager:
                 del self._active_connections[user_id]
         logger.info("WebSocket disconnected for user %s", user_id)
 
-    def is_user_online(self, user_id: uuid.UUID) -> bool:
-        return bool(self._active_connections.get(user_id))
+    async def is_user_online(self, user_id: uuid.UUID) -> bool:
+        now = time()
+        score = await self.redis.zscore("online_users_zset", str(user_id))
+        return score is not None and score > now
 
-    def get_online_users(self) -> list[uuid.UUID]:
-        return list(self._active_connections.keys())
+    async def get_online_users(self) -> list[uuid.UUID]:
+        now = time()
+        await self.redis.zremrangebyscore("online_users_zset", 0, now)
+        raw_user_ids = await self.redis.zrange("online_users_zset", 0, -1)
+        return [uuid.UUID(uid) for uid in raw_user_ids]
 
     async def send_to_user(self, user_id: uuid.UUID, payload: Any) -> int:
         """
@@ -94,6 +111,4 @@ class ConnectionManager:
 
         return delivered
 
-
-# Singleton instance
 connection_manager = ConnectionManager()
