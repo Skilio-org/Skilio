@@ -254,10 +254,9 @@ This overlay strips away development tools and hardens the infrastructure for pu
    * Stores certificates in a persistent named volume (`traefik-certificates`).
 3. **Mandatory HTTPS Enforcement:**
    * Traefik unconditionally redirects HTTP (80) requests to HTTPS (443) using an HTTP 308 Permanent Redirect.
-4. **Dynamic Healthcheck Routing:**
-   * Traefik actively probes `backend` via:
-     `traefik.http.services.backend.loadbalancer.healthCheck.path=/api/v1/health`
-   * If PostgreSQL or Redis fails and the health check responds with an error, Traefik automatically suspends routing to the container instead of delivering broken pages to users.
+4. **Separation of Ingress Routing & Deep Diagnostics:**
+   * Container liveness and auto-restart policies are managed natively by Docker (`compose.yml`), ensuring Traefik remains a lightweight, uninterrupted ingress proxy.
+   * Deep diagnostic checks (`/api/v1/health`) are decoupled from ingress routing so users can always access the public `/status` page to inspect real-time component health even if backing services (PostgreSQL/Redis) are degraded.
 5. **High-Availability Restart Policy:**
    * Sets `restart: always` on critical production containers (`proxy`, `db`, `redis`, `backend`, `grafana`), ensuring immediate recovery upon container crash or full host reboot.
 

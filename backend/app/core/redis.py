@@ -25,7 +25,7 @@ _listener_task: asyncio.Task[None] | None = None
 def get_redis_client() -> aioredis.Redis | None:
     global _redis_client
     logger.info(f"Connecting to redis: {settings.REDIS_URL}")
-    if _redis_client:
+    if not _redis_client:
         try:
             _redis_client = aioredis.from_url(
                 settings.REDIS_URL,
