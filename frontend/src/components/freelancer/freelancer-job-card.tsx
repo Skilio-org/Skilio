@@ -49,7 +49,7 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 							type="button"
 							onClick={(event) => {
 								detailsTrigger.current = event.currentTarget
-								setInitiallyApplying(false)
+								setInitiallyApplying(true)
 								setDetailsOpen(true)
 							}}
 							aria-haspopup="dialog"
