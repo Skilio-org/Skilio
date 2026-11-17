@@ -94,7 +94,8 @@ class Settings(BaseSettings):
     ENV: str = "production"
     RESEND_API_KEY: str = ""
     MAX_MESSAGES_PER_SECOND: int = 5
-    RATE_LIMIT_WINDOW: float = 1.0
+    RATE_LIMIT_WINDOW: int = 1
+    FRAME_LIMIT_WINDOW: int = 1
     TOTAL_FRAME_LIMIT: int = 15
     MAX_FRAME_SIZE: int = 64 * 1024
 

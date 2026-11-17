@@ -1,7 +1,8 @@
 import json
 import logging
 import uuid
-from time import time
+from collections import deque
+from time import monotonic
 from typing import Annotated, Any
 
 from fastapi import (
@@ -20,6 +21,7 @@ from app.api.utils.chat import (
     chat_message,
     chat_send_error_message,
     get_user_id_from_token,
+    is_rate_limited,
     read_receipt,
     user_typing,
 )
@@ -381,8 +383,8 @@ async def websocket_chat_endpoint(
     websocket: WebSocket,
     token: Annotated[str | None, Query()] = None,
 ) -> None:
-    message_timestamps: list[float] = []
-    total_frame_timestamps: list[float] = []
+    message_timestamps: deque[float] = deque()
+    total_frame_timestamps: deque[float] = deque()
     await websocket.accept()
     if not token:
         await reject_websocket(websocket)
@@ -405,7 +407,6 @@ async def websocket_chat_endpoint(
         await websocket.send_text(
             json.dumps({"type": "connection_established", "data": {"user_id": str(user_id)}})
         )
-
         while True:
             text = await websocket.receive_text()
             if len(text) > settings.MAX_FRAME_SIZE:
@@ -414,18 +415,22 @@ async def websocket_chat_endpoint(
                     reason="Frame exceeds maximum allowed size",
                 )
                 break
-
-            current_time = time()
-            total_frame_timestamps = [t for t in total_frame_timestamps if current_time - t < 1.0]
-            if len(total_frame_timestamps) >= settings.TOTAL_FRAME_LIMIT:
+            now = monotonic()
+            if is_rate_limited(
+                total_frame_timestamps,
+                now,
+                settings.FRAME_LIMIT_WINDOW,
+                settings.TOTAL_FRAME_LIMIT,
+            ):
                 await websocket.close(
                     code=status.WS_1008_POLICY_VIOLATION,
                     reason="Exceeded maximum frame rate limit",
                 )
                 break
-            total_frame_timestamps.append(current_time)
             try:
                 data = json.loads(text)
+                if not isinstance(data, dict):
+                    continue
             except Exception:
                 continue
 
@@ -435,17 +440,18 @@ async def websocket_chat_endpoint(
                 await websocket.send_text(json.dumps({"type": "pong"}))
                 continue
             if event_type == "chat_message":
-                message_timestamps = [
-                    t for t in message_timestamps if current_time - t < settings.RATE_LIMIT_WINDOW
-                ]
-                if len(message_timestamps) >= settings.MAX_MESSAGES_PER_SECOND:
+                if is_rate_limited(
+                    message_timestamps,
+                    now,
+                    settings.RATE_LIMIT_WINDOW,
+                    settings.MAX_MESSAGES_PER_SECOND,
+                ):
                     await chat_send_error_message(
                         websocket,
                         data.get("client_message_id"),
                         "slow down"
                     )
                     continue
-                message_timestamps.append(current_time)
                 await chat_message(data, websocket, user_id)
                 continue
 
@@ -456,11 +462,8 @@ async def websocket_chat_endpoint(
                 await read_receipt(data, user_id)
                 continue
             else:
-                target_user_raw = data.get("recipient_id") or data.get("user_id")
-                if target_user_raw:
-                    target_uid = uuid.UUID(str(target_user_raw))
-                    await publish_to_user(target_uid, payload=data)
-
+                await reject_websocket(websocket, code=status.WS_1003_UNSUPPORTED_DATA, reason="Unknown event type")
+                break
     except (WebSocketDisconnect, Exception) as e:
         logger.info(f"WebSocket closed for user {user_id}: {e}")
     finally:

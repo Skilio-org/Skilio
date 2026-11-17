@@ -31,7 +31,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 				profile={{
 					name,
 					initials: getInitials(name),
-					avatarUrl: person.avatar_url || accountAvatarUrl(person.user_id, "", "freelancer"),
+					avatarUrl: accountAvatarUrl(person.user_id, "", "freelancer"),
 					title: person.title ?? "",
 					location: person.location ?? "",
 					summary: person.bio ?? "",
@@ -112,22 +112,18 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 						</button>
 					</>
 				}
-				contactFooter={
-					<>
-						{saved && (
+				contactFooter={saved && (
 							<p role="status" className="mt-2 text-center text-on-surface-variant text-xs">
 								Available in your Saved talent list.
 							</p>
 						)}
-					</>
-				}
 				reviewsNode={
 					<FreelancerReviewsSection
 						freelancerId={person.id}
 						profileUserId={person.user_id}
 						freelancerName={name}
 						freelancerTitle={person.title ?? ""}
-						freelancerAvatarUrl={person.avatar_url || accountAvatarUrl(person.user_id, "", "freelancer")}
+						freelancerAvatarUrl={accountAvatarUrl(person.user_id, "", "freelancer")}
 					/>
 				}
 				portfolioDialogAction={
