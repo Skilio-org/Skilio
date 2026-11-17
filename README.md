@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by <arajma>, <aysadeq>, <lazmoud>, <omorakwant>, <zbakour>.*
+*This project has been created as part of the 42 curriculum by arajma, aysadeq, lazmoud, Odahriz, zbakour.*
 
 # Skilio — Freelancer Marketplace Platform
 
