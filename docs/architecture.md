@@ -80,7 +80,6 @@ flowchart TD
 | **Pwdlib / Passlib** | Argon2 & Bcrypt | Multi-algorithm password hashing with automatic salt rotation. |
 | **PyJWT** | `>=2.13` | Stateless signed JSON Web Tokens for API and WebSocket authentication. |
 | **OAuth 2.0 Clients** | Google & LinkedIn OIDC | Social authentication with automatic account provisioning and token refresh. |
-| **Sentry SDK** | `>=2.66` | Real-time exception tracking and distributed APM tracing in production. |
 
 ### Frontend Technologies
 | Technology | Version / Spec | Purpose & Architectural Role |

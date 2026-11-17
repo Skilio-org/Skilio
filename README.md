@@ -33,7 +33,7 @@ Skilio is a full-stack, production-grade freelancer marketplace connecting indep
 ### Project Goal & Overview
 Finding and hiring freelance talent often suffers from fragmented tools. clients and freelancers switch between job boards, messaging apps, and external storage. Skilio solves this by unifying the entire freelance lifecycle into a single platform:
 1. **Dual-Role Identity:** A single login allows users to switch between Client and Freelancer roles on demand, with automatic profile generation and role-specific navigation.
-2. **Live Messaging:** Full-duplex messaging with online status, read receipts, and multi-device synchronization via WebSockets and Redis.
+2. **Live Messaging:** Full-duplex messaging with online status, and multi-device synchronization via WebSockets and Redis.
 3. **End-to-End Workflow:** Clients post jobs, freelancers submit bids with cover letters, contracts are negotiated in real time, and verified reviews establish public trust.
 4. **Observability & Status:** Public real-time diagnostic page (`/status`), Prometheus scraping, and Grafana telemetry.
 5. **Cloud-Native & Production-Ready:** Deployed on AWS EC2 behind a Traefik 3.6 TLS reverse proxy, automated with 3-tier GitHub Actions CI/CD, daily database backups, and sub-60s disaster recovery drills.
@@ -66,13 +66,13 @@ Before you start, make sure you have installed:
    ```bash
    cp .env.example .env
    ```
-   *(The default values in `.env.example` are pre-configured to work out of the box for local testing).*
+   *(The default values in `.env.example` are pre-configured to work out of the box for local testing, except for external apis).*
 
 3. **Start the platform (Single Command):**
    ```bash
    make up
    ```
-   This single command builds and starts the full stack (Traefik reverse proxy, PostgreSQL, Redis, FastAPI backend, React SPA, Prometheus, Grafana, Mailpit, and the backup daemon). Database migrations and the default administrator account are automatically created on boot.
+   This single command builds and starts the full stack (Traefik reverse proxy, PostgreSQL, Redis, FastAPI backend, React SPA, Prometheus, Grafana, Mailpit, and the backup daemon). Database migrations and the default administrator account are automatically created on startup.
 
 ---
 
@@ -426,7 +426,7 @@ erDiagram
 - **Freelancer Showcase**  *(Arajma, Odahriz)*: presents freelancer's preferences and expertise, supported by work history, portfolio samples and resume and other sections.
 - **Client workspace**  *(Arajma, Zbakour)*: manage company profiles, publish and close job listings, review incoming proposals, message candidates directly, and shortlist freelancers by saving their profiles.
 - **Search & discovery engine**  *(Arajma, Zbakour)*: combines typo-tolerant PostgreSQL search with filters like hourly rate, budget, and ratings, plus saved recent searches and live application badges on job cards.
-- **Real-time chat**  *(Lazmoud)*: uses FastAPI WebSockets and Redis pub/sub for messaging across tabs, with typing indicators, read receipts, online status, and a REST fallback.
+- **Real-time chat**  *(Lazmoud)*: uses FastAPI WebSockets and Redis pub/sub for messaging across tabs, online status, and a REST fallback.
 - **In-app notifications**  *(Lazmoud)*: sends real-time alerts for messages, proposals, and reviews, with inline actions to accept connections or mark items read.
 - **Reputation & Networking**  *(Arajma, Odahriz)*: features 1–5 star client reviews with aggregated ratings, plus a networking hub for connection requests with personalized messages.
 - **UI & theming**  *(Odahriz, Zbakour)*: pairs Tailwind CSS and Radix UI with TanStack Router/Query for responsive layouts, optimistic caching, and View Transition dark/light mode crossfades.
@@ -444,11 +444,11 @@ We implemented 15 modules from the subject, totaling 21 points. This covers the 
 | :--- | :--- | :--- | :---: |
 | **Web (Major)** | **Frontend & Backend Frameworks** | React 19 single-page application and FastAPI asynchronous REST API. | `Team` |
 | **Web (Major)** | **Real-Time Features** | Full-duplex WebSocket chat with Redis Pub/Sub multi-device synchronization. | `Lazmoud` |
-| **Web (Major)** | **User Interactions & Social Features** | Direct messaging, user profiles, connection requests, and reviews. | `Arajma, Odahriz` |
+| **Web (Major)** | **User Interactions & Social Features** | user profiles, connection requests, and reviews. | `Arajma, Odahriz` |
 | **Web (Minor)** | **Database ORM & Migrations** | SQLModel / SQLAlchemy 2.0 object-relational mapping with Alembic migrations. | `Arajma, Lazmoud` |
 | **Web (Minor)** | **Complete Notification System** | In-app notification engine with database constraints for all platform events. | `Lazmoud` |
 | **Web (Minor)** | **Custom Design System** | Component library with Tailwind CSS v4, custom theme tokens, and dark/light mode. | `Zbakour, Odahriz` |
-| **Web (Minor)** | **Advanced Search & Filtering** | Faceted search with PostgreSQL pg_trgm fuzzy matching, sorting, and pagination. | `Arajma, Zbakour` |
+| **Web (Minor)** | **Advanced Search & Filtering** | search with PostgreSQL pg_trgm fuzzy matching, sorting, and pagination. | `Arajma, Zbakour` |
 | **Web (Minor)** | **File Upload & Asset Pipeline** | Cloudinary media pipeline for avatars, portfolio images, and PDF resumes. | `Lazmoud, Zbakour` |
 | **Accessibility (Minor)** | **Cross-Browser Compatibility** | Verified responsive layout and feature compatibility on Chrome, Firefox, Safari, and Edge. | `Odahriz, Zbakour` |
 | **User Management (Major)** | **Standard User Management & Auth** | Argon2/Bcrypt password security, JWT session tokens, and dual-role switching. | `Lazmoud, Zbakour, Arajma` |
@@ -479,7 +479,7 @@ As required by the subject, each custom module of choice is justified across the
 - **Why we chose this module:** To protect complex platform workflows (dual-role switching, bidding transitions, and auth security) against regressions.
 - **Technical challenges addressed:**
   - **Database Isolation:** Designed transactional rollback fixtures to prevent test data leakage across runs.
-  - **External Mocking:** Built mock fixtures for asynchronous Redis Pub/Sub, Cloudinary uploads, and OAuth token exchanges.
+  - **External Mocking:** Built mock fixtures for asynchronous Redis Pub/Sub, Cloudinary uploads.
   - **High Coverage Gate:** Authored 173 automated tests achieving 83% backend coverage, enforced by CI (`--fail-under=70`).
 - **Value added:** Allows instant local validation (`make test`) and gates the CI/CD pipeline against regressions before deployment.
 - **Why it deserves Minor status (1 Point):** Comprehensive integration and unit testing with transactional fixtures and CI gating provides critical reliability while maintaining a focused, minor scope.
@@ -495,19 +495,19 @@ Each team member took full ownership of specific technical domains and solved re
   *Challenge Solved:* Frontend builds spiked memory on the AWS EC2 instance, causing Linux Out-Of-Memory crashes. Solved by provisioning an automated 2GB swap partition to handle build spikes safely.
 
 - **`arajma` (Backend Lead):**  
-  *Contributions:* Architected FastAPI backend, SQLModel models, Alembic migrations, JWT token generation, Argon2/Bcrypt password hashing, Google & LinkedIn OAuth 2.0 social login, and comprehensive input validation.  
-  *Challenge Solved:* Race conditions during user role-switching created duplicate profile rows. Solved by wrapping role switching inside atomic database transactions that query or provision profiles safely.
+  *Contributions:* Architected FastAPI backend, SQLModel models, and comprehensive input validation, designing the core business logic for Freelancers and Clients.
+  *Challenge Solved:* Designing frictionless dual-role user profiles created many bugs, but fixing the architecture either eliminated them or made them easier to solve once found.
 
-- **`lazmoud` (Real-Time Systems Lead):**  
-  *Contributions:* Built the bidirectional WebSocket chat server (`/api/v1/chat/ws`), Redis Pub/Sub event dispatcher, client-side chat UI, live typing indicators, and proposals submission workflow.  
-  *Challenge Solved:* Users with multiple browser tabs were missing messages in background tabs. Solved by implementing user-centric connection pooling that broadcasts incoming WebSocket frames across all active sessions belonging to the same user.
+- **`lazmoud` (Full Stack Developer):**  
+  *Contributions:* Built the bidirectional WebSocket chat server (`/api/v1/chat/ws`), Redis Pub/Sub event dispatcher, and client-side chat UI; also implemented Google & LinkedIn OAuth 2.0 social login and account validation through sending validation links using Resend.
+  *Challenge Solved:* A user can send big portions of data through web sockets and that can cause memory issues and unresponsiveness in the server. Solved it by rate limiting the user to send specific message size and also limited the amount of frames a user can send every second.
 
-- **`omorakwant` (Frontend Developer / QA):**  
-  *Contributions:* Contributed to product requirements, user flow design, responsive landing page implementation, and conducted cross-browser QA on Google Chrome to ensure zero console errors.  
+- **`Odahriz` (Frontend Developer / QA):**  
+  *Contributions:* Contributed to product requirements, user flow design including reviews and connections, responsive landing page implementation, and conducted cross-browser QA on Google Chrome to ensure zero console errors.  
   *Challenge Solved:* Solved UI alignment and layout shifts on small mobile viewports by restructuring flex/grid layouts with mobile-first breakpoints.
 
 - **`zbakour` (Frontend Lead / UI-UX Lead):**  
-  *Contributions:* Built the React 19 Single-Page Application, configured Vite with SWC, implemented Tailwind CSS v4 theming, created the Talent Directory with faceted search, client job management views, and review system.  
+  *Contributions:* Built the React 19 Single-Page Application, configured Vite, implemented Tailwind CSS v4 theming, created the Talent Directory with search, and client job management.  
   *Challenge Solved:* Upgrading to Tailwind CSS v4 introduced breaking changes to theme configuration. Solved by migrating color tokens into standard CSS custom properties compatible with shadcn/ui and Radix primitives.
 
 ---
@@ -516,15 +516,16 @@ Each team member took full ownership of specific technical domains and solved re
 
 ### References Consulted
 - **FastAPI Documentation:** [https://fastapi.tiangolo.com/](https://fastapi.tiangolo.com/) (Async lifespan, dependency injection)
-- **React 19 Documentation:** [https://react.dev/](https://react.dev/) (Hooks, client components)
 - **SQLModel Documentation:** [https://sqlmodel.tiangolo.com/](https://sqlmodel.tiangolo.com/) (SQLAlchemy 2.0 async integration)
 - **PostgreSQL 18 Manual:** [https://www.postgresql.org/docs/](https://www.postgresql.org/docs/) (ACID constraints, JSONB indexing)
+- **React 19 Documentation:** [https://react.dev/](https://react.dev/) (Hooks, client components)
+- **Tailwind Documentation:** [https://tailwindcss.com/docs/](https://tailwindcss.com/docs/)
 - **Traefik Proxy 3.6 Guide:** [https://doc.traefik.io/traefik/](https://doc.traefik.io/traefik/) (Docker dynamic ingress, ACME TLS)
 - **Prometheus & Grafana:** [https://prometheus.io/docs/](https://prometheus.io/docs/) and [https://grafana.com/docs/](https://grafana.com/docs/)
 
 ### AI Usage Disclosure
-In accordance with 42 academic honesty standards (Chapter I and Chapter VI of the subject), AI tools were used responsibly as developer aids:
-- **Tools Used:** Google Antigravity / Gemini, Claude, GitHub Copilot.
+AI tools were used responsibly as developer aids:
+- **Tools Used:** Google Antigravity / Gemini, GitHub Copilot.
 - **Where AI was used:** Drafting repetitive boilerplate test fixtures (`tests/`), generating initial Tailwind component structures, exploring syntax examples for Redis async Pub/Sub, and structuring documentation outlines.
 - **Where AI was NOT used:** System architecture decisions, business logic rules, dual-role identity modeling, AWS server configuration, and peer evaluation defense preparation.
 - **Human Verification:** All generated code was manually inspected, modified, and validated through our automated CI testing gates (Pytest, TypeScript type checking, and Docker smoke tests).
