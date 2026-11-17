@@ -130,7 +130,7 @@ The team used a straightforward and collaborative project management approach ce
 
 | Layer | Technologies | Justification & Purpose |
 | :--- | :--- | :--- |
-| **Frontend** | React 19, TypeScript 6, Vite 8, Tailwind CSS v4, TanStack Router & Query | Modern component architecture, type safety, instant client-side routing, optimistic caching, and fast SWC builds. |
+| **Frontend** | React 19, TypeScript 6, Vite 8, Tailwind CSS v4, TanStack Router & Query | Modern component architecture, type safety, instant client-side routing, optimistic caching. |
 | **Backend** | Python 3.14, FastAPI, SQLModel, Alembic, Pydantic v2 | Asynchronous high concurrency, automatic OpenAPI schemas, type-safe validation, and smooth migrations. |
 | **Database** | PostgreSQL 18 | ACID transactions prevent double-bidding or booking conflicts; native JSONB stores dynamic skill arrays. |
 | **Cache & Bus** | Redis 8 | In-memory message broker for real-time WebSocket pub/sub across multi-user sessions. |
@@ -429,7 +429,7 @@ erDiagram
 - **Real-time chat**  *(Lazmoud)*: uses FastAPI WebSockets and Redis pub/sub for messaging across tabs, online status, and a REST fallback.
 - **In-app notifications**  *(Lazmoud)*: sends real-time alerts for messages, proposals, and reviews, with inline actions to accept connections or mark items read.
 - **Reputation & Networking**  *(Arajma, Odahriz)*: features 1–5 star client reviews with aggregated ratings, plus a networking hub for connection requests with personalized messages.
-- **UI & theming**  *(Odahriz, Zbakour)*: pairs Tailwind CSS and Radix UI with TanStack Router/Query for responsive layouts, optimistic caching, and View Transition dark/light mode crossfades.
+- **UI & theming**  *(Odahriz, Zbakour)*: pairs Tailwind CSS with TanStack Router/Query for responsive layouts, optimistic caching, and View Transition dark/light mode crossfades.
 - **Health checks, Status page & Disaster recovery** *(Aysadeq)*: monitors database, cache, and disk metrics through `/api/v1/health` with a public `/status` dashboard, paired with an automated PostgreSQL backup daemon and recovery verification drills.
 - **Monitoring & Observability** *(Aysadeq)*: collects application request throughput, container resource usage, and database metrics via Prometheus, visualized through pre-configured Grafana dashboards.
 - **Cloud Infrastructure & CI/CD** *(Aysadeq)*: deploys to AWS EC2 behind a Traefik reverse proxy with automated Let's Encrypt TLS certificates, managed by GitHub Actions for automated testing and rolling container updates.
@@ -447,7 +447,7 @@ We implemented 15 modules from the subject, totaling 21 points. This covers the 
 | **Web (Major)** | **User Interactions & Social Features** | user profiles, connection requests, and reviews. | `Arajma, Odahriz` |
 | **Web (Minor)** | **Database ORM & Migrations** | SQLModel / SQLAlchemy 2.0 object-relational mapping with Alembic migrations. | `Arajma, Lazmoud` |
 | **Web (Minor)** | **Complete Notification System** | In-app notification engine with database constraints for all platform events. | `Lazmoud` |
-| **Web (Minor)** | **Custom Design System** | Component library with Tailwind CSS v4, custom theme tokens, and dark/light mode. | `Zbakour, Odahriz` |
+| **Web (Minor)** | **Custom Design System** | Component library with Tailwind CSS v4, and dark/light mode. | `Zbakour, Odahriz` |
 | **Web (Minor)** | **Advanced Search & Filtering** | search with PostgreSQL pg_trgm fuzzy matching, sorting, and pagination. | `Arajma, Zbakour` |
 | **Web (Minor)** | **File Upload & Asset Pipeline** | Cloudinary media pipeline for avatars, portfolio images, and PDF resumes. | `Lazmoud, Zbakour` |
 | **Accessibility (Minor)** | **Cross-Browser Compatibility** | Verified responsive layout and feature compatibility on Chrome, Firefox, Safari, and Edge. | `Odahriz, Zbakour` |
@@ -508,7 +508,7 @@ Each team member took full ownership of specific technical domains and solved re
 
 - **`zbakour` (Frontend Lead / UI-UX Lead):**  
   *Contributions:* Built the React 19 Single-Page Application, implemented Tailwind CSS v4 theming, created the Talent Directory with search, and client job management, and proposals feature.  
-  *Challenge Solved:* Upgrading to Tailwind CSS v4 introduced breaking changes to theme configuration. Solved by migrating color tokens into standard CSS custom properties compatible with shadcn/ui.
+  *Challenge Solved:* maintaining a clean and scalable codebase became challenging. Solved by reorganizing the project structure, improving separation of concerns, and establishing consistent naming conventions.
 
 ---
 
