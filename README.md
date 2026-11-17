@@ -507,8 +507,8 @@ Each team member took full ownership of specific technical domains and solved re
   *Challenge Solved:* Solved UI alignment and layout shifts on small mobile viewports by restructuring flex/grid layouts with mobile-first breakpoints.
 
 - **`zbakour` (Frontend Lead / UI-UX Lead):**  
-  *Contributions:* Built the React 19 Single-Page Application, configured Vite, implemented Tailwind CSS v4 theming, created the Talent Directory with search, and client job management.  
-  *Challenge Solved:* Upgrading to Tailwind CSS v4 introduced breaking changes to theme configuration. Solved by migrating color tokens into standard CSS custom properties compatible with shadcn/ui and Radix primitives.
+  *Contributions:* Built the React 19 Single-Page Application, implemented Tailwind CSS v4 theming, created the Talent Directory with search, and client job management, and proposals feature.  
+  *Challenge Solved:* Upgrading to Tailwind CSS v4 introduced breaking changes to theme configuration. Solved by migrating color tokens into standard CSS custom properties compatible with shadcn/ui.
 
 ---
 
