@@ -417,7 +417,6 @@ def test_websocket_read_receipt_and_unread_counts(
     )
     conv_id = create_resp.json()["id"]
 
-    # 2. Both users connect via WebSocket
     with client.websocket_connect(
         f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
     ) as ws1:
@@ -457,7 +456,6 @@ def test_websocket_read_receipt_and_unread_counts(
             u2_conv = next(c for c in u2_resp.json()["data"] if c["id"] == conv_id)
             assert u2_conv["unread_count"] == 1
 
-            # 5. User 2 sends read_receipt over WebSocket
             ws2.send_text(
                 json.dumps(
                     {
