@@ -112,18 +112,6 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 								Remove
 							</button>
 						)}
-						<button
-							type="button"
-							onClick={(event) => {
-								detailsTrigger.current = event.currentTarget
-								setInitiallyApplying(false)
-								setDetailsOpen(true)
-							}}
-							aria-haspopup="dialog"
-							className="h-8 rounded-lg px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
-						>
-							View details
-						</button>
 						{hasApplied ? (
 							<span className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 font-label-md text-label-md text-link dark:border-border-subtle dark:bg-surface-container">
 								<CircleCheck className="size-3.5" />
