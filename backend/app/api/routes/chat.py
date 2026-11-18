@@ -378,14 +378,20 @@ async def inject_event(
 async def reject_websocket(websocket: WebSocket, code: int = status.WS_1008_POLICY_VIOLATION, reason: str = "Invalid or expired token") -> None:
     await websocket.close(code=code,reason=reason)
 
+async def establish_connection(websocket: WebSocket, user_id: uuid.UUID) -> None:
+    await connection_manager.connect(user_id, websocket)
+    await websocket.send_text(
+        json.dumps({"type": "connection_established", "data": {"user_id": str(user_id)}})
+    )
+
 @router.websocket("/ws")
 async def websocket_chat_endpoint(
     websocket: WebSocket,
     token: Annotated[str | None, Query()] = None,
 ) -> None:
+    await websocket.accept()
     message_timestamps: deque[float] = deque()
     total_frame_timestamps: deque[float] = deque()
-    await websocket.accept()
     if not token:
         await reject_websocket(websocket)
         return
@@ -401,12 +407,8 @@ async def websocket_chat_endpoint(
             await reject_websocket(websocket)
             return
 
-    await connection_manager.connect(user_id, websocket)
-
     try:
-        await websocket.send_text(
-            json.dumps({"type": "connection_established", "data": {"user_id": str(user_id)}})
-        )
+        await establish_connection(websocket, user_id)
         while True:
             text = await websocket.receive_text()
             if len(text) > settings.MAX_FRAME_SIZE:
