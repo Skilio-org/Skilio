@@ -191,6 +191,9 @@ def read_profiles(
         User, col(FreelancerProfile.user_id) == User.id
     )
 
+    if current_user and not current_user.is_superuser:
+        statement = statement.where(FreelancerProfile.user_id != current_user.id)
+
     search_rank_expr = None
     if q:
         search_filter, rank_expr = build_freelancer_search_filter(q)
