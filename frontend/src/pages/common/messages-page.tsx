@@ -273,68 +273,6 @@ export function MessagesPage({
 				}
 				action=""
 			/>
-			{/* <Dialog open={newMessageOpen} onOpenChange={setNewMessageOpen}>
-				<DialogContent className="max-w-md border-outline-variant bg-surface-container-lowest">
-					<DialogHeader>
-						<DialogTitle className="font-headline-sm font-semibold text-headline-sm text-on-surface">
-							New message
-						</DialogTitle>
-						<DialogDescription className="font-body-sm text-body-sm text-on-surface-variant">
-							Choose a {clientMode ? "freelancer" : "client"} to start or continue a conversation.
-						</DialogDescription>
-					</DialogHeader>
-					<div className="relative mt-2">
-						<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-outline" />
-						<input
-							aria-label="Find a recipient"
-							value={recipientQuery}
-							onChange={(e) => setRecipientQuery(e.target.value)}
-							placeholder={clientMode ? "Search freelancers…" : "Search clients…"}
-							className="h-10 w-full rounded-lg border border-outline-variant bg-surface-container-low pl-9 pr-3 font-body-sm text-body-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-outline focus:ring-1 focus:ring-outline"
-						/>
-					</div>
-					<div className="max-h-64 space-y-1 overflow-y-auto pt-2">
-						{matchingProfiles.map(([id, profile]) => {
-							const theme = getClientTheme(id)
-							const name = profile.full_name ?? "Unknown user"
-							const subtitle = isClientProfile(profile)
-								? (profile.company ?? profile.company_role ?? "Client")
-								: (profile.title ?? "Freelancer")
-							return (
-								<button
-									key={id}
-									type="button"
-									onClick={() => {
-										onSelectContact(id)
-										setNewMessageOpen(false)
-									}}
-									className="flex w-full items-center gap-3 rounded-lg border border-transparent p-2.5 text-left transition-colors hover:border-outline-variant hover:bg-surface-container-low"
-								>
-									<span
-										className={cn(
-											"grid size-9 shrink-0 place-items-center rounded-lg border font-label-sm font-semibold shadow-2xs",
-											theme.bg,
-											theme.text,
-											theme.border,
-										)}
-									>
-										{name.slice(0, 2).toUpperCase()}
-									</span>
-									<div className="min-w-0 flex-1">
-										<span className="block truncate font-label-md font-semibold text-label-md text-on-surface">
-											{name}
-										</span>
-										<span className="block truncate font-caption text-caption text-on-surface-variant">{subtitle}</span>
-									</div>
-								</button>
-							)
-						})}
-						{matchingProfiles.length === 0 && (
-							<p className="py-6 text-center font-body-sm text-body-sm text-on-surface-variant">No matching users.</p>
-						)}
-					</div>
-				</DialogContent>
-			</Dialog> */}
 			<div className="messages-workspace grid h-[calc(100vh-14.5rem)] max-h-220 min-h-160 min-w-0 overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
 				<ConversationList
 					me={user}
