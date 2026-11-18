@@ -25,6 +25,7 @@ from app.claudinary import (
     claudinary_upload_media,
     claudinary_upload_raw,
 )
+from app.core.config import settings
 from app.models import (
     AvatarResponse,
     Education,
@@ -108,7 +109,8 @@ def _build_profile_detail_public(
         profile,
         update={
             "full_name": user_obj.full_name if user_obj else None,
-            "avatar_url": profile.avatar_url or (user_obj.avatar_url if user_obj else None),
+            "avatar_url": profile.avatar_url
+            or (user_obj.avatar_url if user_obj else None),
             "resume_url": profile.resume_url,
             "average_rating": float(avg_rating) if avg_rating else None,
             "reviews_count": reviews_count,
@@ -153,7 +155,8 @@ def _build_profile_public(
         profile,
         update={
             "full_name": user_obj.full_name if user_obj else None,
-            "avatar_url": profile.avatar_url or (user_obj.avatar_url if user_obj else None),
+            "avatar_url": profile.avatar_url
+            or (user_obj.avatar_url if user_obj else None),
             "resume_url": profile.resume_url,
             "average_rating": avg_rating,
             "reviews_count": reviews_count,
@@ -187,6 +190,9 @@ def read_profiles(
     statement = select(FreelancerProfile).join(
         User, col(FreelancerProfile.user_id) == User.id
     )
+
+    if current_user and not current_user.is_superuser:
+        statement = statement.where(FreelancerProfile.user_id != current_user.id)
 
     search_rank_expr = None
     if q:
@@ -372,9 +378,7 @@ def update_profile_me(
             )
 
         title = (
-            profile_in.title
-            if profile_in.title is not None
-            else profile.title or ""
+            profile_in.title if profile_in.title is not None else profile.title or ""
         ).strip()
         if not title:
             raise HTTPException(
@@ -388,9 +392,7 @@ def update_profile_me(
             )
 
         bio = (
-            profile_in.bio
-            if profile_in.bio is not None
-            else profile.bio or ""
+            profile_in.bio if profile_in.bio is not None else profile.bio or ""
         ).strip()
         if not bio or len(bio) < 80 or len(bio) > 3000:
             raise HTTPException(
@@ -410,9 +412,7 @@ def update_profile_me(
             )
 
         hours = (
-            profile_in.hours
-            if profile_in.hours is not None
-            else profile.hours or ""
+            profile_in.hours if profile_in.hours is not None else profile.hours or ""
         ).strip()
         if not hours:
             raise HTTPException(
@@ -421,9 +421,7 @@ def update_profile_me(
             )
 
         skills = (
-            profile_in.skills
-            if profile_in.skills is not None
-            else profile.skills or []
+            profile_in.skills if profile_in.skills is not None else profile.skills or []
         )
         if not skills:
             raise HTTPException(
@@ -470,12 +468,45 @@ def update_profile_me(
             session.add(edu_obj)
 
     if profile_in.portfolio is not None:
+        existing_by_id = {item.id: item for item in profile.portfolio_items}
         for item in list(profile.portfolio_items):
             session.delete(item)
         session.flush()
         for item_in in profile_in.portfolio:
-            item_obj = PortfolioItem.model_validate(
-                item_in, update={"freelancer_profile_id": profile.id}
+            item_id = uuid.uuid4()
+            cloudinary_url = None
+            image_url = item_in.image_url
+
+            if image_url:
+                if image_url.startswith(settings.API_V1_STR):
+                    parts = image_url.rstrip("/").split("/")
+                    if len(parts) >= 2 and parts[-1] == "image":
+                        try:
+                            parsed_id = uuid.UUID(parts[-2])
+                            if parsed_id in existing_by_id:
+                                item_id = parsed_id
+                                cloudinary_url = (
+                                    existing_by_id[parsed_id].cloudinary_url
+                                    or existing_by_id[parsed_id].image_url
+                                )
+                        except ValueError:
+                            pass
+                else:
+                    cloudinary_url = image_url
+                    image_url = (
+                        f"{settings.API_V1_STR}/profiles/portfolio/{item_id}/image"
+                    )
+
+            item_obj = PortfolioItem(
+                id=item_id,
+                freelancer_profile_id=profile.id,
+                title=item_in.title,
+                description=item_in.description,
+                detail=item_in.detail,
+                organization=item_in.organization,
+                url=item_in.url,
+                cloudinary_url=cloudinary_url,
+                image_url=image_url,
             )
             session.add(item_obj)
 
@@ -813,8 +844,14 @@ async def upload_freelancer_avatar(
     return AvatarResponse(status="Ok")
 
 
-@router.post("/resume", response_model=AvatarResponse, operation_id="profiles_upload_resume")
-@router.post("/me/resume", response_model=AvatarResponse, operation_id="profiles_upload_resume_me")
+@router.post(
+    "/resume", response_model=AvatarResponse, operation_id="profiles_upload_resume"
+)
+@router.post(
+    "/me/resume",
+    response_model=AvatarResponse,
+    operation_id="profiles_upload_resume_me",
+)
 async def upload_resume(
     *,
     session: SessionDep,
@@ -884,7 +921,9 @@ async def upload_resume(
 
 
 @router.delete("/resume", response_model=Message, operation_id="profiles_delete_resume")
-@router.delete("/me/resume", response_model=Message, operation_id="profiles_delete_resume_me")
+@router.delete(
+    "/me/resume", response_model=Message, operation_id="profiles_delete_resume_me"
+)
 async def delete_resume(
     *,
     session: SessionDep,
@@ -908,7 +947,9 @@ async def delete_resume(
     return Message(message="Resume deleted successfully")
 
 
-async def _stream_cloudinary_media(client: httpx.AsyncClient, cloudinary_url: str) -> StreamingResponse:
+async def _stream_cloudinary_media(
+    client: httpx.AsyncClient, cloudinary_url: str
+) -> StreamingResponse:
     try:
         req = client.build_request("GET", cloudinary_url)
         response = await client.send(req, stream=True)
@@ -1037,8 +1078,26 @@ def create_portfolio_item(
         session.add(profile)
         session.flush()
 
-    item = PortfolioItem.model_validate(
-        item_in, update={"freelancer_profile_id": profile.id}
+    item_id = uuid.uuid4()
+    cloudinary_url = None
+    image_url = None
+    if item_in.image_url:
+        if not item_in.image_url.startswith(settings.API_V1_STR):
+            cloudinary_url = item_in.image_url
+            image_url = f"{settings.API_V1_STR}/profiles/portfolio/{item_id}/image"
+        else:
+            image_url = item_in.image_url
+
+    item = PortfolioItem(
+        id=item_id,
+        freelancer_profile_id=profile.id,
+        title=item_in.title,
+        description=item_in.description,
+        detail=item_in.detail,
+        organization=item_in.organization,
+        url=item_in.url,
+        cloudinary_url=cloudinary_url,
+        image_url=image_url,
     )
     session.add(item)
     session.commit()
@@ -1065,9 +1124,7 @@ async def upload_portfolio_item(
     """
     title_trimmed = title.strip()
     if not title_trimmed:
-        raise HTTPException(
-            status_code=400, detail="Project title is required."
-        )
+        raise HTTPException(status_code=400, detail="Project title is required.")
     if len(title_trimmed) > 100:
         raise HTTPException(
             status_code=400,
@@ -1133,7 +1190,8 @@ async def upload_portfolio_item(
         detail=desc_trimmed,
         organization=org_trimmed,
         url=validated_url,
-        image_url=url_uploaded,
+        cloudinary_url=url_uploaded,
+        image_url=f"{settings.API_V1_STR}/profiles/portfolio/{item_id}/image",
     )
     session.add(item)
     session.commit()
@@ -1164,6 +1222,17 @@ def update_portfolio_item(
 
     update_dict = item_in.model_dump(exclude_unset=True)
     if update_dict:
+        if "image_url" in update_dict:
+            new_img = update_dict["image_url"]
+            if new_img and not new_img.startswith(settings.API_V1_STR):
+                item.cloudinary_url = new_img
+                update_dict["image_url"] = (
+                    f"{settings.API_V1_STR}/profiles/portfolio/{item_id}/image"
+                )
+            elif new_img is None:
+                item.cloudinary_url = None
+            else:
+                del update_dict["image_url"]
         update_dict["updated_at"] = datetime.now(UTC)
         item.sqlmodel_update(update_dict)
         session.add(item)
@@ -1192,9 +1261,10 @@ def delete_portfolio_item(
     if not item or item.freelancer_profile_id != profile.id:
         raise HTTPException(status_code=404, detail="Portfolio item not found")
 
-    if item.image_url:
+    target_url = item.cloudinary_url or item.image_url
+    if target_url and not target_url.startswith(settings.API_V1_STR):
         try:
-            claudinary_delete_media(item.image_url)
+            claudinary_delete_media(target_url)
         except Exception:
             pass
 
@@ -1216,37 +1286,10 @@ async def proxy_portfolio_image(
     item = session.get(PortfolioItem, uuid)
     if not item:
         raise HTTPException(status_code=404, detail="Portfolio item not found")
-    cloudinary_url = item.image_url
-    if not cloudinary_url:
+    source_url = item.cloudinary_url or item.image_url
+    if not source_url or source_url.startswith(settings.API_V1_STR):
         raise HTTPException(status_code=404, detail="Image not found")
-    headers = {}
-    try:
-        req = client.build_request("GET", cloudinary_url, headers=headers)
-        response = await client.send(req, stream=True)
-    except httpx.PoolTimeout:
-        raise HTTPException(
-            status_code=503, detail="Server capacity reached, retry shortly"
-        )
-    except httpx.RequestError:
-        raise HTTPException(status_code=502, detail="Upstream media fetch failed")
-
-    if response.status_code not in (200, 206):
-        await response.aclose()
-        raise HTTPException(status_code=response.status_code)
-
-    passthrough_headers = {
-        k: v
-        for k, v in response.headers.items()
-        if k.lower()
-        in ["content-type", "content-length", "accept-ranges", "content-range"]
-    }
-
-    return StreamingResponse(
-        content=response.aiter_bytes(chunk_size=64 * 1024),
-        status_code=response.status_code,
-        headers=passthrough_headers,
-        media_type=response.headers.get("content-type"),
-    )
+    return await _stream_cloudinary_media(client, source_url)
 
 
 @router.get("/saved", response_model=FreelancerProfilesPublic)

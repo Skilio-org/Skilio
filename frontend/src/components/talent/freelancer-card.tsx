@@ -68,7 +68,8 @@ export function FreelancerCard({
 						to="/talent/$freelancerId"
 						params={{ freelancerId: freelancer.userId ?? "" }}
 						search={{ q: undefined }}
-						className="relative mt-0.5 shrink-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring">
+						className="relative mt-0.5 shrink-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
+					>
 						<Avatar className="size-10 rounded-lg border border-outline-variant bg-surface-container">
 							{freelancer.avatarUrl && (
 								<AvatarImage src={freelancer.avatarUrl} alt={freelancer.name} className="object-cover" />
@@ -78,11 +79,6 @@ export function FreelancerCard({
 								{getInitials(freelancer.name)}
 							</AvatarFallback>
 						</Avatar>
-
-						<span
-							aria-hidden="true"
-							className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-surface-container-lowest bg-success"
-						/>
 					</Link>
 
 					{/* Identity */}
@@ -92,16 +88,22 @@ export function FreelancerCard({
 								{freelancer.name}
 							</span>
 
-							<span className="text-outline dark:text-on-surface-faint">•</span>
+							{freelancer.location && (
+								<>
+									<span className="text-outline dark:text-on-surface-faint">•</span>
+									<span className="inline-flex items-center gap-1 text-outline">
+										<MapPin className="size-3" />
+										{freelancer.location}
+									</span>
+								</>
+							)}
 
-							<span className="inline-flex items-center gap-1 text-outline">
-								<MapPin className="size-3" />
-								{freelancer.location}
-							</span>
-
-							<span className="text-outline dark:text-on-surface-faint">•</span>
-
-							<span className="text-outline">{freelancer.availability}</span>
+							{freelancer.availability && (
+								<>
+									<span className="text-outline dark:text-on-surface-faint">•</span>
+									<span className="text-outline">{freelancer.availability}</span>
+								</>
+							)}
 						</div>
 
 						<Link
@@ -138,13 +140,17 @@ export function FreelancerCard({
 				<span className="size-1 rounded-full bg-outline-variant" />
 
 				<div className="flex items-center gap-1.5 font-caption text-caption text-on-surface-variant">
-					<Star className="size-3.5 fill-current text-primary-container" aria-hidden="true" />
-
-					<span className="font-medium text-on-surface">{freelancer.rating.toFixed(1)}</span>
-
-					<span>
-						({freelancer.reviews} {freelancer.reviews === 1 ? "review" : "reviews"})
-					</span>
+					{freelancer.reviews > 0 ? (
+						<>
+							<Star className="size-3.5 fill-current text-primary-container" aria-hidden="true" />
+							<span className="font-medium text-on-surface">{freelancer.rating.toFixed(1)}</span>
+							<span>
+								({freelancer.reviews} {freelancer.reviews === 1 ? "review" : "reviews"})
+							</span>
+						</>
+					) : (
+						<span>New · no reviews yet</span>
+					)}
 				</div>
 			</div>
 
@@ -155,7 +161,6 @@ export function FreelancerCard({
 
 			{/* Footer */}
 			<div className="flex flex-col gap-3 border-surface-container border-t pt-3 dark:border-outline-variant-dark sm:flex-row sm:items-center sm:justify-between">
-				{/* EXACT SAME skill style as job card */}
 				<div className="flex flex-wrap items-center gap-1.5">
 					{freelancer.skills.slice(0, 4).map((skill) => (
 						<span
@@ -173,7 +178,6 @@ export function FreelancerCard({
 					)}
 				</div>
 
-				{/* EXACT SAME action layout as job card */}
 				<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
 					<Link
 						to="/talent/$freelancerId"

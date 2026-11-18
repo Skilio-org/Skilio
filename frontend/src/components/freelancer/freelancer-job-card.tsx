@@ -6,6 +6,7 @@ import { useFreelancerProposals } from "@/hooks/useFreelancerProposals"
 import { useSavedJobs } from "@/hooks/useSavedJobs"
 import { useErrorToast } from "@/hooks/useErrorToast"
 import type { FreelancerJob } from "@/types/job"
+import { jobLocationLabel } from "@/components/freelancer/freelancer-job-mapper"
 
 const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { savedView?: boolean }) => {
 	const [detailsOpen, setDetailsOpen] = useState(false)
@@ -31,7 +32,7 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 								{job.company}
 							</span>
 							<span className="text-outline dark:text-on-surface-faint">•</span>
-							<span className="text-outline">Remote</span>
+							<span className="text-outline">{jobLocationLabel(job)}</span>
 							{(savedView || job.posted) && (
 								<>
 									<span className="text-outline dark:text-on-surface-faint">•</span>
@@ -49,7 +50,7 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 							type="button"
 							onClick={(event) => {
 								detailsTrigger.current = event.currentTarget
-								setInitiallyApplying(false)
+								setInitiallyApplying(true)
 								setDetailsOpen(true)
 							}}
 							aria-haspopup="dialog"
@@ -71,7 +72,7 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 
 				<div className="mb-3 flex flex-wrap items-center gap-3">
 					<div className="flex items-baseline gap-2 font-numeric-data text-numeric-data">
-						<span className="font-semibold text-[15px] text-on-surface">{job.budget.split(" · ")[0]}</span>
+						<span className="font-semibold text-[15px] text-on-surface">{job.budget}</span>
 						<span className="font-caption text-caption text-on-surface-variant">{projectType}</span>
 					</div>
 					<span className="size-1 rounded-full bg-outline-variant" />
@@ -157,7 +158,7 @@ const FreelancerJobCard = ({ savedView = false, ...job }: FreelancerJob & { save
 						<ArrowLeft className="size-4" />
 						Back to opportunities
 					</SheetClose>
-					<p className="hidden text-muted-foreground text-xs sm:block">{job.company} · Remote opportunity</p>
+					<p className="hidden text-muted-foreground text-xs sm:block">{job.company} · {jobLocationLabel(job)}</p>
 				</header>
 				<JobDetails job={job} projectType={projectType} initiallyApplying={initiallyApplying} />
 			</SheetContent>

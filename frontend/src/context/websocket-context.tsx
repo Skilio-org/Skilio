@@ -265,7 +265,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 							{
 								const clientMessageId = data.data?.client_message_id
 								const what = data.data?.error
-								if (what && clientMessageId) setMessageSendResult(clientMessageId, what)
+								if (what && clientMessageId) setMessageSendResult(clientMessageId, "failed")
 								else {
 									if (clientMessageId) setMessageSendResult(clientMessageId, "failed")
 								}
@@ -341,10 +341,22 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 			}
 			ws.onclose = (e) => {
 				if (pingIntervalRef.current) clearInterval(pingIntervalRef.current)
-				if (e.code === WebSocketCloseCodes.PolicyViolation) {
-					localStorage.clear()
-					window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
-					return
+				  switch (e.code) {
+					case WebSocketCloseCodes.PolicyViolation: {
+						// WS_1008_POLICY_VIOLATION
+						localStorage.clear()
+						window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
+						return;
+					}
+					case WebSocketCloseCodes.UnsupportedData: // WS_1003_UNSUPPORTED_DATA
+						toast.error('Unsupported operation');
+					break;
+					case WebSocketCloseCodes.MessageTooBig: // WS_1009_MESSAGE_TOO_BIG
+						toast.error('Message too large');
+					break;
+					default:
+					// Generic fallback
+						toast.error('Connection lost. Trying again later.');
 				}
 				if (isMountedRef.current) {
 					setIsConnected(false)
@@ -357,7 +369,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 					}
 				}
 			}
-		} catch (error) {
+		} catch (_error) {
 			if (isMountedRef.current) {
 				setIsConnected(false)
 			}

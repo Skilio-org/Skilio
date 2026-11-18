@@ -99,6 +99,7 @@ function MessageBubbleRepresentation({
 	isDeleting?: boolean
 }) {
 	const role = useAccountRole()
+	const avatarUrl = useAccountAvatarUrl(message.sender_id, role)
 	const { messageSendState } = useWebSocket()
 	const sendState = messageSendState[message.id] ?? "sent"
 	const match = highlight ? message.content.toLowerCase().indexOf(highlight.toLowerCase()) : -1
@@ -110,7 +111,7 @@ function MessageBubbleRepresentation({
 					<div className="flex gap-3 w-full">
 						{!own && (
 							<LoadingImage
-								src={useAccountAvatarUrl(message.sender_id)}
+								src={avatarUrl}
 								alt=""
 								className={cn("size-8 place-items-center border font-label-sm font-semibold shadow-2xs rounded-4xl")}
 							/>
@@ -187,7 +188,7 @@ function MessageBubbleRepresentation({
 
 						{own && (
 							<LoadingImage
-								src={useAccountAvatarUrl(message.sender_id, role)}
+								src={avatarUrl}
 								alt=""
 								className={cn("size-8 place-items-center border font-label-sm font-semibold shadow-2xs rounded-4xl")}
 							/>

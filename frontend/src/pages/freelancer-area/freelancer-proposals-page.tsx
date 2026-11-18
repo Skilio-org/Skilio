@@ -13,6 +13,7 @@ import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet"
 import { useErrorToast } from "@/hooks/useErrorToast"
 import { type BackendProposal, useFreelancerProposals } from "@/hooks/useFreelancerProposals"
 import type { FreelancerJob } from "@/types/job"
+import { jobLocationLabel } from "@/components/freelancer/freelancer-job-mapper"
 
 type ProposalTab = "Drafts" | "Submitted" | "Archived"
 
@@ -275,7 +276,7 @@ const FreelancerProposalsPage = () => {
 									<ArrowLeft className="size-4" />
 									Back to proposals
 								</SheetClose>
-								<p className="hidden text-muted-foreground text-xs sm:block">{selected.company} · Remote opportunity</p>
+								<p className="hidden text-muted-foreground text-xs sm:block">{selected.company} · {jobLocationLabel(selected)}</p>
 							</header>
 
 							{compose ? (

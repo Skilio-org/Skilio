@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Bookmark, BriefcaseBusiness, ChevronDown, Search } from "lucide-react"
-import { useState } from "react"
 import { queryKeys } from "@/lib/query-keys"
 
 import FreelancerJobCard from "@/components/freelancer/freelancer-job-card"
@@ -35,18 +34,9 @@ const FreelancerDashboardPage = () => {
 		},
 	})
 
-	const [filter, setFilter] = useState("All work")
-
-	const filteredJobs = jobs.filter((job) => {
-		const matchesCategory = filter === "All work" || job.category === filter
-		return matchesCategory
-	})
-
 	const submittedProposals = drafts.filter((draft) => (draft.status ?? "Drafts") === "Submitted")
 
 	const firstName = user?.full_name?.trim().split(/\s+/)[0] || "there"
-
-	const dashboardFilters = ["All work", ...Array.from(new Set(jobs.map((job) => job.category))).slice(0, 2)]
 
 	return (
 		<div className="mx-auto w-full max-w-360 space-y-7 px-4  md:px-6 ">
@@ -95,44 +85,6 @@ const FreelancerDashboardPage = () => {
 
 			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
 				<section className="flex flex-col gap-6 lg:col-span-8">
-					{dashboardFilters.length > 1 && (
-						<div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
-							<div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-								{dashboardFilters.map((item) => {
-									const active = filter === item
-
-									const count = item === "All work" ? jobs.length : jobs.filter((job) => job.category === item).length
-
-									return (
-										<button
-											key={item}
-											type="button"
-											onClick={() => setFilter(item)}
-											aria-pressed={active}
-											className={
-												active
-													? "flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 font-label-md text-label-md text-on-primary transition-colors hover:bg-primary-hover"
-													: "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 font-label-md text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface dark:border-border-subtle"
-											}
-										>
-											<span>{item === "All work" ? "All matches" : item}</span>
-
-											<span
-												className={
-													active
-														? "rounded bg-on-primary/15 px-1.5 py-0.5 font-caption text-caption text-on-primary"
-														: "rounded bg-surface-container px-1.5 py-0.5 font-caption text-caption text-outline"
-												}
-											>
-												{count}
-											</span>
-										</button>
-									)
-								})}
-							</div>
-						</div>
-					)}
-
 					<div className="flex items-center justify-between px-1">
 						<div className="flex items-center gap-2">
 							<h2 className="font-headline-sm font-semibold text-headline-sm text-on-surface">
@@ -151,21 +103,17 @@ const FreelancerDashboardPage = () => {
 
 					{jobsPending ? (
 						<p role="status">Loading opportunities...</p>
-					) : filteredJobs.length > 0 ? (
+					) : jobs.length > 0 ? (
 						<div className="flex flex-col gap-3.5">
-							{filteredJobs.slice(0, 4).map((job) => (
+							{jobs.slice(0, 4).map((job) => (
 								<FreelancerJobCard key={job.id} {...job} />
 							))}
 						</div>
 					) : (
 						<EmptyState
 							icon={BriefcaseBusiness}
-							title={filter === "All work" ? "No opportunities yet" : "No opportunities in this category"}
-							description={
-								filter === "All work"
-									? "New projects will appear here as clients post them. Check back soon, or explore the full job board."
-									: "Try another category or browse all available work."
-							}
+							title="No opportunities yet"
+							description="New projects will appear here as clients post them. Check back soon, or explore the full job board."
 							action={
 								<Link to="/freelancer-jobs" className={workspaceStyles.secondaryAction}>
 									<Search className="size-4" />
@@ -175,7 +123,7 @@ const FreelancerDashboardPage = () => {
 						/>
 					)}
 
-					{filteredJobs.length > 0 && (
+					{jobs.length > 0 && (
 						<div className="flex justify-center pt-2 pb-6">
 							<Link
 								to="/freelancer-jobs"

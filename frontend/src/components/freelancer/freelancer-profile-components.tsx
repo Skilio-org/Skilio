@@ -123,7 +123,7 @@ const uploadTimeoutMs = 60_000
 const copy = {
 	portfolio: {
 		title: "Project",
-		description: "Show clients what you built. A cover image helps the project stand out.",
+		description: "Show clients what you built. A cover image is required.",
 		name: "Project title",
 		namePlaceholder: "e.g. Booking app redesign",
 		organization: "Client or context",
@@ -223,6 +223,10 @@ export function EntryDialog({
 							toast.error(problem)
 							return
 						}
+						if (isPortfolio && !image && !value.image_url) {
+							toast.error("Add a cover image for your project.")
+							return
+						}
 						setProgress(0)
 						setBusy(true)
 						const controller = new AbortController()
@@ -249,9 +253,7 @@ export function EntryDialog({
 					<fieldset disabled={busy} className="m-0 min-w-0 space-y-5 border-0 p-0">
 						{isPortfolio && (
 							<div>
-								<span className="block font-medium text-sm">
-									Cover image <span className="font-normal text-on-surface-variant">(optional)</span>
-								</span>
+								<span className="block font-medium text-sm">Cover image *</span>
 								{shownImage ? (
 									<div className="mt-2 overflow-hidden rounded-lg border border-outline-variant">
 										<LoadingImage src={shownImage} alt="" className="aspect-video w-full object-cover" />

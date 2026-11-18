@@ -56,6 +56,9 @@ def read_jobs(
     """
     statement = select(JobPost).join(User, col(JobPost.client_id) == User.id)
 
+    if current_user and not current_user.is_superuser:
+        statement = statement.where(JobPost.client_id != current_user.id)
+
     search_rank_expr = None
     if q:
         search_filter, rank_expr = build_job_search_filter(q)
