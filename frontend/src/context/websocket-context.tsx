@@ -265,7 +265,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 							{
 								const clientMessageId = data.data?.client_message_id
 								const what = data.data?.error
-								if (what && clientMessageId) setMessageSendResult(clientMessageId, what)
+								if (what && clientMessageId) setMessageSendResult(clientMessageId, "failed")
 								else {
 									if (clientMessageId) setMessageSendResult(clientMessageId, "failed")
 								}
