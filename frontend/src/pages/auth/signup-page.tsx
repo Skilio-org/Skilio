@@ -52,10 +52,6 @@ export function SignupPage({ role }: { role?: "client" | "freelancer" }) {
 			</div>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} noValidate className="mt-7">
-					<div className="mt-5">
-						<SocialAuth />
-					</div>
-					<Divider text="Or sign up with email" />
 					<FormField
 						control={form.control}
 						name="role"
@@ -96,6 +92,10 @@ export function SignupPage({ role }: { role?: "client" | "freelancer" }) {
 							</FormItem>
 						)}
 					/>
+					<div className="mt-5">
+						<SocialAuth role={form.watch("role")} />
+					</div>
+					<Divider text="Or sign up with email" />
 					<div className="flex flex-col gap-4">
 						<AuthInput
 							control={form.control}

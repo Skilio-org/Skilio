@@ -24,6 +24,7 @@ from app.models import (
     NewPassword,
     Token,
     UserMe,
+    UserRole,
     UserUpdate,
 )
 from app.utils import (
@@ -53,6 +54,7 @@ async def google_callback(
     code: str,
     session: SessionDep,
     state: str | None = None,
+    role: UserRole | None = None,
 ) -> Token:
     """Handle Google OAuth callback, exchange code for tokens, upsert user and return access token."""
     verify_state(request, response)
@@ -81,6 +83,7 @@ async def google_callback(
         provider_user=google_user,
         provider="google",
         refresh_token=refresh_token,
+        role=role,
     )
     return build_access_token_response(user)
 
@@ -101,6 +104,7 @@ async def linkedin_callback(
     code: str,
     session: SessionDep,
     state: str | None = None,
+    role: UserRole | None = None,
 ) -> Token:
     """Handle LinkedIn OAuth callback, exchange code for tokens, upsert user and return access token."""
     verify_state(request, response)
@@ -129,6 +133,7 @@ async def linkedin_callback(
         provider_user=linkedin_user,
         provider="linkedin",
         refresh_token=refresh_token,
+        role=role,
     )
     return build_access_token_response(user)
 

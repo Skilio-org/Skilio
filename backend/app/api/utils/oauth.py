@@ -125,6 +125,7 @@ def upsert_oauth_user(
     provider_user: dict[str, Any],
     provider: str,
     refresh_token: str | None = None,
+    role: UserRole | None = None,
 ) -> User:
     """Create or update a ``User`` based on the provider payload.
 
@@ -151,6 +152,11 @@ def upsert_oauth_user(
         session.add(user)
         session.commit()
     else:
+        if not role:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No account found Sing up",
+            )
         user_kwargs = {
             "email": email,
             "full_name": provider_user.get("name"),
@@ -158,6 +164,7 @@ def upsert_oauth_user(
             "is_email_verified": True,
             "is_active": True,
             "hashed_password": get_password_hash(generate_random_password(16)),
+            "active_role": role or UserRole.CLIENT,
         }
         if provider == "google":
             user_kwargs.update(
@@ -170,10 +177,11 @@ def upsert_oauth_user(
         session.commit()
         session.refresh(user)
 
-        freelancer_profile = FreelancerProfile(user_id=user.id, avatar_url=user_kwargs["avatar_url"])
-        session.add(freelancer_profile)
-        client_profile = ClientProfile(user_id=user.id, avatar_url=user_kwargs["avatar_url"])
-        session.add(client_profile)
+        if user.active_role == UserRole.FREELANCER:
+            profile = FreelancerProfile(user_id=user.id, avatar_url=user_kwargs["avatar_url"])
+        else:
+            profile = ClientProfile(user_id=user.id, avatar_url=user_kwargs["avatar_url"])
+        session.add(profile)
 
         session.commit()
         # Send welcome / password‑recovery email
