@@ -96,6 +96,10 @@ export function SignupPage({ role }: { role?: "client" | "freelancer" }) {
 							</FormItem>
 						)}
 					/>
+					<div className="mt-5">
+						<SocialAuth role={form.watch("role")} />
+					</div>
+					<Divider text="Or sign up with email" />
 					<div className="flex flex-col gap-4">
 						<AuthInput
 							control={form.control}

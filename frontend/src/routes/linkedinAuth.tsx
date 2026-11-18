@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
 import { isAxiosError } from "axios"
+import { toast } from "sonner"
 import { z } from "zod"
 import { LoginService } from "@/client"
 import { AUTH_TOKEN_CHANGED_EVENT } from "@/context/websocket-context"
@@ -33,12 +34,15 @@ export const Route = createFileRoute("/linkedinAuth")({
 			})
 		}
 
+		const role = (sessionStorage.getItem("oauth_signup_role") as "client" | "freelancer") || undefined
+		sessionStorage.removeItem("oauth_signup_role")
+
 		try {
 			const oauthUrl = import.meta.env.VITE_LINKEDIN_OAUTH_URL
 			const baseURL = import.meta.env.VITE_API_URL || (oauthUrl ? new URL(oauthUrl, window.location.origin).origin : "")
 			const { data } = await LoginService.linkedinCallback({
 				baseURL,
-				query: { code: deps.code, state: deps.state },
+				query: { code: deps.code, state: deps.state, role } as any,
 				withCredentials: true,
 			})
 			const token = z.object({ access_token: z.string().min(1) }).parse(data)
@@ -46,6 +50,10 @@ export const Route = createFileRoute("/linkedinAuth")({
 			window.dispatchEvent(new Event(AUTH_TOKEN_CHANGED_EVENT))
 		} catch (error) {
 			const detail = isAxiosError<{ detail?: string }>(error) ? error.response?.data?.detail : undefined
+			if (isAxiosError(error) && (error.response?.status === 404 || detail?.includes("No account found"))) {
+				toast.error("No account found Sing up")
+				throw redirect({ to: "/signup" })
+			}
 			throw redirect({
 				to: "/login",
 				search: {
@@ -54,6 +62,6 @@ export const Route = createFileRoute("/linkedinAuth")({
 			})
 		}
 
-		throw redirect({ to: "/dashboard" })
+		throw redirect({ to: role === "freelancer" ? "/freelancer-dashboard" : "/dashboard" })
 	},
 })

@@ -214,3 +214,89 @@ def test_login_with_argon2_password_keeps_hash(client: TestClient, db: Session) 
 
     assert user.hashed_password == original_hash
     assert user.hashed_password.startswith("$argon2")
+
+
+def test_upsert_oauth_user_as_freelancer(db: Session) -> None:
+    from sqlmodel import select
+    from app.api.utils.oauth import upsert_oauth_user
+    from app.models import ClientProfile, FreelancerProfile, UserRole
+
+    email = random_email()
+    provider_user = {
+        "email": email,
+        "name": "Freelancer Test",
+        "picture": "https://example.com/avatar.jpg",
+        "sub": "google-123456",
+    }
+    user = upsert_oauth_user(
+        session=db,
+        provider_user=provider_user,
+        provider="google",
+        role=UserRole.FREELANCER,
+    )
+    assert user.active_role == UserRole.FREELANCER
+    assert user.google_id == "google-123456"
+
+    # Verify FreelancerProfile was created with provider picture
+    f_profile = db.exec(select(FreelancerProfile).where(FreelancerProfile.user_id == user.id)).first()
+    assert f_profile is not None
+    assert f_profile.avatar_url == "https://example.com/avatar.jpg"
+
+    # Verify ClientProfile was not created
+    c_profile = db.exec(select(ClientProfile).where(ClientProfile.user_id == user.id)).first()
+    assert c_profile is None
+
+
+def test_upsert_oauth_user_as_client(db: Session) -> None:
+    from sqlmodel import select
+    from app.api.utils.oauth import upsert_oauth_user
+    from app.models import ClientProfile, FreelancerProfile, UserRole
+
+    email = random_email()
+    provider_user = {
+        "email": email,
+        "name": "Client Test",
+        "picture": "https://example.com/client-avatar.jpg",
+        "sub": "google-654321",
+    }
+    user = upsert_oauth_user(
+        session=db,
+        provider_user=provider_user,
+        provider="google",
+        role=UserRole.CLIENT,
+    )
+    assert user.active_role == UserRole.CLIENT
+
+    # Verify ClientProfile was created with provider picture
+    c_profile = db.exec(select(ClientProfile).where(ClientProfile.user_id == user.id)).first()
+    assert c_profile is not None
+    assert c_profile.avatar_url == "https://example.com/client-avatar.jpg"
+
+    # Verify FreelancerProfile was not created
+    f_profile = db.exec(select(FreelancerProfile).where(FreelancerProfile.user_id == user.id)).first()
+    assert f_profile is None
+
+
+def test_upsert_oauth_user_not_registered_raises_404(db: Session) -> None:
+    import pytest
+    from fastapi import HTTPException
+    from app.api.utils.oauth import upsert_oauth_user
+
+    email = random_email()
+    provider_user = {
+        "email": email,
+        "name": "Unregistered User",
+        "picture": "https://example.com/avatar.jpg",
+        "sub": "google-unregistered-999",
+    }
+    with pytest.raises(HTTPException) as exc_info:
+        upsert_oauth_user(
+            session=db,
+            provider_user=provider_user,
+            provider="google",
+            role=None,
+        )
+    assert exc_info.value.status_code == 404
+    assert exc_info.value.detail == "No account found Sing up"
+
+
