@@ -55,7 +55,7 @@ def parse_job_experience(description: str) -> tuple[str | None, str]:
     for level in JOB_EXPERIENCE_LEVELS:
         prefix = f"{EXPERIENCE_PREFIX}{level}\n\n"
         if description.startswith(prefix):
-            return level, description[len(prefix):]
+            return level, description[len(prefix) :]
     return None, description
 
 
@@ -312,6 +312,7 @@ class PasswordResetToken(SQLModel, table=True):
     expires_at: datetime = Field(sa_type=DateTime(timezone=True))
     used_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
 
+
 # Properties to return via API, public info only
 class UserPublic(SQLModel):
     id: uuid.UUID
@@ -330,6 +331,7 @@ class UserMe(UserBase):
 class UsersPublic(SQLModel):
     data: list[UserMe]
     count: int
+
 
 # ==============================================================================
 # Media Models (Cloudinary Ready)
@@ -617,6 +619,7 @@ class PortfolioItem(PortfolioItemBase, table=True):
     freelancer_profile_id: uuid.UUID = Field(
         foreign_key="freelancerprofile.id", nullable=False, ondelete="CASCADE"
     )
+    cloudinary_url: str | None = Field(default=None, max_length=2048)
     created_at: datetime | None = Field(
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
@@ -950,6 +953,7 @@ class ReviewUpdate(SQLModel):
                 data["comment"] = data["feedback"]
         return data
 
+
 class Review(ReviewBase, table=True):
     __table_args__ = (
         UniqueConstraint(
@@ -1001,6 +1005,7 @@ class ReviewsPublic(SQLModel):
 # ==============================================================================
 # Liked Freelancers Models
 # ==============================================================================
+
 
 class LikedFreelancerBase(SQLModel):
     freelancer_id: uuid.UUID
@@ -1075,7 +1080,9 @@ class ConversationCreate(SQLModel):
                 data.setdefault("freelancer_id", target)
                 data.setdefault("target_user_id", target)
         elif hasattr(data, "target_user_id") or hasattr(data, "freelancer_id"):
-            target = getattr(data, "target_user_id", None) or getattr(data, "freelancer_id", None)
+            target = getattr(data, "target_user_id", None) or getattr(
+                data, "freelancer_id", None
+            )
             if target is not None:
                 if getattr(data, "freelancer_id", None) is None:
                     data.freelancer_id = target
@@ -1278,15 +1285,23 @@ class JobPostCreate(JobPostBase):
                     raise ValueError("Hourly rate must be between 10 and 5,000 DH.")
             elif self.budget_type == BudgetType.FIXED:
                 if not (100 <= self.budget <= 500000):
-                    raise ValueError("Fixed price budget must be between 100 and 500,000 DH.")
+                    raise ValueError(
+                        "Fixed price budget must be between 100 and 500,000 DH."
+                    )
         elif self.status == JobStatus.DRAFT:
             if core_len > 2000:
                 raise ValueError("Project description cannot exceed 2000 characters.")
             if self.budget > 0:
-                if self.budget_type == BudgetType.HOURLY and not (10 <= self.budget <= 5000):
+                if self.budget_type == BudgetType.HOURLY and not (
+                    10 <= self.budget <= 5000
+                ):
                     raise ValueError("Hourly rate must be between 10 and 5,000 DH.")
-                elif self.budget_type == BudgetType.FIXED and not (100 <= self.budget <= 500000):
-                    raise ValueError("Fixed price budget must be between 100 and 500,000 DH.")
+                elif self.budget_type == BudgetType.FIXED and not (
+                    100 <= self.budget <= 500000
+                ):
+                    raise ValueError(
+                        "Fixed price budget must be between 100 and 500,000 DH."
+                    )
 
         if self.level:
             self.description = format_job_experience(core, self.level)
@@ -1334,10 +1349,16 @@ class JobPostUpdate(SQLModel):
             if self.level:
                 self.description = format_job_experience(core, self.level)
         if self.budget is not None and self.budget_type is not None:
-            if self.budget_type == BudgetType.HOURLY and not (10 <= self.budget <= 5000):
+            if self.budget_type == BudgetType.HOURLY and not (
+                10 <= self.budget <= 5000
+            ):
                 raise ValueError("Hourly rate must be between 10 and 5,000 DH.")
-            elif self.budget_type == BudgetType.FIXED and not (100 <= self.budget <= 500000):
-                raise ValueError("Fixed price budget must be between 100 and 500,000 DH.")
+            elif self.budget_type == BudgetType.FIXED and not (
+                100 <= self.budget <= 500000
+            ):
+                raise ValueError(
+                    "Fixed price budget must be between 100 and 500,000 DH."
+                )
         return self
 
 
