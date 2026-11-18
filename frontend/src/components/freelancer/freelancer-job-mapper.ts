@@ -7,6 +7,8 @@ function formatBudget(job: JobPostPublic) {
 	return job.budget_type === "hourly" ? formatRate(job.budget) : formatMoney(job.budget)
 }
 
+export const jobLocationLabel = (job: { location?: string }) => job.location || "Remote"
+
 export function jobFromApi(job: JobPostPublic): FreelancerJob {
 	const { level, description } = readJobExperience(job.description)
 	return {
@@ -21,5 +23,6 @@ export function jobFromApi(job: JobPostPublic): FreelancerJob {
 		experience: level || undefined,
 		skills: job.skills ?? [],
 		clientId: job.client_id,
+		location: job.location?.trim() || undefined,
 	}
 }

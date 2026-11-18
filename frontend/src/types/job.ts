@@ -10,4 +10,5 @@ export type FreelancerJob = {
 	experience?: string
 	skills: string[]
 	clientId?: string
+	location?: string
 }

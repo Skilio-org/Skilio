@@ -10,6 +10,7 @@ import type { BackendProposal } from "@/hooks/useFreelancerProposals"
 import { getInitials } from "@/lib/format"
 import { cn } from "@/lib/utils"
 import type { FreelancerJob } from "@/types/job"
+import { jobLocationLabel } from "@/components/freelancer/freelancer-job-mapper"
 
 function formatProposalDate(value?: string | null) {
 	if (!value) return null
@@ -138,7 +139,7 @@ export function ProposalCard({
 								<StatusBadge status={draft.rawStatus} />
 							</div>
 
-							<p className="mt-0.5 font-medium text-on-surface-variant text-xs">Remote · {draft.job.category}</p>
+							<p className="mt-0.5 font-medium text-on-surface-variant text-xs">{jobLocationLabel(draft.job)} · {draft.job.category}</p>
 
 							<button
 								type="button"
@@ -151,7 +152,7 @@ export function ProposalCard({
 
 							<div className="mt-1 flex items-center gap-2 text-on-surface-variant text-xs">
 								<strong className="font-numeric-data font-semibold text-on-surface">
-									{draft.job.budget.split(" · ")[0]}
+									{draft.job.budget}
 								</strong>
 								<span>·</span>
 								<span>{draft.job.projectType} contract</span>

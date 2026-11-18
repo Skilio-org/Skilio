@@ -1,3 +1,4 @@
+import { jobLocationLabel } from "@/components/freelancer/freelancer-job-mapper"
 import {
 	ArrowRight,
 	Banknote,
@@ -6,6 +7,7 @@ import {
 	CircleCheck,
 	Clock3,
 	Globe2,
+	MapPin,
 	MessageSquare,
 	Send,
 	UserPlus,
@@ -141,8 +143,8 @@ export const JobDetails = ({
 						<SheetDescription className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 font-caption text-caption text-on-surface-variant">
 							<span>{job.posted}</span>
 							<span className="inline-flex items-center gap-1.5">
-								<Globe2 className="size-3.5" />
-								Worldwide · Remote
+								{job.location ? <MapPin className="size-3.5" /> : <Globe2 className="size-3.5" />}
+								{jobLocationLabel(job)}
 							</span>
 						</SheetDescription>
 					</section>
@@ -158,7 +160,7 @@ export const JobDetails = ({
 					<section className="grid grid-cols-2 gap-6 border-outline-variant/60 border-b px-6 py-6 sm:px-8">
 						<div>
 							<Banknote className="mb-3 size-5 text-outline" />
-							<p className="font-semibold text-body-md">{job.budget.split(" · ")[0]}</p>
+							<p className="font-semibold text-body-md">{job.budget}</p>
 							<p className="mt-1 text-caption text-on-surface-variant">
 								{projectType === "Hourly" ? "Hourly rate" : "Project budget"}
 							</p>
@@ -167,9 +169,7 @@ export const JobDetails = ({
 							<Clock3 className="mb-3 size-5 text-outline" />
 							<p className="font-semibold text-body-md">{projectType}</p>
 							<p className="mt-1 text-caption text-on-surface-variant">
-								{job.budget.split(" · ")[1] !== "Fixed price"
-									? job.budget.split(" · ")[1] || "Project-based engagement"
-									: "Project-based engagement"}
+								{projectType === "Hourly" ? "Paid by the hour" : "One price for the whole project"}
 							</p>
 						</div>
 					</section>
@@ -290,7 +290,7 @@ export const JobDetails = ({
 							{saved ? "Saved job" : "Save job"}
 						</button>
 
-						{/* Connect with Client Flow (F4, F5, F6) */}
+						{/* Connect with the client */}
 						{job.clientId &&
 							!isLoading &&
 							(connectionStatus?.status === "connected" ? (
@@ -329,9 +329,6 @@ export const JobDetails = ({
 								<p className="mt-0.5 text-caption text-on-surface-variant">Project owner</p>
 							</div>
 						</div>
-						<p className="mt-4 text-body-sm text-on-surface-variant leading-5">
-							Hiring for {job.category.toLowerCase()}.
-						</p>
 					</section>
 					<section className="mt-6 border-outline-variant/60 border-t pt-5">
 						<h3 className="font-medium text-label-sm">Your next step</h3>
@@ -344,7 +341,7 @@ export const JobDetails = ({
 				</aside>
 			</div>
 
-			{/* Connect with Client Dialog (Flowchart F4, F5) */}
+			{/* Dialog for sending a connection request */}
 			<Dialog open={connectOpen} onOpenChange={setConnectOpen}>
 				<DialogContent className="sm:max-w-md">
 					<DialogHeader>
