@@ -34,6 +34,28 @@ def test_read_profiles_no_auth_required(client: TestClient, db: Session) -> None
     assert response.status_code == 200
 
 
+def test_read_profiles_excludes_current_user_profile(
+    client: TestClient, db: Session
+) -> None:
+    _, profile, headers = create_authenticated_freelancer(client, db)
+    profile.finished = True
+    db.add(profile)
+    db.commit()
+
+    # Anonymous search includes it
+    anon_resp = client.get(f"{settings.API_V1_STR}/profiles/")
+    assert anon_resp.status_code == 200
+    anon_ids = [p["id"] for p in anon_resp.json()["data"]]
+    assert str(profile.id) in anon_ids
+
+    # Authenticated search excludes caller's own freelancer profile
+    auth_resp = client.get(f"{settings.API_V1_STR}/profiles/", headers=headers)
+    assert auth_resp.status_code == 200
+    auth_ids = [p["id"] for p in auth_resp.json()["data"]]
+    assert str(profile.id) not in auth_ids
+    assert auth_resp.json()["count"] == anon_resp.json()["count"] - 1
+
+
 def test_read_profile_detail(client: TestClient, db: Session) -> None:
     profile = create_random_profile(db)
     response = client.get(f"{settings.API_V1_STR}/profiles/{profile.id}")
