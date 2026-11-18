@@ -749,3 +749,36 @@ def test_publish_draft_job(client: TestClient, db: Session) -> None:
     # Now it is accessible in public feed
     feed_resp = client.get(f"{settings.API_V1_STR}/jobs/")
     assert draft_id in [j["id"] for j in feed_resp.json()["data"]]
+
+
+def test_read_jobs_excludes_current_user_jobs(
+    client: TestClient, db: Session
+) -> None:
+    client_headers, _ = _make_client_headers(client, db)
+    job_resp = client.post(
+        f"{settings.API_V1_STR}/jobs/",
+        headers=client_headers,
+        json={
+            "title": "Excluded Client Job",
+            "description": "Experience level: Intermediate\n\nA job that should be excluded from feed when the client who created it searches for jobs.",
+            "budget_type": "fixed",
+            "budget": 500.0,
+            "level": "Intermediate",
+            "status": "open",
+        },
+    )
+    assert job_resp.status_code == 200
+    job_id = job_resp.json()["id"]
+
+    # Anonymous search includes it
+    anon_resp = client.get(f"{settings.API_V1_STR}/jobs/")
+    assert anon_resp.status_code == 200
+    anon_ids = [j["id"] for j in anon_resp.json()["data"]]
+    assert job_id in anon_ids
+
+    # Authenticated search with job owner's headers excludes it
+    auth_resp = client.get(f"{settings.API_V1_STR}/jobs/", headers=client_headers)
+    assert auth_resp.status_code == 200
+    auth_ids = [j["id"] for j in auth_resp.json()["data"]]
+    assert job_id not in auth_ids
+    assert auth_resp.json()["count"] == anon_resp.json()["count"] - 1
