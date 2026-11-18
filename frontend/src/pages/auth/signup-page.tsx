@@ -61,7 +61,7 @@ export function SignupPage({ role }: { role?: "client" | "freelancer" }) {
 									<div
 										role="group"
 										aria-label="Account type"
-										className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1"
+										className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1 mb-4"
 									>
 										{(
 											[
@@ -93,7 +93,7 @@ export function SignupPage({ role }: { role?: "client" | "freelancer" }) {
 						)}
 					/>
 					<div className="mt-5">
-						<SocialAuth />
+						<SocialAuth role={form.watch("role")} />
 					</div>
 					<Divider text="Or sign up with email" />
 					<div className="flex flex-col gap-4">

@@ -1,10 +1,11 @@
 import { FaLinkedinIn } from "react-icons/fa"
 import { FcGoogle } from "react-icons/fc"
 
-export const SocialAuth = () => {
+export const SocialAuth = ({ role }: { role?: "client" | "freelancer" } = {}) => {
 	const handleSocialLogin = (href: string | undefined) => {
 		if (!href) return
 
+		if (role) sessionStorage.setItem("oauth_signup_role", role)
 		window.location.assign(href)
 	}
 

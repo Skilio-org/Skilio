@@ -1,5 +1,6 @@
 import uuid
 from unittest.mock import AsyncMock, patch
+from urllib.parse import unquote
 
 from fastapi.testclient import TestClient
 from sqlmodel import Session, select
@@ -524,7 +525,7 @@ def test_register_user_already_exists_error(client: TestClient) -> None:
 
 def test_verify_email_valid_token(client: TestClient, db: Session) -> None:
     """
-    GET /users/verify with a valid token should mark the user's email as verified.
+    GET /users/verify with a valid token should mark the user's email as verified and redirect.
     """
     username = random_email()
     password = random_lower_string()
@@ -538,9 +539,15 @@ def test_verify_email_valid_token(client: TestClient, db: Session) -> None:
     assert user.is_email_verified is False
 
     token = generate_email_validation_token(username)
-    r = client.get(f"{settings.API_V1_STR}/users/verify", params={"token": token})
-    assert r.status_code == 200
-    assert r.json()["message"] == "Email was verified!"
+    r = client.get(
+        f"{settings.API_V1_STR}/users/verify",
+        params={"token": token},
+        follow_redirects=False,
+    )
+    assert r.status_code in (302, 307)
+    location = unquote(r.headers["location"])
+    assert location.startswith(f"{settings.FRONTEND_HOST}/login")
+    assert "info=Email verified successfully. You can now log in." in location
 
     db.refresh(user)
     assert user.is_email_verified is True
@@ -548,23 +555,62 @@ def test_verify_email_valid_token(client: TestClient, db: Session) -> None:
 
 def test_verify_email_invalid_token(client: TestClient) -> None:
     """
-    GET /users/verify with a bad token should return 400.
+    GET /users/verify with a bad token should redirect with an invalid token error param.
     """
     r = client.get(
-        f"{settings.API_V1_STR}/users/verify", params={"token": "notavalidtoken"}
+        f"{settings.API_V1_STR}/users/verify",
+        params={"token": "notavalidtoken"},
+        follow_redirects=False,
     )
-    assert r.status_code == 400
-    assert r.json()["detail"] == "Invalid token"
+    assert r.status_code in (302, 307)
+    location = unquote(r.headers["location"])
+    assert location.startswith(f"{settings.FRONTEND_HOST}/login")
+    assert "error=Email verification failed. Invalid Token." in location
 
 
 def test_verify_email_unknown_user_token(client: TestClient) -> None:
     """
-    GET /users/verify with a valid-shaped token for a non-existent email returns 400.
+    GET /users/verify with a valid-shaped token for a non-existent email redirects with a user not found error param.
     """
     token = generate_email_validation_token("ghost@nobody.com")
-    r = client.get(f"{settings.API_V1_STR}/users/verify", params={"token": token})
-    assert r.status_code == 400
-    assert r.json()["detail"] == "Invalid token"
+    r = client.get(
+        f"{settings.API_V1_STR}/users/verify",
+        params={"token": token},
+        follow_redirects=False,
+    )
+    assert r.status_code in (302, 307)
+    location = unquote(r.headers["location"])
+    assert location.startswith(f"{settings.FRONTEND_HOST}/login")
+    assert "error=Email verification failed. User Not Found." in location
+
+
+def test_verify_email_inactive_user(client: TestClient, db: Session) -> None:
+    """
+    GET /users/verify for an inactive user should redirect with an inactive user error param.
+    """
+    username = random_email()
+    password = random_lower_string()
+    user_in = UserCreate(email=username, password=password)
+    user = crud.create_user(session=db, user_create=user_in)
+    user.is_email_verified = False
+    user.is_active = False
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    token = generate_email_validation_token(username)
+    r = client.get(
+        f"{settings.API_V1_STR}/users/verify",
+        params={"token": token},
+        follow_redirects=False,
+    )
+    assert r.status_code in (302, 307)
+    location = unquote(r.headers["location"])
+    assert location.startswith(f"{settings.FRONTEND_HOST}/login")
+    assert "error=Email verification failed. Inactive user." in location
+
+    db.refresh(user)
+    assert user.is_email_verified is False
 
 
 def test_update_user(

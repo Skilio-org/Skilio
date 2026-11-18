@@ -3,13 +3,13 @@ import { z } from "zod"
 import { isLoggedIn } from "@/hooks/useAuth"
 import { LoginPage } from "@/pages/auth/login-page"
 
-const loginSearchSchema = z.object({ error: z.string().optional() })
+const loginSearchSchema = z.object({ error: z.string().optional(), info: z.string().optional() })
 
 export const Route = createFileRoute("/login")({
 	component: () => {
-		const { error } = Route.useSearch()
+		const { error, info } = Route.useSearch()
 		const navigate = Route.useNavigate()
-		return <LoginPage error={error} onErrorHandled={() => void navigate({ search: {}, replace: true })} />
+		return <LoginPage error={error} info={info} onErrorHandled={() => void navigate({ search: {}, replace: true })} />
 	},
 	validateSearch: (search) => loginSearchSchema.parse(search),
 	beforeLoad: async () => {
