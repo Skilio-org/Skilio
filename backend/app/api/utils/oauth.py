@@ -177,10 +177,11 @@ def upsert_oauth_user(
         session.commit()
         session.refresh(user)
 
-        freelancer_profile = FreelancerProfile(user_id=user.id, avatar_url=user_kwargs["avatar_url"])
-        session.add(freelancer_profile)
-        client_profile = ClientProfile(user_id=user.id, avatar_url=user_kwargs["avatar_url"])
-        session.add(client_profile)
+        if user.active_role == UserRole.FREELANCER:
+            profile = FreelancerProfile(user_id=user.id, avatar_url=user_kwargs["avatar_url"])
+        else:
+            profile = ClientProfile(user_id=user.id, avatar_url=user_kwargs["avatar_url"])
+        session.add(profile)
 
         session.commit()
         # Send welcome / password‑recovery email
