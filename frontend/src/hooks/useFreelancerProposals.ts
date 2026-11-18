@@ -10,7 +10,7 @@ export type BackendProposal = {
 	job: FreelancerJob
 	cover: string
 	rate: string
-	status: "Drafts" | "Submitted" | "Archived"
+	status: "Drafts" | "Submitted"
 	rawStatus: ProposalStatus
 	createdAt?: string | null
 	updatedAt?: string | null
@@ -18,8 +18,8 @@ export type BackendProposal = {
 
 const proposalStatus = (status: ProposalStatus): BackendProposal["status"] => {
 	if (status === "draft") return "Drafts"
-	if (status === "pending" || status === "accepted") return "Submitted"
-	return "Archived"
+	// Everything that was sent to a client counts as submitted, including accepted and declined proposals.
+	return "Submitted"
 }
 
 function proposalToDraft(proposal: ProposalPublic): BackendProposal | null {
