@@ -17,8 +17,6 @@ FROM python:3.14
 
 # Production Python & UV configurations
 ENV PYTHONUNBUFFERED=1 \
-    UV_COMPILE_BYTECODE=1 \
-    UV_LINK_MODE=copy \
     PATH="/app/.venv/bin:$PATH"
 
 # Install UV
@@ -30,13 +28,13 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-install-workspace --package app
 
-# 2. Copy backend source code & compiled frontend from Stage 1
+# Copy backend source code & compiled frontend from Stage 1
 COPY ./backend/scripts /app/backend/scripts
 COPY ./backend/pyproject.toml ./backend/alembic.ini /app/backend/
 COPY ./backend/app /app/backend/app
 COPY --from=frontend-build /app/backend/app/frontend /app/backend/app/frontend
 
-# 3. Install local app package
+# Install local app package
 RUN uv sync --frozen --package app
 
 WORKDIR /app/backend
