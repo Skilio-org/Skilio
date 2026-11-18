@@ -5,16 +5,21 @@ import Divider from "@/components/auth/auth-divider"
 import LoginForm from "@/components/auth/auth-login-form"
 import SocialAuth from "@/components/auth/auth-social"
 import { AuthLayout } from "@/components/common/auth-layout"
-export function LoginPage({ error, onErrorHandled }: { error?: string; onErrorHandled: () => void }) {
+export function LoginPage({ error, info, onErrorHandled }: { error?: string; info?: string; onErrorHandled: () => void }) {
 	useEffect(() => {
-		if (!error) return
-
-		toast.error(`We couldn't log you in. ${error}`, {
-			id: "login-error",
-		})
+		if (info) {
+			toast.success(info, {
+				id: "login-info",
+			})
+		}
+		if (error) {
+			toast.error(`We couldn't log you in. ${error}`, {
+				id: "login-error",
+			})
+		}
 
 		onErrorHandled()
-	}, [error, onErrorHandled])
+	}, [error, info, onErrorHandled])
 
 	return (
 		<AuthLayout>
