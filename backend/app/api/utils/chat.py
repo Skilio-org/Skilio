@@ -1,5 +1,6 @@
 import json
 import uuid
+from collections import deque
 
 import jwt
 from fastapi import (
@@ -235,3 +236,16 @@ async def read_receipt(data: dict[any, any], user_id: uuid.UUID):
         conv_id_raw = data.get("conversation_id")
         if conv_id_raw:
             await mark_all_messages_as_read(user_id, uuid.UUID(str(conv_id_raw)))
+
+def is_rate_limited(
+    timestamps: deque[float],
+    now: float,
+    window: float,
+    limit: int,
+) -> bool:
+    while timestamps and now - timestamps[0] >= window:
+        timestamps.popleft()
+    if len(timestamps) >= limit:
+        return True
+    timestamps.append(now)
+    return False

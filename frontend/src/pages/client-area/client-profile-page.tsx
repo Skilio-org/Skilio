@@ -109,7 +109,7 @@ export function ClientProfilePage() {
 
 	const displayName = fullName || profile?.full_name || user?.full_name || "Your name"
 	const accountAvatarUrl = useAccountAvatarUrl(user?.id, "client")
-	const avatarUrl = profile?.avatar_url || accountAvatarUrl
+	const avatarUrl = accountAvatarUrl
 
 	// Returns the first problem with the form, or null when it is fine to save.
 	const validate = () => {

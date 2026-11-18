@@ -226,9 +226,56 @@ def test_websocket_messaging_and_presence(
             assert typing_event["data"]["is_typing"] is True
 
 
+
 def test_websocket_message_ack_failed_for_invalid_messages(
     client: TestClient, db: Session
 ) -> None:
+    # Existing test for invalid messages remains unchanged
+    _, token_user1, user1_id = get_user_token_and_headers(client, db)
+    _, _, user2_id = get_user_token_and_headers(client, db)
+
+    create_resp = client.post(
+        f"{settings.API_V1_STR}/chat/conversation",
+        headers={"Authorization": f"Bearer {token_user1}"},
+        json={"freelancer_id": str(user2_id)},
+    )
+    conv_id = create_resp.json()["id"]
+
+    invalid_messages = [
+        {
+            "type": "chat_message",
+            "content": "Missing conversation ID",
+            "client_message_id": "missing-conversation-id",
+        },
+        {
+            "type": "chat_message",
+            "conversation_id": "not-a-uuid",
+            "content": "Invalid conversation ID",
+            "client_message_id": "invalid-conversation-id",
+        },
+        {
+            "type": "chat_message",
+            "conversation_id": conv_id,
+            "content": "x" * 5001,
+            "client_message_id": "message-too-long",
+        },
+    ]
+
+    with client.websocket_connect(
+        f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
+    ) as websocket:
+        assert json.loads(websocket.receive_text())["type"] == "connection_established"
+
+        for message in invalid_messages:
+            websocket.send_text(json.dumps(message))
+            failed_ack = json.loads(websocket.receive_text())
+
+            assert failed_ack["type"] == "message_ack_failed"
+            assert (
+                failed_ack["data"]["client_message_id"]
+                == message["client_message_id"]
+            )
+            sleep(.6)
     _, token_user1, user1_id = get_user_token_and_headers(client, db)
     _, _, user2_id = get_user_token_and_headers(client, db)
 
@@ -355,44 +402,6 @@ def test_websocket_chat_message_rate_limit(
         assert resp2["type"] == "message_ack"
         assert resp2["data"]["client_message_id"] == "msg-2"
 
-        # # 3. Third message immediately (< 1s) -> Blocked by rate limiter
-        # ws.send_text(
-        #     json.dumps(
-        #         {
-        #             "type": "chat_message",
-        #             "conversation_id": conv_id,
-        #             "content": "Message 3 - should be blocked",
-        #             "client_message_id": "msg-3",
-        #         }
-        #     )
-        # )
-        # resp3 = json.loads(ws.receive_text())
-        # assert resp3["type"] == "message_ack"
-        # assert resp3["data"] == "slow down"
-
-        # # 4. Ping is exempt from chat message rate limiter
-        # ws.send_text(json.dumps({"type": "ping"}))
-        # pong = json.loads(ws.receive_text())
-        # assert pong["type"] == "pong"
-
-        # # 5. Wait for the 1-second rolling window to expire
-        # sleep(1.05)
-
-        # # 6. Next message after window expires -> Allowed
-        # ws.send_text(
-        #     json.dumps(
-        #         {
-        #             "type": "chat_message",
-        #             "conversation_id": conv_id,
-        #             "content": "Message 4 - allowed after cooldown",
-        #             "client_message_id": "msg-4",
-        #         }
-        #     )
-        # )
-        # resp4 = json.loads(ws.receive_text())
-        # assert resp4["type"] == "message_ack"
-        # assert resp4["data"]["client_message_id"] == "msg-4"
-
 
 def test_websocket_read_receipt_and_unread_counts(
     client: TestClient, db: Session
@@ -408,7 +417,6 @@ def test_websocket_read_receipt_and_unread_counts(
     )
     conv_id = create_resp.json()["id"]
 
-    # 2. Both users connect via WebSocket
     with client.websocket_connect(
         f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
     ) as ws1:
@@ -448,7 +456,6 @@ def test_websocket_read_receipt_and_unread_counts(
             u2_conv = next(c for c in u2_resp.json()["data"] if c["id"] == conv_id)
             assert u2_conv["unread_count"] == 1
 
-            # 5. User 2 sends read_receipt over WebSocket
             ws2.send_text(
                 json.dumps(
                     {
@@ -627,3 +634,28 @@ def test_freelancer_cannot_initiate_conversation_without_role_scoped_connection(
 
 
 
+
+
+def test_websocket_invalid_event_type(client: TestClient, db: Session) -> None:
+    """Send an unknown event type and verify the connection is closed with WS_1003_UNSUPPORTED_DATA."""
+    import json
+
+    import pytest
+    from fastapi import status
+
+    headers_user1, token_user1, _ = get_user_token_and_headers(client, db)
+
+    with client.websocket_connect(
+        f"{settings.API_V1_STR}/chat/ws?token={token_user1}"
+    ) as websocket:
+        # Receive the initial connection established message
+        assert json.loads(websocket.receive_text())["type"] == "connection_established"
+
+        # Send an unknown event type
+        websocket.send_text(json.dumps({"type": "unknown_event"}))
+
+        # The server should close the connection with an error
+        with pytest.raises(WebSocketDisconnect) as exc_info:
+            websocket.receive_text()
+        assert exc_info.value.code == status.WS_1003_UNSUPPORTED_DATA
+        assert exc_info.value.reason == "Unknown event type"
