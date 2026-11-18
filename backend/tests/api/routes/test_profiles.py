@@ -549,7 +549,10 @@ def test_create_portfolio_item_me(client: TestClient, db: Session) -> None:
     content = response.json()
     assert content["title"] == item_data["title"]
     assert content["description"] == item_data["description"]
-    assert content["image_url"] == item_data["image_url"]
+    assert (
+        content["image_url"]
+        == f"{settings.API_V1_STR}/profiles/portfolio/{content['id']}/image"
+    )
     assert content["freelancer_profile_id"] == str(profile.id)
 
     # Verify present in GET /profiles/me
@@ -557,6 +560,10 @@ def test_create_portfolio_item_me(client: TestClient, db: Session) -> None:
     assert me_resp.status_code == 200
     assert len(me_resp.json()["portfolio"]) == 1
     assert me_resp.json()["portfolio"][0]["title"] == item_data["title"]
+    assert (
+        me_resp.json()["portfolio"][0]["image_url"]
+        == f"{settings.API_V1_STR}/profiles/portfolio/{content['id']}/image"
+    )
 
 
 def test_upload_portfolio_item_me(client: TestClient, db: Session) -> None:
@@ -580,17 +587,20 @@ def test_upload_portfolio_item_me(client: TestClient, db: Session) -> None:
         assert content["description"] == "Project with uploaded image"
         assert (
             content["image_url"]
-            == "https://res.cloudinary.com/demo/image/upload/uploaded_item.jpg"
+            == f"{settings.API_V1_STR}/profiles/portfolio/{content['id']}/image"
         )
 
 
 def test_update_portfolio_item_me(client: TestClient, db: Session) -> None:
     _, profile, headers = create_authenticated_freelancer(client, db)
+    item_id = uuid.uuid4()
     item = PortfolioItem(
+        id=item_id,
         freelancer_profile_id=profile.id,
         title="Initial Title",
         description="Initial Description",
-        image_url="https://res.cloudinary.com/demo/image/upload/initial.jpg",
+        cloudinary_url="https://res.cloudinary.com/demo/image/upload/initial.jpg",
+        image_url=f"{settings.API_V1_STR}/profiles/portfolio/{item_id}/image",
     )
     db.add(item)
     db.commit()
@@ -605,16 +615,22 @@ def test_update_portfolio_item_me(client: TestClient, db: Session) -> None:
     content = response.json()
     assert content["title"] == "Updated Title"
     assert content["description"] == "Updated Description"
-    assert content["image_url"] == item.image_url
+    assert (
+        content["image_url"]
+        == f"{settings.API_V1_STR}/profiles/portfolio/{item.id}/image"
+    )
 
 
 def test_delete_portfolio_item_me(client: TestClient, db: Session) -> None:
     _, profile, headers = create_authenticated_freelancer(client, db)
+    item_id = uuid.uuid4()
     item = PortfolioItem(
+        id=item_id,
         freelancer_profile_id=profile.id,
         title="To Delete",
         description="To Delete Description",
-        image_url="https://res.cloudinary.com/demo/image/upload/to_delete.jpg",
+        cloudinary_url="https://res.cloudinary.com/demo/image/upload/to_delete.jpg",
+        image_url=f"{settings.API_V1_STR}/profiles/portfolio/{item_id}/image",
     )
     db.add(item)
     db.commit()
@@ -627,11 +643,67 @@ def test_delete_portfolio_item_me(client: TestClient, db: Session) -> None:
         )
         assert response.status_code == 200
         assert response.json()["message"] == "Portfolio item deleted successfully"
-        mock_delete.assert_called_once_with(item.image_url)
+        mock_delete.assert_called_once_with(
+            "https://res.cloudinary.com/demo/image/upload/to_delete.jpg"
+        )
 
     # Verify removed
     me_resp = client.get(f"{settings.API_V1_STR}/profiles/me", headers=headers)
     assert len(me_resp.json()["portfolio"]) == 0
+
+
+def test_proxy_portfolio_image(client: TestClient, db: Session) -> None:
+    from unittest.mock import ANY
+
+    from fastapi.responses import Response
+
+    _, profile, _ = create_authenticated_freelancer(client, db)
+    item_id = uuid.uuid4()
+    item = PortfolioItem(
+        id=item_id,
+        freelancer_profile_id=profile.id,
+        title="Proxy Project",
+        description="A project to test proxying",
+        cloudinary_url="https://res.cloudinary.com/demo/image/upload/sample.jpg",
+        image_url=f"{settings.API_V1_STR}/profiles/portfolio/{item_id}/image",
+    )
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+
+    with patch(
+        "app.api.routes.profiles._stream_cloudinary_media",
+        return_value=Response(content=b"image_bytes", media_type="image/jpeg"),
+    ) as mock_stream:
+        resp = client.get(f"{settings.API_V1_STR}/profiles/portfolio/{item.id}/image")
+        assert resp.status_code == 200
+        assert resp.content == b"image_bytes"
+        mock_stream.assert_called_once_with(
+            ANY, "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+        )
+
+    # 404 for nonexistent item
+    resp_404 = client.get(
+        f"{settings.API_V1_STR}/profiles/portfolio/{uuid.uuid4()}/image"
+    )
+    assert resp_404.status_code == 404
+
+    # 404 for item without image_url
+    item_no_img = PortfolioItem(
+        freelancer_profile_id=profile.id,
+        title="No Image",
+        description="No image url",
+        image_url=None,
+    )
+    db.add(item_no_img)
+    db.commit()
+    db.refresh(item_no_img)
+
+    resp_no_img = client.get(
+        f"{settings.API_V1_STR}/profiles/portfolio/{item_no_img.id}/image"
+    )
+    assert resp_no_img.status_code == 404
+    assert resp_no_img.status_code == 404
 
 
 def test_education_and_portfolio_forbidden_for_other_user(
@@ -805,6 +877,66 @@ def test_update_profile_me_upsert(client: TestClient, db: Session) -> None:
     assert user.active_role == UserRole.FREELANCER
 
 
+def test_update_profile_me_portfolio_sync_preserves_images(
+    client: TestClient, db: Session
+) -> None:
+    _, profile, headers = create_authenticated_freelancer(client, db)
+
+    # 1. First update with a raw Cloudinary URL
+    raw_cloudinary = "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+    payload = {
+        "portfolio": [
+            {
+                "title": "Initial Project",
+                "detail": "Project with raw url",
+                "image_url": raw_cloudinary,
+            }
+        ]
+    }
+    resp1 = client.put(
+        f"{settings.API_V1_STR}/profiles/me", headers=headers, json=payload
+    )
+    assert resp1.status_code == 200
+    data1 = resp1.json()
+    assert len(data1["portfolio"]) == 1
+    item_id = data1["portfolio"][0]["id"]
+    proxy_url = f"{settings.API_V1_STR}/profiles/portfolio/{item_id}/image"
+    assert data1["portfolio"][0]["image_url"] == proxy_url
+
+    # Check DB record
+    item_db = db.get(PortfolioItem, uuid.UUID(item_id))
+    assert item_db is not None
+    assert item_db.cloudinary_url == raw_cloudinary
+    assert item_db.image_url == proxy_url
+
+    # 2. Second update simulating frontend form submission with the proxy url
+    payload2 = {
+        "portfolio": [
+            {
+                "title": "Renamed Project",
+                "detail": "Same image, new title",
+                "image_url": proxy_url,
+            }
+        ]
+    }
+    resp2 = client.put(
+        f"{settings.API_V1_STR}/profiles/me", headers=headers, json=payload2
+    )
+    assert resp2.status_code == 200
+    data2 = resp2.json()
+    assert len(data2["portfolio"]) == 1
+    assert data2["portfolio"][0]["id"] == item_id
+    assert data2["portfolio"][0]["title"] == "Renamed Project"
+    assert data2["portfolio"][0]["image_url"] == proxy_url
+
+    # Check DB record preserved
+    db.expire_all()
+    item_db2 = db.get(PortfolioItem, uuid.UUID(item_id))
+    assert item_db2 is not None
+    assert item_db2.cloudinary_url == raw_cloudinary
+    assert item_db2.image_url == proxy_url
+
+
 def test_experience_crud(client: TestClient, db: Session) -> None:
     user, profile, headers = create_authenticated_freelancer(client, db)
 
@@ -945,22 +1077,34 @@ def test_search_skill_and_role_combinations(client: TestClient, db: Session) -> 
     resp_react_dev = client.get(f"{settings.API_V1_STR}/profiles/?q=react%20developer")
     assert resp_react_dev.status_code == 200
     react_dev_ids = [p["id"] for p in resp_react_dev.json()["data"]]
-    assert str(dev_profile.id) in react_dev_ids, "Frontend Developer with React skill should show up for 'react developer'"
-    assert str(eng_profile.id) in react_dev_ids, "Frontend Engineer with React skill should show up for 'react developer'"
-    assert str(acc_profile.id) not in react_dev_ids, "Financial Analyst should not show up for 'react developer'"
+    assert str(dev_profile.id) in react_dev_ids, (
+        "Frontend Developer with React skill should show up for 'react developer'"
+    )
+    assert str(eng_profile.id) in react_dev_ids, (
+        "Frontend Engineer with React skill should show up for 'react developer'"
+    )
+    assert str(acc_profile.id) not in react_dev_ids, (
+        "Financial Analyst should not show up for 'react developer'"
+    )
 
     # Search for "react engineer" - both should show up
     resp_react_eng = client.get(f"{settings.API_V1_STR}/profiles/?q=react%20engineer")
     assert resp_react_eng.status_code == 200
     react_eng_ids = [p["id"] for p in resp_react_eng.json()["data"]]
-    assert str(dev_profile.id) in react_eng_ids, "Frontend Developer with React skill should show up for 'react engineer'"
-    assert str(eng_profile.id) in react_eng_ids, "Frontend Engineer with React skill should show up for 'react engineer'"
+    assert str(dev_profile.id) in react_eng_ids, (
+        "Frontend Developer with React skill should show up for 'react engineer'"
+    )
+    assert str(eng_profile.id) in react_eng_ids, (
+        "Frontend Engineer with React skill should show up for 'react engineer'"
+    )
 
     # Search for "python developer" - Backend Engineer should show up
     resp_py = client.get(f"{settings.API_V1_STR}/profiles/?q=python%20developer")
     assert resp_py.status_code == 200
     py_ids = [p["id"] for p in resp_py.json()["data"]]
-    assert str(py_profile.id) in py_ids, "Backend Engineer with Python skill should show up for 'python developer'"
+    assert str(py_profile.id) in py_ids, (
+        "Backend Engineer with Python skill should show up for 'python developer'"
+    )
 
     # 5. Figma skill + Product Designer
     figma_profile = create_random_profile(db)
@@ -983,21 +1127,25 @@ def test_search_skill_and_role_combinations(client: TestClient, db: Session) -> 
     resp_figma = client.get(f"{settings.API_V1_STR}/profiles/?q=figma%20designer")
     assert resp_figma.status_code == 200
     figma_ids = [p["id"] for p in resp_figma.json()["data"]]
-    assert str(figma_profile.id) in figma_ids, "Product Designer with Figma skill should show up for 'figma designer'"
+    assert str(figma_profile.id) in figma_ids, (
+        "Product Designer with Figma skill should show up for 'figma designer'"
+    )
 
     # Search for "flutter developer"
     resp_flutter = client.get(f"{settings.API_V1_STR}/profiles/?q=flutter%20developer")
     assert resp_flutter.status_code == 200
     flutter_ids = [p["id"] for p in resp_flutter.json()["data"]]
-    assert str(flutter_profile.id) in flutter_ids, "Mobile Engineer with Flutter skill should show up for 'flutter developer'"
+    assert str(flutter_profile.id) in flutter_ids, (
+        "Mobile Engineer with Flutter skill should show up for 'flutter developer'"
+    )
 
     # Typo tolerance via pg_trgm: "reakt developer"
     resp_typo = client.get(f"{settings.API_V1_STR}/profiles/?q=reakt%20developer")
     assert resp_typo.status_code == 200
     typo_ids = [p["id"] for p in resp_typo.json()["data"]]
-    assert str(dev_profile.id) in typo_ids, "Trigram fuzzy matching should match 'reakt developer' to React developer"
-
-
+    assert str(dev_profile.id) in typo_ids, (
+        "Trigram fuzzy matching should match 'reakt developer' to React developer"
+    )
 
 
 def test_draft_profile_privacy(client: TestClient, db: Session) -> None:
