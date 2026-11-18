@@ -25,7 +25,7 @@ export function TalentProfilePage({ person: initialPerson }: { person: Freelance
 	const saved = savedIds.includes(person.id)
 
 	return (
-		<div className="mx-auto w-full max-w-360 px-4 py-8 md:px-6 md:py-10">
+		<div className="mx-auto w-full max-w-360 px-4 md:px-6">
 			<FreelancerProfileView
 				nameHeadingLevel="h1"
 				profile={{
