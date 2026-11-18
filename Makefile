@@ -104,7 +104,7 @@ test-frontend:
 
 # Seed database with Moroccan mock accounts (make seed [FLAGS=--clean])
 seed:
-	@./scripts/seeder.sh local $(FLAGS)
+	docker compose exec backend python -m app.seeder local $(FLAGS)
 
 
 
