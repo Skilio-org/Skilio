@@ -12,7 +12,7 @@ import {
 	Send,
 	UserPlus,
 } from "lucide-react"
-import { FormEvent, useEffect, useRef, useState } from "react"
+import { type FormEvent, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Link } from "@tanstack/react-router"
 import {
@@ -46,7 +46,7 @@ export const JobDetails = ({
 
 	const [connectOpen, setConnectOpen] = useState(false)
 	const [connectNote, setConnectNote] = useState("")
-	const { data: connectionStatus, isLoading: isLoading } = useConnectionStatus(job.clientId, "freelancer")
+	const { data: connectionStatus, isLoading } = useConnectionStatus(job.clientId, "freelancer")
 	const sendConnectionMutation = useSendConnectionRequest()
 
 	const [applying, setApplying] = useState(() => initiallyApplying && !submitted)
@@ -112,6 +112,11 @@ export const JobDetails = ({
 		if (submitted) {
 			toast.error("You have already submitted a proposal for this job.")
 			setApplying(false)
+			return
+		}
+
+		if (!applying) {
+			setApplying(true)
 			return
 		}
 		if (cover.trim().length < 40) {

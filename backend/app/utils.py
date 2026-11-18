@@ -110,7 +110,6 @@ def generate_reset_password_email(email_to: str, email: str, token: str, oauth: 
 def generate_verify_email(email_to: str, username: str, email: str, token: str) -> EmailData:
     project_name = settings.PROJECT_NAME
     subject = f"{project_name} - email verification {email}"
-    # link = f"{settings.FRONTEND_HOST}/verify?token={token}"
     link = f"{settings.HOST}/api/v1/users/verify?token={token}"
     html_content = render_email_template(
         template_name="verify_email.html",
@@ -136,7 +135,7 @@ def generate_new_account_email(
             "username": username,
             "password": password,
             "email": email_to,
-            "link": settings.FRONTEND_HOST,
+            "link": settings.HOST,
         },
     )
     return EmailData(html_content=html_content, subject=subject)

@@ -104,7 +104,7 @@ test-frontend:
 
 # Seed database with Moroccan mock accounts (make seed [FLAGS=--clean])
 seed:
-	@./scripts/seeder.sh local $(FLAGS)
+	docker compose exec backend python -m app.seeder local $(FLAGS)
 
 
 
@@ -137,65 +137,53 @@ SSH_KEY ?= $(HOME)/Downloads/skilio-key.pem
 
 # Bootstrap fresh remote AWS server with Docker, 2GB Swap & tools
 server-init:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'sudo bash -s' < devops/scripts/server-init.sh
 
 # Open interactive SSH shell into remote AWS server
 deploy-ssh:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP)
 
 # Rebuild and recreate backend container on AWS EC2
 deploy-apply:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'bash /opt/skilio/devops/scripts/deploy.sh'
 
 # Check live production containers and resource usage on AWS EC2
 deploy-status:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml ps && echo "" && docker stats --no-stream'
 
 # Tail live production container logs in real time from AWS EC2
 deploy-logs:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml logs -f'
 
 # Restart production containers on AWS (or make deploy-restart SERVICE=backend)
 deploy-restart:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml restart $(SERVICE)'
 	@echo "==> Production services restarted successfully!"
 
 # Create live database snapshot directly on AWS EC2
 deploy-backup:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && bash devops/backup/backup.sh'
 
 # List available database backup snapshots on AWS EC2
 deploy-backup-list:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && bash devops/backup/backup-list.sh'
 
 # Run automated disaster recovery verification drill on AWS EC2
 deploy-dr-test:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && bash devops/backup/dr-test.sh'
 
 # Restore production database from latest backup (or make deploy-restore FILE=backup_xxx.sql.gz) on AWS EC2
 deploy-restore:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && bash devops/backup/restore.sh $(FILE)'
 
 
 # Reset and re-migrate production database on AWS EC2 (preserves SSL certificates)
 deploy-db-clean:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml exec db psql -U postgres -d postgres -c "DROP DATABASE app WITH (FORCE);" -c "CREATE DATABASE app;" && docker compose -f compose.yml -f compose.deploy.yml run --rm backend bash scripts/prestart.sh && docker compose -f compose.yml -f compose.deploy.yml restart backend'
 	@echo "==> Production database cleaned and re-migrated successfully!"
 
 # Seed production database with Moroccan accounts on AWS EC2 (make deploy-db-seed [FLAGS=--dry-run])
 deploy-db-seed:
-	@chmod 400 $(SSH_KEY) 2>/dev/null || true
 	@ssh -i $(SSH_KEY) ubuntu@$(SERVER_IP) 'cd /opt/skilio && docker compose -f compose.yml -f compose.deploy.yml run --rm backend python -m app.seeder prod $(FLAGS)'
 	@echo "==> Production database seeded successfully!"
 
@@ -211,7 +199,3 @@ mail-pages-gen:
 clean:
 	docker compose down -v
 	@echo "All containers and volumes removed."
-
-fclean: clean
-
-re: clean setup

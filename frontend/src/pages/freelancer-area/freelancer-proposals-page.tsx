@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { Archive, ArrowLeft, Bookmark, FilePenLine, Search, Send } from "lucide-react"
+import { ArrowLeft, Bookmark, FilePenLine, Search, Send } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { EmptyState } from "@/components/common/empty-state"
@@ -15,13 +15,12 @@ import { type BackendProposal, useFreelancerProposals } from "@/hooks/useFreelan
 import type { FreelancerJob } from "@/types/job"
 import { jobLocationLabel } from "@/components/freelancer/freelancer-job-mapper"
 
-type ProposalTab = "Drafts" | "Submitted" | "Archived"
+type ProposalTab = "Drafts" | "Submitted"
 
 // Which proposals belong on which tab.
 const tabStatuses: Record<ProposalTab, string[]> = {
 	Drafts: ["draft"],
-	Submitted: ["pending", "accepted"],
-	Archived: ["rejected"],
+	Submitted: ["pending", "accepted", "rejected"],
 }
 
 const emptyMessages: Record<ProposalTab, { title: string; description: string }> = {
@@ -31,11 +30,7 @@ const emptyMessages: Record<ProposalTab, { title: string; description: string }>
 	},
 	Submitted: {
 		title: "No submitted proposals yet",
-		description: "Proposals you submit to clients will appear here with live client review updates.",
-	},
-	Archived: {
-		title: "No archived proposals",
-		description: "Past submissions and declined proposals will be filed here.",
+		description: "Proposals you send to clients will appear here, with their answer once they reply.",
 	},
 }
 
@@ -66,7 +61,6 @@ const FreelancerProposalsPage = () => {
 	const tabs = [
 		{ id: "Drafts" as const, label: "Drafts", count: draftsCount },
 		{ id: "Submitted" as const, label: "Submitted proposals", count: countFor("Submitted") },
-		{ id: "Archived" as const, label: "Archived", count: countFor("Archived") },
 	]
 
 	const visibleProposals = useMemo(() => {
@@ -223,7 +217,7 @@ const FreelancerProposalsPage = () => {
 					</div>
 				) : visibleProposals.length === 0 ? (
 					<EmptyState
-						icon={tab === "Drafts" ? FilePenLine : tab === "Submitted" ? Send : Archive}
+						icon={tab === "Drafts" ? FilePenLine : Send}
 						title={query ? "No matching proposals found" : emptyMessages[tab].title}
 						description={
 							query
@@ -276,7 +270,9 @@ const FreelancerProposalsPage = () => {
 									<ArrowLeft className="size-4" />
 									Back to proposals
 								</SheetClose>
-								<p className="hidden text-muted-foreground text-xs sm:block">{selected.company} · {jobLocationLabel(selected)}</p>
+								<p className="hidden text-muted-foreground text-xs sm:block">
+									{selected.company} · {jobLocationLabel(selected)}
+								</p>
 							</header>
 
 							{compose ? (

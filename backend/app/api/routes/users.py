@@ -5,7 +5,7 @@ from typing import Any
 import httpx
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import StreamingResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from sqlmodel import col, func, select
 
 from app import crud
@@ -416,24 +416,23 @@ async def register_user(session: SessionDep, user_in: UserRegister) -> Any:
 
 
 @router.get("/verify")
-def verify_email(session: SessionDep, token: str) -> Message:
+def verify_email(session: SessionDep, token: str) -> RedirectResponse:
     """
     Verify email.
     """
     email = validate_verify_token(token)
     if not email:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+        return RedirectResponse(url=f"{settings.FRONTEND_HOST}/login?error=Email verification failed. Invalid Token.")
     user = crud.get_user_by_email(session=session, email=email)
     if not user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+        return RedirectResponse(url=f"{settings.FRONTEND_HOST}/login?error=Email verification failed. User Not Found.")
     elif not user.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
+        return RedirectResponse(url=f"{settings.FRONTEND_HOST}/login?error=Email verification failed. Inactive user.")
     user.is_email_verified = True
     session.add(user)
     session.commit()
     session.refresh(user)
-    return Message(message="Email was verified!")
-
+    return RedirectResponse(url=f"{settings.FRONTEND_HOST}/login?info=Email verified successfully. You can now log in.")
 
 @router.get("/{user_id}", response_model=UserMe)
 def read_user_by_id(
