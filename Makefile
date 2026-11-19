@@ -1,6 +1,9 @@
-.PHONY: help setup dev up down build logs status test test-backend test-frontend seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-apply deploy-status deploy-logs deploy-restart deploy-backup deploy-backup-list deploy-restore deploy-dr-test deploy-db-clean deploy-db-seed mail-pages-gen
+.PHONY: all help setup dev up down build logs status test test-backend test-frontend seed clean fclean re backup backup-list restore dr-test server-init deploy-ssh deploy-apply deploy-status deploy-logs deploy-restart deploy-backup deploy-backup-list deploy-restore deploy-dr-test deploy-db-clean deploy-db-seed mail-pages-gen
 
-# Default target — show available commands
+# Default target — start all services (42 standard)
+all: up
+
+# Show available developer commands
 help:
 	@echo ""
 	@echo "  Freelancer Platform — Developer Commands"
@@ -94,9 +97,9 @@ status:
 # Run full test suite (backend pytest + frontend TypeScript & build)
 test: test-backend test-frontend
 
-# Run backend unit and integration tests via pytest
+# Run backend unit and integration tests via pytest (containerized)
 test-backend:
-	cd backend && uv run pytest
+	docker compose exec backend pytest
 
 # Verify frontend TypeScript compilation and production build
 test-frontend:
@@ -199,3 +202,9 @@ mail-pages-gen:
 clean:
 	docker compose down -v
 	@echo "All containers and volumes removed."
+
+# Complete cleanup (42 standard alias)
+fclean: clean
+
+# Rebuild and restart everything from clean state (42 standard)
+re: fclean all
