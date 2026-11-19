@@ -48,7 +48,6 @@ async function fetchProfile(
 		})
 		return (data as ConversationProfile) ?? createFallbackProfile(user, role)
 	} catch (error) {
-		toast.warning("Failed to fetch profile.");
 		return createFallbackProfile(user, role)
 	}
 }

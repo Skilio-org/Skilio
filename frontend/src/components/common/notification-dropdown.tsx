@@ -202,7 +202,7 @@ export function BakedBody({ notification }: { notification: NotificationPublic }
 				<>
 					<UserName
 						name={
-							notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"
+							notification.connection?.sender?.full_name || "Someone"
 						}
 					/>{" "}
 					wants to connect with you.
@@ -213,7 +213,7 @@ export function BakedBody({ notification }: { notification: NotificationPublic }
 				<>
 					<UserName
 						name={
-							notification.connection?.sender?.full_name || notification.connection?.receiver?.full_name || "Someone"
+							notification.connection?.receiver?.full_name || "Someone"
 						}
 					/>{" "}
 					accepted your request.
@@ -237,7 +237,6 @@ export function BakedBody({ notification }: { notification: NotificationPublic }
 						name={
 							notification.review?.client?.full_name ||
 							notification.review?.client_name ||
-							notification.connection?.receiver?.full_name ||
 							"Someone"
 						}
 					/>{" "}
