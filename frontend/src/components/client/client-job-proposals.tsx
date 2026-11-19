@@ -36,7 +36,7 @@ function ProposalCard({ proposal }: { proposal: ProposalPublic }) {
 				<Avatar className="size-11">
 					{proposal.freelancer_id && (
 						<AvatarImage
-							src={profile?.avatar_url || accountAvatarUrl(proposal.freelancer_id, "", "freelancer")}
+							src={accountAvatarUrl(proposal.freelancer_id, "", "freelancer")}
 							alt=""
 						/>
 					)}
