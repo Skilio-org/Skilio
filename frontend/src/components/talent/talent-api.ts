@@ -25,7 +25,7 @@ export function talentCardFromApi(profile: FreelancerProfilePublic): TalentCard 
 		bio: profile.bio ?? "",
 		skills: profile.skills ?? [],
 		category: profile.category ?? "",
-		avatarUrl: profile.avatar_url || accountAvatarUrl(profile.user_id, "", "freelancer"),
+		avatarUrl: accountAvatarUrl(profile.user_id, "", "freelancer"),
 	}
 }
 
