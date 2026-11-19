@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef } from "react"
 import { ClientProfilesService, type ConversationsPublic, ProfilesService, type UserPublic } from "@/client"
 import { chatKeys } from "@/data/chat-keys"
 import type { ConversationProfile } from "@/hooks/isClientProfile"
-import { toast } from "sonner"
 
 export function createFallbackProfile(user: UserPublic, role?: "client" | "freelancer"): ConversationProfile {
 	if (role === "freelancer") {
