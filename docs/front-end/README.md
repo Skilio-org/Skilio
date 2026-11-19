@@ -2,7 +2,7 @@
 
 ## 1. 42 Evaluation Point Ledger (4 Points Total + Core Mandatory)
 
-As Frontend Lead & UI/UX Architect, Osama Dahriz (`<omorakwant>`) claims **4 Points** of major evaluation modules plus the **Section III Mandatory Requirements**:
+As Frontend Lead & UI/UX Architect, Osama Dahriz (`<odahriz>`) claims **4 Points** of major evaluation modules plus the **Section III Mandatory Requirements**:
 
 | Module ID | Scope | Description | Points | Primary Documentation |
 | :--- | :--- | :--- | :---: | :--- |

@@ -1,7 +1,7 @@
 # 🎓 Frontend & UI/UX Evaluation Defense & Preparation Plan
 
 > **Role:** Frontend Lead & UI/UX Architect  
-> **Student:** Osama Dahriz (`<omorakwant>`)  
+> **Student:** Osama Dahriz (`<odahriz>`)  
 > **Project:** Freelancer Platform (*Skilio*) — `ft_transcendence`  
 > **Modules Covered:**  
 > • **IV.1 Major (2 Pts):** Web — Modern Frontend Framework (React 19, TypeScript 6, Vite, Tailwind v4, TanStack)  
