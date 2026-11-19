@@ -99,7 +99,8 @@ function MessageBubbleRepresentation({
 	isDeleting?: boolean
 }) {
 	const role = useAccountRole()
-	const avatarUrl = useAccountAvatarUrl(message.sender_id, role)
+	const avatarRole = own ? role : undefined
+	const avatarUrl = useAccountAvatarUrl(message.sender_id, avatarRole);
 	const { messageSendState } = useWebSocket()
 	const sendState = messageSendState[message.id] ?? "sent"
 	const match = highlight ? message.content.toLowerCase().indexOf(highlight.toLowerCase()) : -1
