@@ -22,6 +22,7 @@ import { formatMessageTime } from "@/lib/format"
 import { useWebSocket } from "@/context/websocket-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAccountAvatarUrl } from "@/hooks/useAccountAvatar"
+import useAuth from "@/hooks/useAuth"
 import { workspaceStyles } from "../dashboard/dashboard-header"
 
 function NotificationIcon({ item }: { item: NotificationPublic }) {
@@ -140,7 +141,11 @@ function NotificationActions({ notification, onMarkAsRead }: NotificationActionP
 						className={cn(workspaceStyles.primaryAction, "border-none h-7 min-w-[76px] p-0 text-xs shrink-0")}
 						// className="inline-flex h-7 min-w-[76px] items-center justify-center gap-1.5 rounded-md border-0 border-none bg-primary px-2.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
 					>
-						{acceptConnection.isPending ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3 text-black" />}
+						{acceptConnection.isPending ? (
+							<Loader2 className="size-3 animate-spin" />
+						) : (
+							<Check className="size-3 text-black" />
+						)}
 						Accept
 					</button>
 					<button
@@ -300,9 +305,7 @@ export function NotificationBody({
 }
 
 function navigateToRecepient(id: string, role: string, navigate: ReturnType<typeof useNavigate>) {
-
-	if (role === "client")
-		void navigate({ to: `/talent/${id}` })
+	if (role === "client") void navigate({ to: `/talent/${id}` })
 	else
 		void navigate({
 			to: role === "freelancer" ? "/freelancer-messages" : "/messages",
@@ -317,6 +320,7 @@ export function NotificationDropdown() {
 	const queryClient = useQueryClient()
 	const navigate = useNavigate()
 	const role = useAccountRole()
+	const { user } = useAuth()
 
 	if (!notifications || isPending) {
 		return (
@@ -331,7 +335,25 @@ export function NotificationDropdown() {
 		)
 	}
 
-	const unreadCount = notifications.filter((notification) => !notification.is_read).length
+	const visibleNotifications = notifications.filter((notification) => {
+		if (
+			(notification.event === "review_received" ||
+				notification.event === "proposal_rejected" ||
+				notification.event === "proposal_accepted" ||
+				(notification.connection && notification.connection.client_id !== user?.id)) &&
+			role === "client"
+		)
+			return false
+		if (
+			(notification.event === "proposal_received" ||
+				(notification.connection && notification.connection.freelancer_id !== user?.id)) &&
+			role === "freelancer"
+		)
+			return false
+		return true
+	})
+
+	const unreadCount = visibleNotifications.filter((notification) => !notification.is_read).length
 	const markAsRead = (notificationId: string) => {
 		sendMessage({
 			type: "read_receipt",
@@ -370,16 +392,17 @@ export function NotificationDropdown() {
 					search: { userId: notification.chat_message?.sender_id },
 				})
 				break
-			case "connection_request": {
-				if (notification.connection?.status === "declined") {
-					return;
+			case "connection_request":
+				{
+					if (notification.connection?.status === "declined") {
+						return
+					}
+					if (notification.connection?.status === "pending") void navigate({ to: "/connects" })
+					else {
+						navigateToRecepient(notification.connection?.sender_id || "", role, navigate)
+					}
 				}
-				if (notification.connection?.status === "pending")
-					void navigate({ to: "/connects" })
-				else {
-					navigateToRecepient(notification.connection?.sender_id || "", role, navigate)
-				}
-			} break;
+				break
 			case "connection_accepted":
 				navigateToRecepient(notification.connection?.receiver_id || "", role, navigate)
 				break
@@ -467,48 +490,37 @@ export function NotificationDropdown() {
 
 				{/* Notifications */}
 				<div className="max-h-[420px] overflow-y-auto px-1.5 pb-1.5">
-					{notifications.length > 0 ? (
-						notifications.map((notification) => {
-							if (
-								(notification.event === "review_received" ||
-									notification.event === "proposal_rejected" ||
-									notification.event === "proposal_accepted") &&
-								role === "client"
-							)
-								return ""
-							if (notification.event === "proposal_received" && role === "freelancer") return ""
-
-							return (
-								<DropdownMenuItem
-									key={notification.id}
-									onSelect={(event) => {
-										event.preventDefault()
-										handleItemClick(notification)
-									}}
+					{visibleNotifications.length > 0 ? (
+						visibleNotifications.map((notification) => (
+							<DropdownMenuItem
+								key={notification.id}
+								onSelect={(event) => {
+									event.preventDefault()
+									handleItemClick(notification)
+								}}
+								className={cn(
+									"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
+									!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
+								)}
+							>
+								{/* Icon */}
+								{/* Emm this needs to change, if I have an avatar, I will just use the avatar. */}
+								<span
 									className={cn(
-										"group relative flex cursor-pointer items-start gap-3 rounded-lg px-3 py-3 mb-1 outline-none transition-colors focus:bg-surface-container",
-										!notification.is_read && "bg-primary/[0.035] dark:bg-primary/[0.055]",
+										"grid size-10 shrink-0 rounded place-items-center border transition-colors",
+										"border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container",
 									)}
 								>
-									{/* Icon */}
-									{/* Emm this needs to change, if I have an avatar, I will just use the avatar. */}
-									<span
-										className={cn(
-											"grid size-10 shrink-0 rounded place-items-center border transition-colors",
-											"border-outline-variant bg-surface-container-low text-on-surface-variant dark:border-border-subtle dark:bg-surface-container",
-										)}
-									>
-										<NotificationIcon item={notification} />
-									</span>
+									<NotificationIcon item={notification} />
+								</span>
 
-									{/* Body */}
-									<NotificationBody notification={notification} onMarkAsRead={markAsRead} />
+								{/* Body */}
+								<NotificationBody notification={notification} onMarkAsRead={markAsRead} />
 
-									{/* Unread dot */}
-									{!notification.is_read && <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />}
-								</DropdownMenuItem>
-							)
-						})
+								{/* Unread dot */}
+								{!notification.is_read && <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />}
+							</DropdownMenuItem>
+						))
 					) : (
 						<div className="px-6 py-12 text-center">
 							<span className="mx-auto grid size-10 place-items-center rounded-lg border border-outline-variant bg-surface-container-low text-outline dark:border-border-subtle">
@@ -524,7 +536,7 @@ export function NotificationDropdown() {
 					)}
 				</div>
 
-				{notifications.length > 0 && (
+				{visibleNotifications.length > 0 && (
 					<>
 						<DropdownMenuSeparator className="m-0 bg-outline-variant/60 dark:bg-border-subtle" />
 
