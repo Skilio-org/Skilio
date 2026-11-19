@@ -7,14 +7,9 @@ services:
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
       - --accesslog
-      - --log
-      - --log.level=DEBUG
-      - --api
-      - --api.insecure=true
     ports:
       - "${PROXY_PORT:-8080}:80"
       - "${HTTPS_PORT:-8443}:443"
-      - "8090:8080"
 
 
   db:
@@ -47,12 +42,10 @@ services:
       - traefik.http.routers.backend-http.middlewares=redirect-to-https
       - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
       - traefik.http.middlewares.redirect-to-https.redirectscheme.port=${HTTPS_PORT:-8443}
-      - traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true
 
       # HTTPS Router: serves the application over TLS on port 8443
       - traefik.http.routers.backend-https.rule=PathPrefix(`/`)
       - traefik.http.routers.backend-https.entrypoints=https
-      - traefik.http.routers.backend-https.service=backend
       - traefik.http.routers.backend-https.tls=true
 
 
