@@ -560,6 +560,27 @@ body.export-mode .hud {
   display: none !important;
 }
 
+body.all-mode {
+  overflow: auto;
+  background: #000;
+}
+body.all-mode .deck {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 1920px;
+  height: auto;
+  gap: 40px;
+}
+body.all-mode .slide {
+  display: block !important;
+  transform: none !important;
+}
+body.all-mode .hud {
+  display: none !important;
+}
+
 @page {
   size: 1920px 1080px;
   margin: 0;
@@ -1135,7 +1156,15 @@ body.export-mode .hud {
     function prev() { show(idx - 1); }
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get('export') === '1') {
+    if (params.get('all') === '1') {
+      document.body.classList.add('all-mode');
+      const batch = params.get('batch');
+      if (batch === '1') {
+        slides.forEach((s, i) => { if (i >= 5) s.remove(); });
+      } else if (batch === '2') {
+        slides.forEach((s, i) => { if (i < 5) s.remove(); });
+      }
+    } else if (params.get('export') === '1') {
       document.body.classList.add('export-mode');
       const s = parseInt(params.get('slide') || '1', 10) - 1;
       show(s);
