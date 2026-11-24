@@ -127,38 +127,28 @@
 ### Act V: Production DevOps, Cloud Infrastructure & Reliability (Slides 1–10)
 *Lead Speaker: `<aysadeq>` (Project Manager / DevOps Lead)*
 
-> **Design System & Style:** Dedicated Figma Slides section (`DevOps & Infrastructure`), matching Row 0 (`<arajma>`) and Row 1 open dark canvas (`#0A0D01` + `Orbs` glow), `Bricolage Grotesque` lime headers (`#B8EF0D`), `Inter` single-sentence copy, sharp `1px` lime-bordered visuals, and zero boxed clutter.
+> **Design & Delivery:** Rendered in `docs/devops/slides/` (`slide-01.png`–`slide-10.png` + `deck.html` + `skilio-devops-slides.pdf`) matching Row 0 (`<arajma>`) and Row 1 dark `#0A0D01` + `#B8EF0D` lime theme. Follows [`docs/devops/guides`](devops/guides) (`01 → 06`) order cleanly at a high level.
 
-* **Slide 1: Section Cover — `DevOps & Reliability`**
-  * Title + `Ayman · Project Manager & DevOps Lead` + 4-Pillar agenda (`1. Hosting & Access · 2. Safe Delivery · 3. Monitoring · 4. Safety & Recovery`).
-  * *Core Idea:* Taking Skilio from local team code to a reliable, live product on the internet.
+* **Slide 1: `DevOps & Reliability` (Section Cover)**
+  * Title + `Ayman · Project Manager & DevOps Lead` + tagline (*"From local code to live production."*) + 5-item agenda.
 * **Slide 2: `The Big Picture`**
-  * High-level system flow (`User → Gateway → App & DB → Monitoring & Backups`) + 3 open numbered goals (`01 Run Reliably`, `02 Ship Safely`, `03 Never Lose Data`).
-  * *Core Idea:* Turning local team code into a production platform that stays fast, online, and safe. *(Keep 5-point module mapping in Speaker Notes / `README.md` for Q&A.)*
-* **Slide 3: `Pillar 1: Cloud & Stability` (AWS EC2 & 2GB Swap)**
-  * Left big lime statement (*"Running 10 production containers cleanly on a 2GB cloud server — zero crashes."*) + right sharp lime-bordered visual (`AWS EC2 t3.small`, Elastic IP `16.192.59.166`, public ports `80/443`, hidden DB/Redis, `2GB RAM + 2GB Swap`).
-  * *Core Idea:* React builds spiked RAM and crashed; adding a 2GB swap buffer solved it cleanly.
-* **Slide 4: `Pillar 1: Gateway & HTTPS` (Traefik 3.6)**
-  * Two side-by-side comparison visuals (`Nginx: Manual configs & reloads` vs. `Traefik: Auto-discovers Docker + Free SSL`).
-  * *Core Idea:* Automatic container routing and Let's Encrypt HTTPS certificates with zero manual proxy edits.
-* **Slide 5: `Pillar 2: Packaging the App` (Docker & Multi-Stage)**
-  * Top arrow strip (`Bun Build → Static Bundle → Python 3.14 Runtime`) + 2 open numbered points (`01 One Command (make up)`, `02 Lean Production Image`).
-  * *Core Idea:* One shared Docker stack everywhere; throwing away build tools keeps production small and fast.
-* **Slide 6: `Pillar 2: Automated CI/CD` (Testing & Zero-Downtime)**
-  * 4 open columns (`01 Lint (Ruff/Bun)` $\rightarrow$ `02 173 Tests (83% cov)` $\rightarrow$ `03 SSH rsync` $\rightarrow$ `04 Zero-Downtime Swap`) + bottom takeaway line.
-  * *Core Idea:* Broken code never reaches `master`; merged updates go live in under 2 minutes without dropping users.
-* **Slide 7: `Pillar 3: Live Health & Status` (`/health` & `/status`)**
-  * Left plain-English statement (*"Real checks against Postgres, Redis & disk — not a fake 200 ping."*) + right sharp lime-bordered screenshot of the live `/status` page.
-  * *Core Idea:* Honest, auto-refreshing diagnostics visible to both users and evaluators.
-* **Slide 8: `Pillar 3: Monitoring & Alerts` (Prometheus & Grafana)**
-  * Left clean flow (`Prometheus Pull: App, DB, Containers`) + right real screenshot of the provisioned Grafana dashboards; bottom bar highlights the 4 anti-flapping alerts (`BackendDown`, `PostgresDown`, `HttpServerErrors`, `ContainerHighMemory`).
-  * *Core Idea:* Full visibility into traffic, DB load, and server memory — catching failures before users do.
-* **Slide 9: `Pillar 4: Backups & Recovery` (Daily Backups & Sub-5s DR)**
-  * Big focal stat **`< 5s`** (vs. 60s target) paired with `01 Automated Daily Backups` (02:00 UTC compressed snapshots, 7-day retention) and `02 Sandbox Verification Drill` (`dr-test.sh`).
-  * *Core Idea:* *"An untested backup isn't a backup"* — full sandbox recovery proven in under 5 seconds.
-* **Slide 10: `Problems Solved & Live Demo`**
-  * 3 open numbered lessons (`01 Proxy reloads → Traefik`, `02 Server secrets → SSH rsync`, `03 Untested backups → DR drills`) + `"Live Demo Next"` checklist (`skilio.works`, `/status`, Grafana, `make dr-test`).
-  * *Core Idea:* Practical engineering lessons solved, handing directly into the live production demo.
+  * High-level flow (`User Browser → AWS Server → App & API → DB & Cache → Watch & Save`) + 3 goals (`01 Run reliably`, `02 Ship safely`, `03 Never lose data`).
+* **Slide 3: `Docker & Multi-File Compose` (`Stage 01`)**
+  * Shared `compose.yml` splitting into local `override` (`make up`) vs. prod `deploy` (prod settings & DB locked) + multi-stage `Dockerfile` (`Bun` build $\rightarrow$ `Python 3.14 UV` runtime).
+* **Slide 4: `AWS Cloud & Stability` (`Stage 02`)**
+  * AWS EC2 `t3.small` (`16.192.59.166`, IaaS full control), external DB/Redis port lockdown, `make server-init`, and 2GB Swap stability preventing Vite OOM build crashes.
+* **Slide 5: `Zero-Touch CI/CD Pipeline` (`Stage 04`)**
+  * 4 open steps: `01 Quality Gate` (Ruff + TS), `02 173 Tests` (83% coverage), `03 SSH Sync` (`rsync` without GitHub tokens on AWS), `04 Live Swap` (migrations + `< 2 min` zero-downtime update).
+* **Slide 6: `Health Check & Public Status` (`Stage 05 · Detect`)**
+  * Real active checks (`/api/v1/health` testing Postgres `SELECT 1`, Redis `PING`, and disk capacity) powering the public `/status` page (auto-refreshing every 10s).
+* **Slide 7: `Backups & Disaster Recovery` (`Stage 05 · Protect & Verify`)**
+  * Hero `< 5s` verified recovery vs. `60s` target, backed by `01 Automated Daily Backups` (02:00 UTC `.sql.gz`, 7-day retention) and `02 Safe Sandbox Verification` (`make dr-test`).
+* **Slide 8: `Observability: Prometheus` (`Stage 06 · Collect`)**
+  * Pull-based scraping (`10s–15s`) across 3 layers (`FastAPI`, `Postgres Exporter`, `Google cAdvisor`) for app latency, SQL pool, and container CPU/RAM.
+* **Slide 9: `Observability: Grafana & Alerts` (`Stage 06 · Visualize & Alert`)**
+  * 3 provisioned Dashboards-as-Code (`FastAPI`, `PostgreSQL`, `Containers`) + 4 anti-flapping alerts (`BackendDown`, `PostgresDown`, `HttpServerErrors`, `ContainerHighMemory`).
+* **Slide 10: `DevOps: problems solved` & Live Demo**
+  * 3 real lessons (`01 Build crashes → 2GB Swap`, `02 Server secrets → SSH rsync`, `03 Silent failures → Alerts & <5s DR`) + Live Demo checklist (`skilio.works`, `/status`, Grafana, `make dr-test`).
 
 ---
 
