@@ -124,40 +124,40 @@
 
 ---
 
-### Act V: Production DevOps, Cloud Infrastructure & Reliability (Slides 33–42 — 10 High-Level Slides)
+### Act V: Production DevOps, Cloud Infrastructure & Reliability (Slides 1–10)
 *Lead Speaker: `<aysadeq>` (Project Manager / DevOps Lead)*
 
 > **Design System & Style:** Dedicated Figma Slides section (`DevOps & Infrastructure`), matching Row 0 (`<arajma>`) and Row 1 open dark canvas (`#0A0D01` + `Orbs` glow), `Bricolage Grotesque` lime headers (`#B8EF0D`), `Inter` single-sentence copy, sharp `1px` lime-bordered visuals, and zero boxed clutter.
 
-* **Slide 33 (DevOps 1): Section Cover — `DevOps & Reliability`**
-  * *Layout (Mirror Slide 2 / Slide 16):* Title + `Ayman · Project Manager & DevOps Lead` + 4-Pillar agenda (`1. Hosting & Access · 2. Safe Delivery · 3. Monitoring · 4. Safety & Recovery`).
+* **Slide 1: Section Cover — `DevOps & Reliability`**
+  * Title + `Ayman · Project Manager & DevOps Lead` + 4-Pillar agenda (`1. Hosting & Access · 2. Safe Delivery · 3. Monitoring · 4. Safety & Recovery`).
   * *Core Idea:* Taking Skilio from local team code to a reliable, live product on the internet.
-* **Slide 34 (DevOps 2): `The Big Picture`**
-  * *Layout (Mirror Slide 19 + Top Flow Strip):* High-level system flow (`User → Gateway → App & DB → Monitoring & Backups`) + 3 open numbered goals (`01 Run Reliably (Cloud & HTTPS)`, `02 Ship Safely (Docker & CI/CD)`, `03 Never Lose Data (Monitoring & DR)`).
-  * *Core Idea:* Turning local team code into a production platform that stays fast, online, and safe. *(Keep 5-point module mapping ready in Speaker Notes / `README.md` for Q&A.)*
-* **Slide 35 (DevOps 3): `Pillar 1: Cloud & Stability` (AWS EC2 & 2GB Swap)**
-  * *Layout (Mirror Slide 3 `Dual-Role`):* Left big lime statement (*"Running 10 production containers cleanly on a 2GB cloud server — zero crashes."*) + right sharp `1px` lime-bordered visual (`AWS EC2 t3.small`, Elastic IP `16.192.59.166`, public ports `80/443`, hidden DB/Redis, `2GB RAM + 2GB Swap`).
+* **Slide 2: `The Big Picture`**
+  * High-level system flow (`User → Gateway → App & DB → Monitoring & Backups`) + 3 open numbered goals (`01 Run Reliably`, `02 Ship Safely`, `03 Never Lose Data`).
+  * *Core Idea:* Turning local team code into a production platform that stays fast, online, and safe. *(Keep 5-point module mapping in Speaker Notes / `README.md` for Q&A.)*
+* **Slide 3: `Pillar 1: Cloud & Stability` (AWS EC2 & 2GB Swap)**
+  * Left big lime statement (*"Running 10 production containers cleanly on a 2GB cloud server — zero crashes."*) + right sharp lime-bordered visual (`AWS EC2 t3.small`, Elastic IP `16.192.59.166`, public ports `80/443`, hidden DB/Redis, `2GB RAM + 2GB Swap`).
   * *Core Idea:* React builds spiked RAM and crashed; adding a 2GB swap buffer solved it cleanly.
-* **Slide 36 (DevOps 4): `Pillar 1: Gateway & HTTPS` (Traefik 3.6)**
-  * *Layout (Mirror Slide 5 `Real-Time Engine`):* Two side-by-side sharp-bordered comparison cards (`Nginx: Manual configs & reloads` vs. `Traefik: Auto-discovers Docker + Free SSL`).
+* **Slide 4: `Pillar 1: Gateway & HTTPS` (Traefik 3.6)**
+  * Two side-by-side comparison visuals (`Nginx: Manual configs & reloads` vs. `Traefik: Auto-discovers Docker + Free SSL`).
   * *Core Idea:* Automatic container routing and Let's Encrypt HTTPS certificates with zero manual proxy edits.
-* **Slide 37 (DevOps 5): `Pillar 2: Packaging the App` (Docker & Multi-Stage)**
-  * *Layout (Mirror Slide 22 `Media upload & delivery`):* Top arrow strip (`Bun Build → Static Bundle → Python 3.14 Runtime`) + 2 open numbered points (`01 One Command (make up)`, `02 Lean Production Image`).
+* **Slide 5: `Pillar 2: Packaging the App` (Docker & Multi-Stage)**
+  * Top arrow strip (`Bun Build → Static Bundle → Python 3.14 Runtime`) + 2 open numbered points (`01 One Command (make up)`, `02 Lean Production Image`).
   * *Core Idea:* One shared Docker stack everywhere; throwing away build tools keeps production small and fast.
-* **Slide 38 (DevOps 6): `Pillar 2: Automated CI/CD` (Testing & Zero-Downtime)**
-  * *Layout (Mirror Slide 19 `01–04` Open Columns + Bottom Vertical Lime Bar):* `01 Lint (Ruff/Bun)` $\rightarrow$ `02 173 Tests (83% cov)` $\rightarrow$ `03 SSH rsync` $\rightarrow$ `04 Zero-Downtime Swap`.
+* **Slide 6: `Pillar 2: Automated CI/CD` (Testing & Zero-Downtime)**
+  * 4 open columns (`01 Lint (Ruff/Bun)` $\rightarrow$ `02 173 Tests (83% cov)` $\rightarrow$ `03 SSH rsync` $\rightarrow$ `04 Zero-Downtime Swap`) + bottom takeaway line.
   * *Core Idea:* Broken code never reaches `master`; merged updates go live in under 2 minutes without dropping users.
-* **Slide 39 (DevOps 7): `Pillar 3: Live Health & Status` (`/health` & `/status`)**
-  * *Layout (Mirror Slide 3 `Dual-Role`):* Left plain-English statement (*"Real checks against Postgres, Redis & disk — not a fake 200 ping."*) + right sharp lime-bordered screenshot of the live `/status` page.
+* **Slide 7: `Pillar 3: Live Health & Status` (`/health` & `/status`)**
+  * Left plain-English statement (*"Real checks against Postgres, Redis & disk — not a fake 200 ping."*) + right sharp lime-bordered screenshot of the live `/status` page.
   * *Core Idea:* Honest, auto-refreshing diagnostics visible to both users and evaluators.
-* **Slide 40 (DevOps 8): `Pillar 3: Monitoring & Alerts` (Prometheus & Grafana)**
-  * *Layout (Mirror Slide 5 `Real-Time Engine` + Bottom Lime Bar):* Left clean diagram (`Prometheus Pull: App, DB, Containers`) + right real screenshot of the provisioned Grafana dashboards; bottom bar highlights the 4 anti-flapping alerts (`BackendDown`, `PostgresDown`, `HttpServerErrors`, `ContainerHighMemory`).
+* **Slide 8: `Pillar 3: Monitoring & Alerts` (Prometheus & Grafana)**
+  * Left clean flow (`Prometheus Pull: App, DB, Containers`) + right real screenshot of the provisioned Grafana dashboards; bottom bar highlights the 4 anti-flapping alerts (`BackendDown`, `PostgresDown`, `HttpServerErrors`, `ContainerHighMemory`).
   * *Core Idea:* Full visibility into traffic, DB load, and server memory — catching failures before users do.
-* **Slide 41 (DevOps 9): `Pillar 4: Backups & Recovery` (Daily Backups & Sub-5s DR)**
-  * *Layout (Hero Stat + 2 Open Columns):* Big focal stat **`< 5s`** (vs. 60s subject target) paired with `01 Automated Daily Backups` (02:00 UTC compressed snapshots, 7-day retention) and `02 Sandbox Verification Drill` (`dr-test.sh`).
+* **Slide 9: `Pillar 4: Backups & Recovery` (Daily Backups & Sub-5s DR)**
+  * Big focal stat **`< 5s`** (vs. 60s target) paired with `01 Automated Daily Backups` (02:00 UTC compressed snapshots, 7-day retention) and `02 Sandbox Verification Drill` (`dr-test.sh`).
   * *Core Idea:* *"An untested backup isn't a backup"* — full sandbox recovery proven in under 5 seconds.
-* **Slide 42 (DevOps 10): `Problems Solved & Live Demo`**
-  * *Layout (Mirror Slide 26 `problems solved`):* 3 open numbered lessons (`01 2GB build crashes → Swap`, `02 Server secrets → SSH rsync`, `03 Silent failures → Alerts & DR drills`) + `"Live Demo Next"` checklist (`skilio.works`, `/status`, Grafana, `make dr-test`).
+* **Slide 10: `Problems Solved & Live Demo`**
+  * 3 open numbered lessons (`01 Proxy reloads → Traefik`, `02 Server secrets → SSH rsync`, `03 Untested backups → DR drills`) + `"Live Demo Next"` checklist (`skilio.works`, `/status`, Grafana, `make dr-test`).
   * *Core Idea:* Practical engineering lessons solved, handing directly into the live production demo.
 
 ---
