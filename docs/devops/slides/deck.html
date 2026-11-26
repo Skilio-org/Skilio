@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skilio — DevOps Presentation Slides (Act V)</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #0A0D01;
+  --lime: #B8EF0D;
+  --white: #FFFFFF;
+  --muted: #D6E0C2;
+  --dim: #8D9876;
+  --panel: #101504;
+  --panel-soft: rgba(16, 21, 4, 0.85);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #000;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--white);
+  overflow: hidden;
+}
+
+.deck {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.slide {
+  width: 1920px;
+  height: 1080px;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  display: none;
+  flex-shrink: 0;
+}
+
+.slide.active {
+  display: block;
+}
+
+/* Signature Skilio Glowing Orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb-ring-right {
+  width: 1380px;
+  height: 1380px;
+  right: -460px;
+  top: -150px;
+  background: radial-gradient(circle, rgba(10,13,1,0) 56%, rgba(112, 152, 5, 0.22) 76%, rgba(160, 215, 10, 0.52) 94%, rgba(10,13,1,0) 100%);
+  filter: blur(18px);
+}
+
+.orb-ring-left {
+  width: 1300px;
+  height: 1300px;
+  left: -480px;
+  top: -110px;
+  background: radial-gradient(circle, rgba(10,13,1,0) 55%, rgba(112, 152, 5, 0.20) 76%, rgba(160, 215, 10, 0.48) 93%, rgba(10,13,1,0) 100%);
+  filter: blur(20px);
+}
+
+.orb-bottom {
+  width: 1550px;
+  height: 1550px;
+  left: 185px;
+  top: 600px;
+  background: radial-gradient(circle, rgba(10,13,1,0) 54%, rgba(112, 152, 5, 0.22) 76%, rgba(162, 218, 12, 0.52) 95%, rgba(10,13,1,0) 100%);
+  filter: blur(16px);
+}
+
+.orb-top-right {
+  width: 1180px;
+  height: 1180px;
+  right: -280px;
+  bottom: -480px;
+  background: radial-gradient(circle, rgba(10,13,1,0) 55%, rgba(112, 152, 5, 0.18) 76%, rgba(155, 210, 10, 0.44) 94%, rgba(10,13,1,0) 100%);
+  filter: blur(20px);
+}
+
+.content-layer {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+/* Top Header matching Figma coordinates */
+.skilio-logo {
+  position: absolute;
+  left: 75px;
+  top: 72px;
+  width: 69px;
+  height: 75px;
+}
+
+.slide-title {
+  position: absolute;
+  left: 180px;
+  top: 74px;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 62px;
+  line-height: 1.15;
+  color: var(--lime);
+  letter-spacing: -0.02em;
+}
+
+.slide-tag {
+  position: absolute;
+  right: 90px;
+  top: 96px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  color: var(--muted);
+}
+
+/* Cover Slide (Slide 1) */
+.cover-wrap {
+  position: absolute;
+  left: 180px;
+  top: 295px;
+  width: 1480px;
+}
+
+.cover-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 112px;
+  line-height: 1.05;
+  color: var(--lime);
+  letter-spacing: -0.025em;
+  margin-bottom: 24px;
+}
+
+.cover-sub {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  color: var(--white);
+  margin-bottom: 18px;
+}
+
+.cover-tagline {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 32px;
+  color: var(--muted);
+  margin-bottom: 84px;
+}
+
+.cover-agenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 68px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 30px;
+  color: var(--muted);
+}
+
+.cover-agenda span b {
+  color: var(--lime);
+  font-weight: 600;
+}
+
+/* Flow Strip (Slide 2 & 5) */
+.flow-strip {
+  position: absolute;
+  left: 140px;
+  top: 230px;
+  width: 1640px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flow-box {
+  width: 268px;
+  height: 116px;
+  border: 2px solid rgba(184, 239, 13, 0.72);
+  border-radius: 22px;
+  background: rgba(12, 16, 3, 0.88);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+}
+
+.flow-box.highlight {
+  border-color: var(--lime);
+  border-width: 2.5px;
+}
+
+.flow-box-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 27px;
+  color: var(--white);
+}
+
+.flow-box.highlight .flow-box-title {
+  color: var(--lime);
+}
+
+.flow-box-sub {
+  font-size: 19px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.flow-arrow {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--lime);
+}
+
+/* Open Numbered Columns (01, 02, 03, 04) */
+.num-grid-3 {
+  position: absolute;
+  left: 140px;
+  width: 1640px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 72px;
+}
+
+.num-grid-4 {
+  position: absolute;
+  left: 140px;
+  width: 1640px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 54px;
+}
+
+.num-big {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 110px;
+  line-height: 1;
+  color: var(--lime);
+}
+
+.num-rule {
+  width: 90px;
+  height: 5px;
+  background: var(--lime);
+  border-radius: 3px;
+  margin: 22px 0 26px 0;
+}
+
+.num-heading {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 42px;
+  line-height: 1.15;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+
+.num-body {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* Bottom Vertical Bar Takeaway */
+.takeaway-wrap {
+  position: absolute;
+  left: 140px;
+  top: 905px;
+  width: 1640px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.takeaway-bar {
+  width: 8px;
+  height: 84px;
+  background: var(--lime);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.takeaway-text {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 42px;
+  line-height: 1.2;
+  color: var(--lime);
+}
+
+/* Two Sharp Visual Frames (Amine Row 0 style) */
+.two-col-headers {
+  position: absolute;
+  left: 180px;
+  top: 220px;
+  width: 1560px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 90px;
+  text-align: center;
+}
+
+.col-label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 44px;
+  color: var(--lime);
+}
+
+.two-col-frames {
+  position: absolute;
+  left: 180px;
+  top: 315px;
+  width: 1560px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 90px;
+}
+
+.sharp-frame {
+  border: 2px solid var(--lime);
+  background: rgba(13, 18, 4, 0.90);
+  padding: 48px;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+/* Split Statement + Right Visual (Amine Slide 3 style) */
+.left-statement {
+  position: absolute;
+  left: 90px;
+  top: 295px;
+  width: 790px;
+}
+
+.statement-big {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 52px;
+  line-height: 1.24;
+  color: var(--lime);
+  margin-bottom: 34px;
+}
+
+.statement-sub {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 29px;
+  line-height: 1.48;
+  color: var(--muted);
+}
+
+.right-visual {
+  position: absolute;
+  right: 90px;
+  top: 230px;
+  width: 860px;
+  border: 2px solid var(--lime);
+  background: rgba(14, 18, 5, 0.92);
+  padding: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Clean Visual Sub-Items */
+.vis-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 32px;
+  color: var(--white);
+  margin-bottom: 18px;
+}
+
+.vis-item {
+  border: 1.5px solid rgba(184, 239, 13, 0.35);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vis-item-name {
+  font-size: 25px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.vis-item-desc {
+  font-size: 21px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.pill {
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.pill-lime {
+  background: rgba(184, 239, 13, 0.16);
+  color: var(--lime);
+  border: 1px solid rgba(184, 239, 13, 0.6);
+}
+
+.pill-red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
+.pill-amber {
+  background: rgba(245, 158, 11, 0.15);
+  color: #FBBF24;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+/* Hero Stat Slide (Slide 7) */
+.hero-left {
+  position: absolute;
+  left: 140px;
+  top: 290px;
+  width: 680px;
+}
+
+.hero-stat {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 210px;
+  line-height: 0.95;
+  color: var(--lime);
+  letter-spacing: -0.04em;
+}
+
+.hero-caption {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 42px;
+  color: var(--white);
+  margin-top: 22px;
+}
+
+.hero-sub {
+  font-size: 28px;
+  color: var(--muted);
+  margin-top: 14px;
+  line-height: 1.4;
+}
+
+.hero-right {
+  position: absolute;
+  left: 920px;
+  top: 260px;
+  width: 860px;
+  display: flex;
+  flex-direction: column;
+  gap: 54px;
+}
+
+/* Live Demo Strip (Slide 10) */
+.demo-strip {
+  position: absolute;
+  left: 140px;
+  top: 760px;
+  width: 1640px;
+  border-top: 2px solid rgba(184, 239, 13, 0.4);
+  padding-top: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.demo-label {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 38px;
+  color: var(--lime);
+  white-space: nowrap;
+}
+
+.demo-items {
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap;
+}
+
+.demo-chip {
+  border: 2px solid var(--lime);
+  padding: 16px 26px;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--white);
+  background: rgba(184, 239, 13, 0.08);
+  white-space: nowrap;
+}
+
+/* Interactive Controls Overlay (hidden in print/screenshots) */
+.hud {
+  position: fixed;
+  bottom: 18px;
+  right: 24px;
+  z-index: 999;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: rgba(15, 20, 4, 0.85);
+  border: 1px solid rgba(184, 239, 13, 0.4);
+  padding: 8px 14px;
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.hud button {
+  background: var(--lime);
+  color: #0A0D01;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.export-mode .hud {
+  display: none !important;
+}
+
+body.all-mode {
+  overflow: auto;
+  background: #000;
+}
+body.all-mode .deck {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 1920px;
+  height: auto;
+  gap: 40px;
+}
+body.all-mode .slide {
+  display: block !important;
+  transform: none !important;
+}
+body.all-mode .hud {
+  display: none !important;
+}
+
+@page {
+  size: 1920px 1080px;
+  margin: 0;
+}
+
+@media print {
+  body { overflow: visible; background: var(--bg); }
+  .deck { display: block; width: auto; height: auto; }
+  .hud { display: none !important; }
+  .slide { display: block !important; page-break-after: always; transform: none !important; }
+}
+</style>
+</head>
+<body>
+  <div class="deck">
+    
+    <section class="slide active" id="slide-1">
+      <div class="orb orb-ring-left"></div>
+      <div class="orb orb-ring-right" style="opacity:0.45;"></div>
+      <div class="content-layer">
+        <svg viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg" class="skilio-logo">
+<path d="M12.4226 36.3446C21.7383 36.3368 24.9098 36.329 25.1011 36.3064C25.923 36.2099 26.7096 36.0349 27.4097 35.7939C28.2595 35.4993 29.2488 34.9767 29.9717 34.4392C32.3003 32.7064 33.7109 30.1851 33.9163 27.3846C33.9366 27.1233 33.9417 25.7887 33.9366 23.1098L33.9269 19.2162L33.8835 18.9751C33.6351 17.6459 33.0363 16.6516 32.062 15.9489C31.8062 15.7663 31.2151 15.4619 30.9486 15.3755C30.8116 15.3324 22.4883 13.2495 9.11445 9.91363C7.53973 9.51871 6.25047 9.19457 6.25039 9.19074C6.25547 9.1857 6.9175 9.28965 7.72668 9.42156C8.53336 9.55348 9.69801 9.74375 10.3119 9.84269C13.4599 10.3526 15.2636 10.6468 18.7591 11.2252C20.3091 11.4814 22.141 11.7831 22.831 11.8973C24.5054 12.1738 30.0786 13.0998 30.5428 13.1809C31.0247 13.2646 31.2659 13.2802 31.5499 13.2446C31.9784 13.1914 32.3945 13.0365 32.7726 12.793C32.9577 12.6712 33.3175 12.3084 33.4574 12.1029C33.6144 11.8721 33.782 11.5068 33.8609 11.2202L33.9292 10.9714L33.9366 5.48441L33.9421 0L21.4939 0.00496134C14.6505 0.0075004 9.0025 0.0128517 8.92945 0.0179298C8.69098 0.0357033 8.21899 0.106485 7.84606 0.180078C5.95109 0.55043 4.12727 1.56531 2.71684 3.03156C1.27344 4.53836 0.349922 6.49156 0.091172 8.58687C0.0176173 9.18051 0 9.51297 0 10.4161V11.3037L0.0709377 11.3545C0.147071 11.4128 1.24039 12.1611 2.19422 12.8105C3.46766 13.6781 4.51535 14.3937 6.25305 15.5834C6.78324 15.9462 7.55453 16.4737 7.96547 16.7553C8.37645 17.0369 9.15274 17.567 9.69047 17.9348C10.2283 18.3027 10.9867 18.8228 11.3773 19.0891C11.768 19.3555 12.5443 19.8881 13.1023 20.2686C14.2287 21.0373 15.0073 21.5702 16.8693 22.8463C17.5593 23.318 18.3684 23.8708 18.6653 24.0738C18.9596 24.2768 19.5889 24.7058 20.0607 25.0305C20.53 25.3527 21.2303 25.8322 21.6133 26.096C21.9964 26.3598 22.6482 26.8087 23.0591 27.0927C23.47 27.3769 24.2135 27.8892 24.7082 28.2291C26.4509 29.4315 27.0927 29.8807 27.0927 29.8985C27.0926 29.906 27.0545 29.8908 27.0115 29.863C26.6107 29.6195 20.5553 26.1516 14.7385 22.831C13.9648 22.3896 12.9373 21.8009 12.4554 21.5245C11.9734 21.2479 10.8725 20.6164 10.0075 20.1218C9.14242 19.6271 7.80789 18.8608 7.03926 18.422C3.20887 16.2277 3.44215 16.3521 3.04641 16.2735C2.75215 16.2126 2.17383 16.2329 1.90238 16.309C1.41281 16.4511 0.928204 16.7732 0.603477 17.1715C0.337188 17.5012 0.190118 17.8183 0.0557035 18.3407L0.0148833 18.5059L0.00726581 27.43L0 36.3517L12.4226 36.3446Z" fill="#B8EF0D"/>
+</svg>
+        <div class="cover-wrap">
+          <div class="cover-title">DevOps &amp; Reliability</div>
+          <div class="cover-sub">Ayman &middot; Project Manager &amp; DevOps Lead</div>
+          <div class="cover-tagline">From local code to live production.</div>
+          <div class="cover-agenda">
+            <span><b>1.</b> Docker &amp; Cloud</span>
+            <span><b>2.</b> CI/CD Automation</span>
+            <span><b>3.</b> Health &amp; Backups</span>
+            <span><b>4.</b> Observability</span>
+            <span><b>5.</b> Live Demo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="slide" id="slide-2">
+      <div class="orb orb-bottom"></div>
+      <div class="content-layer">
+        <svg viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg" class="skilio-logo">
+<path d="M12.4226 36.3446C21.7383 36.3368 24.9098 36.329 25.1011 36.3064C25.923 36.2099 26.7096 36.0349 27.4097 35.7939C28.2595 35.4993 29.2488 34.9767 29.9717 34.4392C32.3003 32.7064 33.7109 30.1851 33.9163 27.3846C33.9366 27.1233 33.9417 25.7887 33.9366 23.1098L33.9269 19.2162L33.8835 18.9751C33.6351 17.6459 33.0363 16.6516 32.062 15.9489C31.8062 15.7663 31.2151 15.4619 30.9486 15.3755C30.8116 15.3324 22.4883 13.2495 9.11445 9.91363C7.53973 9.51871 6.25047 9.19457 6.25039 9.19074C6.25547 9.1857 6.9175 9.28965 7.72668 9.42156C8.53336 9.55348 9.69801 9.74375 10.3119 9.84269C13.4599 10.3526 15.2636 10.6468 18.7591 11.2252C20.3091 11.4814 22.141 11.7831 22.831 11.8973C24.5054 12.1738 30.0786 13.0998 30.5428 13.1809C31.0247 13.2646 31.2659 13.2802 31.5499 13.2446C31.9784 13.1914 32.3945 13.0365 32.7726 12.793C32.9577 12.6712 33.3175 12.3084 33.4574 12.1029C33.6144 11.8721 33.782 11.5068 33.8609 11.2202L33.9292 10.9714L33.9366 5.48441L33.9421 0L21.4939 0.00496134C14.6505 0.0075004 9.0025 0.0128517 8.92945 0.0179298C8.69098 0.0357033 8.21899 0.106485 7.84606 0.180078C5.95109 0.55043 4.12727 1.56531 2.71684 3.03156C1.27344 4.53836 0.349922 6.49156 0.091172 8.58687C0.0176173 9.18051 0 9.51297 0 10.4161V11.3037L0.0709377 11.3545C0.147071 11.4128 1.24039 12.1611 2.19422 12.8105C3.46766 13.6781 4.51535 14.3937 6.25305 15.5834C6.78324 15.9462 7.55453 16.4737 7.96547 16.7553C8.37645 17.0369 9.15274 17.567 9.69047 17.9348C10.2283 18.3027 10.9867 18.8228 11.3773 19.0891C11.768 19.3555 12.5443 19.8881 13.1023 20.2686C14.2287 21.0373 15.0073 21.5702 16.8693 22.8463C17.5593 23.318 18.3684 23.8708 18.6653 24.0738C18.9596 24.2768 19.5889 24.7058 20.0607 25.0305C20.53 25.3527 21.2303 25.8322 21.6133 26.096C21.9964 26.3598 22.6482 26.8087 23.0591 27.0927C23.47 27.3769 24.2135 27.8892 24.7082 28.2291C26.4509 29.4315 27.0927 29.8807 27.0927 29.8985C27.0926 29.906 27.0545 29.8908 27.0115 29.863C26.6107 29.6195 20.5553 26.1516 14.7385 22.831C13.9648 22.3896 12.9373 21.8009 12.4554 21.5245C11.9734 21.2479 10.8725 20.6164 10.0075 20.1218C9.14242 19.6271 7.80789 18.8608 7.03926 18.422C3.20887 16.2277 3.44215 16.3521 3.04641 16.2735C2.75215 16.2126 2.17383 16.2329 1.90238 16.309C1.41281 16.4511 0.928204 16.7732 0.603477 17.1715C0.337188 17.5012 0.190118 17.8183 0.0557035 18.3407L0.0148833 18.5059L0.00726581 27.43L0 36.3517L12.4226 36.3446Z" fill="#B8EF0D"/>
+</svg>
+        <h1 class="slide-title">The Big Picture</h1>
+
+        <div class="flow-strip">
+          <div class="flow-box">
+            <div class="flow-box-title">User Browser</div>
+            <div class="flow-box-sub">skilio.works</div>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">
+            <div class="flow-box-title">AWS Server</div>
+            <div class="flow-box-sub">Firewall &amp; Proxy</div>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box highlight">
+            <div class="flow-box-title">App &amp; API</div>
+            <div class="flow-box-sub">FastAPI + React</div>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">
+            <div class="flow-box-title">DB &amp; Cache</div>
+            <div class="flow-box-sub">Postgres + Redis</div>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box">
+            <div class="flow-box-title">Watch &amp; Save</div>
+            <div class="flow-box-sub">Metrics + Backups</div>
+          </div>
+        </div>
+
+        <div class="num-grid-3" style="top: 430px;">
+          <div>
+            <div class="num-big">01</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">Run reliably</div>
+            <div class="num-body">Live on AWS with isolated databases and firewall rules.</div>
+          </div>
+          <div>
+            <div class="num-big">02</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">Ship safely</div>
+            <div class="num-body">Every change is tested in Docker before reaching production.</div>
+          </div>
+          <div>
+            <div class="num-big">03</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">Never lose data</div>
+            <div class="num-body">24/7 monitoring paired with daily verified backups.</div>
+          </div>
+        </div>
+
+        <div class="takeaway-wrap">
+          <div class="takeaway-bar"></div>
+          <div class="takeaway-text">One shared architecture: fast to ship, easy to watch, safe to recover.</div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="slide" id="slide-3">
+      <div class="orb orb-top-right"></div>
+      <div class="content-layer">
+        <svg viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg" class="skilio-logo">
+<path d="M12.4226 36.3446C21.7383 36.3368 24.9098 36.329 25.1011 36.3064C25.923 36.2099 26.7096 36.0349 27.4097 35.7939C28.2595 35.4993 29.2488 34.9767 29.9717 34.4392C32.3003 32.7064 33.7109 30.1851 33.9163 27.3846C33.9366 27.1233 33.9417 25.7887 33.9366 23.1098L33.9269 19.2162L33.8835 18.9751C33.6351 17.6459 33.0363 16.6516 32.062 15.9489C31.8062 15.7663 31.2151 15.4619 30.9486 15.3755C30.8116 15.3324 22.4883 13.2495 9.11445 9.91363C7.53973 9.51871 6.25047 9.19457 6.25039 9.19074C6.25547 9.1857 6.9175 9.28965 7.72668 9.42156C8.53336 9.55348 9.69801 9.74375 10.3119 9.84269C13.4599 10.3526 15.2636 10.6468 18.7591 11.2252C20.3091 11.4814 22.141 11.7831 22.831 11.8973C24.5054 12.1738 30.0786 13.0998 30.5428 13.1809C31.0247 13.2646 31.2659 13.2802 31.5499 13.2446C31.9784 13.1914 32.3945 13.0365 32.7726 12.793C32.9577 12.6712 33.3175 12.3084 33.4574 12.1029C33.6144 11.8721 33.782 11.5068 33.8609 11.2202L33.9292 10.9714L33.9366 5.48441L33.9421 0L21.4939 0.00496134C14.6505 0.0075004 9.0025 0.0128517 8.92945 0.0179298C8.69098 0.0357033 8.21899 0.106485 7.84606 0.180078C5.95109 0.55043 4.12727 1.56531 2.71684 3.03156C1.27344 4.53836 0.349922 6.49156 0.091172 8.58687C0.0176173 9.18051 0 9.51297 0 10.4161V11.3037L0.0709377 11.3545C0.147071 11.4128 1.24039 12.1611 2.19422 12.8105C3.46766 13.6781 4.51535 14.3937 6.25305 15.5834C6.78324 15.9462 7.55453 16.4737 7.96547 16.7553C8.37645 17.0369 9.15274 17.567 9.69047 17.9348C10.2283 18.3027 10.9867 18.8228 11.3773 19.0891C11.768 19.3555 12.5443 19.8881 13.1023 20.2686C14.2287 21.0373 15.0073 21.5702 16.8693 22.8463C17.5593 23.318 18.3684 23.8708 18.6653 24.0738C18.9596 24.2768 19.5889 24.7058 20.0607 25.0305C20.53 25.3527 21.2303 25.8322 21.6133 26.096C21.9964 26.3598 22.6482 26.8087 23.0591 27.0927C23.47 27.3769 24.2135 27.8892 24.7082 28.2291C26.4509 29.4315 27.0927 29.8807 27.0927 29.8985C27.0926 29.906 27.0545 29.8908 27.0115 29.863C26.6107 29.6195 20.5553 26.1516 14.7385 22.831C13.9648 22.3896 12.9373 21.8009 12.4554 21.5245C11.9734 21.2479 10.8725 20.6164 10.0075 20.1218C9.14242 19.6271 7.80789 18.8608 7.03926 18.422C3.20887 16.2277 3.44215 16.3521 3.04641 16.2735C2.75215 16.2126 2.17383 16.2329 1.90238 16.309C1.41281 16.4511 0.928204 16.7732 0.603477 17.1715C0.337188 17.5012 0.190118 17.8183 0.0557035 18.3407L0.0148833 18.5059L0.00726581 27.43L0 36.3517L12.4226 36.3446Z" fill="#B8EF0D"/>
+</svg>
+        <h1 class="slide-title">Docker &amp; Multi-File Compose</h1>
+        <div class="slide-tag">Stage 01 &middot; Packaging</div>
+
+        <div class="two-col-headers">
+          <div class="col-label">One Base, Two Modes</div>
+          <div class="col-label">Multi-Stage Image</div>
+        </div>
+
+        <div class="two-col-frames">
+          <div class="sharp-frame">
+            <div>
+              <div class="vis-title" style="color:var(--lime); margin-bottom:26px;">compose.yml (Shared Core)</div>
+              <div style="display:flex; flex-direction:column; gap:20px;">
+                <div class="vis-item">
+                  <div>
+                    <div class="vis-item-name">compose.override.yml</div>
+                    <div class="vis-item-desc">Local dev: live reload, Mailpit &amp; debug ports</div>
+                  </div>
+                  <span class="pill pill-lime">make up</span>
+                </div>
+                <div class="vis-item">
+                  <div>
+                    <div class="vis-item-name">compose.deploy.yml</div>
+                    <div class="vis-item-desc">AWS prod: prod settings, DB &amp; Redis locked</div>
+                  </div>
+                  <span class="pill pill-lime">Production</span>
+                </div>
+              </div>
+            </div>
+            <div class="num-body" style="font-size:24px; margin-top:24px;">
+              Same containers everywhere &mdash; zero &ldquo;it works on my machine&rdquo; bugs.
+            </div>
+          </div>
+
+          <div class="sharp-frame">
+            <div>
+              <div class="vis-title" style="color:var(--lime); margin-bottom:26px;">backend/Dockerfile</div>
+              <div style="display:flex; flex-direction:column; gap:20px;">
+                <div class="vis-item">
+                  <div>
+                    <div class="vis-item-name">Stage 1 &middot; Bun Builder</div>
+                    <div class="vis-item-desc">Compiles React 19 UI bundle, then discarded</div>
+                  </div>
+                  <span class="pill pill-amber">Build only</span>
+                </div>
+                <div class="vis-item">
+                  <div>
+                    <div class="vis-item-name">Stage 2 &middot; Python 3.14 UV</div>
+                    <div class="vis-item-desc">Copies final static UI + FastAPI runtime only</div>
+                  </div>
+                  <span class="pill pill-lime">Lean Prod</span>
+                </div>
+              </div>
+            </div>
+            <div class="num-body" style="font-size:24px; margin-top:24px;">
+              Build tools stay out of production &mdash; smaller image, smaller attack surface.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="slide" id="slide-4">
+      <div class="orb orb-ring-left"></div>
+      <div class="content-layer">
+        <svg viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg" class="skilio-logo">
+<path d="M12.4226 36.3446C21.7383 36.3368 24.9098 36.329 25.1011 36.3064C25.923 36.2099 26.7096 36.0349 27.4097 35.7939C28.2595 35.4993 29.2488 34.9767 29.9717 34.4392C32.3003 32.7064 33.7109 30.1851 33.9163 27.3846C33.9366 27.1233 33.9417 25.7887 33.9366 23.1098L33.9269 19.2162L33.8835 18.9751C33.6351 17.6459 33.0363 16.6516 32.062 15.9489C31.8062 15.7663 31.2151 15.4619 30.9486 15.3755C30.8116 15.3324 22.4883 13.2495 9.11445 9.91363C7.53973 9.51871 6.25047 9.19457 6.25039 9.19074C6.25547 9.1857 6.9175 9.28965 7.72668 9.42156C8.53336 9.55348 9.69801 9.74375 10.3119 9.84269C13.4599 10.3526 15.2636 10.6468 18.7591 11.2252C20.3091 11.4814 22.141 11.7831 22.831 11.8973C24.5054 12.1738 30.0786 13.0998 30.5428 13.1809C31.0247 13.2646 31.2659 13.2802 31.5499 13.2446C31.9784 13.1914 32.3945 13.0365 32.7726 12.793C32.9577 12.6712 33.3175 12.3084 33.4574 12.1029C33.6144 11.8721 33.782 11.5068 33.8609 11.2202L33.9292 10.9714L33.9366 5.48441L33.9421 0L21.4939 0.00496134C14.6505 0.0075004 9.0025 0.0128517 8.92945 0.0179298C8.69098 0.0357033 8.21899 0.106485 7.84606 0.180078C5.95109 0.55043 4.12727 1.56531 2.71684 3.03156C1.27344 4.53836 0.349922 6.49156 0.091172 8.58687C0.0176173 9.18051 0 9.51297 0 10.4161V11.3037L0.0709377 11.3545C0.147071 11.4128 1.24039 12.1611 2.19422 12.8105C3.46766 13.6781 4.51535 14.3937 6.25305 15.5834C6.78324 15.9462 7.55453 16.4737 7.96547 16.7553C8.37645 17.0369 9.15274 17.567 9.69047 17.9348C10.2283 18.3027 10.9867 18.8228 11.3773 19.0891C11.768 19.3555 12.5443 19.8881 13.1023 20.2686C14.2287 21.0373 15.0073 21.5702 16.8693 22.8463C17.5593 23.318 18.3684 23.8708 18.6653 24.0738C18.9596 24.2768 19.5889 24.7058 20.0607 25.0305C20.53 25.3527 21.2303 25.8322 21.6133 26.096C21.9964 26.3598 22.6482 26.8087 23.0591 27.0927C23.47 27.3769 24.2135 27.8892 24.7082 28.2291C26.4509 29.4315 27.0927 29.8807 27.0927 29.8985C27.0926 29.906 27.0545 29.8908 27.0115 29.863C26.6107 29.6195 20.5553 26.1516 14.7385 22.831C13.9648 22.3896 12.9373 21.8009 12.4554 21.5245C11.9734 21.2479 10.8725 20.6164 10.0075 20.1218C9.14242 19.6271 7.80789 18.8608 7.03926 18.422C3.20887 16.2277 3.44215 16.3521 3.04641 16.2735C2.75215 16.2126 2.17383 16.2329 1.90238 16.309C1.41281 16.4511 0.928204 16.7732 0.603477 17.1715C0.337188 17.5012 0.190118 17.8183 0.0557035 18.3407L0.0148833 18.5059L0.00726581 27.43L0 36.3517L12.4226 36.3446Z" fill="#B8EF0D"/>
+</svg>
+        <h1 class="slide-title">AWS Cloud &amp; Stability</h1>
+        <div class="slide-tag">Stage 02 &middot; Infrastructure</div>
+
+        <div class="left-statement">
+          <div class="statement-big">Running 10 production containers on a 2GB AWS server &mdash; with zero crashes.</div>
+          <div class="statement-sub">
+            We chose AWS EC2 (IaaS) for full OS, firewall, and Docker control.<br><br>
+            Frontend builds spiked RAM above 2GB and crashed &mdash; adding a 2GB Swap safety buffer fixed it cleanly.
+          </div>
+        </div>
+
+        <div class="right-visual">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="vis-title" style="color:var(--lime); margin:0;">AWS EC2 &middot; t3.small</div>
+            <span class="pill pill-lime">16.192.59.166</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:18px;">
+            <div class="vis-item">
+              <div>
+                <div class="vis-item-name">Public Ports (80 / 443 / 22)</div>
+                <div class="vis-item-desc">Web traffic &amp; key-only SSH</div>
+              </div>
+              <span class="pill pill-lime">Open</span>
+            </div>
+            <div class="vis-item">
+              <div>
+                <div class="vis-item-name">Database &amp; Cache (5432 / 6379)</div>
+                <div class="vis-item-desc">Isolated inside private Docker network</div>
+              </div>
+              <span class="pill pill-red">Blocked Externally</span>
+            </div>
+            <div class="vis-item">
+              <div>
+                <div class="vis-item-name">Memory Protection</div>
+                <div class="vis-item-desc">2GB Physical RAM + 2GB Swap buffer</div>
+              </div>
+              <span class="pill pill-lime">0 OOM Crashes</span>
+            </div>
+            <div class="vis-item">
+              <div>
+                <div class="vis-item-name">Automated Server Bootstrap</div>
+                <div class="vis-item-desc">Single idempotent setup script</div>
+              </div>
+              <span class="pill pill-lime">make server-init</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="slide" id="slide-5">
+      <div class="orb orb-bottom"></div>
+      <div class="content-layer">
+        <svg viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg" class="skilio-logo">
+<path d="M12.4226 36.3446C21.7383 36.3368 24.9098 36.329 25.1011 36.3064C25.923 36.2099 26.7096 36.0349 27.4097 35.7939C28.2595 35.4993 29.2488 34.9767 29.9717 34.4392C32.3003 32.7064 33.7109 30.1851 33.9163 27.3846C33.9366 27.1233 33.9417 25.7887 33.9366 23.1098L33.9269 19.2162L33.8835 18.9751C33.6351 17.6459 33.0363 16.6516 32.062 15.9489C31.8062 15.7663 31.2151 15.4619 30.9486 15.3755C30.8116 15.3324 22.4883 13.2495 9.11445 9.91363C7.53973 9.51871 6.25047 9.19457 6.25039 9.19074C6.25547 9.1857 6.9175 9.28965 7.72668 9.42156C8.53336 9.55348 9.69801 9.74375 10.3119 9.84269C13.4599 10.3526 15.2636 10.6468 18.7591 11.2252C20.3091 11.4814 22.141 11.7831 22.831 11.8973C24.5054 12.1738 30.0786 13.0998 30.5428 13.1809C31.0247 13.2646 31.2659 13.2802 31.5499 13.2446C31.9784 13.1914 32.3945 13.0365 32.7726 12.793C32.9577 12.6712 33.3175 12.3084 33.4574 12.1029C33.6144 11.8721 33.782 11.5068 33.8609 11.2202L33.9292 10.9714L33.9366 5.48441L33.9421 0L21.4939 0.00496134C14.6505 0.0075004 9.0025 0.0128517 8.92945 0.0179298C8.69098 0.0357033 8.21899 0.106485 7.84606 0.180078C5.95109 0.55043 4.12727 1.56531 2.71684 3.03156C1.27344 4.53836 0.349922 6.49156 0.091172 8.58687C0.0176173 9.18051 0 9.51297 0 10.4161V11.3037L0.0709377 11.3545C0.147071 11.4128 1.24039 12.1611 2.19422 12.8105C3.46766 13.6781 4.51535 14.3937 6.25305 15.5834C6.78324 15.9462 7.55453 16.4737 7.96547 16.7553C8.37645 17.0369 9.15274 17.567 9.69047 17.9348C10.2283 18.3027 10.9867 18.8228 11.3773 19.0891C11.768 19.3555 12.5443 19.8881 13.1023 20.2686C14.2287 21.0373 15.0073 21.5702 16.8693 22.8463C17.5593 23.318 18.3684 23.8708 18.6653 24.0738C18.9596 24.2768 19.5889 24.7058 20.0607 25.0305C20.53 25.3527 21.2303 25.8322 21.6133 26.096C21.9964 26.3598 22.6482 26.8087 23.0591 27.0927C23.47 27.3769 24.2135 27.8892 24.7082 28.2291C26.4509 29.4315 27.0927 29.8807 27.0927 29.8985C27.0926 29.906 27.0545 29.8908 27.0115 29.863C26.6107 29.6195 20.5553 26.1516 14.7385 22.831C13.9648 22.3896 12.9373 21.8009 12.4554 21.5245C11.9734 21.2479 10.8725 20.6164 10.0075 20.1218C9.14242 19.6271 7.80789 18.8608 7.03926 18.422C3.20887 16.2277 3.44215 16.3521 3.04641 16.2735C2.75215 16.2126 2.17383 16.2329 1.90238 16.309C1.41281 16.4511 0.928204 16.7732 0.603477 17.1715C0.337188 17.5012 0.190118 17.8183 0.0557035 18.3407L0.0148833 18.5059L0.00726581 27.43L0 36.3517L12.4226 36.3446Z" fill="#B8EF0D"/>
+</svg>
+        <h1 class="slide-title">Zero-Touch CI/CD Pipeline</h1>
+        <div class="slide-tag">Stage 04 &middot; GitHub Actions</div>
+
+        <div class="num-grid-4" style="top: 265px;">
+          <div>
+            <div class="num-big">01</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">Quality Gate</div>
+            <div class="num-body">Ruff syntax checks and TypeScript compile run on every PR.</div>
+          </div>
+          <div>
+            <div class="num-big">02</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">173 Tests</div>
+            <div class="num-body">Pytest suite enforces a 70% gate (backend hits 83% coverage).</div>
+          </div>
+          <div>
+            <div class="num-big">03</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">SSH Sync</div>
+            <div class="num-body">Runner pushes diffs via rsync &mdash; zero GitHub tokens stored on AWS.</div>
+          </div>
+          <div>
+            <div class="num-big">04</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">Live Swap</div>
+            <div class="num-body">Migrations run first, then new container swaps in with zero downtime.</div>
+          </div>
+        </div>
+
+        <div class="takeaway-wrap">
+          <div class="takeaway-bar"></div>
+          <div class="takeaway-text">Broken code never reaches master. Updates go live in under 2 minutes.</div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="slide" id="slide-6">
+      <div class="orb orb-ring-right"></div>
+      <div class="content-layer">
+        <svg viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg" class="skilio-logo">
+<path d="M12.4226 36.3446C21.7383 36.3368 24.9098 36.329 25.1011 36.3064C25.923 36.2099 26.7096 36.0349 27.4097 35.7939C28.2595 35.4993 29.2488 34.9767 29.9717 34.4392C32.3003 32.7064 33.7109 30.1851 33.9163 27.3846C33.9366 27.1233 33.9417 25.7887 33.9366 23.1098L33.9269 19.2162L33.8835 18.9751C33.6351 17.6459 33.0363 16.6516 32.062 15.9489C31.8062 15.7663 31.2151 15.4619 30.9486 15.3755C30.8116 15.3324 22.4883 13.2495 9.11445 9.91363C7.53973 9.51871 6.25047 9.19457 6.25039 9.19074C6.25547 9.1857 6.9175 9.28965 7.72668 9.42156C8.53336 9.55348 9.69801 9.74375 10.3119 9.84269C13.4599 10.3526 15.2636 10.6468 18.7591 11.2252C20.3091 11.4814 22.141 11.7831 22.831 11.8973C24.5054 12.1738 30.0786 13.0998 30.5428 13.1809C31.0247 13.2646 31.2659 13.2802 31.5499 13.2446C31.9784 13.1914 32.3945 13.0365 32.7726 12.793C32.9577 12.6712 33.3175 12.3084 33.4574 12.1029C33.6144 11.8721 33.782 11.5068 33.8609 11.2202L33.9292 10.9714L33.9366 5.48441L33.9421 0L21.4939 0.00496134C14.6505 0.0075004 9.0025 0.0128517 8.92945 0.0179298C8.69098 0.0357033 8.21899 0.106485 7.84606 0.180078C5.95109 0.55043 4.12727 1.56531 2.71684 3.03156C1.27344 4.53836 0.349922 6.49156 0.091172 8.58687C0.0176173 9.18051 0 9.51297 0 10.4161V11.3037L0.0709377 11.3545C0.147071 11.4128 1.24039 12.1611 2.19422 12.8105C3.46766 13.6781 4.51535 14.3937 6.25305 15.5834C6.78324 15.9462 7.55453 16.4737 7.96547 16.7553C8.37645 17.0369 9.15274 17.567 9.69047 17.9348C10.2283 18.3027 10.9867 18.8228 11.3773 19.0891C11.768 19.3555 12.5443 19.8881 13.1023 20.2686C14.2287 21.0373 15.0073 21.5702 16.8693 22.8463C17.5593 23.318 18.3684 23.8708 18.6653 24.0738C18.9596 24.2768 19.5889 24.7058 20.0607 25.0305C20.53 25.3527 21.2303 25.8322 21.6133 26.096C21.9964 26.3598 22.6482 26.8087 23.0591 27.0927C23.47 27.3769 24.2135 27.8892 24.7082 28.2291C26.4509 29.4315 27.0927 29.8807 27.0927 29.8985C27.0926 29.906 27.0545 29.8908 27.0115 29.863C26.6107 29.6195 20.5553 26.1516 14.7385 22.831C13.9648 22.3896 12.9373 21.8009 12.4554 21.5245C11.9734 21.2479 10.8725 20.6164 10.0075 20.1218C9.14242 19.6271 7.80789 18.8608 7.03926 18.422C3.20887 16.2277 3.44215 16.3521 3.04641 16.2735C2.75215 16.2126 2.17383 16.2329 1.90238 16.309C1.41281 16.4511 0.928204 16.7732 0.603477 17.1715C0.337188 17.5012 0.190118 17.8183 0.0557035 18.3407L0.0148833 18.5059L0.00726581 27.43L0 36.3517L12.4226 36.3446Z" fill="#B8EF0D"/>
+</svg>
+        <h1 class="slide-title">Health Check &amp; Public Status</h1>
+        <div class="slide-tag">Stage 05 &middot; Detect</div>
+
+        <div class="left-statement">
+          <div class="statement-big">Real checks against the database, cache, and disk &mdash; never a fake 200 ping.</div>
+          <div class="statement-sub">
+            <b style="color:#fff;">/api/v1/health</b> runs real queries and measures latency in milliseconds.<br><br>
+            Our public <b style="color:#fff;">/status</b> page polls every 10 seconds so users and evaluators see honest live health.
+          </div>
+        </div>
+
+        <div class="right-visual" style="background:#111417;">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:22px;">
+            <div>
+              <div style="font-size:18px; color:var(--dim); letter-spacing:0.08em;">SKILIO.WORKS/STATUS</div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif; font-size:34px; font-weight:700; color:var(--white); margin-top:4px;">System Status</div>
+            </div>
+            <span class="pill pill-lime" style="font-size:22px; padding:10px 22px;">&bull; All Systems Healthy</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:18px;">
+            <div class="vis-item">
+              <div>
+                <div class="vis-item-name">PostgreSQL 18 Database</div>
+                <div class="vis-item-desc">Active SQL probe (SELECT 1)</div>
+              </div>
+              <span class="pill pill-lime">Healthy &middot; ~2 ms</span>
+            </div>
+            <div class="vis-item">
+              <div>
+                <div class="vis-item-name">Redis 8 Cache &amp; Pub/Sub</div>
+                <div class="vis-item-desc">Async PING roundtrip</div>
+              </div>
+              <span class="pill pill-lime">Healthy &middot; ~1 ms</span>
+            </div>
+            <div class="vis-item">
+              <div>
+                <div class="vis-item-name">Server Disk Capacity</div>
+                <div class="vis-item-desc">Root volume free space check</div>
+              </div>
+              <span class="pill pill-lime">Healthy &middot; &gt; 5% Free</span>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; font-size:20px; color:var(--dim); border-top:1px solid rgba(255,255,255,0.1); padding-top:18px;">
+            <span>HTTP 200 Healthy/Degraded &middot; HTTP 503 Unhealthy</span>
+            <span style="color:var(--lime);">Auto-refresh: 10s</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="slide" id="slide-7">
+      <div class="orb orb-ring-left"></div>
+      <div class="content-layer">
+        <svg viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg" class="skilio-logo">
+<path d="M12.4226 36.3446C21.7383 36.3368 24.9098 36.329 25.1011 36.3064C25.923 36.2099 26.7096 36.0349 27.4097 35.7939C28.2595 35.4993 29.2488 34.9767 29.9717 34.4392C32.3003 32.7064 33.7109 30.1851 33.9163 27.3846C33.9366 27.1233 33.9417 25.7887 33.9366 23.1098L33.9269 19.2162L33.8835 18.9751C33.6351 17.6459 33.0363 16.6516 32.062 15.9489C31.8062 15.7663 31.2151 15.4619 30.9486 15.3755C30.8116 15.3324 22.4883 13.2495 9.11445 9.91363C7.53973 9.51871 6.25047 9.19457 6.25039 9.19074C6.25547 9.1857 6.9175 9.28965 7.72668 9.42156C8.53336 9.55348 9.69801 9.74375 10.3119 9.84269C13.4599 10.3526 15.2636 10.6468 18.7591 11.2252C20.3091 11.4814 22.141 11.7831 22.831 11.8973C24.5054 12.1738 30.0786 13.0998 30.5428 13.1809C31.0247 13.2646 31.2659 13.2802 31.5499 13.2446C31.9784 13.1914 32.3945 13.0365 32.7726 12.793C32.9577 12.6712 33.3175 12.3084 33.4574 12.1029C33.6144 11.8721 33.782 11.5068 33.8609 11.2202L33.9292 10.9714L33.9366 5.48441L33.9421 0L21.4939 0.00496134C14.6505 0.0075004 9.0025 0.0128517 8.92945 0.0179298C8.69098 0.0357033 8.21899 0.106485 7.84606 0.180078C5.95109 0.55043 4.12727 1.56531 2.71684 3.03156C1.27344 4.53836 0.349922 6.49156 0.091172 8.58687C0.0176173 9.18051 0 9.51297 0 10.4161V11.3037L0.0709377 11.3545C0.147071 11.4128 1.24039 12.1611 2.19422 12.8105C3.46766 13.6781 4.51535 14.3937 6.25305 15.5834C6.78324 15.9462 7.55453 16.4737 7.96547 16.7553C8.37645 17.0369 9.15274 17.567 9.69047 17.9348C10.2283 18.3027 10.9867 18.8228 11.3773 19.0891C11.768 19.3555 12.5443 19.8881 13.1023 20.2686C14.2287 21.0373 15.0073 21.5702 16.8693 22.8463C17.5593 23.318 18.3684 23.8708 18.6653 24.0738C18.9596 24.2768 19.5889 24.7058 20.0607 25.0305C20.53 25.3527 21.2303 25.8322 21.6133 26.096C21.9964 26.3598 22.6482 26.8087 23.0591 27.0927C23.47 27.3769 24.2135 27.8892 24.7082 28.2291C26.4509 29.4315 27.0927 29.8807 27.0927 29.8985C27.0926 29.906 27.0545 29.8908 27.0115 29.863C26.6107 29.6195 20.5553 26.1516 14.7385 22.831C13.9648 22.3896 12.9373 21.8009 12.4554 21.5245C11.9734 21.2479 10.8725 20.6164 10.0075 20.1218C9.14242 19.6271 7.80789 18.8608 7.03926 18.422C3.20887 16.2277 3.44215 16.3521 3.04641 16.2735C2.75215 16.2126 2.17383 16.2329 1.90238 16.309C1.41281 16.4511 0.928204 16.7732 0.603477 17.1715C0.337188 17.5012 0.190118 17.8183 0.0557035 18.3407L0.0148833 18.5059L0.00726581 27.43L0 36.3517L12.4226 36.3446Z" fill="#B8EF0D"/>
+</svg>
+        <h1 class="slide-title">Backups &amp; Disaster Recovery</h1>
+        <div class="slide-tag">Stage 05 &middot; Protect &amp; Verify</div>
+
+        <div class="hero-left">
+          <div class="hero-stat">&lt; 5s</div>
+          <div class="hero-caption">Verified Recovery Time</div>
+          <div class="hero-sub">60s maximum target &mdash; our automated sandbox drill passes in under 5 seconds.</div>
+        </div>
+
+        <div class="hero-right">
+          <div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif; font-size:44px; font-weight:600; color:var(--lime); margin-bottom:14px;">
+              01 &middot; Automated Daily Backups
+            </div>
+            <div class="num-body">
+              Dedicated Alpine container runs every day at 02:00 UTC, compresses snapshots (.sql.gz), checks integrity, and keeps the newest 7 days.
+            </div>
+          </div>
+
+          <div style="height:2px; background:rgba(184,239,13,0.3); width:100%;"></div>
+
+          <div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif; font-size:44px; font-weight:600; color:var(--lime); margin-bottom:14px;">
+              02 &middot; Safe Sandbox Verification
+            </div>
+            <div class="num-body">
+              Running <b style="color:#fff;">make dr-test</b> creates an isolated test database, restores the latest backup, verifies every table, and cleans up without touching live data.
+            </div>
+          </div>
+        </div>
+
+        <div class="takeaway-wrap">
+          <div class="takeaway-bar"></div>
+          <div class="takeaway-text">An untested backup is not a backup &mdash; every snapshot is proven restorable.</div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="slide" id="slide-8">
+      <div class="orb orb-bottom"></div>
+      <div class="content-layer">
+        <svg viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg" class="skilio-logo">
+<path d="M12.4226 36.3446C21.7383 36.3368 24.9098 36.329 25.1011 36.3064C25.923 36.2099 26.7096 36.0349 27.4097 35.7939C28.2595 35.4993 29.2488 34.9767 29.9717 34.4392C32.3003 32.7064 33.7109 30.1851 33.9163 27.3846C33.9366 27.1233 33.9417 25.7887 33.9366 23.1098L33.9269 19.2162L33.8835 18.9751C33.6351 17.6459 33.0363 16.6516 32.062 15.9489C31.8062 15.7663 31.2151 15.4619 30.9486 15.3755C30.8116 15.3324 22.4883 13.2495 9.11445 9.91363C7.53973 9.51871 6.25047 9.19457 6.25039 9.19074C6.25547 9.1857 6.9175 9.28965 7.72668 9.42156C8.53336 9.55348 9.69801 9.74375 10.3119 9.84269C13.4599 10.3526 15.2636 10.6468 18.7591 11.2252C20.3091 11.4814 22.141 11.7831 22.831 11.8973C24.5054 12.1738 30.0786 13.0998 30.5428 13.1809C31.0247 13.2646 31.2659 13.2802 31.5499 13.2446C31.9784 13.1914 32.3945 13.0365 32.7726 12.793C32.9577 12.6712 33.3175 12.3084 33.4574 12.1029C33.6144 11.8721 33.782 11.5068 33.8609 11.2202L33.9292 10.9714L33.9366 5.48441L33.9421 0L21.4939 0.00496134C14.6505 0.0075004 9.0025 0.0128517 8.92945 0.0179298C8.69098 0.0357033 8.21899 0.106485 7.84606 0.180078C5.95109 0.55043 4.12727 1.56531 2.71684 3.03156C1.27344 4.53836 0.349922 6.49156 0.091172 8.58687C0.0176173 9.18051 0 9.51297 0 10.4161V11.3037L0.0709377 11.3545C0.147071 11.4128 1.24039 12.1611 2.19422 12.8105C3.46766 13.6781 4.51535 14.3937 6.25305 15.5834C6.78324 15.9462 7.55453 16.4737 7.96547 16.7553C8.37645 17.0369 9.15274 17.567 9.69047 17.9348C10.2283 18.3027 10.9867 18.8228 11.3773 19.0891C11.768 19.3555 12.5443 19.8881 13.1023 20.2686C14.2287 21.0373 15.0073 21.5702 16.8693 22.8463C17.5593 23.318 18.3684 23.8708 18.6653 24.0738C18.9596 24.2768 19.5889 24.7058 20.0607 25.0305C20.53 25.3527 21.2303 25.8322 21.6133 26.096C21.9964 26.3598 22.6482 26.8087 23.0591 27.0927C23.47 27.3769 24.2135 27.8892 24.7082 28.2291C26.4509 29.4315 27.0927 29.8807 27.0927 29.8985C27.0926 29.906 27.0545 29.8908 27.0115 29.863C26.6107 29.6195 20.5553 26.1516 14.7385 22.831C13.9648 22.3896 12.9373 21.8009 12.4554 21.5245C11.9734 21.2479 10.8725 20.6164 10.0075 20.1218C9.14242 19.6271 7.80789 18.8608 7.03926 18.422C3.20887 16.2277 3.44215 16.3521 3.04641 16.2735C2.75215 16.2126 2.17383 16.2329 1.90238 16.309C1.41281 16.4511 0.928204 16.7732 0.603477 17.1715C0.337188 17.5012 0.190118 17.8183 0.0557035 18.3407L0.0148833 18.5059L0.00726581 27.43L0 36.3517L12.4226 36.3446Z" fill="#B8EF0D"/>
+</svg>
+        <h1 class="slide-title">Observability: Prometheus</h1>
+        <div class="slide-tag">Stage 06 &middot; Collect</div>
+
+        <div class="flow-strip" style="justify-content:center; gap:36px;">
+          <div class="flow-box highlight" style="width:360px;">
+            <div class="flow-box-title">Prometheus Scraper</div>
+            <div class="flow-box-sub">Pulls metrics every 10s&ndash;15s</div>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box" style="width:320px;">
+            <div class="flow-box-title">FastAPI Backend</div>
+            <div class="flow-box-sub">/metrics (HTTP)</div>
+          </div>
+          <div class="flow-box" style="width:320px;">
+            <div class="flow-box-title">Postgres Exporter</div>
+            <div class="flow-box-sub">SQL Pool &amp; Locks</div>
+          </div>
+          <div class="flow-box" style="width:320px;">
+            <div class="flow-box-title">Google cAdvisor</div>
+            <div class="flow-box-sub">CPU &amp; RAM Stats</div>
+          </div>
+        </div>
+
+        <div class="num-grid-3" style="top: 430px;">
+          <div>
+            <div class="num-big">01</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">App Traffic</div>
+            <div class="num-body">Request throughput, 5xx errors, and p50 / p90 / p99 response speeds.</div>
+          </div>
+          <div>
+            <div class="num-big">02</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">Database Load</div>
+            <div class="num-body">Active SQL connections, commits, and table read/write activity.</div>
+          </div>
+          <div>
+            <div class="num-big">03</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">Container Health</div>
+            <div class="num-body">Live CPU and RAM usage per container to catch leaks early.</div>
+          </div>
+        </div>
+
+        <div class="takeaway-wrap">
+          <div class="takeaway-bar"></div>
+          <div class="takeaway-text">Pull-based monitoring controls the pace &mdash; traffic spikes never crash telemetry.</div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="slide" id="slide-9">
+      <div class="orb orb-top-right"></div>
+      <div class="content-layer">
+        <svg viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg" class="skilio-logo">
+<path d="M12.4226 36.3446C21.7383 36.3368 24.9098 36.329 25.1011 36.3064C25.923 36.2099 26.7096 36.0349 27.4097 35.7939C28.2595 35.4993 29.2488 34.9767 29.9717 34.4392C32.3003 32.7064 33.7109 30.1851 33.9163 27.3846C33.9366 27.1233 33.9417 25.7887 33.9366 23.1098L33.9269 19.2162L33.8835 18.9751C33.6351 17.6459 33.0363 16.6516 32.062 15.9489C31.8062 15.7663 31.2151 15.4619 30.9486 15.3755C30.8116 15.3324 22.4883 13.2495 9.11445 9.91363C7.53973 9.51871 6.25047 9.19457 6.25039 9.19074C6.25547 9.1857 6.9175 9.28965 7.72668 9.42156C8.53336 9.55348 9.69801 9.74375 10.3119 9.84269C13.4599 10.3526 15.2636 10.6468 18.7591 11.2252C20.3091 11.4814 22.141 11.7831 22.831 11.8973C24.5054 12.1738 30.0786 13.0998 30.5428 13.1809C31.0247 13.2646 31.2659 13.2802 31.5499 13.2446C31.9784 13.1914 32.3945 13.0365 32.7726 12.793C32.9577 12.6712 33.3175 12.3084 33.4574 12.1029C33.6144 11.8721 33.782 11.5068 33.8609 11.2202L33.9292 10.9714L33.9366 5.48441L33.9421 0L21.4939 0.00496134C14.6505 0.0075004 9.0025 0.0128517 8.92945 0.0179298C8.69098 0.0357033 8.21899 0.106485 7.84606 0.180078C5.95109 0.55043 4.12727 1.56531 2.71684 3.03156C1.27344 4.53836 0.349922 6.49156 0.091172 8.58687C0.0176173 9.18051 0 9.51297 0 10.4161V11.3037L0.0709377 11.3545C0.147071 11.4128 1.24039 12.1611 2.19422 12.8105C3.46766 13.6781 4.51535 14.3937 6.25305 15.5834C6.78324 15.9462 7.55453 16.4737 7.96547 16.7553C8.37645 17.0369 9.15274 17.567 9.69047 17.9348C10.2283 18.3027 10.9867 18.8228 11.3773 19.0891C11.768 19.3555 12.5443 19.8881 13.1023 20.2686C14.2287 21.0373 15.0073 21.5702 16.8693 22.8463C17.5593 23.318 18.3684 23.8708 18.6653 24.0738C18.9596 24.2768 19.5889 24.7058 20.0607 25.0305C20.53 25.3527 21.2303 25.8322 21.6133 26.096C21.9964 26.3598 22.6482 26.8087 23.0591 27.0927C23.47 27.3769 24.2135 27.8892 24.7082 28.2291C26.4509 29.4315 27.0927 29.8807 27.0927 29.8985C27.0926 29.906 27.0545 29.8908 27.0115 29.863C26.6107 29.6195 20.5553 26.1516 14.7385 22.831C13.9648 22.3896 12.9373 21.8009 12.4554 21.5245C11.9734 21.2479 10.8725 20.6164 10.0075 20.1218C9.14242 19.6271 7.80789 18.8608 7.03926 18.422C3.20887 16.2277 3.44215 16.3521 3.04641 16.2735C2.75215 16.2126 2.17383 16.2329 1.90238 16.309C1.41281 16.4511 0.928204 16.7732 0.603477 17.1715C0.337188 17.5012 0.190118 17.8183 0.0557035 18.3407L0.0148833 18.5059L0.00726581 27.43L0 36.3517L12.4226 36.3446Z" fill="#B8EF0D"/>
+</svg>
+        <h1 class="slide-title">Observability: Grafana &amp; Alerts</h1>
+        <div class="slide-tag">Stage 06 &middot; Visualize &amp; Alert</div>
+
+        <div class="two-col-headers">
+          <div class="col-label">3 Dashboards as Code</div>
+          <div class="col-label">4 Smart Alert Rules</div>
+        </div>
+
+        <div class="two-col-frames">
+          <div class="sharp-frame">
+            <div>
+              <div class="vis-title" style="color:var(--lime); margin-bottom:20px;">grafana.skilio.works (Protected)</div>
+              <div style="display:flex; flex-direction:column; gap:16px;">
+                <div class="vis-item">
+                  <div>
+                    <div class="vis-item-name">1. FastAPI Performance</div>
+                    <div class="vis-item-desc">Throughput, error rates &amp; tail latency</div>
+                  </div>
+                  <span class="pill pill-lime">Auto-loaded</span>
+                </div>
+                <div class="vis-item">
+                  <div>
+                    <div class="vis-item-name">2. PostgreSQL Database</div>
+                    <div class="vis-item-desc">DB size, connections &amp; commits</div>
+                  </div>
+                  <span class="pill pill-lime">Auto-loaded</span>
+                </div>
+                <div class="vis-item">
+                  <div>
+                    <div class="vis-item-name">3. Containers &amp; Host</div>
+                    <div class="vis-item-desc">RAM &amp; CPU per running service</div>
+                  </div>
+                  <span class="pill pill-lime">Auto-loaded</span>
+                </div>
+              </div>
+            </div>
+            <div class="num-body" style="font-size:23px; margin-top:20px;">
+              Version-controlled in Git &mdash; login required, internal scrapers hidden from public.
+            </div>
+          </div>
+
+          <div class="sharp-frame">
+            <div>
+              <div class="vis-title" style="color:var(--lime); margin-bottom:20px;">Anti-Flapping Alerts (1&ndash;2m Wait)</div>
+              <div style="display:flex; flex-direction:column; gap:14px;">
+                <div class="vis-item" style="padding:16px 22px;">
+                  <div class="vis-item-name">BackendDown</div>
+                  <span class="pill pill-red">Critical &middot; 1m</span>
+                </div>
+                <div class="vis-item" style="padding:16px 22px;">
+                  <div class="vis-item-name">PostgresDown</div>
+                  <span class="pill pill-red">Critical &middot; 1m</span>
+                </div>
+                <div class="vis-item" style="padding:16px 22px;">
+                  <div class="vis-item-name">HttpServerErrors (5xx)</div>
+                  <span class="pill pill-amber">Warning &middot; 1m</span>
+                </div>
+                <div class="vis-item" style="padding:16px 22px;">
+                  <div class="vis-item-name">ContainerHighMemory (&gt;700MB)</div>
+                  <span class="pill pill-amber">Warning &middot; 2m</span>
+                </div>
+              </div>
+            </div>
+            <div class="num-body" style="font-size:23px; margin-top:20px;">
+              Requires sustained failure before firing &mdash; prevents false alarms during deploys.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="slide" id="slide-10">
+      <div class="orb orb-ring-left"></div>
+      <div class="content-layer">
+        <svg viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg" class="skilio-logo">
+<path d="M12.4226 36.3446C21.7383 36.3368 24.9098 36.329 25.1011 36.3064C25.923 36.2099 26.7096 36.0349 27.4097 35.7939C28.2595 35.4993 29.2488 34.9767 29.9717 34.4392C32.3003 32.7064 33.7109 30.1851 33.9163 27.3846C33.9366 27.1233 33.9417 25.7887 33.9366 23.1098L33.9269 19.2162L33.8835 18.9751C33.6351 17.6459 33.0363 16.6516 32.062 15.9489C31.8062 15.7663 31.2151 15.4619 30.9486 15.3755C30.8116 15.3324 22.4883 13.2495 9.11445 9.91363C7.53973 9.51871 6.25047 9.19457 6.25039 9.19074C6.25547 9.1857 6.9175 9.28965 7.72668 9.42156C8.53336 9.55348 9.69801 9.74375 10.3119 9.84269C13.4599 10.3526 15.2636 10.6468 18.7591 11.2252C20.3091 11.4814 22.141 11.7831 22.831 11.8973C24.5054 12.1738 30.0786 13.0998 30.5428 13.1809C31.0247 13.2646 31.2659 13.2802 31.5499 13.2446C31.9784 13.1914 32.3945 13.0365 32.7726 12.793C32.9577 12.6712 33.3175 12.3084 33.4574 12.1029C33.6144 11.8721 33.782 11.5068 33.8609 11.2202L33.9292 10.9714L33.9366 5.48441L33.9421 0L21.4939 0.00496134C14.6505 0.0075004 9.0025 0.0128517 8.92945 0.0179298C8.69098 0.0357033 8.21899 0.106485 7.84606 0.180078C5.95109 0.55043 4.12727 1.56531 2.71684 3.03156C1.27344 4.53836 0.349922 6.49156 0.091172 8.58687C0.0176173 9.18051 0 9.51297 0 10.4161V11.3037L0.0709377 11.3545C0.147071 11.4128 1.24039 12.1611 2.19422 12.8105C3.46766 13.6781 4.51535 14.3937 6.25305 15.5834C6.78324 15.9462 7.55453 16.4737 7.96547 16.7553C8.37645 17.0369 9.15274 17.567 9.69047 17.9348C10.2283 18.3027 10.9867 18.8228 11.3773 19.0891C11.768 19.3555 12.5443 19.8881 13.1023 20.2686C14.2287 21.0373 15.0073 21.5702 16.8693 22.8463C17.5593 23.318 18.3684 23.8708 18.6653 24.0738C18.9596 24.2768 19.5889 24.7058 20.0607 25.0305C20.53 25.3527 21.2303 25.8322 21.6133 26.096C21.9964 26.3598 22.6482 26.8087 23.0591 27.0927C23.47 27.3769 24.2135 27.8892 24.7082 28.2291C26.4509 29.4315 27.0927 29.8807 27.0927 29.8985C27.0926 29.906 27.0545 29.8908 27.0115 29.863C26.6107 29.6195 20.5553 26.1516 14.7385 22.831C13.9648 22.3896 12.9373 21.8009 12.4554 21.5245C11.9734 21.2479 10.8725 20.6164 10.0075 20.1218C9.14242 19.6271 7.80789 18.8608 7.03926 18.422C3.20887 16.2277 3.44215 16.3521 3.04641 16.2735C2.75215 16.2126 2.17383 16.2329 1.90238 16.309C1.41281 16.4511 0.928204 16.7732 0.603477 17.1715C0.337188 17.5012 0.190118 17.8183 0.0557035 18.3407L0.0148833 18.5059L0.00726581 27.43L0 36.3517L12.4226 36.3446Z" fill="#B8EF0D"/>
+</svg>
+        <h1 class="slide-title">DevOps: problems solved</h1>
+        <div class="slide-tag">Wrap-up</div>
+
+        <div class="num-grid-3" style="top: 255px;">
+          <div>
+            <div class="num-big">01</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">Build crashes</div>
+            <div class="num-body">React builds ran out of memory on 2GB RAM. Solved with an automated 2GB Swap buffer.</div>
+          </div>
+          <div>
+            <div class="num-big">02</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">Server secrets</div>
+            <div class="num-body">Never stored GitHub tokens on AWS. CI pushes safely using SSH rsync only.</div>
+          </div>
+          <div>
+            <div class="num-big">03</div>
+            <div class="num-rule"></div>
+            <div class="num-heading">Silent failures</div>
+            <div class="num-body">Untested backups and quiet crashes caught by Grafana alerts &amp; our &lt;5s DR drill.</div>
+          </div>
+        </div>
+
+        <div class="demo-strip">
+          <div class="demo-label">Live Demo Next &rarr;</div>
+          <div class="demo-items">
+            <div class="demo-chip">1. skilio.works</div>
+            <div class="demo-chip">2. /status Health</div>
+            <div class="demo-chip">3. Grafana Alerts</div>
+            <div class="demo-chip">4. make dr-test (&lt; 5s)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+  </div>
+  <div class="hud">
+    <button onclick="prev()">&larr;</button>
+    <span id="counter">1 / 10</span>
+    <button onclick="next()">&rarr;</button>
+  </div>
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    let idx = 0;
+
+    function fit() {
+      const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+      slides.forEach(s => {
+        s.style.transform = `scale(${scale})`;
+        s.style.transformOrigin = 'center center';
+      });
+    }
+
+    function show(n) {
+      idx = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+      document.getElementById('counter').textContent = `${idx + 1} / ${slides.length}`;
+    }
+
+    function next() { show(idx + 1); }
+    function prev() { show(idx - 1); }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('all') === '1') {
+      document.body.classList.add('all-mode');
+      const batch = params.get('batch');
+      if (batch === '1') {
+        slides.forEach((s, i) => { if (i >= 5) s.remove(); });
+      } else if (batch === '2') {
+        slides.forEach((s, i) => { if (i < 5) s.remove(); });
+      }
+    } else if (params.get('export') === '1') {
+      document.body.classList.add('export-mode');
+      const s = parseInt(params.get('slide') || '1', 10) - 1;
+      show(s);
+    } else {
+      fit();
+      window.addEventListener('resize', fit);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') next();
+      if (e.key === 'ArrowLeft') prev();
+    });
+  </script>
+</body>
+</html>
